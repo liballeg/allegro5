@@ -37,13 +37,13 @@ variants (the latter with a `_3d` suffix), so you don't have to deal with the
 underlying matrix algebra yourself.
 
 The transformations are combined in the order of the function invocations. Thus
-to create a transformation that first rotates a point and then translates it, 
+to create a transformation that first rotates a point and then translates it,
 you would (starting with an identity transformation) call [al_rotate_transform]
 and then [al_translate_transform]. This approach is opposite of what OpenGL uses
-but similar to what Direct3D uses. 
+but similar to what Direct3D uses.
 
 For those who know the matrix algebra going behind the scenes, what the
-transformation functions in Allegro do is "pre-multiply" the successive 
+transformation functions in Allegro do is "pre-multiply" the successive
 transformations. So, for example, if you have code that does:
 
 ~~~~c
@@ -58,8 +58,8 @@ al_compose_transform(&T, &T4);
 The resultant matrix multiplication expression will look like this:
 
     T4 * T3 * T2 * T1
-    
-Since the point coordinate vector term will go on the right of that sequence of 
+
+Since the point coordinate vector term will go on the right of that sequence of
 factors, the transformation that is called first, will also be applied first.
 
 This means if you have code like this:
@@ -206,7 +206,7 @@ Since: 5.1.0
 
 ## API: al_invert_transform
 
-Inverts the passed transformation. If the transformation is nearly singular 
+Inverts the passed transformation. If the transformation is nearly singular
 (close to not having an inverse) then the returned transformation may be
 invalid. Use [al_check_inverse] to ascertain if the transformation has an
 inverse before inverting it if you are in doubt.
@@ -219,8 +219,8 @@ See also: [al_check_inverse]
 
 ## API: al_check_inverse
 
-Checks if the transformation has an inverse using the supplied tolerance. 
-Tolerance should be a small value between 0 and 1, with 1e-7 being sufficient 
+Checks if the transformation has an inverse using the supplied tolerance.
+Tolerance should be a small value between 0 and 1, with 1e-7 being sufficient
 for most applications.
 
 In this function tolerance specifies how close the determinant can be to
@@ -232,10 +232,10 @@ if you transformed a point by a transformation and then transformed it
 again by the inverse transformation that passed this check, the resultant
 point should less than 1/1000's of a pixel away from the original point.
 
-Note that this check is superfluous most of the time if 
-you never touched the transformation matrix values yourself. The only 
-thing that would cause the transformation to not have an inverse is if 
-you applied a 0 (or very small) scale to the transformation or you have 
+Note that this check is superfluous most of the time if
+you never touched the transformation matrix values yourself. The only
+thing that would cause the transformation to not have an inverse is if
+you applied a 0 (or very small) scale to the transformation or you have
 a really large translation. As long as the scale is comfortably above 0,
 the transformation will be invertible.
 
@@ -389,9 +389,42 @@ Transform x, y, z coordinates.
 * trans - Transformation to use
 * x, y, z - Pointers to the coordinates
 
+Note: If you are using a projection transform you most likely will want
+to use [al_transform_coordinates_3d_projective] instead.
+
 Since 5.1.9
 
 See also: [al_use_transform], [al_transform_coordinates]
+
+## API: al_transform_coordinates_4d
+
+Transform x, y, z, w coordinates.
+
+*Parameters:*
+
+* trans - Transformation to use
+* x, y, z, w - Pointers to the coordinates
+
+Since 5.2.4
+
+See also: [al_use_transform], [al_transform_coordinates], [al_transform_coordinates_3d]
+
+## API: al_transform_coordinates_3d_projective
+
+Transform x, y, z as homogeneous coordinates. This is the same as using
+[al_transform_coordinates_4d] with the w coordinate set to 1, then
+dividing x, y, z by the resulting w. This will provide the same
+coordinates Allegro will draw to when a projective transform is in
+effect as set with [al_use_projection_transform].
+
+*Parameters:*
+
+* trans - Transformation to use
+* x, y, z - Pointers to the coordinates
+
+Since 5.2.4
+
+See also: [al_use_transform], [al_transform_coordinates], [al_transform_coordinates_3d], [al_use_projection_transform]
 
 ## API: al_compose_transform
 
