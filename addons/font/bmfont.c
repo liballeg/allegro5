@@ -36,40 +36,43 @@ struct BMFONT_RANGE {
 };
 
 typedef struct {
-   ALLEGRO_USTR *tag;
-   ALLEGRO_USTR *attribute;
    int pages_count;
    ALLEGRO_BITMAP **pages;
    BMFONT_RANGE *range_first;
-   ALLEGRO_PATH *path;
    int base;
    int line_height;
    int flags;
 
    int kerning_pairs;
    BMFONT_KERNING *kerning;
-
-   BMFONT_CHAR *c;
 } BMFONT_DATA;
+
+typedef struct {
+   ALLEGRO_FONT *font;
+   ALLEGRO_USTR *tag;
+   ALLEGRO_USTR *attribute;
+   BMFONT_CHAR *c;
+   ALLEGRO_PATH *path;
+} BMFONT_PARSER;
 
 static void reallocate(BMFONT_RANGE *range) {
    range->characters = al_realloc(range->characters,
       range->count * sizeof *range->characters);
 }
 
-static void prepend_char(BMFONT_DATA *data, BMFONT_RANGE *range) {
+static void prepend_char(BMFONT_PARSER *parser, BMFONT_RANGE *range) {
    range->first--;
    range->count++;
    reallocate(range);
    memmove(range->characters + 1, range->characters,
       (range->count - 1) * sizeof *range->characters);
-   range->characters[0] = data->c;
+   range->characters[0] = parser->c;
 }
 
-static void append_char(BMFONT_DATA *data, BMFONT_RANGE *range) {
+static void append_char(BMFONT_PARSER *parser, BMFONT_RANGE *range) {
    range->count++;
    reallocate(range);
-   range->characters[range->count - 1] = data->c;
+   range->characters[range->count - 1] = parser->c;
 }
 
 static void combine_ranges(BMFONT_DATA *data,
@@ -85,18 +88,20 @@ static void combine_ranges(BMFONT_DATA *data,
    al_free(range2);
 }
 
-static void insert_new_range(BMFONT_DATA *data, BMFONT_RANGE *prev,
+static void insert_new_range(BMFONT_PARSER *parser, BMFONT_RANGE *prev,
       int codepoint) {
    BMFONT_RANGE *range = al_calloc(1, sizeof *range);
    range->first = codepoint;
    range->count = 1;
    reallocate(range);
-   range->characters[0] = data->c;
+   range->characters[0] = parser->c;
    if (prev) {
       range->next = prev->next;
       prev->next = range;
    }
    else {
+      ALLEGRO_FONT *font = parser->font;
+      BMFONT_DATA *data = font->data;
       range->next = data->range_first;
       data->range_first = range;
    }
@@ -106,20 +111,22 @@ static void insert_new_range(BMFONT_DATA *data, BMFONT_RANGE *prev,
  * single codepoint, appends the codepoint to the end of a range,
  * prepends it to the beginning of a range, or merges two ranges.
  */
-static void add_codepoint(BMFONT_DATA *data, int codepoint) {
+static void add_codepoint(BMFONT_PARSER *parser, int codepoint) {
+   ALLEGRO_FONT *font = parser->font;
+   BMFONT_DATA *data = font->data;
    BMFONT_RANGE *prev = NULL;
    BMFONT_RANGE *range = data->range_first;
    while (range) {
       if (codepoint == range->first - 1) {
-         prepend_char(data, range);
+         prepend_char(parser, range);
          return;
       }
       if (codepoint < range->first) {
-         insert_new_range(data, prev, codepoint);
+         insert_new_range(parser, prev, codepoint);
          return;
       }
       if (codepoint == range->first + range->count) {
-         append_char(data, range);
+         append_char(parser, range);
          BMFONT_RANGE *range2 = range->next;
          if (range2 != NULL && codepoint == range2->first - 1) {
             combine_ranges(data, range, range2);
@@ -129,7 +136,7 @@ static void add_codepoint(BMFONT_DATA *data, int codepoint) {
       prev = range;
       range = range->next;
    }
-   insert_new_range(data, prev, codepoint);
+   insert_new_range(parser, prev, codepoint);
 }
 
 static BMFONT_CHAR *find_codepoint(BMFONT_DATA *data, int codepoint) {
@@ -144,22 +151,24 @@ static BMFONT_CHAR *find_codepoint(BMFONT_DATA *data, int codepoint) {
    return NULL;
 }
 
-static void add_page(BMFONT_DATA *data, char const *filename) {
+static void add_page(BMFONT_PARSER *parser, char const *filename) {
+   ALLEGRO_FONT *font = parser->font;
+   BMFONT_DATA *data = font->data;
    data->pages_count++;
    data->pages = al_realloc(data->pages, data->pages_count *
       sizeof *data->pages);
-   al_set_path_filename(data->path, filename);
+   al_set_path_filename(parser->path, filename);
    ALLEGRO_BITMAP *page = al_load_bitmap_flags(
-      al_path_cstr(data->path, '/'), data->flags);
+      al_path_cstr(parser->path, '/'), data->flags);
    data->pages[data->pages_count - 1] = page;
 }
 
-static bool tag_is(BMFONT_DATA *data, char const *str) {
-   return strcmp(al_cstr(data->tag), str) == 0;
+static bool tag_is(BMFONT_PARSER *parser, char const *str) {
+   return strcmp(al_cstr(parser->tag), str) == 0;
 }
 
-static bool attribute_is(BMFONT_DATA *data, char const *str) {
-   return strcmp(al_cstr(data->attribute), str) == 0;
+static bool attribute_is(BMFONT_PARSER *parser, char const *str) {
+   return strcmp(al_cstr(parser->attribute), str) == 0;
 }
 
 static int get_int(char const *value) {
@@ -168,51 +177,52 @@ static int get_int(char const *value) {
 
 static int xml_callback(XmlState state, char const *value, void *u)
 {
-   ALLEGRO_FONT *font = u;
+   BMFONT_PARSER *parser = u;
+   ALLEGRO_FONT *font = parser->font;
    BMFONT_DATA *data = font->data;
    if (state == ElementName) {
-      al_ustr_assign_cstr(data->tag, value);
-      if (tag_is(data, "char")) {
-         data->c = al_calloc(1, sizeof *data->c);
+      al_ustr_assign_cstr(parser->tag, value);
+      if (tag_is(parser, "char")) {
+         parser->c = al_calloc(1, sizeof *parser->c);
       }
-      else if (tag_is(data, "kerning")) {
+      else if (tag_is(parser, "kerning")) {
          data->kerning_pairs++;
          data->kerning = al_realloc(data->kerning, data->kerning_pairs *
             sizeof *data->kerning);
       }
    }
    if (state == AttributeName) {
-      al_ustr_assign_cstr(data->attribute, value);
+      al_ustr_assign_cstr(parser->attribute, value);
    }
    if (state == AttributeValue) {
-      if (tag_is(data, "char")) {
-         if (attribute_is(data, "x")) data->c->x = get_int(value);
-         else if (attribute_is(data, "y")) data->c->y = get_int(value);
-         else if (attribute_is(data, "xoffset")) data->c->xoffset = get_int(value);
-         else if (attribute_is(data, "yoffset")) data->c->yoffset = get_int(value);
-         else if (attribute_is(data, "width")) data->c->width = get_int(value);
-         else if (attribute_is(data, "height")) data->c->height = get_int(value);
-         else if (attribute_is(data, "page")) data->c->page = get_int(value);
-         else if (attribute_is(data, "xadvance")) data->c->xadvance = get_int(value);
-         else if (attribute_is(data, "chnl")) data->c->chnl = get_int(value);
-         else if (attribute_is(data, "id")) {
-            add_codepoint(data, get_int(value));
+      if (tag_is(parser, "char")) {
+         if (attribute_is(parser, "x")) parser->c->x = get_int(value);
+         else if (attribute_is(parser, "y")) parser->c->y = get_int(value);
+         else if (attribute_is(parser, "xoffset")) parser->c->xoffset = get_int(value);
+         else if (attribute_is(parser, "yoffset")) parser->c->yoffset = get_int(value);
+         else if (attribute_is(parser, "width")) parser->c->width = get_int(value);
+         else if (attribute_is(parser, "height")) parser->c->height = get_int(value);
+         else if (attribute_is(parser, "page")) parser->c->page = get_int(value);
+         else if (attribute_is(parser, "xadvance")) parser->c->xadvance = get_int(value);
+         else if (attribute_is(parser, "chnl")) parser->c->chnl = get_int(value);
+         else if (attribute_is(parser, "id")) {
+            add_codepoint(parser, get_int(value));
          }
       }
-      else if (tag_is(data, "page")) {
-         if (attribute_is(data, "file")) {
-            add_page(data, value);
+      else if (tag_is(parser, "page")) {
+         if (attribute_is(parser, "file")) {
+            add_page(parser, value);
          }
       }
-      else if (tag_is(data, "common")) {
-         if (attribute_is(data, "lineHeight")) data->line_height = get_int(value);
-         else if (attribute_is(data, "base")) data->base = get_int(value);
+      else if (tag_is(parser, "common")) {
+         if (attribute_is(parser, "lineHeight")) data->line_height = get_int(value);
+         else if (attribute_is(parser, "base")) data->base = get_int(value);
       }
-      else if (tag_is(data, "kerning")) {
+      else if (tag_is(parser, "kerning")) {
          BMFONT_KERNING *k = data->kerning + data->kerning_pairs - 1;
-         if (attribute_is(data, "first")) k->first = get_int(value);
-         else if (attribute_is(data, "second")) k->second = get_int(value);
-         else if (attribute_is(data, "amount")) k->amount = get_int(value);
+         if (attribute_is(parser, "first")) k->first = get_int(value);
+         else if (attribute_is(parser, "second")) k->second = get_int(value);
+         else if (attribute_is(parser, "amount")) k->amount = get_int(value);
       }
    }
    return 0;
@@ -469,16 +479,19 @@ ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename, int size,
    }
 
    BMFONT_DATA *data = al_calloc(1, sizeof *data);
-   data->tag = al_ustr_new("");
-   data->attribute = al_ustr_new("");
-   data->path = al_create_path(filename);
+   BMFONT_PARSER _parser;
+   BMFONT_PARSER *parser = &_parser;
+   parser->tag = al_ustr_new("");
+   parser->attribute = al_ustr_new("");
+   parser->path = al_create_path(filename);
    data->flags = font_flags;
 
    ALLEGRO_FONT *font = al_calloc(1, sizeof *font);
    font->vtable = &_al_font_vtable_xml;
    font->data = data;
+   parser->font = font;
 
-   _al_xml_parse(f, xml_callback, font);
+   _al_xml_parse(f, xml_callback, parser);
 
    int i;
    for (i = 0; i < data->kerning_pairs; i++) {
@@ -490,9 +503,9 @@ ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename, int size,
       c->kerning[c->kerning_pairs - 1] = *k;
    }
 
-   al_ustr_free(data->tag);
-   al_ustr_free(data->attribute);
-   al_destroy_path(data->path);
+   al_ustr_free(parser->tag);
+   al_ustr_free(parser->attribute);
+   al_destroy_path(parser->path);
    
    return font;
 }
