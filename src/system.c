@@ -228,6 +228,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       return false;
 
    _al_tls_init_once();
+   _al_reinitialize_tls_values();
 
    _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
