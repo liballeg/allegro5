@@ -172,7 +172,7 @@ static bool attribute_is(BMFONT_PARSER *parser, char const *str) {
 }
 
 static int get_int(char const *value) {
-   return strtol(value, NULL, 0);
+   return strtol(value, NULL, 10);
 }
 
 static int xml_callback(XmlState state, char const *value, void *u)
@@ -333,7 +333,7 @@ static int get_glyph_advance(const ALLEGRO_FONT *f,
    return c->xadvance + get_kerning(prev, codepoint2);
 }
 
-static bool get_glyph (const ALLEGRO_FONT *f, int prev_codepoint,
+static bool get_glyph(const ALLEGRO_FONT *f, int prev_codepoint,
       int codepoint, ALLEGRO_GLYPH *glyph) {
    BMFONT_DATA *data = f->data;
    BMFONT_CHAR *prev = find_codepoint(data, prev_codepoint);
