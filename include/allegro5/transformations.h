@@ -34,7 +34,7 @@ AL_FUNC(void, al_scale_transform_3d, (ALLEGRO_TRANSFORM *trans, float sx, float 
 AL_FUNC(void, al_transform_coordinates, (const ALLEGRO_TRANSFORM* trans, float* x, float* y));
 AL_FUNC(void, al_transform_coordinates_3d, (const ALLEGRO_TRANSFORM *trans,
    float *x, float *y, float *z));
-   AL_FUNC(void, al_transform_coordinates_4d, (const ALLEGRO_TRANSFORM *trans,
+AL_FUNC(void, al_transform_coordinates_4d, (const ALLEGRO_TRANSFORM *trans,
    float *x, float *y, float *z, float *w));
 AL_FUNC(void, al_transform_coordinates_3d_projective, (const ALLEGRO_TRANSFORM *trans,
    float *x, float *y, float *z));
