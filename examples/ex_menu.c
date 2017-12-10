@@ -61,7 +61,6 @@ int main(int argc, char **argv)
 {
    const int initial_width = 320;
    const int initial_height = 200;
-   int windows_menu_height = 0;
    int dcount = 0;
 
    ALLEGRO_DISPLAY *display;
@@ -235,10 +234,7 @@ int main(int argc, char **argv)
                   w = 960;
                if (h > 600)
                   h = 600;
-               if (menu_visible)
-                  al_resize_display(display, w, h + windows_menu_height);
-               else
-                  al_resize_display(display, w, h);
+               al_resize_display(display, w, h);
             }
             else if (event.user.data1 == FILE_FULLSCREEN_ID) {
                int flags = al_get_display_flags(display);
