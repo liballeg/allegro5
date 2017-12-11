@@ -330,6 +330,29 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 	return col;
 }
 #else
+/* _get_matching_services:
+ * get iterator for corresponding services
+ */
+static IOReturn _get_matching_services(mach_port_t master_port, int usage_page, int usage, io_iterator_t *hid_object_iterator)
+{
+   CFMutableDictionaryRef class_dictionary = NULL;
+   CFNumberRef usage_ref = NULL;
+   CFNumberRef usage_page_ref = NULL;
+
+   class_dictionary = IOServiceMatching(kIOHIDDeviceKey);
+   if (class_dictionary) {
+   /* Add key for device type to refine the matching dictionary. */
+   usage_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage);
+   usage_page_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage_page);
+   CFDictionarySetValue(class_dictionary, CFSTR(kIOHIDDeviceUsageKey), usage_ref);
+   CFDictionarySetValue(class_dictionary, CFSTR(kIOHIDDeviceUsagePageKey), usage_page_ref);
+   }
+   IOReturn result = IOServiceGetMatchingServices(master_port, class_dictionary, hid_object_iterator);
+   if (usage_ref) CFRelease(usage_ref);
+   if (usage_page_ref) CFRelease(usage_page_ref);
+   return result;
+}
+
 /* _al_osx_hid_scan:
 * Scan the hid manager for devices of type 'type',
 * and append to the collection col
@@ -344,7 +367,6 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 	CFMutableDictionaryRef class_dictionary = NULL;
 	int usage, usage_page;
 	CFTypeRef type_ref;
-	CFNumberRef usage_ref = NULL, usage_page_ref = NULL;
 	CFMutableDictionaryRef properties = NULL, usb_properties = NULL;
 	IOCFPlugInInterface **plugin_interface = NULL;
 	IOReturn result;
@@ -367,15 +389,11 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 	
 	result = IOMasterPort(bootstrap_port, &master_port);
 	if (result == kIOReturnSuccess) {
-		class_dictionary = IOServiceMatching(kIOHIDDeviceKey);
-		if (class_dictionary) {
-			/* Add key for device type to refine the matching dictionary. */
-			usage_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage);
-			usage_page_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &usage_page);
-			CFDictionarySetValue(class_dictionary, CFSTR(kIOHIDPrimaryUsageKey), usage_ref);
-			CFDictionarySetValue(class_dictionary, CFSTR(kIOHIDPrimaryUsagePageKey), usage_page_ref);
+		result = _get_matching_services(master_port, usage_page, usage, &hid_object_iterator);
+		if ((type == HID_MOUSE) && (hid_object_iterator == NULL)) {
+			/* in case of a mouse, GD_Mouse must not be true but can also be a pointing device */
+			result = _get_matching_services(master_port, usage_page, kHIDUsage_GD_Pointer, &hid_object_iterator);
 		}
-		result = IOServiceGetMatchingServices(master_port, class_dictionary, &hid_object_iterator);
 		if ((result == kIOReturnSuccess) && (hid_object_iterator)) {
 			/* Ok, we have a list of attached HID devices; scan them. */
 			while ((hid_device = IOIteratorNext(hid_object_iterator))!=0) {
@@ -450,8 +468,6 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 			}
 			IOObjectRelease(hid_object_iterator);
 		}
-		if (usage_ref) CFRelease(usage_ref);
-		if (usage_page_ref) CFRelease(usage_page_ref);
 		mach_port_deallocate(mach_task_self(), master_port);
 	}
 	

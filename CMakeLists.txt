@@ -42,7 +42,7 @@ option(WANT_GLES3 "Compile with GLES3 support" OFF)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented for MSVC)" OFF)
 
-set(ALLEGRO_VERSION 5.2.3)
+set(ALLEGRO_VERSION 5.2.4)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
@@ -105,6 +105,8 @@ option(WANT_EMBED
 set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
     "Directory in which to install Mac OS X frameworks")
 
+option(PREFER_STATIC_DEPS "Whether to prefer static dependencies." off)
+
 #
 # Platforms and drivers.
 #
@@ -118,7 +120,6 @@ option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 option(WANT_SHADERS_GL "Build GLSL shader support (OpenGL)" on)
 option(WANT_SHADERS_D3D "Build HLSL shader support (Direct3D)" on)
-option(WANT_OPENGL_S3TC_LOCKING "Whether to support blocked locking of DXT1, DXT2, and DXT3 formats in OpenGL." off)
 
 #
 # Addons.
@@ -132,6 +133,7 @@ if (NOT IPHONE)
     option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
     option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
 endif (NOT IPHONE)
+option(WANT_IMAGE_WEBP "Enable WebP support in image addon" on)
 
 option(WANT_TTF "Enable TTF addon" on)
 option(WANT_COLOR "Enable color addon" on)
@@ -484,6 +486,10 @@ check_function_exists(fseeko ALLEGRO_HAVE_FSEEKO)
 check_function_exists(ftello ALLEGRO_HAVE_FTELLO)
 check_function_exists(strerror_r ALLEGRO_HAVE_STRERROR_R)
 check_function_exists(strerror_s ALLEGRO_HAVE_STRERROR_S)
+if(WIN32)
+    check_function_exists(_ftelli64 ALLEGRO_HAVE_FTELLI64)
+    check_function_exists(_fseeki64 ALLEGRO_HAVE_FSEEKI64)
+endif()
 
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
@@ -544,6 +550,12 @@ run_c_compile_test("
 # generally that's just due to sloppiness.
 #
 
+if(PREFER_STATIC_DEPS)
+   set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                                   "${CMAKE_SHARED_LIBRARY_SUFFIX}"
+                                   "${CMAKE_SHARED_MODULE_SUFFIX}")
+endif()
+
 if(WANT_OPENGL)
     find_package(OpenGL)
     if(ANDROID)
@@ -580,13 +592,6 @@ if(WANT_OPENGL)
         set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
     endif()
 endif(WANT_OPENGL)
-
-if(WANT_OPENGL_S3TC_LOCKING)
-    set(ALLEGRO_CFG_OPENGL_S3TC_LOCKING 1)
-else()
-    message("S3TC locking disabled. You will not be able to load/save "
-            "pre-compressed textures with OpenGL.")
-endif()
 
 #
 # Unix-specific
@@ -634,6 +639,13 @@ if(SUPPORT_X11)
     else(CAN_XCURSOR)
         message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
+
+    check_library_exists(Xpm XpmCreatePixmapFromData "" CAN_XPM)
+    if(CAN_XPM)
+        set(ALLEGRO_XWINDOWS_WITH_XPM 1)
+        find_library(XPM_LIB "Xpm")
+        list(APPEND X11_LIBRARIES "${XPM_LIB}")
+    endif(CAN_XPM)
 
     check_include_file("X11/extensions/XInput2.h" CAN_XINPUT2)
     run_c_compile_test("
@@ -865,7 +877,7 @@ endforeach(genfile)
 
 if(ALLEGRO_SDL)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_SDL_FILES})
-    list(APPEND PLATFORM_LIBS ${SDL2_LIBRARIES} pthread dl m)
+    list(APPEND PLATFORM_LIBS ${SDL2_LIBRARY} dl m)
     include_directories(${SDL2_INCLUDE_DIR})
 endif(ALLEGRO_SDL)
 

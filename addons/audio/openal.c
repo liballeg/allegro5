@@ -273,6 +273,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
    ex_data->buffers = al_malloc(sizeof(ALuint) * ex_data->num_buffers);
    if (!ex_data->buffers) {
+      alSourcei(ex_data->source, AL_BUFFER, 0);
       alDeleteSources(1, &ex_data->source);
       ALLEGRO_ERROR("Could not allocate voice buffer memory\n");
       return 1;
@@ -280,6 +281,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
    alGenBuffers(ex_data->num_buffers, ex_data->buffers);
    if ((openal_err = alGetError()) != AL_NO_ERROR) {
+      alSourcei(ex_data->source, AL_BUFFER, 0);
       alDeleteSources(1, &ex_data->source);
       al_free(ex_data->buffers);
       ex_data->buffers = NULL;
@@ -303,6 +305,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
    alSourcef(ex_data->source, AL_GAIN, 1.0f);
 
    if ((openal_err = alGetError()) != AL_NO_ERROR) {
+      alSourcei(ex_data->source, AL_BUFFER, 0);
       alDeleteSources(1, &ex_data->source);
       alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
       al_free(ex_data->buffers);
@@ -321,6 +324,7 @@ static void _openal_unload_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
+   alSourcei(ex_data->source, AL_BUFFER, 0);
    alDeleteSources(1, &ex_data->source);
    alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
    al_free(ex_data->buffers);
@@ -378,12 +382,14 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
 
       ex_data->buffers = al_malloc(sizeof(ALuint) * ex_data->num_buffers);
       if (!ex_data->buffers) {
+         alSourcei(ex_data->source, AL_BUFFER, 0);
          alDeleteSources(1, &ex_data->source);
          return 1;
       }
 
       alGenBuffers(ex_data->num_buffers, ex_data->buffers);
       if (alGetError() != AL_NO_ERROR) {
+         alSourcei(ex_data->source, AL_BUFFER, 0);
          alDeleteSources(1, &ex_data->source);
          al_free(ex_data->buffers);
          ex_data->buffers = NULL;
@@ -392,6 +398,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
 
       alSourcef(ex_data->source, AL_GAIN, 1.0f);
       if (alGetError() != AL_NO_ERROR) {
+         alSourcei(ex_data->source, AL_BUFFER, 0);
          alDeleteSources(1, &ex_data->source);
          alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
          al_free(ex_data->buffers);
@@ -440,11 +447,13 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
       ex_data->thread = NULL;
       ex_data->stopped = false;
    }
-
+   
+   alSourcei(ex_data->source, AL_BUFFER, 0);
+   alDeleteSources(1, &ex_data->source);
    alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
    al_free(ex_data->buffers);
    ex_data->buffers = NULL;
-   alDeleteSources(1, &ex_data->source);
+   
    alGetError(); /* required! */
    return 0;
 }

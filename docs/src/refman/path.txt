@@ -236,6 +236,8 @@ The returned pointer is valid only until the path is modified in any way,
 or until the path is destroyed.  This returns an ALLEGRO_USTR.  If you need
 a null-terminated string instead, use [al_path_cstr].
 
+Since: 5.2.3
+
 See also: [al_path_cstr]
 
 ## API: al_make_path_canonical

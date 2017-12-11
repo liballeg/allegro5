@@ -169,3 +169,14 @@ These functions are declared in the following header file:
 Retrieves the XID associated with the Allegro display.
 
 Since: 5.1.12
+
+### API: al_x_set_initial_icon
+
+On some window managers (notably Ubuntu's Unity) al_set_display_icon
+doesn't work and you need to use a .desktop file. But with this function
+you can set an icon before calling al_create_display. This works
+by setting the icon before XMapWindow.
+
+Since: 5.2.3
+
+> *[Unstable API]:* New API.

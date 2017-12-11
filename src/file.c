@@ -101,7 +101,7 @@ bool al_fclose(ALLEGRO_FILE *f)
 size_t al_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 {
    ASSERT(f);
-   ASSERT(ptr);
+   ASSERT(ptr || size == 0);
 
    if (f->ungetc_len) {
       int bytes_ungetc = 0;
@@ -126,7 +126,7 @@ size_t al_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 size_t al_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
 {
    ASSERT(f);
-   ASSERT(ptr);
+   ASSERT(ptr || size == 0);
 
    f->ungetc_len = 0;
    return f->vtable->fi_fwrite(f, ptr, size);

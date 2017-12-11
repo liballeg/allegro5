@@ -18,6 +18,12 @@
 #include <X11/extensions/XInput2.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
+#include <X11/xpm.h>
+#endif
+
+#include "xicon.h"
+
 ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
@@ -425,7 +431,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       }
    }
 
-   if (display->flags & ALLEGRO_MAXIMIZED) {
+   if (flags & ALLEGRO_MAXIMIZED) {
       _al_xwin_maximize(display, true);
    }
 
@@ -492,6 +498,27 @@ LateError:
    return NULL;
 }
 
+static void set_initial_icon(Display *x11display, Window window)
+{
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
+   XWMHints *wm_hints;
+
+   if (x11_xpm == NULL)
+      return;
+
+   wm_hints = XAllocWMHints();
+
+   wm_hints->flags |= IconPixmapHint | IconMaskHint;
+   XpmCreatePixmapFromData(x11display, window, x11_xpm,
+      &wm_hints->icon_pixmap, &wm_hints->icon_mask, NULL);
+
+   XSetWMHints(x11display, window, wm_hints);
+   XFree(wm_hints);
+#else
+   (void)x11display;
+   (void)window;
+#endif
+}
 
 static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
    int w, int h)
@@ -500,6 +527,8 @@ static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
    (void)w;
    (void)h;
+
+   set_initial_icon(system->x11display, d->window);
 
    XLockDisplay(system->x11display);
 
@@ -1213,29 +1242,6 @@ static bool xdpy_set_window_constraints_default(ALLEGRO_DISPLAY *display,
    glx->display.max_w = max_w;
    glx->display.max_h = max_h;
 
-   int w = glx->display.w;
-   int h = glx->display.h;
-   int posX;
-   int posY;
-
-   if (min_w > 0 && w < min_w) {
-      w = min_w;
-   }
-   if (min_h > 0 && h < min_h) {
-      h = min_h;
-   }
-   if (max_w > 0 && w > max_w) {
-      w = max_w;
-   }
-   if (max_h > 0 && h > max_h) {
-      h = max_h;
-   }
-
-   al_get_window_position(display, &posX, &posY);
-   _al_xwin_set_size_hints(display, posX, posY);
-   /* Resize the display to its current size so constraints take effect. */
-   al_resize_display(display, w, h);
-
    return true;
 }
 
@@ -1260,6 +1266,28 @@ static bool xdpy_get_window_constraints(ALLEGRO_DISPLAY *display,
    *max_h = glx->display.max_h;
 
    return true;
+}
+
+
+static void xdpy_apply_window_constraints(ALLEGRO_DISPLAY *display,
+   bool onoff)
+{
+   int posX;
+   int posY;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+
+   _al_mutex_lock(&system->lock);
+
+   if (onoff) {
+      al_get_window_position(display, &posX, &posY);
+      _al_xwin_set_size_hints(display, posX, posY);
+   }
+   else {
+      _al_xwin_reset_size_hints(display);
+   }
+
+   _al_mutex_unlock(&system->lock);
+   al_resize_display(display, display->w, display->h);
 }
 
 
@@ -1346,6 +1374,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.get_window_position = xdpy_get_window_position;
    xdpy_vt.set_window_constraints = xdpy_set_window_constraints;
    xdpy_vt.get_window_constraints = xdpy_get_window_constraints;
+   xdpy_vt.apply_window_constraints = xdpy_apply_window_constraints;
    xdpy_vt.set_display_flag = xdpy_set_display_flag;
    xdpy_vt.wait_for_vsync = xdpy_wait_for_vsync;
    xdpy_vt.update_render_state = _al_ogl_update_render_state;

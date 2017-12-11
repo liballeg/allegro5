@@ -52,11 +52,6 @@ ALLEGRO_DEBUG_CHANNEL("ljoy");
 #include "allegro5/internal/aintern_ljoynu.h"
 
 
-#ifdef ALLEGRO_ANDROID
-#define KEY_CNT (KEY_MAX+1)
-#define ABS_CNT (ABS_MAX+1)
-#endif
-
 
 #define LONG_BITS    (sizeof(long) * 8)
 #define NLONGS(x)    (((x) + LONG_BITS - 1) / LONG_BITS)

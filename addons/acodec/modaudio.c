@@ -4,6 +4,7 @@
  */
 
 
+#define _FILE_OFFSET_BITS 64
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
@@ -22,8 +23,14 @@
 
 ALLEGRO_DEBUG_CHANNEL("acodec")
 
+/* In addition to DUMB 0.9.3 at http://dumb.sourceforge.net/,
+ * we support kode54's fork of DUMB at https://github.com/kode54/dumb.
+ * The newest version before kode54's fork was DUMB 0.9.3, and the first
+ * forked version that A5 supports is already 2.0.0.
+ */
 
 /* forward declarations */
+static bool init_libdumb(void);
 static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size);
 static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream);
@@ -53,27 +60,58 @@ static bool libdumb_loaded = false;
 static void *dumb_dll = NULL;
 #endif
 
+/*
+ * dumb_off_t is introduced in DUMB 2.0, it's a signed 64+ bit integer.
+ * dumb_ssize_t is a platform-independent signed size_t.
+ * DUMB 0.9.3 expects long wherever dumb_off_t or dumb_ssize_t appear.
+ *
+ * _al_dumb_size_t takes care of another, less documented, difference
+ * between the versions.
+ */
+#if (DUMB_MAJOR_VERSION) < 2
+typedef long dumb_off_t;
+typedef long dumb_ssize_t;
+typedef long _al_dumb_size_t;
+#else
+typedef size_t _al_dumb_size_t;
+#endif
+
 static struct
 {
-   long (*duh_render)(DUH_SIGRENDERER *, int, int, float, float, long, void *);
    long (*duh_sigrenderer_get_position)(DUH_SIGRENDERER *);
    void (*duh_end_sigrenderer)(DUH_SIGRENDERER *);
    void (*unload_duh)(DUH *);
    DUH_SIGRENDERER *(*duh_start_sigrenderer)(DUH *, int, int, long);
-   DUMBFILE *(*dumbfile_open_ex)(void *, DUMBFILE_SYSTEM *);
-   long (*duh_get_length)(DUH *);
+   dumb_off_t (*duh_get_length)(DUH *);
    void (*dumb_exit)(void);
-   void (*register_dumbfile_system)(DUMBFILE_SYSTEM *);
-   DUH *(*dumb_read_it)(DUMBFILE *);
-   DUH *(*dumb_read_xm)(DUMBFILE *);
-   DUH *(*dumb_read_s3m)(DUMBFILE *);
-   DUH *(*dumb_read_mod)(DUMBFILE *);
    DUMB_IT_SIGRENDERER *(*duh_get_it_sigrenderer)(DUH_SIGRENDERER *);
    void (*dumb_it_set_loop_callback)(DUMB_IT_SIGRENDERER *, int (*)(void *), void *);
    void (*dumb_it_set_xm_speed_zero_callback)(DUMB_IT_SIGRENDERER *, int (*)(void *), void *);
    int (*dumb_it_callback_terminate)(void *);
-} lib;
 
+#if (DUMB_MAJOR_VERSION) >= 2
+   /*
+    * DUMB 2.0 deprecates duh_render, and suggests instead duh_render_int
+    * and duh_render_float. But I (Simon N.) don't know how to use those.
+    * I have already written some documentation for DUMB 2.0 that got merged
+    * upstream, but I haven't gotten around to this issue yet.
+    */
+   long (*duh_render)(DUH_SIGRENDERER *,
+      int, int, float, float, long, void *); /* deprecated */
+   void (*register_dumbfile_system)(const DUMBFILE_SYSTEM *);
+   DUMBFILE *(*dumbfile_open_ex)(void *, const DUMBFILE_SYSTEM *);
+   DUH *(*dumb_read_any)(DUMBFILE *, int, int);
+#else
+   long (*duh_render)(DUH_SIGRENDERER *,
+      int, int, float, float, long, void *);
+   void (*register_dumbfile_system)(DUMBFILE_SYSTEM *);
+   DUMBFILE *(*dumbfile_open_ex)(void *, DUMBFILE_SYSTEM *);
+   DUH *(*dumb_read_mod)(DUMBFILE *);
+   DUH *(*dumb_read_it)(DUMBFILE *);
+   DUH *(*dumb_read_xm)(DUMBFILE *);
+   DUH *(*dumb_read_s3m)(DUMBFILE *);
+#endif
+} lib;
 
 /* Set up DUMB's file system */
 static DUMBFILE_SYSTEM dfs, dfs_f;
@@ -83,7 +121,7 @@ static void *dfs_open(const char *filename)
    return al_fopen(filename, "rb");
 }
 
-static int dfs_skip(void *f, long n)
+static int dfs_skip(void *f, dumb_off_t n)
 {
    return al_fseek(f, n, ALLEGRO_SEEK_CUR) ? 0 : -1;
 }
@@ -93,7 +131,7 @@ static int dfs_getc(void *f)
    return al_fgetc(f);
 }
 
-static long dfs_getnc(char *ptr, long n, void *f)
+static dumb_ssize_t dfs_getnc(char *ptr, _al_dumb_size_t n, void *f)
 {
    return al_fread(f, ptr, n);
 }
@@ -104,6 +142,17 @@ static void dfs_close(void *f)
    (void)f;
 }
 
+#if (DUMB_MAJOR_VERSION) >= 2
+static int dfs_seek(void *f, dumb_off_t n)
+{
+   return al_fseek(f, n, ALLEGRO_SEEK_SET) ? 0 : -1;
+}
+
+static dumb_off_t dfs_get_size(void *f)
+{
+   return al_fsize(f);
+}
+#endif
 
 /* Stream Functions */
 
@@ -111,7 +160,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    MOD_FILE *const df = stream->extra;
-   
+
    /* the mod files are stereo and 16-bit */
    const int sample_size = 4;
    size_t written;
@@ -120,23 +169,23 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    DUMB_IT_SIGRENDERER *it_sig = lib.duh_get_it_sigrenderer(df->sig);
    if (it_sig) {
       lib.dumb_it_set_loop_callback(it_sig,
-                                stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
-                                ? lib.dumb_it_callback_terminate : NULL, NULL);
+         stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
+         ? lib.dumb_it_callback_terminate : NULL, NULL);
    }
-   
+
    written = lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
       buf_size / sample_size, data) * sample_size;
 
    /* Fill the remainder with silence */
    for (i = written; i < buf_size; ++i)
       ((char *)data)[i] = 0;
-   
+
    /* Check to see if a loop is set */
-   if (df->loop_start != -1 && 
+   if (df->loop_start != -1 &&
       df->loop_end < lib.duh_sigrenderer_get_position(df->sig)) {
          modaudio_stream_seek(stream, df->loop_start / 65536.0);
    }
-   
+
    return written;
 }
 
@@ -144,7 +193,7 @@ static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    _al_acodec_stop_feed_thread(stream);
-      
+
    lib.duh_end_sigrenderer(df->sig);
    lib.unload_duh(df->duh);
    if (df->fh)
@@ -162,11 +211,11 @@ static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    MOD_FILE *const df = stream->extra;
-   
+
    lib.duh_end_sigrenderer(df->sig);
    df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, time * 65536);
-   
-   return false;
+
+   return true;
 }
 
 static double modaudio_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
@@ -185,17 +234,20 @@ static bool modaudio_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
    double start, double end)
 {
    MOD_FILE *const df = stream->extra;
-   
+
    df->loop_start = start * 65536;
    df->loop_end = end * 65536;
-   
+
    return true;
 }
 
-/* Create the Allegro stream */
-
-static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
-   size_t buffer_count, unsigned int samples, DUH *(loader)(DUMBFILE *))
+static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
+   size_t buffer_count, unsigned int samples
+#if (DUMB_MAJOR_VERSION) < 2
+   /* For DUMB 0.9.3, we must choose a loader function ourselves. */
+   , DUH *(loader)(DUMBFILE *)
+#endif
+)
 {
    ALLEGRO_AUDIO_STREAM *stream;
    DUMBFILE *df;
@@ -203,14 +255,28 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    DUH *duh = NULL;
    DUMB_IT_SIGRENDERER *it_sig = NULL;
    int64_t start_pos = -1;
-   
+
    df = lib.dumbfile_open_ex(f, &dfs_f);
    if (!df)
       return NULL;
-      
+
    start_pos = al_ftell(f);
 
+#if (DUMB_MAJOR_VERSION) >= 2
+   /*
+    * DUMB 2.0 introduces dumb_read_any. It takes two extra int arguments.
+    *
+    * The first int, restrict_, changes how a MOD module is interpreted.
+    * int restrict_ is a two-bit bitfield, and 0 is a good default.
+    * For discussion, see: https://github.com/kode54/dumb/issues/53
+    *
+    * The second int, subsong, matters only for very few formats.
+    * A5 doesn't allow to choose a subsong from the 5.2 API anyway, thus 0.
+    */
+   duh = lib.dumb_read_any(df, 0, 0);
+#else
    duh = loader(df);
+#endif
    if (!duh) {
       goto Error;
    }
@@ -227,7 +293,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    }
 
    stream = al_create_audio_stream(buffer_count, samples, 44100,
-      ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2); 
+      ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
 
    if (stream) {
       MOD_FILE *mf = al_malloc(sizeof(MOD_FILE));
@@ -318,7 +384,7 @@ static bool init_libdumb(void)
 
    memset(&lib, 0, sizeof(lib));
 
-   INITSYM(duh_render);
+   INITSYM(duh_render); /* see comment on duh_render deprecation above */
    INITSYM(duh_sigrenderer_get_position);
    INITSYM(duh_end_sigrenderer);
    INITSYM(unload_duh);
@@ -327,10 +393,6 @@ static bool init_libdumb(void)
    INITSYM(duh_get_length);
    INITSYM(dumb_exit);
    INITSYM(register_dumbfile_system);
-   INITSYM(dumb_read_it);
-   INITSYM(dumb_read_xm);
-   INITSYM(dumb_read_s3m);
-   INITSYM(dumb_read_mod);
    INITSYM(duh_get_it_sigrenderer);
    INITSYM(dumb_it_set_loop_callback);
    INITSYM(dumb_it_set_xm_speed_zero_callback);
@@ -341,10 +403,22 @@ static bool init_libdumb(void)
    dfs.getc = dfs_getc;
    dfs.getnc = dfs_getnc;
    dfs.close = dfs_close;
-   
+
+#if (DUMB_MAJOR_VERSION) >= 2
+   INITSYM(dumb_read_any);
+
+   dfs.seek = dfs_seek;
+   dfs.get_size = dfs_get_size;
+#else
+   INITSYM(dumb_read_it);
+   INITSYM(dumb_read_xm);
+   INITSYM(dumb_read_s3m);
+   INITSYM(dumb_read_mod);
+#endif
+
    /* Set up DUMB's default I/O to go through Allegro... */
    lib.register_dumbfile_system(&dfs);
-   
+
    /* But we'll actually use them through this version: */
    dfs_f = dfs;
    dfs_f.open = NULL;
@@ -354,18 +428,32 @@ static bool init_libdumb(void)
    return true;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
+#if (DUMB_MAJOR_VERSION) >= 2
+
+static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream_f(ALLEGRO_FILE *f,
+   size_t buffer_count, unsigned int samples)
+{
+   if (!init_libdumb())
+      return NULL;
+   return modaudio_stream_init(f, buffer_count, samples);
+}
+
+/*
+ * DUMB 2.0 figures out the file format for us.
+ * Need only one loader from disk file and one loader from DUMBFILE.
+ */
+static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
-   stream = _al_load_mod_audio_stream_f(f, buffer_count, samples);
+   stream = load_dumb_audio_stream_f(f, buffer_count, samples);
 
    if (!stream) {
       al_fclose(f);
@@ -373,45 +461,86 @@ ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
    }
 
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream(const char *filename,
+#else
+/*
+ * For DUMB 0.9.3:
+ *
+ * 4 separate loaders for the 4 file formats supported by DUMB 0.9.3,
+ * then 4 loaders that take a DUMBFILE. The loaders from file are
+ * all identical, except for the function called in the middle.
+ */
+
+static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream_f(ALLEGRO_FILE *f,
+   size_t buffer_count, unsigned int samples)
+{
+   if (!init_libdumb())
+      return NULL;
+   return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_mod);
+}
+
+static ALLEGRO_AUDIO_STREAM *load_it_audio_stream_f(ALLEGRO_FILE *f,
+   size_t buffer_count, unsigned int samples)
+{
+   if (!init_libdumb())
+      return NULL;
+   return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_it);
+}
+
+static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream_f(ALLEGRO_FILE *f,
+   size_t buffer_count, unsigned int samples)
+{
+   if (!init_libdumb())
+      return NULL;
+   return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_xm);
+}
+
+static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream_f(ALLEGRO_FILE *f,
+   size_t buffer_count, unsigned int samples)
+{
+   if (!init_libdumb())
+      return NULL;
+   return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_s3m);
+}
+
+static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
-   stream = _al_load_it_audio_stream_f(f, buffer_count, samples);
-   
+   stream = load_mod_audio_stream_f(f, buffer_count, samples);
+
    if (!stream) {
       al_fclose(f);
       return NULL;
    }
 
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
+static ALLEGRO_AUDIO_STREAM *load_it_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
-   stream = _al_load_xm_audio_stream_f(f, buffer_count, samples);
+   stream = load_it_audio_stream_f(f, buffer_count, samples);
 
    if (!stream) {
       al_fclose(f);
@@ -419,67 +548,110 @@ ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
    }
 
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream(const char *filename,
+static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
-   stream = _al_load_s3m_audio_stream_f(f, buffer_count, samples);
-   
+   stream = load_xm_audio_stream_f(f, buffer_count, samples);
+
    if (!stream) {
       al_fclose(f);
       return NULL;
    }
-      
+
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
+static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   if (!init_libdumb())
+   ALLEGRO_FILE *f;
+   ALLEGRO_AUDIO_STREAM *stream;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
       return NULL;
 
-   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_mod);
+   stream = load_s3m_audio_stream_f(f, buffer_count, samples);
+
+   if (!stream) {
+      al_fclose(f);
+      return NULL;
+   }
+
+   ((MOD_FILE *)stream->extra)->fh = f;
+
+   return stream;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples)
+#endif // DUMB_MAJOR_VERSION
+
+bool _al_register_dumb_loaders(void)
 {
-   if (!init_libdumb())
-      return NULL;
-
-   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_it);
-}
-
-ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples)
-{
-   if (!init_libdumb())
-      return NULL;
-
-   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_xm);
-}
-
-ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples)
-{
-   if (!init_libdumb())
-      return NULL;
-
-   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_s3m);
+   bool ret = true;
+#if (DUMB_MAJOR_VERSION) >= 2
+   /*
+    * DUMB 2.0 offers a single loader for at least 13 formats, see their
+    * readme. Amiga NoiseTracker isn't listed there, but it's DUMB-supported.
+    * It merely has no common extensions, see:
+    * https://github.com/kode54/dumb/issues/53
+    */
+   ret &= al_register_audio_stream_loader(".669", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".669", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".amf", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".amf", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".asy", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".asy", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".it", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".it", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".mod", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".mod", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".mtm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".mtm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".okt", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".okt", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".psm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".psm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".ptm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".ptm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".riff", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".riff", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".s3m", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".s3m", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".stm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".stm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".xm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".xm", load_dumb_audio_stream_f);
+#else
+   /*
+    * DUMB 0.9.3 supported only these 4 formats and had no *_any loader.
+    * Avoid DUMB 1.0 because of versioning problems: dumb.h from git tag 1.0
+    * reports 0.9.3 in its version numbers.
+    */
+   ret &= al_register_audio_stream_loader(".xm", load_xm_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".xm", load_xm_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".it", load_it_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".it", load_it_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".mod", load_mod_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".mod", load_mod_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".s3m", load_s3m_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".s3m", load_s3m_audio_stream_f);
+#endif // DUMB_MAJOR_VERSION
+   return ret;
 }
 
 /* vim: set sts=3 sw=3 et: */

@@ -35,6 +35,7 @@ Here are the addons and their dependencies:
 
     allegro_audio -> allegro
     allegro_acodec -> allegro_audio -> allegro
+    allegro_video -> allegro_audio -> allegro
 
     allegro_memfile -> allegro
     allegro_physfs -> allegro

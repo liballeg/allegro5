@@ -1,15 +1,14 @@
 Android
 =======
 
-This port should support Android 3.1 (Honeycomb) and above.
+This port should support Android 3.1 (Honeycomb, API level 13) and above.
 
 
 Dependencies
 ============
 
-This port depends on having CMake, the Android SDK, and the Android NDK
-version r5b or better, JDK, and Apache ant. Python is required to build
-the examples.
+This port depends on having CMake, the Android SDK, the Android NDK and
+a Java JDK.
 
 We assume you are building on Linux or otherwise a Unix-like system,
 including MSYS.
@@ -19,24 +18,27 @@ Install the SDK
 ===============
 
 
-Start by extracting the SDK. You then need to add the SDK to your PATH
-environment variable. If you installed the SDK in $HOME/android-sdk, add
-$HOME/android-sdk/tools to your PATH.
+The most simple way is to install Android Studio which by default will
+place a copy of the SDK into ~/Android/Sdk. Set the ANDROID_HOME
+environment variable to point to it:
 
-Once extracted you must run "android" (or android.bat on Windows) and install
-a version of the SDK. Allegro needs version 12 (3.1) so install that. You can
-use a higher version for your game later if you like.
+    export ANDROID_HOME=$HOME/Android/Sdk
 
-Also make sure the JAVA_HOME environment variable is set to your JDK
-directory (not always the case.)
+Alternatively you can also download the command-line SDK tools. In that
+case you will have to accept the licenses, for example like this:
+
+    ~/Android/Sdk/tools/bin/sdkmanager --licenses
 
 
 Install the NDK
 ===============
 
 
-Extract the NDK and add it to your PATH. If you installed the NDK in
-$HOME/android-ndk, add $HOME/android-ndk to your PATH.
+The most simple way is again to use Android Studio. Create a new project
+with C++ support and it will ask you if you want to install the NDK and
+will then proceed to place it into ~/Android/Sdk/ndk-bundle.
+
+Alternatively you can download the NDK and place anywhere you like.
 
 
 Make NDK standalone toolchain
@@ -45,18 +47,34 @@ Make NDK standalone toolchain
 Next you need to setup a standalone NDK toolchain. Set an environment
 variable to point to the desired location of the Android toolchain:
 
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
+    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-arm
+    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-arm64
+    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-x86
+    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-x86_64
+    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-mips
+    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-mips64
 
-Assuming the NDK was extracted into $HOME/android-ndk run the following
+If you do not want to distribute your game for all 6 supported Android
+architectures you can probably do it just for arm (most actual devices)
+amd x86_64 (the Android emulator).
+
+Assuming the NDK was extracted into ~/Android/Sdk/ndk-bundle run the following
 command:
 
-    $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
-        --platform=android-9 --install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT
+    python ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py \
+        --api=15 --install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT --arch=arm
 
-You can use any platform 9 or higher. This command was last tested on ndk10d.
-You may need to add --arch=arm if the auto-configuration fails.
+You can use any api 9 or higher but 15 is the lowest this was tested
+with. 
 
-Add $ANDROID_NDK_TOOLCHAIN_ROOT/bin to your PATH.
+Use the --arch parameter according to the toolchain you are creating:
+
+--arch=arm
+--arch=arm64
+--arch=x86
+--arch=x64_64
+--arch=mips
+--arch=mips64
 
 
 Build dependencies for Allegro
@@ -69,10 +87,19 @@ For example, to build libpng:
 
     tar zxf libpng-1.6.6.tar.xz
     cd libpng-1.6.6
-    ./configure --host=arm-linux-androideabi \
+    ./configure --host=x86_64-linux-androideabi \
 	--prefix=$HOME/allegro/build/deps
     make
     make install
+
+For host you will generally use the following host for each architecture:
+
+    if arch == "x86" then host = "i686-linux-android"
+    if arch == "x86_64" then host = "x86_64-linux-android"
+    if arch == "arm" then host = "arm-linux-androideabi"
+    if arch == "arm64" then host = "aarch64-linux-android"
+    if arch == "mips" then host = "mipsel-linux-android"
+    if arch == "mips64" then host = "mips64el-linux-android"
 
 If you get an error during configure about the system being unrecognised then
 update the `config.guess` and `config.sub` files.  The files in libpng-1.6.6
@@ -109,19 +136,38 @@ Building Allegro
 ================
 
 The following steps will build Allegro for Android. Note that you still
-need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your environment.
+need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your environment, and
+repeat for each of the architectures you want to build for.
 
     mkdir build
     cd build
     cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
-        -DCMAKE_BUILD_TYPE=Debug -DANDROID_TARGET=android-12 \
-        # -G"MSYS Makefiles"
+        -DCMAKE_BUILD_TYPE=Debug
+        -DANDROID_TARGET=android-15
+        -DARM_TARGETS=armeabi-v7a
     make
+    make install
 
-Where you can change ANDROID_TARGET to be something else if you want. This
-produces the normal Allegro native libraries (liballegro-*.so) as well as
-Allegro5.jar.  You do not need to, but you may run `make install` to install
-headers and libraries into the toolchain directory.
+Under Windows append -G"MSYS Makefiles" to the cmake options.
+
+Change ANDROID_TARGETS to whichever architecture you are building for.
+The recognized architectures are:
+
+armeabi
+armeabi-v7a
+arm64-v8a
+x86
+x86_64
+mips
+mips64
+
+See here for more information: https://developer.android.com/ndk/guides/abis.html
+
+This produces the normal Allegro native libraries (liballegro-*.so) as
+well as allegro-release.aar.
+
+Run `make install` to install the headers into the toolchain directory
+and can be found when compiling Allegro code later.
 
 You may want to add -DWANT_MONOLITH=ON if you prefer a single Allegro library
 instead of one for each addon.
@@ -157,132 +203,196 @@ for that as well:
 How startup works on Android
 ============================
 
-The startup process begins with your application's main Activity class.
+The startup process begins with your application's MainActivity class.
 In the static initialiser for the Activity, you must manually load the
 shared libraries that you require, i.e. Allegro and its addons,
 with dependencies loaded first.  For a C++ program, you may need to load
 the shared library of your chosen STL implementation.
 
-After, the onCreate method of the AllegroActivity will be executed, which
+After that the onCreate method of the AllegroActivity will be executed, which
 does some Allegro initialisation.  Allegro will then load your application
 from another shared library.  The library name can be specified by overriding
 the constructor in your Activity class, otherwise the default is "libapp.so".
 After loading, the `main` function in the library is finally called.
 
-(The dynamic loader was finally fixed in Android 4.3 so that it loads
-transitive dependencies.  If you don't care to support earlier versions
-you could just load the Allegro core library and have it load your
-application library and its linked dependencies automatically.)
-
 Poking around in the android/example directory may help.
 
 
-Using Allegro in an Android project
-===================================
+Using Allegro in your game
+==========================
 
-An Android project has a specific structure which you will need to
-replicate.  You can start by copying android/example and using it as a
-base.
+If you build with examples or demos, look into your build folder for
+any of them, for example
 
-This example uses the standard Android build script `ndk-build` to build
-the C code, then `ant` to bundle it into an apk file.  You will probably
-not avoid ant, but you are not obliged to use ndk-build to compile your
-application.  You just need to get your application into a shared library
-using the tools from the standalone toolchain that was created earlier,
-and fit it into the startup process described above.  The Allegro demos
-are worth a look here, as is the script `misc/make_android_project.py`.
+build/demos/speed
 
-Here is what you want to change in the example project:
+It will have a folder called speed.project which is a gradle project
+ready to compile for Android. You can use it as a template for your
+own game code. (Either by opening it in Android Studio or by using
+commandline gradle to compile.)
 
- *  In `AndroidManifest.xml` the package name ("org.liballeg.example"),
-    the name of the activity ("org.liballeg.example.ExampleActivity").
-
- *  In `jni/Android.mk` the name of the main module, the list of source
-    files, and the list of Allegro libraries that it links to.
-
- *  In `ExampleActivity.java' the list of shared libraries to load, and
-    the name of your application's shared library ("libexample.so").
-
- *  In `build.xml` the project name at the top of the file ("example").
-
- *  In `res/values/strings.xml` change the text inside the
-    string tag named "app_name" is the name that Android will show for
-    your application.
-
-To build the example project:
-
- *  Run "android update project -p . --target android-10".
-    You may replace "10" with a higher Android SDK number if desired.
-
- *  Run `ndk-build`.  This builds the main module and copies necessary
-    shared libraries into the `libs` directory.
-
- *  Run `ant debug`.  This bundles the files together into
-    an installable `.apk` file.
-
-Now you can install and run your project on your Android device.
-adb should be set up and USB debugging enabled on your device.
-
- *  To install, use the command:
-
-        adb -d install -r bin/example.apk
-
-    where "example" is the project name in the build.xml.
-    The `-d` option is to direct the command to a connected USB device.
-    The `-r` option allows it to reinstall again if necessary.
-
- *  To start your app without touching the device, you can run:
-
-        adb -d shell 'am start -a android.intent.action.MAIN -n org.liballeg.example/.ExampleActivity'
-
-    Replace the last part as necessary.
-
- *  You may uninstall with:
-
-        adb -d uninstall org.liballeg.example
-
- *  To view the device log, use the command:
-
-        adb logcat
+Read the next section if you would like to create an Android project
+using Allegro from scratch.
 
 
-Android on x86
-==============
+Using Allegro in a new project
+==============================
 
-It is possible to build Allegro for Android on x86.  Only slightly tested with
-NDK r8b and AndroVM (<http://androvm.org/>).  You must get hardware OpenGL
-acceleration working in AndroVM or else the Allegro program will crash.
+Start Android Studio.
 
-When running creating the toolchain directory, run make-standalone-toolchain.sh
-with `--arch=x86`.
+Note: Android Studio is not strictly required, you can edit the files mentioned
+below with any text editor instead of in Android Studio and run ./gradlew instead
+of rebuilding from within the IDE.
+Android Studio just is usually more convenient to use when porting a game to Android.
 
-When configuring Allegro, run the cmake command with -DARM_TARGETS=x86
-XXX Fix the option name.
+On the welcome dialog, select "Start a new Android Studio project".
 
-When building the native libraries, run `ndk-build TARGET_ARCH_ABI=x86`
-or change the TARGET_ARCH_ABI=armeabi lines in Android.mk and Application.mk.
+On the "Create Android Project" screen, make sure to check the
+"Include C++ support" checkbox and click Next.
 
-Android on x86_64
-=================
+On the "Target Android Devices" screen leave everything at the defaults
+and click Next.
 
-This is very useful to run in the emulator as it will run at native
-speed in that case. The procedure is the same as for (32 bit) x86
-above.
+On the "Add an Activity to Mobile" screen pick "Empty Activity".
 
-TODO
-====
+On the "Configure Activity" screen leave the defaults and click Next.
 
-* accelerometer support
-* mouse emulation (is this even really needed?)
-* joystick emulation (at least till there is a more generic input api)
-* properly detecting screen sizes and modes
-* filesystem access including SD card, and the app's own package/data folder.
-* camera access
-* tweak build scripts to handle debug/release versions better
-* support static linking allegro if at all possible.
-* potential multi display support
-* provide another template which uses gradle as ant is deprecated for
-  Android development
-* provide a gradle plugin so Allegro can be used from Android Studio
-  without the need to compile it yourself
+On the "Customize C++ Support" screen leave everything at defaults
+and click Finish.
+
+You should be able to click the green arrow at the top and run your
+application. If not make sure to fix any problems in your Android
+Studio setup - usually it will prompt you to download any missing
+components like the NDK or (the special Android) CMake. After that you
+should be able to run your new Android app, either in an emulator or on
+a real device.
+
+The program we now have already shows how to mix native code and Java
+code, it just does not use Allegro yet.
+
+Find MainActivity.java and adapt it to look like this (do not
+modify your package line at the top though):
+
+import org.liballeg.android.AllegroActivity;
+public class MainActivity extends AllegroActivity {
+    static {
+        System.loadLibrary("allegro");
+        System.loadLibrary("allegro_primitives");
+        System.loadLibrary("allegro_image");
+        System.loadLibrary("allegro_font");
+        System.loadLibrary("allegro_ttf");
+        System.loadLibrary("allegro_audio");
+        System.loadLibrary("allegro_acodec");
+        System.loadLibrary("allegro_color");
+    }
+    public MainActivity() {
+        super("libnative-lib.so");
+    }
+}
+
+If you used the monolith library, you only need a single
+System.loadLibrary for that.
+
+The "import org.liballeg.android.AllegroActivity" line will be red.
+Let's fix that. Find the allegro-release.aar from build/lib, where
+build is the build folder you used when building Allegro. Open your
+Project-level build.gradle and make your "allprojects" section look
+like this:
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        flatDir { dirs 'libs' }
+    }
+}
+
+Then copy allegro-release.aar into the app/libs folder of your Android
+Studio project. For example I did the following:
+
+cp ~/allegro-build/lib/allegro-release.aar ~/AndroidStudioProjects/MyApplication/app/libs/
+
+Now open your app-level build.gradle and add this line inside of the
+dependencies section:
+
+implementation "org.liballeg.android:allegro-release:1.0@aar"
+
+On older versions of Android studio use this instead:
+
+compile "org.liballeg.android:allegro-release:1.0@aar"
+
+Next hit the "Sync Now" link that should have appeared at the top of
+Android Studio. If you look back at MainActivity.java, nothing should
+be red any longer.
+
+Now run your app again.
+
+It will open but crash right away. That is because we are still using
+the sample C++ code. Let's instead use some Allegro code. Find the
+native-lib.cpp and replace its code with this:
+
+#include <allegro5/allegro5.h>
+
+ int main(int argc, char **argv) {
+     al_init();
+     auto display = al_create_display(0, 0);
+     auto queue = al_create_event_queue();
+     auto timer = al_create_timer(1 / 60.0);
+     auto redraw = true;
+     al_register_event_source(queue, al_get_display_event_source(display));
+     al_register_event_source(queue, al_get_timer_event_source(timer));
+     al_start_timer(timer);
+     while (true) {
+         if (redraw) {
+             al_clear_to_color(al_map_rgb_f(1, al_get_time() - (int)(al_get_time()), 0));
+             al_flip_display();
+             redraw = false;
+         }
+         ALLEGRO_EVENT event;
+         al_wait_for_event(queue, &event);
+         if (event.type == ALLEGRO_EVENT_TIMER) {
+             redraw = true;
+         }
+     }
+     return 0;
+ }
+
+The #include <allegro5/allegro5.h> will be red. Oh no. Again, let's fix
+it. Find CMakeLists.txt under External Build Files and add a line like
+this:
+
+include_directories(${ANDROID_NDK_TOOLCHAIN_ROOT}/user/{ARCH}/include)
+
+Where ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/{ARCH} should be the path where
+the Allegro headers were installed during Allegro's "make install", for
+example:
+
+include_directories($HOME/android-toolchain-arm/user/arm/include)
+
+Then add a line like this:
+
+target_link_libraries(native-lib ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/{ARCH}/lib/liballegro.so)
+
+For example:
+
+target_link_libraries(native-lib $HOME/android-toolchain-arm/user/arm/lib/liballegro.so)
+
+Finally, create these folders in your project:
+
+app/src/main/jniLibs/armeabi-v7a
+app/src/main/jniLibs/arm64-v8a
+app/src/main/jniLibs/x86
+app/src/main/jniLibs/x86_64
+app/src/main/jniLibs/mips
+app/src/main/jniLibs/mips64
+
+And copy the .so files in the corresponding folder for its architecture.
+
+You may have to use "Build->Refresh Linked C++ Projects" for Android
+Studio to pick up the CMakeLists.txt changes.
+
+Run the app again. If it worked, congratulations! You just ran your
+first Allegro program on Android!
+
+(The sample code will just flash your screen yellow and red with no way to quit, so you will have to force quit it.)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import os, sys, optparse, threading, time
 
 # Put here any hosts you want to compile on.

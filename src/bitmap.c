@@ -384,6 +384,12 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
    if (y + height > bitmap->h) {
       height = bitmap->h - y;
    }
+   if (width < 0) {
+      width = 0;
+   }
+   if (height < 0) {
+      height = 0;
+   }
 
    bitmap->cl = x;
    bitmap->ct = y;

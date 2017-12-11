@@ -16,7 +16,7 @@
  * also specs are available at
  * <http://sox.sourceforge.net/AudioFormats-11.html> section 11.5
  *
- * List of VOC audio codecs suported:
+ * List of VOC audio codecs supported:
  * supported 0x0000  8-bit unsigned PCM
  *           0x0001  Creative 8-bit to 4-bit ADPCM    *HW implemented on the SB
  *           0x0002  Creative 8-bit to 3-bit ADPCM    *HW implemented on the SB

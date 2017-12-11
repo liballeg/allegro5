@@ -486,7 +486,7 @@ static void lkeybd_clear_keyboard_state(void)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
    {
-      memset(&the_keyboard.state, 0, sizeof(the_keyboard.state))
+      memset(&the_keyboard.state, 0, sizeof(the_keyboard.state));
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
 }

@@ -127,6 +127,7 @@ function(add_our_library target framework_name sources extra_flags link_with)
             PROPERTIES
             COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
             )
+        set_property(GLOBAL APPEND PROPERTY JNI_LIBS ${target})
     endif(NOT ANDROID)
     
     # Construct the output name.

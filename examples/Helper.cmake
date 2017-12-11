@@ -12,7 +12,6 @@ function(example name)
     # Parse what remains of the argument list manually.
     set(sources)
     set(libs)
-    set(android_stl)
     foreach(arg ${MYOPTS_UNPARSED_ARGUMENTS})
         if(arg STREQUAL "x")
             message(STATUS "Not building ${name}")
@@ -22,7 +21,6 @@ function(example name)
             list(APPEND sources ${arg})
         elseif(arg MATCHES "[.]cpp$")
             list(APPEND sources ${arg})
-            set(android_stl stlport_shared)
         else()
             string(REGEX REPLACE "^x" "" arg ${arg})
             list(APPEND libs ${arg})
@@ -79,11 +77,11 @@ function(example name)
         endif()
         add_copy_commands(
             "${CMAKE_CURRENT_SOURCE_DIR}/data"
-            "${CMAKE_CURRENT_BINARY_DIR}/${name}.project/assets/data"
+            "${CMAKE_CURRENT_BINARY_DIR}/${name}.project/app/src/main/assets/data"
             assets
             "${MYOPTS_DATA}"
             )
-        add_android_app("${name}" "${sources};${assets}" "${libs}" "${stl}")
+        add_android_app("${name}" "${sources};${assets}")
     elseif(IPHONE)
         add_our_executable("${name}" SRCS "${sources};${CMAKE_CURRENT_SOURCE_DIR}/data"
                            LIBS "${libs}")

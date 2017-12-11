@@ -18,6 +18,8 @@
 #ifndef __al_included_allegro5_aintandroid_h
 #define __al_included_allegro5_aintandroid_h
 
+#include <unistd.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

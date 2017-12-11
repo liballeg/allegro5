@@ -461,7 +461,7 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
             y = s * t + c * y;
          }
       } else {
-         if (rx != 0 && !ry == 0) {
+         if (rx != 0 && ry != 0) {
             for (ii = 0; ii < num_points; ii++) {
                float denom = hypotf(ry * x, rx * y);
                float nx = thickness / 2 * ry * x / denom;

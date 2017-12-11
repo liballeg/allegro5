@@ -53,12 +53,8 @@ on Linux.
 
         ./misc/create_release_archives.sh 5.2.2.0
 
-    Typically for the first release we drop the release number, so rename the
-    archives accordingly.
-
-9.  Upload the source archives to gna.org. The command to use would be something like this:
-
-        rsync -avr --rsh="ssh" --numeric-ids allegro-5.2.2.* <user>@download.gna.org:/upload/allegro/allegro/5.2.2
+9.  Upload the source archives to github. Go to the releases tab, and make a
+    new release with the tag you just created.
 
 10. Build the docs, including the pdf. Add these to the website via the
     liballeg.github.io repository.

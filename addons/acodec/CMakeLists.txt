@@ -141,7 +141,11 @@ if(WANT_MODAUDIO)
         set(CMAKE_REQUIRED_INCLUDES ${DUMB_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${DUMB_LIBRARIES})
         run_c_compile_test("
+            #define _FILE_OFFSET_BITS 64
             #include <dumb.h>
+            #if (DUMB_MAJOR_VERSION) == 1
+                #error libdumb 1.0 not supported, get >= 2.0 or 0.9.3
+            #endif
             int main(void)
             {
                 dumb_register_stdfiles();
@@ -155,8 +159,10 @@ if(WANT_MODAUDIO)
         endif(DUMB_COMPILES)
     endif(DUMB_FOUND)
     if(NOT SUPPORT_MODAUDIO)
-        message("WARNING: libdumb not found or compile test failed, "
-                "disabling support. <http://dumb.sourceforge.net/>")
+        message("WARNING: libdumb >= 2.0 or <= 0.9.3 not found or compile "
+                "test failed, disabling support. See "
+                "<https://github.com/kode54/dumb> for 2.0 or "
+                "<http://dumb.sourceforge.net/> for 0.9.3.")
     endif(NOT SUPPORT_MODAUDIO)
 endif(WANT_MODAUDIO)
 

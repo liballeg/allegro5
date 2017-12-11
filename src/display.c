@@ -68,6 +68,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->min_h = 0;
    display->max_w = 0;
    display->max_h = 0;
+   display->use_constraints = false;
 
    display->vertex_cache = 0;
    display->num_cache_vertices = 0;
@@ -639,6 +640,16 @@ void al_backup_dirty_bitmaps(ALLEGRO_DISPLAY *display)
 	 }
       }
    }
+}
+
+/* Function: al_apply_window_constraints
+ */
+void al_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   display->use_constraints = onoff;
+
+   if (display->vt && display->vt->apply_window_constraints)
+      display->vt->apply_window_constraints(display, onoff);
 }
 
 /* vim: set sts=3 sw=3 et: */

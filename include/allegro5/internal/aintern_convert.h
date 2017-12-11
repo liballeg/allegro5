@@ -1561,11 +1561,11 @@
 #define ALLEGRO_CONVERT_RGBA_4444_TO_SINGLE_CHANNEL_8(x) \
    (_al_rgb_scale_4[(((x) >> 12) & 0xf)])
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_8888(x) \
-   (0xff000000L | \
+   (0xff000000 | \
    (((x) << 16) & 0xff0000))
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_8888(x) \
    (0xff | \
-   (((x) << 24) & 0xff000000L))
+   (((x) << 24) & 0xff000000))
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_4444(x) \
    (0xf000 | \
    (((x) << 4) & 0xf00))
@@ -1582,7 +1582,7 @@
    (0x8000 | \
    (((x) << 7) & 0x7c00))
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888(x) \
-   (0xff000000L | \
+   (0xff000000 | \
    ((x) & 0xff))
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_XBGR_8888(x) \
    (((x) & 0xff))
@@ -1593,7 +1593,7 @@
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_BGR_555(x) \
    ((((x) >> 3) & 0x1f))
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBX_8888(x) \
-   ((((x) << 24) & 0xff000000L))
+   ((((x) << 24) & 0xff000000))
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_XRGB_8888(x) \
    ((((x) << 16) & 0xff0000))
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_F32(x) \
@@ -1601,10 +1601,10 @@
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888_LE(x) \
    (0xff | \
-   (((x) << 24) & 0xff000000L))
+   (((x) << 24) & 0xff000000))
 #else
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888_LE(x) \
-   (0xff000000L | \
+   (0xff000000 | \
    ((x) & 0xff))
 #endif
 #define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_4444(x) \

@@ -6,8 +6,13 @@
  *      and the big one for the alt-tab popup, for example.
  */
 
+#define ALLEGRO_UNSTABLE
 #include <allegro5/allegro.h>
 #include "allegro5/allegro_image.h"
+
+#ifdef ALLEGRO_UNIX
+#include <allegro5/allegro_x.h>
+#endif
 
 #include "common.c"
 
@@ -30,18 +35,22 @@ int main(int argc, char **argv)
    al_init_image_addon();
    init_platform_specific();
 
+   /* First icon 16x16: Read from file. */
+   icons[0] = al_load_bitmap("data/cursor.tga");
+   if (!icons[0]) {
+      abort_example("icons.tga not found\n");
+   }
+
+#if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_RASPBERRYPI)
+   al_x_set_initial_icon(icons[0]);
+#endif
+
    display = al_create_display(320, 200);
    if (!display) {
       abort_example("Error creating display\n");
    }
    al_clear_to_color(al_map_rgb_f(0, 0, 0));
    al_flip_display();
-
-   /* First icon 16x16: Read from file. */
-   icons[0] = al_load_bitmap("data/cursor.tga");
-   if (!icons[0]) {
-      abort_example("icons.tga not found\n");
-   }
 
    /* Second icon 32x32: Create it. */
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);

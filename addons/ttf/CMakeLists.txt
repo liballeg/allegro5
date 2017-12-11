@@ -12,16 +12,6 @@ configure_file(
     ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_ttf_cfg.h
     )
 
-set(TTF_LIBRARIES ${FREETYPE_LIBRARIES})
-set(TTF_INCLUDE_DIRECTORIES ${FREETYPE_INCLUDE_DIRS})
-
-# FREETYPE_LIBRARIES should include zlib automatically if statically linking,
-# but it doesn't.
-find_package(ZLIB)
-if(ZLIB_FOUND AND NOT IPHONE)
-    list(APPEND TTF_LIBRARIES ${ZLIB_LIBRARIES})
-endif()
-
 add_our_addon_library(allegro_ttf
     AllegroTTF-${ALLEGRO_SOVERSION}
     "${TTF_SOURCES};${TTF_INCLUDE_FILES}"

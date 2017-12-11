@@ -7,6 +7,10 @@ Link with allegro_image.
  #include <allegro5/allegro_image.h>
 ~~~~
 
+Some of the format handlers define configuration options for specifying things
+like compression level or gamma handling. Refer to [al_get_system_config] for
+their documentation.
+
 ## API: al_init_image_addon
 
 Initializes the image addon.  This registers bitmap format handlers for

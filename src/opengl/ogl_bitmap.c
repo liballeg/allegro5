@@ -599,12 +599,10 @@ static void ogl_bitmap_pointer_changed(ALLEGRO_BITMAP *bitmap,
 static bool can_flip_blocks(ALLEGRO_PIXEL_FORMAT format)
 {
    switch (format) {
-#ifdef ALLEGRO_CFG_OPENGL_S3TC_LOCKING
       case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:
       case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:
       case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:
          return true;
-#endif
       default:
          return false;
    }
@@ -618,7 +616,6 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
    unsigned char* data = lr->data;
    ASSERT(can_flip_blocks(lr->format));
    switch (lr->format) {
-#ifdef ALLEGRO_CFG_OPENGL_S3TC_LOCKING
       case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1: {
          for (y = 0; y < hc; y++) {
             unsigned char* row = data;
@@ -703,7 +700,6 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
          }
          break;
       }
-#endif
       default:
          (void)x;
          (void)y;

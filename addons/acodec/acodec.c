@@ -3,7 +3,6 @@
 #include "allegro5/internal/aintern_acodec_cfg.h"
 #include "acodec.h"
 
-
 /* Function: al_get_allegro_acodec_version
  */
 uint32_t al_get_allegro_acodec_version(void)
@@ -38,14 +37,7 @@ bool al_init_acodec_addon(void)
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_MODAUDIO
-   ret &= al_register_audio_stream_loader(".xm", _al_load_xm_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".xm", _al_load_xm_audio_stream_f);
-   ret &= al_register_audio_stream_loader(".it", _al_load_it_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".it", _al_load_it_audio_stream_f);
-   ret &= al_register_audio_stream_loader(".mod", _al_load_mod_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".mod", _al_load_mod_audio_stream_f);
-   ret &= al_register_audio_stream_loader(".s3m", _al_load_s3m_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".s3m", _al_load_s3m_audio_stream_f);
+   ret &= _al_register_dumb_loaders();
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_VORBIS

@@ -36,6 +36,10 @@ int main(int argc, char **argv)
 
    adapter_count = al_get_num_video_adapters();
 
+   if (adapter_count == 0) {
+      abort_example("No adapters found!\n");
+   }
+
    info = malloc(adapter_count * sizeof(ALLEGRO_MONITOR_INFO));
 
    for (i = 0; i < adapter_count; i++) {

@@ -1,21 +1,15 @@
-
 SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_VERSION 1)
 
-#set path for android toolchain -- look
-
 set(ANDROID_NDK_TOOLCHAIN_ROOT "$ENV{ANDROID_NDK_TOOLCHAIN_ROOT}" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
 
-message( STATUS "Selected Android toolchain: ${ANDROID_NDK_TOOLCHAIN_ROOT}" )
+message( STATUS "Selected Android NDK toolchain: ${ANDROID_NDK_TOOLCHAIN_ROOT}" )
 if(NOT EXISTS ${ANDROID_NDK_TOOLCHAIN_ROOT})
    set(ANDROID_NDK_TOOLCHAIN_ROOT "/opt/android-toolchain" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
    message( STATUS "Using default path for toolchain ${ANDROID_NDK_TOOLCHAIN_ROOT}")
    message( STATUS "If you prefer to use a different location, please set the ANDROID_NDK_TOOLCHAIN_ROOT cmake variable.")
 endif()
-   
-#set(ANDROID_NDK_TOOLCHAIN_ROOT ${ANDROID_NDK_TOOLCHAIN_ROOT} CACHE PATH
-#    "root of the android ndk standalone toolchain" FORCE)
-    
+     
 if(NOT EXISTS ${ANDROID_NDK_TOOLCHAIN_ROOT})
   message(FATAL_ERROR
   "${ANDROID_NDK_TOOLCHAIN_ROOT} does not exist!
@@ -67,9 +61,9 @@ endif()
 
 # specify the cross compiler
 SET(CMAKE_C_COMPILER   
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-gcc${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-clang${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "C compiler" FORCE)
 SET(CMAKE_CXX_COMPILER 
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-g++${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-clang++${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "C++ compiler" FORCE)
 #there may be a way to make cmake deduce these TODO deduce the rest of the tools
 set(CMAKE_AR
  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-ar${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "archive" FORCE)
@@ -106,14 +100,14 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
-SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
+SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID")
+SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID")
 if (ARMEABI)
   #Setup arm specific stuff
   #It is recommended to use the -mthumb compiler flag to force the generation
   #of 16-bit Thumb-1 instructions (the default being 32-bit ARM ones).
-  SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
-  SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
+  SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb")
+  SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb")
 
   #these are required flags for android armv7-a
   if(WANT_ANDROID_LEGACY)

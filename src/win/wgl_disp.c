@@ -1573,6 +1573,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt.get_window_position = wgl_get_window_position;
    vt.set_window_constraints = _al_win_set_window_constraints;
    vt.get_window_constraints = _al_win_get_window_constraints;
+   vt.apply_window_constraints = _al_win_apply_window_constraints;
    vt.set_display_flag = _al_win_set_display_flag;
    vt.set_window_title = _al_win_set_window_title;
 

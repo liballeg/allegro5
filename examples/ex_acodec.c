@@ -4,6 +4,8 @@
  * Originlly derived from the audio example on the wiki.
  */
 
+#define ALLEGRO_UNSTABLE
+
 #include <stdio.h>
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
@@ -70,6 +72,8 @@ int main(int argc, char **argv)
       ALLEGRO_SAMPLE *sample_data = NULL;
       const char *filename = filenames[i];
       float sample_time = 0;
+      /* A matrix that puts everything in the left channel. */
+      float mono_to_stereo[] = {1.0, 0.0};
 
       /* Load the entire sound file from disk. */
       sample_data = al_load_sample(filename);
@@ -94,23 +98,33 @@ int main(int argc, char **argv)
       al_play_sample_instance(sample);
 
       sample_time = al_get_sample_instance_time(sample);
-      log_printf("Playing '%s' (%.3f seconds) 3 times", filename,
+      log_printf("Playing '%s' (%.3f seconds) normally.\n", filename,
          sample_time);
 
       al_rest(sample_time);
 
+      if (al_get_channel_count(al_get_sample_instance_channels(sample)) == 1) {
+         if (!al_set_sample_instance_channel_matrix(sample, mono_to_stereo)) {
+            abort_example("Failed to set channel matrix.\n");
+         }
+         log_printf("Playing left channel only.\n");
+         al_rest(sample_time);
+      }
+
       if (!al_set_sample_instance_gain(sample, 0.5)) {
          abort_example("Failed to set gain.\n");
       }
+      log_printf("Playing with gain 0.5.\n");
       al_rest(sample_time);
 
       if (!al_set_sample_instance_gain(sample, 0.25)) {
          abort_example("Failed to set gain.\n");
       }
+      log_printf("Playing with gain 0.25.\n");
       al_rest(sample_time);
 
       al_stop_sample_instance(sample);
-      log_printf("\nDone playing '%s'\n", filename);
+      log_printf("Done playing '%s'\n", filename);
 
       /* Free the memory allocated. */
       al_set_sample(sample, NULL);

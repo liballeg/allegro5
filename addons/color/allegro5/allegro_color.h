@@ -81,7 +81,7 @@ ALLEGRO_COLOR_FUNC(void, al_color_lch_to_rgb, (float l, float c, float h,
 ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_lch, (float red, float green, float blue,
    float *l, float *c, float *h));
 ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_lch, (float l, float c, float h));
-ALLEGRO_COLOR_FUNC(bool, al_is_color_valid, (ALLEGRO_COLOR colo));
+ALLEGRO_COLOR_FUNC(bool, al_is_color_valid, (ALLEGRO_COLOR color));
 
 #ifdef __cplusplus
    }

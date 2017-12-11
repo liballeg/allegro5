@@ -60,6 +60,7 @@ set(IMAGES
     primitives2
     LINE_CAP
     LINE_JOIN
+    audio
     )
 
 

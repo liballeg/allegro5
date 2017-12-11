@@ -87,6 +87,7 @@ bool al_init_image_addon(void)
          success |= al_register_bitmap_loader_f(extensions[i], _al_load_android_bitmap_f);
          //success |= al_register_bitmap_saver(extensions[i], _al_save_android_bitmap);
       }
+      success |= al_register_bitmap_identifier(".webp", _al_identify_webp);
    }
 #endif
 
@@ -107,6 +108,14 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_saver(".jpeg", _al_save_jpg);
    success |= al_register_bitmap_loader_f(".jpeg", _al_load_jpg_f);
    success |= al_register_bitmap_saver_f(".jpeg", _al_save_jpg_f);
+#endif
+
+#ifdef ALLEGRO_CFG_IIO_HAVE_WEBP
+   success |= al_register_bitmap_loader(".webp", _al_load_webp);
+   success |= al_register_bitmap_saver(".webp", _al_save_webp);
+   success |= al_register_bitmap_loader_f(".webp", _al_load_webp_f);
+   success |= al_register_bitmap_saver_f(".webp", _al_save_webp_f);
+   success |= al_register_bitmap_identifier(".webp", _al_identify_webp);
 #endif
 
 #ifdef ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER

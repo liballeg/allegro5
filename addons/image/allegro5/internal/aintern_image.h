@@ -47,6 +47,7 @@ ALLEGRO_IIO_FUNC(bool, _al_identify_dds, (ALLEGRO_FILE *f));
 
 ALLEGRO_IIO_FUNC(bool, _al_identify_png, (ALLEGRO_FILE *f));
 ALLEGRO_IIO_FUNC(bool, _al_identify_jpg, (ALLEGRO_FILE *f));
+ALLEGRO_IIO_FUNC(bool, _al_identify_webp, (ALLEGRO_FILE *f));
 
 #ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS
 ALLEGRO_IIO_FUNC(bool, _al_init_gdiplus, (void));
@@ -79,6 +80,13 @@ ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, _al_load_jpg, (const char *filename, int flag
 ALLEGRO_IIO_FUNC(bool, _al_save_jpg, (const char *filename, ALLEGRO_BITMAP *bmp));
 ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, _al_load_jpg_f, (ALLEGRO_FILE *f, int flags));
 ALLEGRO_IIO_FUNC(bool, _al_save_jpg_f, (ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp));
+#endif
+
+#ifdef ALLEGRO_CFG_IIO_HAVE_WEBP
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, _al_load_webp, (const char *filename, int flags));
+ALLEGRO_IIO_FUNC(bool, _al_save_webp, (const char *filename, ALLEGRO_BITMAP *bmp));
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, _al_load_webp_f, (ALLEGRO_FILE *f, int flags));
+ALLEGRO_IIO_FUNC(bool, _al_save_webp_f, (ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp));
 #endif
 
 #ifdef __cplusplus

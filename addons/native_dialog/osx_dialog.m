@@ -585,7 +585,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
         if (aitim->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
             aitim->flags ^= ALLEGRO_MENU_ITEM_CHECKED;
         }
-        _al_emit_menu_event(aitim->parent->display, aitim->id);
+        _al_emit_menu_event(aitim->parent->display, aitim->unique_id);
     }
 }
 // Insert an item, keep the NSMenu in sync

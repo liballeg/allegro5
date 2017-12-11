@@ -665,7 +665,7 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
 
 /* _al_kcm_feed_stream:
  * A routine running in another thread that feeds the stream buffers as
- * neccesary, usually getting data from some file reader backend.
+ * necessary, usually getting data from some file reader backend.
  */
 void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
@@ -896,5 +896,17 @@ ALLEGRO_EVENT_SOURCE *al_get_audio_stream_event_source(
    return &stream->spl.es;
 }
 
+bool al_set_audio_stream_channel_matrix(ALLEGRO_AUDIO_STREAM *stream, const float *matrix)
+{
+   ASSERT(stream);
+
+   if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+      _al_set_error(ALLEGRO_GENERIC_ERROR,
+         "Could not set channel matrix of stream attached to voice");
+      return false;
+   }
+
+   return al_set_sample_instance_channel_matrix(&stream->spl, matrix);
+}
 
 /* vim: set sts=3 sw=3 et: */

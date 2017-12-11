@@ -80,7 +80,8 @@ static ALLEGRO_KEYBOARD_DRIVER android_keyboard_driver = {
     android_get_keyboard,
     android_set_keyboard_leds,
     android_keycode_to_name,
-    android_get_keyboard_state
+    android_get_keyboard_state,
+    android_clear_keyboard_state
 };
 
 ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void)

@@ -24,3 +24,16 @@ bool _al_identify_jpg(ALLEGRO_FILE *f)
       return false;
    return true;
 }
+
+bool _al_identify_webp(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   al_fread(f, x, 4);
+   if (memcmp(x, "RIFF", 4) != 0)
+      return false;
+   al_fseek(f, 4, ALLEGRO_SEEK_CUR);
+   al_fread(f, x, 4);
+   if (memcmp(x, "WEBP", 4) != 0)
+      return false;
+   return true;
+}

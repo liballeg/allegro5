@@ -23,7 +23,6 @@
 #cmakedefine ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
 #cmakedefine ALLEGRO_CFG_SHADER_GLSL
 #cmakedefine ALLEGRO_CFG_SHADER_HLSL
-#cmakedefine ALLEGRO_CFG_OPENGL_S3TC_LOCKING
 
 #cmakedefine ALLEGRO_CFG_ANDROID_LEGACY
 
@@ -65,6 +64,8 @@
 #cmakedefine ALLEGRO_HAVE_STRERROR_R
 #cmakedefine ALLEGRO_HAVE_STRERROR_S
 #cmakedefine ALLEGRO_HAVE_VA_COPY
+#cmakedefine ALLEGRO_HAVE_FTELLI64
+#cmakedefine ALLEGRO_HAVE_FSEEKI64
 
 /* Define to 1 if procfs reveals argc and argv */
 #cmakedefine ALLEGRO_HAVE_PROCFS_ARGCV
@@ -102,6 +103,9 @@
 
 /* Define if XInput 2.2 X11 extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XINPUT2
+
+/* Define if Xpm is found. Useful on Ubuntu Unity to set icon. */
+#cmakedefine ALLEGRO_XWINDOWS_WITH_XPM
 
 /*---------------------------------------------------------------------------*/
 

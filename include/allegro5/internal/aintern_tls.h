@@ -7,6 +7,7 @@
 
 
 void _al_tls_init_once(void);
+void _al_reinitialize_tls_values(void);
 
 int *_al_tls_get_dtor_owner_count(void);
 

@@ -64,16 +64,13 @@ set(DEMO_ICON data/gfx/Icon.icns)
 if(ANDROID)
     add_copy_commands(
         "${CMAKE_CURRENT_SOURCE_DIR}"
-        "${CMAKE_CURRENT_BINARY_DIR}/cosmic_protector.project/assets"
+        "${CMAKE_CURRENT_BINARY_DIR}/cosmic_protector.project/app/src/main/assets"
         ASSETS
         "${DEMO_GFX}"
         "${DEMO_SFX}"
         )
     add_android_app(cosmic_protector
-        "${DEMO_SRCS};${ASSETS}"
-        "${ALLEGRO_LINK_WITH};${IMAGE_LINK_WITH};${FONT_LINK_WITH};${AUDIO_LINK_WITH};${ACODEC_LINK_WITH};${PRIMITIVES_LINK_WITH}"
-        "stlport_shared"
-        )
+        "${DEMO_SRCS};${ASSETS}")
     return()
 endif(ANDROID)
 

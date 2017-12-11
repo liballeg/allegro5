@@ -66,6 +66,10 @@ static void display_flags_to_window_styles(int flags,
       *style = WS_POPUP;
       *ex_style = WS_EX_APPWINDOW;
    }
+   else if (flags & ALLEGRO_MAXIMIZED) {
+      *style = WS_OVERLAPPEDWINDOW;
+      *ex_style = WS_EX_APPWINDOW;
+   }
    else if (flags & ALLEGRO_RESIZABLE) {
       *style = WS_OVERLAPPEDWINDOW;
       *ex_style = WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW;
@@ -310,7 +314,11 @@ static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
    if (w == 0 && h == 0 && x == -32000 && y == -32000)
       return;
 
-   if (display->w != w || display->h != h) {
+   /* Always generate resize event when constraints are used.
+    * This is needed because d3d_acknowledge_resize() updates d->w, d->h
+    * before this function will be called.
+    */
+   if (display->use_constraints || display->w != w || display->h != h) {
       _al_event_source_lock(es);
       if (_al_event_source_needs_to_generate_event(es)) {
          ALLEGRO_EVENT event;
@@ -728,6 +736,15 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                (Disables opening menus via the ALT key.) */
             return 0;
          }
+         /* This is used by WM_GETMINMAXINFO to set constraints. */
+         else if ((wParam & 0xfff0) == SC_MAXIMIZE) {
+            d->flags |= ALLEGRO_MAXIMIZED;
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
+         }
+         else if ((wParam & 0xfff0) == SC_RESTORE) {
+            d->flags &= ~ALLEGRO_MAXIMIZED;
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW);
+         }
          break;
       }
       case WM_PAINT: {
@@ -865,7 +882,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          _al_event_source_unlock(es);
          return 0;
       case WM_GETMINMAXINFO:
-         {
+         /* Set window constraints only when needed. */
+         if (d->use_constraints) {
             LPMINMAXINFO p_info = (LPMINMAXINFO)lParam;
             RECT wRect;
             RECT cRect;
@@ -889,8 +907,16 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
                wmin.x = (d->min_w > 0) ? d->min_w + total_border_width : p_info->ptMinTrackSize.x;
                wmin.y = (d->min_h > 0) ? d->min_h + total_border_height : p_info->ptMinTrackSize.y;
-               wmax.x = (d->max_w > 0) ? d->max_w + total_border_width : p_info->ptMaxTrackSize.x;
-               wmax.y = (d->max_h > 0) ? d->max_h + total_border_height : p_info->ptMaxTrackSize.y;
+
+               /* don't use max_w & max_h constraints when window maximized */
+               if (d->flags & ALLEGRO_MAXIMIZED) {
+                  wmax.x = p_info->ptMaxTrackSize.x;
+                  wmax.y = p_info->ptMaxTrackSize.y;
+               }
+               else {
+                  wmax.x = (d->max_w > 0) ? d->max_w + total_border_width : p_info->ptMaxTrackSize.x;
+                  wmax.y = (d->max_h > 0) ? d->max_h + total_border_height : p_info->ptMaxTrackSize.y;
+               }
 
                p_info->ptMinTrackSize = wmin;
                p_info->ptMaxTrackSize = wmax;
@@ -908,7 +934,18 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             }
             d->flags &= ~ALLEGRO_MAXIMIZED;
             if (wParam == SIZE_MAXIMIZED) {
-                d->flags |= ALLEGRO_MAXIMIZED;
+               d->flags |= ALLEGRO_MAXIMIZED;
+            }
+         }
+         else if (d->use_constraints) {
+            /* al_apply_window_constraints() resizes a window if the current
+             * width & height do not fit in the constraint's range.
+             * We have to create the resize event, so the application could
+             * redraw its content.
+             */
+            if (!resize_postponed) {
+               resize_postponed = true;
+               _beginthread(postpone_thread_proc, 0, (void *)d);
             }
          }
          return 0;
@@ -1271,16 +1308,18 @@ void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   win_display->display.min_w = min_w;
-   win_display->display.min_h = min_h;
-   win_display->display.max_w = max_w;
-   win_display->display.max_h = max_h;
-
-   /* Resize so constraints can take effect. */
-   al_resize_display(display, display->w, display->h);
+   display->min_w = min_w;
+   display->min_h = min_h;
+   display->max_w = max_w;
+   display->max_h = max_h;
 
    return true;
+}
+
+void _al_win_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   if (!(display->flags & ALLEGRO_MAXIMIZED))
+      al_resize_display(display, display->w, display->h);
 }
 
 void _al_win_post_create_window(ALLEGRO_DISPLAY *display)

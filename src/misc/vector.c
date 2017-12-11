@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *	Vectors, aka growing arrays.
+ *      Vectors, aka growing arrays.
  *
- *	By Peter Wang.
+ *      By Peter Wang.
  *
  *      See readme.txt for copyright information.
  *
@@ -218,8 +218,8 @@ void* _al_vector_alloc_mid(_AL_VECTOR *vec, unsigned int index)
    ASSERT(vec->_itemsize > 0);
    {
       if (vec->_items == NULL) {
-	 ASSERT(index == 0);
-	 return _al_vector_alloc_back(vec);
+         ASSERT(index == 0);
+         return _al_vector_alloc_back(vec);
       }
 
       if (vec->_unused == 0) {
@@ -233,7 +233,7 @@ void* _al_vector_alloc_mid(_AL_VECTOR *vec, unsigned int index)
       }
 
       memmove(ITEM_START(vec, index + 1), ITEM_START(vec, index),
-	  vec->_itemsize * (vec->_size - index));
+      vec->_itemsize * (vec->_size - index));
 
       vec->_size++;
       vec->_unused--;

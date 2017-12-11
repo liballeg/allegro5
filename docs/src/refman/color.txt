@@ -167,7 +167,7 @@ Parameters:
 * r, g, b - If one of the recognized color names below is passed,
   the corresponding RGB values in the range 0..1 are written.
 
-The recognized names are:
+The 148 recognized names are:
 
 > aliceblue, antiquewhite, aqua, aquamarine, azure, beige, bisque,
 black, blanchedalmond, blue, blueviolet, brown, burlywood, cadetblue,
@@ -189,13 +189,18 @@ mediumvioletred, midnightblue, mintcream, mistyrose, moccasin,
 avajowhite, navy, oldlace, olive, olivedrab, orange, orangered,
 orchid, palegoldenrod, palegreen, paleturquoise, palevioletred,
 papayawhip, peachpuff, peru, pink, plum, powderblue, purple,
-purwablue, red, rosybrown, royalblue, saddlebrown, salmon,
+rebeccapurple, red, rosybrown, royalblue, saddlebrown, salmon,
 sandybrown, seagreen, seashell, sienna, silver, skyblue, slateblue,
 slategray, snow, springgreen, steelblue, tan, teal, thistle, tomato,
 turquoise, violet, wheat, white, whitesmoke, yellow, yellowgreen
 
-They are taken from
-<http://www.w3.org/TR/2010/PR-css3-color-20101028/#svg-color>.
+They are taken from CSS: <https://www.w3.org/TR/css-color-4/>
+
+Note that these 9 colors have two names and so there are only 139
+distinct colors: aqua = cyan, darkgray = darkgrey, darkslategray =
+darkslategrey, dimgray = dimgrey, fuchsia = purple, gray = grey,
+lightgray = lightgrey, lightslategray = lightslategrey, slategray =
+slategrey
 
 Returns:
 true if a name from the list above was passed, else false.
@@ -249,6 +254,8 @@ See also: [al_color_name_to_rgb], [al_color_name]
 
 Convert RGB values to XYZ color space.
 
+Since: 5.2.3
+
 See also: [al_color_xyz], [al_color_xyz_to_rgb]
 
 
@@ -268,6 +275,8 @@ RGB components are always assumed to be in sRGB space.
 > outside of the 0..1 range. You can check for that case with
 > [al_is_color_valid].
 
+Since: 5.2.3
+
 See also: [al_color_xyz_to_rgb], [al_color_rgb_to_xyz]
 
 
@@ -275,12 +284,16 @@ See also: [al_color_xyz_to_rgb], [al_color_rgb_to_xyz]
 
 Convert XYZ color values to RGB color space.
 
+Since: 5.2.3
+
 See also: [al_color_xyz], [al_color_rgb_to_xyz]
 
 
 ## API: al_color_rgb_to_xyy
 
 Convert RGB values to xyY color space.
+
+Since: 5.2.3
 
 See also: [al_color_xyy], [al_color_xyy_to_rgb]
 
@@ -297,6 +310,8 @@ x = X / (X + Y + Z)
 y = Y / (X + Y + Z)
 ~~~~
 
+Since: 5.2.3
+
 See also: [al_color_xyy_to_rgb], [al_color_rgb_to_xyy]
 
 
@@ -304,12 +319,16 @@ See also: [al_color_xyy_to_rgb], [al_color_rgb_to_xyy]
 
 Convert xyY color values to RGB color space.
 
+Since: 5.2.3
+
 See also: [al_color_xyy], [al_color_rgb_to_xyy]
 
 
 ## API: al_color_rgb_to_lab
 
 Convert RGB values to L\*a\*b\* color space.
+
+Since: 5.2.3
 
 See also: [al_color_lab], [al_color_lab_to_rgb]
 
@@ -328,10 +347,12 @@ are in the range -1..+1.
 > [al_is_color_valid].
 
 > *Note:*
-
+>
 > In some literature the range of L* is 0 to 100 and a* and b* are from
 > -100 to +100. In that case divide all components by 100 before passing
 > them to this function.
+
+Since: 5.2.3
 
 See also: [al_color_lab_to_rgb], [al_color_rgb_to_lab]
 
@@ -340,12 +361,16 @@ See also: [al_color_lab_to_rgb], [al_color_rgb_to_lab]
 
 Convert CIE L\*a\*b\* color values to RGB color space.
 
+Since: 5.2.3
+
 See also: [al_color_lab], [al_color_rgb_to_lab]
 
 
 ## API: al_color_rgb_to_lch
 
 Convert RGB values to CIE LCH color space. 
+
+Since: 5.2.3
 
 See also: [al_color_lch], [al_color_lch_to_rgb]
 
@@ -366,12 +391,16 @@ C = sqrt(a * a + b * b)
 H = atan2(b, a)
 ~~~~
 
+Since: 5.2.3
+
 See also: [al_color_lch_to_rgb], [al_color_rgb_to_lch]
 
 
 ## API: al_color_lch_to_rgb
 
 Convert CIE LCH color values to RGB color space.
+
+Since: 5.2.3
 
 See also: [al_color_lch], [al_color_rgb_to_lch]
 
@@ -397,6 +426,8 @@ are possible.
 > Note: This function uses [al_color_lab] internally which
 > defines the L component to be in the range 0..1 (and not 0..100 as is
 > sometimes seen).
+
+Since: 5.2.3
 
 ## API: al_color_rgb_to_yuv
 
@@ -427,7 +458,9 @@ Returns the (compiled) version of the addon, in the same format as
 
 ## API: al_is_color_valid
 
-Checks if all component of the color are between 0 and 1. Some of the
+Checks if all components of the color are between 0 and 1. Some of the
 color conversions in this addon support color spaces with more colors
 than can be represented in sRGB and when converted to RGB will result
 in invalid color components outside the 0..1 range.
+
+Since: 5.2.3

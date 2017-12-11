@@ -38,19 +38,19 @@ extern "C" {
    #define ALLEGRO_KCM_AUDIO_FUNC      AL_FUNC
 #endif
 
-/* Internal, used to communicate with acodec. */
-/* Must be in 512 <= n < 1024 */
-#define _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE   (512)
-
-/* User event type emitted when a stream fragment is ready to be
- * refilled with more audio data.
- * Must be in 512 <= n < 1024
- *
+/* Enum: ALLEGRO_AUDIO_EVENT_TYPE
  */
-#define ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT  (513)
-#define ALLEGRO_EVENT_AUDIO_STREAM_FINISHED  (514)
-
-#define ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT       (515)
+enum ALLEGRO_AUDIO_EVENT_TYPE
+{
+   /* Internal, used to communicate with acodec. */
+   /* Must be in 512 <= n < 1024 */
+   _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE    = 512,
+   ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT   = 513,
+   ALLEGRO_EVENT_AUDIO_STREAM_FINISHED   = 514,
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
+   ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT = 515,
+#endif
+};
 
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
 /* Type: ALLEGRO_AUDIO_RECORDER_EVENT
@@ -241,6 +241,9 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_sample, (ALLEGRO_SAMPLE_INSTANCE *spl, ALLEG
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE *, al_get_sample, (ALLEGRO_SAMPLE_INSTANCE *spl));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_play_sample_instance, (ALLEGRO_SAMPLE_INSTANCE *spl));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_stop_sample_instance, (ALLEGRO_SAMPLE_INSTANCE *spl));
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_sample_instance_channel_matrix, (ALLEGRO_SAMPLE_INSTANCE *spl, const float *matrix));
+#endif
 
 
 /* Stream functions */
@@ -286,6 +289,10 @@ ALLEGRO_KCM_AUDIO_FUNC(double, al_get_audio_stream_length_secs, (ALLEGRO_AUDIO_S
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_audio_stream_loop_secs, (ALLEGRO_AUDIO_STREAM *stream, double start, double end));
 
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_audio_stream_event_source, (ALLEGRO_AUDIO_STREAM *stream));
+
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_audio_stream_channel_matrix, (ALLEGRO_AUDIO_STREAM *stream, const float *matrix));
+#endif
 
 /* Mixer functions */
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_create_mixer, (unsigned int freq,
@@ -359,6 +366,11 @@ ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_sample, (ALLEGRO_SAMPLE_ID *spl_id));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_samples, (void));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_VOICE *, al_get_default_voice, (void));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_set_default_voice, (ALLEGRO_VOICE *voice));
+
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE_INSTANCE*, al_lock_sample_id, (ALLEGRO_SAMPLE_ID *spl_id));
+ALLEGRO_KCM_AUDIO_FUNC(void, al_unlock_sample_id, (ALLEGRO_SAMPLE_ID *spl_id));
+#endif
 
 /* File type handlers */
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_sample_loader, (const char *ext,

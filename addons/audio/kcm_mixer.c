@@ -96,8 +96,8 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
     *    sqrt(rgain^2 + lgain^2) = 1.0
     */
    if (pan != ALLEGRO_AUDIO_PAN_NONE) {
-      float rgain = gain * sqrt(( pan + 1.0f) / 2.0f);
-      float lgain = gain * sqrt((-pan + 1.0f) / 2.0f);
+      float rgain = sqrt(( pan + 1.0f) / 2.0f);
+      float lgain = sqrt((-pan + 1.0f) / 2.0f);
 
       /* I dunno what to do about >2 channels, so don't even try for now. */
       for (j = 0; j < src_chans; j++) {
@@ -812,6 +812,12 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
    if (mixer->ss.spl_data.depth != stream->ss.spl_data.depth) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Mixers of different audio depths cannot be attached to one another");
+      return false;
+   }
+
+   if (mixer->ss.spl_data.chan_conf != stream->ss.spl_data.chan_conf) {
+      _al_set_error(ALLEGRO_INVALID_OBJECT,
+         "Mixers of different channel configurations cannot be attached to one another");
       return false;
    }
 

@@ -12,15 +12,28 @@ installation instructions, licensing information and supported video formats.
 
 ## API: ALLEGRO_VIDEO_EVENT_TYPE
 
-* ALLEGRO_EVENT_VIDEO_FRAME_SHOW -
+Events sent by [al_get_video_event_source].
+
+### ALLEGRO_EVENT_VIDEO_FRAME_SHOW
+
 This event is sent when it is time to show a new frame. Once you receive this
 event, you can draw the current frame (as returned by [al_get_video_frame]).
 [al_get_video_frame] will continue returning the same frame until the next
 ALLEGRO_EVENT_VIDEO_FRAME_SHOW is sent.
-* ALLEGRO_EVENT_VIDEO_FINISHED -
+
+user.data1 (ALLEGRO_VIDEO *)
+:   The video which generated the event.
+
+Since: 5.1.0
+
+### ALLEGRO_EVENT_VIDEO_FINISHED
+
 This event is sent when the video is finished. Depending on the backend, it may
 be possible to seek to an earlier part of the video and set the video to play
 to resume playback.
+
+user.data1 (ALLEGRO_VIDEO *)
+:   The video which generated the event.
 
 Since: 5.1.0
 

@@ -70,6 +70,7 @@ if(WANT_NATIVE_IMAGE_LOADER)
         set(ALLEGRO_CFG_IIO_HAVE_ANDROID 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
+        set(ALLEGRO_CFG_IIO_SUPPORT_WEBP 1)
         list(APPEND IMAGE_SOURCES android.c)
     endif(ANDROID)
 
@@ -133,6 +134,20 @@ if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
         endif()
     endif()
 endif(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
+
+if(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
+    find_package(WebP)
+    if(WEBP_FOUND)
+        set(ALLEGRO_CFG_IIO_HAVE_WEBP 1)
+        set(ALLEGRO_CFG_IIO_SUPPORT_WEBP 1)
+        list(APPEND IMAGE_SOURCES webp.c)
+        list(APPEND IMAGE_LIBRARIES ${WEBP_LIBRARIES})
+        list(APPEND IMAGE_INCLUDE_DIRECTORIES ${WEBP_INCLUDE_DIRS})
+        include_directories(SYSTEM ${WEBP_INCLUDE_DIRS})
+    else(WEBP_FOUND)
+        message("WARNING: libwebp not found, disabling support")
+    endif(WEBP_FOUND)
+endif(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
 
 configure_file(
     allegro5/internal/aintern_image_cfg.h.cmake

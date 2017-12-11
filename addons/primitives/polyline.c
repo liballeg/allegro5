@@ -76,9 +76,6 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
    float len_0, len_1;
    bool sharp = false;
 
-   /* We accept a few call cases. Filter out unsupported. */
-   ASSERT((NULL != v0 || NULL != v2) && (NULL != v1));
-
    /* Compute directions. */
    len_0 = compute_direction_and_normal(v0, v1, dir_0, normal_0);
    len_1 = compute_direction_and_normal(v1, v2, dir_1, normal_1);

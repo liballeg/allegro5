@@ -51,11 +51,80 @@ endif(SUPPORT_AUDIO)
 
 if(SUPPORT_FONT AND WANT_TTF)
     find_package(Freetype)
+
+    option(FREETYPE_ZLIB "Enable if FreeType static library needs zlib linked in." off)
+    option(FREETYPE_BZIP2 "Enable if FreeType static library needs bzip2 linked in." off)
+    option(FREETYPE_PNG "Enable if FreeType static library needs png linked in." off)
+
     if(FREETYPE_FOUND)
-        add_subdirectory(ttf)
-        set(SUPPORT_TTF 1 PARENT_SCOPE)
-        set(TTF_LINK_WITH ${TTF_LINK_WITH} PARENT_SCOPE)
-        list(APPEND ADDON_PKG_CONFIG_FILES allegro_ttf)
+        set(FREETYPE_TEST_SOURCE "
+            #include <ft2build.h>
+            #include FT_FREETYPE_H
+            int main(void) {
+                FT_Library ft;
+                FT_Open_Args args;
+                FT_Face face;
+                FT_Int32 ft_load_flags;
+                FT_Error e;
+                int ft_index;
+                FT_Init_FreeType(&ft);
+                FT_Open_Face(ft, &args, 0, &face);
+                return FT_Load_Glyph(face, ft_index, ft_load_flags);
+            }")
+
+        set(TTF_INCLUDE_DIRECTORIES ${FREETYPE_INCLUDE_DIRS})
+
+        set(CMAKE_REQUIRED_LIBRARIES ${FREETYPE_LIBRARIES})
+        set(CMAKE_REQUIRED_INCLUDES ${FREETYPE_INCLUDE_DIRS})
+        run_c_compile_test("${FREETYPE_TEST_SOURCE}" TTF_COMPILES)
+        if(TTF_COMPILES)
+            set(TTF_LIBRARIES ${FREETYPE_LIBRARIES})
+        else()
+            if(FREETYPE_ZLIB)
+                find_package(ZLIB)
+            endif()
+
+            if(FREETYPE_BZIP2)
+                find_package(BZip2)
+            endif()
+
+            if(FREETYPE_PNG)
+                find_package(PNG)
+            endif()
+
+            # Try compiling with the extra dependencies.
+            set(FREETYPE_STATIC_LIBRARIES ${FREETYPE_LIBRARIES})
+            if(FREETYPE_ZLIB AND ZLIB_FOUND)
+                list(APPEND FREETYPE_STATIC_LIBRARIES "${ZLIB_LIBRARIES}")
+            endif()
+
+            if(FREETYPE_BZIP2 AND BZIP2_FOUND)
+                list(APPEND FREETYPE_STATIC_LIBRARIES "${BZIP2_LIBRARIES}")
+            endif()
+
+            if(FREETYPE_PNG AND PNG_FOUND)
+                list(APPEND FREETYPE_STATIC_LIBRARIES "${PNG_LIBRARIES}")
+            endif()
+
+            set(CMAKE_REQUIRED_LIBRARIES ${FREETYPE_STATIC_LIBRARIES})
+            set(CMAKE_REQUIRED_INCLUDES ${FREETYPE_INCLUDE_DIRS})
+            run_c_compile_test("${FREETYPE_TEST_SOURCE}" TTF_COMPILES_WITH_EXTRA_DEPS)
+            if(TTF_COMPILES_WITH_EXTRA_DEPS)
+                set(TTF_COMPILES 1)
+                set(TTF_LIBRARIES ${FREETYPE_STATIC_LIBRARIES})
+            endif()
+        endif()
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(CMAKE_REQUIRED_LIBRARIES)
+
+        if(TTF_COMPILES)
+            add_subdirectory(ttf)
+            set(SUPPORT_TTF 1 PARENT_SCOPE)
+            set(TTF_LINK_WITH ${TTF_LINK_WITH} PARENT_SCOPE)
+            list(APPEND ADDON_PKG_CONFIG_FILES allegro_ttf)
+        else()
+            message(WARNING "FreeType doesn't compile. Disabling support.")
+        endif()
     else(FREETYPE_FOUND)
         message("WARNING: FreeType not found, disabling support.")
     endif(FREETYPE_FOUND)

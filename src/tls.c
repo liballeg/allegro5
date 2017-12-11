@@ -151,7 +151,6 @@ static void initialize_tls_values(thread_local_state *tls)
    _al_fill_display_settings(&tls->new_display_settings);
 }
 
-
 // FIXME: The TLS implementation below only works for dynamic linking
 // right now - instead of using DllMain we should simply initialize
 // on first request.
@@ -166,6 +165,16 @@ static void initialize_tls_values(thread_local_state *tls)
 #else
    #include "tls_native.inc"
 #endif
+
+
+
+void _al_reinitialize_tls_values(void)
+{
+   thread_local_state *tls;
+   if ((tls = tls_get()) == NULL)
+      return;
+   initialize_tls_values(tls);
+}
 
 
 

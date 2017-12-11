@@ -277,6 +277,9 @@ bool al_init_video_addon(void)
  */
 void al_shutdown_video_addon(void)
 {
+   if (!video_inited)
+      return;
+
    VideoHandler *v = handlers;
    while (v) {
       VideoHandler *next = v->next;
@@ -284,6 +287,7 @@ void al_shutdown_video_addon(void)
       v = next;
    }
    video_inited = false;
+   handlers = NULL;
 }
 
 

@@ -26,6 +26,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_wunicode.h"
+#include ALLEGRO_INTERNAL_HEADER
 
 ALLEGRO_DEBUG_CHANNEL("fshook")
 
@@ -441,9 +442,19 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
          return NULL;
       }
       memcpy(buf, fp_stdio->abs_path, abs_path_len);
-      buf[abs_path_len] = ALLEGRO_NATIVE_PATH_SEP;
-      memcpy(buf + abs_path_len + 1, ent->d_name, ent_name_len);
-      buf[abs_path_len + 1 + ent_name_len] = '\0';
+      if (  (abs_path_len >= 1) &&
+            buf[abs_path_len - 1] == ALLEGRO_NATIVE_PATH_SEP)
+      {
+         /* do NOT add a new separator if we have one already */
+         memcpy(buf + abs_path_len, ent->d_name, ent_name_len);
+         buf[abs_path_len + ent_name_len] = '\0';
+      }
+      else {
+         /* append separator */
+         buf[abs_path_len] = ALLEGRO_NATIVE_PATH_SEP;
+         memcpy(buf + abs_path_len + 1, ent->d_name, ent_name_len);
+         buf[abs_path_len + 1 + ent_name_len] = '\0';
+      }
       ret = create_abs_path_entry(buf);
       al_free(buf);
    }
