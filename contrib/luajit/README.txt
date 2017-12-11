@@ -18,4 +18,5 @@ To create a Luajit FFI desciption we use the prototypes scraped using the checkd
 See the Luajit docs on how to use this file.
 
 
-[lj]: 
+[lj]: http://luajit.org
+
