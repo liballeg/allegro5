@@ -583,9 +583,16 @@ void _al_osx_mouse_was_installed(BOOL install) {
    if (dpy_ptr->use_constraints &&
       !(dpy_ptr->flags & ALLEGRO_FULLSCREEN_WINDOW) && ![window isZoomed])
    {
+      float scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+      if ([window respondsToSelector:@selector(backingScaleFactor)]) {
+         scale_factor = [window backingScaleFactor];
+      }
+#endif
+
       NSSize max_size;
-      max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w : FLT_MAX;
-      max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h : FLT_MAX;
+      max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w / scale_factor : FLT_MAX;
+      max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h / scale_factor : FLT_MAX;
       [window setContentMaxSize: max_size];
    }
 
@@ -657,8 +664,14 @@ void _al_osx_mouse_was_installed(BOOL install) {
          newFrame.size.height = max_size.height;
       }
       else {
-         max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w : FLT_MAX;
-         max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h : FLT_MAX;
+         float scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+         if ([window respondsToSelector:@selector(backingScaleFactor)]) {
+           scale_factor = [window backingScaleFactor];
+         }
+#endif
+         max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w / scale_factor : FLT_MAX;
+         max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h / scale_factor : FLT_MAX;
       }
 
       [window setContentMaxSize: max_size];
@@ -2004,8 +2017,8 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    /* Set new width & height values to content rectangle
     * before calling 'set_frame' below.
     */
-   content.size.width = w;
-   content.size.height = h;
+   content.size.width = w / scale_factor;
+   content.size.height = h / scale_factor;
 
    NSRect rc = [window frameRectForContentRect: content];
    rc.origin = current.origin;
