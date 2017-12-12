@@ -188,6 +188,7 @@ option(WANT_DEMO "Build demo programs" on)
 option(WANT_EXAMPLES "Build example programs" on)
 option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 option(WANT_TESTS "Build test programs" on)
+option(WANT_LUAJIT "Build Luajit FFI" on)
 
 #-----------------------------------------------------------------------------#
 #
@@ -991,6 +992,16 @@ endif(WANT_EXAMPLES)
 if(WANT_TESTS)
     add_subdirectory(tests)
 endif(WANT_TESTS)
+
+#-----------------------------------------------------------------------------#
+#
+# contrib/Luajit
+#
+#-----------------------------------------------------------------------------#
+
+if(WANT_LUAJIT)
+    add_subdirectory(contrib/luajit)
+endif(WANT_LUAJIT)
 
 #-----------------------------------------------------------------------------#
 #
