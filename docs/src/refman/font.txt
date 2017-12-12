@@ -35,7 +35,9 @@ typedef struct ALLEGRO_GLYPH {
 } ALLEGRO_GLYPH;
 ~~~~
 
-bitmap may be a sub-bitmap in the case of color fonts.
+bitmap may be a sub-bitmap in the case of color fonts. Bitmap can also be NULL
+in which case nothing should be drawn (sometimes true for whitespace characters
+in TTF fonts).
 
 kerning should be added to the x position you draw to if you want your text
 kerned and depends on which codepoints [al_get_glyph] was called with.
