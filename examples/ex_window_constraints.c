@@ -138,6 +138,7 @@ int main(int argc, char **argv)
                constr_max_h ? max_h : 0)) {
             abort_example("Unable to set window constraints.\n");
          }
+         al_apply_window_constraints(display, true);
       }
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
