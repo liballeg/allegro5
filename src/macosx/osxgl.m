@@ -2318,13 +2318,13 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          }
 
          case ALLEGRO_MAXIMIZED: {
+            if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
+               return true;
             if (onoff)
                display->flags |= ALLEGRO_MAXIMIZED;
             else
                display->flags &= ~ALLEGRO_MAXIMIZED;
             ALOpenGLView *view = (ALOpenGLView *)[win contentView];
-            if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
-               return true;
             [view performSelectorOnMainThread: @selector(maximize) withObject: nil waitUntilDone:YES];
             return true;
          }
