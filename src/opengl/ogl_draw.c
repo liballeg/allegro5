@@ -428,7 +428,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
        * shader and enable them.
        */
       if (o->varlocs.pos_loc >= 0)  {
-         glVertexAttribPointer(o->varlocs.pos_loc, 2, GL_FLOAT, false, stride,
+         glVertexAttribPointer(o->varlocs.pos_loc, 3, GL_FLOAT, false, stride,
             (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
          glEnableVertexAttribArray(o->varlocs.pos_loc);
       }
@@ -448,7 +448,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    else
 #endif
    {
-      vert_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
+      vert_ptr_on(disp, 3, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
          (char *)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
       tex_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
          (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));

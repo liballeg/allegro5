@@ -153,7 +153,7 @@ typedef struct ALLEGRO_OGL_EXTRAS
 
 typedef struct ALLEGRO_OGL_BITMAP_VERTEX
 {
-   float x, y;
+   float x, y, z;
    float tx, ty;
    float r, g, b, a;
 } ALLEGRO_OGL_BITMAP_VERTEX;
