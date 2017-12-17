@@ -42,11 +42,10 @@ function(add_android_app prog sources)
     get_property(JNI_LIBS GLOBAL PROPERTY JNI_LIBS)
     foreach(lib ${JNI_LIBS})
         set(jnilib ${PROJECT}/app/src/main/jniLibs/${ARM_TARGETS}/lib${lib}${SUFFIX}.so)
-        get_property(so TARGET ${lib} PROPERTY LOCATION)
         add_custom_command(
             OUTPUT ${jnilib}
             DEPENDS ${lib}
-            COMMAND ${CMAKE_COMMAND} -E copy ${so} ${jnilib})
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${lib}> ${jnilib})
         list(APPEND jnilibs ${jnilib})
     endforeach()
 
@@ -75,11 +74,10 @@ function(add_android_app prog sources)
     target_link_libraries(${prog} ${JNI_LIBS})
 
     # Get the path of the application's shared object.
-    get_target_property(native_location ${prog} LOCATION)
     add_custom_command(
         OUTPUT ${native}
         DEPENDS ${prog}
-        COMMAND ${CMAKE_COMMAND} -E copy ${native_location} ${native}
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${prog}> ${native}
         )
         
     add_custom_command(
