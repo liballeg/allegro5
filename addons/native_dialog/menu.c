@@ -649,7 +649,7 @@ void al_destroy_menu(ALLEGRO_MENU *menu)
       ASSERT(false);
       return;
    }
-   else if (menu->display) {
+   else if (menu->display && !menu->is_popup_menu) {
       /* This is an active, top-level menu. */
       al_remove_display_menu(menu->display);
    }
