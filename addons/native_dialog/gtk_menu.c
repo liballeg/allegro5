@@ -22,6 +22,7 @@
 #include "gtk_dialog.h"
 #include "gtk_xgtk.h"
 
+ALLEGRO_DEBUG_CHANNEL("menu")
 
 typedef struct ARGS ARGS;
 
@@ -403,6 +404,20 @@ static void popop_on_hide(ALLEGRO_MENU *menu)
    /* in case we want to notify on popup close */
 }
 
+/* [gtk thread]
+ *
+ * gtk_menu_popup has a propencity of failing silently, and having this *
+ * function called seems to be the only reliable way of detecting when this
+ * happens.
+ */
+static void position_func(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data) {
+   (void)menu;
+   (void)x;
+   (void)y;
+   (void)push_in;
+   *((bool*)user_data) = true;
+}
+
 /* [gtk thread] */
 static gboolean do_show_popup_menu(gpointer data)
 {
@@ -421,7 +436,15 @@ static gboolean do_show_popup_menu(gpointer data)
       g_signal_connect_swapped (menu, "hide",
          G_CALLBACK(popop_on_hide), (gpointer) args->menu);
    }
-   gtk_menu_popup(args->menu->extra1, NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
+
+   bool position_called = false;
+   gtk_menu_popup(args->menu->extra1, NULL, NULL, position_func, &position_called, 0,
+      gtk_get_current_event_time());
+   if (!position_called) {
+      ALLEGRO_DEBUG("Position canary not called, most likely the menu didn't show "
+      "up due to outstanding mouse events.\n");
+   }
+   args->base.response = position_called;
    
    _al_gtk_release_args(args);
    

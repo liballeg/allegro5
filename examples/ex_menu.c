@@ -256,8 +256,11 @@ int main(int argc, char **argv)
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
          /* Popup a context menu on a right click. */
          if (event.mouse.display == display && event.mouse.button == 2) {
-            if (pmenu)
-               al_popup_menu(pmenu, display);
+            if (pmenu) {
+               if (!al_popup_menu(pmenu, display)) {
+                  log_printf("Couldn't popup menu!\n");
+               }
+            }
          }
       }
       else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
