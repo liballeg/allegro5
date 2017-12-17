@@ -656,6 +656,11 @@ the menu is located on the screen.
 
 Returns `true` if the context menu was displayed.
 
+> *Note:* On Linux this function will fail if any of the mouse keys are held
+down. I.e. it will only reliably work if you handle it in
+`ALLEGRO_MOUSE_BUTTON_UP` events and even then only if that event corresponds
+to the final mouse button that was pressed.
+
 Since: 5.1.0
 
 See also: [al_create_popup_menu]

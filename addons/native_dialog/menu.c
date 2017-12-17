@@ -804,6 +804,7 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
  */
 bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display)
 {
+   bool ret;
    ASSERT(popup);
 
    if (!popup->is_popup_menu || popup->parent)
@@ -815,7 +816,12 @@ bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display)
    /* Set the entire menu tree as owned by the display */
    _al_walk_over_menu(popup, set_menu_display_r, display);
 
-   return _al_show_popup_menu(display, popup);
+   ret = _al_show_popup_menu(display, popup);
+
+   if (!ret) {
+      _al_walk_over_menu(popup, set_menu_display_r, NULL);
+   }
+   return ret;
 }
 
 /* Function: al_remove_display_menu
