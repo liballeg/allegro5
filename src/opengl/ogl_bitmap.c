@@ -193,9 +193,9 @@ char const *_al_gl_error_string(GLenum e)
 }
 #undef ERR
 
-static INLINE void transform_vertex(float* x, float* y)
+static INLINE void transform_vertex(float* x, float* y, float* z)
 {
-   al_transform_coordinates(al_get_current_transform(), x, y);
+   al_transform_coordinates_3d(al_get_current_transform(), x, y, z);
 }
 
 static void draw_quad(ALLEGRO_BITMAP *bitmap,
@@ -235,6 +235,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 
    verts[0].x = 0;
    verts[0].y = dh;
+   verts[0].z = 0;
    verts[0].tx = tex_l;
    verts[0].ty = tex_b;
    verts[0].r = tint.r;
@@ -244,6 +245,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    
    verts[1].x = 0;
    verts[1].y = 0;
+   verts[1].z = 0;
    verts[1].tx = tex_l;
    verts[1].ty = tex_t;
    verts[1].r = tint.r;
@@ -253,6 +255,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    
    verts[2].x = dw;
    verts[2].y = dh;
+   verts[2].z = 0;
    verts[2].tx = tex_r;
    verts[2].ty = tex_b;
    verts[2].r = tint.r;
@@ -262,6 +265,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    
    verts[4].x = dw;
    verts[4].y = 0;
+   verts[4].z = 0;
    verts[4].tx = tex_r;
    verts[4].ty = tex_t;
    verts[4].r = tint.r;
@@ -271,10 +275,10 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    
    if (disp->cache_enabled) {
       /* If drawing is batched, we apply transformations manually. */
-      transform_vertex(&verts[0].x, &verts[0].y);
-      transform_vertex(&verts[1].x, &verts[1].y);
-      transform_vertex(&verts[2].x, &verts[2].y);
-      transform_vertex(&verts[4].x, &verts[4].y);
+      transform_vertex(&verts[0].x, &verts[0].y, &verts[0].z);
+      transform_vertex(&verts[1].x, &verts[1].y, &verts[1].z);
+      transform_vertex(&verts[2].x, &verts[2].y, &verts[2].z);
+      transform_vertex(&verts[4].x, &verts[4].y, &verts[4].z);
    }
    verts[3] = verts[1];
    verts[5] = verts[2];
