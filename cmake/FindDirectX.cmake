@@ -27,8 +27,10 @@ check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows K
 check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows Kits\\\\Installed Roots;KitsRoot81]")
 
 if(CMAKE_CL_64 OR CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(MINGW_W64_HINT "x86_64-w64-mingw32")
     set(PROCESSOR_SUFFIX "x64")
 else()
+    set(MINGW_W64_HINT "i686-w64-mingw32")
     set(PROCESSOR_SUFFIX "x86")
 endif()
 
@@ -64,6 +66,7 @@ macro(find_component name header library)
         find_path(${name}_INCLUDE_DIR ${header}
             PATH_SUFFIXES
                 Include
+                ${MINGW_W64_HINT}/include
             PATHS
                 "$ENV{DXSDK_DIR}"
             )
@@ -71,6 +74,7 @@ macro(find_component name header library)
         find_library(${name}_LIBRARY
             NAMES lib${library} ${library}
             PATH_SUFFIXES
+                ${MINGW_W64_HINT}/lib
                 Lib
                 Lib/${PROCESSOR_SUFFIX}
             PATHS
