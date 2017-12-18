@@ -402,28 +402,5 @@ macro(add_addon2 addon addon_target)
     set(MONOLITH_DEFINES ${MONOLITH_DEFINES} PARENT_SCOPE)
 endmacro(add_addon2)
 
-# Ensure that the default include system directories are added to the list of CMake implicit includes.
-# This workarounds an issue that happens when using GCC 6 and using system includes (-isystem).
-# For more details check: https://bugs.webkit.org/show_bug.cgi?id=161697
-macro(get_gcc_system_include_dirs _lang _compiler _flags _result)
-    file(WRITE "${CMAKE_BINARY_DIR}/CMakeFiles/dummy" "\n")
-    separate_arguments(_buildFlags UNIX_COMMAND "${_flags}")
-    execute_process(COMMAND ${_compiler} ${_buildFlags} -v -E -x ${_lang} -dD dummy
-                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/CMakeFiles OUTPUT_QUIET
-                    ERROR_VARIABLE _gccOutput)
-    file(REMOVE "${CMAKE_BINARY_DIR}/CMakeFiles/dummy")
-    if("${_gccOutput}" MATCHES "> search starts here[^\n]+\n *(.+) *\n *End of (search) list")
-        set(${_result} ${CMAKE_MATCH_1})
-        string(REPLACE "\n" " " ${_result} "${${_result}}")
-        separate_arguments(${_result})
-        set(canonical_paths "")
-        foreach(path IN ITEMS ${${_result}})
-            get_filename_component(canonical_path ${path} ABSOLUTE)
-            list(APPEND canonical_paths ${canonical_path})
-        endforeach()
-        set(${_result} ${canonical_paths})
-    endif()
-endmacro()
-
 #-----------------------------------------------------------------------------#
 # vim: set ft=cmake sts=4 sw=4 et:

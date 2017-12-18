@@ -199,16 +199,6 @@ include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-   get_gcc_system_include_dirs("c" "${CMAKE_C_COMPILER}" "${CMAKE_C_FLAGS}" SYSTEM_INCLUDE_DIRS)
-   set(CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES} ${SYSTEM_INCLUDE_DIRS})
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-   get_gcc_system_include_dirs("c++" "${CMAKE_CXX_COMPILER}" "${CMAKE_CXX_FLAGS}" SYSTEM_INCLUDE_DIRS)
-   set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES} ${SYSTEM_INCLUDE_DIRS})
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
     set(COMPILER_GCC_OR_CLANG 1)
 endif()
@@ -710,7 +700,7 @@ if(WIN32)
         # At least some copies of dinput.h redefine some types multiple times.
         # We must add the directory as a system directory so that the compiler
         # will suppress such errors.
-        include_directories(SYSTEM ${DINPUT_INCLUDE_DIR})
+        include_directories(${DINPUT_INCLUDE_DIR})
     else(DINPUT_FOUND)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")
@@ -731,7 +721,7 @@ if(WIN32)
     
     if(SUPPORT_D3D)
         if(D3DX9_FOUND)
-            include_directories(BEFORE SYSTEM ${D3DX9_INCLUDE_DIR})
+            include_directories(BEFORE ${D3DX9_INCLUDE_DIR})
             set(ALLEGRO_CFG_D3DX9 1)
         else()
             message("D3DX9 not found. You will not be able to compress or "
@@ -912,7 +902,7 @@ set(MONOLITH_SOURCES ${LIBRARY_SOURCES})
 add_subdirectory(addons)
 
 if(WANT_MONOLITH)
-    include_directories(SYSTEM ${MONOLITH_INCLUDE_DIRECTORIES})
+    include_directories(${MONOLITH_INCLUDE_DIRECTORIES})
 
     # For OSX, we need to set the header location inside the framework for each
     # file (relative to the current directory, so for example when the
