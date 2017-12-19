@@ -66,6 +66,7 @@ set(DATA_IMAGES
 
 set(DATA_TTF
     DejaVuSans.ttf
+    a4_font.fnt
     )
 
 set(DATA_AUDIO
