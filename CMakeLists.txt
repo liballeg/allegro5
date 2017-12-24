@@ -150,6 +150,7 @@ option(WANT_MONOLITH "Include all addons in the main library" off)
 #
 
 option(WANT_PYTHON_WRAPPER "Enable generation of the Python wrapper" off)
+option(WANT_LUAJIT "Enable generation of the Luajit wrapper" off)
 
 #
 # Documentation.
@@ -188,7 +189,6 @@ option(WANT_DEMO "Build demo programs" on)
 option(WANT_EXAMPLES "Build example programs" on)
 option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 option(WANT_TESTS "Build test programs" on)
-option(WANT_LUAJIT "Build Luajit FFI" on)
 
 #-----------------------------------------------------------------------------#
 #
