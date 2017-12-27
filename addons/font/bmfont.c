@@ -324,13 +324,21 @@ static bool get_glyph_dimensions(const ALLEGRO_FONT *f,
 static int get_glyph_advance(const ALLEGRO_FONT *f,
       int codepoint1, int codepoint2) {
    BMFONT_DATA *data = f->data;
-   BMFONT_CHAR *prev = find_codepoint(data, codepoint1);
-   BMFONT_CHAR *c = find_codepoint(data, codepoint2);
+   BMFONT_CHAR *c = find_codepoint(data, codepoint1);
+   int kerning = 0;
+   if (codepoint1 == ALLEGRO_NO_KERNING) {
+      return 0;
+   }
+
    if (!c) {
       if (!f->fallback) return 0;
       return al_get_glyph_advance(f->fallback, codepoint1, codepoint2);
    }
-   return c->xadvance + get_kerning(prev, codepoint2);
+
+   if (codepoint2 != ALLEGRO_NO_KERNING)
+      kerning = get_kerning(c, codepoint2);
+
+   return c->xadvance + kerning;
 }
 
 static bool get_glyph(const ALLEGRO_FONT *f, int prev_codepoint,
