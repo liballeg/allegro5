@@ -157,7 +157,8 @@ void _al_configure_logging(void)
    else
       trace_info.flags &= ~1;
 
-   _al_mutex_init(&trace_info.trace_mutex);
+   if (!trace_info.configured)
+      _al_mutex_init(&trace_info.trace_mutex);
 
    trace_info.configured = true;
 }
