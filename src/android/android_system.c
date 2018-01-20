@@ -59,7 +59,6 @@ struct system_data_t {
 
    int orientation;
 
-   bool is_2_1;   /* is running on Android OS 2.1? */
    bool paused;
 };
 
@@ -244,10 +243,6 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
 
    ALLEGRO_DEBUG("init time");
    _al_unix_init_time();
-
-   // Android 2.1 has a bug with glClear we have to work around
-   const char *ver = _real_al_android_get_os_version(env);
-   system_data.is_2_1 = (0 == strncmp(ver, "2.1", 3));
 
    const char *user_lib_name = al_cstr(system_data.user_lib_name);
    ALLEGRO_DEBUG("load user lib: %s", user_lib_name);
@@ -600,11 +595,6 @@ static const char *_real_al_android_get_os_version(JNIEnv *env)
 const char *al_android_get_os_version(void)
 {
    return _real_al_android_get_os_version(_al_android_get_jnienv());
-}
-
-bool _al_android_is_os_2_1(void)
-{
-   return system_data.is_2_1;
 }
 
 void _al_android_thread_created(void)
