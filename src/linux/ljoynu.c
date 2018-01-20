@@ -47,6 +47,14 @@
    #include <sys/inotify.h>
 #endif
 
+#ifndef KEY_CNT
+   #define KEY_CNT (KEY_MAX+1)
+#endif
+
+#ifndef ABS_CNT
+   #define ABS_CNT (ABS_MAX+1)
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("ljoy");
 
 #include "allegro5/internal/aintern_ljoynu.h"
