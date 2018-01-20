@@ -447,8 +447,18 @@ See also: [al_translate_transform], [al_rotate_transform], [al_scale_transform]
 
 Combines the given transformation with an orthographic transformation which
 maps the screen rectangle to the given left/top and right/bottom coordinates.
-near/far is the z-buffer range, if there is no z-buffer you can set it to
--1/1.
+
+near/far is the z range, coordinates outside of that range will get clipped.
+Normally -1/1 is fine because all 2D graphics will have a z coordinate of 0.
+However if you for example do al_draw_rectangle(0, 0, 100, 100) and rotate
+around the x axis ("towards the screen") make sure your z range allows values
+from -100 to 100 or the rotated rectangle will get clipped.
+
+Also, if you are using a depth buffer the z range decides the depth
+resolution. For example if you have a 16 bit depth buffer there are only
+65536 discrete depth values. So if your near/far is set to -1000000/1000000
+most of the z positions would not result in separate depth values which
+could lead to artifacts. 
 
 Since: 5.1.3
 
@@ -490,6 +500,9 @@ See also: [al_use_projection_transform]
 
 Combines the given transformation with a transformation which rotates
 coordinates around the given vector by the given angle in radians.
+
+Note: The vector is assumed to be of unit length (otherwise it will
+also incur a scale).
 
 Since: 5.1.3
 
