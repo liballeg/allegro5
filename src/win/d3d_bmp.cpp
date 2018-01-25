@@ -129,9 +129,9 @@ void _al_d3d_bmp_destroy(void)
    vt = NULL;
 }
 
-static INLINE void transform_vertex(float* x, float* y)
+static INLINE void transform_vertex(float* x, float* y, float* z)
 {
-   al_transform_coordinates(al_get_current_transform(), x, y);
+   al_transform_coordinates_3d(al_get_current_transform(), x, y, z);
 }
 
 /*
@@ -213,10 +213,10 @@ static void d3d_draw_textured_quad(
    vertices[5].v = tv_end; \
 \
    if (aldisp->cache_enabled) { \
-      transform_vertex(&vertices[0].x, &vertices[0].y); \
-      transform_vertex(&vertices[1].x, &vertices[1].y); \
-      transform_vertex(&vertices[2].x, &vertices[2].y); \
-      transform_vertex(&vertices[5].x, &vertices[5].y); \
+      transform_vertex(&vertices[0].x, &vertices[0].y, &vertices[0].z); \
+      transform_vertex(&vertices[1].x, &vertices[1].y, &vertices[1].z); \
+      transform_vertex(&vertices[2].x, &vertices[2].y, &vertices[2].z); \
+      transform_vertex(&vertices[5].x, &vertices[5].y, &vertices[5].z); \
    } \
     \
    vertices[3] = vertices[0]; \
