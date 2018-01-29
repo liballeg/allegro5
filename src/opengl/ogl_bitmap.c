@@ -717,7 +717,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
 static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int flags)
 {
-#if !defined ALLEGRO_ANDROID && !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_CFG_OPENGLES
    ALLEGRO_BITMAP_EXTRA_OPENGL *const ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
@@ -831,7 +831,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
+#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPopClientAttrib();
+#endif
 
    if (old_disp != NULL) {
       _al_set_current_display_only(old_disp);
@@ -859,6 +861,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
 
 static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
 {
+#if !defined ALLEGRO_CFG_OPENGLES
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    int lock_format = bitmap->locked_region.format;
    ALLEGRO_DISPLAY *old_disp = NULL;
@@ -931,6 +934,9 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
 EXIT:
    al_free(ogl_bitmap->lock_buffer);
    ogl_bitmap->lock_buffer = NULL;
+#else
+   (void)bitmap;
+#endif
 }
 
 static void ogl_backup_dirty_bitmap(ALLEGRO_BITMAP *b)
