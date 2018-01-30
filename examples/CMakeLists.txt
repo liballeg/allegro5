@@ -210,7 +210,7 @@ example(ex_font_multiline ex_font_multiline.cpp ${NIHGUI} ${IMAGE} ${TTF} ${COLO
 example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM} DATA ${DATA_TTF})
 example(ex_projection ${TTF} ${IMAGE} ${DATA_IMAGES} ${DATA_TTF})
 example(ex_projection2 ${PRIM} ${FONT} ${IMAGE} ${DATA_IMAGES})
-example(ex_camera ${FONT} ${COLOR} ${PRIM})
+example(ex_camera ${FONT} ${COLOR} ${PRIM} ${IMAGE})
 example(ex_ttf ${TTF} ${PRIM} ${IMAGE} DATA ${DATA_TTF} ex_ttf.ini)
 
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
