@@ -5,6 +5,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_image.h>
 #include <math.h>
 
 #include "common.c"
@@ -46,6 +47,9 @@ typedef struct {
 
    /* used to draw some info text */
    ALLEGRO_FONT *font;
+
+   /* if not NULL the skybox picture to use */
+   ALLEGRO_BITMAP *skybox;
 } Example;
 
 Example ex;
@@ -201,7 +205,8 @@ static void setup_3d_projection(void)
 }
 
 /* Adds a new vertex to our scene. */
-static void add_vertex(double x, double y, double z, ALLEGRO_COLOR color)
+static void add_vertex(double x, double y, double z, double u, double v,
+      ALLEGRO_COLOR color)
 {
    int i = ex.n++;
    if (i >= ex.v_size) {
@@ -212,20 +217,24 @@ static void add_vertex(double x, double y, double z, ALLEGRO_COLOR color)
    ex.v[i].x = x;
    ex.v[i].y = y;
    ex.v[i].z = z;
+   ex.v[i].u = u;
+   ex.v[i].v = v;
    ex.v[i].color = color;
 }
 
 /* Adds two triangles (6 vertices) to the scene. */
-static void add_quad(double x, double y, double z,
-   double ux, double uy, double uz,
-   double vx, double vy, double vz, ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
+static void add_quad(double x, double y, double z, double u, double v,
+   double ux, double uy, double uz, double uu, double uv,
+   double vx, double vy, double vz, double vu, double vv,
+   ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
 {
-   add_vertex(x, y, z, c1);
-   add_vertex(x + ux, y + uy, z + uz, c1);
-   add_vertex(x + vx, y + vy, z + vz, c2);
-   add_vertex(x + vx, y + vy, z + vz, c2);
-   add_vertex(x + ux, y + uy, z + uz, c1);
-   add_vertex(x + ux + vx, y + uy + vy, z + uz + vz, c2);
+   add_vertex(x, y, z, u, v, c1);
+   add_vertex(x + ux, y + uy, z + uz, u + uu, v + uv, c1);
+   add_vertex(x + vx, y + vy, z + vz, u + vu, v + vv, c2);
+   add_vertex(x + vx, y + vy, z + vz, u + vu, v + vv, c2);
+   add_vertex(x + ux, y + uy, z + uz, u + uu, v + uv, c1);
+   add_vertex(x + ux + vx, y + uy + vy, z + uz + vz, u + uu + vu,
+      v + uv + vv, c2);
 }
 
 /* Create a checkerboard made from colored quads. */
@@ -245,7 +254,10 @@ static void add_checkerboard(void)
             c = c2;
             py -= 0.1;
          }
-         add_quad(px, py, pz, 1, 0, 0, 0, 0, 1, c, c);
+         add_quad(px, py, pz, 0, 0,
+            1, 0, 0, 0, 0,
+            0, 0, 1, 0, 0,
+            c, c);
       }
    }
 }
@@ -260,31 +272,50 @@ static void add_skybox(void)
    ALLEGRO_COLOR c2 = al_color_name("blue");
    ALLEGRO_COLOR c3 = al_color_name("white");
 
+   double a = 0, b = 0;
+   if (ex.skybox) {
+      a = al_get_bitmap_width(ex.skybox) / 4.0;
+      b = al_get_bitmap_height(ex.skybox) / 3.0;
+      c1 = c2 = c3;
+   }
+
    /* Back skybox wall. */
-   add_quad(p.x - 50, p.y, p.z - 50, 100, 0, 0, 0, 50, 0, c1, c2);
+   add_quad(p.x - 50, p.y - 50, p.z - 50, a * 4, b * 2,
+      100, 0, 0, -a, 0,
+      0, 100, 0, 0, -b,
+      c1, c2);
    /* Front skybox wall. */
-   add_quad(p.x - 50, p.y, p.z + 50, 100, 0, 0, 0, 50, 0, c1, c2);
+   add_quad(p.x - 50, p.y - 50, p.z + 50, a, b * 2,
+      100, 0, 0, a, 0,
+      0, 100, 0, 0, -b,
+      c1, c2);
    /* Left skybox wall. */
-   add_quad(p.x - 50, p.y, p.z - 50, 0, 0, 100, 0, 50, 0, c1, c2);
+   add_quad(p.x - 50, p.y - 50, p.z - 50, 0, b * 2,
+      0, 0, 100, a, 0,
+      0, 100, 0, 0, -b,
+      c1, c2);
    /* Right skybox wall. */
-   add_quad(p.x + 50, p.y, p.z - 50, 0, 0, 100, 0, 50, 0, c1, c2);
+   add_quad(p.x + 50, p.y - 50, p.z - 50, a * 3, b * 2,
+      0, 0, 100, -a, 0,
+      0, 100, 0, 0, -b,
+      c1, c2);
 
    /* Top of skybox. */
-   add_vertex(p.x - 50, p.y + 50, p.z - 50, c2);
-   add_vertex(p.x + 50, p.y + 50, p.z - 50, c2);
-   add_vertex(p.x, p.y + 50, p.z, c3);
+   add_vertex(p.x - 50, p.y + 50, p.z - 50, a, 0, c2);
+   add_vertex(p.x + 50, p.y + 50, p.z - 50, a * 2, 0, c2);
+   add_vertex(p.x, p.y + 50, p.z, a * 1.5, b * 0.5, c3);
 
-   add_vertex(p.x + 50, p.y + 50, p.z - 50, c2);
-   add_vertex(p.x + 50, p.y + 50, p.z + 50, c2);
-   add_vertex(p.x, p.y + 50, p.z, c3);
+   add_vertex(p.x + 50, p.y + 50, p.z - 50, a * 2, 0, c2);
+   add_vertex(p.x + 50, p.y + 50, p.z + 50, a * 2, b, c2);
+   add_vertex(p.x, p.y + 50, p.z, a * 1.5, b * 0.5, c3);
 
-   add_vertex(p.x + 50, p.y + 50, p.z + 50, c2);
-   add_vertex(p.x - 50, p.y + 50, p.z + 50, c2);
-   add_vertex(p.x, p.y + 50, p.z, c3);
+   add_vertex(p.x + 50, p.y + 50, p.z + 50, a * 2, b, c2);
+   add_vertex(p.x - 50, p.y + 50, p.z + 50, a, b, c2);
+   add_vertex(p.x, p.y + 50, p.z, a * 1.5, b * 0.5, c3);
 
-   add_vertex(p.x - 50, p.y + 50, p.z + 50, c2);
-   add_vertex(p.x - 50, p.y + 50, p.z - 50, c2);
-   add_vertex(p.x, p.y + 50, p.z, c3);
+   add_vertex(p.x - 50, p.y + 50, p.z + 50, a, b, c2);
+   add_vertex(p.x - 50, p.y + 50, p.z - 50, a, 0, c2);
+   add_vertex(p.x, p.y + 50, p.z, a * 1.5, b * 0.5, c3);
 }
 
 static void draw_scene(void)
@@ -323,7 +354,7 @@ static void draw_scene(void)
       ex.camera.position.z - ex.camera.zaxis.z,
       ex.camera.yaxis.x, ex.camera.yaxis.y, ex.camera.yaxis.z);
    al_use_transform(&t);
-   al_draw_prim(ex.v, NULL, NULL, 0, ex.n, ALLEGRO_PRIM_TRIANGLE_LIST);
+   al_draw_prim(ex.v, NULL, ex.skybox, 0, ex.n, ALLEGRO_PRIM_TRIANGLE_LIST);
 
    /* Restore projection. */
    al_identity_transform(&t);
@@ -443,9 +474,11 @@ int main(int argc, char **argv)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    int redraw = 0;
+   char const *skybox_name = NULL;
 
-   (void)argc;
-   (void)argv;
+   if (argc > 1) {
+      skybox_name = argv[1];
+   }
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -463,6 +496,19 @@ int main(int argc, char **argv)
    display = al_create_display(640, 360);
    if (!display) {
       abort_example("Error creating display\n");
+   }
+
+   if (skybox_name) {
+      al_init_image_addon();
+      ex.skybox = al_load_bitmap(skybox_name);
+      if (ex.skybox) {
+         printf("Loaded skybox %s: %d x %d\n", skybox_name,
+            al_get_bitmap_width(ex.skybox),
+            al_get_bitmap_height(ex.skybox));
+      }
+      else {
+         printf("Failed loading skybox %s\n", skybox_name);
+      }
    }
 
    timer = al_create_timer(1.0 / 60);
