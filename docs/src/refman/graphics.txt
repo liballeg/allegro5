@@ -876,6 +876,78 @@ See also: [al_create_sub_bitmap], [al_get_parent_bitmap]
 
 Since: 5.1.12
 
+### API: al_get_bitmap_blender
+
+Returns the current blender being used by the target bitmap.  You can pass NULL
+for values you are not interested in.
+
+Since: 5.2.4
+
+See also: [al_set_bitmap_blender], [al_get_separate_bitmap_blender]
+
+### API: al_get_separate_bitmap_blender
+
+Returns the current blender being used by the target bitmap.  You can pass NULL
+for values you are not interested in.
+
+Since: 5.2.4
+
+See also: [al_set_separate_bitmap_blender], [al_get_bitmap_blender]
+
+### API: al_get_bitmap_blend_color
+
+Returns the color currently used for constant color blending on the target
+bitmap.
+
+Since: 5.2.4
+
+See also: [al_set_bitmap_blend_color]
+
+### API: al_set_bitmap_blender
+
+Sets the function to use for blending when rendering to the target bitmap.  If
+no blender is set for a given bitmap at draw time, the values set for
+[al_set_blender]/[al_set_separate_blender] are used instead.
+
+To use separate functions for chroma (RGB) and alpha channels, use
+[al_set_separate_bitmap_blender].
+
+See [al_set_blender] for more information about how blending works.
+
+See also: [al_set_separate_bitmap_blender], [al_reset_bitmap_blender]
+
+Since: 5.2.4
+
+### API: al_set_separate_bitmap_blender
+
+Like [al_set_bitmap_blender], but allows specifying a separate blending
+operation for the alpha channel.  This is useful if your target bitmap also has
+an alpha channel and the two alpha channels need to be combined in a different
+way than the color components.
+
+Since: 5.2.4
+
+See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
+
+### API: al_set_bitmap_blend_color
+
+Sets the color to use for `ALLEGRO_CONST_COLOR` or `ALLEGRO_INVERSE_CONST_COLOR`
+blend operations.
+
+Since: 5.2.4
+
+See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
+
+### API: al_reset_bitmap_blender
+
+Resets the blender for this bitmap to the default.  After resetting the
+bitmap blender, the values set for
+[al_set_bitmap_blender]/[al_set_separate_bitmap_blender] will be used instead.
+
+Since: 5.2.4
+
+See also: [al_set_bitmap_blender]
+
 ## Drawing operations
 
 All drawing operations draw to the current "target bitmap" of the
