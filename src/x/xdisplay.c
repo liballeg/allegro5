@@ -131,6 +131,34 @@ static int xdpy_swap_control(ALLEGRO_DISPLAY *display, int vsync_setting)
    return vsync_setting;
 }
 
+static bool should_bypass_compositor(int flags)
+{
+   const char* value = al_get_config_value(al_get_system_config(), "x11", "bypass_compositor");
+   if (value && strcmp(value, "always") == 0) {
+      return true;
+   }
+   if (value && strcmp(value, "never") == 0) {
+      return false;
+   }
+   // default to "fullscreen_only"
+   return (flags & ALLEGRO_FULLSCREEN) || (flags & ALLEGRO_FULLSCREEN_WINDOW);
+}
+
+static void set_compositor_bypass_flag(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   const long _NET_WM_BYPASS_COMPOSITOR_HINT_ON = should_bypass_compositor(display->flags);
+   Atom _NET_WM_BYPASS_COMPOSITOR;
+
+   _NET_WM_BYPASS_COMPOSITOR = XInternAtom(system->x11display,
+                                           "_NET_WM_BYPASS_COMPOSITOR",
+                                           False);
+   XChangeProperty(system->x11display, glx->window, _NET_WM_BYPASS_COMPOSITOR,
+                   XA_CARDINAL, 32, PropModeReplace,
+                   (unsigned char *)&_NET_WM_BYPASS_COMPOSITOR_HINT_ON, 1);
+}
+
 
 static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
    ALLEGRO_DISPLAY_XGLX *d, int w, int h, int adapter)
@@ -247,15 +275,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
                    (unsigned char *)&_NET_WM_WINDOW_TYPE_NORMAL, 1);
 
    /* This seems like a good idea */
-   const long _NET_WM_BYPASS_COMPOSITOR_HINT_ON = 1;
-   Atom _NET_WM_BYPASS_COMPOSITOR;
-
-   _NET_WM_BYPASS_COMPOSITOR = XInternAtom(system->x11display,
-                                           "_NET_WM_BYPASS_COMPOSITOR",
-                                           False);
-   XChangeProperty(system->x11display, d->window, _NET_WM_BYPASS_COMPOSITOR,
-                   XA_CARDINAL, 32, PropModeReplace,
-                   (unsigned char *)&_NET_WM_BYPASS_COMPOSITOR_HINT_ON, 1);
+   set_compositor_bypass_flag(display);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
    /* listen for touchscreen events */
@@ -1304,6 +1324,8 @@ static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool on
        */
       display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
+
+      set_compositor_bypass_flag(display);
       _al_mutex_unlock(&system->lock);
    }
 }
