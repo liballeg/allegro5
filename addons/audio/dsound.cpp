@@ -59,6 +59,22 @@ static int buffer_size; // in bytes
 #define MIN_FILL           512
 #define MAX_FILL           1024
 
+static HWND get_window()
+{
+   const char *val = al_get_config_value(al_get_system_config(),
+      "directsound", "window");
+   HWND ret;
+   if (val && strncmp(val, "foreground", 10) == 0) {
+      ret = GetForegroundWindow();
+      ALLEGRO_INFO("Using foreground window: %p\n", ret);
+   }
+   else {
+      ret = GetDesktopWindow();
+      ALLEGRO_INFO("Using desktop window: %p\n", ret);
+   }
+   return ret;
+}
+
 static void dsound_set_buffer_size(int bits_per_sample)
 {
    int buffer_size_in_samples = 8192; // default
@@ -247,7 +263,7 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
 
 
 /* The open method starts up the driver and should lock the device, using the
-   previously set paramters, or defaults. It shouldn't need to start sending
+   previously set parameters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
 static int _dsound_open()
 {
@@ -263,8 +279,7 @@ static int _dsound_open()
 
    ALLEGRO_DEBUG("DirectSoundCreate8 succeeded\n");
 
-   /* FIXME: The window specified here is probably very wrong. NULL won't work either. */
-   hr = device->SetCooperativeLevel(GetForegroundWindow(), DSSCL_PRIORITY);
+   hr = device->SetCooperativeLevel(get_window(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
       return 1;
@@ -738,8 +753,7 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
       return 1;
    }
    
-   /* FIXME: The window specified here is probably very wrong. NULL won't work either. */
-   hr = device->SetCooperativeLevel(GetForegroundWindow(), DSSCL_PRIORITY);
+   hr = device->SetCooperativeLevel(get_window(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
       return 1;
