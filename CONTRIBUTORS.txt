@@ -2,11 +2,15 @@ People who have contributed code to Allegro 5:
 
 Aaron Bolyard
 Aldo Nunez
+Andreas Rönnquist
 Angelo Mottola
 Ben Davis
 Beoran
+[bk]door.maus
 Boris Carvajal
+BQ
 Bruce Pascoe
+Bruno Félix Rezende Ribeiro
 Chris Robinson
 David Capello
 Daniel Johnson
@@ -18,10 +22,12 @@ Elias Pschernig
 Eric Botcazou
 Erich Erstu
 Evert Glebbeek
+Gabriel Queiroz
 gameovera
 George Foot
 Grzegorz Adam Hankiewicz
 Henrik Stokseth
+Hyena
 Isaac Cruz
 Javier González Garcés
 Jeff Bernard
@@ -30,9 +36,12 @@ John-Kim Murphy
 Jonathan Lilliemarck
 Jonathan Seeley
 Jon Rafkind
+Jordan Woehr
 Julian Smythe
+juvinious
 kazzmir
 koro
+Marcus Calhoun-Lopez
 Mark Oates
 Markus Henschel
 Martijn van Iersel
@@ -58,8 +67,10 @@ Ryan Dickie
 Ryan Gumbs
 Ryan Patterson
 Ryan Roden-Corrent
+Sebastian Krzyszkowiak
 SiegeLord
 simast
+Simon Naarmann
 sleepywind
 Steven Wallace
 Sven Sandberg
@@ -67,8 +78,12 @@ Thomas Fjellstrom
 Tobias Hansen
 Tobias Scheuer
 Todd Cope
+Tom Bass
 torhu
 Trent Gamblin
+twobit
+verderten
+Vitaliy V. Tokarev
 vkensou
 
 Please let us know if we left anyone out.
