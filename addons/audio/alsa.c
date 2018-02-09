@@ -47,20 +47,35 @@ static char *alsa_device = NULL;
 // pw: But there are calls later which expect this variable to be set an on
 // my machine (without PulseAudio) the driver doesn't work properly with
 // anything lower than 32.
-#define DEFAULT_BUFFER_SIZE   32
-#define MIN_BUFFER_SIZE       1
+#define DEFAULT_PERIOD_SIZE   32
+#define MIN_PERIOD_SIZE       1
 
-static unsigned int get_buffer_size(const ALLEGRO_CONFIG *config)
+// This value works well on my RPI3 and Linux machine.
+#define DEFAULT_BUFFER_SIZE 2048
+
+static unsigned int get_period_size(void)
 {
-   if (config) {
-      const char *val = al_get_config_value(config,
-         "alsa", "buffer_size");
-      if (val && val[0] != '\0') {
-         int n = atoi(val);
-         if (n < MIN_BUFFER_SIZE)
-            n = MIN_BUFFER_SIZE;
-         return n;
-      }
+   const char *val = al_get_config_value(al_get_system_config(),
+      "alsa", "buffer_size");
+   if (val && val[0] != '\0') {
+      int n = atoi(val);
+      if (n < MIN_PERIOD_SIZE)
+         n = MIN_PERIOD_SIZE;
+      return n;
+   }
+
+   return DEFAULT_PERIOD_SIZE;
+}
+
+static snd_pcm_uframes_t get_buffer_size(void)
+{
+   const char *val = al_get_config_value(al_get_system_config(),
+      "alsa", "buffer_size2");
+   if (val && val[0] != '\0') {
+      int n = atoi(val);
+      if (n < 1)
+         n = 1;
+      return n;
    }
 
    return DEFAULT_BUFFER_SIZE;
@@ -589,7 +604,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->stopped = true;
    ex_data->reversed = false;
 
-   ex_data->frag_len = get_buffer_size(al_get_system_config());
+   ex_data->frag_len = get_period_size();
 
    if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
@@ -631,6 +646,8 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_hw_params_set_channels(ex_data->pcm_handle, hwparams, chan_count));
    ALSA_CHECK(snd_pcm_hw_params_set_rate_near(ex_data->pcm_handle, hwparams, &req_freq, NULL));
    ALSA_CHECK(snd_pcm_hw_params_set_period_size_near(ex_data->pcm_handle, hwparams, &ex_data->frag_len, NULL));
+   snd_pcm_uframes_t buffer_size = get_buffer_size();
+   ALSA_CHECK(snd_pcm_hw_params_set_buffer_size_near(ex_data->pcm_handle, hwparams, &buffer_size));
    ALSA_CHECK(snd_pcm_hw_params(ex_data->pcm_handle, hwparams));
 
    if (voice->frequency != req_freq) {
