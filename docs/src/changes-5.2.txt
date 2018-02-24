@@ -2,6 +2,91 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.3 to 5.2.4 (February 2018)
+==========================================
+
+The main developers this time were: Sebastian Krzyszkowiak, Elias Pschernig,
+SiegeLord
+
+Core:
+
+  - Fix errors when reading/writing 0 byte buffers (Bruce Pascoe).
+
+  - Re-initialize TLS when Allegro is installed (Issue #865).
+
+  - Add `al_transform_coordinates_4d`.
+
+  - Don't initialize the trace mutex multiple times (Issue #874).
+
+  - Fix 3D (non-projection) transforms with `al_hold_bitmap_drawing`.
+
+Raspberry Pi port:
+
+  - Fix compilation on RPI.
+
+Android port:
+
+  - Remove limit on the working directory length.
+
+  - Fix `ALLEGRO_MAXIMIZED` flag.
+
+  - Fix build with older Android NDKs.
+
+  - Remove `glClear` hack for Android 2.1.
+
+Linux port:
+
+  - Make compositor bypass configurable in X11, and bypass only when fullscreen
+    by default.
+
+OSX port:
+
+  - Fix a few OSX retina scaling issues (Issue #851).
+
+Audio addon:
+
+  - Fix ALSA lag.
+
+  - Add an option to use the desktop window when initializing DirectSound
+    (Issue #877).
+
+Font addon:
+
+  - Add support for bmfont format.
+
+Native dialog addon:
+
+  - Resize the display on Windows when hiding/showing the menu (Issue #860).
+
+  - Detect when `al_popup_menu` fails to actually work under GTK (Issue #808).
+
+  - Don't clear the top-level menu when destroying the popup menu.
+
+Build system:
+
+  - Don't link in libm on MSVC for DUMB (Issue #847).
+
+  - Don't use the LOCATION property (Issue #847).
+
+  - Don't use SYSTEM for DirectX includes.
+
+  - Add hints for mingw-w64 path locations for DirectX includes/libs.
+
+Python binding:
+
+  - Fix the Python code-generation scripts to run under Python 2.
+
+Lua binding:
+
+  - Add script to generate LuaJIT C API for Allegro 5 (BQ).
+
+Documentation:
+
+  - Many improvements (Andreas Rönnquist, others)
+
+Examples:
+
+  - Add a texture to the skybox in `ex_camera`.
 
 Changes from 5.2.2 to 5.2.3 (October 2017)
 ==========================================
