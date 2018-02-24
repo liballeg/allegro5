@@ -42,7 +42,7 @@ option(WANT_GLES3 "Compile with GLES3 support" OFF)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented on Windows)" OFF)
 
-set(ALLEGRO_VERSION 5.2.4)
+set(ALLEGRO_VERSION 5.2.5)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
