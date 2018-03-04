@@ -7,6 +7,7 @@
 
 #include "iio.h"
 
+ALLEGRO_DEBUG_CHANNEL("image")
 
 static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
 {
@@ -105,6 +106,7 @@ ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f, int flags)
    int64_t size = al_fsize(f);
    if (size <= 0) {
       // TODO: Read from stream until we have the whole image
+      ALLEGRO_ERROR("Unable to determine file size.\n");
       return NULL;
    }
    /* Note: This *MUST* be the Apple malloc and not any wrapper, as the
@@ -127,8 +129,10 @@ ALLEGRO_BITMAP *_al_iphone_load_image(const char *filename, int flags)
    ALLEGRO_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
-   if (!fp)
+   if (!fp) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_iphone_load_image_f(fp, flags);
 

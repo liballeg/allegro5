@@ -117,7 +117,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    al_set_new_bitmap_format(format);
    bmp = al_create_bitmap(w, h);
    if (!bmp) {
-      ALLEGRO_ERROR("Couldn't create bitmap.\n");
+      ALLEGRO_ERROR("Failed to create bitmap.\n");
       goto FAIL;
    }
 
@@ -172,8 +172,10 @@ ALLEGRO_BITMAP *_al_load_dds(const char *filename, int flags)
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_load_dds_f(f, flags);
 

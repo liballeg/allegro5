@@ -95,8 +95,10 @@ ALLEGRO_BITMAP *_al_load_webp(const char *filename, int flags)
    ALLEGRO_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
-   if (!fp)
+   if (!fp) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_load_webp_f(fp, flags);
 
@@ -121,8 +123,10 @@ bool _al_save_webp_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
       ALLEGRO_LOCK_READONLY);
-   if (!lock)
+   if (!lock) {
+      ALLEGRO_ERROR("Failed to lock bitmap.\n");
       return false;
+   }
 
    uint8_t *output = NULL;
    size_t size;

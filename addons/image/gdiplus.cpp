@@ -16,6 +16,8 @@
    #include <GdiPlus.h>
 #endif
 
+ALLEGRO_DEBUG_CHANNEL("image")
+
 /* Needed with the MinGW w32api-3.15 headers. */
 using namespace Gdiplus;
 
@@ -321,6 +323,7 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
 {
    AllegroWindowsStream *s = new AllegroWindowsStream(fp);
    if (!s) {
+      ALLEGRO_ERROR("Unable to create AllegroWindowsStream.\n");
       return NULL;
    }
 
@@ -388,11 +391,13 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
    }
 
    if (encoder_status == -1) {
+      ALLEGRO_ERROR("Invalid encoder status.\n");
       return false;    
    }
 
    AllegroWindowsStream *s = new AllegroWindowsStream(fp);
    if (!s) {
+      ALLEGRO_ERROR("Couldn't create AllegroWindowsStream.\n");
       return false;
    }
 
