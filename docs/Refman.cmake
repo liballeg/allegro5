@@ -88,7 +88,11 @@ set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
 set(MAKE_PROTOS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_protos)
 set(MAKE_HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_html_refs)
 set(MAKE_INDEX ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_index)
-set(MAKE_DOC ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_doc --pandoc "${PANDOC}" --protos ${PROTOS} --allegro5_cfg ${CMAKE_SOURCE_DIR}/allegro5.cfg)
+set(MAKE_DOC ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_doc
+    --pandoc "${PANDOC}"
+    --protos ${PROTOS}
+    --allegro5_cfg ${CMAKE_SOURCE_DIR}/allegro5.cfg
+    --git_ref ${REAL_DOC_GIT_REF})
 set(INSERT_TIMESTAMP ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/insert_timestamp)
 set(MAKE_SEARCH_INDEX ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_search_index)
 

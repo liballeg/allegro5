@@ -37,6 +37,7 @@ dstr allegro5_cfg_filename = "";
 bool raise_sections        = false;
 dstr tmp_preprocess_output;
 dstr tmp_pandoc_output;
+dstr git_ref               = "master";
 
 static Aatree *protos = &aa_nil;
 static Aatree *sources = &aa_nil;
@@ -95,6 +96,10 @@ static int process_options(int argc, char *argv[])
          d_assign(allegro5_cfg_filename, argv[i + 1]);
          i += 2;
       }
+      else if (streq(argv[i], "--git_ref")) {
+         d_assign(git_ref, argv[i + 1]);
+         i += 2;
+      }
       else if (streq(argv[i], "--raise-sections")) {
          raise_sections = true;
          i++;
@@ -143,10 +148,8 @@ static void load_prototypes(const char *filename)
 
          d_assign(text, lookup_source(name));
          if (strlen(text) == 0) {
-            strcat(text, "https://github.com/liballeg/allegro5/blob/master/");
-            strcat(text, file_name);
-            strcat(text, "#L");
-            strcat(text, line_number);
+            sprintf(text, "https://github.com/liballeg/allegro5/blob/%s/%s#L%s",
+               git_ref, file_name, line_number);
             sources = aa_insert(sources, name, text);
          }
       }

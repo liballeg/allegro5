@@ -15,6 +15,35 @@ mark_as_advanced(CTAGS)
 
 #-----------------------------------------------------------------------------#
 
+option(DOC_GIT_REF "Git ref to use for source links in the documentation. If empty, will query git for this." "")
+
+set(REAL_DOC_GIT_REF "")
+if(DOC_GIT_REF)
+    set(REAL_DOC_GIT_REF ${DOC_GIT_REF})
+else()
+    find_package(Git)
+    if(GIT_FOUND)
+        message(STATUS "Using git to determine git ref for documentation.")
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            RESULT_VARIABLE GIT_RESULT
+            OUTPUT_VARIABLE GIT_OUTPUT
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+        if(GIT_RESULT EQUAL 0)
+            set(REAL_DOC_GIT_REF ${GIT_OUTPUT})
+        endif()
+    endif()
+endif()
+
+if(NOT REAL_DOC_GIT_REF)
+    set(REAL_DOC_GIT_REF master)
+endif()
+
+message(STATUS "Using ${REAL_DOC_GIT_REF} as the git ref for source links in the documentation.")
+
+#-----------------------------------------------------------------------------#
+
 # Pandoc 1.10 changed handling of internal cross-references in Texinfo writer,
 # and LaTeX writer thereabouts.
 if(PANDOC)
