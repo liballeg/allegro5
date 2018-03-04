@@ -377,8 +377,10 @@ ALLEGRO_BITMAP *_al_load_jpg(char const *filename, int flags)
    ALLEGRO_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
-   if (!fp)
+   if (!fp) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_load_jpg_f(fp, flags);
 

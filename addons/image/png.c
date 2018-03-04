@@ -411,8 +411,10 @@ ALLEGRO_BITMAP *_al_load_png(const char *filename, int flags)
    ALLEGRO_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
-   if (!fp)
+   if (!fp) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_load_png_f(fp, flags);
 
@@ -510,16 +512,21 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
     */
    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
                                      (void *)NULL, NULL, NULL);
-   if (!png_ptr)
+   if (!png_ptr) {
+      ALLEGRO_ERROR("Unable to create PNG write struct.\n");
       goto Error;
+   }
 
    /* Allocate/initialize the image information data. */
    info_ptr = png_create_info_struct(png_ptr);
-   if (!info_ptr)
+   if (!info_ptr) {
+      ALLEGRO_ERROR("Unable to create PNG info struct.\n");
       goto Error;
+   }
 
    /* Set error handling. */
    if (setjmp(jmpbuf)) {
+      ALLEGRO_ERROR("Failed to call setjmp.\n");
       goto Error;
    }
    png_set_error_fn(png_ptr, jmpbuf, user_error_fn, NULL);
@@ -559,8 +566,10 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
     * PNG_TEXT_COMPRESSION_zTXt_WR, so it doesn't get written out again
     * at the end.
     */
-   if (!save_rgba(png_ptr, bmp))
+   if (!save_rgba(png_ptr, bmp)) {
+      ALLEGRO_ERROR("save_rgba failed.\n");
       goto Error;
+   }
 
    png_write_end(png_ptr, info_ptr);
 

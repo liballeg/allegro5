@@ -197,7 +197,7 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
    if (!ext) {
       ext = al_identify_bitmap(filename);
       if (!ext) {
-         ALLEGRO_WARN("Bitmap %s has no extension and filetype "
+         ALLEGRO_ERROR("Bitmap %s has no extension and filetype "
             "identification failed - not even trying to load it.\n",
             filename);
          return NULL;
@@ -208,11 +208,11 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
    if (h && h->loader) {
       ret = h->loader(filename, flags);
       if (!ret)
-         ALLEGRO_WARN("Failed loading %s with %s handler.\n", filename,
+         ALLEGRO_ERROR("Failed loading %s with %s handler.\n", filename,
             ext);
    }
    else {
-      ALLEGRO_WARN("No handler for bitmap extension %s - "
+      ALLEGRO_ERROR("No handler for bitmap extension %s - "
          "therefore not trying to load %s.\n", ext, filename);
       ret = NULL;
    }
@@ -229,14 +229,16 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
    Handler *h;
 
    ext = strrchr(filename, '.');
-   if (!ext)
+   if (!ext) {
+      ALLEGRO_ERROR("Unable to determine file format from %s\n", filename);
       return false;
+   }
 
    h = find_handler(ext, false);
    if (h && h->saver)
       return h->saver(filename, bitmap);
    else {
-      ALLEGRO_WARN("No handler for image %s found\n", filename);
+      ALLEGRO_ERROR("No handler for image %s found\n", filename);
       return false;
    }
 }
@@ -285,7 +287,7 @@ bool al_save_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
    if (h && h->fs_saver)
       return h->fs_saver(fp, bitmap);
    else {
-      ALLEGRO_WARN("No handler for image %s found\n", ident);
+      ALLEGRO_ERROR("No handler for image %s found\n", ident);
       return false;
    }
 }

@@ -128,6 +128,7 @@ static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f, int flags)
    int64_t size = al_fsize(f);
    if (size <= 0) {
       // TODO: Read from stream until we have the whole image
+      ALLEGRO_ERROR("Couldn't determine file size.\n");
       return NULL;
    }
    /* Note: This *MUST* be the Apple malloc and not any wrapper, as the
@@ -151,8 +152,10 @@ static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename, int flags)
 
    ALLEGRO_DEBUG("Using native loader to read %s\n", filename);
    fp = al_fopen(filename, "rb");
-   if (!fp)
+   if (!fp) {
+      ALLEGRO_ERROR("Unable open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_osx_load_image_f(fp, flags);
 
@@ -184,6 +187,7 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
       type = NSPNGFileType;
    }
    else {
+      ALLEGRO_ERROR("Unsupported image format: %s.\n", ident);
       return false;
    }
 
@@ -218,6 +222,9 @@ bool _al_osx_save_image(const char *filename, ALLEGRO_BITMAP *bmp)
          al_destroy_path(path);
       }
       retclose = al_fclose(fp);
+   }
+   else {
+      ALLEGRO_ERROR("Unable open %s for writing.\n", filename);
    }
 
    return retsave && retclose;

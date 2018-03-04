@@ -29,6 +29,7 @@
 
 #include "iio.h"
 
+ALLEGRO_DEBUG_CHANNEL("image")
 
 
 /* raw_tga_read8:
@@ -294,6 +295,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
       }
    }
    else if (palette_type != 0) {
+      ALLEGRO_ERROR("Invalid palette type %d.\n", palette_type);
       return NULL;
    }
 
@@ -310,6 +312,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    image_type &= 7;
 
    if ((image_type < 1) || (image_type > 3)) {
+      ALLEGRO_ERROR("Invalid image type %d.\n", image_type);
       return NULL;
    }
 
@@ -331,6 +334,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          else if ((palette_type == 0) && ((bpp == 24) || (bpp == 32))) {
          }
          else {
+            ALLEGRO_ERROR("Invalid palette/image/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
          break;
@@ -338,6 +342,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
       case 3:
          /* grayscale image */
          if ((palette_type != 0) || (bpp != 8)) {
+            ALLEGRO_ERROR("Invalid palette/image/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
 
@@ -349,11 +354,13 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          break;
 
       default:
+         ALLEGRO_ERROR("Invalid image type %d.\n", image_type);
          return NULL;
    }
 
    bmp = al_create_bitmap(image_width, image_height);
    if (!bmp) {
+      ALLEGRO_ERROR("Failed to create bitmap.\n");
       return NULL;
    }
 
@@ -361,6 +368,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 
    lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
    if (!lr) {
+      ALLEGRO_ERROR("Failed to lock bitmap.\n");
       al_destroy_bitmap(bmp);
       return NULL;
    }
@@ -370,6 +378,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    if (!buf) {
       al_unlock_bitmap(bmp);
       al_destroy_bitmap(bmp);
+      ALLEGRO_ERROR("Failed to allocate enough memory.\n");
       return NULL;
    }
 
@@ -481,6 +490,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    al_unlock_bitmap(bmp);
 
    if (al_get_errno()) {
+      ALLEGRO_ERROR("Error detected: %d.\n", al_get_errno());
       al_destroy_bitmap(bmp);
       return NULL;
    }
@@ -547,8 +557,10 @@ ALLEGRO_BITMAP *_al_load_tga(const char *filename, int flags)
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_load_tga_f(f, flags);
 
@@ -567,8 +579,10 @@ bool _al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for writing.\n", filename);
       return false;
+   }
 
    retsave = _al_save_tga_f(f, bmp);
 

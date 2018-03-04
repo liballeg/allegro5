@@ -4,6 +4,8 @@
 
 #include "iio.h"
 
+ALLEGRO_DEBUG_CHANNEL("image")
+
 /* Do NOT simplify this to just (x), it doesn't work in MSVC. */
 #define INT_TO_BOOL(x)   ((x) != 0)
 
@@ -25,7 +27,9 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    al_fgetc(f);                    /* skip version flag */
    al_fgetc(f);                    /* skip encoding flag */
 
-   if (al_fgetc(f) != 8) {         /* we like 8 bit color planes */
+   char color_plane = al_fgetc(f);
+   if (color_plane != 8) {         /* we like 8 bit color planes */
+      ALLEGRO_ERROR("Invalid color plane %d.\n", color_plane);
       return NULL;
    }
 
@@ -45,6 +49,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    bpp = al_fgetc(f) * 8;          /* how many color planes? */
 
    if ((bpp != 8) && (bpp != 24)) {
+      ALLEGRO_ERROR("Invalid bpp %d.\n", color_plane);
       return NULL;
    }
 
@@ -54,11 +59,13 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
       al_fgetc(f);
 
    if (al_feof(f) || al_ferror(f)) {
+      ALLEGRO_ERROR("Unexpected EOF/error.\n");
       return NULL;
    }
 
    b = al_create_bitmap(width, height);
    if (!b) {
+      ALLEGRO_ERROR("Failed to create bitmap.\n");
       return NULL;
    }
    
@@ -84,6 +91,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
       lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
    }
    if (!lr) {
+      ALLEGRO_ERROR("Failed to lock bitmap.\n");
       al_free(buf);
       return NULL;
    }
@@ -163,6 +171,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    al_free(buf);
 
    if (al_get_errno()) {
+      ALLEGRO_ERROR("Error detected: %d.\n", al_get_errno());
       al_destroy_bitmap(b);
       return NULL;
    }
@@ -246,8 +255,10 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
    al_unlock_bitmap(bmp);
 
-   if (al_get_errno())
+   if (al_get_errno()) {
+      ALLEGRO_ERROR("Error detected: %d.\n", al_get_errno());
       return false;
+   }
    else
       return true;
 }
@@ -259,8 +270,10 @@ ALLEGRO_BITMAP *_al_load_pcx(const char *filename, int flags)
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    bmp = _al_load_pcx_f(f, flags);
 
@@ -277,8 +290,10 @@ bool _al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for writing.\n", filename);
       return false;
+   }
 
    retsave = _al_save_pcx_f(f, bmp);
 
