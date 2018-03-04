@@ -437,6 +437,10 @@ visible on screen. Pointers to the special back buffer
 bitmap remain valid and retain their semantics as the back buffer,
 although the contents may have changed.
 
+> *Note:* If not using the ALLEGRO_SINGLE_BUFFER option, you typically want to
+redraw every pixel of the backbuffer bitmap to avoid uninitialized memory
+artifacts.
+
 Several display options change how this function behaves:
 
 - With ALLEGRO_SINGLE_BUFFER, no flipping is done. You still have to
