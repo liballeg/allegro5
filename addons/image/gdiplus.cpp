@@ -407,7 +407,7 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
 
       if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeWrite,
             PixelFormat32bppARGB, gdi_lock)) {
-            	            	
+
          ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(
             a_bmp, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
 
@@ -423,7 +423,7 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
                while (rows--) {
                   memcpy(out, in, w * 4);
                   in += a_lock->pitch;
-                  out += gdi_lock->Stride;				
+                  out += gdi_lock->Stride;
                }
             }
 
@@ -431,10 +431,10 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
          }
          gdi_bmp->UnlockBits(gdi_lock);
       }
-				
+
       ret = (gdi_bmp->Save(s, &encoder, NULL) == 0);
 
-      delete gdi_lock;		
+      delete gdi_lock;
       delete gdi_bmp;
    }
 
