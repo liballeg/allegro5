@@ -26,6 +26,7 @@
 
 #include "font.h"
 
+ALLEGRO_DEBUG_CHANNEL("font")
 
 
 static void font_find_character(uint32_t *data, int pitch,
@@ -89,6 +90,7 @@ static int import_bitmap_font_color(uint32_t *data, int pitch,
       font_find_character(data, pitch, bmp_w, bmp_h,
          import_x, import_y, &w, &h);
       if (w <= 0 || h <= 0) {
+         ALLEGRO_ERROR("Unable to find character %d\n", i);
          return -1;
       }
       else {
@@ -154,8 +156,10 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int font_flags)
    import_bmp = al_load_bitmap_flags(fname, bmp_flags);
    al_restore_state(&backup);
 
-   if (!import_bmp) 
-     return NULL;
+   if (!import_bmp) {
+      ALLEGRO_ERROR("Couldn't load bitmap from '%s'\n", fname);
+      return NULL;
+   }
 
    /* We assume a single unicode range, starting at the space
     * character.
@@ -253,8 +257,10 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
 
       if (!glyphs) {
          glyphs = al_clone_bitmap(unmasked);
-         if (!glyphs)
+         if (!glyphs) {
+            ALLEGRO_ERROR("Unable clone bitmap.\n");
             goto cleanup_and_fail_on_error;
+         }
 
          lock = al_lock_bitmap(bmp,
             ALLEGRO_PIXEL_FORMAT_RGBA_8888, ALLEGRO_LOCK_READONLY);

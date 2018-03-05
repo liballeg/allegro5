@@ -186,6 +186,8 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data, int glyph_size
       page_size = data->max_page_size;
     }
     if (glyph_size > page_size) {
+      ALLEGRO_ERROR("Unable create new page, glyph too large: %d > %d\n",
+         glyph_size, page_size);
       return NULL;
     }
 
@@ -227,8 +229,10 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
 
    if (_al_vector_is_empty(&data->page_bitmaps) || new) {
       page = push_new_page(data, glyph_size);
-      if (!page)
+      if (!page) {
+         ALLEGRO_ERROR("Failed to create a new page for glyph %d.\n", ft_index);
          return NULL;
+      }
    }
    else {
       ALLEGRO_BITMAP **back = _al_vector_ref_back(&data->page_bitmaps);
@@ -292,6 +296,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
          ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
 
       if (!data->page_lr) {
+         ALLEGRO_ERROR("Failed to lock page.\n");
          return NULL;
       }
 
@@ -985,8 +990,10 @@ ALLEGRO_FONT *al_load_ttf_font_stretch(char const *filename, int w, int h,
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open file for reading: %s\n", filename);
       return NULL;
+   }
 
    /* The file handle is owned by the function and the file is usually only
     * closed when the font is destroyed, in case Freetype has to load data

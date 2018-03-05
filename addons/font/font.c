@@ -451,8 +451,10 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
    }
 
    ext = strrchr(filename, '.');
-   if (!ext)
+   if (!ext) {
+      ALLEGRO_ERROR("Unable to determine filetype: '%s'\n", filename);
       return NULL;
+   }
    handler = find_extension(ext);
    if (handler)
       return handler->load_font(filename, size, flags);
