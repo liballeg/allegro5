@@ -19,6 +19,8 @@
 #include "allegro5/allegro_font.h"
 
 
+ALLEGRO_DEBUG_CHANNEL("font")
+
 
 /* Adapted from Allegro4 "font.c" (removed unnecessary height and width
  * information and packed them all into a single continuous array).
@@ -428,6 +430,9 @@ static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
       }
 
       al_unlock_bitmap(bmp);
+   }
+   else {
+      ALLEGRO_ERROR("Unable to create bitmap.\n");
    }
 
    al_restore_state(&state);
