@@ -256,12 +256,18 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
 
    ASSERT(filename);
    ext = strrchr(filename, '.');
-   if (ext == NULL)
+   if (ext == NULL) {
+      ALLEGRO_ERROR("Unable to determine extension for %s.\n", filename);
       return NULL;
+   }
 
    ent = find_acodec_table_entry(ext);
    if (ent && ent->loader) {
       return (ent->loader)(filename);
+   }
+   else {
+      ALLEGRO_ERROR("No handler for audio file extension %s - "
+         "therefore not trying to load %s.\n", ext, filename);
    }
 
    return NULL;
@@ -281,6 +287,9 @@ ALLEGRO_SAMPLE *al_load_sample_f(ALLEGRO_FILE* fp, const char *ident)
    if (ent && ent->fs_loader) {
       return (ent->fs_loader)(fp);
    }
+   else {
+      ALLEGRO_ERROR("No handler for audio file extension %s.\n", ident);
+   }
 
    return NULL;
 }
@@ -296,15 +305,19 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
 
    ASSERT(filename);
    ext = strrchr(filename, '.');
-   if (ext == NULL)
+   if (ext == NULL) {
+      ALLEGRO_ERROR("Unable to determine extension for %s.\n", filename);
       return NULL;
+   }
 
    ent = find_acodec_table_entry(ext);
    if (ent && ent->stream_loader) {
       return (ent->stream_loader)(filename, buffer_count, samples);
    }
-
-   ALLEGRO_ERROR("Error creating ALLEGRO_AUDIO_STREAM from '%s'.\n", filename);
+   else {
+      ALLEGRO_ERROR("No handler for audio file extension %s - "
+         "therefore not trying to load %s.\n", ext, filename);
+   }
 
    return NULL;
 }
@@ -324,6 +337,9 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident
    if (ent && ent->fs_stream_loader) {
       return (ent->fs_stream_loader)(fp, buffer_count, samples);
    }
+   else {
+      ALLEGRO_ERROR("No handler for audio file extension %s.\n", ident);
+   }
 
    return NULL;
 }
@@ -338,12 +354,18 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
 
    ASSERT(filename);
    ext = strrchr(filename, '.');
-   if (ext == NULL)
+   if (ext == NULL) {
+      ALLEGRO_ERROR("Unable to determine extension for %s.\n", filename);
       return false;
+   }
 
    ent = find_acodec_table_entry(ext);
    if (ent && ent->saver) {
       return (ent->saver)(filename, spl);
+   }
+   else {
+      ALLEGRO_ERROR("No handler for audio file extension %s - "
+         "therefore not trying to load %s.\n", ext, filename);
    }
 
    return false;
@@ -362,6 +384,9 @@ bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
    ent = find_acodec_table_entry(ident);
    if (ent && ent->fs_saver) {
       return (ent->fs_saver)(fp, spl);
+   }
+   else {
+      ALLEGRO_ERROR("No handler for audio file extension %s.\n", ident);
    }
 
    return false;

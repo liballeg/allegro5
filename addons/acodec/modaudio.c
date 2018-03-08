@@ -257,8 +257,10 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
    int64_t start_pos = -1;
 
    df = lib.dumbfile_open_ex(f, &dfs_f);
-   if (!df)
+   if (!df) {
+      ALLEGRO_ERROR("dumbfile_open_ex failed.\n");
       return NULL;
+   }
 
    start_pos = al_ftell(f);
 
@@ -278,11 +280,13 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
    duh = loader(df);
 #endif
    if (!duh) {
+      ALLEGRO_ERROR("Failed to create DUH.\n");
       goto Error;
    }
 
    sig = lib.duh_start_sigrenderer(duh, 0, 2, 0);
    if (!sig) {
+      ALLEGRO_ERROR("duh_start_sigrenderer failed.\n");
       goto Error;
    }
 
@@ -317,6 +321,7 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
       _al_acodec_start_feed_thread(stream);
    }
    else {
+      ALLEGRO_ERROR("Failed to create stream.\n");
       goto Error;
    }
 
@@ -363,7 +368,7 @@ static bool init_libdumb(void)
 #ifdef ALLEGRO_CFG_ACODEC_DUMB_DLL
    dumb_dll = _al_open_library(ALLEGRO_CFG_ACODEC_DUMB_DLL);
    if (!dumb_dll) {
-      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_DUMB_DLL "\n");
+      ALLEGRO_ERROR("Could not load " ALLEGRO_CFG_ACODEC_DUMB_DLL "\n");
       return false;
    }
 
@@ -514,8 +519,10 @@ static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream(const char *filename,
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    stream = load_mod_audio_stream_f(f, buffer_count, samples);
 
@@ -537,8 +544,10 @@ static ALLEGRO_AUDIO_STREAM *load_it_audio_stream(const char *filename,
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    stream = load_it_audio_stream_f(f, buffer_count, samples);
 
@@ -560,8 +569,10 @@ static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream(const char *filename,
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    stream = load_xm_audio_stream_f(f, buffer_count, samples);
 
@@ -583,8 +594,10 @@ static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream(const char *filename,
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    stream = load_s3m_audio_stream_f(f, buffer_count, samples);
 

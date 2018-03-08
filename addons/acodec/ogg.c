@@ -94,7 +94,7 @@ static bool init_dynlib(void)
 
    ov_dll = _al_open_library(ALLEGRO_CFG_ACODEC_VORBISFILE_DLL);
    if (!ov_dll) {
-      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_VORBISFILE_DLL "\n");
+      ALLEGRO_ERROR("Could not load " ALLEGRO_CFG_ACODEC_VORBISFILE_DLL "\n");
       return false;
    }
 
@@ -204,7 +204,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis(const char *filename)
    ALLEGRO_INFO("Loading sample %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_WARN("Failed reading %s.\n", filename);
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -248,7 +248,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
 
    ov.file = file;
    if (lib.ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
-      ALLEGRO_WARN("Audio file does not appear to be an Ogg bitstream.\n");
+      ALLEGRO_ERROR("Audio file does not appear to be an Ogg bitstream.\n");
       return NULL;
    }
 
@@ -268,6 +268,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
 
    buffer = al_malloc(total_size);
    if (!buffer) {
+      ALLEGRO_ERROR("Unable to allocate buffer (%d).\n", total_size);
       return NULL;
    }
 
@@ -297,6 +298,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
       _al_count_to_channel_conf(channels), true);
 
    if (!sample) {
+      ALLEGRO_ERROR("Failed to create sample.\n");
       al_free(buffer);
    }
 
@@ -438,7 +440,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream(const char *filename,
    ALLEGRO_INFO("Loading stream %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_WARN("Failed reading %s.\n", filename);
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -478,7 +480,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
    
    vf = al_malloc(sizeof(OggVorbis_File));
    if (lib.ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
-      ALLEGRO_WARN("ogg: Input does not appear to be an Ogg bitstream.\n");
+      ALLEGRO_ERROR("ogg: Input does not appear to be an Ogg bitstream.\n");
       return NULL;
    }
 
@@ -504,6 +506,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
    if (!stream) {
+      ALLEGRO_ERROR("Failed to create the stream.\n");
       lib.ov_clear(vf);
       al_free(vf);
       return NULL;

@@ -43,6 +43,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
    /* prepare default values */
    wavfile = al_malloc(sizeof(WAVFILE));
    if (!wavfile) {
+      ALLEGRO_ERROR("Failed to allocate WAVFILE.\n");
       return NULL;
    }
    wavfile->f = f;
@@ -51,11 +52,15 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
    wavfile->channels = 1;
 
    /* check the header */
-   if (al_fread(f, buffer, 12) != 12)
+   if (al_fread(f, buffer, 12) != 12) {
+      ALLEGRO_ERROR("Unexpected EOF while reading the header.\n");
       goto wav_open_error;
+   }
 
-   if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4))
+   if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4)) {
+      ALLEGRO_ERROR("Bad magic number.\n");
       goto wav_open_error;
+   }
    
    /* Read as many leading fmt chunks as exist, then read until a data chunk
     * is found.
@@ -64,26 +69,34 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
       int length = 0;
       short pcm = 0;
 
-      if (al_fread(f, buffer, 4) != 4)
+      if (al_fread(f, buffer, 4) != 4) {
+         ALLEGRO_ERROR("Unexpected EOF while reading RIFF type.\n");
          goto wav_open_error;
+      }
 
       /* check to see if it's a fmt chunk */
       if (!memcmp(buffer, "fmt ", 4)) {
 
          length = al_fread32le(f);
-         if (length < 16)
+         if (length < 16) {
+            ALLEGRO_ERROR("Bad length: %d.\n", length);
             goto wav_open_error;
+         }
 
          /* should be 1 for PCM data */
          pcm = al_fread16le(f);
-         if (pcm != 1)
+         if (pcm != 1) {
+            ALLEGRO_ERROR("Bad PCM value: %d.\n", pcm);
             goto wav_open_error;
+         }
 
          /* mono or stereo data */
          wavfile->channels = al_fread16le(f);
 
-         if ((wavfile->channels != 1) && (wavfile->channels != 2))
+         if ((wavfile->channels != 1) && (wavfile->channels != 2)) {
+            ALLEGRO_ERROR("Bad number of channels: %d.\n", wavfile->channels);
             goto wav_open_error;
+         }
 
          /* sample frequency */
          wavfile->freq = al_fread32le(f);
@@ -93,8 +106,10 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
 
          /* 8 or 16 bit data? */
          wavfile->bits = al_fread16le(f);
-         if ((wavfile->bits != 8) && (wavfile->bits != 16))
+         if ((wavfile->bits != 8) && (wavfile->bits != 16)) {
+            ALLEGRO_ERROR("Bad number of bits: %d.\n", wavfile->bits);
             goto wav_open_error;
+         }
 
          /* Skip remainder of chunk */
          length -= 16;
@@ -102,8 +117,10 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
             al_fseek(f, length, ALLEGRO_SEEK_CUR);
       }
       else {
-         if (!memcmp(buffer, "data", 4))
+         if (!memcmp(buffer, "data", 4)) {
+            ALLEGRO_ERROR("Bad RIFF type.\n");
             break;
+         }
          ALLEGRO_INFO("Ignoring chunk: %c%c%c%c\n", buffer[0], buffer[1],
             buffer[2], buffer[3]);
          length = al_fread32le(f);
@@ -292,8 +309,10 @@ ALLEGRO_SAMPLE *_al_load_wav(const char *filename)
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    spl = _al_load_wav_f(f);
 
@@ -341,11 +360,14 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream(const char *filename,
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    stream = _al_load_wav_audio_stream_f(f, buffer_count, samples);
    if (!stream) {
+      ALLEGRO_ERROR("Failed to load wav stream.\n");
       al_fclose(f);
    }
 
@@ -362,8 +384,10 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
 
    wavfile = wav_open(f);
    
-   if (wavfile == NULL)
+   if (wavfile == NULL) {
+      ALLEGRO_ERROR("Failed to load wav file.\n");
       return NULL;
+   }
 
    stream = al_create_audio_stream(buffer_count, samples, wavfile->freq,
       _al_word_size_to_depth_conf(wavfile->bits / 8),
@@ -383,6 +407,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
       _al_acodec_start_feed_thread(stream);
    }
    else {
+      ALLEGRO_ERROR("Failed to load wav stream.\n");
       wav_close(wavfile);
    }
 
@@ -402,6 +427,9 @@ bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
       bool rvsave = _al_save_wav_f(pf, spl);
       bool rvclose = al_fclose(pf);
       return rvsave && rvclose;
+   }
+   else {
+      ALLEGRO_ERROR("Unable to open %s for writing.\n", filename);
    }
 
    return false;   
@@ -428,8 +456,10 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
    bits = (spl->depth == ALLEGRO_AUDIO_DEPTH_INT8 ||
            spl->depth == ALLEGRO_AUDIO_DEPTH_UINT8) ? 8 : 16;
 
-   if (channels < 1 || channels > 2)
+   if (channels < 1 || channels > 2) {
+      ALLEGRO_ERROR("Can only save samples with 1 or 2 channels as WAV.\n");
       return false;
+   }
 
    samples = spl->len;
    data_size = samples * channels * bits / 8;
