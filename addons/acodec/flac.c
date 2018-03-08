@@ -106,7 +106,7 @@ static bool init_dynlib(void)
 
    flac_dll = _al_open_library(ALLEGRO_CFG_ACODEC_FLAC_DLL);
    if (!flac_dll) {
-      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_FLAC_DLL "\n");
+      ALLEGRO_ERROR("Could not load " ALLEGRO_CFG_ACODEC_FLAC_DLL "\n");
       return false;
    }
 
@@ -516,11 +516,11 @@ static FLACFILE *flac_open(ALLEGRO_FILE* f)
       goto error;
    }
 
-   ALLEGRO_INFO("Loaded FLAC sample with properties:\n");
-   ALLEGRO_INFO("    channels %d\n", ff->channels);
-   ALLEGRO_INFO("    sample_size %d\n", ff->sample_size);
-   ALLEGRO_INFO("    rate %.f\n", ff->sample_rate);
-   ALLEGRO_INFO("    total_samples %ld\n", (long) ff->total_samples);
+   ALLEGRO_DEBUG("Loaded FLAC sample with properties:\n");
+   ALLEGRO_DEBUG("    channels %d\n", ff->channels);
+   ALLEGRO_DEBUG("    sample_size %d\n", ff->sample_size);
+   ALLEGRO_DEBUG("    rate %.f\n", ff->sample_rate);
+   ALLEGRO_DEBUG("    total_samples %ld\n", (long) ff->total_samples);
 
    return ff;
 
@@ -540,8 +540,10 @@ ALLEGRO_SAMPLE *_al_load_flac(const char *filename)
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    spl = _al_load_flac_f(f);
 
@@ -570,6 +572,7 @@ ALLEGRO_SAMPLE *_al_load_flac_f(ALLEGRO_FILE *f)
       _al_count_to_channel_conf(ff->channels), true);
 
    if (!sample) {
+      ALLEGRO_ERROR("Failed to create a sample.\n");
       al_free(ff->buffer);
    }
 
@@ -586,8 +589,10 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream(const char *filename,
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
+   }
 
    stream = _al_load_flac_audio_stream_f(f, buffer_count, samples);
    if (!stream) {
@@ -626,6 +631,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
       _al_acodec_start_feed_thread(stream);
    }
    else {
+      ALLEGRO_ERROR("Failed to create stream.\n");
       al_fclose(ff->fh);
       flac_close(ff);
    }

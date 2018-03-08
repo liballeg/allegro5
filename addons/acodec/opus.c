@@ -180,7 +180,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus(const char *filename)
    ALLEGRO_INFO("Loading sample %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_WARN("Failed reading %s.\n", filename);
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -219,7 +219,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus_f(ALLEGRO_FILE *file)
    op.file = file;
    of = lib.op_open_callbacks(&op, &callbacks, NULL, 0, NULL);
    if (!of) {
-      ALLEGRO_WARN("Audio file does not appear to be an Ogg bitstream.\n");
+      ALLEGRO_ERROR("Audio file does not appear to be an Ogg bitstream.\n");
       return NULL;
    }
 
@@ -381,7 +381,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream(const char *filename,
    ALLEGRO_INFO("Loading stream %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_WARN("Failed reading %s.\n", filename);
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -421,7 +421,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
 
    of = lib.op_open_callbacks(extra, &callbacks, NULL, 0, NULL);
    if (!of) {
-      ALLEGRO_WARN("ogg: Input does not appear to be an Ogg bitstream.\n");
+      ALLEGRO_ERROR("ogg: Input does not appear to be an Ogg bitstream.\n");
       return NULL;
    }
 

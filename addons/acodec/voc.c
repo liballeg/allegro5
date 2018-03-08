@@ -91,10 +91,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
 
    uint32_t blocklength = 0; //length is stored in 3 bites LE, gd byteorder.
 
-   if (!fp) {
-      ALLEGRO_WARN("voc_open: Failed opening ALLEGRO_FILE");
-      return NULL;
-   }
+   ASSERT(fp);
 
    /* init VOC data */
    vocdata = al_malloc(sizeof(AL_VOC_DATA));
@@ -107,19 +104,19 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
    if (readcount != 0x16                                     /*shorter header*/
        || !memcmp(hdrbuf, "Creative Voice File\0x1A", 0x14)  /*wrong id */
        || !memcmp(hdrbuf+0x15 , "\0x00\0x1A", 0x2)) {        /*wrong offset */
-      ALLEGRO_WARN("voc_open: File does not appear to be a valid VOC file");
+      ALLEGRO_ERROR("voc_open: File does not appear to be a valid VOC file");
       return NULL;
    }
 
    al_fread(fp, &vocversion, 2);
    if (vocversion != 0x10A && vocversion != 0x114) {   // known ver 1.10 -1.20
-      ALLEGRO_WARN("voc_open: File is of unknown version");
+      ALLEGRO_ERROR("voc_open: File is of unknown version");
       return NULL;
    }
    /* checksum version check */
    al_fread(fp, &checkver, 2);
    if (checkver != ~vocversion + 0x1234) {
-      ALLEGRO_WARN("voc_open: Bad VOC Version Identification Number");
+      ALLEGRO_ERROR("voc_open: Bad VOC Version Identification Number");
       return NULL;
    }
    /*
@@ -159,7 +156,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
           * required header info.
           */
          if (blocklength != 4) {
-            ALLEGRO_WARN("voc_open: Got opening Blocktype 8 of wrong length");
+            ALLEGRO_ERROR("voc_open: Got opening Blocktype 8 of wrong length");
             return NULL;
          }
          READNBYTES(fp, timeconstant, 2, NULL);
@@ -176,7 +173,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
           */
          READNBYTES(fp, blocktype, 1, NULL);
          if (blocktype != 1) {
-            ALLEGRO_WARN("voc_open: Blocktype following type 8 is not 1");
+            ALLEGRO_ERROR("voc_open: Blocktype following type 8 is not 1");
             return NULL;
          }
          READNBYTES(fp, blocklength, 2, NULL);
@@ -202,7 +199,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
          READNBYTES(fp, format, 2, NULL);
          if ((vocdata->bits != 8 && vocdata->bits != 16) ||
              (format != 0 && format != 4)) {
-            ALLEGRO_WARN("voc_open: unsupported CODEC in voc data");
+            ALLEGRO_ERROR("voc_open: unsupported CODEC in voc data");
             return NULL;
          }
          READNBYTES(fp, x, 4, NULL);         // just skip 4 reserved bytes
@@ -215,7 +212,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
       case 6:               // valid VOC data.
       case 7:               //
       default:
-         ALLEGRO_WARN("voc_open: opening Block is of unsupported type");
+         ALLEGRO_ERROR("voc_open: opening Block is of unsupported type");
          return NULL;
          break;
    }
@@ -239,7 +236,7 @@ ALLEGRO_SAMPLE *_al_load_voc(const char *filename)
    ALLEGRO_INFO("Loading VOC sample %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_WARN("Failed reading %s.\n", filename);
+      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
