@@ -99,7 +99,7 @@
 #define glDeleteFramebuffersEXT glDeleteFramebuffers
 #endif
 
-#else /* ALLEGRO_MACOSX */
+#else /* ALLEGRO_WINDOWS */
 
 /* HACK: Prevent both Mesa and SGI's broken headers from screwing us */
 #define __glext_h_
@@ -108,7 +108,7 @@
 #undef  __glext_h_
 #undef  __glxext_h_
 
-#endif /* ALLEGRO_MACOSX */
+#endif /* ALLEGRO_WINDOWS */
 
 #ifdef ALLEGRO_RASPBERRYPI
 #include <EGL/egl.h>
