@@ -115,9 +115,18 @@ static void draw_joystick_button(ALLEGRO_JOYSTICK *joy, int button, bool down)
 
    if (joy) {
       const char *name = al_get_joystick_button_name(joy, button);
-      if (strlen(name) < 4) {
-         al_draw_text(font, fg, x + 13, y + 8, ALLEGRO_ALIGN_CENTRE, name);
+      char name2[4];
+      if (strlen(name) >= 4) {
+         name2[0] = name[0];
+         name2[1] = name[1];
+         name2[2] = name[2];
+         name2[3] = 0;
       }
+      else {
+         strcpy(name2, name);
+      }
+      al_draw_text(font, fg, x + 13, y + 8, ALLEGRO_ALIGN_CENTRE, name2);
+      
    }
 }
 
