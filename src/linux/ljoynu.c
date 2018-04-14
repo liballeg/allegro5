@@ -536,8 +536,8 @@ static void ljoy_scan(bool configure)
     * to support non-evdev kernels any longer.
     */
    static char const *folders[] = {"/dev/input/by-path", "/dev/input"};
-   bool found_by_path = false;
    for (int t = 0; t < 2; t++) {
+      bool found = false;
       ALLEGRO_FS_ENTRY *dir = al_create_fs_entry(folders[t]);
       if (al_open_directory(dir)) {
          static char const *suffix = "-event-joystick";
@@ -550,8 +550,9 @@ static void ljoy_scan(bool configure)
                continue;
             }
             char const *path = al_get_fs_entry_name(dev);
-            if (strcmp(suffix, path + strlen(path) - strlen(suffix)) == 0) {
-               found_by_path = true;
+            /* In the second pass in /dev/input we don't filter anymore. */
+            if (t ==1 || strcmp(suffix, path + strlen(path) - strlen(suffix)) == 0) {
+               found = true;
                al_ustr_assign_cstr(device_name, path);
                ljoy_device(device_name);
             }
@@ -560,7 +561,10 @@ static void ljoy_scan(bool configure)
          al_close_directory(dir);
       }
       al_destroy_fs_entry(dir);
-      if (t == 0 && found_by_path) {
+      if (found) {
+         /* Don't scan the second folder if we found something in the
+          * first as it would be duplicates.
+          */
          break;
       }
       ALLEGRO_WARN("Could not find joysticks in %s\n", folders[t]);
