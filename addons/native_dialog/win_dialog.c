@@ -703,9 +703,14 @@ static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPA
    if (msg == WM_COMMAND && lParam == 0) {
       const int id = LOWORD(wParam);
       _AL_MENU_ID *menu_id = _al_find_parent_menu_by_id(display, id);
-      if (menu_id && (al_get_menu_item_flags(menu_id->menu, id) & ALLEGRO_MENU_ITEM_CHECKBOX)) {
-         /* Toggle the checkbox, since Windows doesn't do that automatically. */
-         al_toggle_menu_item_flags(menu_id->menu, id, ALLEGRO_MENU_ITEM_CHECKED);
+      if (menu_id) {
+         int index;
+         if (_al_find_menu_item_unique(menu_id->menu, id, NULL, &index)) {
+            if (al_get_menu_item_flags(menu_id->menu, -index) & ALLEGRO_MENU_ITEM_CHECKBOX) {
+               /* Toggle the checkbox, since Windows doesn't do that automatically. */
+               al_toggle_menu_item_flags(menu_id->menu, -index, ALLEGRO_MENU_ITEM_CHECKED);
+            }
+         }
       }
       _al_emit_menu_event(display, id);
       return true;

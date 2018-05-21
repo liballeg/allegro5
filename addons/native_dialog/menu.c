@@ -137,6 +137,21 @@ static bool find_menu_item_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int in
    return false;
 }
 
+/* Like find_menu_item_r, but searches by unique_id.
+ */
+static bool find_menu_item_r_unique(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra)
+{
+   ALLEGRO_MENU_ITEM *info = (ALLEGRO_MENU_ITEM *) extra;
+
+   if (item != NULL && info->unique_id == item->unique_id) {
+      info->id = index;
+      info->parent = menu;
+      return true;
+   }
+
+   return false;
+}
+
 /* Carefully destroy a menu item... If the item is part of a menu, it must be
  * removed from it.
  */
@@ -490,6 +505,29 @@ bool al_find_menu_item(ALLEGRO_MENU *haystack, uint16_t id, ALLEGRO_MENU **menu,
    if (menu)
       *menu = item.parent;
    
+   if (index)
+      *index = item.id;
+
+   return true;
+}
+
+/* As al_find_menu_item, but searches by the unique id.
+ */
+bool _al_find_menu_item_unique(ALLEGRO_MENU *haystack, uint16_t unique_id, ALLEGRO_MENU **menu,
+   int *index)
+{
+   ALLEGRO_MENU_ITEM item;
+
+   ASSERT(haystack);
+
+   item.unique_id = unique_id;
+
+   if (!_al_walk_over_menu(haystack, find_menu_item_r_unique, &item))
+      return false;
+
+   if (menu)
+      *menu = item.parent;
+
    if (index)
       *index = item.id;
 

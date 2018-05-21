@@ -111,6 +111,8 @@ extern bool _al_walk_over_menu(ALLEGRO_MENU *menu, bool (*proc)
    (ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra),
    void *extra);
 _AL_MENU_ID *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t unique_id);
+bool _al_find_menu_item_unique(ALLEGRO_MENU *haystack, uint16_t unique_id, ALLEGRO_MENU **menu,
+   int *index);
    
 /* Platform Specific Functions
  * ---------------------------
