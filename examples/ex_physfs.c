@@ -93,7 +93,7 @@ static bool add_main_zipfile(void)
       zipfile = "data/ex_physfs.zip";
    }
 
-   if (PHYSFS_addToSearchPath(zipfile, 1)) {
+   if (PHYSFS_mount(zipfile, NULL, 1)) {
       ret = true;
    }
    else {
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
    }
 
    for (i = 1; i < argc; i++) {
-      if (!PHYSFS_addToSearchPath(argv[i], 1)) {
+      if (!PHYSFS_mount(argv[i], NULL, 1)) {
          abort_example("Couldn't add %s\n", argv[i]);
       }
    }
