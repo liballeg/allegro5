@@ -103,6 +103,8 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    video->vtable = find_handler(extension);
 
    if (video->vtable == NULL) {
+      ALLEGRO_ERROR("No handler for video extension %s - "
+         "therefore not trying to load %s.\n", extension, filename);
       al_free(video);
       return NULL;
    }
@@ -111,6 +113,7 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    video->playing = true;
 
    if (!video->vtable->open_video(video)) {
+      ALLEGRO_ERROR("Could not open %s.\n", filename);
       al_destroy_path(video->filename);
       al_free(video);
       return NULL;
