@@ -494,6 +494,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
    }
 
+   int num_idx = num_vtx;
    if(indices)
    {
       int ii;
@@ -509,6 +510,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
             max_idx = idx;
          }
       }
+      num_idx = max_idx + 1 - min_idx;
    }
 
    device = al_get_d3d_device(disp);
@@ -589,37 +591,40 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          switch (type) {
             case ALLEGRO_PRIM_LINE_LIST: {
                num_primitives = num_vtx / 2;
-               device->DrawIndexedPrimitiveUP(D3DPT_LINELIST, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+               device->DrawIndexedPrimitiveUP(D3DPT_LINELIST, min_idx, num_idx, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
                break;
             };
             case ALLEGRO_PRIM_LINE_STRIP: {
                num_primitives = num_vtx - 1;
-               device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+               device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, min_idx, num_idx, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
                break;
             };
             case ALLEGRO_PRIM_LINE_LOOP: {
                int in[2];
                num_primitives = num_vtx - 1;
-               device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+               device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, min_idx, num_idx, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
    
                in[0] = indices[0];
                in[1] = indices[num_vtx-1];
-               device->DrawIndexedPrimitiveUP(D3DPT_LINELIST, min_idx, max_idx + 1, 1, in, D3DFMT_INDEX32, vtx, stride);
+               min_idx = in[0] > in[1] ? in[1] : in[0];
+               max_idx = in[0] > in[1] ? in[0] : in[1];
+               num_idx = max_idx - min_idx + 1;
+               device->DrawIndexedPrimitiveUP(D3DPT_LINELIST, min_idx, num_idx, 1, in, D3DFMT_INDEX32, vtx, stride);
                break;
             };
             case ALLEGRO_PRIM_TRIANGLE_LIST: {
                num_primitives = num_vtx / 3;
-               device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+               device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, min_idx, num_idx, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
                break;
             };
             case ALLEGRO_PRIM_TRIANGLE_STRIP: {
                num_primitives = num_vtx - 2;
-               device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLESTRIP, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+               device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLESTRIP, min_idx, num_idx, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
                break;
             };
             case ALLEGRO_PRIM_TRIANGLE_FAN: {
                num_primitives = num_vtx - 2;
-               device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLEFAN, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+               device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLEFAN, min_idx, num_idx, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
                break;
             };
             case ALLEGRO_PRIM_POINT_LIST: {
