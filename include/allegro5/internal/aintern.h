@@ -47,6 +47,8 @@ AL_FUNC(int, _al_rand, (void));
 
 AL_FUNC(int, _al_stricmp, (const char *s1, const char *s2));
 
+#define _AL_INCHES_PER_MM 0.039370
+
 #ifdef __cplusplus
    }
 #endif

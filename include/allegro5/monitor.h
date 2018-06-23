@@ -24,6 +24,7 @@ enum {
 
 AL_FUNC(int, al_get_num_video_adapters, (void));
 AL_FUNC(bool, al_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
+AL_FUNC(int, al_get_monitor_dpi, (int adapter));
 
 
 #ifdef __cplusplus
