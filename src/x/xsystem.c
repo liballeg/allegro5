@@ -3,8 +3,10 @@ extern int _Xdebug; /* part of Xlib */
 #endif
 
 #include <sys/time.h>
+#include <math.h>
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xcursor.h"
@@ -373,6 +375,28 @@ static ALLEGRO_DISPLAY_MODE *xglx_get_display_mode(int mode, ALLEGRO_DISPLAY_MOD
    return _al_xglx_get_display_mode(s, adapter, mode, dm);
 }
 
+static int xglx_get_monitor_dpi(int adapter)
+{
+   ALLEGRO_MONITOR_INFO info;
+   ALLEGRO_SYSTEM_XGLX *s = (void *)al_get_system_driver();
+   int x2_mm;
+   int y2_mm;
+   int dpi_hori;
+   int dpi_vert;
+
+   if(!_al_xglx_get_monitor_info(s, adapter, &info)) {
+      return 0;
+   }
+
+   x2_mm = DisplayWidthMM(s->x11display, DefaultScreen(s->x11display));
+   y2_mm = DisplayHeightMM(s->x11display, DefaultScreen(s->x11display));
+
+   dpi_hori = (info.x2 - info.x1) / (_AL_INCHES_PER_MM * x2_mm);
+   dpi_vert = (info.y2 - info.y1) / (_AL_INCHES_PER_MM * y2_mm);
+
+   return sqrt(dpi_hori * dpi_vert);
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 {
@@ -393,6 +417,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->shutdown_system = xglx_shutdown_system;
    xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
    xglx_vt->get_monitor_info = xglx_get_monitor_info;
+   xglx_vt->get_monitor_dpi = xglx_get_monitor_dpi;
    xglx_vt->create_mouse_cursor = _al_xwin_create_mouse_cursor;
    xglx_vt->destroy_mouse_cursor = _al_xwin_destroy_mouse_cursor;
    xglx_vt->get_cursor_position = xglx_get_cursor_position;
@@ -403,6 +428,5 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 
    return xglx_vt;
 }
-
 
 /* vim: set sts=3 sw=3 et: */
