@@ -396,6 +396,37 @@ static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
    }
 }
 
+/* osx_get_monitor_dpi:
+ * Return the dots per inch value of one monitor
+ */
+static int osx_get_monitor_dpi(int adapter)
+{
+   static const int max_displays = 16;
+   CGDirectDisplayID displays[max_displays];
+   CGDisplayCount count;
+   ALLEGRO_MONITOR_INFO info;
+   CGError err;
+   CGSize size;
+   int dpi_hori;
+   int dpi_vert;
+
+   if (!osx_get_monitor_info(adapter, &info)) {
+      return 0;
+   }
+
+   err = CGGetActiveDisplayList(max_displays, displays, &count);
+   if (err != kCGErrorSuccess || adapter < 0 || adapter > (int) count) {
+      return 0;
+   }
+
+   size = CGDisplayScreenSize(displays[adapter]);
+
+   dpi_hori = (info.x2 - info.x1) / (_AL_INCHES_PER_MM * size.width);
+   dpi_vert = (info.y2 - info.y1) / (_AL_INCHES_PER_MM * size.height);
+
+   return sqrt(dpi_hori * dpi_vert);
+}
+
 /* osx_inhibit_screensaver:
  * Stops the screen dimming/screen saver activation if inhibit is true
  * otherwise re-enable normal behaviour. The last call takes force (i.e
@@ -502,6 +533,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->shutdown_system = osx_sys_exit;
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
+      vt->get_monitor_dpi = osx_get_monitor_dpi;
       vt->create_mouse_cursor = _al_osx_create_mouse_cursor;
       vt->destroy_mouse_cursor = _al_osx_destroy_mouse_cursor;
       vt->get_cursor_position = osx_get_cursor_position;
