@@ -48,5 +48,19 @@ bool al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    return false;
 }
 
+/* Function: al_get_monitor_dpi
+ */
+int al_get_monitor_dpi(int adapter)
+{
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
+
+   if (adapter < al_get_num_video_adapters()) {
+       if (system && system->vt && system->vt->get_monitor_dpi) {
+           return system->vt->get_monitor_dpi(adapter);
+       }
+   }
+
+   return 0;
+}
 
 /* vim: set sts=3 sw=3 et: */
