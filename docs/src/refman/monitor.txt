@@ -60,6 +60,12 @@ Returns `true` on success, `false` on failure.
 
 See also: [ALLEGRO_MONITOR_INFO], [al_get_num_video_adapters]
 
+## API: al_get_monitor_dpi
+
+Get the dots per inch of a monitor attached to the display adapter.
+
+See also: [al_get_num_video_adapters]
+
 ## API: al_get_num_video_adapters
 
 Get the number of video "adapters" attached to the computer. Each
