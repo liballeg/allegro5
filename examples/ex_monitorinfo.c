@@ -25,7 +25,8 @@ int main(int argc, char **argv)
    for (i = 0; i < num_adapters; i++) {
       al_get_monitor_info(i, &info);
       log_printf("Adapter %d: ", i);
-      log_printf("(%d, %d) - (%d, %d)\n", info.x1, info.y1, info.x2, info.y2);
+      int dpi = al_get_monitor_dpi(i);
+      log_printf("(%d, %d) - (%d, %d) - dpi: %d\n", info.x1, info.y1, info.x2, info.y2, dpi);
       al_set_new_display_adapter(i);
       log_printf("   Available fullscreen display modes:\n");
       for (j = 0; j < al_get_num_display_modes(); j++) {
