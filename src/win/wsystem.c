@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -527,6 +528,69 @@ static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    return true;
 }
 
+BOOL CALLBACK monitor_enum_proc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
+{
+   HMONITOR *h_monitor = (HMONITOR *) dwData;
+
+   if (hMonitor) {
+      *h_monitor = hMonitor;
+      return false;
+   }
+
+   return true;
+}
+
+static HMONITOR win_get_monitor(ALLEGRO_MONITOR_INFO *info)
+{
+   HMONITOR h_monitor;
+   RECT rect;
+
+   rect.left = info->x1;
+   rect.top = info->y1;
+   rect.right = info->x2;
+   rect.bottom = info->y2;
+
+   EnumDisplayMonitors(NULL, &rect, monitor_enum_proc, (LPARAM) &h_monitor);
+
+   return h_monitor;
+}
+
+static int win_get_monitor_dpi(int adapter)
+{
+   ALLEGRO_MONITOR_INFO info;
+   HMODULE shcore_dll = _al_win_safe_load_library("shcore.dll");
+   int dpi_hori;
+   int dpi_vert;
+
+   typedef enum _AL_MONITOR_DPI_TYPE {
+       AL_MDT_EFFECTIVE_DPI  = 0,
+       AL_MDT_ANGULAR_DPI    = 1,
+       AL_MDT_RAW_DPI        = 2,
+       AL_MDT_DEFAULT        = AL_MDT_EFFECTIVE_DPI
+   } AL_MONITOR_DPI_TYPE;
+
+   typedef HRESULT (WINAPI *GetDpiForMonitorPROC)(HMONITOR hmonitor, AL_MONITOR_DPI_TYPE dpiType, UINT *dpiX, UINT *dpiY);
+
+   GetDpiForMonitorPROC imp_GetDpiForMonitor =
+      (GetDpiForMonitorPROC) GetProcAddress(shcore_dll, "GetDpiForMonitor");
+
+   if (!shcore_dll) {
+      FreeLibrary(shcore_dll);
+      return 0;
+   }
+
+   if (!win_get_monitor_info(adapter, &info)) {
+      FreeLibrary(shcore_dll);
+      return 0;
+   }
+
+   imp_GetDpiForMonitor(win_get_monitor(&info), 0, &dpi_hori, &dpi_vert);
+
+   FreeLibrary(shcore_dll);
+
+   return sqrt(dpi_hori * dpi_vert);
+}
+
 static bool win_get_cursor_position(int *ret_x, int *ret_y)
 {
    POINT p;
@@ -835,6 +899,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->create_mouse_cursor = _al_win_create_mouse_cursor;
    vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
    vt->get_monitor_info = win_get_monitor_info;
+   vt->get_monitor_dpi = win_get_monitor_dpi;
    vt->get_cursor_position = win_get_cursor_position;
    vt->grab_mouse = win_grab_mouse;
    vt->ungrab_mouse = win_ungrab_mouse;
