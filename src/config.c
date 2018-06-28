@@ -706,13 +706,14 @@ bool al_remove_config_key(ALLEGRO_CONFIG *config, char const *section,
    ALLEGRO_USTR const *ukey = al_ref_cstr(&key_info, key);
    void *value;
    ALLEGRO_CONFIG_ENTRY * e;
+   ALLEGRO_CONFIG_SECTION *s;
 
    if (section == NULL)
       section = "";
 
    usection = al_ref_cstr(&section_info, section);
 
-   ALLEGRO_CONFIG_SECTION *s = find_section(config, usection);
+   s = find_section(config, usection);
    if (!s)
       return false;
 

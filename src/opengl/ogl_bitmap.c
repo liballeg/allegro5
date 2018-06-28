@@ -1145,6 +1145,7 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
  */
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
+   ALLEGRO_FBO_INFO *info;
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    if (bitmap->parent)
       bitmap = bitmap->parent;
@@ -1157,7 +1158,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    ASSERT(ogl_bitmap->fbo_info->fbo_state > FBO_INFO_UNUSED);
    ASSERT(ogl_bitmap->fbo_info->fbo != 0);
 
-   ALLEGRO_FBO_INFO *info = ogl_bitmap->fbo_info;
+   info = ogl_bitmap->fbo_info;
    _al_ogl_del_fbo(info);
 
    if (info->fbo_state == FBO_INFO_PERSISTENT) {

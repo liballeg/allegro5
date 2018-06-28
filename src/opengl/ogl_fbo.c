@@ -174,15 +174,18 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
       ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
       int w = al_get_bitmap_width(info->owner);
       int h = al_get_bitmap_height(info->owner);
+	  int samples = 0;
+	  bool extension_supported;
+	  GLint e;
 
       if (bits == 24) gldepth = GL_DEPTH_COMPONENT24;
    
       glGenRenderbuffersEXT(1, &rb);
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rb);
 
-      int samples = al_get_bitmap_samples(info->owner);
+      samples = al_get_bitmap_samples(info->owner);
 
-      bool extension_supported;
+      
 #ifdef ALLEGRO_CFG_OPENGLES
       (void)display;
       extension_supported = al_have_opengl_extension("EXT_multisampled_render_to_texture");
@@ -206,7 +209,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
       info->buffers.dw = w;
       info->buffers.dw = h;
       info->buffers.depth = bits;
-      GLint e = glGetError();
+      e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glRenderbufferStorage failed! bits=%d w=%d h=%d (%s)\n",
             bits, w, h, _al_gl_error_string(e));
@@ -232,6 +235,7 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 {
 #if !defined ALLEGRO_RASPBERRYPI && (!defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3)
    ALLEGRO_BITMAP *b = info->owner;
+   ALLEGRO_DISPLAY *display = NULL;
    int samples = al_get_bitmap_samples(b);
 
    if (info->buffers.multisample_buffer != 0) {
@@ -245,7 +249,7 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
    
    if (!samples)
       return;
-   ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
+   display = _al_get_bitmap_display(info->owner);
    if (!display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample)
       return;
 
@@ -505,20 +509,26 @@ void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 void _al_ogl_finalize_fbo(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap)
 {
+   ALLEGRO_FBO_INFO *info = NULL;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
+
+#ifndef ALLEGRO_CFG_OPENGLES
+   int w, h;
+   GLuint blit_fbo;
+#endif
+   
    if (!extra)
       return;
-   ALLEGRO_FBO_INFO *info = extra->fbo_info;
+   info = extra->fbo_info;
    (void)display;
    if (!info)
       return;
    if (!info->buffers.multisample_buffer)
       return;
    #ifndef ALLEGRO_CFG_OPENGLES
-   int w = al_get_bitmap_width(bitmap);
-   int h = al_get_bitmap_height(bitmap);
+   w = al_get_bitmap_width(bitmap);
+   h = al_get_bitmap_height(bitmap);
 
-   GLuint blit_fbo;
    glGenFramebuffersEXT(1, &blit_fbo);
    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, blit_fbo);
    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
