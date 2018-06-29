@@ -506,6 +506,7 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
    png_structp png_ptr = NULL;
    png_infop info_ptr = NULL;
    int colour_type;
+   int z_level;
 
    /* Create and initialize the png_struct with the
     * desired error handler functions.
@@ -545,7 +546,7 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
    colour_type = PNG_COLOR_TYPE_RGB_ALPHA;
 
    /* Set compression level. */
-   int z_level = translate_compression_level(
+   z_level = translate_compression_level(
       al_get_config_value(al_get_system_config(), "image", "png_compression_level")
    );
    png_set_compression_level(png_ptr, z_level);

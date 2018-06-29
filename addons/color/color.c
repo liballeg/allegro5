@@ -764,27 +764,26 @@ double al_color_distance_ciede2000(ALLEGRO_COLOR color1,
     * http://www.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf
     */
    float l1, a1, b1, l2, a2, b2;
+   double pi = ALLEGRO_PI, dl, ml, c1, c2, mc, fac, g, dc, h1, h2, dh = 0, mh, t, sl, mls, sc, sh, rt;
    al_color_rgb_to_lab(color1.r, color1.g, color1.b, &l1, &a1, &b1);
    al_color_rgb_to_lab(color2.r, color2.g, color2.b, &l2, &a2, &b2);
-   double pi = ALLEGRO_PI;
-   double dl = l1 - l2;
-   double ml = (l1 + l2) / 2;
-   double c1 = sqrt(a1 * a1 + b1 * b1);
-   double c2 = sqrt(a2 * a2 + b2 * b2);
-   double mc = (c1 + c2) / 2;
-   double fac = sqrt(pow(mc, 7) / (pow(mc, 7) + tf7));
-   double g = 0.5 * (1 - fac);
+   dl = l1 - l2;
+   ml = (l1 + l2) / 2;
+   c1 = sqrt(a1 * a1 + b1 * b1);
+   c2 = sqrt(a2 * a2 + b2 * b2);
+   mc = (c1 + c2) / 2;
+   fac = sqrt(pow(mc, 7) / (pow(mc, 7) + tf7));
+   g = 0.5 * (1 - fac);
    a1 *= 1 + g;
    a2 *= 1 + g;
    c1 = sqrt(a1 * a1 + b1 * b1);
    c2 = sqrt(a2 * a2 + b2 * b2);
-   double dc = c2 - c1;
+   dc = c2 - c1;
    mc = (c1 + c2) / 2;
    fac = sqrt(pow(mc, 7) / (pow(mc, 7) + tf7));
-   double h1 = fmod(2 * pi + atan2(b1, a1), 2 * pi);
-   double h2 = fmod(2 * pi + atan2(b2, a2), 2 * pi);
-   double dh = 0;
-   double mh = h1 + h2;
+   h1 = fmod(2 * pi + atan2(b1, a1), 2 * pi);
+   h2 = fmod(2 * pi + atan2(b2, a2), 2 * pi);
+   mh = h1 + h2;
    if (c1 * c2 != 0) {
       dh = h2 - h1;
       if (dh > pi) dh -= 2 * pi;
@@ -794,13 +793,13 @@ double al_color_distance_ciede2000(ALLEGRO_COLOR color1,
       else mh = (h1 + h2 - 2 * pi) / 2;
    }
    dh = 2 * sqrt(c1 * c2) * sin(dh / 2);
-   double t = 1 - 0.17 * cos(mh - pi / 6) + 0.24 * cos(2 * mh) +
+   t = 1 - 0.17 * cos(mh - pi / 6) + 0.24 * cos(2 * mh) +
          0.32 * cos(3 * mh + pi / 30) - 0.2 * cos(4 * mh - pi * 7 / 20);
-   double mls = pow(ml - 0.5, 2);
-   double sl = 1 + 1.5 * mls / sqrt(0.002 + mls);
-   double sc = 1 + 4.5 * mc;
-   double sh = 1 + 1.5 * mc * t;
-   double rt = -2 * fac * sin(pi / 3 *
+   mls = pow(ml - 0.5, 2);
+   sl = 1 + 1.5 * mls / sqrt(0.002 + mls);
+   sc = 1 + 4.5 * mc;
+   sh = 1 + 1.5 * mc * t;
+   rt = -2 * fac * sin(pi / 3 *
          exp(-pow(mh / pi * 36 / 5 - 11, 2)));
    return sqrt(pow(dl / sl, 2) + pow(dc / sc, 2) +
          pow(dh / sh, 2) + rt * dc / sc * dh / sh);
