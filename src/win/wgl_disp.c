@@ -968,7 +968,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    if ((disp->flags & ALLEGRO_OPENGL_3_0) || major != 0) {
       if (major == 0)
          major = 3;
-	  if ((disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0)
+	  if (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE)
 		  fc = true;
 
       wgl_disp->glrc = init_ogl_context_ex(wgl_disp->dc, fc, major,

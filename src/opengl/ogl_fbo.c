@@ -174,7 +174,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
       ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
       int w = al_get_bitmap_width(info->owner);
       int h = al_get_bitmap_height(info->owner);
-	  int samples = 0;
+      int samples = 0;
 	  bool extension_supported;
 	  GLint e;
 
