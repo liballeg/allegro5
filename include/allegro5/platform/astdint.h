@@ -32,12 +32,24 @@
    #ifndef ALLEGRO_GUESS_INTTYPES_OK
       #warning Guessing the definitions of fixed-width integer types.
    #endif
+   #include <limits.h>
+   
    #define int8_t       signed char
    #define uint8_t      unsigned char
    #define int16_t      signed short
    #define uint16_t     unsigned short
    #define int32_t      signed int
    #define uint32_t     unsigned int
+
+   #define INT8_MIN CHAR_MIN
+   #define INT8_MAX CHAR_MAX
+   #define UINT8_MAX UCHAR_MAX
+   #define INT16_MIN SHRT_MIN
+   #define INT16_MAX SHRT_MAX
+   #define UINT16_MAX USHRT_MAX
+   #define INT32_MIN INT_MIN
+   #define INT32_MAX INT_MAX
+   #define UINT32_MAX UINT_MAX
 
    #ifdef ALLEGRO_WINDOWS
 
