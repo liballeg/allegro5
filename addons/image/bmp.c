@@ -18,7 +18,6 @@
  */
 
 
-#include <stdint.h>
 #include <string.h>
 
 #include "allegro5/allegro.h"
