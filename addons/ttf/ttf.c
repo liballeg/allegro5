@@ -222,6 +222,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    bool lock_whole_page)
 {
    ALLEGRO_BITMAP *page;
+   REGION lock_rect;
    int w4 = align4(w);
    int h4 = align4(h);
    int glyph_size = w4 > h4 ? w4 : h4;
@@ -264,7 +265,6 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
       data->page_line_height = h4;
    }
 
-   REGION lock_rect;
    if (lock_whole_page) {
       lock_rect.x = 0;
       lock_rect.y = 0;
