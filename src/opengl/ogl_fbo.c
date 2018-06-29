@@ -175,8 +175,8 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
       int w = al_get_bitmap_width(info->owner);
       int h = al_get_bitmap_height(info->owner);
       int samples = 0;
-	  bool extension_supported;
-	  GLint e;
+      bool extension_supported;
+      GLint e;
 
       if (bits == 24) gldepth = GL_DEPTH_COMPONENT24;
    
