@@ -325,8 +325,12 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
    if (((scancode == DIK_TAB) && (_key_shifts & KB_ALT_FLAG))
        || ((scancode == DIK_SPACE) && (_key_shifts & KB_ALT_FLAG))
-       || ((scancode == DIK_ESCAPE) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))))
+       || ((scancode == DIK_ESCAPE) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG)))) {
+      /* force key release to make sure it does not get 'stuck' if held before ALT */
+      if (key[hw_to_mycode[scancode]])
+         handle_key_release(scancode);
       return;
+   }
 
    /* alt+F4 triggers a WM_CLOSE under Windows */
    if ((scancode == DIK_F4) && (_key_shifts & KB_ALT_FLAG)) {
