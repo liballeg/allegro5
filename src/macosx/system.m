@@ -365,17 +365,23 @@ static int osx_get_num_video_adapters(void)
  */
 static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
 {
-/*
    int count = osx_get_num_video_adapters();
    if (adapter < count) {
       NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
       NSRect rc = [screen frame];
+      rc = [screen convertRectToBacking: rc];
       info->x1 = (int) rc.origin.x;
       info->x2 = (int) (rc.origin.x + rc.size.width);
       info->y1 = (int) rc.origin.y;
       info->y2 = (int) (rc.origin.y + rc.size.height);
+      ALLEGRO_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
+                   adapter, info->x1, info->y1, info->x2, info->y2);
+      return true;
    }
-*/
+   else {
+      return false;
+   }
+/*
    CGDisplayCount count;
    // Assume no more than 16 monitors connected
    static const int max_displays = 16;
@@ -394,6 +400,7 @@ static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
    else {
       return false;
    }
+*/
 }
 
 /* osx_get_monitor_dpi:
