@@ -408,30 +408,24 @@ static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
  */
 static int osx_get_monitor_dpi(int adapter)
 {
-   static const int max_displays = 16;
-   CGDirectDisplayID displays[max_displays];
-   CGDisplayCount count;
-   ALLEGRO_MONITOR_INFO info;
-   CGError err;
-   CGSize size;
-   int dpi_hori;
-   int dpi_vert;
+   int count = osx_get_num_video_adapters();
+   if (adapter < count) {
+      NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
+      NSRect rc = [screen frame];
+      rc = [screen convertRectToBacking: rc];
 
-   if (!osx_get_monitor_info(adapter, &info)) {
+      NSDictionary *description = [screen deviceDescription];
+      CGSize size = CGDisplayScreenSize([[description objectForKey:@"NSScreenNumber"] unsignedIntValue]);
+      float dpi_hori = rc.size.width / (_AL_INCHES_PER_MM * size.width);
+      float dpi_vert = rc.size.height / (_AL_INCHES_PER_MM * size.height);
+
+      float scale_factor = [screen backingScaleFactor];
+
+      return sqrt(dpi_hori * dpi_vert);
+   }
+   else {
       return 0;
    }
-
-   err = CGGetActiveDisplayList(max_displays, displays, &count);
-   if (err != kCGErrorSuccess || adapter < 0 || adapter > (int) count) {
-      return 0;
-   }
-
-   size = CGDisplayScreenSize(displays[adapter]);
-
-   dpi_hori = (info.x2 - info.x1) / (_AL_INCHES_PER_MM * size.width);
-   dpi_vert = (info.y2 - info.y1) / (_AL_INCHES_PER_MM * size.height);
-
-   return sqrt(dpi_hori * dpi_vert);
 }
 
 /* osx_inhibit_screensaver:
