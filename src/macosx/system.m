@@ -419,8 +419,6 @@ static int osx_get_monitor_dpi(int adapter)
       float dpi_hori = rc.size.width / (_AL_INCHES_PER_MM * size.width);
       float dpi_vert = rc.size.height / (_AL_INCHES_PER_MM * size.height);
 
-      float scale_factor = [screen backingScaleFactor];
-
       return sqrt(dpi_hori * dpi_vert);
    }
    else {
