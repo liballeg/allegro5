@@ -483,6 +483,7 @@ int _al_get_menu_display_height(void)
                                           action:@selector(activated:)
                                    keyEquivalent:key];
         [item setTarget:self];
+        aitem->extra1 = item;
         return item;
     } else {
         item = [NSMenuItem separatorItem];
@@ -526,23 +527,16 @@ int _al_get_menu_display_height(void)
 // Get the ALLEGRO_MENU_ITEM corresponding to this NSMenuItem
 - (ALLEGRO_MENU_ITEM*) allegroItemforItem: (NSMenuItem*) mi
 {
-    unsigned int index = (int) [self.menu indexOfItem:mi];
-    if (self->_hasAppMenu) {
-        /* If the app menu is showing it will be at index 0 so account for this */
-        if (index == 0) {
-            return NULL;
-        } else {
-            --index;
+    int i;
+    ALLEGRO_MENU_ITEM * ami;
+
+    for (i = 0; i < (int)_al_vector_size(&self->amenu->items); i++) {
+        ami = *(ALLEGRO_MENU_ITEM**) _al_vector_ref(&self->amenu->items, i);
+        if (ami->extra1 == mi) {
+            return ami;
         }
     }
-    if (index < _al_vector_size(&self->amenu->items))
-    {
-        return *(ALLEGRO_MENU_ITEM**) _al_vector_ref(&self->amenu->items, index);
-    }
-    else
-    {
-        return NULL;
-    }
+    return NULL;
 }
 // Create target with ALLEGRO_MENU bound to it.
 - (id)initWithMenu:(ALLEGRO_MENU*) source_menu
