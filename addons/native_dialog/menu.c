@@ -908,8 +908,6 @@ bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t unique_id)
    ALLEGRO_EVENT event;
    _AL_MENU_ID *menu_id = NULL;
    ALLEGRO_EVENT_SOURCE *source = al_get_default_menu_event_source();
-   
-   printf("Here unique_id %d\n", unique_id);
 
    /* try to find the menu that triggered the event */
    menu_id = _al_find_parent_menu_by_id(display, unique_id);
