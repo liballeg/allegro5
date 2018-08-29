@@ -74,6 +74,8 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
    bitmap->memory = al_malloc(pitch * h);
+   bitmap->use_bitmap_blender = false;
+   bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
    
    _al_register_convert_bitmap(bitmap);
    return bitmap;
@@ -151,6 +153,8 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    bitmap->dirty = !(bitmap->_flags & ALLEGRO_NO_PRESERVE_TEXTURE);
    bitmap->_depth = depth;
    bitmap->_samples = samples;
+   bitmap->use_bitmap_blender = false;
+   bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
 
    /* The display driver should have set the bitmap->memory field if
     * appropriate; video bitmaps may leave it NULL.
@@ -470,13 +474,11 @@ void al_set_separate_bitmap_blender(int op, int src, int dst, int alpha_op, int 
 void al_reset_bitmap_blender(void)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   ALLEGRO_BLENDER *b;
 
    ASSERT(bitmap);
 
    bitmap->use_bitmap_blender = false;
-   b = &bitmap->blender;
-   b->blend_color = al_map_rgba(0, 0, 0, 0);
+   bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
 }
 
 /* Function: al_set_clipping_rectangle
