@@ -514,6 +514,7 @@ static void ljoy_scan(bool configure)
    int num;
    ALLEGRO_USTR *device_name;
    unsigned i;
+   int t;
 
    /* Clear mark bits. */
    for (i = 0; i < _al_vector_size(&joysticks); i++) {
@@ -536,7 +537,7 @@ static void ljoy_scan(bool configure)
     * to support non-evdev kernels any longer.
     */
    static char const *folders[] = {"/dev/input/by-path", "/dev/input"};
-   for (int t = 0; t < 2; t++) {
+   for (t = 0; t < 2; t++) {
       bool found = false;
       ALLEGRO_FS_ENTRY *dir = al_create_fs_entry(folders[t]);
       if (al_open_directory(dir)) {
