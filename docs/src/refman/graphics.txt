@@ -881,7 +881,7 @@ Since: 5.1.12
 Returns the current blender being used by the target bitmap.  You can pass NULL
 for values you are not interested in.
 
-Since: 5.2.4
+Since: 5.2.5
 
 See also: [al_set_bitmap_blender], [al_get_separate_bitmap_blender]
 
@@ -890,7 +890,7 @@ See also: [al_set_bitmap_blender], [al_get_separate_bitmap_blender]
 Returns the current blender being used by the target bitmap.  You can pass NULL
 for values you are not interested in.
 
-Since: 5.2.4
+Since: 5.2.5
 
 See also: [al_set_separate_bitmap_blender], [al_get_bitmap_blender]
 
@@ -899,7 +899,7 @@ See also: [al_set_separate_bitmap_blender], [al_get_bitmap_blender]
 Returns the color currently used for constant color blending on the target
 bitmap.
 
-Since: 5.2.4
+Since: 5.2.5
 
 See also: [al_set_bitmap_blend_color]
 
@@ -916,7 +916,7 @@ See [al_set_blender] for more information about how blending works.
 
 See also: [al_set_separate_bitmap_blender], [al_reset_bitmap_blender]
 
-Since: 5.2.4
+Since: 5.2.5
 
 ### API: al_set_separate_bitmap_blender
 
@@ -925,7 +925,7 @@ operation for the alpha channel.  This is useful if your target bitmap also has
 an alpha channel and the two alpha channels need to be combined in a different
 way than the color components.
 
-Since: 5.2.4
+Since: 5.2.5
 
 See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
 
@@ -934,7 +934,7 @@ See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
 Sets the color to use for `ALLEGRO_CONST_COLOR` or `ALLEGRO_INVERSE_CONST_COLOR`
 blend operations.
 
-Since: 5.2.4
+Since: 5.2.5
 
 See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
 
@@ -944,7 +944,7 @@ Resets the blender for this bitmap to the default.  After resetting the
 bitmap blender, the values set for
 [al_set_bitmap_blender]/[al_set_separate_bitmap_blender] will be used instead.
 
-Since: 5.2.4
+Since: 5.2.5
 
 See also: [al_set_bitmap_blender]
 
