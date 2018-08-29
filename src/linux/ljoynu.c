@@ -245,9 +245,6 @@ static bool ljoy_detect_device_name(int num, ALLEGRO_USTR *device_name)
    if (value)
       al_ustr_assign_cstr(device_name, value);
 
-   if (al_ustr_size(device_name) == 0)
-      al_ustr_appendf(device_name, "/dev/input/event%d", num);
-
    return (stat(al_cstr(device_name), &stbuf) == 0);
 }
 
@@ -456,90 +453,129 @@ static bool fill_joystick_buttons(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
 
 
 
+static void ljoy_device(ALLEGRO_USTR *device_name) {
+   ALLEGRO_JOYSTICK_LINUX *joy = ljoy_by_device_name(device_name);
+   if (joy) {
+      ALLEGRO_DEBUG("Device %s still exists\n", al_cstr(device_name));
+      joy->marked = true;
+      return;
+   }
+
+   /* Try to open the device. The device must be opened in O_RDWR mode to
+    * allow writing of haptic effects! The haptic driver for linux
+    * reuses the joystick driver's fd.
+    */
+   int fd = open(al_cstr(device_name), O_RDWR|O_NONBLOCK);
+   if (fd == -1) {
+      ALLEGRO_WARN("Failed to open device %s\n", al_cstr(device_name));
+      return;
+   }
+
+   /* The device must have at least one joystick-related axis, and one
+    * joystick-related button.  Some devices, such as mouse pads, have ABS_X
+    * and ABS_Y axes like a joystick but not joystick-related buttons.  By
+    * checking for both axes and buttons, such devices can be excluded.
+    */
+   if (!have_joystick_button(fd) || !have_joystick_axis(fd)) {
+      ALLEGRO_DEBUG("Device %s not a joystick\n", al_cstr(device_name));
+      close(fd);
+      return;
+   }
+
+   ALLEGRO_DEBUG("Device %s is new\n", al_cstr(device_name));
+
+   joy = ljoy_allocate_structure();
+   joy->fd = fd;
+   joy->device_name = al_ustr_dup(device_name);
+   joy->config_state = LJOY_STATE_BORN;
+   joy->marked = true;
+   config_needs_merging = true;
+
+   if (ioctl(fd, EVIOCGNAME(sizeof(joy->name)), joy->name) < 0)
+      strcpy(joy->name, "Unknown");
+
+   /* Map Linux input API axis and button numbers to ours, and fill in
+    * information.
+    */
+   if (!fill_joystick_axes(joy, fd) || !fill_joystick_buttons(joy, fd)) {
+      ALLEGRO_ERROR("fill_joystick_info failed %s\n", al_cstr(device_name));
+      inactivate_joy(joy);
+      close(fd);
+      return;
+   }
+
+   /* Register the joystick with the fdwatch subsystem.  */
+   _al_unix_start_watching_fd(joy->fd, ljoy_process_new_data, joy);
+}
+
+
 static void ljoy_scan(bool configure)
 {
-   int fd;
-   ALLEGRO_JOYSTICK_LINUX *joy, **joypp;
    int num;
    ALLEGRO_USTR *device_name;
    unsigned i;
 
    /* Clear mark bits. */
    for (i = 0; i < _al_vector_size(&joysticks); i++) {
-      joypp = _al_vector_ref(&joysticks, i);
-      joy = *joypp;
-      joy->marked = false;
+      ALLEGRO_JOYSTICK_LINUX **joypp = _al_vector_ref(&joysticks, i);
+      (*joypp)->marked = false;
    }
 
    device_name = al_ustr_new("");
 
-   /* This is a big number, but there can be gaps and other unrelated event
-    * device files.  Perhaps it would be better to use glob() here.
-    */
+   /* First try to read devices from allegro.cfg. */
    for (num = 0; num < 32; num++) {
       if (!ljoy_detect_device_name(num, device_name))
          continue;
+      ljoy_device(device_name);
+   }
 
-      joy = ljoy_by_device_name(device_name);
-      if (joy) {
-         ALLEGRO_DEBUG("Device %s still exists\n", al_cstr(device_name));
-         joy->marked = true;
-         continue;
+   /* Then scan /dev/input/by-path for *-event-joystick devices and if
+    * no device is found there scan all files in /dev/input.
+    * Note: That last step might be overkill, we probably don't need
+    * to support non-evdev kernels any longer.
+    */
+   static char const *folders[] = {"/dev/input/by-path", "/dev/input"};
+   for (int t = 0; t < 2; t++) {
+      bool found = false;
+      ALLEGRO_FS_ENTRY *dir = al_create_fs_entry(folders[t]);
+      if (al_open_directory(dir)) {
+         static char const *suffix = "-event-joystick";
+         while (true) {
+            ALLEGRO_FS_ENTRY *dev = al_read_directory(dir);
+            if (!dev) {
+               break;
+            }
+            if (al_get_fs_entry_mode(dev) & ALLEGRO_FILEMODE_ISDIR) {
+               continue;
+            }
+            char const *path = al_get_fs_entry_name(dev);
+            /* In the second pass in /dev/input we don't filter anymore. */
+            if (t ==1 || strcmp(suffix, path + strlen(path) - strlen(suffix)) == 0) {
+               found = true;
+               al_ustr_assign_cstr(device_name, path);
+               ljoy_device(device_name);
+            }
+            al_destroy_fs_entry(dev);
+         }
+         al_close_directory(dir);
       }
-
-      /* Try to open the device. The device must be opened in O_RDWR mode to
-       * allow writing of haptic effects! The haptic driver for linux
-       * reuses the joystick driver's fd.
-       */
-      fd = open(al_cstr(device_name), O_RDWR|O_NONBLOCK);
-      if (fd == -1) {
-         ALLEGRO_WARN("Failed to open device %s\n", al_cstr(device_name));
-         continue;
+      al_destroy_fs_entry(dir);
+      if (found) {
+         /* Don't scan the second folder if we found something in the
+          * first as it would be duplicates.
+          */
+         break;
       }
-
-      /* The device must have at least one joystick-related axis, and one
-       * joystick-related button.  Some devices, such as mouse pads, have ABS_X
-       * and ABS_Y axes like a joystick but not joystick-related buttons.  By
-       * checking for both axes and buttons, such devices can be excluded.
-       */
-      if (!have_joystick_button(fd) || !have_joystick_axis(fd)) {
-         ALLEGRO_DEBUG("Device %s not a joystick\n", al_cstr(device_name));
-         close(fd);
-         continue;
-      }
-
-      ALLEGRO_DEBUG("Device %s is new\n", al_cstr(device_name));
-
-      joy = ljoy_allocate_structure();
-      joy->fd = fd;
-      joy->device_name = al_ustr_dup(device_name);
-      joy->config_state = LJOY_STATE_BORN;
-      joy->marked = true;
-      config_needs_merging = true;
-
-      if (ioctl(fd, EVIOCGNAME(sizeof(joy->name)), joy->name) < 0)
-         strcpy(joy->name, "Unknown");
-
-      /* Map Linux input API axis and button numbers to ours, and fill in
-       * information.
-       */
-      if (!fill_joystick_axes(joy, fd) || !fill_joystick_buttons(joy, fd)) {
-         ALLEGRO_ERROR("fill_joystick_info failed %s\n", al_cstr(device_name));
-         inactivate_joy(joy);
-         close(fd);
-         continue;
-      }
-
-      /* Register the joystick with the fdwatch subsystem.  */
-      _al_unix_start_watching_fd(joy->fd, ljoy_process_new_data, joy);
+      ALLEGRO_WARN("Could not find joysticks in %s\n", folders[t]);
    }
 
    al_ustr_free(device_name);
 
    /* Schedule unmarked structures to be inactivated. */
    for (i = 0; i < _al_vector_size(&joysticks); i++) {
-      joypp = _al_vector_ref(&joysticks, i);
-      joy = *joypp;
+      ALLEGRO_JOYSTICK_LINUX **joypp = _al_vector_ref(&joysticks, i);
+      ALLEGRO_JOYSTICK_LINUX *joy = *joypp;
 
       if (joy->config_state == LJOY_STATE_ALIVE && !joy->marked) {
          ALLEGRO_DEBUG("Device %s to be inactivated\n",
