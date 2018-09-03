@@ -698,7 +698,8 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    v2c = v2->color;
    v3c = v3->color;
 
-   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+   al_get_separate_bitmap_blender(&op,
+      &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
    if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED) {
       shade = 0;
    }

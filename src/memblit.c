@@ -141,7 +141,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
    
    ASSERT(src->parent == NULL);
 
-   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+   al_get_separate_bitmap_blender(&op,
+      &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
 
    if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED_TINT_WHITE &&
       _al_transform_is_translation(al_get_current_transform(), &xtrans, &ytrans))

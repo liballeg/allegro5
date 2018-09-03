@@ -4,6 +4,7 @@
  *    By Peter Wang.
  */
 
+#define ALLEGRO_UNSTABLE
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
@@ -110,7 +111,7 @@ int               skipped_tests = 0;
 #define C(a)      get_color(V(a))
 #define B(a)      get_bitmap(V(a), bmp_type, target)
 #define SCAN0(fn) \
-      (sscanf(stmt, fn " (" " )") == 0)
+      (sscanf(stmt, fn " %80[(]" " )", ARGS1) == 1)
 #define SCAN(fn, arity) \
       (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
 #define SCANLVAL(fn, arity) \
@@ -1001,6 +1002,20 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
             get_blender_op(V(3)),
             get_blend_factor(V(4)),
             get_blend_factor(V(5)));
+         continue;
+      }
+
+      if (SCAN("al_set_bitmap_blender", 3)) {
+         al_set_bitmap_blender(
+            get_blender_op(V(0)),
+            get_blend_factor(V(1)),
+            get_blend_factor(V(2)));
+         continue;
+      }
+
+      if (SCAN0("al_reset_bitmap_blender")) {
+         printf("Here!\n");
+         al_reset_bitmap_blender();
          continue;
       }
 

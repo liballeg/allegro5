@@ -42,7 +42,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
       ALLEGRO_COLOR const_color;
-      al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+      al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
@@ -244,7 +244,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
       ALLEGRO_COLOR const_color;
-      al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+      al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
@@ -486,7 +486,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
       ALLEGRO_COLOR const_color;
-      al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+      al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
@@ -944,7 +944,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
       ALLEGRO_COLOR const_color;
-      al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+      al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
@@ -1991,7 +1991,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
       ALLEGRO_COLOR const_color;
-      al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+      al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {

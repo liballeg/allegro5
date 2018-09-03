@@ -111,7 +111,7 @@ def make_drawer(name):
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
       ALLEGRO_COLOR const_color;
-      al_get_separate_blender(&op, &src_mode, &dst_mode,
+      al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
       """
