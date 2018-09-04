@@ -60,7 +60,9 @@ void _al_sdl_keyboard_event(SDL_Event *e)
       event.keyboard.keycode = keyboard->table[e->key.keysym.scancode];
       event.keyboard.unichar = keyboard->unicode[e->key.keysym.scancode];
       event.keyboard.display = _al_sdl_find_display(e->key.windowID);
-      _al_event_source_emit_event(es, &event);
+      if (!e->key.repeat) {
+         _al_event_source_emit_event(es, &event);
+      }
 
       if (keyboard->create_extra_char[e->key.keysym.scancode]) {
          event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
