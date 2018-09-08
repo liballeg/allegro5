@@ -811,7 +811,7 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    }
 
    if (!exp && !sigexp) {
-      printf("NEW  %s [%s] - hash=%s; sig=%s\n",
+      printf("NEW  %s [%s]\n\thash=%s\n\tsig=%s\n",
          testname, bt, hash, sig);
       return;
    }
@@ -1014,7 +1014,6 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
 
       if (SCAN0("al_reset_bitmap_blender")) {
-         printf("Here!\n");
          al_reset_bitmap_blender();
          continue;
       }
