@@ -548,6 +548,7 @@ static void ljoy_scan(bool configure)
                break;
             }
             if (al_get_fs_entry_mode(dev) & ALLEGRO_FILEMODE_ISDIR) {
+               al_destroy_fs_entry(dev);
                continue;
             }
             char const *path = al_get_fs_entry_name(dev);
