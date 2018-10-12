@@ -163,7 +163,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 
    /* the mod files are stereo and 16-bit */
    const int sample_size = 4;
-   size_t written;
+   size_t written = 0;
    size_t i;
 
    DUMB_IT_SIGRENDERER *it_sig = lib.duh_get_it_sigrenderer(df->sig);
@@ -173,18 +173,17 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
          ? lib.dumb_it_callback_terminate : NULL, NULL);
    }
 
-   written = lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
-      buf_size / sample_size, data) * sample_size;
+   while (written < buf_size) {
+      written += lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
+         (buf_size - written) / sample_size, &(((char *)data)[written])) * sample_size;
+      if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
+            break;
+         }
+   }
 
    /* Fill the remainder with silence */
    for (i = written; i < buf_size; ++i)
       ((char *)data)[i] = 0;
-
-   /* Check to see if a loop is set */
-   if (df->loop_start != -1 &&
-      df->loop_end < lib.duh_sigrenderer_get_position(df->sig)) {
-         modaudio_stream_seek(stream, df->loop_start / 65536.0);
-   }
 
    return written;
 }
@@ -204,7 +203,7 @@ static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    lib.duh_end_sigrenderer(df->sig);
-   df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, 0);
+   df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, df->loop_start);
    return true;
 }
 
