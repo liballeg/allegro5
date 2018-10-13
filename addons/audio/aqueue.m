@@ -261,6 +261,9 @@ static void *stream_proc(void *in_data)
    else
       desc.mFormatFlags = kLinearPCMFormatFlagIsFloat |
       kLinearPCMFormatFlagIsPacked;
+#ifdef ALLEGRO_BIG_ENDIAN
+   desc.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
+#endif
    desc.mBytesPerPacket = ex_data->channels * (ex_data->bits_per_sample/8);
    desc.mFramesPerPacket = 1;
    desc.mBytesPerFrame = ex_data->channels * (ex_data->bits_per_sample/8);
@@ -498,12 +501,15 @@ static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
    data->data_format.mBytesPerFrame = 
    data->data_format.mBytesPerPacket = data->data_format.mChannelsPerFrame * al_get_audio_depth_size(recorder->depth);
    
-   data->data_format.mFormatFlags = kLinearPCMFormatFlagIsPacked;   
+   data->data_format.mFormatFlags = kLinearPCMFormatFlagIsPacked;
+#ifdef ALLEGRO_BIG_ENDIAN
+   data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
+#endif
    if (recorder->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
       data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsFloat;
    else if (!(recorder->depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
       data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsSignedInteger;
-      
+
    data->buffer_size = 2048; // in bytes
   
    ret = AudioQueueNewInput(
