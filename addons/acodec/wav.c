@@ -175,16 +175,13 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
     */
 #ifdef ALLEGRO_BIG_ENDIAN
    if (wavfile->bits == 16) {
-      uint8_t *p = data;
-      const uint8_t *const end = p + bytes_read - 1; /* in case bytes_read is not even */
+      uint16_t *p = data;
+      const uint16_t *const end = p + (bytes_read >> 1);
 
       /* swap high/low bytes */
       while (p < end) {
-         uint8_t *const q = p + 1;
-         const uint8_t tmp = *p;
-         *p = *q;
-         *q = tmp;
-         p = q;       
+         *p = ((*p << 8) | (*p >> 8));
+         p++;
       }
    }
 #endif
