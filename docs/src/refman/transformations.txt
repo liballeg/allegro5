@@ -223,6 +223,20 @@ with 2D transformations.
 
 See also: [al_check_inverse]
 
+## API: al_transpose_transform
+
+Transposes the matrix of the given transform. This can be used for
+inversing a rotation transform. For example:
+
+~~~~c
+al_build_camera_transform(camera, 0, 0, 0, x, y, z, xu, yu, zu)
+al_copy_transform(inverse, camera)
+al_transpose_transform(camera)
+// Now "inverse" will be a transformation rotating in the opposite
+// direction from "camera". Note that this only works if the camera
+// position is 0/0/0 as in the example.
+~~~~
+
 ## API: al_check_inverse
 
 Checks if the transformation has an inverse using the supplied tolerance.

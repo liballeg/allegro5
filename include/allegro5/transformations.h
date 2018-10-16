@@ -43,6 +43,7 @@ AL_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
 AL_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_inverse_transform, (void));
 AL_FUNC(const ALLEGRO_TRANSFORM *, al_get_current_projection_transform, (void));
 AL_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
+AL_FUNC(void, al_transpose_transform, (ALLEGRO_TRANSFORM *trans));
 AL_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
 AL_FUNC(void, al_orthographic_transform, (ALLEGRO_TRANSFORM *trans, float left, float top, float n, float right, float bottom, float f));
 AL_FUNC(void, al_perspective_transform, (ALLEGRO_TRANSFORM *trans, float left, float top, float n, float right, float bottom, float f));
