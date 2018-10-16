@@ -282,7 +282,7 @@ class Allegro:
                     continue
 
                 # add an array
-                mob = re.match("(.*)( \w+)\[(.*?)\]$", field)
+                mob = re.match("(.*)\s+(\w+)\[(.*?)\]$", field)
                 if mob:
                     # this is all a hack
                     n = 0
