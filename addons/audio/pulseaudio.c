@@ -115,8 +115,9 @@ static int pulseaudio_open(void)
       if (pa_mainloop_iterate(mainloop, blocking, NULL) < 0) {
          ALLEGRO_ERROR("pa_mainloop_iterate failed\n");
          pa_context_disconnect(c);
+         pa_context_unref(c);
          pa_mainloop_free(mainloop);
-         break;
+         return 1;
       }
       pa_context_state_t s = pa_context_get_state(c);
       if (s == PA_CONTEXT_READY) {
@@ -126,6 +127,7 @@ static int pulseaudio_open(void)
       if (s == PA_CONTEXT_FAILED) {
          ALLEGRO_ERROR("PA_CONTEXT_FAILED\n");
          pa_context_disconnect(c);
+         pa_context_unref(c);
          pa_mainloop_free(mainloop);
          return 1;
       }
@@ -138,6 +140,7 @@ static int pulseaudio_open(void)
    }
    /*if (state == PA_SINK_SUSPENDED) {
       pa_context_disconnect(c);
+      pa_context_unref(c);
       pa_mainloop_free(mainloop);
       return 1;
    }*/
