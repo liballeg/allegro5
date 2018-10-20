@@ -144,6 +144,7 @@ static void alsa_close(void)
    
    alsa_device = NULL;
    
+   snd_output_close(snd_output);
    snd_config_update_free_global();
 }
 
