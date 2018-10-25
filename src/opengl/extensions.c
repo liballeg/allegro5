@@ -786,12 +786,20 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    gl_disp->ogl_extras->extension_api = ext_api;
    
 #if !defined ALLEGRO_CFG_OPENGLES
+   int v = al_get_opengl_version();
+
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
 
    ALLEGRO_DEBUG("OpenGL Extensions:\n");
-   print_extensions_3_0();
 
+   /* glGetString(GL_EXTENSIONS) was deprecated in 3.0 and removed in 3.1 and later versions */
+   if (!(disp->flags & ALLEGRO_OPENGL_3_0) && v < _ALLEGRO_OPENGL_VERSION_3_0) {
+      print_extensions(glGetString(GL_EXTENSIONS));
+   }
+   else {
+      print_extensions_3_0();
+   }
 #endif
 
    /* Create the list of supported extensions. */
