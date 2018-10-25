@@ -47,17 +47,21 @@ void al_set_new_display_option(int option, int value, int importance)
    extras->settings[option] = value;
 }
 
-
+/**
+  This function uses display->extra_settings, where al_get_new_display_option uses tls->new_display_settings
+  TODO : Remove
+*/
+#if 0
 int _al_get_suggested_display_option(ALLEGRO_DISPLAY *d,
    int option, int default_value)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *s = &d->extra_settings;
    uint64_t flags = s->required | s->suggested;
-   if (flags & (1 << option))
+   if (flags & ((int64_t)1 << option))
       return s->settings[option];
    return default_value;
 }
-
+#endif
 
 /* Function: al_get_new_display_option
  */

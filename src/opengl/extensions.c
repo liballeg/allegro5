@@ -724,15 +724,6 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_OGL_EXT_API *ext_api;
    ALLEGRO_OGL_EXT_LIST *ext_list;
 
-   /* Print out OpenGL extensions
-    * We should use glGetStringi(GL_EXTENSIONS, i) for OpenGL 3.0+
-    * but it doesn't seem to work until later.
-    */
-   if (!_al_ogl_version_3_only(gl_disp->flags)) {
-      ALLEGRO_DEBUG("OpenGL Extensions:\n");
-      print_extensions((char const *)glGetString(GL_EXTENSIONS));
-   }
-
    /* Print out GLU version */
    //buf = gluGetString(GLU_VERSION);
    //ALLEGRO_INFO("GLU Version : %s\n", buf);
@@ -798,10 +789,9 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
 
-   if (_al_ogl_version_3_only(gl_disp->flags)) {
-      ALLEGRO_DEBUG("OpenGL Extensions:\n");
-      print_extensions_3_0();
-   }
+   ALLEGRO_DEBUG("OpenGL Extensions:\n");
+   print_extensions_3_0();
+
 #endif
 
    /* Create the list of supported extensions. */
