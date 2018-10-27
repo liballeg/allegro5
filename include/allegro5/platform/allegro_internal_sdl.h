@@ -40,6 +40,7 @@ int _al_sdl_get_allegro_pixel_format(int sdl_format);
 int _al_sdl_get_sdl_pixel_format(int allegro_format);
 
 ALLEGRO_DISPLAY *_al_sdl_find_display(uint32_t window_id);
+float _al_sdl_get_display_pixel_ratio(ALLEGRO_DISPLAY *display);
 
 void _al_sdl_event_hack(void);
 
