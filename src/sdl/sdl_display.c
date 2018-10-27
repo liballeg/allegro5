@@ -89,7 +89,7 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
    d->h = h;
    d->flags = al_get_new_display_flags();
    d->flags |= ALLEGRO_OPENGL;
-   int flags = SDL_WINDOW_OPENGL;
+   int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
    if (d->flags & ALLEGRO_FULLSCREEN)
       flags |= SDL_WINDOW_FULLSCREEN;
    if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
@@ -273,7 +273,7 @@ static void recreate_textures(ALLEGRO_DISPLAY *display)
 static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
-   SDL_GetWindowSize(sdl->window, &display->w, &display->h);
+   SDL_GL_GetDrawableSize(sdl->window, &display->w, &display->h);
 
    _al_ogl_setup_gl(display);
 
@@ -298,7 +298,14 @@ static void sdl_set_window_title(ALLEGRO_DISPLAY *display, char const *title)
 static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
-   SDL_SetWindowSize(sdl->window, width, height);
+
+   // Allegro uses pixels everywhere, while SDL uses screen space for window size
+   int window_width, drawable_width, h;
+   SDL_GetWindowSize(sdl->window, &window_width, &h);
+   SDL_GL_GetDrawableSize(sdl->window, &drawable_width, &h);
+   float ratio = window_width / (float)drawable_width;
+
+   SDL_SetWindowSize(sdl->window, width * ratio, height * ratio);
    sdl_acknowledge_resize(display);
    return true;
 }
