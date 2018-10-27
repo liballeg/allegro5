@@ -303,6 +303,29 @@ static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
    return true;
 }
 
+static bool sdl_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
+   bool flag_onoff)
+{
+   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   switch (flag) {
+      case ALLEGRO_FRAMELESS:
+         /* The ALLEGRO_FRAMELESS flag is backwards. */
+         SDL_SetWindowBordered(sdl->window, !flag_onoff);
+         return true;
+      case ALLEGRO_FULLSCREEN_WINDOW:
+         SDL_SetWindowFullscreen(sdl->window, flag_onoff ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+         return true;
+      case ALLEGRO_MAXIMIZED:
+          if (flag_onoff) {
+             SDL_MaximizeWindow(sdl->window);
+          } else {
+             SDL_RestoreWindow(sdl->window);
+          }
+         return true;
+   }
+   return false;
+}
+
 ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
 {
    if (vt)
@@ -338,8 +361,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
    vt->set_window_position = sdl_set_window_position;
    vt->get_window_position = sdl_get_window_position;
    /*vt->set_window_constraints = sdl_set_window_constraints;
-   vt->get_window_constraints = sdl_get_window_constraints;
-   vt->set_display_flag = sdl_set_display_flag;*/
+   vt->get_window_constraints = sdl_get_window_constraints;*/
+   vt->set_display_flag = sdl_set_display_flag;
    vt->set_window_title = sdl_set_window_title;
    //vt->flush_vertex_cache = GL
    //vt->prepare_vertex_cache = GL
