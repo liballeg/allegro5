@@ -205,6 +205,7 @@ set(ALLEGRO_SRC_SDL_FILES
    src/sdl/sdl_display.c
    src/sdl/sdl_keyboard.c
    src/sdl/sdl_mouse.c
+   src/sdl/sdl_touch.c
    src/sdl/sdl_joystick.c
    src/sdl/sdl_event_hack.c
    )
