@@ -723,7 +723,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 #endif
    ALLEGRO_OGL_EXT_API *ext_api;
    ALLEGRO_OGL_EXT_LIST *ext_list;
-
+   
    /* Print out GLU version */
    //buf = gluGetString(GLU_VERSION);
    //ALLEGRO_INFO("GLU Version : %s\n", buf);
@@ -785,19 +785,25 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    load_extensions(ext_api);
    gl_disp->ogl_extras->extension_api = ext_api;
    
+   
+   /* Print out OpenGL extensions for all versions of opengl less than 3
+    * Does this include opengles 2 and 3?
+    * glGetString(GL_EXTENSIONS) was deprecated in OpenGL 3.0
+    * We should use glGetStringi(GL_EXTENSIONS, i) for OpenGL 3.0+
+    * but it doesn't seem to work until later. Note - it doesn't work for some? Who?
+    */
+   if (gl_disp->ogl_extras->ogl_info.version <= _ALLEGRO_OPENGL_VERSION_3_0) {
+      char const* extstr = (char const*)glGetString(GL_EXTENSIONS);
+      ALLEGRO_DEBUG("OpenGL Extensions:\n");
+      print_extensions(extstr);
+   }
+   
 #if !defined ALLEGRO_CFG_OPENGLES
-   int v = al_get_opengl_version();
-
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
 
-   ALLEGRO_DEBUG("OpenGL Extensions:\n");
-
-   /* glGetString(GL_EXTENSIONS) was deprecated in 3.0 and removed in 3.1 and later versions */
-   if (!(disp->flags & ALLEGRO_OPENGL_3_0) && v < _ALLEGRO_OPENGL_VERSION_3_0) {
-      print_extensions(glGetString(GL_EXTENSIONS));
-   }
-   else {
+   if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_3_0) {
+      ALLEGRO_DEBUG("OpenGL Extensions:\n");
       print_extensions_3_0();
    }
 #endif

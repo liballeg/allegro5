@@ -1058,6 +1058,13 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    ALLEGRO_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
    ALLEGRO_INFO("Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
 
+   /* Fill in the display settings for opengl major and minor versions...*/
+   int* s = display->extra_settings.settings;
+   s[ALLEGRO_OPENGL_MAJOR_VERSION] = 
+      (display->ogl_extras->ogl_info.version >> 24) & 0xFF;
+   s[ALLEGRO_OPENGL_MINOR_VERSION] = 
+      (display->ogl_extras->ogl_info.version >> 16) & 0xFF;      
+      
    /* Add ourself to the list of displays. */
    add = _al_vector_alloc_back(&system->system.displays);
    *add = wgl_display;
