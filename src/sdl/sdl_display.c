@@ -125,7 +125,7 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       SDL_RENDERER_PRESENTVSYNC |
       SDL_RENDERER_TARGETTEXTURE;
    sdl->renderer = SDL_CreateRenderer(sdl->window, -1, flags);
-   sdl->context = SDL_GL_CreateContext(sdl->window);
+   sdl->context = SDL_GL_GetCurrentContext();
    ALLEGRO_DISPLAY **add;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
    add = _al_vector_alloc_back(&system->displays);
