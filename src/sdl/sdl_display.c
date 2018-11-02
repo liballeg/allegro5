@@ -330,6 +330,49 @@ static bool sdl_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
    return false;
 }
 
+static void sdl_set_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *bitmaps[]) {
+   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   int w = al_get_bitmap_width(bitmaps[0]);
+   int h = al_get_bitmap_height(bitmaps[0]);
+   int data_size = w * h * 4;
+   (void)num_icons;
+
+   unsigned char* data = al_malloc(data_size * sizeof(data[0]));
+
+   Uint32 rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+   rmask = 0xff000000;
+   gmask = 0x00ff0000;
+   bmask = 0x0000ff00;
+   amask = 0x000000ff;
+#else // little endian, like x86
+   rmask = 0x000000ff;
+   gmask = 0x0000ff00;
+   bmask = 0x00ff0000;
+   amask = 0xff000000;
+#endif
+
+   ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bitmaps[0], ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_READONLY);
+   if (lock) {
+      int i = 0, y = 0;
+      for (y = 0; y < h; y++) {
+         int x = 0;
+         for (x = 0; x < w; x++) {
+            ALLEGRO_COLOR c = al_get_pixel(bitmaps[0], x, y);
+            al_unmap_rgba(c, data+i, data+i+1, data+i+2, data+i+3);
+            i += 4;
+         }
+      }
+      al_unlock_bitmap(bitmaps[0]);
+
+      SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(data, w, h, 4 * 8, w * 4, rmask, gmask, bmask, amask);
+      SDL_SetWindowIcon(sdl->window, icon);
+      SDL_FreeSurface(icon);
+   }
+
+   al_free(data);
+}
+
 ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
 {
    if (vt)
@@ -361,7 +404,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
    vt->set_system_mouse_cursor = sdl_set_system_mouse_cursor;
    vt->show_mouse_cursor = sdl_show_mouse_cursor;
    vt->hide_mouse_cursor = sdl_hide_mouse_cursor;
-   /*vt->set_icons = sdl_set_icons;*/
+   vt->set_icons = sdl_set_icons;
    vt->set_window_position = sdl_set_window_position;
    vt->get_window_position = sdl_get_window_position;
    /*vt->set_window_constraints = sdl_set_window_constraints;
