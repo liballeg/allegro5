@@ -124,6 +124,8 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       ALLEGRO_ERROR("SDL_CreateWindow failed: %s", SDL_GetError());
       return NULL;
    }
+   SDL_GetWindowSize(sdl->window, &d->w, &d->h);
+
    flags =
       SDL_RENDERER_ACCELERATED |
       SDL_RENDERER_PRESENTVSYNC |
