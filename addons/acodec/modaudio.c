@@ -178,7 +178,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
          (buf_size - written) / sample_size, &(((char *)data)[written])) * sample_size;
       if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
             break;
-         }
+      }
    }
 
    /* Fill the remainder with silence */
