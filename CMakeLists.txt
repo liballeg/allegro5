@@ -662,6 +662,14 @@ if(UNIX) # includes MACOSX
 endif(UNIX)
 
 #
+# SDL
+#
+
+if(ALLEGRO_SDL AND NOT SUPPORT_OPENGL)
+    message(FATAL_ERROR "SDL support currently requires OpenGL or OpenGL ES support.")
+endif(ALLEGRO_SDL AND NOT SUPPORT_OPENGL)
+
+#
 # X Window System
 #
 
@@ -679,7 +687,7 @@ if(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11) # not MACOSX
 endif(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11)
 
 if(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
-    message(FATAL_ERROR "X11 support currently requires OpenGL support.")
+    message(FATAL_ERROR "X11 support currently requires OpenGL or OpenGL ES support.")
 endif(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
 
 if(SUPPORT_X11)
