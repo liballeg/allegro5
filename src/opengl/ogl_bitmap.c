@@ -183,7 +183,7 @@ char const *_al_gl_error_string(GLenum e)
       ERR(GL_INVALID_ENUM)
       ERR(GL_INVALID_VALUE)
       ERR(GL_INVALID_OPERATION)
-#ifndef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
       ERR(GL_STACK_OVERFLOW)
       ERR(GL_STACK_UNDERFLOW)
 #endif
@@ -464,7 +464,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          post_generate_mipmap = true;
       }
       else {
-#ifndef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
          glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
           e = glGetError();
           if (e) {
