@@ -133,6 +133,14 @@ static void sdl_shutdown_system(void)
 {
    ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
 
+   /* Close all open displays. */
+   while (_al_vector_size(&s->system.displays) > 0) {
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->system.displays, 0);
+      ALLEGRO_DISPLAY *d = *dptr;
+      al_destroy_display(d);
+   }
+   _al_vector_free(&s->system.displays);
+   
    al_destroy_mutex(s->mutex);
    al_free(s);
    SDL_Quit();
@@ -141,24 +149,28 @@ static void sdl_shutdown_system(void)
 static ALLEGRO_PATH *sdl_get_path(int id)
 {
    ALLEGRO_PATH *p = NULL;
+   char* dir;
    switch (id) {
       case ALLEGRO_TEMP_PATH:
       case ALLEGRO_USER_DOCUMENTS_PATH:
       case ALLEGRO_USER_DATA_PATH:
       case ALLEGRO_USER_SETTINGS_PATH:
-         p = al_create_path_for_directory(SDL_GetPrefPath(
-            al_get_org_name(), al_get_app_name()));
+         dir = SDL_GetPrefPath(al_get_org_name(), al_get_app_name());
+         p = al_create_path_for_directory(dir);
          if (id == ALLEGRO_TEMP_PATH) {
             al_append_path_component(p, "tmp");
          }
+         SDL_free(dir);
          break;
       case ALLEGRO_RESOURCES_PATH:
       case ALLEGRO_EXENAME_PATH:
       case ALLEGRO_USER_HOME_PATH:
-         p = al_create_path_for_directory(SDL_GetBasePath());
+         dir = SDL_GetBasePath();
+         p = al_create_path_for_directory(dir);
          if (id == ALLEGRO_EXENAME_PATH) {
             al_set_path_filename(p, al_get_app_name());
          }
+         SDL_free(dir);
          break;
    }
    return p;

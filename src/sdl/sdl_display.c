@@ -160,12 +160,80 @@ static ALLEGRO_DISPLAY *sdl_create_display(int w, int h)
    return d;
 }
 
+static void convert_display_bitmaps_to_memory_bitmap(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DEBUG("converting display bitmaps to memory bitmaps.\n");
+
+   while (d->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+      ALLEGRO_BITMAP *b = *bptr;
+      _al_convert_to_memory_bitmap(b);
+   }
+}
+
+static void transfer_display_bitmaps_to_any_other_display(
+   ALLEGRO_SYSTEM *s, ALLEGRO_DISPLAY *d)
+{
+   size_t i;
+   ALLEGRO_DISPLAY *living = NULL;
+   ASSERT(s->displays._size > 1);
+
+   for (i = 0; i < s->displays._size; i++) {
+      ALLEGRO_DISPLAY **slot = _al_vector_ref(&s->displays, i);
+      living = *slot;
+      if (living != d)
+         break;
+   }
+
+   ALLEGRO_DEBUG("transferring display bitmaps to other display.\n");
+
+   for (i = 0; i < d->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
+      ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
+      *add = *ref;
+      (*add)->_display = living;
+   }
+}
+
 static void sdl_destroy_display_locked(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+   bool is_last;
+
+   ALLEGRO_DEBUG("destroying display.\n");
+
+   /* If we're the last display, convert all bitmaps to display independent
+    * (memory) bitmaps. Otherwise, pass all bitmaps to any other living
+    * display. We assume all displays are compatible.)
+    */
+
+   is_last = (system->displays._size == 1);
+   if (is_last)
+      convert_display_bitmaps_to_memory_bitmap(d);
+   else
+      transfer_display_bitmaps_to_any_other_display(system, d);
+
+   _al_ogl_unmanage_extensions(d);
+   ALLEGRO_DEBUG("unmanaged extensions.\n");
+
+   if (ogl->backbuffer) {
+      _al_ogl_destroy_backbuffer(ogl->backbuffer);
+      ogl->backbuffer = NULL;
+      ALLEGRO_DEBUG("destroy backbuffer.\n");
+   }
+
+   _al_vector_free(&d->bitmaps);
+   _al_event_source_free(&d->es);
+
+   al_free(d->ogl_extras);
+   al_free(d->vertex_cache);
+
    _al_event_source_free(&d->es);
    _al_vector_find_and_delete(&system->displays, &d);
+   
+   SDL_DestroyRenderer(sdl->renderer);
    SDL_DestroyWindow(sdl->window);
    al_free(sdl);
 }
