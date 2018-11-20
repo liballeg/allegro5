@@ -109,7 +109,10 @@ static ALLEGRO_PATH *early_get_exename_path(void)
 #elif defined(ALLEGRO_ANDROID)
    return _al_android_get_path(ALLEGRO_EXENAME_PATH);
 #elif defined(ALLEGRO_SDL)
-   return al_create_path_for_directory(SDL_GetBasePath());
+   char* p = SDL_GetBasePath();
+   ALLEGRO_PATH *path = al_create_path_for_directory(p);
+   SDL_free(p);
+   return path;
 #else
    #error early_get_exename_path not implemented
 #endif
