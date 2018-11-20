@@ -200,7 +200,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 #endif
    }
    else {
-#ifndef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
       if(decl) {
          ALLEGRO_VERTEX_ELEMENT* e;
          e = &decl->elements[ALLEGRO_PRIM_POSITION];
@@ -315,7 +315,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 #endif
       }
       else {
-#ifndef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
          glMatrixMode(GL_TEXTURE);
          glLoadMatrixf(mat[0]);
          glMatrixMode(GL_MODELVIEW);
@@ -359,7 +359,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
 #endif
       }
       else {
-#ifndef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
          glDisable(GL_TEXTURE_2D);
          glMatrixMode(GL_TEXTURE);
          glLoadIdentity();
@@ -379,7 +379,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
 #endif
    }
    else {
-#ifndef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
