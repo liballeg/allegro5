@@ -80,7 +80,11 @@ static void stream_free(ALLEGRO_SAMPLE_INSTANCE *spl)
          for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
             ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
             ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
+
             spl->parent.u.ptr = NULL;
+            spl->spl_read = NULL;
+            al_free(spl->matrix);
+            spl->matrix = NULL;
          }
 
          _al_vector_free(&mixer->streams);
