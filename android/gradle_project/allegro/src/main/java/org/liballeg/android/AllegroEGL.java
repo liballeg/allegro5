@@ -187,7 +187,6 @@ class AllegroEGL
    /* Return values:
     * 0 - failure
     * 1 - success
-    * 2 - fell back to older ES version XXX never happens
     */
    int egl_createContext(int configIndex, boolean programmable_pipeline)
    {
