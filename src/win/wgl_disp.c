@@ -964,6 +964,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    minor = _al_get_suggested_display_option(disp,
       ALLEGRO_OPENGL_MINOR_VERSION, 0);
 
+   // TODO: request GLES context in GLES builds
    if ((disp->flags & ALLEGRO_OPENGL_3_0) || major != 0) {
       if (major == 0)
          major = 3;
@@ -1045,6 +1046,12 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    display->h = h;
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
+#ifdef ALLEGRO_CFG_OPENGLES2
+   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
    display->vt = &vt;
 
    display->ogl_extras = al_calloc(1, sizeof(ALLEGRO_OGL_EXTRAS));
