@@ -70,6 +70,12 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 
    // FIXME: default? Is this the right place to set this?
    display->flags |= ALLEGRO_OPENGL;
+#ifdef ALLEGRO_CFG_OPENGLES2
+   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
    display->flags |= ALLEGRO_FULLSCREEN;
 
    /* Add ourself to the list of displays. */
