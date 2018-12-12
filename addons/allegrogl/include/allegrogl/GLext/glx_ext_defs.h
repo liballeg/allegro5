@@ -1,6 +1,8 @@
 /* HACK: Prevent both Mesa and SGI's broken headers from screwing us */
 #define __glxext_h_
+#define __glx_glxext_h_
 #include <GL/glx.h>
+#undef __glx_glxext_h_
 #undef __glxext_h_
 
 #ifndef GLX_VERSION_1_3

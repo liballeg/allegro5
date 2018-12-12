@@ -62,10 +62,14 @@ typedef __int64 INT64;
 
 /* HACK: Prevent both Mesa and SGI's broken headers from screwing us */
 #define __glext_h_
+#define __gl_glext_h_
 #define __glxext_h_
+#define __glx_glxext_h_
 #include <GL/gl.h>
 #undef  __glext_h_
+#undef  __gl_glext_h_
 #undef  __glxext_h_
+#undef  __glx_glxext_h_
 
 #endif /* ALLEGRO_MACOSX */
 
