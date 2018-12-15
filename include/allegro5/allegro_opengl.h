@@ -39,6 +39,7 @@
 #include <OpenGLES/ES2/glext.h>
 #endif
 
+#ifdef ALLEGRO_CFG_OPENGLES1
 /* Apple defines OES versions for these - however the separated alpha ones
  * don't seem to work on the device and just crash.
  */
@@ -54,6 +55,12 @@
 #define GL_FUNC_ADD GL_FUNC_ADD_OES
 #define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
 #define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES
+
+#elif defined(ALLEGRO_CFG_OPENGLES3)
+
+#define glRenderbufferStorageMultisampleEXT glRenderbufferStorageMultisample
+
+#endif
 
 #elif defined(ALLEGRO_MACOSX)
 
