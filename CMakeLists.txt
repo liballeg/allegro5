@@ -587,14 +587,15 @@ if(WANT_OPENGL)
     endif()
 
     if(GL_REAL_BUILD_TYPE MATCHES "gles2")
-        find_package(OpenGLES2)
 
         # on cmake 2.8.1 OpenGL ES is not found in the iphone case
         # XXX incorporate IPHONE case into FindOpenGLES/2
         if(IPHONE)
             set(OPENGLES2_FOUND 1)
             set(OPENGLES2_LIBRARIES "-framework OpenGLES")
-        endif(IPHONE)
+        else()
+            find_package(OpenGLES2)
+        endif()
 
         if(OPENGLES2_FOUND)
             set(SUPPORT_OPENGL 1)
@@ -612,7 +613,9 @@ if(WANT_OPENGL)
             endif(WANT_GLES3)
             set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
             set(OPENGL_LIBRARIES "${OPENGLES2_LIBRARIES}")
-            include_directories(SYSTEM ${OPENGLES2_INCLUDE_DIR})
+            if(NOT IPHONE)
+	        include_directories(SYSTEM ${OPENGLES2_INCLUDE_DIR})
+            endif()
         else(OPENGLES2_FOUND)
             if(GL_BUILD_TYPE MATCHES "auto")
                 set(GL_REAL_BUILD_TYPE "gles1")
@@ -621,14 +624,15 @@ if(WANT_OPENGL)
     endif()
 
     if(GL_REAL_BUILD_TYPE MATCHES "gles1")
-        find_package(OpenGLES1)
 
         # on cmake 2.8.1 OpenGL ES is not found in the iphone case
         # XXX incorporate IPHONE case into FindOpenGLES/2
         if(IPHONE)
             set(OPENGLES1_FOUND 1)
             set(OPENGLES1_LIBRARIES "-framework OpenGLES")
-        endif(IPHONE)
+        else()
+            find_package(OpenGLES1)
+        endif()
 
         if(OPENGLES1_FOUND)
             set(SUPPORT_OPENGL 1)
@@ -640,7 +644,9 @@ if(WANT_OPENGL)
             set(ALLEGRO_CFG_OPENGL_FIXED_FUNCTION 1)
             message("Using OpenGL ES 1.1")
             set(OPENGL_LIBRARIES ${OPENGLES1_LIBRARIES})
-            include_directories(SYSTEM ${OPENGLES1_INCLUDE_DIR})
+            if(NOT IPHONE)
+	        include_directories(SYSTEM ${OPENGLES1_INCLUDE_DIR})
+            endif()
         endif(OPENGLES1_FOUND)
 
     endif()
