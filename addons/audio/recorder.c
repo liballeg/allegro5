@@ -142,6 +142,8 @@ ALLEGRO_EVENT_SOURCE *al_get_audio_recorder_event_source(ALLEGRO_AUDIO_RECORDER 
  */
 void al_destroy_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
 {
+   size_t i;
+
    if (r->thread) {
       al_set_thread_should_stop(r->thread);
       
@@ -162,5 +164,9 @@ void al_destroy_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
    al_destroy_mutex(r->mutex);
    al_destroy_cond(r->cond);
    
+   for (i = 0; i < r->fragment_count; ++i) {
+      al_free(r->fragments[i]);
+   }
+   al_free(r->fragments);
    al_free(r);
 }
