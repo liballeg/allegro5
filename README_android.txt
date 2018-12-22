@@ -65,7 +65,7 @@ command:
         --api=15 --install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT --arch=arm
 
 You can use any api 9 or higher but 15 is the lowest this was tested
-with. 
+with.
 
 Use the --arch parameter according to the toolchain you are creating:
 
@@ -196,8 +196,8 @@ If you want to build just the .apk for an example, there are targets
 for that as well:
 
     make ex_draw_bitmap_apk
-    adb install -r examples/ex_draw_bitmap.project/bin/ex_draw_bitmap-debug.apk
-    adb -d shell 'am start -n org.liballeg.examples.ex_draw_bitmap/.Activity'
+    adb -d install -r ./examples/ex_draw_bitmap.project/app/build/outputs/apk/debug/app-debug.apk
+    adb -d shell 'am start -n org.liballeg.ex_draw_bitmap/org.liballeg.app.MainActivity'
 
 
 How startup works on Android
@@ -395,4 +395,3 @@ Run the app again. If it worked, congratulations! You just ran your
 first Allegro program on Android!
 
 (The sample code will just flash your screen yellow and red with no way to quit, so you will have to force quit it.)
-
