@@ -131,8 +131,7 @@ AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
          return 0x80000000;
       }
       else {
-         int res = lres >> 16;
-         return res;
+         return (al_fixed) (lres >> 16);
       }
    })
 #endif	    /* al_fixmul() C implementations */
