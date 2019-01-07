@@ -63,6 +63,7 @@ TOP=$PWD
     done
     cp -v docs/build/* $TOP/docs/build
     cp -v docs/txt/*.txt $TOP/docs/txt
+    cd ../..
     rm -rf .dist
 ) || exit 1
 
