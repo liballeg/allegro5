@@ -325,13 +325,13 @@ static bool sdl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 static bool sdl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    (void)display;
-   return false;
+   return SDL_ShowCursor(SDL_ENABLE) == SDL_ENABLE;
 }
 
 static bool sdl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    (void)display;
-   return false;
+   return SDL_ShowCursor(SDL_DISABLE) == SDL_DISABLE;
 }
 
 static void sdl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
