@@ -193,13 +193,11 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
    Handler *h;
    ALLEGRO_BITMAP *ret;
 
-   ext = strrchr(filename, '.');
+   ext = al_identify_bitmap(filename);
    if (!ext) {
-      ext = al_identify_bitmap(filename);
+      ext = strrchr(filename, '.');
       if (!ext) {
-         ALLEGRO_ERROR("Bitmap %s has no extension and filetype "
-            "identification failed - not even trying to load it.\n",
-            filename);
+         ALLEGRO_ERROR("Could not identify bitmap %s!", filename);
          return NULL;
       }
    }
@@ -208,12 +206,11 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
    if (h && h->loader) {
       ret = h->loader(filename, flags);
       if (!ret)
-         ALLEGRO_ERROR("Failed loading %s with %s handler.\n", filename,
-            ext);
+         ALLEGRO_ERROR("Failed loading bitmap %s with %s handler.\n",
+            filename, ext);
    }
    else {
-      ALLEGRO_ERROR("No handler for bitmap extension %s - "
-         "therefore not trying to load %s.\n", ext, filename);
+      ALLEGRO_ERROR("No handler for bitmap %s!", filename);
       ret = NULL;
    }
 
