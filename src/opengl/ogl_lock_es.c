@@ -82,7 +82,7 @@ static bool ogl_lock_region_nonbb_writeonly(
    int x, int gl_y, int w, int h, int real_format);
 static bool ogl_lock_region_nonbb_readwrite(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
-   int x, int gl_y, int w, int h, int real_format);
+   int x, int gl_y, int w, int h, int real_format, bool* restore_fbo);
 static bool ogl_lock_region_nonbb_readwrite_fbo(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
    int x, int gl_y, int w, int h, int real_format);
@@ -257,7 +257,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_nonbb(ALLEGRO_BITMAP *bitmap,
    const int gl_y = bitmap->h - y - h;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
+   ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    bool ok;
+   bool restore_fbo = false;
 
    disp = al_get_current_display();
 
@@ -300,9 +302,26 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_nonbb(ALLEGRO_BITMAP *bitmap,
          ALLEGRO_DEBUG("Locking non-backbuffer %s\n",
             (flags & ALLEGRO_LOCK_READONLY) ? "READONLY" : "READWRITE");
          ok = ogl_lock_region_nonbb_readwrite(bitmap, ogl_bitmap,
-            x, gl_y, w, h, real_format);
+            x, gl_y, w, h, real_format, &restore_fbo);
       }
    }
+
+   /* Restore state after switching FBO. */
+   if (restore_fbo) {
+      if (!old_target) {
+         /* Old target was NULL; release the context. */
+         _al_set_current_display_only(NULL);
+      }
+      else if (!_al_get_bitmap_display(old_target)) {
+         /* Old target was memory bitmap; leave the current display alone. */
+      }
+      else if (old_target != bitmap) {
+         /* Old target was another OpenGL bitmap. */
+         _al_ogl_setup_fbo(_al_get_bitmap_display(old_target), old_target);
+      }
+   }
+
+   ASSERT(al_get_target_bitmap() == old_target);
 
    if (old_disp != NULL) {
       _al_set_current_display_only(old_disp);
@@ -348,10 +367,8 @@ static bool ogl_lock_region_nonbb_writeonly(
 
 static bool ogl_lock_region_nonbb_readwrite(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
-   int x, int gl_y, int w, int h, int real_format)
+   int x, int gl_y, int w, int h, int real_format, bool* restore_fbo)
 {
-   ALLEGRO_BITMAP *old_target;
-   bool fbo_was_set;
    bool ok;
 
    ASSERT(bitmap->parent == NULL);
@@ -359,12 +376,11 @@ static bool ogl_lock_region_nonbb_readwrite(
    ASSERT(_al_get_bitmap_display(bitmap) == al_get_current_display());
 
    /* Try to create an FBO if there isn't one. */
-   old_target = al_get_target_bitmap();
-   fbo_was_set =
+   *restore_fbo =
       _al_ogl_setup_fbo_non_backbuffer(_al_get_bitmap_display(bitmap), bitmap);
 
    /* Unlike in desktop GL, there seems to be nothing we can do without an FBO. */
-   if (fbo_was_set && ogl_bitmap->fbo_info) {
+   if (*restore_fbo && ogl_bitmap->fbo_info) {
       ok = ogl_lock_region_nonbb_readwrite_fbo(bitmap, ogl_bitmap,
          x, gl_y, w, h, real_format);
    }
@@ -372,23 +388,6 @@ static bool ogl_lock_region_nonbb_readwrite(
       ALLEGRO_ERROR("no fbo\n");
       ok = false;
    }
-
-   /* Restore state after switching FBO. */
-   if (fbo_was_set) {
-      if (!old_target) {
-         /* Old target was NULL; release the context. */
-         _al_set_current_display_only(NULL);
-      }
-      else if (!_al_get_bitmap_display(old_target)) {
-         /* Old target was memory bitmap; leave the current display alone. */
-      }
-      else if (old_target != bitmap) {
-         /* Old target was another OpenGL bitmap. */
-         _al_ogl_setup_fbo(_al_get_bitmap_display(old_target), old_target);
-      }
-   }
-
-   ASSERT(al_get_target_bitmap() == old_target);
 
    return ok;
 }
