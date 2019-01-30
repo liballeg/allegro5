@@ -37,6 +37,8 @@ typedef struct ALLEGRO_COND ALLEGRO_COND;
 
 AL_FUNC(ALLEGRO_THREAD *, al_create_thread,
    (void *(*proc)(ALLEGRO_THREAD *thread, void *arg), void *arg));
+AL_FUNC(ALLEGRO_THREAD *, al_create_thread_with_stacksize,
+   (void *(*proc)(ALLEGRO_THREAD *thread, void *arg), void *arg, size_t stacksize));
 AL_FUNC(void, al_start_thread, (ALLEGRO_THREAD *outer));
 AL_FUNC(void, al_join_thread, (ALLEGRO_THREAD *outer, void **ret_value));
 AL_FUNC(void, al_set_thread_should_stop, (ALLEGRO_THREAD *outer));

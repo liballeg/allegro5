@@ -70,6 +70,34 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 }
 
 
+void _al_thread_with_stacksize_create(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize) 
+{
+    ASSERT(thread);
+    ASSERT(proc);
+    {
+        int status;
+
+        pthread_mutex_init(&thread->mutex, NULL);
+
+        thread->should_stop = false;
+        thread->proc = proc;
+        thread->arg = arg;
+
+        // stacksize should be PTHREAD_STACK_MIN or more (16kb?)
+        pthread_attr_t thread_attr;
+        int s = 0;
+        s = pthread_attr_init(&thread_attr);
+        ASSERT(s==0);
+        s = pthread_attr_setstacksize(&thread_attr, stacksize);
+
+        status = pthread_create(&thread->thread, &thread_attr, thread_proc_trampoline, thread);
+        ASSERT(status == 0);
+        if (status != 0)
+            abort();
+    }
+}
+
+
 void _al_thread_set_should_stop(_AL_THREAD *thread)
 {
    ASSERT(thread);
