@@ -72,6 +72,7 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 
 void _al_thread_with_stacksize_create(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize) 
 {
+    ASSERT(stacksize >= PTHREAD_STACK_MIN);
     ASSERT(thread);
     ASSERT(proc);
     {
@@ -83,14 +84,17 @@ void _al_thread_with_stacksize_create(_AL_THREAD* thread, void (*proc)(_AL_THREA
         thread->proc = proc;
         thread->arg = arg;
 
-        // stacksize should be PTHREAD_STACK_MIN or more (16kb?)
         pthread_attr_t thread_attr;
-        int s = 0;
-        s = pthread_attr_init(&thread_attr);
-        ASSERT(s==0);
-        s = pthread_attr_setstacksize(&thread_attr, stacksize);
-
-        status = pthread_create(&thread->thread, &thread_attr, thread_proc_trampoline, thread);
+        int result = 0;
+        result = pthread_attr_init(&thread_attr);
+        ASSERT(result == 0);
+		
+		// On some systems, pthread_attr_setstacksize() can fail
+		// if stacksize is not a multiple of the system page size.
+		result = pthread_attr_setstacksize(&thread_attr, stacksize);
+		ASSERT(result == 0);
+		
+		status = pthread_create(&thread->thread, &thread_attr, thread_proc_trampoline, thread);
         ASSERT(status == 0);
         if (status != 0)
             abort();
