@@ -8,6 +8,51 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.4.2 to 4.4.3 (February 2019)
+<ul><li>
+   Allow building the dependencies as shared libraries. (Michał Cichoń,
+   Edgar Reynaldo)
+<li>
+   Fix typo preventing get_executable_name from using System V procfs
+   correctly. (Peter Wang)
+<li>
+   Relicense loadpng under ZLib license.
+<li>
+   Fix spelling of endianness in textconv (Andreas Rönnquist).
+<li>
+   Fix format string warnings (Andreas Rönnquist).
+<li>
+   Add Linux console tslib mouse "touch screen" driver. (Tobi Vollebregt)
+<li>
+   Don't define a duplicate DLLMain. (SiegeLord)
+<li>
+   Fix Allegro crashes/compilation under 64 bit Windows. (Sven Eden,
+   David Capello)
+<li>
+   Fix possible random crashes on Windows restoring DirectDraw surfaces.
+   (David Capello)
+<li>
+   Make internal function get_value in jpgalleg static. (Trent Gamblin)
+<li>
+   Implemented load_midi_pf, play_fli_pf, open_fli_pf. (Ivan Mogilko)
+<li>
+   Make use of <stdint.h> in MSVS 2010 and higher. (Ivan Mogilko)
+<li>
+   Fixes several issues related to fullscreen mode in Windows. (Etienne Vouga)
+<li>
+   Windows: fixed TAB key getting stuck in key buffer when held before ALT.
+   (Ivan Mogilko)
+<li>
+   Fix building with Mesa 18.2.5 and later. (Andreas Rönnquist)
+<li>
+   Remove f* variants of fixed math functions. (Andreas Rönnquist)
+<li>
+   Fix complilation of datedit. (rofl0r)
+<li>
+   Modernize and fix release zipup script. (rofl0r)
+</ul>
+
+@heading
 Changes from 4.4.1.1 to 4.4.2 (May 2011)
 <ul><li>
    Make rest(0) call select() with non-zero timeout on Unix.  The old
@@ -52,7 +97,7 @@ Changes from 4.4.1.1 to 4.4.2 (May 2011)
    (Hardi Stengelin).
 <li>
    Fix various compilation and build problems (scottmc, Cristian Morales Vega,
-   Tony Ylisirni�, Edgar Reynaldo).
+   Tony Ylisirniö, Edgar Reynaldo).
 <li>
    Added WANT_OSS, WANT_ALSA, WANT_JACK, WANT_SGIAUDIO options
    (Samuli Suominen).
@@ -1986,7 +2031,7 @@ Changes from 4.1.9 to 4.1.10 (Jun 2003)
 <li>
    EvilTypeGuy cleaned up and fixed the RPM spec file for RedHat 9.
 <li>
-   Ville Skytt� fixed a problem with make install libdir= and modules on
+   Ville Skyttä fixed a problem with make install libdir= and modules on
    Unix systems.
 <li>
    Peter Wang added a hack to not unload the SVGAlib module if SVGAlib
