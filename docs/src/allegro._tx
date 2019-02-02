@@ -18,7 +18,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.4.3 (SVN)" "Allegro" "Allegro manual"
+@manh="version 4.4.3" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
@@ -52,12 +52,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.4.3 (SVN)
+				       \_/__/     Version 4.4.3
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, May 24, 2011.
+	     By Shawn Hargreaves, Feb 02, 2019.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -4288,7 +4288,7 @@ GFX_SAFE:<br>
 
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
-@eref exmidi, exswitch
+@eref exmidi, exsample, exstream, exswitch
 @shortdesc Tells Allegro how the program handles background switching.
    Sets how the program should handle being switched into the background, 
    if the user tabs away from it. Not all of the possible modes will be
@@ -15387,8 +15387,8 @@ and avoid missing any important bit of information.
 @xref install_keyboard, install_timer, key, key_shifts
 @xref keyboard_lowlevel_callback, keypressed, makecol, readkey, rectfill
 @xref release_screen, rest, scancode_to_name, screen, set_gfx_mode
-@xref set_palette, textprintf_centre_ex, textprintf_ex, ureadkey
-@xref usprintf, ustrzncpy
+@xref set_palette, textout_ex, textprintf_centre_ex, textprintf_ex
+@xref ureadkey, usprintf, ustrzncpy
 @shortdesc How to get input from the keyboard in different ways.
    This program demonstrates how to access the keyboard. The
    first part shows the basic use of readkey(). The second part
@@ -15421,8 +15421,8 @@ and avoid missing any important bit of information.
 @xref allegro_error, allegro_init, allegro_message, clear_to_color
 @xref desktop_palette, destroy_sample, font, install_keyboard
 @xref install_sound, install_timer, key, load_sample, makecol
-@xref play_sample, poll_keyboard, rest, screen, set_gfx_mode, set_palette
-@xref textprintf_centre_ex
+@xref play_sample, poll_keyboard, rest, screen, set_display_switch_mode
+@xref set_gfx_mode, set_palette, textprintf_centre_ex
 @shortdesc Playing digital samples.
    This program demonstrates how to play samples. You have to
    use this example from the command line to specify as first
@@ -15595,14 +15595,14 @@ and avoid missing any important bit of information.
    See the exaccel example for an example of this.
 
 @@Example @exrotscl
-@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
-@xref allegro_init, allegro_message, clear_to_color, create_bitmap
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_init
+@xref allegro_message, blit, clear_to_color, create_bitmap
 @xref destroy_bitmap, draw_trans_sprite, fixed, font, ftofix
 @xref install_keyboard, key, keypressed, load_bitmap, makeacol, makecol
-@xref readkey, release_screen, rest, rotate_scaled_sprite
-@xref rotate_scaled_sprite_lit, rotate_scaled_sprite_trans, screen
-@xref set_alpha_blender, set_color_conversion, set_color_depth
-@xref set_gfx_mode, set_trans_blender, textout_centre_ex
+@xref readkey, rest, rotate_scaled_sprite, rotate_scaled_sprite_lit
+@xref rotate_scaled_sprite_trans, screen, set_alpha_blender
+@xref set_color_conversion, set_color_depth, set_gfx_mode
+@xref set_trans_blender, textout_centre_ex
 @shortdesc Demonstrates rotate_scaled_sprite functions.
    This example demonstrates rotate_scaled_sprite functions.
 
@@ -15661,7 +15661,7 @@ and avoid missing any important bit of information.
 @xref blit, clear_bitmap, create_bitmap, destroy_bitmap, draw_sprite_ex
 @xref font, install_keyboard, install_timer, key, load_bitmap, makecol
 @xref replace_filename, rest, screen, set_color_depth, set_gfx_mode
-@xref set_trans_blender, stretch_blit, textprintf_ex
+@xref set_trans_blender, stretch_blit, textout_ex
 @shortdesc Drawing flipped, translucent and tinted sprites.
    This program demonstrates how to draw trans and lit sprites and flip them
    at the same time, using draw_sprite_ex() function.
@@ -15687,7 +15687,7 @@ and avoid missing any important bit of information.
 @xref circlefill, clear_keybuf, color_map, create_bitmap
 @xref create_color_table, create_rgb_table, destroy_bitmap, drawing_mode
 @xref font, generate_332_palette, install_keyboard, keypressed, makecol
-@xref rectfill, rgb_map, screen, set_gfx_mode, set_palette
+@xref rectfill, rest, rgb_map, screen, set_gfx_mode, set_palette
 @xref textout_centre_ex, vsync
 @shortdesc Creating graphical effects with color mapping tables.
    This program demonstrates how to create custom graphic effects
@@ -15766,7 +15766,7 @@ and avoid missing any important bit of information.
 @xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
 @xref allegro_exit, allegro_init, allegro_message, blit, create_bitmap
 @xref destroy_bitmap, draw_trans_sprite, install_keyboard, keypressed
-@xref line, load_bitmap, readkey, screen, set_color_conversion
+@xref line, load_bitmap, readkey, rest, screen, set_color_conversion
 @xref set_color_depth, set_gfx_mode, set_palette, set_trans_blender
 @xref vsync
 @shortdesc Truecolor image loading and fades.
@@ -15988,7 +15988,7 @@ and avoid missing any important bit of information.
 @xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, acquire_bitmap
 @xref allegro_init, allegro_message, clear_keybuf, create_sub_bitmap
 @xref desktop_palette, destroy_bitmap, install_keyboard, keypressed
-@xref rectfill, release_bitmap, screen, scroll_screen, set_color
+@xref rectfill, release_bitmap, rest, screen, scroll_screen, set_color
 @xref set_gfx_mode, set_palette, vline
 @shortdesc Mode-X hardware scrolling and split screens.
    This program demonstrates how to use hardware scrolling.
@@ -16020,7 +16020,7 @@ and avoid missing any important bit of information.
 @xref create_bitmap_ex, destroy_bitmap, ellipsefill, fade_out, fixcos
 @xref fixed, fixsin, fixtoi, font, get_rotation_matrix, getpixel
 @xref install_keyboard, itofix, keypressed, line, makecol, masked_blit
-@xref putpixel, screen, set_clip_rect, set_color, set_gfx_mode
+@xref putpixel, rest, screen, set_clip_rect, set_color, set_gfx_mode
 @xref set_palette, text_height, text_length, textout_ex, textprintf_ex
 @shortdesc How to fake a 12-bit truecolor mode on an 8-bit card.
    This program sets up a 12-bit mode on any 8-bit card, by
@@ -16194,8 +16194,9 @@ and avoid missing any important bit of information.
 @xref allegro_init, allegro_message, clear_to_color, desktop_palette
 @xref font, free_audio_stream_buffer, get_audio_stream_buffer
 @xref install_keyboard, install_sound, install_timer, keypressed, makecol
-@xref play_audio_stream, readkey, screen, set_gfx_mode, set_palette
-@xref stop_audio_stream, textprintf_centre_ex, voice_start, voice_stop
+@xref play_audio_stream, readkey, screen, set_display_switch_mode
+@xref set_gfx_mode, set_palette, stop_audio_stream, textprintf_centre_ex
+@xref voice_start, voice_stop
 @shortdesc Playing audio streams.
    This program shows how to use the audio stream functions to
    transfer large blocks of sample data to the sound card. In
