@@ -112,7 +112,9 @@ if(SUPPORT_FONT AND WANT_TTF)
             endif()
 			
             if (FREETYPE_HARFBUZZ AND HARFBUZZ_FOUND)
-                list(APPEND FREETYPE_STATIC_LIBRARIES "${HARFBUZZ_LIBRARIES}")
+                # there's a circular dependency between Harfbuzz and Freetype, so one of them has to be
+                # repeated to ensure proper static linking order
+                list(APPEND FREETYPE_STATIC_LIBRARIES "${HARFBUZZ_LIBRARIES}" "${FREETYPE_LIBRARIES}")
             endif()
 
             set(CMAKE_REQUIRED_LIBRARIES ${FREETYPE_STATIC_LIBRARIES})

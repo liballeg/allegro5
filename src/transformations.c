@@ -288,6 +288,21 @@ void al_invert_transform(ALLEGRO_TRANSFORM *trans)
    trans->m[1][0] = - trans->m[1][0] / det;
 }
 
+/* Function: al_transpose_transform
+ */
+void al_transpose_transform(ALLEGRO_TRANSFORM *trans)
+{
+   int i, j;
+   ASSERT(trans);
+
+   ALLEGRO_TRANSFORM t = *trans;
+   for (i = 0; i < 4; i++) {
+      for (j = 0; j < 4; j++) {
+         trans->m[i][j] = t.m[j][i];
+      }
+   }
+}
+
 /* Function: al_check_inverse
  */
 int al_check_inverse(const ALLEGRO_TRANSFORM *trans, float tol)

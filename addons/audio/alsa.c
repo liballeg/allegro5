@@ -144,6 +144,7 @@ static void alsa_close(void)
    
    alsa_device = NULL;
    
+   snd_output_close(snd_output);
    snd_config_update_free_global();
 }
 
@@ -285,6 +286,7 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
    const snd_pcm_channel_area_t *areas;
    snd_pcm_uframes_t offset;
    char *mmap;
+   snd_pcm_sframes_t commitres;
    int ret;
 
    ALLEGRO_INFO("ALSA update_mmap thread started\n");
@@ -346,7 +348,10 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
          break;
       }
 
-      ASSERT(frames);
+      if (frames == 0) {
+         al_rest(0.005); /* TODO: Why not use an event or condition variable? */
+         goto commit;
+      }
 
       /* mmaped driver's memory. Interleaved channels format. */
       mmap = (char *) areas[0].addr
@@ -387,7 +392,8 @@ silence:
          al_fill_silence(mmap, frames, voice->depth, voice->chan_conf);
       }
 
-      snd_pcm_sframes_t commitres = snd_pcm_mmap_commit(alsa_voice->pcm_handle, offset, frames);
+commit:
+      commitres = snd_pcm_mmap_commit(alsa_voice->pcm_handle, offset, frames);
       if (commitres < 0 || (snd_pcm_uframes_t)commitres != frames) {
          if ((ret = xrun_recovery(alsa_voice->pcm_handle, commitres >= 0 ? -EPIPE : commitres)) < 0) {
             ALLEGRO_ERROR("MMAP commit error: %s\n", snd_strerror(ret));

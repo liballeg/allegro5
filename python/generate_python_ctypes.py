@@ -282,7 +282,7 @@ class Allegro:
                     continue
 
                 # add an array
-                mob = re.match("(.*)( \w+)\[(.*?)\]$", field)
+                mob = re.match("(.*)\s+(\w+)\[(.*?)\]$", field)
                 if mob:
                     # this is all a hack
                     n = 0
@@ -420,6 +420,10 @@ def _dll(func, ret, params):
             f = dll[func]
             f.restype = ret
             f.argtypes = params
+            if ret is _AL_UTF8String:
+                # ctypes cannot do parameter conversion of the return type for us
+                f.restype = c_char_p
+                if sys.version_info[0] > 2: return lambda *x: f(*x).decode("utf8")
             return f
         except AttributeError: pass
     sys.stderr.write("Cannot find function " + func + "\n")

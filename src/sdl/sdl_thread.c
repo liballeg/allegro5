@@ -48,7 +48,6 @@ void _al_mutex_init(_AL_MUTEX *mutex)
    ASSERT(mutex);
     
    mutex->mutex = SDL_CreateMutex();
-   mutex->lock_count = 0;
 }
 
 static void free_tls(void *v)
@@ -58,12 +57,7 @@ static void free_tls(void *v)
 
 void _al_mutex_init_recursive(_AL_MUTEX *mutex)
 {
-   ASSERT(mutex);
-    
-   mutex->mutex = SDL_CreateMutex();
-   mutex->lock_count = SDL_TLSCreate();
-   int *v = al_calloc(1, sizeof *v);
-   SDL_TLSSet(mutex->lock_count, v, free_tls);
+   _al_mutex_init(mutex);
 }
 
 void _al_mutex_destroy(_AL_MUTEX *mutex)

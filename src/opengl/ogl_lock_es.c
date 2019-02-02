@@ -82,7 +82,7 @@ static bool ogl_lock_region_nonbb_writeonly(
    int x, int gl_y, int w, int h, int real_format);
 static bool ogl_lock_region_nonbb_readwrite(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
-   int x, int gl_y, int w, int h, int real_format);
+   int x, int gl_y, int w, int h, int real_format, bool* restore_fbo);
 static bool ogl_lock_region_nonbb_readwrite_fbo(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
    int x, int gl_y, int w, int h, int real_format);
@@ -141,18 +141,35 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_bb_readonly(
       return false;
    }
 
+   /* NOTE: GLES can only read 4 byte pixels (or one other implementation
+    * defined format), we have to convert
+    */
    glReadPixels(x, gl_y, w, h,
-      get_glformat(real_format, 2),
-      get_glformat(real_format, 1),
+      GL_RGBA, GL_UNSIGNED_BYTE,
       ogl_bitmap->lock_buffer);
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-         _al_pixel_format_name(real_format), _al_gl_error_string(e));
+         _al_pixel_format_name(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE), _al_gl_error_string(e));
       al_free(ogl_bitmap->lock_buffer);
       ogl_bitmap->lock_buffer = NULL;
       return false;
    }
+
+   ALLEGRO_DEBUG("Converting from format %d -> %d\n",
+      ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, real_format);
+
+   /* That's right, we convert in-place.
+    * (safe as long as dst size <= src size, which it always is)
+    */
+   _al_convert_bitmap_data(ogl_bitmap->lock_buffer,
+      ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+      ogl_pitch(w, 4),
+      ogl_bitmap->lock_buffer,
+      real_format,
+      pitch,
+      0, 0, 0, 0,
+      w, h);
 
    bitmap->locked_region.data = ogl_bitmap->lock_buffer + pitch * (h - 1);
    bitmap->locked_region.format = real_format;
@@ -168,6 +185,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_bb_proxy(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL * const ogl_bitmap = bitmap->extra;
    ALLEGRO_BITMAP *proxy;
    ALLEGRO_LOCKED_REGION *lr;
+   const int pixel_size = al_get_pixel_size(real_format);
+   const int pitch = ogl_pitch(w, pixel_size);
 
    ALLEGRO_DEBUG("Creating backbuffer proxy bitmap\n");
    proxy = _al_create_bitmap_params(al_get_current_display(),
@@ -194,17 +213,34 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_bb_proxy(ALLEGRO_BITMAP *bitmap,
       const int gl_y = bitmap->h - y - h;
       GLenum e;
 
+      /* NOTE: GLES can only read 4 byte pixels (or one other implementation
+       * defined format), we have to convert
+       */
       glReadPixels(x, gl_y, w, h,
-         get_glformat(real_format, 2),
-         get_glformat(real_format, 1),
+         GL_RGBA, GL_UNSIGNED_BYTE,
          ogl_proxy->lock_buffer);
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-            _al_pixel_format_name(real_format), _al_gl_error_string(e));
+            _al_pixel_format_name(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE), _al_gl_error_string(e));
          al_destroy_bitmap(proxy);
          return NULL;
       }
+
+      ALLEGRO_DEBUG("Converting from format %d -> %d\n",
+         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, real_format);
+
+      /* That's right, we convert in-place.
+       * (safe as long as dst size <= src size, which it always is)
+       */
+      _al_convert_bitmap_data(ogl_proxy->lock_buffer,
+         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+         ogl_pitch(w, 4),
+         ogl_proxy->lock_buffer,
+         real_format,
+         pitch,
+         0, 0, 0, 0,
+         w, h);
    }
 
    proxy->locked = true;
@@ -221,7 +257,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_nonbb(ALLEGRO_BITMAP *bitmap,
    const int gl_y = bitmap->h - y - h;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
+   ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    bool ok;
+   bool restore_fbo = false;
 
    disp = al_get_current_display();
 
@@ -264,9 +302,26 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_nonbb(ALLEGRO_BITMAP *bitmap,
          ALLEGRO_DEBUG("Locking non-backbuffer %s\n",
             (flags & ALLEGRO_LOCK_READONLY) ? "READONLY" : "READWRITE");
          ok = ogl_lock_region_nonbb_readwrite(bitmap, ogl_bitmap,
-            x, gl_y, w, h, real_format);
+            x, gl_y, w, h, real_format, &restore_fbo);
       }
    }
+
+   /* Restore state after switching FBO. */
+   if (restore_fbo) {
+      if (!old_target) {
+         /* Old target was NULL; release the context. */
+         _al_set_current_display_only(NULL);
+      }
+      else if (!_al_get_bitmap_display(old_target)) {
+         /* Old target was memory bitmap; leave the current display alone. */
+      }
+      else if (old_target != bitmap) {
+         /* Old target was another OpenGL bitmap. */
+         _al_ogl_setup_fbo(_al_get_bitmap_display(old_target), old_target);
+      }
+   }
+
+   ASSERT(al_get_target_bitmap() == old_target);
 
    if (old_disp != NULL) {
       _al_set_current_display_only(old_disp);
@@ -312,10 +367,8 @@ static bool ogl_lock_region_nonbb_writeonly(
 
 static bool ogl_lock_region_nonbb_readwrite(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
-   int x, int gl_y, int w, int h, int real_format)
+   int x, int gl_y, int w, int h, int real_format, bool* restore_fbo)
 {
-   ALLEGRO_BITMAP *old_target;
-   bool fbo_was_set;
    bool ok;
 
    ASSERT(bitmap->parent == NULL);
@@ -323,12 +376,11 @@ static bool ogl_lock_region_nonbb_readwrite(
    ASSERT(_al_get_bitmap_display(bitmap) == al_get_current_display());
 
    /* Try to create an FBO if there isn't one. */
-   old_target = al_get_target_bitmap();
-   fbo_was_set =
+   *restore_fbo =
       _al_ogl_setup_fbo_non_backbuffer(_al_get_bitmap_display(bitmap), bitmap);
 
    /* Unlike in desktop GL, there seems to be nothing we can do without an FBO. */
-   if (fbo_was_set && ogl_bitmap->fbo_info) {
+   if (*restore_fbo && ogl_bitmap->fbo_info) {
       ok = ogl_lock_region_nonbb_readwrite_fbo(bitmap, ogl_bitmap,
          x, gl_y, w, h, real_format);
    }
@@ -336,23 +388,6 @@ static bool ogl_lock_region_nonbb_readwrite(
       ALLEGRO_ERROR("no fbo\n");
       ok = false;
    }
-
-   /* Restore state after switching FBO. */
-   if (fbo_was_set) {
-      if (!old_target) {
-         /* Old target was NULL; release the context. */
-         _al_set_current_display_only(NULL);
-      }
-      else if (!_al_get_bitmap_display(old_target)) {
-         /* Old target was memory bitmap; leave the current display alone. */
-      }
-      else if (old_target != bitmap) {
-         /* Old target was another OpenGL bitmap. */
-         _al_ogl_setup_fbo(_al_get_bitmap_display(old_target), old_target);
-      }
-   }
-
-   ASSERT(al_get_target_bitmap() == old_target);
 
    return ok;
 }
@@ -394,14 +429,16 @@ static bool ogl_lock_region_nonbb_readwrite_fbo(
    }
 
    if (ok) {
-      /* NOTE: GLES (1.1?) can only read 4 byte pixels, we have to convert */
+      /* NOTE: GLES can only read 4 byte pixels (or one other implementation
+       * defined format), we have to convert
+       */
       glReadPixels(x, gl_y, w, h,
          GL_RGBA, GL_UNSIGNED_BYTE,
          ogl_bitmap->lock_buffer);
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-            _al_pixel_format_name(real_format), _al_gl_error_string(e));
+            _al_pixel_format_name(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE), _al_gl_error_string(e));
          al_free(ogl_bitmap->lock_buffer);
          ogl_bitmap->lock_buffer = NULL;
          ok = false;

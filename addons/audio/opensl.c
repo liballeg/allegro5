@@ -556,6 +556,16 @@ static void _opensl_deallocate_voice(ALLEGRO_VOICE *voice)
         data->poll_thread = NULL;
     }
 
+    if (data->player != NULL){
+        (*data->player)->Destroy(data->player);
+        data->player = NULL;
+    }
+
+    if (data->output != NULL){
+        (*data->output)->Destroy(data->output);
+        data->output = NULL;
+    }
+
     for (i = 0; i < MAX_BUFFERS; i++){
         al_free(data->buffers[i]);
     }

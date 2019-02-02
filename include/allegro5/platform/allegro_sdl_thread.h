@@ -11,7 +11,6 @@
 struct _AL_MUTEX
 {
    SDL_mutex *mutex;
-   SDL_TLSID lock_count;
 };
 
 struct _AL_THREAD
@@ -47,23 +46,11 @@ AL_FUNC(void, _al_mutex_init, (struct _AL_MUTEX*));
 AL_FUNC(void, _al_mutex_destroy, (struct _AL_MUTEX*));
 AL_INLINE(void, _al_mutex_lock, (struct _AL_MUTEX *m),
 {
-   if (m->lock_count) {
-      int *v = (int *)SDL_TLSGet(m->lock_count);
-      (*v)++;
-      if (*v > 1)
-         return;
-   }
    if (m->mutex)
       SDL_LockMutex(m->mutex);
 })
 AL_INLINE(void, _al_mutex_unlock, (struct _AL_MUTEX *m),
 {
-   if (m->lock_count) {
-      int *v = (int *)SDL_TLSGet(m->lock_count);
-      (*v)--;
-      if (*v > 0)
-         return;
-   }
    if (m->mutex)
       SDL_UnlockMutex(m->mutex);
 })

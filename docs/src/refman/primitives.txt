@@ -1084,8 +1084,31 @@ Enumerates the types of vertex attributes that a custom vertex may have.
     `ALLEGRO_PRIM_USER_ATTR + 1` and so on.
 
     To access these custom attributes from GLSL shaders you need to declare
-    attributes that follow this nomenclature: `user_attr_#` where # is the index
+    attributes that follow this nomenclature: `al_user_attr_#` where # is the index
     of the attribute.
+
+    For example to have a position and a normal vector for each vertex
+    you could declare it like this:
+   
+    ~~~~c
+    ALLEGRO_VERTEX_ELEMENT elements[3] = {
+        {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, 0},
+        {ALLEGRO_PRIM_USER_ATTR + 0, ALLEGRO_PRIM_FLOAT_3, 12},
+        {0, 0, 0}};
+    ~~~~
+
+    And then in your vertex shader access it like this:
+
+    ~~~~c
+    attribute vec3 al_pos; // ALLEGRO_PRIM_POSITION
+    attribute vec3 al_user_attr_0; // ALLEGRO_PRIM_USER_ATTR + 0
+    varying float light;
+    const vec3 light_direction = vec3(0, 0, 1);
+    void main() {
+        light = dot(al_user_attr_0, light_direction);
+        gl_Position = al_pos;
+    }
+    ~~~~
 
     To access these custom attributes from HLSL you need to declare a parameter
     with the following semantics: `TEXCOORD{# + 2}` where # is the index of the
@@ -1095,7 +1118,7 @@ Enumerates the types of vertex attributes that a custom vertex may have.
     Since: 5.1.6
 
 See also:
-[ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
+[ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE], [al_attach_shader_source]
 
 ### API: ALLEGRO_PRIM_STORAGE
 

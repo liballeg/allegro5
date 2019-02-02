@@ -133,6 +133,13 @@ al_texcoord
 al_color
 :   vertex color attribute. Type is `vec4`.
 
+al_user_attr_0
+:   The vertex attribute declared as ALLEGRO_PRIM_USER_ATTR
+
+al_user_attr_1, ..., al_user_attr_9
+:   The vertex attribute declared as ALLEGRO_PRIM_USER_ATTR + X where X is an integer from 1 to 9
+
+
 For HLSL shaders the vertex attributes are passed using the following semantics:
 
 POSITION0
@@ -166,7 +173,7 @@ updated. The error log can be retrieved with [al_get_shader_log].
 Since: 5.1.0
 
 See also: [al_attach_shader_source_file], [al_build_shader],
-[al_get_default_shader_source], [al_get_shader_log]
+[al_get_default_shader_source], [al_get_shader_log], [ALLEGRO_PRIM_ATTR]
 
 ## API: al_attach_shader_source_file
 

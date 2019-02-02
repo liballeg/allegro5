@@ -158,8 +158,8 @@ static bool sdl_init_keyboard(void)
    ADD_SAME(BACKSLASH, '\\');
    add(SDL_SCANCODE_NONUSHASH, 0, '#');
    ADD_SAME(SEMICOLON, ';');
-   add(SDL_SCANCODE_APOSTROPHE, 0, '\'');
-   add(SDL_SCANCODE_GRAVE, 0, 0);
+   add(SDL_SCANCODE_APOSTROPHE, ALLEGRO_KEY_QUOTE, '\'');
+   add(SDL_SCANCODE_GRAVE, ALLEGRO_KEY_TILDE, '~');
    ADD_SAME(COMMA, ',');
    add(SDL_SCANCODE_PERIOD, ALLEGRO_KEY_FULLSTOP, '.');
    ADD_SAME(SLASH, '/');

@@ -24,7 +24,7 @@
    #ifdef _MSC_VER
       /* enable posix for limits.h and only limits.h
          enabling it for all msvc headers will potentially
-	     disable a lot of commonly used msvcrt functions */
+         disable a lot of commonly used msvcrt functions */
       #define _POSIX_
       #include <limits.h>
       #undef _POSIX_

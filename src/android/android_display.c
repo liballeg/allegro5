@@ -279,11 +279,6 @@ static bool _al_android_init_display(JNIEnv *env,
       return false;
    }
 
-   // XXX ret is never 2
-   if (ret == 2 && programmable_pipeline) {
-      d->flags &= ~ALLEGRO_PROGRAMMABLE_PIPELINE;
-   }
-
    ALLEGRO_DEBUG("calling egl_createSurface");
    if (!_jni_callBooleanMethodV(env, display->surface_object,
          "egl_createSurface", "()Z"))
@@ -515,6 +510,14 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    display->h = h;
    display->flags = flags;
 
+   display->flags |= ALLEGRO_OPENGL;
+#ifdef ALLEGRO_CFG_OPENGLES2
+   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
+
    _al_event_source_init(&display->es);
 
    /* Java thread needs this but it's thread local.
@@ -555,8 +558,6 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
       al_free(d);
       return NULL;
    }
-
-   display->flags |= ALLEGRO_OPENGL;
 
    ALLEGRO_DEBUG("display: %p %ix%i", display, display->w, display->h);
 

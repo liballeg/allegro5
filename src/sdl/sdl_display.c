@@ -89,6 +89,12 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
    d->h = h;
    d->flags = al_get_new_display_flags();
    d->flags |= ALLEGRO_OPENGL;
+#ifdef ALLEGRO_CFG_OPENGLES2
+   d->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   d->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
    int flags = SDL_WINDOW_OPENGL;
    if (d->flags & ALLEGRO_FULLSCREEN)
       flags |= SDL_WINDOW_FULLSCREEN;
@@ -98,6 +104,20 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       flags |= SDL_WINDOW_BORDERLESS;
    if (d->flags & ALLEGRO_RESIZABLE)
       flags |= SDL_WINDOW_RESIZABLE;
+
+#ifdef ALLEGRO_CFG_OPENGLES
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#ifdef ALLEGRO_CFG_OPENGLES1
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles");
+#else
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles2");
+#endif
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#else
+   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+#endif
 
    GLoption(ALLEGRO_COLOR_SIZE, SDL_GL_BUFFER_SIZE);
    GLoption(ALLEGRO_RED_SIZE, SDL_GL_RED_SIZE);
@@ -113,6 +133,10 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
    GLoption(ALLEGRO_STENCIL_SIZE, SDL_GL_STENCIL_SIZE);
    GLoption(ALLEGRO_SAMPLE_BUFFERS, SDL_GL_MULTISAMPLEBUFFERS);
    GLoption(ALLEGRO_SAMPLES, SDL_GL_MULTISAMPLESAMPLES);
+   GLoption(ALLEGRO_OPENGL_MAJOR_VERSION, SDL_GL_CONTEXT_MAJOR_VERSION);
+   GLoption(ALLEGRO_OPENGL_MINOR_VERSION, SDL_GL_CONTEXT_MINOR_VERSION);
+
+   SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
    sdl->window = SDL_CreateWindow(sdl->title, sdl->x, sdl->y,
       d->w, d->h, flags);
@@ -120,12 +144,14 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       ALLEGRO_ERROR("SDL_CreateWindow failed: %s", SDL_GetError());
       return NULL;
    }
+   SDL_GetWindowSize(sdl->window, &d->w, &d->h);
+
    flags =
       SDL_RENDERER_ACCELERATED |
       SDL_RENDERER_PRESENTVSYNC |
       SDL_RENDERER_TARGETTEXTURE;
    sdl->renderer = SDL_CreateRenderer(sdl->window, -1, flags);
-   sdl->context = SDL_GL_CreateContext(sdl->window);
+   sdl->context = SDL_GL_GetCurrentContext();
    ALLEGRO_DISPLAY **add;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
    add = _al_vector_alloc_back(&system->displays);
@@ -154,12 +180,80 @@ static ALLEGRO_DISPLAY *sdl_create_display(int w, int h)
    return d;
 }
 
+static void convert_display_bitmaps_to_memory_bitmap(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DEBUG("converting display bitmaps to memory bitmaps.\n");
+
+   while (d->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+      ALLEGRO_BITMAP *b = *bptr;
+      _al_convert_to_memory_bitmap(b);
+   }
+}
+
+static void transfer_display_bitmaps_to_any_other_display(
+   ALLEGRO_SYSTEM *s, ALLEGRO_DISPLAY *d)
+{
+   size_t i;
+   ALLEGRO_DISPLAY *living = NULL;
+   ASSERT(s->displays._size > 1);
+
+   for (i = 0; i < s->displays._size; i++) {
+      ALLEGRO_DISPLAY **slot = _al_vector_ref(&s->displays, i);
+      living = *slot;
+      if (living != d)
+         break;
+   }
+
+   ALLEGRO_DEBUG("transferring display bitmaps to other display.\n");
+
+   for (i = 0; i < d->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
+      ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
+      *add = *ref;
+      (*add)->_display = living;
+   }
+}
+
 static void sdl_destroy_display_locked(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+   bool is_last;
+
+   ALLEGRO_DEBUG("destroying display.\n");
+
+   /* If we're the last display, convert all bitmaps to display independent
+    * (memory) bitmaps. Otherwise, pass all bitmaps to any other living
+    * display. We assume all displays are compatible.)
+    */
+
+   is_last = (system->displays._size == 1);
+   if (is_last)
+      convert_display_bitmaps_to_memory_bitmap(d);
+   else
+      transfer_display_bitmaps_to_any_other_display(system, d);
+
+   _al_ogl_unmanage_extensions(d);
+   ALLEGRO_DEBUG("unmanaged extensions.\n");
+
+   if (ogl->backbuffer) {
+      _al_ogl_destroy_backbuffer(ogl->backbuffer);
+      ogl->backbuffer = NULL;
+      ALLEGRO_DEBUG("destroy backbuffer.\n");
+   }
+
+   _al_vector_free(&d->bitmaps);
+   _al_event_source_free(&d->es);
+
+   al_free(d->ogl_extras);
+   al_free(d->vertex_cache);
+
    _al_event_source_free(&d->es);
    _al_vector_find_and_delete(&system->displays, &d);
+   
+   SDL_DestroyRenderer(sdl->renderer);
    SDL_DestroyWindow(sdl->window);
    al_free(sdl);
 }
@@ -231,13 +325,13 @@ static bool sdl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 static bool sdl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    (void)display;
-   return false;
+   return SDL_ShowCursor(SDL_ENABLE) == SDL_ENABLE;
 }
 
 static bool sdl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    (void)display;
-   return false;
+   return SDL_ShowCursor(SDL_DISABLE) == SDL_DISABLE;
 }
 
 static void sdl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
@@ -303,6 +397,72 @@ static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
    return true;
 }
 
+static bool sdl_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
+   bool flag_onoff)
+{
+   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   switch (flag) {
+      case ALLEGRO_FRAMELESS:
+         /* The ALLEGRO_FRAMELESS flag is backwards. */
+         SDL_SetWindowBordered(sdl->window, !flag_onoff);
+         return true;
+      case ALLEGRO_FULLSCREEN_WINDOW:
+         SDL_SetWindowFullscreen(sdl->window, flag_onoff ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+         return true;
+      case ALLEGRO_MAXIMIZED:
+          if (flag_onoff) {
+             SDL_MaximizeWindow(sdl->window);
+          } else {
+             SDL_RestoreWindow(sdl->window);
+          }
+         return true;
+   }
+   return false;
+}
+
+static void sdl_set_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *bitmaps[]) {
+   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   int w = al_get_bitmap_width(bitmaps[0]);
+   int h = al_get_bitmap_height(bitmaps[0]);
+   int data_size = w * h * 4;
+   (void)num_icons;
+
+   unsigned char* data = al_malloc(data_size * sizeof(data[0]));
+
+   Uint32 rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+   rmask = 0xff000000;
+   gmask = 0x00ff0000;
+   bmask = 0x0000ff00;
+   amask = 0x000000ff;
+#else // little endian, like x86
+   rmask = 0x000000ff;
+   gmask = 0x0000ff00;
+   bmask = 0x00ff0000;
+   amask = 0xff000000;
+#endif
+
+   ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bitmaps[0], ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_READONLY);
+   if (lock) {
+      int i = 0, y = 0;
+      for (y = 0; y < h; y++) {
+         int x = 0;
+         for (x = 0; x < w; x++) {
+            ALLEGRO_COLOR c = al_get_pixel(bitmaps[0], x, y);
+            al_unmap_rgba(c, data+i, data+i+1, data+i+2, data+i+3);
+            i += 4;
+         }
+      }
+      al_unlock_bitmap(bitmaps[0]);
+
+      SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(data, w, h, 4 * 8, w * 4, rmask, gmask, bmask, amask);
+      SDL_SetWindowIcon(sdl->window, icon);
+      SDL_FreeSurface(icon);
+   }
+
+   al_free(data);
+}
+
 ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
 {
    if (vt)
@@ -334,12 +494,12 @@ ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
    vt->set_system_mouse_cursor = sdl_set_system_mouse_cursor;
    vt->show_mouse_cursor = sdl_show_mouse_cursor;
    vt->hide_mouse_cursor = sdl_hide_mouse_cursor;
-   /*vt->set_icons = sdl_set_icons;*/
+   vt->set_icons = sdl_set_icons;
    vt->set_window_position = sdl_set_window_position;
    vt->get_window_position = sdl_get_window_position;
    /*vt->set_window_constraints = sdl_set_window_constraints;
-   vt->get_window_constraints = sdl_get_window_constraints;
-   vt->set_display_flag = sdl_set_display_flag;*/
+   vt->get_window_constraints = sdl_get_window_constraints;*/
+   vt->set_display_flag = sdl_set_display_flag;
    vt->set_window_title = sdl_set_window_title;
    //vt->flush_vertex_cache = GL
    //vt->prepare_vertex_cache = GL

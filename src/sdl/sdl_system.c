@@ -73,6 +73,11 @@ static void sdl_heartbeat(void)
          case SDL_MOUSEWHEEL:
             _al_sdl_mouse_event(&event);
             break;
+         case SDL_FINGERDOWN:
+         case SDL_FINGERMOTION:
+         case SDL_FINGERUP:
+             _al_sdl_touch_input_event(&event);
+             break;
          case SDL_JOYAXISMOTION:
          case SDL_JOYBUTTONDOWN:
          case SDL_JOYBUTTONUP:
@@ -133,6 +138,14 @@ static void sdl_shutdown_system(void)
 {
    ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
 
+   /* Close all open displays. */
+   while (_al_vector_size(&s->system.displays) > 0) {
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->system.displays, 0);
+      ALLEGRO_DISPLAY *d = *dptr;
+      al_destroy_display(d);
+   }
+   _al_vector_free(&s->system.displays);
+   
    al_destroy_mutex(s->mutex);
    al_free(s);
    SDL_Quit();
@@ -141,24 +154,28 @@ static void sdl_shutdown_system(void)
 static ALLEGRO_PATH *sdl_get_path(int id)
 {
    ALLEGRO_PATH *p = NULL;
+   char* dir;
    switch (id) {
       case ALLEGRO_TEMP_PATH:
       case ALLEGRO_USER_DOCUMENTS_PATH:
       case ALLEGRO_USER_DATA_PATH:
       case ALLEGRO_USER_SETTINGS_PATH:
-         p = al_create_path_for_directory(SDL_GetPrefPath(
-            al_get_org_name(), al_get_app_name()));
+         dir = SDL_GetPrefPath(al_get_org_name(), al_get_app_name());
+         p = al_create_path_for_directory(dir);
          if (id == ALLEGRO_TEMP_PATH) {
             al_append_path_component(p, "tmp");
          }
+         SDL_free(dir);
          break;
       case ALLEGRO_RESOURCES_PATH:
       case ALLEGRO_EXENAME_PATH:
       case ALLEGRO_USER_HOME_PATH:
-         p = al_create_path_for_directory(SDL_GetBasePath());
+         dir = SDL_GetBasePath();
+         p = al_create_path_for_directory(dir);
          if (id == ALLEGRO_EXENAME_PATH) {
             al_set_path_filename(p, al_get_app_name());
          }
+         SDL_free(dir);
          break;
    }
    return p;
@@ -177,6 +194,11 @@ static ALLEGRO_KEYBOARD_DRIVER *sdl_get_keyboard_driver(void)
 static ALLEGRO_MOUSE_DRIVER *sdl_get_mouse_driver(void)
 {
    return _al_sdl_mouse_driver();
+}
+
+static ALLEGRO_TOUCH_INPUT_DRIVER *sdl_get_touch_input_driver(void)
+{
+   return _al_sdl_touch_input_driver();
 }
 
 static ALLEGRO_JOYSTICK_DRIVER *sdl_get_joystick_driver(void)
@@ -263,7 +285,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->get_display_driver = sdl_get_display_driver;
    vt->get_keyboard_driver = sdl_get_keyboard_driver;
    vt->get_mouse_driver = sdl_get_mouse_driver;
-   //vt->get_touch_input_driver = sdl_get_touch_input_driver;
+   vt->get_touch_input_driver = sdl_get_touch_input_driver;
    vt->get_joystick_driver = sdl_get_joystick_driver;
    //vt->get_haptic_driver = sdl_get_haptic_driver;
    vt->get_num_display_modes = sdl_get_num_display_modes;

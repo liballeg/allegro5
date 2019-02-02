@@ -22,6 +22,9 @@ if(COMMAND cmake_policy)
     if(POLICY CMP0026)
         cmake_policy(SET CMP0026 NEW)
     endif()
+    if(POLICY CMP0072)
+        cmake_policy(SET CMP0072 NEW)
+    endif()
 endif(COMMAND cmake_policy)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -37,8 +40,6 @@ if(ANDROID)
     option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
     set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
 endif(ANDROID)
-option(WANT_GLES2 "Compile with GLES2 support" ON)
-option(WANT_GLES3 "Compile with GLES3 support" OFF)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented on Windows)" OFF)
 
@@ -120,6 +121,11 @@ option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 option(WANT_SHADERS_GL "Build GLSL shader support (OpenGL)" on)
 option(WANT_SHADERS_D3D "Build HLSL shader support (Direct3D)" on)
+
+set(GL_BUILD_TYPE "auto" CACHE STRING "OpenGL profile to build Allegro against")
+set_property(CACHE GL_BUILD_TYPE PROPERTY STRINGS "auto;gl;gles1;gles2+")
+set(GL_AUTO_BUILD_TYPE "gl")
+option(WANT_GLES3 "Use GLES3-only features in a GLES2+ build" off)
 
 #
 # Addons.
@@ -305,6 +311,8 @@ if(IPHONE)
     set(ALLEGRO_IPHONE 1)
     set(ALLEGRO_UNIX 0)
     set(WANT_X11 off)
+    set(GL_AUTO_BUILD_TYPE "gles2+")
+    set(WANT_GLES3 yes)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
     set(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework UIKit -framework Foundation -framework CoreFoundation -framework MobileCoreServices")
 endif(IPHONE)
@@ -317,10 +325,13 @@ if(ANDROID)
    set(ALLEGRO_ANDROID 1)
    set(ALLEGRO_CFG_PTHREADS_TLS 1)
    set(WANT_X11 off)
+   set(GL_AUTO_BUILD_TYPE "gles2+")
 endif(ANDROID)
 
 if(ALLEGRO_RASPBERRYPI)
-    set(ALLEGRO_CFG_PTHREADS_TLS 1)
+   set(ALLEGRO_CFG_PTHREADS_TLS 1)
+   set(GL_AUTO_BUILD_TYPE "gles2+")
+   set(ALLEGRO_EXCLUDE_GLX 1)
 endif(ALLEGRO_RASPBERRYPI)
 
 if(ALLEGRO_SDL)
@@ -335,7 +346,7 @@ endif(ALLEGRO_SDL)
 
 # Workaround for a possible bug in CMake.  Even if we set this variable in
 # the toolchain file when cross-compiling, as we should, it is empty.
-if(NOT CMAKE_SYSTEM_PROCESSOR AND CMAKE_SYSTEM_NAME STREQUAL Windows)
+if(NOT CMAKE_SYSTEM_PROCESSOR AND CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_SYSTEM_PROCESSOR i686)
 endif()
 
@@ -549,39 +560,97 @@ endif()
 
 if(WANT_OPENGL)
     find_package(OpenGL)
-    if(ANDROID)
-        find_package(OpenGLES)
-        find_package(OpenGLES2)
-    endif(ANDROID)
 
-    # on cmake 2.8.1 OpenGL ES is not found in the iphone case
-    # XXX incorporate IPHONE case into FindOpenGLES/2
-    if(IPHONE)
-        set(OPENGLES_FOUND 1)
-        set(OPENGLES_LIBRARIES "-framework OpenGLES")
-        set(OPENGLES2_FOUND 1)
-        set(OPENGLES2_LIBRARIES "-framework OpenGLES")
-    endif(IPHONE)
+    if(GL_BUILD_TYPE MATCHES "auto")
+        set(GL_REAL_BUILD_TYPE ${GL_AUTO_BUILD_TYPE})
+    else()
+        set(GL_REAL_BUILD_TYPE ${GL_BUILD_TYPE})
+    endif()
 
-    if(OPENGLES_FOUND)
-        set(SUPPORT_OPENGL 1)
-        set(ALLEGRO_CFG_OPENGL 1)
-        set(ALLEGRO_CFG_OPENGLES 1)
-        set(OPENGL_LIBRARIES ${OPENGLES_LIBRARIES})
+    if(GL_REAL_BUILD_TYPE MATCHES "gl$")
+        if(OPENGL_FOUND AND OPENGL_GLU_FOUND)
+            set(SUPPORT_OPENGL 1)
+            set(ALLEGRO_CFG_OPENGL 1)
+            set(ALLEGRO_CFG_OPENGL_FIXED_FUNCTION 1)
+            # We assume that the OpenGL library is not very old.
+            set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
+            if(OPENGL_opengl_LIBRARY) # prefer GLVND if available
+                set(OPENGL_LIBRARIES ${OPENGL_opengl_LIBRARY} ${OPENGL_glu_LIBRARY})
+            endif()
+            include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+            message("Using OpenGL")
+        else(OPENGL_FOUND)
+            if(GL_BUILD_TYPE MATCHES "auto")
+                set(GL_REAL_BUILD_TYPE "gles2+")
+            endif()
+        endif()
+    endif()
+
+    if(GL_REAL_BUILD_TYPE MATCHES "gles2")
+
+        # on cmake 2.8.1 OpenGL ES is not found in the iphone case
+        # XXX incorporate IPHONE case into FindOpenGLES/2
+        if(IPHONE)
+            set(OPENGLES2_FOUND 1)
+            set(OPENGLES2_LIBRARIES "-framework OpenGLES")
+        else()
+            find_package(OpenGLES2)
+        endif()
+
         if(OPENGLES2_FOUND)
+            set(SUPPORT_OPENGL 1)
+            set(SUPPORT_OPENGLES 1)
+            set(SUPPORT_OPENGLES2 1)
+            set(ALLEGRO_CFG_OPENGL 1)
+            set(ALLEGRO_CFG_OPENGLES 1)
             set(ALLEGRO_CFG_OPENGLES2 1)
             if(WANT_GLES3)
+                set(SUPPORT_OPENGLES3 1)
                 set(ALLEGRO_CFG_OPENGLES3 1)
-            endif()
+                message("Using OpenGL ES 3.0")
+            else(WANT_GLES3)
+                message("Using OpenGL ES 2.0")
+            endif(WANT_GLES3)
             set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
-            list(APPEND OPENGL_LIBRARIES ${OPENGLES2_LIBRARIES})
-        endif()
-    elseif(OPENGL_FOUND)
-        set(SUPPORT_OPENGL 1)
-        set(ALLEGRO_CFG_OPENGL 1)
-        # We assume that the OpenGL library is not very old.
-        set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
+            set(OPENGL_LIBRARIES "${OPENGLES2_LIBRARIES}")
+            if(NOT IPHONE)
+	        include_directories(SYSTEM ${OPENGLES2_INCLUDE_DIR})
+            endif()
+        else(OPENGLES2_FOUND)
+            if(GL_BUILD_TYPE MATCHES "auto")
+                set(GL_REAL_BUILD_TYPE "gles1")
+            endif()
+        endif(OPENGLES2_FOUND)
     endif()
+
+    if(GL_REAL_BUILD_TYPE MATCHES "gles1")
+
+        # on cmake 2.8.1 OpenGL ES is not found in the iphone case
+        # XXX incorporate IPHONE case into FindOpenGLES/2
+        if(IPHONE)
+            set(OPENGLES1_FOUND 1)
+            set(OPENGLES1_LIBRARIES "-framework OpenGLES")
+        else()
+            find_package(OpenGLES1)
+        endif()
+
+        if(OPENGLES1_FOUND)
+            set(SUPPORT_OPENGL 1)
+            set(SUPPORT_OPENGLES 1)
+            set(SUPPORT_OPENGLES1 1)
+            set(ALLEGRO_CFG_OPENGL 1)
+            set(ALLEGRO_CFG_OPENGLES 1)
+            set(ALLEGRO_CFG_OPENGLES1 1)
+            set(ALLEGRO_CFG_OPENGL_FIXED_FUNCTION 1)
+            message("Using OpenGL ES 1.1")
+            set(OPENGL_LIBRARIES ${OPENGLES1_LIBRARIES})
+            if(NOT IPHONE)
+	        include_directories(SYSTEM ${OPENGLES1_INCLUDE_DIR})
+            endif()
+        endif(OPENGLES1_FOUND)
+
+    endif()
+
 endif(WANT_OPENGL)
 
 #
@@ -597,6 +666,14 @@ if(UNIX) # includes MACOSX
         endif(NOT CMAKE_USE_PTHREADS_INIT)
     endif()
 endif(UNIX)
+
+#
+# SDL
+#
+
+if(ALLEGRO_SDL AND NOT SUPPORT_OPENGL)
+    message(FATAL_ERROR "SDL support currently requires OpenGL or OpenGL ES support.")
+endif(ALLEGRO_SDL AND NOT SUPPORT_OPENGL)
 
 #
 # X Window System
@@ -615,12 +692,20 @@ if(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11) # not MACOSX
         "X11 not found. You may need to install X11 development libraries.")
 endif(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11)
 
-if((NOT ALLEGRO_RASPBERRYPI) AND (SUPPORT_X11 AND NOT SUPPORT_OPENGL))
-    message(FATAL_ERROR "X11 support currently requires OpenGL support.")
-endif((NOT ALLEGRO_RASPBERRYPI) AND (SUPPORT_X11 AND NOT SUPPORT_OPENGL))
+if(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
+    message(FATAL_ERROR "X11 support currently requires OpenGL or OpenGL ES support.")
+endif(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
 
 if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
+
+    if (OpenGL_GLX_FOUND)
+        set(OPENGL_LIBRARIES "${OPENGL_LIBRARIES}" "${OPENGL_glx_LIBRARY}")
+    endif()
+
+    if (NOT OPENGL_LIBRARIES MATCHES "(libGL\\.|libGLX\\.)" AND NOT ALLEGRO_EXCLUDE_GLX)
+       message(FATAL_ERROR "X11 support currently requires GLX (set OPENGL_glx_LIBRARY and OpenGL_GLX_FOUND).")
+    endif()
 
     check_library_exists(Xcursor XcursorImageCreate "" CAN_XCURSOR)
     if(CAN_XCURSOR)
@@ -706,7 +791,7 @@ if(WIN32)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")
     endif(DINPUT_FOUND)
-    
+
     # Xinput support for xbox compatible controllers.
     if(XINPUT_FOUND)
         set(SUPPORT_XINPUT 1)
@@ -719,7 +804,7 @@ if(WIN32)
             set(ALLEGRO_CFG_D3D 1)
         endif(D3D9_FOUND)
     endif(WANT_D3D)
-    
+
     if(SUPPORT_D3D)
         if(D3DX9_FOUND)
             include_directories(BEFORE ${D3DX9_INCLUDE_DIR})
@@ -778,7 +863,7 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
     endif(SUPPORT_D3D)
-    
+
     list(APPEND PLATFORM_LIBS ${DINPUT_LIBRARIES})
     if(MINGW AND NOT SHARED)
         list(APPEND PLATFORM_LIBS stdc++)
@@ -815,7 +900,7 @@ if(SUPPORT_OPENGL)
     list(APPEND PLATFORM_LIBS ${OPENGL_LIBRARIES})
 endif(SUPPORT_OPENGL)
 
-if(SUPPORT_OPENGL AND WANT_SHADERS_GL)
+if(SUPPORT_OPENGL AND WANT_SHADERS_GL AND NOT ALLEGRO_CFG_OPENGLES1)
     set(ALLEGRO_CFG_SHADER_GLSL 1)
 endif()
 

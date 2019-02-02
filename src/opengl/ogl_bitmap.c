@@ -129,6 +129,7 @@ int _al_ogl_get_glformat(int format, int component)
       glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][2] = GL_RED;
    }
    #else
+   // TODO: Check supported formats by various GLES versions
    static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
       /* Skip pseudo formats */
       {0, 0, 0},
@@ -182,8 +183,10 @@ char const *_al_gl_error_string(GLenum e)
       ERR(GL_INVALID_ENUM)
       ERR(GL_INVALID_VALUE)
       ERR(GL_INVALID_OPERATION)
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
       ERR(GL_STACK_OVERFLOW)
       ERR(GL_STACK_UNDERFLOW)
+#endif
       ERR(GL_OUT_OF_MEMORY)
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       ERR(GL_INVALID_FRAMEBUFFER_OPERATION)
@@ -461,12 +464,14 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          post_generate_mipmap = true;
       }
       else {
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
          glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
           e = glGetError();
           if (e) {
               ALLEGRO_ERROR("glTexParameteri for texture %d failed (%s).\n",
                             ogl_bitmap->texture, _al_gl_error_string(e));
           }
+#endif
       }
    }
 
@@ -1033,8 +1038,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
       }
    }
 
-   /* Android included because some devices require POT FBOs */
-   if (IS_OPENGLES || !d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP]) {
+   if (!d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP]) {
       true_w = pot(true_w);
       true_h = pot(true_h);
    }

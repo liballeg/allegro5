@@ -1261,6 +1261,12 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    dpy->parent.vt = _al_osx_get_display_driver_fs();
    dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
    dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
+#ifdef ALLEGRO_CFG_OPENGLES2
+   dpy->parent.flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   dpy->parent.flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
    dpy->parent.w = w;
    dpy->parent.h = h;
    _al_event_source_init(&dpy->parent.es);
@@ -1441,6 +1447,12 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    dpy->parent.vt = _al_osx_get_display_driver_win();
    dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
    dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
+#ifdef ALLEGRO_CFG_OPENGLES2
+   dpy->parent.flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   dpy->parent.flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
    dpy->parent.w = w;
    dpy->parent.h = h;
    _al_event_source_init(&dpy->parent.es);
@@ -1602,6 +1614,12 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    dpy->parent.vt = _al_osx_get_display_driver_win();
    dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
    dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_WINDOWED;
+#ifdef ALLEGRO_CFG_OPENGLES2
+   dpy->parent.flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   dpy->parent.flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
    dpy->parent.w = w;
    dpy->parent.h = h;
    _al_event_source_init(&dpy->parent.es);
