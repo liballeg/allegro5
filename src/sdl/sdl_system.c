@@ -273,6 +273,16 @@ static ALLEGRO_DISPLAY_MODE *sdl_get_display_mode(int index, ALLEGRO_DISPLAY_MOD
    return mode;
 }
 
+static bool sdl_inhibit_screensaver(bool inhibit)
+{
+  if (inhibit) {
+    SDL_DisableScreenSaver();
+  } else {
+    SDL_EnableScreenSaver();
+  }
+  return SDL_IsScreenSaverEnabled() != inhibit;
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
 {
@@ -299,8 +309,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->grab_mouse = sdl_grab_mouse;
    vt->ungrab_mouse = sdl_ungrab_mouse;*/
    vt->get_path = sdl_get_path;
-   /*vt->inhibit_screensaver = sdl_inhibit_screensaver;
-   vt->thread_init = sdl_thread_init;
+   vt->inhibit_screensaver = sdl_inhibit_screensaver;
+   /*vt->thread_init = sdl_thread_init;
    vt->thread_exit = sdl_thread_exit;
    vt->open_library = sdl_open_library;
    vt->import_symbol = sdl_import_symbol;
