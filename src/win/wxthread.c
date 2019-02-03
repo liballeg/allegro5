@@ -59,18 +59,18 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 
 void _al_thread_with_stacksize_create(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize) 
 {
-    ASSERT(thread);
-    ASSERT(proc);
-    {
-        InitializeCriticalSection(&thread->cs);
+   ASSERT(thread);
+   ASSERT(proc);
+   {
+      InitializeCriticalSection(&thread->cs);
 		
-        thread->should_stop = false;
-        thread->proc = proc;
-        thread->arg = arg;
+      thread->should_stop = false;
+      thread->proc = proc;
+      thread->arg = arg;
 		
-        thread->thread = (void *)_beginthreadex(NULL, stacksize,
-                                                thread_proc_trampoline, thread, 0, NULL);
-    }
+      thread->thread = (void *)_beginthreadex(NULL, stacksize, 
+         thread_proc_trampoline, thread, 0, NULL);
+   }
 }
 
 
