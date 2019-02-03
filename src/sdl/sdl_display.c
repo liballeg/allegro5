@@ -138,7 +138,7 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
 
    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
-   sdl->window = SDL_CreateWindow(sdl->title, sdl->x, sdl->y,
+   sdl->window = SDL_CreateWindow(al_get_new_window_title(), sdl->x, sdl->y,
       d->w, d->h, flags);
    if (!sdl->window) {
       ALLEGRO_ERROR("SDL_CreateWindow failed: %s", SDL_GetError());
