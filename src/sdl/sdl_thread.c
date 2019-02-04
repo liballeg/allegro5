@@ -21,7 +21,7 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*),
    thread->thread = SDL_CreateThread(thread_trampoline, "allegro", thread);
 }
 
-void _al_thread_with_stacksize_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*),
+void _al_thread_create_with_stacksize(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*),
    void *arg, size_t stacksize)
 {
    ASSERT(thread);
