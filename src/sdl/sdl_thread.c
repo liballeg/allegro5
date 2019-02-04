@@ -50,11 +50,6 @@ void _al_mutex_init(_AL_MUTEX *mutex)
    mutex->mutex = SDL_CreateMutex();
 }
 
-static void free_tls(void *v)
-{
-   al_free(v);
-}
-
 void _al_mutex_init_recursive(_AL_MUTEX *mutex)
 {
    _al_mutex_init(mutex);
