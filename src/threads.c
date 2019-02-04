@@ -137,7 +137,7 @@ ALLEGRO_THREAD *al_create_thread_with_stacksize(
    _al_cond_init(&outer->cond);
    outer->arg = arg;
    outer->proc = proc;
-   _al_thread_with_stacksize_create(&outer->thread, thread_func_trampoline, outer, stacksize);
+   _al_thread_create_with_stacksize(&outer->thread, thread_func_trampoline, outer, stacksize);
    /* XXX _al_thread_create should return an error code */
    return outer;
 }
