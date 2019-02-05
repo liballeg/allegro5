@@ -29,7 +29,11 @@ void _al_thread_create_with_stacksize(_AL_THREAD *thread, void (*proc)(_AL_THREA
    thread->should_stop = false;
    thread->proc = proc;
    thread->arg = arg;
+#if SDL_VERSION_ATLEAST(2,0,9)
    thread->thread = SDL_CreateThreadWithStackSize(thread_trampoline, "allegro", stacksize, thread);
+#else
+   thread->thread = SDL_CreateThread(thread_trampoline, "allegro", thread);
+#endif
 }
 
 void _al_thread_set_should_stop(_AL_THREAD *thread)
