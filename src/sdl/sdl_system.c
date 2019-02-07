@@ -1,3 +1,17 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      SDL system interface.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
