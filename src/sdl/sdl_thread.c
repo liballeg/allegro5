@@ -3,6 +3,8 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
 
+ALLEGRO_DEBUG_CHANNEL("thread")
+
 static int thread_trampoline(void* data)
 {
    _AL_THREAD *thread = data;
@@ -32,6 +34,9 @@ void _al_thread_create_with_stacksize(_AL_THREAD *thread, void (*proc)(_AL_THREA
 #if SDL_VERSION_ATLEAST(2,0,9)
    thread->thread = SDL_CreateThreadWithStackSize(thread_trampoline, "allegro", stacksize, thread);
 #else
+   (void)stacksize;
+   ALLEGRO_WARN("Creating a thread with a custom thread size is not supported "
+      "on this version of SDL, it is too old.\n");
    thread->thread = SDL_CreateThread(thread_trampoline, "allegro", thread);
 #endif
 }
