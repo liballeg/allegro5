@@ -18,6 +18,8 @@
    #error configuration problem, ALLEGRO_CFG_ACODEC_MODAUDIO not set
 #endif
 
+// We use the deprecated duh_render in DUMB 2.
+#define DUMB_DECLARE_DEPRECATED
 #include <dumb.h>
 #include <stdio.h>
 
