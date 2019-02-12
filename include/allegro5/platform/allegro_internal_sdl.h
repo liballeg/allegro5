@@ -18,7 +18,6 @@ typedef struct ALLEGRO_DISPLAY_SDL
 
    int x, y;
    SDL_Window *window;
-   SDL_Renderer *renderer;
    SDL_GLContext context;
 } ALLEGRO_DISPLAY_SDL;
 
