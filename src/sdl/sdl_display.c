@@ -35,7 +35,7 @@ float _al_sdl_get_display_pixel_ratio(ALLEGRO_DISPLAY *display)
    ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
    int window_width, drawable_width, h;
    SDL_GetWindowSize(sdl->window, &window_width, &h);
-   SDL_GetRendererOutputSize(sdl->renderer, &drawable_width, &h);
+   SDL_GL_GetDrawableSize(sdl->window, &drawable_width, &h);
    return drawable_width / (float)window_width;
 }
 
@@ -132,14 +132,10 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 #ifdef ALLEGRO_CFG_OPENGLES1
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles");
 #else
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles2");
 #endif
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#else
-   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 #endif
 
    GLoption(ALLEGRO_COLOR_SIZE, SDL_GL_BUFFER_SIZE);
@@ -168,14 +164,9 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       return NULL;
    }
 
-   flags =
-      SDL_RENDERER_ACCELERATED |
-      SDL_RENDERER_PRESENTVSYNC |
-      SDL_RENDERER_TARGETTEXTURE;
-   sdl->renderer = SDL_CreateRenderer(sdl->window, -1, flags);
-   sdl->context = SDL_GL_GetCurrentContext();
+   sdl->context = SDL_GL_CreateContext(sdl->window);
 
-   SDL_GetRendererOutputSize(sdl->renderer, &d->w, &d->h);
+   SDL_GL_GetDrawableSize(sdl->window, &d->w, &d->h);
 
    // there's no way to query pixel ratio before creating the window, so we
    // have to compensate afterwards
@@ -189,7 +180,7 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
 
       SDL_SetWindowSize(sdl->window, window_width / ratio, window_height / ratio);
 
-      SDL_GetRendererOutputSize(sdl->renderer, &d->w, &d->h);
+      SDL_GL_GetDrawableSize(sdl->window, &d->w, &d->h);
    }
 
    ALLEGRO_DISPLAY **add;
@@ -293,7 +284,7 @@ static void sdl_destroy_display_locked(ALLEGRO_DISPLAY *d)
    _al_event_source_free(&d->es);
    _al_vector_find_and_delete(&system->displays, &d);
 
-   SDL_DestroyRenderer(sdl->renderer);
+   SDL_GL_DeleteContext(sdl->context);
    SDL_DestroyWindow(sdl->window);
    al_free(sdl);
 }
@@ -321,7 +312,7 @@ static void sdl_unset_current_display(ALLEGRO_DISPLAY *d)
 static void sdl_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
-   SDL_RenderPresent(sdl->renderer);
+   SDL_GL_SwapWindow(sdl->window);
 
    // SDL loses texture contents, for example on resize.
    al_backup_dirty_bitmaps(d);
@@ -335,7 +326,7 @@ static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
    (void)y;
    (void)width;
    (void)height;
-   SDL_RenderPresent(sdl->renderer);
+   SDL_GL_SwapWindow(sdl->window);
 }
 
 static bool sdl_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
@@ -407,7 +398,7 @@ static void recreate_textures(ALLEGRO_DISPLAY *display)
 static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
-   SDL_GetRendererOutputSize(sdl->renderer, &display->w, &display->h);
+   SDL_GL_GetDrawableSize(sdl->window, &display->w, &display->h);
 
    _al_ogl_setup_gl(display);
 
@@ -436,7 +427,7 @@ static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
    // Allegro uses pixels everywhere, while SDL uses screen space for window size
    int window_width, drawable_width, h;
    SDL_GetWindowSize(sdl->window, &window_width, &h);
-   SDL_GetRendererOutputSize(sdl->renderer, &drawable_width, &h);
+   SDL_GL_GetDrawableSize(sdl->window, &drawable_width, &h);
    float ratio = drawable_width / (float)window_width;
 
    SDL_SetWindowSize(sdl->window, width / ratio, height / ratio);
