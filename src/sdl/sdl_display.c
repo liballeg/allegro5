@@ -72,9 +72,10 @@ void _al_sdl_display_event(SDL_Event *e)
          event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
       }
       if (e->window.event == SDL_WINDOWEVENT_RESIZED) {
+         float ratio = _al_sdl_get_display_pixel_ratio(d);
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-         event.display.width = e->window.data1;
-         event.display.height = e->window.data2;
+         event.display.width = e->window.data1 * ratio;
+         event.display.height = e->window.data2 * ratio;
       }
    }
    if (e->type == SDL_QUIT) {
@@ -185,7 +186,7 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       SDL_GetWindowSize(sdl->window, &window_width, &window_height);
       float ratio = _al_sdl_get_display_pixel_ratio(d);
 
-      ALLEGRO_DEBUG("resizing the display to %dx%d to match the scaling factor %f\n", window_width / ratio, window_height / ratio, ratio);
+      ALLEGRO_DEBUG("resizing the display to %dx%d to match the scaling factor %f\n", (int)(window_width / ratio), (int)(window_height / ratio), ratio);
 
       SDL_SetWindowSize(sdl->window, window_width / ratio, window_height / ratio);
 
