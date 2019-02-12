@@ -61,6 +61,10 @@ void _al_sdl_mouse_event(SDL_Event *e)
       mouse->display = e->window.event == SDL_WINDOWEVENT_ENTER ? d : NULL;
    }
    else if (e->type == SDL_MOUSEMOTION) {
+      if (e->motion.which == SDL_TOUCH_MOUSEID) {
+         _al_event_source_unlock(es);
+         return;
+      }
       d = _al_sdl_find_display(e->motion.windowID);
       float ratio = _al_sdl_get_display_pixel_ratio(d);
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
@@ -76,6 +80,10 @@ void _al_sdl_mouse_event(SDL_Event *e)
       mouse->state.y = e->motion.y * ratio;
    }
    else if (e->type == SDL_MOUSEWHEEL) {
+      if (e->wheel.which == SDL_TOUCH_MOUSEID) {
+         _al_event_source_unlock(es);
+         return;
+      }
       d = _al_sdl_find_display(e->wheel.windowID);
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       mouse->state.z += al_get_mouse_wheel_precision() * e->wheel.y;
@@ -90,6 +98,10 @@ void _al_sdl_mouse_event(SDL_Event *e)
       event.mouse.dw = al_get_mouse_wheel_precision() * e->wheel.x;
    }
    else {
+      if (e->button.which == SDL_TOUCH_MOUSEID) {
+         _al_event_source_unlock(es);
+         return;
+      }
       d = _al_sdl_find_display(e->button.windowID);
       float ratio = _al_sdl_get_display_pixel_ratio(d);
       switch (e->button.button) {
