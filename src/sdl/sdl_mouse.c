@@ -66,7 +66,7 @@ void _al_sdl_mouse_event(SDL_Event *e)
          return;
       }
       d = _al_sdl_find_display(e->motion.windowID);
-      float ratio = _al_sdl_get_display_pixel_ratio(d);
+      float ratio = d ? _al_sdl_get_display_pixel_ratio(d) : 1.0;
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       event.mouse.x = e->motion.x * ratio;
       event.mouse.y = e->motion.y * ratio;
@@ -103,7 +103,7 @@ void _al_sdl_mouse_event(SDL_Event *e)
          return;
       }
       d = _al_sdl_find_display(e->button.windowID);
-      float ratio = _al_sdl_get_display_pixel_ratio(d);
+      float ratio = d ? _al_sdl_get_display_pixel_ratio(d) : 1.0;
       switch (e->button.button) {
          case SDL_BUTTON_LEFT: event.mouse.button = 1; break;
          case SDL_BUTTON_RIGHT: event.mouse.button = 2; break;
