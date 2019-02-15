@@ -522,6 +522,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
    if (vt == NULL) {
       vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
+      vt->id = ALLEGRO_SYSTEM_ID_MACOSX;
       vt->initialize = osx_sys_init;
       vt->get_display_driver = _al_osx_get_display_driver;
       vt->get_keyboard_driver = _al_osx_get_keyboard_driver;

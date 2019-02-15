@@ -20,7 +20,7 @@ typedef struct ALLEGRO_SYSTEM_INTERFACE ALLEGRO_SYSTEM_INTERFACE;
 
 struct ALLEGRO_SYSTEM_INTERFACE
 {
-   int id;
+   ALLEGRO_SYSTEM_ID id;
    ALLEGRO_SYSTEM *(*initialize)(int flags);
    ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
    ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);

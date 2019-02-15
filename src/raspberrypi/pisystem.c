@@ -179,6 +179,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_raspberrypi_driver(void)
 
    pi_vt = al_calloc(1, sizeof *pi_vt);
 
+   pi_vt->id = ALLEGRO_SYSTEM_ID_RASPBERRYPI;
    pi_vt->initialize = pi_initialize;
    pi_vt->get_display_driver = _al_get_raspberrypi_display_interface;
    pi_vt->get_keyboard_driver = pi_get_keyboard_driver;

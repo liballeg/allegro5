@@ -405,6 +405,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 
    xglx_vt = al_calloc(1, sizeof *xglx_vt);
 
+   xglx_vt->id = ALLEGRO_SYSTEM_ID_XGLX;
    xglx_vt->initialize = xglx_initialize;
    xglx_vt->get_display_driver = xglx_get_display_driver;
    xglx_vt->get_keyboard_driver = xglx_get_keyboard_driver;
