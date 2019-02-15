@@ -533,6 +533,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt = al_malloc(sizeof *android_vt);
    memset(android_vt, 0, sizeof *android_vt);
 
+   android_vt->id = ALLEGRO_SYSTEM_ID_ANDROID;
    android_vt->initialize = android_initialize;
    android_vt->get_display_driver = _al_get_android_display_driver;
    android_vt->get_keyboard_driver = _al_get_android_keyboard_driver;
