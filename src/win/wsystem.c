@@ -885,6 +885,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 
    vt = al_calloc(1, sizeof *vt);
 
+   vt->id = ALLEGRO_SYSTEM_ID_WINDOWS;
    vt->initialize = win_initialize;
    vt->get_display_driver = win_get_display_driver;
    vt->get_keyboard_driver = win_get_keyboard_driver;

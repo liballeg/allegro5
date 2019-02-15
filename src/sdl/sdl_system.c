@@ -315,7 +315,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
       return vt;
 
    vt = al_calloc(1, sizeof *vt);
-   vt->id = AL_ID('S', 'D', 'L', '2');
+   vt->id = ALLEGRO_SYSTEM_ID_SDL;
    vt->initialize = sdl_initialize;
    vt->get_display_driver = sdl_get_display_driver;
    vt->get_keyboard_driver = sdl_get_keyboard_driver;
