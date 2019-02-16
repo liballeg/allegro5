@@ -28,6 +28,24 @@ typedef struct ALLEGRO_MOUSE_SDL
 static ALLEGRO_MOUSE_DRIVER *vt;
 static ALLEGRO_MOUSE_SDL *mouse;
 
+static ALLEGRO_DISPLAY *find_display(uint32_t window_id)
+{
+   ALLEGRO_DISPLAY *d = _al_sdl_find_display(window_id);
+   if (d) {
+      return d;
+   } else {
+      // if there's only one display, we can assume that all
+      // events refer to its coordinate system
+      ALLEGRO_SYSTEM *s = al_get_system_driver();
+      if (_al_vector_size(&s->displays) == 1) {
+         void **v = (void **)_al_vector_ref(&s->displays, 0);
+         ALLEGRO_DISPLAY_SDL *d = *v;
+         return &d->display;
+      }
+   }
+   return NULL;
+}
+
 void _al_sdl_mouse_event(SDL_Event *e)
 {
    if (!mouse)
@@ -43,7 +61,7 @@ void _al_sdl_mouse_event(SDL_Event *e)
    ALLEGRO_DISPLAY *d = NULL;
 
    if (e->type == SDL_WINDOWEVENT) {
-      d = _al_sdl_find_display(e->window.windowID);
+      d = find_display(e->window.windowID);
       float ratio = _al_sdl_get_display_pixel_ratio(d);
       if (e->window.event == SDL_WINDOWEVENT_ENTER) {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
@@ -65,7 +83,7 @@ void _al_sdl_mouse_event(SDL_Event *e)
          _al_event_source_unlock(es);
          return;
       }
-      d = _al_sdl_find_display(e->motion.windowID);
+      d = find_display(e->motion.windowID);
       float ratio = d ? _al_sdl_get_display_pixel_ratio(d) : 1.0;
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       event.mouse.x = e->motion.x * ratio;
@@ -84,7 +102,7 @@ void _al_sdl_mouse_event(SDL_Event *e)
          _al_event_source_unlock(es);
          return;
       }
-      d = _al_sdl_find_display(e->wheel.windowID);
+      d = find_display(e->wheel.windowID);
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       mouse->state.z += al_get_mouse_wheel_precision() * e->wheel.y;
       mouse->state.w += al_get_mouse_wheel_precision() * e->wheel.x;
@@ -102,7 +120,7 @@ void _al_sdl_mouse_event(SDL_Event *e)
          _al_event_source_unlock(es);
          return;
       }
-      d = _al_sdl_find_display(e->button.windowID);
+      d = find_display(e->button.windowID);
       float ratio = d ? _al_sdl_get_display_pixel_ratio(d) : 1.0;
       switch (e->button.button) {
          case SDL_BUTTON_LEFT: event.mouse.button = 1; break;
