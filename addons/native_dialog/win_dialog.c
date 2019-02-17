@@ -67,7 +67,6 @@ void _al_shutdown_native_dialog_addon(void)
    wm_size_cond = NULL;
 }
 
-
 static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
@@ -76,7 +75,7 @@ static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    char buf[MAX_PATH] = "";
    char dbuf[MAX_PATH] = "";
 
-   folderinfo.hwndOwner = win_display->window;
+   folderinfo.hwndOwner = win_display ? win_display->window : NULL;
    folderinfo.pidlRoot = NULL;
    folderinfo.pszDisplayName = dbuf;
    folderinfo.lpszTitle = al_cstr(fd->title);
@@ -177,7 +176,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    /* Selecting a file. */
    memset(&ofn, 0, sizeof(OPENFILENAME));
    ofn.lStructSize = sizeof(OPENFILENAME);
-   ofn.hwndOwner = (win_display) ? win_display->window : NULL;
+   ofn.hwndOwner = win_display ? win_display->window : NULL;
 
    /* Create filter string. */
    if (fd->fc_patterns) {
