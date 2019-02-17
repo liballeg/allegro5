@@ -98,7 +98,7 @@ macro(find_component name header library)
 endmacro()
 
 find_component(DINPUT dinput.h dinput8)
-find_component(D3D9 d3d9.h dinput8)
+find_component(D3D9 d3d9.h d3d9)
 find_component(D3DX9 d3dx9.h d3dx9)
 find_component(DSOUND dsound.h dsound)
 find_component(XINPUT xinput.h xinput)
