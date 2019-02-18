@@ -33,7 +33,8 @@ static ALLEGRO_DISPLAY *find_display(uint32_t window_id)
    ALLEGRO_DISPLAY *d = _al_sdl_find_display(window_id);
    if (d) {
       return d;
-   } else {
+   }
+   else {
       // if there's only one display, we can assume that all
       // events refer to its coordinate system
       ALLEGRO_SYSTEM *s = al_get_system_driver();
