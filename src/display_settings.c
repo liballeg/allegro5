@@ -53,7 +53,7 @@ int _al_get_suggested_display_option(ALLEGRO_DISPLAY *d,
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *s = &d->extra_settings;
    uint64_t flags = s->required | s->suggested;
-   if (flags & (1 << option))
+   if (flags & (UINT64_C(1) << option))
       return s->settings[option];
    return default_value;
 }
