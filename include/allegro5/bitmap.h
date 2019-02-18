@@ -65,6 +65,7 @@ AL_FUNC(ALLEGRO_COLOR, al_get_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y));
 AL_FUNC(void, al_convert_mask_to_alpha, (ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color));
 
 /* Blending */
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 AL_FUNC(ALLEGRO_COLOR, al_get_bitmap_blend_color, (void));
 AL_FUNC(void, al_get_bitmap_blender, (int *op, int *src, int *dst));
 AL_FUNC(void, al_get_separate_bitmap_blender, (int *op, int *src, int *dst, int *alpha_op, int *alpha_src, int *alpha_dst));
@@ -72,6 +73,7 @@ AL_FUNC(void, al_set_bitmap_blend_color, (ALLEGRO_COLOR color));
 AL_FUNC(void, al_set_bitmap_blender, (int op, int src, int dst));
 AL_FUNC(void, al_set_separate_bitmap_blender, (int op, int src, int dst, int alpha_op, int alpha_src, int alpha_dst));
 AL_FUNC(void, al_reset_bitmap_blender, (void));
+#endif
 
 /* Clipping */
 AL_FUNC(void, al_set_clipping_rectangle, (int x, int y, int width, int height));
