@@ -54,6 +54,10 @@ Spawn a new thread with the give stacksize in bytes which begins executing
 Returns a pointer to the thread on success.
 Otherwise, returns NULL if there was an error.
 
+Since: 5.2.5
+
+> *[Unstable API]:* New API, may want a better way to specify thread options.
+
 See also: [al_start_thread], [al_join_thread].
 
 

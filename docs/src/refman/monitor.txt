@@ -64,6 +64,8 @@ See also: [ALLEGRO_MONITOR_INFO], [al_get_num_video_adapters]
 
 Get the dots per inch of a monitor attached to the display adapter.
 
+Since: 5.2.5
+
 See also: [al_get_num_video_adapters]
 
 ## API: al_get_num_video_adapters
