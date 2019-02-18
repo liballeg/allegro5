@@ -225,7 +225,8 @@ __ALLEGRO_5_CFG
 
 ## API: al_get_system_id
 
-Returns the platform that Allegro is running on, which can be one of the following:
+Returns the platform that Allegro is running on, which can be one of the
+following:
 
 -  ALLEGRO_SYSTEM_ID_UNKNOWN
 -  ALLEGRO_SYSTEM_ID_XGLX
