@@ -367,15 +367,16 @@ display.source (ALLEGRO_DISPLAY *)
 :   The display which was exposed.
 
 display.x (int)
-:   &nbsp;
+:   The X position of the top-left corner of the rectangle which was exposed.
+
 display.y (int)
-:   &nbsp;
-:   The top-left corner of the rectangle which was exposed.
+:   The Y position of the top-left corner of the rectangle which was exposed.
 
 display.width (int)
-:   &nbsp;
+:   The width of the rectangle which was exposed.
+
 display.height (int)
-:   The width and height of the rectangle which was exposed.
+:   The height of the rectangle which was exposed.
 
 > *Note:* The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
 flag for these events to be generated.
@@ -388,9 +389,10 @@ display.source (ALLEGRO_DISPLAY *)
 :   The display which was resized.
 
 display.x (int)
-:   &nbsp;
+:   The X position of the top-left corner of the display.
+
 display.y (int)
-:   The position of the top-level corner of the display.
+:   The Y position of the top-left corner of the display.
 
 display.width (int)
 :   The new width of the display.
