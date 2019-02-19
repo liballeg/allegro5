@@ -237,6 +237,9 @@ class Allegro:
                     if "=" in field:
                         fname, val = field.split("=", 1)
                         fname = fname.strip()
+                        # replace any 'X' (an integer value in C) with
+                        # ord('X') to match up in Python
+                        val = re.sub("('.')", "ord(\\1)", val)
                         try:
                             i = int(eval(val, globals(), self.constants))
                         except NameError:
