@@ -66,7 +66,6 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 {
    int (*mainfunc) (int argc, char *argv[]) = (int (*)(int, char *[]))_main;
    char *argbuf;
-   char *cmdline;
    char **argv;
    int argc;
    int argc_max;
@@ -78,10 +77,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    (void)nShow;
 
    /* can't use parameter because it doesn't include the executable name */
-   cmdline = GetCommandLine();
-   i = strlen(cmdline) + 1;
-   argbuf = al_malloc(i);
-   memcpy(argbuf, cmdline, i);
+   argbuf = _twin_tchar_to_utf8(GetCommandLine());
 
    argc = 0;
    argc_max = 64;
@@ -750,7 +746,7 @@ static bool win_inhibit_screensaver(bool inhibit)
    return true;
 }
 
-static HMODULE load_library_at_path(const char *path_str)
+static HMODULE load_library_at_path(const TCHAR *path_str)
 {
    HMODULE lib;
 
@@ -760,20 +756,20 @@ static HMODULE load_library_at_path(const char *path_str)
     * flags would fix that, but when I tried it I was unable to load dsound.dll
     * on Vista.
     */
-
-   ALLEGRO_DEBUG("Calling LoadLibrary %s\n", path_str);
-   lib = LoadLibraryA(path_str);
+   char* upath_str = _twin_tchar_to_utf8(path_str);
+   ALLEGRO_DEBUG("Calling LoadLibrary %s\n", upath_str);
+   lib = LoadLibrary(path_str);
    if (lib) {
-      ALLEGRO_INFO("Loaded %s\n", path_str);
+      ALLEGRO_INFO("Loaded %s\n", upath_str);
    }
    else {
       DWORD error = GetLastError();
       HRESULT hr = HRESULT_FROM_WIN32(error);
       /* XXX do something with it */
       (void)hr;
-      ALLEGRO_WARN("Failed to load %s (error: %ld)\n", path_str, error);
+      ALLEGRO_WARN("Failed to load %s (error: %ld)\n", upath_str, error);
    }
-
+   al_free(upath_str);
    return lib;
 }
 
@@ -815,10 +811,11 @@ HMODULE _al_win_safe_load_library(const char *filename)
 {
    ALLEGRO_PATH *path1 = NULL;
    ALLEGRO_PATH *path2 = NULL;
-   char buf[MAX_PATH];
-   const char *other_dirs[3];
+   TCHAR buf[MAX_PATH];
+   const TCHAR *other_dirs[3];
    HMODULE lib = NULL;
    bool msvc_only = false;
+   TCHAR* tfilename;
 
    /* MSVC only: if the executable is in the build configuration directory,
     * which is also just under the current directory, then also try to load the
@@ -838,25 +835,31 @@ HMODULE _al_win_safe_load_library(const char *filename)
       path1 = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
    }
    else if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
-      path1 = al_create_path(buf);
+      char* tmp = _twin_tchar_to_utf8(buf);
+      path1 = al_create_path(tmp);
+      al_free(tmp);
    }
    if (msvc_only) {
       path2 = maybe_parent_dir(path1);
    }
 
-   other_dirs[0] = path1 ? al_path_cstr(path1, '\\') : NULL;
-   other_dirs[1] = path2 ? al_path_cstr(path2, '\\') : NULL;
+   other_dirs[0] = path1 ? _twin_ustr_to_tchar(al_path_ustr(path1, '\\')) : NULL;
+   other_dirs[1] = path2 ? _twin_ustr_to_tchar(al_path_ustr(path2, '\\')) : NULL;
    other_dirs[2] = NULL; /* sentinel */
-
-   _al_sane_strncpy(buf, filename, sizeof(buf));
+   tfilename = _twin_utf8_to_tchar(filename);
+   _tcsncpy_s(buf, MAX_PATH, tfilename, _TRUNCATE);
+   al_free(tfilename);
    if (PathFindOnPath(buf, other_dirs)) {
-      ALLEGRO_DEBUG("PathFindOnPath found: %s\n", buf);
+      char* tmp = _twin_tchar_to_utf8(buf);
+      ALLEGRO_DEBUG("PathFindOnPath found: %s\n", tmp);
+      al_free(tmp);
       lib = load_library_at_path(buf);
    }
    else {
       ALLEGRO_WARN("PathFindOnPath failed to find %s\n", filename);
    }
-
+   al_free((void*) other_dirs[0]);
+   al_free((void*) other_dirs[1]);
    al_destroy_path(path1);
    al_destroy_path(path2);
 

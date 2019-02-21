@@ -52,7 +52,7 @@ void _al_win_thread_init(void)
    if (first_call) {
       first_call = 0;
 
-      ole32 = GetModuleHandle("OLE32.DLL");
+      ole32 = GetModuleHandle(TEXT("OLE32.DLL"));
       if (ole32 != NULL) {
 	 _CoInitializeEx = (_CoInitializeEx_ptr) GetProcAddress(
 						ole32, "CoInitializeEx");
