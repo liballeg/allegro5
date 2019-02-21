@@ -1002,6 +1002,13 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
 
+   /* Fill in the display settings for opengl major and minor versions...*/
+   int* s = disp->extra_settings.settings;
+   s[ALLEGRO_OPENGL_MAJOR_VERSION] = 
+      (disp->ogl_extras->ogl_info.version >> 24) & 0xFF;
+   s[ALLEGRO_OPENGL_MINOR_VERSION] = 
+      (disp->ogl_extras->ogl_info.version >> 16) & 0xFF;   
+
    /* Try to enable or disable vsync as requested */
    /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
     * (according to al_have_opengl_extension), but wglSwapIntervalEXT
