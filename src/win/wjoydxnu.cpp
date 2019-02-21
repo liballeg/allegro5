@@ -96,7 +96,7 @@ ALLEGRO_DEBUG_CHANNEL("dinput")
 #include "allegro5/joystick.h"
 #include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/internal/aintern_wjoydxnu.h"
-
+#include "allegro5/internal/aintern_wunicode.h"
 
 
 
@@ -482,45 +482,45 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 
    if (GUIDTYPE_EQ(__al_GUID_XAxis)) {
       can->have_x = true;
-      _al_sane_strncpy(can->name_x, lpddoi->tszName, NAME_LEN);
+     _tcsncpy(can->name_x, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_YAxis)) {
       can->have_y = true;
-      _al_sane_strncpy(can->name_y, lpddoi->tszName, NAME_LEN);
+      _tcsncpy(can->name_y, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_ZAxis)) {
       can->have_z = true;
-      _al_sane_strncpy(can->name_z, lpddoi->tszName, NAME_LEN);
+      _tcsncpy(can->name_z, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_RxAxis)) {
       can->have_rx = true;
-      _al_sane_strncpy(can->name_rx, lpddoi->tszName, NAME_LEN);
+      _tcsncpy(can->name_rx, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_RyAxis)) {
       can->have_ry = true;
-      _al_sane_strncpy(can->name_ry, lpddoi->tszName, NAME_LEN);
+      _tcsncpy(can->name_ry, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_RzAxis)) {
       can->have_rz = true;
-      _al_sane_strncpy(can->name_rz, lpddoi->tszName, NAME_LEN);
+      _tcsncpy(can->name_rz, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_Slider)) {
       if (can->num_sliders < MAX_SLIDERS) {
-         _al_sane_strncpy(can->name_slider[can->num_sliders], lpddoi->tszName,
+         _tcsncpy(can->name_slider[can->num_sliders], lpddoi->tszName,
             NAME_LEN);
          can->num_sliders++;
       }
    }
    else if (GUIDTYPE_EQ(__al_GUID_POV)) {
       if (can->num_povs < MAX_POVS) {
-         _al_sane_strncpy(can->name_pov[can->num_povs], lpddoi->tszName,
+         _tcsncpy(can->name_pov[can->num_povs], lpddoi->tszName,
             NAME_LEN);
          can->num_povs++;
       }
    }
    else if (GUIDTYPE_EQ(__al_GUID_Button)) {
       if (can->num_buttons < MAX_BUTTONS) {
-         _al_sane_strncpy(can->name_button[can->num_buttons], lpddoi->tszName,
+         _tcsncpy(can->name_button[can->num_buttons], lpddoi->tszName,
             NAME_LEN);
          can->num_buttons++;
       }
@@ -532,13 +532,14 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 }
 
 
-static char *add_string(char *buf, const char *src, int *pos, int bufsize)
+static char *add_string(char *buf, const TCHAR *src, int *pos, int bufsize, const char* dfl)
 {
-   char *dest = buf + *pos;
-
+   char *dest;
+   
+   dest = buf + *pos;
    if (*pos >= bufsize - 1) {
       /* Out of space. */
-      ASSERT(dest[0] == '\0');
+      ALLEGRO_ASSERT(dest[0] == '\0');
       return dest;
    }
 
@@ -547,11 +548,16 @@ static char *add_string(char *buf, const char *src, int *pos, int bufsize)
       dest++;
       (*pos)++;
    }
-
-   _al_sane_strncpy(dest, src, bufsize - *pos);
-   (*pos) += strlen(dest);
-   ASSERT(*pos < bufsize);
-
+   if (src) {
+      dest = _twin_copy_tchar_to_utf8(dest, src, bufsize - *pos);
+   } else {
+      dest = _al_sane_strncpy(dest, dfl, bufsize - *pos);
+   }
+   ALLEGRO_ASSERT(dest != 0);
+   if (dest) {
+      (*pos) += strlen(dest);
+      ALLEGRO_ASSERT(*pos < bufsize);
+   }
    return dest;
 }
 
@@ -569,15 +575,14 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
 #define N_STICK         (info->num_sticks)
 #define N_AXIS          (info->stick[N_STICK].num_axes)
-#define OR(A, B)        ((A) ? ADD_STRING(A) : ADD_STRING(B))
-#define ADD_STRING(s)   add_string(joy->all_names, (s), &pos, \
-                           sizeof(joy->all_names))
+#define ADD_STRING(A, dfl)        (add_string(joy->all_names, (A), &pos, \
+                           sizeof(joy->all_names), (dfl)))
 
    /* the X, Y, Z axes make up the first stick */
    if (can->have_x || can->have_y || can->have_z) {
       if (can->have_x) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
-         info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_x, default_name_x);
+         info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_x, default_name_x);
          joy->x_mapping.stick = N_STICK;
          joy->x_mapping.axis  = N_AXIS;
          N_AXIS++;
@@ -585,7 +590,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
       if (can->have_y) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
-         info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_y, default_name_y);
+         info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_y, default_name_y);
          joy->y_mapping.stick = N_STICK;
          joy->y_mapping.axis  = N_AXIS;
          N_AXIS++;
@@ -593,13 +598,13 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
       if (can->have_z) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
-         info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_z, default_name_z);
+         info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_z, default_name_z);
          joy->z_mapping.stick = N_STICK;
          joy->z_mapping.axis = N_AXIS;
          N_AXIS++;
       }
 
-      info->stick[N_STICK].name = ADD_STRING(default_name_stick);
+      info->stick[N_STICK].name = ADD_STRING(0, default_name_stick);
       N_STICK++;
    }
 
@@ -607,7 +612,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    if (can->have_rx || can->have_ry || can->have_rz) {
       if (can->have_rx) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
-         info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_rx, default_name_rx);
+         info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_rx, default_name_rx);
          joy->rx_mapping.stick = N_STICK;
          joy->rx_mapping.axis  = N_AXIS;
          N_AXIS++;
@@ -615,7 +620,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
       if (can->have_ry) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
-         info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_ry, default_name_ry);
+         info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_ry, default_name_ry);
          joy->ry_mapping.stick = N_STICK;
          joy->ry_mapping.axis  = N_AXIS;
          N_AXIS++;
@@ -623,13 +628,13 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
       if (can->have_rz) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
-         info->stick[N_STICK].axis[N_AXIS].name = OR(can->name_rz, default_name_rz);
+         info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_rz, default_name_rz);
          joy->rz_mapping.stick = N_STICK;
          joy->rz_mapping.axis  = N_AXIS;
          N_AXIS++;
       }
 
-      info->stick[N_STICK].name = ADD_STRING(default_name_stick);
+      info->stick[N_STICK].name = ADD_STRING(0, default_name_stick);
       N_STICK++;
    }
 
@@ -637,8 +642,8 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    for (i = 0; i < can->num_sliders; i++) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
       info->stick[N_STICK].num_axes = 1;
-      info->stick[N_STICK].axis[0].name = ADD_STRING("axis");
-      info->stick[N_STICK].name = OR(can->name_slider[i], default_name_slider);
+      info->stick[N_STICK].axis[0].name = ADD_STRING(0, "axis");
+      info->stick[N_STICK].name = ADD_STRING(can->name_slider[i], default_name_slider);
       joy->slider_mapping[i].stick = N_STICK;
       joy->slider_mapping[i].axis  = 0;
       N_STICK++;
@@ -648,16 +653,16 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    for (i = 0; i < can->num_povs; i++) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL;
       info->stick[N_STICK].num_axes = 2;
-      info->stick[N_STICK].axis[0].name = ADD_STRING("left/right");
-      info->stick[N_STICK].axis[1].name = ADD_STRING("up/down");
-      info->stick[N_STICK].name = OR(can->name_pov[i], default_name_hat);
+      info->stick[N_STICK].axis[0].name = ADD_STRING(0, "left/right");
+      info->stick[N_STICK].axis[1].name = ADD_STRING(0, "up/down");
+      info->stick[N_STICK].name = ADD_STRING(can->name_pov[i], default_name_hat);
       joy->pov_mapping_stick[i] = N_STICK;
       N_STICK++;
    }
 
    /* buttons */
    for (i = 0; i < can->num_buttons; i++) {
-      info->button[i].name = OR(can->name_button[i], default_name_button[i]);
+      info->button[i].name = ADD_STRING(can->name_button[i], default_name_button[i]);
    }
 
    info->num_buttons = can->num_buttons;
@@ -681,20 +686,20 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
       info->stick[2].axis[1].name = info->stick[1].axis[1].name = info->stick[0].axis[1].name;
 
       /* first four button names contained junk; replace with valid strings */
-      info->button[ 0].name = ADD_STRING("Triangle");
-      info->button[ 1].name = ADD_STRING("Circle");
-      info->button[ 2].name = ADD_STRING("X");
-      info->button[ 3].name = ADD_STRING("Square");
+      info->button[ 0].name = ADD_STRING(0, "Triangle");
+      info->button[ 1].name = ADD_STRING(0, "Circle");
+      info->button[ 2].name = ADD_STRING(0, "X");
+      info->button[ 3].name = ADD_STRING(0, "Square");
 
       /* while we're at it, give these controls more sensible names, too */
-      info->stick[0].name = ADD_STRING("[L-stick] or D-pad");
-      info->stick[1].name = ADD_STRING("[R-stick]");
-      info->stick[2].name = ADD_STRING("[D-pad]");
+      info->stick[0].name = ADD_STRING(0, "[L-stick] or D-pad");
+      info->stick[1].name = ADD_STRING(0, "[R-stick]");
+      info->stick[2].name = ADD_STRING(0, "[D-pad]");
    }
 
 #undef N_AXIS
 #undef N_STICK
-#undef OR
+#undef ADD_STRING
 #undef ADD_STRING
 }
 
@@ -925,7 +930,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    memcpy(&joy->guid, &lpddi->guidInstance, sizeof(GUID));
    memcpy(&joy->product_guid, &lpddi->guidProduct, sizeof(GUID));
 
-   _al_sane_strncpy(joy->name, lpddi->tszInstanceName, sizeof(joy->name));
+   _twin_copy_tchar_to_utf8(joy->name, lpddi->tszInstanceName, sizeof(joy->name));
 
    /* fill in the joystick structure */
    fill_joystick_info_using_caps_and_names(joy, &caps_and_names);
@@ -1127,10 +1132,10 @@ static bool joydx_init_joystick(void)
 
    MAKE_UNION(&joystick_dinput, LPDIRECTINPUT *);
 
-   ASSERT(!joystick_dinput);
-   ASSERT(!joydx_num_joysticks);
-   ASSERT(!joydx_thread);
-   ASSERT(!STOP_EVENT);
+   ALLEGRO_ASSERT(!joystick_dinput);
+   ALLEGRO_ASSERT(!joydx_num_joysticks);
+   ALLEGRO_ASSERT(!joydx_thread);
+   ALLEGRO_ASSERT(!STOP_EVENT);
 
    /* load DirectInput module */
    _al_dinput_module = _al_win_safe_load_library(_al_dinput_module_name);
@@ -1200,7 +1205,7 @@ static void joydx_exit_joystick(void)
 
    ALLEGRO_DEBUG("Entering joydx_exit_joystick\n");
 
-   ASSERT(joydx_thread);
+   ALLEGRO_ASSERT(joydx_thread);
 
    /* stop the thread */
    SetEvent(STOP_EVENT);
@@ -1288,7 +1293,7 @@ static ALLEGRO_JOYSTICK *joydx_get_joystick(int num)
 {
    ALLEGRO_JOYSTICK *ret = NULL;
    unsigned i;
-   ASSERT(num >= 0);
+   ALLEGRO_ASSERT(num >= 0);
 
    EnterCriticalSection(&joydx_thread_cs);
 
