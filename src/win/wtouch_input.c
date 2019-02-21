@@ -185,34 +185,6 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
    }
 }
 
-
-static char* get_error_desc(DWORD err)
-{
-   #define MSGLEN 2048
-   static char err_msg[MSGLEN];
-   memset(err_msg, 0, MSGLEN);
-
-   /* Get the formatting error string from Windows. Note that only the
-    * bottom 14 bits matter - the rest are reserved for various library
-    * IDs and type of error.
-    */
-   if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM
-                    | FORMAT_MESSAGE_IGNORE_INSERTS,
-                      NULL, err & 0x3FFF,
-                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                     (LPTSTR) &err_msg, MSGLEN, NULL)) {
-      strcpy(err_msg, "(Unable to decode the error code)");
-   }
-   else {
-      /* Remove two trailing characters */
-      if (strlen(err_msg) > 1)
-         *(err_msg + strlen(err_msg) - 2) = '\0';
-   }
-
-   return err_msg;
-}
-
-
 static bool init_touch_input(void)
 {
    unsigned i;
@@ -240,7 +212,7 @@ static bool init_touch_input(void)
       r = _al_win_register_touch_window(win_display->window, 0);
 	  ALLEGRO_INFO("registering touch window %p: %d\n", win_display, r);
 	  if (!r) {
-		 ALLEGRO_ERROR("RegisterTouchWindow failed: %s\n", get_error_desc(GetLastError()));
+		 ALLEGRO_ERROR("RegisterTouchWindow failed: %s\n", _al_win_last_error());
 	     return false;
 	  }
    }

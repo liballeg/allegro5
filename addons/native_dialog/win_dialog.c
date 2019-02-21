@@ -250,9 +250,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    if (!ret) {
       DWORD err = GetLastError();
       if (err != ERROR_SUCCESS) {
-         char buf[1000];
-         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, sizeof(buf), NULL);
-         ALLEGRO_ERROR("al_show_native_file_dialog failed: %s\n", buf);
+         ALLEGRO_ERROR("al_show_native_file_dialog failed: %s\n", _al_win_error(err));
       }
       return false;
    }
