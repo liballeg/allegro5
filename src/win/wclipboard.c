@@ -21,8 +21,6 @@
 #define WINVER 0x0501
 #endif
 
-#define UNICODE
-
 #include <windows.h>
 #include <windowsx.h>
 
