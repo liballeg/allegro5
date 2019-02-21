@@ -23,8 +23,6 @@
 #endif
 #endif
 
-#define UNICODE
-
 #include <windows.h>
 
 #include "allegro5/allegro.h"
@@ -36,6 +34,7 @@
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_wclipboard.h"
 #include "allegro5/platform/aintwin.h"
+#include "allegro5/internal/aintern_wunicode.h"
 
 #include "wgl.h"
 
@@ -208,7 +207,7 @@ static int get_pixel_formats_count_ext(HDC dc)
 
 static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   ALLEGRO_INFO("Accelarated: %s\n", eds->settings[ALLEGRO_RENDER_METHOD] ? "yes" : "no");
+   ALLEGRO_INFO("Accelerated: %s\n", eds->settings[ALLEGRO_RENDER_METHOD] ? "yes" : "no");
    ALLEGRO_INFO("Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
    if (eds->settings[ALLEGRO_SWAP_METHOD] > 0)
       ALLEGRO_INFO("Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
