@@ -20,8 +20,10 @@
 /* Eventually we will make Allegro use the Unicode (UTF-16) Windows API
  * globally but not yet.
  */
+#ifndef UNICODE
 #define UNICODE
 #define _UNICODE
+#endif
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -216,7 +218,7 @@ static WRAP_CHAR *make_absolute_path(const char *tail)
 {
    WRAP_CHAR *abs_path = NULL;
 #ifdef ALLEGRO_WINDOWS
-   wchar_t *wtail = _al_win_utf16(tail);
+   wchar_t *wtail = _al_win_utf8_to_utf16(tail);
    if (wtail) {
       abs_path = make_absolute_path_inner(wtail);
       al_free(wtail);
@@ -250,7 +252,7 @@ static ALLEGRO_FS_ENTRY *create_abs_path_entry(const WRAP_CHAR *abs_path)
    memcpy(fh->abs_path, abs_path, len * sizeof(WRAP_CHAR));
 
 #ifdef ALLEGRO_WINDOWS
-   fh->abs_path_utf8 = _al_win_utf8(fh->abs_path);
+   fh->abs_path_utf8 = _al_win_utf16_to_utf8(fh->abs_path);
    if (!fh->abs_path_utf8) {
       al_free(fh->abs_path);
       al_free(fh);
@@ -530,7 +532,7 @@ static char *fs_stdio_get_current_directory(void)
       al_set_errno(errno);
       return NULL;
    }
-   cwd = _al_win_utf8(wcwd);
+   cwd = _al_win_utf16_to_utf8(wcwd);
    free(wcwd);
    return cwd;
 #else
@@ -557,7 +559,7 @@ static bool fs_stdio_change_directory(const char *path)
    int ret = -1;
 
 #ifdef ALLEGRO_WINDOWS
-   wchar_t *wpath = _al_win_utf16(path);
+   wchar_t *wpath = _al_win_utf8_to_utf16(path);
    if (wpath) {
       ret = _wchdir(wpath);
       al_free(wpath);
