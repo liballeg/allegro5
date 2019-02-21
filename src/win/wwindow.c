@@ -1300,9 +1300,9 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   wchar_t *utf16 = _al_win_utf16(title);
-   SetWindowText(win_display->window, utf16);
-   al_free(utf16);
+   TCHAR *ttitle = _twin_utf8_to_tchar(title);
+   SetWindowText(win_display->window, ttitle);
+   al_free(ttitle);
 }
 
 bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
