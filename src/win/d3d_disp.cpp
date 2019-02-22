@@ -39,6 +39,21 @@
 
 #include "d3d.h"
 
+// Based on the code in <VersionHelpers.h> but that header is not
+// available on Windows 7 SDK and earlier.
+static BOOL is_windows_vista_or_greater() {
+   OSVERSIONINFOEX info;
+   ULONGLONG mask = 0;
+   VER_SET_CONDITION(mask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+   VER_SET_CONDITION(mask, VER_MINORVERSION, VER_GREATER_EQUAL);
+   VER_SET_CONDITION(mask, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+   memset(&info, 0, sizeof(info));
+   info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+   info.dwMajorVersion = 6;
+
+   return VerifyVersionInfo(&info, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, mask) != FALSE;
+}
+
 static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target);
 static bool d3d_init_display();
@@ -608,7 +623,6 @@ bool _al_d3d_render_to_texture_supported(void)
 static bool d3d_init_display()
 {
    D3DDISPLAYMODE d3d_dm;
-   OSVERSIONINFO info;
 
    _al_d3d_module = _al_win_safe_load_library(_al_d3d_module_name);
    if (_al_d3d_module == NULL) {
@@ -616,9 +630,7 @@ static bool d3d_init_display()
       return false;
    }
 
-   info.dwOSVersionInfoSize = sizeof(info);
-   GetVersionEx(&info);
-   is_vista = info.dwMajorVersion >= 6;
+   is_vista = is_windows_vista_or_greater();
 
 #ifdef ALLEGRO_CFG_D3D9EX
    if (is_vista) {
