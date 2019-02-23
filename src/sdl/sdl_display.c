@@ -200,6 +200,11 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
 
    _al_ogl_setup_gl(d);
 
+   /* Fill in opengl version */
+   const int v = d->ogl_extras->ogl_info.version;
+   d->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   d->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+
    return d;
 }
 
