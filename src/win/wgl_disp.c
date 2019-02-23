@@ -959,8 +959,8 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       return false;
    }
 
-   major = al_get_new_display_option(ALLEGRO_OPENGL_MAJOR_VERSION , 0);
-   minor = al_get_new_display_option(ALLEGRO_OPENGL_MINOR_VERSION , 0);
+   major = al_get_new_display_option(ALLEGRO_OPENGL_MAJOR_VERSION, 0);
+   minor = al_get_new_display_option(ALLEGRO_OPENGL_MINOR_VERSION, 0);
 
    // TODO: request GLES context in GLES builds
    if ((disp->flags & ALLEGRO_OPENGL_3_0) || major != 0) {
@@ -1003,11 +1003,9 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    }
 
    /* Fill in the display settings for opengl major and minor versions...*/
-   int* s = disp->extra_settings.settings;
-   s[ALLEGRO_OPENGL_MAJOR_VERSION] = 
-      (disp->ogl_extras->ogl_info.version >> 24) & 0xFF;
-   s[ALLEGRO_OPENGL_MINOR_VERSION] = 
-      (disp->ogl_extras->ogl_info.version >> 16) & 0xFF;   
+   const int v = disp->ogl_extras->ogl_info.version;
+   disp->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   disp->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;   
 
    /* Try to enable or disable vsync as requested */
    /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
