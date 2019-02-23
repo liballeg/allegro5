@@ -218,6 +218,11 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    int ndisplays = system->system.displays._size;
    [[UIApplication sharedApplication] setIdleTimerDisabled:(ndisplays > 1)];
 
+   /* Fill in opengl version */
+   const int v = display->ogl_extras->ogl_info.version;
+   display->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   display->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+
    return display;
 }
 
