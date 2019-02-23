@@ -568,6 +568,11 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    android_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS,
       al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
 
+   /* Fill in opengl version */
+   const int v = d->display.ogl_extras->ogl_info.version;
+   d->display.extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   d->display.extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+
    ALLEGRO_DEBUG("end");
    return display;
 }
