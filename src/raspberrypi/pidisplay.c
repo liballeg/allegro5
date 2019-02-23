@@ -483,6 +483,11 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
 
    set_cursor_data(d, default_cursor, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT);
 
+   /* Fill in opengl version */
+   const int v = display->ogl_extras->ogl_info.version;
+   display->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   display->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+
    return display;
 }
 
