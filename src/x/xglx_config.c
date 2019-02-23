@@ -536,10 +536,8 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
          existing_ctx = (*existing_dpy)->context;
    }
 
-   int major = _al_get_suggested_display_option(disp,
-      ALLEGRO_OPENGL_MAJOR_VERSION, 0);
-   int minor = _al_get_suggested_display_option(disp,
-      ALLEGRO_OPENGL_MINOR_VERSION, 0);
+   int major = al_get_new_display_option(ALLEGRO_OPENGL_MAJOR_VERSION, 0);
+   int minor = al_get_new_display_option(ALLEGRO_OPENGL_MINOR_VERSION, 0);
 
    if (glx->fbc) {
       bool forward_compat = (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0;
