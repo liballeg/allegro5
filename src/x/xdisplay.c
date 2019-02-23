@@ -488,6 +488,10 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    ALLEGRO_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
    ALLEGRO_INFO("Renderer: %s\n", (const char*)glGetString(GL_RENDERER));
 
+   /* Fill in opengl version */
+   display->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (al_get_opengl_version() >> 24) & 0xFF;
+   display->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (al_get_opengl_version() >> 16) & 0xFF;
+
    if (display->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_1_2) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
