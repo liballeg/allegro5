@@ -40,6 +40,12 @@ Android:
 
   - Various documentation and other improvements (Christian Mauduit).
 
+  - Fix OpenGL version reporting after display creation.
+
+iOS:
+
+  - Fix OpenGL version reporting after display creation.
+
 Linux:
 
   - Improve linux joystick detections.
@@ -49,11 +55,20 @@ Linux:
 
   - Fix compilation with Mesa 18.2.5 and later.
 
+  - Fix OpenGL version reporting after display creation (Edgar Reynaldo).
+
+  - Fix requesting specific OpenGL versions via display options
+    (Edgar Reynaldo).
+
 OSX:
 
   - Make `al_get_monitor_info` return the correct values for Retina displays.
 
   - Fix vsync on OSX 10.14+.
+
+RaspberryPi:
+
+  - Fix OpenGL version reporting after display creation.
 
 Windows:
 
@@ -63,6 +78,11 @@ Windows:
 
   - Fix crash when passing `NULL` display to `al_show_native_file_dialog` while
     using `ALLEGRO_FILECHOOSER_FOLDER`.
+
+  - Fix OpenGL version reporting after display creation (Edgar Reynaldo).
+
+  - Fix requesting specific OpenGL versions via display options
+    (Edgar Reynaldo).
 
 SDL:
 
