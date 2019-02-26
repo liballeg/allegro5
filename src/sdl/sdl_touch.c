@@ -209,7 +209,7 @@ static void sdl_get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
    _al_event_source_unlock(&touch_input->touch_input.es);
 }
 
-static void touch_input_handle_cancel(int index, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+static void touch_input_handle_cancel(int index, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_TOUCH_STATE* state = touch_input->state.touches + index;
    (void)primary;

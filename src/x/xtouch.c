@@ -172,7 +172,7 @@ static int find_touch_state_index_with_id(int id)
 }
 
 
-static void touch_input_handle_begin(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+static void touch_input_handle_begin(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    int index= find_free_touch_state_index();
    if (index < 0)
@@ -202,7 +202,7 @@ static void touch_input_handle_begin(int id, size_t timestamp, float x, float y,
 }
 
 
-static void touch_input_handle_end(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+static void touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    int index= find_touch_state_index_with_id(id);
    if (index < 0)
@@ -232,7 +232,7 @@ static void touch_input_handle_end(int id, size_t timestamp, float x, float y, b
 }
 
 
-static void touch_input_handle_move(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+static void touch_input_handle_move(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    int index= find_touch_state_index_with_id(id);
    if (index < 0)
@@ -260,7 +260,7 @@ static void touch_input_handle_move(int id, size_t timestamp, float x, float y, 
 }
 
 
-static void touch_input_handle_cancel(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+static void touch_input_handle_cancel(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    int index= find_touch_state_index_with_id(id);
    if (index < 0)
@@ -339,13 +339,6 @@ STOP_SEARCH_DEVICE:
 }
 
 
-static void touch_input_set_time_stamp(size_t timestamp)
-{
-   if (initiali_time_stamp != (size_t)~0)
-      initiali_time_stamp = timestamp;
-}
-
-
 static bool xtouch_init(void)
 {
    if (installed)
@@ -365,7 +358,7 @@ static bool xtouch_init(void)
    _al_event_source_init(&touch_input.mouse_emulation_es);
    touch_input.mouse_emulation_mode = ALLEGRO_MOUSE_EMULATION_TRANSPARENT;
 
-   touch_input_set_time_stamp(al_get_time());
+   initiali_time_stamp = al_get_time();
 
    installed = true;
 
