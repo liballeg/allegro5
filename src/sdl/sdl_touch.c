@@ -167,7 +167,7 @@ void _al_sdl_touch_input_event(SDL_Event *e)
       return;
    }
 
-   generate_touch_input_event(type, e->tfinger.timestamp, touchId,
+   generate_touch_input_event(type, e->tfinger.timestamp / 1000.0, touchId,
                               touch_input->state.touches[touchId].x,
                               touch_input->state.touches[touchId].y,
                               touch_input->state.touches[touchId].dx,
