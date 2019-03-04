@@ -21,15 +21,11 @@ for tool in doxygen git cmake gcc unzip zip perl ; do
 		{ echo "error: program $tool not found" ; exit 1; }
 done
 
-gcc tools/dat.c tools/datedit.c -o dat.elf -lalleg || {
-cat << EOF >&2
-error: we need to compile a tool that requires a compatible allegro install
-on the host, e.g.: liballegro4-dev
-EOF
-exit 1
-}
-export DAT="$PWD"/dat.elf
-VERSION=$(grep '^set(ALLEGRO_VERSION ' CMakeLists.txt | tr -cd '[0-9.]')
+if [[ -z $1 ]]; then
+    VERSION=$(grep '^set(ALLEGRO_VERSION ' CMakeLists.txt | tr -cd '[0-9.]')
+else
+    VERSION=$1
+fi
 name=allegro-$VERSION
 tmpdir=/tmp/"$name"
 currdir="$PWD"
@@ -45,26 +41,23 @@ rm -rf .git
 find . -name '*.sh' -exec chmod +x {} ';'
 
 # convert documentation from the ._tx source files
-echo "Converting documentation..."
-TOP=$PWD
+echo "Building artifacts and documentation..."
 (
     set -e
-    mkdir -p .dist/Build
-    cd .dist/Build
+    mkdir -p .dist/build
+    cd .dist/build
     rm -rf docs
-    cmake $TOP
-    make -j2 docs
+    cmake $tmpdir
+    make -j2 docs dat
     umask 022
     for x in build txt ; do
-        mkdir -p $TOP/docs/$x
+        mkdir -p $tmpdir/docs/$x
     done
     for x in AUTHORS CHANGES THANKS readme.txt ; do
         cp -v docs/$x $TOP
     done
-    cp -v docs/build/* $TOP/docs/build
-    cp -v docs/txt/*.txt $TOP/docs/txt
-    cd ../..
-    rm -rf .dist
+    cp -v docs/build/* $tmpdir/docs/build
+    cp -v docs/txt/*.txt $tmpdir/docs/txt
 ) || exit 1
 
 
@@ -73,7 +66,9 @@ echo "Generating AllegroGL docs..."
 (cd addons/allegrogl/docs; doxygen >/dev/null)
 
 # create language.dat and keyboard.dat files
+export DAT="$tmpdir/.dist/build/tools/dat"
 misc/mkdata.sh || exit 1
+rm -rf "$tmpdir/.dist"
 
 # generate the tar.gz first as the files are in Unix format
 # This is missing the manifest file, but who cares?
