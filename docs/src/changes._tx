@@ -8,6 +8,12 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.4.3 to 4.4.3.1 (March 2019)
+<ul><li>
+   Fix a regression with the dat tool not working with plugins (SiegeLord).
+</ul>
+
+@heading
 Changes from 4.4.2 to 4.4.3 (February 2019)
 <ul><li>
    Allow building the dependencies as shared libraries. (Michał Cichoń,
