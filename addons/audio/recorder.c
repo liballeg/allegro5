@@ -144,6 +144,9 @@ void al_destroy_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
 {
    size_t i;
 
+   if (!r)
+      return;
+
    if (r->thread) {
       al_set_thread_should_stop(r->thread);
       
