@@ -360,7 +360,7 @@ if(COMPILER_MSVC)
             CMAKE_C_FLAGS_RELWITHDEBINFO
             )
         foreach(CompilerFlag ${CompilerFlags})
-        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+            string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
             string(REPLACE "/MDd" "/MTd" ${CompilerFlag} "${${CompilerFlag}}")
         endforeach()
     endif(STATIC_RUNTIME)
