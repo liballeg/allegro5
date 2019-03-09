@@ -112,7 +112,7 @@ set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
     "Directory in which to install Mac OS X frameworks")
 
 if(MSVC)
-    option(STATIC_RUNTIME "Use the static MSVC runtime" on)
+    option(STATIC_RUNTIME "Use the static MSVC runtime" off)
 endif(MSVC)
 
 #-----------------------------------------------------------------------------#
