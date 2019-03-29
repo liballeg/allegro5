@@ -99,7 +99,7 @@ static HGLRC init_temp_context(HWND wnd)
    memset(&pfd, 0, sizeof(pfd));
    pfd.nSize = sizeof(pfd);
    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL
-	           | PFD_DOUBLEBUFFER_DONTCARE | PFD_STEREO_DONTCARE;
+              | PFD_DOUBLEBUFFER_DONTCARE | PFD_STEREO_DONTCARE;
    pfd.iPixelType = PFD_TYPE_RGBA;
    pfd.iLayerType = PFD_MAIN_PLANE;
    pfd.cColorBits = 32;
@@ -107,27 +107,27 @@ static HGLRC init_temp_context(HWND wnd)
    pf = ChoosePixelFormat(dc, &pfd);
    if (!pf) {
       ALLEGRO_ERROR("Unable to chose a temporary pixel format. %s\n",
-		  _al_win_last_error());
+        _al_win_last_error());
       return NULL;
    }
 
    memset(&pfd, 0, sizeof(pfd));
    if (!SetPixelFormat(dc, pf, &pfd)) {
       ALLEGRO_ERROR("Unable to set a temporary pixel format. %s\n",
-		  _al_win_last_error());
+        _al_win_last_error());
       return NULL;
    }
 
    glrc = wglCreateContext(dc);
    if (!glrc) {
       ALLEGRO_ERROR("Unable to create a render context. %s\n",
-		  _al_win_last_error());
+        _al_win_last_error());
       return NULL;
    }
 
    if (!wglMakeCurrent(dc, glrc)) {
       ALLEGRO_ERROR("Unable to set the render context as current. %s\n",
-		  _al_win_last_error());
+        _al_win_last_error());
       wglDeleteContext(glrc);
       return NULL;
    }
