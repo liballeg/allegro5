@@ -245,7 +245,6 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          wpath = _twin_ustr_to_tchar(path);
       }
       else {
-         //al_ustr_encode_utf16(path, buf, sizeof(buf));
          /* Extract the directory from the path. */
          initial_dir_path = al_clone_path(fd->fc_initial_path);
          if (initial_dir_path) {

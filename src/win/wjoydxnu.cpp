@@ -575,7 +575,8 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
 #define N_STICK         (info->num_sticks)
 #define N_AXIS          (info->stick[N_STICK].num_axes)
-#define ADD_STRING(A, dfl)        (add_string(joy->all_names, (A), &pos, \
+#define ADD_STRING(A, dfl) \
+                        (add_string(joy->all_names, (A), &pos, \
                            sizeof(joy->all_names), (dfl)))
 
    /* the X, Y, Z axes make up the first stick */
@@ -699,7 +700,6 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
 #undef N_AXIS
 #undef N_STICK
-#undef ADD_STRING
 #undef ADD_STRING
 }
 
