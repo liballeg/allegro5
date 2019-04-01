@@ -1912,7 +1912,7 @@ ALLEGRO_ALPHA_FUNCTION
 :   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_ALPHA_TEST is 1.
 
 ALLEGRO_ALPHA_TEST_VALUE
-:   Only used when ALLEGRO_ALPHA_TEST is 1.
+:   Only used when ALLEGRO_ALPHA_TEST is 1. Should be a value of 0 - 255.
 
 ALLEGRO_WRITE_MASK
 :   This determines how the framebuffer and depthbuffer are updated whenever a
