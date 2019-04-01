@@ -130,7 +130,7 @@ static void change_size(int size)
    bw = al_get_bitmap_width(example.mysha);
    bh = al_get_bitmap_height(example.mysha);
    al_draw_scaled_bitmap(example.mysha, 0, 0, bw, bh, 0, 0,
-      size, size, 0);
+      size, size * bh / bw, 0);
    al_set_target_backbuffer(example.display);
 }
 
@@ -184,7 +184,7 @@ static void redraw(void)
    int f1, f2;
    int fh = al_get_font_line_height(example.font);
    char const *info[] = {"textures", "memory buffers"};
-   char const *binfo[] = {"alpha", "additive", "tinted", "solid"};
+   char const *binfo[] = {"alpha", "additive", "tinted", "solid", "alpha test"};
    ALLEGRO_COLOR tint = example.white;
 
    if (example.blending == 0) {
@@ -199,8 +199,19 @@ static void redraw(void)
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
       tint = example.red;
    }
-   else if (example.blending == 3)
+   else if (example.blending == 3) {
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   }
+
+   if (example.blending == 4) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_render_state(ALLEGRO_ALPHA_TEST, true);
+      al_set_render_state(ALLEGRO_ALPHA_FUNCTION, ALLEGRO_RENDER_GREATER);
+      al_set_render_state(ALLEGRO_ALPHA_TEST_VALUE, 128);
+   }
+   else {
+      al_set_render_state(ALLEGRO_ALPHA_TEST, false);
+   }
 
    if (example.hold_bitmap_drawing) {
       al_hold_bitmap_drawing(true);
@@ -244,6 +255,7 @@ int main(int argc, char **argv)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_MONITOR_INFO info;
+   const char* bitmap_filename;
    int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
@@ -251,8 +263,12 @@ int main(int argc, char **argv)
    example.show_help = true;
    example.hold_bitmap_drawing = false;
 
-   (void)argc;
-   (void)argv;
+   if (argc > 1) {
+      bitmap_filename = argv[1];
+   }
+   else {
+      bitmap_filename = "data/mysha256x256.png";
+   }
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");
@@ -294,9 +310,9 @@ int main(int argc, char **argv)
       abort_example("Error creating builtin font\n");
    }
 
-   example.mysha = al_load_bitmap("data/mysha256x256.png");
+   example.mysha = al_load_bitmap(bitmap_filename);
    if (!example.mysha) {
-      abort_example("Error loading data/mysha256x256.png\n");
+      abort_example("Error loading %s\n", bitmap_filename);
    }
 
    example.white = al_map_rgb_f(1, 1, 1);
@@ -363,7 +379,7 @@ int main(int argc, char **argv)
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_B) {
                example.blending++;
-               if (example.blending == 4)
+               if (example.blending == 5)
                   example.blending = 0;
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_H) {
@@ -418,7 +434,7 @@ int main(int argc, char **argv)
                }
                if (button == 1) {
                   example.blending++;
-                  if (example.blending == 4)
+                  if (example.blending == 5)
                      example.blending = 0;
                }
                if (button == 3) {
