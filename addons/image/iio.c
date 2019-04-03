@@ -52,6 +52,25 @@ bool al_init_image_addon(void)
    should be used. i.e., ALLEGRO_CFG_IIO_HAVE_GDIPLUS and
    ALLEGRO_CFG_IIO_HAVE_PNG will never both be set. */
 
+#ifdef ALLEGRO_CFG_IIO_HAVE_FREEIMAGE
+   {
+      char const *extensions[] = {".ico", ".jng", ".koala", ".lbm",
+         ".iff", ".mng", ".pbm", ".pcd", ".pgm", ".ppm", ".ras", ".wbmp",
+         ".psd", ".cut", ".xpm", ".hdr", ".fax", ".sgi", ".exr", ".raw",
+         ".j2k", ".jp2", ".jpf", ".jpm", ".jpx", ".mj2", ".pfm", ".pict",
+         ".jxr", ".jbg", NULL};
+      int i;
+
+      if (_al_init_fi()) {
+         for (i = 0; extensions[i]; i++) {
+            success |= al_register_bitmap_loader(extensions[i], _al_load_fi_bitmap);
+            success |= al_register_bitmap_loader_f(extensions[i], _al_load_fi_bitmap_f);
+            success |= al_register_bitmap_identifier(extensions[i], _al_load_fi_bitmap_f);
+         }
+      }
+   }
+#endif
+
 #ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS
    {
       char const *extensions[] = {".tif", ".tiff", ".jpg", ".jpeg", ".gif",
