@@ -174,12 +174,14 @@ static void open_trace_file(void)
       if (s)
          trace_info.trace_file = fopen(s, "w");
       else
-#ifdef ALLEGRO_IPHONE
+#if defined(ALLEGRO_IPHONE)
          // Remember, we have no (accessible) filesystem on (not jailbroken)
          // iphone.
          // stderr will be redirected to xcode's debug console though, so
          // it's as good to use as the NSLog stuff.
          trace_info.trace_file = stderr;
+#elif defined(ALLEGRO_WINDOWS)
+         trace_info.trace_file = NULL;
 #else
          trace_info.trace_file = fopen("allegro.log", "w");
 #endif
@@ -193,7 +195,7 @@ static void do_trace(const char *msg, ...)
 {
    va_list ap;
 
-#ifdef ALLEGRO_ANDROID
+#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_WINDOWS)
    if (true)
 #else
    if (_al_user_trace_handler)
@@ -305,7 +307,7 @@ void _al_trace_suffix(const char *msg, ...)
    int olderr = errno;
    va_list ap;
 
-#ifdef ALLEGRO_ANDROID
+#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_WINDOWS)
    if (true)
 #else
    if (_al_user_trace_handler)
@@ -325,6 +327,9 @@ void _al_trace_suffix(const char *msg, ...)
          (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
             static_trace_buffer);
       }
+      #endif
+      #ifdef ALLEGRO_WINDOWS
+         (void) OutputDebugString((LPCTSTR) static_trace_buffer);
       #endif
       static_trace_buffer[0] = '\0';
    }
