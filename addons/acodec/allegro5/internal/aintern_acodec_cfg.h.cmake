@@ -3,6 +3,7 @@
 #cmakedefine ALLEGRO_CFG_ACODEC_VORBIS
 #cmakedefine ALLEGRO_CFG_ACODEC_TREMOR
 #cmakedefine ALLEGRO_CFG_ACODEC_OPUS
+#cmakedefine ALLEGRO_CFG_ACODEC_MP3
 
 
 /* Define if the library should be loaded dynamically. */
