@@ -9,6 +9,7 @@ option(WANT_TREMOR "Enable Ogg Vorbis support using Tremor" off)
 option(WANT_OPUS "Enable Opus support using libopus" on)
 option(WANT_MODAUDIO "Enable MOD Audio support" on)
 option(WANT_ACODEC_DYNAMIC_LOAD "Enable DLL loading in acodec (Windows)" off)
+option(WANT_MP3 "Enable MP3 support" on)
 
 #-----------------------------------------------------------------------------#
 
@@ -331,6 +332,23 @@ if(SUPPORT_OPUS)
         list(APPEND ACODEC_LIBRARIES ${OPUS_LIBRARIES})
     endif()
 endif(SUPPORT_OPUS)
+
+
+#
+# MP3
+#
+if(WANT_MP3)
+    find_package(MiniMP3)
+    if(MINIMP3_FOUND)
+        include_directories(SYSTEM ${MINIMP3_INCLUDE_DIRS})
+        set(ALLEGRO_CFG_ACODEC_MP3 1)
+        list(APPEND ACODEC_SOURCES mp3.c)
+    endif(MINIMP3_FOUND)
+    if(NOT MINIMP3_FOUND)
+        message("WARNING: minimp3 was not found")
+    endif(NOT MINIMP3_FOUND)
+endif()
+
 
 configure_file(
     allegro5/internal/aintern_acodec_cfg.h.cmake
