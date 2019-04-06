@@ -55,10 +55,10 @@ bool al_init_acodec_addon(void)
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_MP3
-	 ret &= al_register_sample_loader(".mp3", _al_load_mp3);
-	 ret &= al_register_audio_stream_loader(".mp3", _al_load_mp3_audio_stream);
-	 ret &= al_register_sample_loader_f(".mp3", _al_load_mp3_f);
-	 ret &= al_register_audio_stream_loader_f(".mp3", _al_load_mp3_audio_stream_f);
+   ret &= al_register_sample_loader(".mp3", _al_load_mp3);
+   ret &= al_register_audio_stream_loader(".mp3", _al_load_mp3_audio_stream);
+   ret &= al_register_sample_loader_f(".mp3", _al_load_mp3_f);
+   ret &= al_register_audio_stream_loader_f(".mp3", _al_load_mp3_audio_stream_f);
 #endif
 
    return ret;
