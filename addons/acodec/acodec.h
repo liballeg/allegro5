@@ -52,5 +52,13 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE* file,
    size_t buffer_count, unsigned int samples);
 #endif
 
+#ifdef ALLEGRO_CFG_ACODEC_MP3
+ALLEGRO_SAMPLE *_al_load_mp3(const char *filename);
+ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f);
+ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream(const char *filename,
+   size_t buffer_count, unsigned int samples);
+ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f,
+   size_t buffer_count, unsigned int samples);
+#endif
 
 #endif
