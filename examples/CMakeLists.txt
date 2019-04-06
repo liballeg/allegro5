@@ -109,7 +109,10 @@ if(NOT MSVC)
     example(ex_utf8)
 endif(NOT MSVC)
 
-example(ex_android ${IMAGE} ${PRIM} ${DATA_IMAGES})
+if(ANDROID)
+    example(ex_android ${IMAGE} ${PRIM} ${DATA_IMAGES})
+endif(ANDROID)
+
 example(ex_bitmap ${IMAGE} ${DATA_IMAGES})
 example(ex_bitmap_flip ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_blend ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
