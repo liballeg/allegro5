@@ -605,7 +605,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
          N_AXIS++;
       }
 
-      info->stick[N_STICK].name = ADD_STRING(0, default_name_stick);
+      info->stick[N_STICK].name = ADD_STRING(NULL, default_name_stick);
       N_STICK++;
    }
 
@@ -635,7 +635,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
          N_AXIS++;
       }
 
-      info->stick[N_STICK].name = ADD_STRING(0, default_name_stick);
+      info->stick[N_STICK].name = ADD_STRING(NULL, default_name_stick);
       N_STICK++;
    }
 
@@ -643,7 +643,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    for (i = 0; i < can->num_sliders; i++) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
       info->stick[N_STICK].num_axes = 1;
-      info->stick[N_STICK].axis[0].name = ADD_STRING(0, "axis");
+      info->stick[N_STICK].axis[0].name = ADD_STRING(NULL, "axis");
       info->stick[N_STICK].name = ADD_STRING(can->name_slider[i], default_name_slider);
       joy->slider_mapping[i].stick = N_STICK;
       joy->slider_mapping[i].axis  = 0;
@@ -654,8 +654,8 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    for (i = 0; i < can->num_povs; i++) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL;
       info->stick[N_STICK].num_axes = 2;
-      info->stick[N_STICK].axis[0].name = ADD_STRING(0, "left/right");
-      info->stick[N_STICK].axis[1].name = ADD_STRING(0, "up/down");
+      info->stick[N_STICK].axis[0].name = ADD_STRING(NULL, "left/right");
+      info->stick[N_STICK].axis[1].name = ADD_STRING(NULL, "up/down");
       info->stick[N_STICK].name = ADD_STRING(can->name_pov[i], default_name_hat);
       joy->pov_mapping_stick[i] = N_STICK;
       N_STICK++;
@@ -687,15 +687,15 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
       info->stick[2].axis[1].name = info->stick[1].axis[1].name = info->stick[0].axis[1].name;
 
       /* first four button names contained junk; replace with valid strings */
-      info->button[ 0].name = ADD_STRING(0, "Triangle");
-      info->button[ 1].name = ADD_STRING(0, "Circle");
-      info->button[ 2].name = ADD_STRING(0, "X");
-      info->button[ 3].name = ADD_STRING(0, "Square");
+      info->button[ 0].name = ADD_STRING(NULL, "Triangle");
+      info->button[ 1].name = ADD_STRING(NULL, "Circle");
+      info->button[ 2].name = ADD_STRING(NULL, "X");
+      info->button[ 3].name = ADD_STRING(NULL, "Square");
 
       /* while we're at it, give these controls more sensible names, too */
-      info->stick[0].name = ADD_STRING(0, "[L-stick] or D-pad");
-      info->stick[1].name = ADD_STRING(0, "[R-stick]");
-      info->stick[2].name = ADD_STRING(0, "[D-pad]");
+      info->stick[0].name = ADD_STRING(NULL, "[L-stick] or D-pad");
+      info->stick[1].name = ADD_STRING(NULL, "[R-stick]");
+      info->stick[2].name = ADD_STRING(NULL, "[D-pad]");
    }
 
 #undef N_AXIS
