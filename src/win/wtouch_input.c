@@ -210,11 +210,11 @@ static bool init_touch_input(void)
       bool r;
       ALLEGRO_DISPLAY_WIN *win_display = *((ALLEGRO_DISPLAY_WIN**)_al_vector_ref(&system->displays, i));
       r = _al_win_register_touch_window(win_display->window, 0);
-	  ALLEGRO_INFO("registering touch window %p: %d\n", win_display, r);
-	  if (!r) {
-		 ALLEGRO_ERROR("RegisterTouchWindow failed: %s\n", _al_win_last_error());
-	     return false;
-	  }
+      ALLEGRO_INFO("registering touch window %p: %d\n", win_display, r);
+      if (!r) {
+         ALLEGRO_ERROR("RegisterTouchWindow failed: %s\n", _al_win_last_error());
+         return false;
+      }
    }
 
    return true;

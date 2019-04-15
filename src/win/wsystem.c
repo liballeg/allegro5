@@ -926,25 +926,25 @@ void _al_register_system_interfaces()
 }
 
 const char* _al_win_error(DWORD err) {
-	LPTSTR msg = NULL;
-	int len;
-	static char buf[2048];
+   LPTSTR msg = NULL;
+   int len;
+   static char buf[2048];
 
-	len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, err, 0, (LPTSTR)&msg, 0, NULL);
-	if (len == 0) {
-		_al_sane_strncpy(buf, "(Unable to decode the error code)", sizeof(buf));
-	}
-	else {
-		/* Truncate trailing CRLF if it has one */
-		if (len >= 2 && _tcscmp(msg + len - 2, TEXT("\r\n")) == 0) {
-			msg[len - 2] = (TCHAR)0;
-		}
-		_twin_copy_tchar_to_utf8(buf, msg, sizeof(buf));
-		LocalFree(msg);
-	}
-	return buf;
+   len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, err, 0, (LPTSTR)&msg, 0, NULL);
+   if (len == 0) {
+      _al_sane_strncpy(buf, "(Unable to decode the error code)", sizeof(buf));
+   }
+   else {
+      /* Truncate trailing CRLF if it has one */
+      if (len >= 2 && _tcscmp(msg + len - 2, TEXT("\r\n")) == 0) {
+         msg[len - 2] = (TCHAR)0;
+      }
+      _twin_copy_tchar_to_utf8(buf, msg, sizeof(buf));
+      LocalFree(msg);
+   }
+   return buf;
 }
 const char* _al_win_last_error() {
-	return _al_win_error(GetLastError());
+   return _al_win_error(GetLastError());
 }
 /* vim: set sts=3 sw=3 et: */
