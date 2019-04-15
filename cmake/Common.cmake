@@ -110,6 +110,10 @@ function(add_our_library target framework_name sources extra_flags link_with)
         endif()
     endif()
 
+    if(WIN32)
+        set(extra_flags "${extra_flags} -DUNICODE -D_UNICODE")
+    endif()
+
     if(NOT BUILD_SHARED_LIBS)
         set(static_flag "-DALLEGRO_STATICLINK")
     endif(NOT BUILD_SHARED_LIBS)
@@ -304,18 +308,25 @@ function(add_our_executable nm)
         set_property(TARGET ${nm} APPEND PROPERTY COMPILE_DEFINITIONS ${d})
     endforeach()
 
+    set(extra_flags "")
+
     if(MSVC)
         # Compile with multiple processors
-        set(msvc_flags "/MP")
+        set(extra_flags "/MP")
         if(WANT_STATIC_RUNTIME)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
-                set(msvc_flags "${msvc_flags} /MTd")
+                set(extra_flags "${extra_flags} /MTd")
             else()
-                set(msvc_flags "${msvc_flags} /MT")
+                set(extra_flags "${extra_flags} /MT")
             endif()
         endif()
-        set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "${msvc_flags}")
     endif()
+
+    if(WIN32)
+        set(extra_flags "${extra_flags} -DUNICODE -D_UNICODE")
+    endif()
+
+    set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "${extra_flags}")
 
     if(MINGW)
         if(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
