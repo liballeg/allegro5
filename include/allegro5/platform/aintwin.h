@@ -287,7 +287,7 @@ void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float 
  * May be called from addons 
  */
 AL_FUNC(const char*, _al_win_error, (DWORD));
-AL_FUNC(const char*, _al_win_last_error, ());
+AL_FUNC(const char*, _al_win_last_error, (void));
 
 #ifdef __cplusplus
    }
