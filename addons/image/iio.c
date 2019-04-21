@@ -65,7 +65,7 @@ bool al_init_image_addon(void)
          for (i = 0; extensions[i]; i++) {
             success |= al_register_bitmap_loader(extensions[i], _al_load_fi_bitmap);
             success |= al_register_bitmap_loader_f(extensions[i], _al_load_fi_bitmap_f);
-            success |= al_register_bitmap_identifier(extensions[i], _al_load_fi_bitmap_f);
+            success |= al_register_bitmap_identifier(extensions[i], _al_identify_fi);
          }
       }
    }
