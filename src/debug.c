@@ -180,7 +180,7 @@ static void open_trace_file(void)
          // stderr will be redirected to xcode's debug console though, so
          // it's as good to use as the NSLog stuff.
          trace_info.trace_file = stderr;
-#elif defined(ALLEGRO_WINDOWS)
+#elif defined(ALLEGRO_ANDROID)
          trace_info.trace_file = NULL;
 #else
          trace_info.trace_file = fopen("allegro.log", "w");
@@ -207,7 +207,7 @@ static void do_trace(const char *msg, ...)
          msg, ap);
       va_end(ap);
    }
-   else if (trace_info.trace_file) {
+   if (!_al_user_trace_handler && trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
@@ -333,7 +333,7 @@ void _al_trace_suffix(const char *msg, ...)
       #endif
       static_trace_buffer[0] = '\0';
    }
-   else if (trace_info.trace_file) {
+   if (!_al_user_trace_handler && trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
