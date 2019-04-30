@@ -15,7 +15,7 @@ ALLEGRO_DEBUG_CHANNEL("image")
 
 static bool freeimage_initialized = false;
 
-static void _fiio_al_error_handler(FREE_IMAGE_FORMAT fif, void *message) {
+static void _fiio_al_error_handler(FREE_IMAGE_FORMAT fif, const char *message) {
    ALLEGRO_ERROR("FreeImage %s : %s\n", (fif == FIF_UNKNOWN)? "UNKNOWN" : FreeImage_GetFormatFromFIF(fif), message);
 }
 
@@ -81,7 +81,7 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap(const char *filename, int flags)
    if (fif == FIF_UNKNOWN)
       fif = FreeImage_GetFileType(filename, 0);
    if (fif == FIF_UNKNOWN) {
-      ALLEGRO_WARN("Could not determine the file type for '%s'", filename);
+      ALLEGRO_WARN("Could not determine the file type for '%s'\n", filename);
       return NULL;
    }
 
@@ -123,6 +123,10 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap_f(ALLEGRO_FILE *f, int flags)
    FIBITMAP *fib = NULL;
    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 
+   if (flags != 0) {
+      ALLEGRO_WARN("Ignoring bitmap loading flags.\n");
+   }
+
    ASSERT(f);
    ASSERT(freeimage_initialized == true);
 
@@ -133,7 +137,7 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap_f(ALLEGRO_FILE *f, int flags)
 
    fif = FreeImage_GetFileTypeFromHandle(&fio, (fi_handle)f, 0);
    if (fif == FIF_UNKNOWN) {
-      ALLEGRO_WARN("Could not determine the file type for Allegro file.");
+      ALLEGRO_WARN("Could not determine the file type for Allegro file.\n");
       return NULL;
    }
 
@@ -155,7 +159,6 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap_f(ALLEGRO_FILE *f, int flags)
 bool _al_identify_fi(ALLEGRO_FILE *f)
 {
    FreeImageIO fio;
-   ALLEGRO_BITMAP *bitmap = NULL;
    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 
    ASSERT(f);
@@ -168,7 +171,7 @@ bool _al_identify_fi(ALLEGRO_FILE *f)
 
    fif = FreeImage_GetFileTypeFromHandle(&fio, (fi_handle)f, 0);
    if (fif == FIF_UNKNOWN) {
-      ALLEGRO_WARN("Could not determine the file type for Allegro file.");
+      ALLEGRO_WARN("Could not determine the file type for Allegro file.\n");
       return false;
    }
 
