@@ -81,7 +81,7 @@ endif(WANT_NATIVE_IMAGE_LOADER)
 
 # Now look for third party libraries to handle the unsupported formats
 if(WANT_IMAGE_FREEIMAGE)
-    find_package(FREEIMAGE)
+    find_package(FreeImage)
     if(FREEIMAGE_FOUND)
         # HAVE_FREEIMAGE means libfreeimage is available (and should be used)
         set(ALLEGRO_CFG_IIO_HAVE_FREEIMAGE 1)
