@@ -72,6 +72,11 @@ ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f)
    mp3dec_load_buf(&mp3d, mp3data, filesize, &info, NULL, NULL);
    al_free(mp3data);
 
+   if (info.buffer == NULL) {
+      ALLEGRO_WARN("Could not decode MP3.\n");
+      return NULL;
+   }
+
    // Create sample from info variable
    spl = al_create_sample(info.buffer, info.samples, info.hz, _al_word_size_to_depth_conf(2), _al_count_to_channel_conf(info.channels), true);
    
