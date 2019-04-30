@@ -109,6 +109,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
    (void)buffer_count;
    (void)samples;
    mp3_initminimp3(); // Make sure library is initialised
+   ALLEGRO_WARN("Streaming for MP3 files not implemented.\n");
    return NULL;
 }
 
