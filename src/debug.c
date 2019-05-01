@@ -21,6 +21,10 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 
+#ifdef ALLEGRO_WINDOWS
+#include "allegro5/internal/aintern_wunicode.h"
+#endif
+
 #ifdef ALLEGRO_ANDROID
 #include <unistd.h>
 #include <android/log.h>
@@ -329,7 +333,9 @@ void _al_trace_suffix(const char *msg, ...)
       }
       #endif
       #ifdef ALLEGRO_WINDOWS
-         (void) OutputDebugString((LPCTSTR) static_trace_buffer);
+         TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
+         OutputDebugString(windows_output);
+         al_free(windows_output);
       #endif
       static_trace_buffer[0] = '\0';
    }
