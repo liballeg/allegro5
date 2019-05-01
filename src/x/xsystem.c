@@ -36,6 +36,8 @@ char **x11_xpm = NULL;
 static bool x11_xpm_set;
 static int x11_xpm_rows;
 
+static bool xglx_inhibit_screensaver(bool inhibit);
+
 static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
 {
    _AL_VECTOR v;
@@ -270,6 +272,10 @@ static void xglx_shutdown_system(void)
    }
    _al_vector_free(&s->displays);
 
+   if (sx->inhibit_screensaver) {
+      xglx_inhibit_screensaver(false);
+   }
+
    // Makes sure we wait for any commands sent to the X server when destroying the displays.
    // Should make sure we don't shutdown before modes are restored.
    if (sx->x11display) {
@@ -354,6 +360,21 @@ static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
 static bool xglx_inhibit_screensaver(bool inhibit)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   int temp, temp_version_min, temp_version_max;
+
+   #ifdef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
+   if (!XScreenSaverQueryExtension(system->x11display, &temp, &temp) ||
+      !XScreenSaverQueryVersion(system->x11display, &temp_version_max, &temp_version_min) ||
+      temp_version_max < 1 || (temp_version_max == 1 && temp_version_min < 1)) {
+      return false;
+   }
+   //if (inhibit) {
+   //   XSetScreenSaver(system->x11display, 0, 0, 0, 0);
+   //} else {
+   //   XResetScreenSaver(system->x11display);
+   //}
+   XScreenSaverSuspend(system->x11display, inhibit);
+   #endif
 
    system->inhibit_screensaver = inhibit;
    return true;
