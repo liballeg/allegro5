@@ -100,6 +100,9 @@
 /* Define if XRandR extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XRANDR
 
+/* Define if XScreenSaver extension is supported. */
+#cmakedefine ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
+
 /* Define if XIM extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XIM
 

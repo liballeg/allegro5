@@ -220,6 +220,7 @@ void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
        * screensaver facility.  Probably it won't do anything for other
        * systems, though.
        */
+      #ifndef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
       if (s->inhibit_screensaver) {
          double now = al_get_time();
          if (now - last_reset_screensaver_time > 10.0) {
@@ -227,6 +228,7 @@ void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
             last_reset_screensaver_time = now;
          }
       }
+      #endif
 
       _al_mutex_unlock(&s->lock);
 
