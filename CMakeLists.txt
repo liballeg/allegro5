@@ -783,7 +783,7 @@ if(SUPPORT_X11)
 
     if(WANT_X11_XSCREENSAVER)
         check_include_file("X11/extensions/scrnsaver.h" HAVE_XCRNSAVER_H)
-        check_library_exists(Xrandr XRRQueryExtension "" CAN_XCRNSAVER)
+        check_library_exists(Xss XScreenSaverQueryExtension "" CAN_XCRNSAVER)
         if(CAN_XCRNSAVER AND HAVE_XCRNSAVER_H)
             set(ALLEGRO_XWINDOWS_WITH_XSCREENSAVER 1)
             find_library(XCRNSAVER_LIB "Xss")
