@@ -19,10 +19,7 @@ Install the SDK
 
 
 The most simple way is to install Android Studio which by default will
-place a copy of the SDK into ~/Android/Sdk. Set the ANDROID_HOME
-environment variable to point to it:
-
-    export ANDROID_HOME=$HOME/Android/Sdk
+place a copy of the SDK into ~/Android/Sdk. 
 
 Alternatively you can also download the command-line SDK tools. In that
 case you will have to accept the licenses, for example like this:
@@ -41,40 +38,16 @@ will then proceed to place it into ~/Android/Sdk/ndk-bundle.
 Alternatively you can download the NDK and place anywhere you like.
 
 
-Make NDK standalone toolchain
-=============================
+Java
+====
 
-Next you need to setup a standalone NDK toolchain. Set an environment
-variable to point to the desired location of the Android toolchain:
 
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-arm
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-arm64
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-x86
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-x86_64
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-mips
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-mips64
+Android Studio comes with a java runtime environment. To use it for
+building Android libraries set the evironment variable JAVA_HOME like
+this:
 
-If you do not want to distribute your game for all 6 supported Android
-architectures you can probably do it just for arm (most actual devices)
-amd x86_64 (the Android emulator).
+export JAVA_HOME=~/android-studio/jre
 
-Assuming the NDK was extracted into ~/Android/Sdk/ndk-bundle run the following
-command:
-
-    python ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py \
-        --api=15 --install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT --arch=arm
-
-You can use any api 9 or higher but 15 is the lowest this was tested
-with.
-
-Use the --arch parameter according to the toolchain you are creating:
-
---arch=arm
---arch=arm64
---arch=x86
---arch=x64_64
---arch=mips
---arch=mips64
 
 
 Build dependencies for Allegro
@@ -135,53 +108,42 @@ or modify the paths in CMake variables manually.
 Building Allegro
 ================
 
-The following steps will build Allegro for Android. Note that you still
-need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your environment, and
-repeat for each of the architectures you want to build for.
+The following steps will build Allegro for Android. It uses the cmake
+toolchain provided by the Android NDK. (Adjust the path if yours is not
+under ~/Android/Sdk/ndk-bundle.)
 
-    mkdir build
-    cd build
-    cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
-        -DCMAKE_BUILD_TYPE=Debug
-        -DANDROID_TARGET=android-15
-        -DARM_TARGETS=armeabi-v7a
+    mkdir build_android_armeabi-v7a
+    cd build_android_armeabi-v7a
+    cmake .. -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake
+        -DANDROID_ABI=armeabi-v7a
     make
     make install
 
-Under Windows append -G"MSYS Makefiles" to the cmake options.
-
-Change ANDROID_TARGETS to whichever architecture you are building for.
+Change ANDROID_ABI to whichever architecture you are building for.
 The recognized architectures are:
 
-armeabi
-armeabi-v7a
-arm64-v8a
-x86
-x86_64
-mips
-mips64
+    -DANDROID_ABI="armeabi"
+    -DANDROID_ABI="armeabi-v7a"
+    -DANDROID_ABI="armeabi-v7a with NEON"
+    -DANDROID_ABI="arm64-v8a"
+    -DANDROID_ABI="x86"
+    -DANDROID_ABI="x86_64"
 
 See here for more information: https://developer.android.com/ndk/guides/abis.html
 
 This produces the normal Allegro native libraries (liballegro-*.so) as
 well as allegro-release.aar.
 
-Run `make install` to install the headers into the toolchain directory
-and can be found when compiling Allegro code later.
-
 You may want to add -DWANT_MONOLITH=ON if you prefer a single Allegro library
 instead of one for each addon.
-
-NOTE: On OS X, add -DCMAKE_INSTALL_NAME_TOOL=/usr/bin/install_name_tool to
-the cmake command line.
 
 
 Running examples
 ================
 
 You need the adb tool (the Android Debug Bridge) set up, and USB debugging
-enabled on your device.  This can be quite involved, so please refer to the
-Android tool documentation.
+enabled on your device or emulator. This can be quite involved, so please
+refer to the Android tool documentation.
 
 There are makefile targets named "run_FOO", so you can install and run
 examples easily by typing, e.g.

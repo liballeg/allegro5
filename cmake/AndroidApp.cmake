@@ -1,7 +1,7 @@
 function(add_android_app prog sources)
     set(PROJECT "${CMAKE_CURRENT_BINARY_DIR}/${prog}.project")
     set(PROJECT_SOURCE ${CMAKE_SOURCE_DIR}/android/gradle_project)
-    set(native "${PROJECT}/app/src/main/jniLibs/${ARM_TARGETS}/libnative-lib.so")
+    set(native "${PROJECT}/app/src/main/jniLibs/${ANDROID_ABI}/libnative-lib.so")
     set(GRADLE_PROJECT app)
     set(ANDROID_HOME $ENV{ANDROID_HOME})
     set(AAR ${PROJECT}/app/libs/allegro.aar)
@@ -41,7 +41,7 @@ function(add_android_app prog sources)
 
     get_property(JNI_LIBS GLOBAL PROPERTY JNI_LIBS)
     foreach(lib ${JNI_LIBS})
-        set(jnilib ${PROJECT}/app/src/main/jniLibs/${ARM_TARGETS}/lib${lib}${SUFFIX}.so)
+        set(jnilib ${PROJECT}/app/src/main/jniLibs/${ANDROID_ABI}/lib${lib}${SUFFIX}.so)
         add_custom_command(
             OUTPUT ${jnilib}
             DEPENDS ${lib}
