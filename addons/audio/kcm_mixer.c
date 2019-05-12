@@ -224,17 +224,16 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
 
       case _ALLEGRO_PLAYMODE_STREAM_ONCE:
       case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
-         if (spl->pos < spl->spl_data.len) {
-            return true;
-         }
          stream = (ALLEGRO_AUDIO_STREAM *)spl;
-         is_empty = !_al_kcm_refill_stream(stream);
-         if (is_empty && stream->is_draining) {
-            stream->spl.is_playing = false;
+         is_empty = false;
+         while (spl->pos >= spl->spl_data.len && stream->spl.is_playing && !is_empty) {
+            is_empty = !_al_kcm_refill_stream(stream);
+            if (is_empty && stream->is_draining) {
+               stream->spl.is_playing = false;
+            }
+
+            _al_kcm_emit_stream_events(stream);
          }
-
-         _al_kcm_emit_stream_events(stream);
-
          return !(is_empty);
    }
 
