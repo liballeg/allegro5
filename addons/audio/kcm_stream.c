@@ -649,7 +649,7 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
       const int bytes_per_sample =
          al_get_channel_count(spl->spl_data.chan_conf) *
          al_get_audio_depth_size(spl->spl_data.depth);
-      memcpy(
+      memmove(
          (char *) new_buf - bytes_per_sample * MAX_LAG,
          (char *) old_buf + bytes_per_sample * (spl->pos-MAX_LAG),
          bytes_per_sample * MAX_LAG);
