@@ -967,7 +967,7 @@ endforeach(genfile)
 
 if(ALLEGRO_SDL)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_SDL_FILES})
-    list(APPEND PLATFORM_LIBS ${SDL2_LIBRARY} dl m)
+    list(APPEND PLATFORM_LIBS ${SDL2_LIBRARY} m)
     include_directories(${SDL2_INCLUDE_DIR})
 endif(ALLEGRO_SDL)
 
