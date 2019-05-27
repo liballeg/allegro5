@@ -1133,20 +1133,21 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       return NULL;
    }
    memset(dpy, 0, sizeof(*dpy));
+   ALLEGRO_DISPLAY* display = &dpy->parent;
 
    /* Set up the ALLEGRO_DISPLAY part */
-   dpy->parent.vt = _al_osx_get_display_driver_fs();
-   dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
-   dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
+   display->vt = _al_osx_get_display_driver_fs();
+   display->refresh_rate = al_get_new_display_refresh_rate();
+   display->flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
 #ifdef ALLEGRO_CFG_OPENGLES2
-   dpy->parent.flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   display.flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
 #endif
 #ifdef ALLEGRO_CFG_OPENGLES
-   dpy->parent.flags |= ALLEGRO_OPENGL_ES_PROFILE;
+   display.flags |= ALLEGRO_OPENGL_ES_PROFILE;
 #endif
-   dpy->parent.w = w;
-   dpy->parent.h = h;
-   _al_event_source_init(&dpy->parent.es);
+   display->w = w;
+   display->h = h;
+   _al_event_source_init(&display->es);
    dpy->cursor = [[NSCursor arrowCursor] retain];
    dpy->display_id = CGMainDisplayID();
 
@@ -1188,7 +1189,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    // chosen mode.
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    CGDisplayCapture(dpy->display_id);
-   CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(dpy->display_id, dpy->depth, w, h, dpy->parent.refresh_rate, NULL);
+   CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(dpy->display_id, dpy->depth, w, h, display->refresh_rate, NULL);
    CGDisplaySwitchToMode(dpy->display_id, mode);
 #else
    CGDisplayModeRef mode = NULL;
@@ -1267,11 +1268,11 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    [dpy->win makeKeyAndOrderFront:nil];
 
    // Set up the Allegro OpenGL implementation
-   dpy->parent.ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
-   memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
+   display->ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
+   memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
-   dpy->parent.ogl_extras->is_shared = true;
+   display->ogl_extras->is_shared = true;
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
@@ -1293,13 +1294,13 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 #endif
 
    /* Set up GL as we want */
-   setup_gl(&dpy->parent);
+   setup_gl(display);
 
    clear_to_black(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
-   *add = &dpy->parent;
+   *add = display;
    dpy->in_fullscreen = YES;
    // Begin the 'private' event loop
    // Necessary because there's no NSResponder (i.e. a view) to collect
@@ -1506,10 +1507,10 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_WINDOWED;
 #ifdef ALLEGRO_CFG_OPENGLES2
-   display.flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
 #endif
 #ifdef ALLEGRO_CFG_OPENGLES
-   display.flags |= ALLEGRO_OPENGL_ES_PROFILE;
+   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
 #endif
    display->w = w;
    display->h = h;
@@ -1641,7 +1642,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    });
 
-   if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
+   if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
       NSRect sc = [[dpy->win screen] frame];
       dpy->parent.w = sc.size.width;
       dpy->parent.h = sc.size.height;
@@ -1661,11 +1662,11 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    osx_get_opengl_pixelformat_attributes(dpy);
 
    // Set up the Allegro OpenGL implementation
-   dpy->parent.ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
-   memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
-   _al_ogl_manage_extensions(&dpy->parent);
-   _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
-   dpy->parent.ogl_extras->is_shared = true;
+   display->ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
+   memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
+   _al_ogl_manage_extensions(display);
+   _al_ogl_set_extensions(display->ogl_extras->extension_api);
+   display->ogl_extras->is_shared = true;
 
    /* Turn on vsyncing possibly. The old way doesn't work on new OSX's,
       but works better than the new way when it does work. */
@@ -1685,23 +1686,23 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 #endif
 
    /* Set up GL as we want */
-   setup_gl(&dpy->parent);
+   setup_gl(display);
 
    clear_to_black(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
-   *add = &dpy->parent;
+   *add = display;
    dpy->in_fullscreen = NO;
 
-   if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
-      dpy->parent.flags ^= ALLEGRO_FULLSCREEN_WINDOW; /* Not set yet */
-      set_display_flag(&dpy->parent, ALLEGRO_FULLSCREEN_WINDOW, true);
+   if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      display->flags ^= ALLEGRO_FULLSCREEN_WINDOW; /* Not set yet */
+      set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, true);
    }
 
    [pool drain];
 
-   return &dpy->parent;
+   return display;
 }
 
 /* destroy_display:
