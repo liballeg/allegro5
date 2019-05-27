@@ -435,9 +435,10 @@ static int osx_get_monitor_dpi(int adapter)
 static bool osx_inhibit_screensaver(bool inhibit)
 {
    // Send a message to the App's delegate always on the main thread
-   [[NSApp delegate] performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
-      withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
-      waitUntilDone: NO];
+   NSObject* delegate = [NSApp delegate];
+   [delegate performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
+                              withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
+                           waitUntilDone: NO];
    ALLEGRO_INFO("Stop screensaver\n");
    return true;
 }

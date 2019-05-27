@@ -17,27 +17,21 @@ void _al_shutdown_native_dialog_addon(void)
 }
 #pragma mark File Dialog
 
-/* We need to run the dialog box on the main thread because AppKit is not
- * re-entrant and running it from another thread can cause unpredictable
- * crashes.
- * We use a dedicated class for this and simply forward the call.
- */
-@interface ALLEGFileDialog : NSObject
-+(void) displayFileDialog : (NSValue *)param;
-@end
-@implementation ALLEGFileDialog
-+(void) displayFileDialog : (NSValue *) param {
-   ALLEGRO_NATIVE_DIALOG *fd = [param pointerValue];
+bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+                                 ALLEGRO_NATIVE_DIALOG *fd)
+{
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   (void)display;
    int mode = fd->flags;
    NSString *filename;
    NSURL *directory;
-
+   
    /* Set initial directory to pass to the file selector */
    if (fd->fc_initial_path) {
       ALLEGRO_PATH *initial_directory = al_clone_path(fd->fc_initial_path);
       /* Strip filename from path  */
       al_set_path_filename(initial_directory, NULL);
-
+      
       /* Convert path and filename to NSString objects */
       directory = [NSURL fileURLWithPath: [NSString stringWithUTF8String: al_path_cstr(initial_directory, '/')]
                              isDirectory: YES];
@@ -47,142 +41,114 @@ void _al_shutdown_native_dialog_addon(void)
       directory = nil;
       filename = nil;
    }
-
-   /* We need slightly different code for SAVE and LOAD dialog boxes, which
-    * are handled by slightly different classes.
-    * Actually, NSOpenPanel inherits from NSSavePanel, so we can possibly
-    * avoid some code duplication here...
-    */
-   if (mode & ALLEGRO_FILECHOOSER_SAVE) {    // Save dialog
-      NSSavePanel *panel = [NSSavePanel savePanel];
-
-      /* Set file save dialog box options */
-      [panel setCanCreateDirectories: YES];
-      [panel setCanSelectHiddenExtension: YES];
-      [panel setAllowsOtherFileTypes: YES];
-      if (filename) {
-	     [panel setNameFieldStringValue:filename];
-      }
-      [panel setDirectoryURL: directory];
-      /* Open dialog box */
-      if ([panel runModal] == NSOKButton) {
-         /* NOTE: at first glance, it looks as if this code might leak
-          * memory, but in fact it doesn't: the string returned by
-          * UTF8String is freed automatically when it goes out of scope
-          * (according to the UTF8String docs anyway).
-          */
-         const char *s = [[[panel URL] path] UTF8String];
-         fd->fc_path_count = 1;
-         fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
-         fd->fc_paths[0] = al_create_path(s);
-      }
-   } else {                                  // Open dialog
-      NSOpenPanel *panel = [NSOpenPanel openPanel];
-
-      /* Set file selection box options */
-      if (mode & ALLEGRO_FILECHOOSER_FOLDER) {
-         [panel setCanChooseFiles: NO];
-         [panel setCanChooseDirectories: YES];
-      } else {
-         [panel setCanChooseFiles: YES];
-         [panel setCanChooseDirectories: NO];
-      }
-
-      [panel setResolvesAliases:YES];
-      if (mode & ALLEGRO_FILECHOOSER_MULTIPLE)
-         [panel setAllowsMultipleSelection: YES];
-      else
-         [panel setAllowsMultipleSelection: NO];
-      [panel setDirectoryURL:directory];
-      if (filename) {
-	     [panel setNameFieldStringValue:filename];
-      }
-      /* Open dialog box */
-      if ([panel runModal] == NSOKButton) {
-         size_t i;
-         fd->fc_path_count = [[panel URLs] count];
-         fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
-         for (i = 0; i < fd->fc_path_count; i++) {
+   dispatch_sync(dispatch_get_main_queue(), ^{      
+      /* We need slightly different code for SAVE and LOAD dialog boxes, which
+       * are handled by slightly different classes.
+       */
+      if (mode & ALLEGRO_FILECHOOSER_SAVE) {    // Save dialog
+         NSSavePanel *panel = [NSSavePanel savePanel];
+         
+         /* Set file save dialog box options */
+         [panel setCanCreateDirectories: YES];
+         [panel setCanSelectHiddenExtension: YES];
+         [panel setAllowsOtherFileTypes: YES];
+         if (filename) {
+            [panel setNameFieldStringValue:filename];
+         }
+         [panel setDirectoryURL: directory];
+         /* Open dialog box */
+         if ([panel runModal] == NSOKButton) {
             /* NOTE: at first glance, it looks as if this code might leak
              * memory, but in fact it doesn't: the string returned by
              * UTF8String is freed automatically when it goes out of scope
              * (according to the UTF8String docs anyway).
              */
-            NSURL* url = [[panel URLs] objectAtIndex: i];
-            const char* s = [[url path] UTF8String];
-            fd->fc_paths[i] = al_create_path(s);
+            const char *s = [[[panel URL] path] UTF8String];
+            fd->fc_path_count = 1;
+            fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
+            fd->fc_paths[0] = al_create_path(s);
+         }
+      } else {                                  // Open dialog
+         NSOpenPanel *panel = [NSOpenPanel openPanel];
+         
+         /* Set file selection box options */
+         if (mode & ALLEGRO_FILECHOOSER_FOLDER) {
+            [panel setCanChooseFiles: NO];
+            [panel setCanChooseDirectories: YES];
+         } else {
+            [panel setCanChooseFiles: YES];
+            [panel setCanChooseDirectories: NO];
+         }
+         
+         [panel setResolvesAliases:YES];
+         if (mode & ALLEGRO_FILECHOOSER_MULTIPLE)
+            [panel setAllowsMultipleSelection: YES];
+         else
+            [panel setAllowsMultipleSelection: NO];
+         [panel setDirectoryURL:directory];
+         if (filename) {
+            [panel setNameFieldStringValue:filename];
+         }
+         /* Open dialog box */
+         if ([panel runModal] == NSOKButton) {
+            size_t i;
+            fd->fc_path_count = [[panel URLs] count];
+            fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
+            for (i = 0; i < fd->fc_path_count; i++) {
+               /* NOTE: at first glance, it looks as if this code might leak
+                * memory, but in fact it doesn't: the string returned by
+                * UTF8String is freed automatically when it goes out of scope
+                * (according to the UTF8String docs anyway).
+                */
+               NSURL* url = [[panel URLs] objectAtIndex: i];
+               const char* s = [[url path] UTF8String];
+               fd->fc_paths[i] = al_create_path(s);
+            }
          }
       }
-   }
-}
-@end
-bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
-                                 ALLEGRO_NATIVE_DIALOG *fd)
-{
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    (void)display;
-    
-    [ALLEGFileDialog performSelectorOnMainThread: @selector(displayFileDialog:)
-                                   withObject: [NSValue valueWithPointer:fd]
-                                waitUntilDone: YES];
-    _al_osx_clear_mouse_state();
-    
-    [pool release];
 
-    return true;
+   });
+   _al_osx_clear_mouse_state();
+   
+   [pool release];
+   
+   return true;
 }
 
 #pragma mark Alert Box
-/* Wrapper to run NSAlert on main thread */
-@interface ALLEGAlertWrapper : NSObject
-+(void) displayAlert: (NSValue*) value;
-@end
-
-@implementation ALLEGAlertWrapper
-+(void) displayAlert: (NSValue*) value {
-    ALLEGRO_NATIVE_DIALOG* fd = [value pointerValue];
-    NSString* button_text;
-    unsigned int i;
-    NSAlert* box = [[NSAlert alloc] init];
-    
-    if (fd->mb_buttons == NULL) {
-        button_text = @"OK";
-        if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
-        if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
-    }
-    else {
-        button_text = [NSString stringWithUTF8String: al_cstr(fd->mb_buttons)];
-    }
-    
-    NSArray* buttons = [button_text componentsSeparatedByString: @"|"];
-    [box setMessageText:[NSString stringWithUTF8String: al_cstr(fd->title)]];
-    [box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->mb_text)]];
-    [box setAlertStyle: NSWarningAlertStyle];
-    for (i = 0; i < [buttons count]; ++i)
-        [box addButtonWithTitle: [buttons objectAtIndex: i]];
-    
-    int retval = [box runModal];
-    fd->mb_pressed_button = retval + 1 - NSAlertFirstButtonReturn;
-    [box release];
-}
-@end
-
-
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
                                 ALLEGRO_NATIVE_DIALOG *fd)
 {
-    (void)display;
-    {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        NSValue* fdValue = [NSValue valueWithPointer:fd];
-        
-        [ALLEGAlertWrapper performSelectorOnMainThread: @selector(displayAlert:)
-                                         withObject: fdValue
-                                      waitUntilDone: YES];
-        [pool release];
-    }
-    _al_osx_clear_mouse_state();
-    return fd->mb_pressed_button;
+   (void)display;
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   dispatch_sync(dispatch_get_main_queue(), ^{
+      NSString* button_text;
+      unsigned int i;
+      NSAlert* box = [[NSAlert alloc] init];
+      
+      if (fd->mb_buttons == NULL) {
+         button_text = @"OK";
+         if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
+         if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
+      }
+      else {
+         button_text = [NSString stringWithUTF8String: al_cstr(fd->mb_buttons)];
+      }
+      
+      NSArray* buttons = [button_text componentsSeparatedByString: @"|"];
+      [box setMessageText:[NSString stringWithUTF8String: al_cstr(fd->title)]];
+      [box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->mb_text)]];
+      [box setAlertStyle: NSWarningAlertStyle];
+      for (i = 0; i < [buttons count]; ++i)
+         [box addButtonWithTitle: [buttons objectAtIndex: i]];
+      
+      int retval = [box runModal];
+      fd->mb_pressed_button = retval + 1 - NSAlertFirstButtonReturn;
+      [box release];
+   });
+   [pool release];
+   _al_osx_clear_mouse_state();
+   return fd->mb_pressed_button;
 }
 
 #pragma mark Text Log View
@@ -200,7 +166,6 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 - (BOOL)windowShouldClose: (id)sender;
 - (void)emitCloseEventWithKeypress: (BOOL)keypress;
 - (void)appendText: (NSString*)text;
-+ (void)createNativeComponents: (NSValue*) value;
 @end
 
 
@@ -247,76 +212,70 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    [[store mutableString] appendString:text];
    [store endEditing];
 }
-+(void) createNativeComponents: (NSValue*) tl {
-    ALLEGRO_NATIVE_DIALOG *textlog = (ALLEGRO_NATIVE_DIALOG*) [tl pointerValue];
-    
-    NSRect rect = NSMakeRect(0, 0, 640, 480);
-    ;
-    int adapter = al_get_new_display_adapter();
-    NSScreen *screen;
-    unsigned int mask = NSTitledWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
-    if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE))
-        mask |= NSClosableWindowMask;
-    
-    if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
-        screen = [[NSScreen screens] objectAtIndex: adapter];
-    } else {
-        screen = [NSScreen mainScreen];
-    }
-    NSWindow *win = [[NSWindow alloc] initWithContentRect: rect
-                   styleMask: mask
-                     backing: NSBackingStoreBuffered
-                       defer: NO
-                      screen: screen];
-    [win setReleasedWhenClosed: NO];
-    [win setTitle: @"Allegro Text Log"];
-    [win setMinSize: NSMakeSize(128, 128)];
-    
-    NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame: rect];
-    [scrollView setHasHorizontalScroller: YES];
-    [scrollView setHasVerticalScroller: YES];
-    [scrollView setAutohidesScrollers: YES];
-    [scrollView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-    
-    [[scrollView contentView] setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-    [[scrollView contentView] setAutoresizesSubviews: YES];
-    
-    rect = [[scrollView contentView] frame];
-    ALLEGLogView *view = [[ALLEGLogView alloc] initWithFrame: rect];
-    view->textlog = textlog;
-    [view setHorizontallyResizable: YES];
-    [view setVerticallyResizable: YES];
-    [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
-    [[view textContainer] setContainerSize: NSMakeSize(rect.size.width, 1000000)];
-    [[view textContainer] setWidthTracksTextView: NO];
-    [view setTextColor: [NSColor grayColor]];
-    if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
-        [view setFont: [NSFont userFixedPitchFontOfSize: 0]];
-    }
-    [view setEditable: NO];
-    [scrollView setDocumentView: view];
-    
-    [[win contentView] addSubview: scrollView];
-    [scrollView release];
-    
-    [win setDelegate: view];
-    [win orderFront: nil];
-    
-    /* Save handles for future use. */
-    textlog->window = win; // Non-owning reference
-    textlog->tl_textview = view; // Non-owning reference
-}
 @end
 
 bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-    [ALLEGLogView performSelectorOnMainThread: @selector(createNativeComponents:)
-                                withObject: [NSValue valueWithPointer:textlog]
-                             waitUntilDone: YES];
-    /* Now notify al_show_native_textlog that the text log is ready. */
-    textlog->is_active = true;
-    textlog->tl_done = true;
-    return true;
+   NSRect rect = NSMakeRect(0, 0, 640, 480);
+   int adapter = al_get_new_display_adapter();
+   NSScreen *screen;
+   unsigned int mask = NSTitledWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
+   if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE))
+      mask |= NSClosableWindowMask;
+   
+   if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
+      screen = [[NSScreen screens] objectAtIndex: adapter];
+   } else {
+      screen = [NSScreen mainScreen];
+   }
+   
+   dispatch_sync(dispatch_get_main_queue(), ^{
+      NSWindow *win = [[NSWindow alloc] initWithContentRect: rect
+                                                  styleMask: mask
+                                                    backing: NSBackingStoreBuffered
+                                                      defer: NO
+                                                     screen: screen];
+      [win setReleasedWhenClosed: NO];
+      [win setTitle: @"Allegro Text Log"];
+      [win setMinSize: NSMakeSize(128, 128)];
+      NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame: rect];
+      [scrollView setHasHorizontalScroller: YES];
+      [scrollView setHasVerticalScroller: YES];
+      [scrollView setAutohidesScrollers: YES];
+      [scrollView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+      
+      [[scrollView contentView] setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+      [[scrollView contentView] setAutoresizesSubviews: YES];
+      
+      NSRect framerect = [[scrollView contentView] frame];
+      ALLEGLogView *view = [[ALLEGLogView alloc] initWithFrame: framerect];
+      view->textlog = textlog;
+      [view setHorizontallyResizable: YES];
+      [view setVerticallyResizable: YES];
+      [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
+      [[view textContainer] setContainerSize: NSMakeSize(rect.size.width, 1000000)];
+      [[view textContainer] setWidthTracksTextView: NO];
+      [view setTextColor: [NSColor grayColor]];
+      if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
+         [view setFont: [NSFont userFixedPitchFontOfSize: 0]];
+      }
+      [view setEditable: NO];
+      [scrollView setDocumentView: view];
+      
+      [[win contentView] addSubview: scrollView];
+      [scrollView release];
+      
+      [win setDelegate: view];
+      [win orderFront: nil];
+      
+      /* Save handles for future use. */
+      textlog->window = win; // Non-owning reference
+      textlog->tl_textview = view; // Non-owning reference
+   });
+   /* Now notify al_show_native_textlog that the text log is ready. */
+   textlog->is_active = true;
+   textlog->tl_done = true;
+   return true;
 }
 
 void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
