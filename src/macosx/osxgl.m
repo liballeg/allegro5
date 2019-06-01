@@ -1249,23 +1249,26 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 #endif
 
    NSRect rect = NSMakeRect(0, 0, w, h);
-
-   dpy->win = [[ALWindow alloc] initWithContentRect:rect styleMask:(IS_LION ? NSWindowStyleMaskBorderless : 0) backing:NSBackingStoreBuffered defer:NO];
-   [dpy->win setTitle: [NSString stringWithUTF8String:al_get_new_window_title()]];
-   [dpy->win setAcceptsMouseMovedEvents:YES];
-   [dpy->win setViewsNeedDisplay:NO];
-
-   NSView *window_view = [[NSView alloc] initWithFrame:rect];
-   [window_view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-   [[dpy->win contentView] addSubview:window_view];
-   [dpy->win setLevel:CGShieldingWindowLevel()];
-   [context setView:window_view];
-   [context update];
-   [window_view release];
+   NSString* title = [NSString stringWithUTF8String: al_get_new_window_title()];
+   dispatch_sync(dispatch_get_main_queue(), ^{
+      dpy->win = [[ALWindow alloc] initWithContentRect:rect styleMask:(IS_LION ? NSWindowStyleMaskBorderless : 0) backing:NSBackingStoreBuffered defer:NO];
+      [dpy->win setTitle: title];
+      [dpy->win setAcceptsMouseMovedEvents:YES];
+      [dpy->win setViewsNeedDisplay:NO];
+      
+      NSView *window_view = [[NSView alloc] initWithFrame:rect];
+      [window_view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+      [[dpy->win contentView] addSubview:window_view];
+      [dpy->win setLevel:CGShieldingWindowLevel()];
+      [context setView:window_view];
+      [context update];
+      [window_view release];
+      [dpy->win setHasShadow:NO];
+      [dpy->win setOpaque:YES];
+      [dpy->win makeKeyAndOrderFront:nil];
+   });
+   // This is set per-thread
    [context makeCurrentContext];
-   [dpy->win setHasShadow:NO];
-   [dpy->win setOpaque:YES];
-   [dpy->win makeKeyAndOrderFront:nil];
 
    // Set up the Allegro OpenGL implementation
    display->ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
@@ -1305,7 +1308,9 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    // Begin the 'private' event loop
    // Necessary because there's no NSResponder (i.e. a view) to collect
    // events from the window server.
-   osx_run_fullscreen_display(dpy);
+   dispatch_sync(dispatch_get_main_queue(), ^{
+      osx_run_fullscreen_display(dpy);
+   });
    [pool drain];
    return &dpy->parent;
 }
