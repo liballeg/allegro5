@@ -567,21 +567,21 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
-   ALLEGRO_DISPLAY *thisdisp;
+   ALLEGRO_DISPLAY *bmp_disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
 
    ASSERT(!al_is_sub_bitmap(bitmap));
 
-   thisdisp = _al_get_bitmap_display(bitmap);
+   bmp_disp = _al_get_bitmap_display(bitmap);
    disp = al_get_current_display();
-   if (thisdisp->ogl_extras->is_shared == false &&
-       thisdisp != disp) {
+   if (bmp_disp->ogl_extras->is_shared == false &&
+       bmp_disp != disp) {
       old_disp = disp;
-      _al_set_current_display_only(thisdisp);
+      _al_set_current_display_only(bmp_disp);
    }
 
-   if (thisdisp->ogl_extras->opengl_target == bitmap) {
-     thisdisp->ogl_extras->opengl_target = NULL;
+   if (bmp_disp->ogl_extras->opengl_target == bitmap) {
+     bmp_disp->ogl_extras->opengl_target = NULL;
    }
 
    al_remove_opengl_fbo(bitmap);
