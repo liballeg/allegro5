@@ -280,20 +280,20 @@ void _al_osx_keyboard_was_installed(BOOL install) {
  * existing displays that they need to set up their tracking areas.
  */
 void _al_osx_mouse_was_installed(BOOL install) {
-    if (_osx_mouse_installed == install) {
-        // done it already
-        return;
-    }
-    _osx_mouse_installed = install;
-    _AL_VECTOR* dpys = &al_get_system_driver()->displays;
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        unsigned int i;
-        for (i = 0; i < _al_vector_size(dpys); ++i) {
-            ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
-            NSView* view = osx_view_from_display(dpy);
-            [[view window] setAcceptsMouseMovedEvents: _osx_mouse_installed];
-        }
-    });
+   if (_osx_mouse_installed == install) {
+      // done it already
+      return;
+   }
+   _osx_mouse_installed = install;
+   _AL_VECTOR* dpys = &al_get_system_driver()->displays;
+   dispatch_sync(dispatch_get_main_queue(), ^{
+      unsigned int i;
+      for (i = 0; i < _al_vector_size(dpys); ++i) {
+         ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
+         NSView* view = osx_view_from_display(dpy);
+         [[view window] setAcceptsMouseMovedEvents: _osx_mouse_installed];
+      }
+   });
 }
 
 @implementation ALOpenGLView
@@ -1480,20 +1480,20 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    /* Create a temporary view so that we can check whether a fullscreen
     * window can be created.
     */
-    if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN_WINDOW) {
-        __block BOOL ok;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            NSRect rc = NSMakeRect(0, 0, w,  h);
-            ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
-            ok = [view respondsToSelector:
-                  @selector(enterFullScreenMode:withOptions:)];
-            [view release];
-        });
-        if (!ok) {
-            ALLEGRO_DEBUG("Cannot create FULLSCREEN_WINDOW");
-            return NULL;
-        }
-    }
+   if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN_WINDOW) {
+      __block BOOL ok;
+      dispatch_sync(dispatch_get_main_queue(), ^{
+         NSRect rc = NSMakeRect(0, 0, w,  h);
+         ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
+         ok = [view respondsToSelector:
+               @selector(enterFullScreenMode:withOptions:)];
+         [view release];
+      });
+      if (!ok) {
+         ALLEGRO_DEBUG("Cannot create FULLSCREEN_WINDOW");
+         return NULL;
+      }
+   }
 
    ALLEGRO_DEBUG("Creating window sized %dx%d\n", w, h);
    if (al_get_new_display_adapter() >= al_get_num_video_adapters()) {
