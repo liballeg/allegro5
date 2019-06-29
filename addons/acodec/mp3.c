@@ -148,9 +148,7 @@ static size_t mp3_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
             mp3file->file_size - mp3file->next_frame_offset,
             mp3file->frame_buffer, &frame_info);
          if (frame_samples == 0) {
-            mp3file->next_frame_offset = 0;
-            mp3file->frame_samples = 0; /* so next time we read, it'll immediately decode a new frame */
-            mp3file->frame_pos = 0;
+            mp3_stream_rewind(stream);
             break;
          }
 
@@ -180,6 +178,8 @@ static bool mp3_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 
    mp3file->next_frame_offset = 0;
    mp3file->frame_samples = 0;
+   mp3file->frame_pos = 0;
+   mp3file->file_pos = 0;
 
    return true;
 }
