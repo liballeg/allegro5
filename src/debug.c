@@ -307,7 +307,7 @@ void _al_trace_suffix(const char *msg, ...)
    (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
       static_trace_buffer);
 #endif
-#if defined(ALLEGRO_IPHONE)
+#ifdef ALLEGRO_IPHONE
    fprintf(stderr, "%s", static_trace_buffer);
    fflush(stderr);
 #endif
@@ -319,7 +319,7 @@ void _al_trace_suffix(const char *msg, ...)
    }
 #endif
 
-   /* We're intentially still writing to a file if its set even with the
+   /* We're intentially still writing to a file if it's set even with the
     * additional logging options above. */
    if (trace_info.trace_file) {
       fprintf(trace_info.trace_file, "%s", static_trace_buffer);
