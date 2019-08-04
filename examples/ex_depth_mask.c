@@ -139,9 +139,16 @@ int main(int argc, char **argv)
    
    al_get_monitor_info(0, &info);
 
+   int flags = 0;
    #ifdef ALLEGRO_IPHONE
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+   flags |= ALLEGRO_FULLSCREEN_WINDOW;
    #endif
+
+   if (argc > 1 && strcmp(argv[1], "shader") == 0) {
+      flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   }
+   al_set_new_display_flags(flags);
+   
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
       ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
 
