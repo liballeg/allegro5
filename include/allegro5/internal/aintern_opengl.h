@@ -119,6 +119,8 @@ typedef struct ALLEGRO_OGL_VARLOCS
    GLint tex_loc;
    GLint use_tex_matrix_loc;
    GLint tex_matrix_loc;
+   GLint alpha_func_loc;
+   GLint alpha_test_val_loc;
    GLint user_attr_loc[_ALLEGRO_PRIM_MAX_USER_ATTR];
 } ALLEGRO_OGL_VARLOCS;
 
