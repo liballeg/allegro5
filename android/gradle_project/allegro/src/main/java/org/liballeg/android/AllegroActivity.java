@@ -23,6 +23,8 @@ import java.lang.Runnable;
 import java.lang.String;
 import android.view.InputDevice;
 import java.util.Vector;
+import android.os.Build;
+import android.view.View;
 
 public class AllegroActivity extends Activity
 {
@@ -605,6 +607,20 @@ public class AllegroActivity extends Activity
       }
       while (set_clip == false);
       return set_clip_result;
+   }
+
+   public void setAllegroFrameless(final boolean on) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+         runOnUiThread(new Runnable() {
+            @Override public void run() {
+               View view = AllegroActivity.this.getWindow().getDecorView();
+               int flags = view.getSystemUiVisibility();
+               int bits = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+               if (on) flags |= bits; else flags &= ~bits;
+               view.setSystemUiVisibility(flags);
+            }
+         });
+      }
    }
 }
 
