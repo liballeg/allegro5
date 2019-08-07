@@ -1905,8 +1905,11 @@ Possible render states which can be set with [al_set_render_state]:
 ALLEGRO_ALPHA_TEST
 :   If this is set to 1, the values of ALLEGRO_ALPHA_FUNCTION and
     ALLEGRO_ALPHA_TEST_VALUE define a comparison function which is performed
-    for each pixel. Only if it evaluates to true the pixel is written. Otherwise
-    no subsequent processing (like depth test or blending) is performed.
+    on the alpha component of each pixel. Only if it evaluates to true
+    the pixel is written. Otherwise no subsequent processing (like depth
+    test or blending) is performed.
+    This can be very useful, for example if a depth buffer is used but
+    you do not want fully transparent pixels to modify it.
 
 ALLEGRO_ALPHA_FUNCTION
 :   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_ALPHA_TEST is 1.
