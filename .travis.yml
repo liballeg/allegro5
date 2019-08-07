@@ -8,10 +8,11 @@ compiler:
   - clang
   - gcc
 
+services:
+  - xvfb
+
 before_install:
     - if [ `uname` = "Linux" ]; then
-         export DISPLAY=:99.0;
-         sh -e /etc/init.d/xvfb start;
          sudo apt-get update;
          sudo apt-get install -y libvorbis-dev libtheora-dev libwebp-dev libphysfs-dev libopusfile-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc libcurl4-nss-dev libenet-dev pulseaudio libasound2-dev libopenal-dev libgl1-mesa-dev libglu-dev;
       elif [ `uname` = "Darwin" ]; then
