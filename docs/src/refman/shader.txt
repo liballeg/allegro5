@@ -133,6 +133,16 @@ al_texcoord
 al_color
 :   vertex color attribute. Type is `vec4`.
 
+al_alpha_func
+:   The alpha testing function used. One of the [ALLEGRO_RENDER_FUNCTION]
+    values. The default is ALLEGRO_RENDER_ALWAYS which means all pixels
+    (even completely transparent ones) are rendered.
+    See [ALLEGRO_RENDER_STATE].
+
+al_alpha_test_val
+:   If alpha testing is not ALLEGRO_RENDER_NEVER or ALLEGRO_RENDER_ALWAYS
+    the alpha value to compare to for alpha testing.
+
 al_user_attr_0
 :   The vertex attribute declared as ALLEGRO_PRIM_USER_ATTR
 
