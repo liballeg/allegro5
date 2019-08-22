@@ -5,6 +5,7 @@
 #define __al_included_allegro5_aintuthr_h
 
 #include <pthread.h>
+#include <limits.h>
 #include "allegro5/internal/aintern_thread.h"
 
 #ifdef __cplusplus
