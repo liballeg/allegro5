@@ -72,7 +72,9 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 
 void _al_thread_create_with_stacksize(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize) 
 {
+#ifndef __GNU__
    ASSERT(stacksize >= PTHREAD_STACK_MIN);
+#endif
    ASSERT(thread);
    ASSERT(proc);
    {
