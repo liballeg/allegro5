@@ -237,6 +237,8 @@ al_transpose_transform(camera)
 // position is 0/0/0 as in the example.
 ~~~~
 
+Since: 5.2.5
+
 ## API: al_check_inverse
 
 Checks if the transformation has an inverse using the supplied tolerance.

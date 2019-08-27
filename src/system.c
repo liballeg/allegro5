@@ -355,6 +355,13 @@ ALLEGRO_SYSTEM *al_get_system_driver(void)
    return active_sysdrv;
 }
 
+/* Function: al_get_system_id
+ */
+ALLEGRO_SYSTEM_ID al_get_system_id(void)
+{
+   ASSERT(active_sysdrv);
+   return active_sysdrv->vt->id;
+}
 
 /* Function: al_get_system_config
  */

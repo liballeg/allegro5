@@ -223,6 +223,14 @@ place it next to your executable!
 __ALLEGRO_5_CFG
 ~~~~
 
+## API: al_get_system_id
+
+Returns the platform that Allegro is running on.
+
+Since: 5.2.5
+
+See also: [ALLEGRO_SYSTEM_ID]
+
 ## API: al_register_assert_handler
 
 Register a function to be called when an internal Allegro assertion fails.
@@ -287,3 +295,21 @@ returns a certain "desirable" number.
 This function may be called prior to [al_install_system] or [al_init].
 
 Since: 5.1.12
+
+## API: ALLEGRO_SYSTEM_ID
+
+The system Allegro is running on.
+
+* ALLEGRO_SYSTEM_ID_UNKNOWN - Unknown system.
+* ALLEGRO_SYSTEM_ID_XGLX - Xglx
+* ALLEGRO_SYSTEM_ID_WINDOWS - Windows
+* ALLEGRO_SYSTEM_ID_MACOSX - macOS
+* ALLEGRO_SYSTEM_ID_ANDROID - Android
+* ALLEGRO_SYSTEM_ID_IPHONE - iOS
+* ALLEGRO_SYSTEM_ID_GP2XWIZ - GP2XWIZ
+* ALLEGRO_SYSTEM_ID_RASPBERRYPI - Raspberry Pi
+* ALLEGRO_SYSTEM_ID_SDL - SDL
+
+Since: 5.2.5
+
+See also: [al_get_system_id]

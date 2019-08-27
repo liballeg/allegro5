@@ -20,8 +20,6 @@
 #define WINVER 0x0501
 #endif
 
-#define UNICODE
-
 #include <windows.h>
 #include <windowsx.h>
 
@@ -97,7 +95,7 @@ static void clear_window(HWND window, int w, int h)
 HWND _al_win_create_hidden_window()
 {
    HWND window = CreateWindowEx(0,
-      L"ALEX", L"hidden", WS_POPUP,
+      TEXT("ALEX"), TEXT("hidden"), WS_POPUP,
       -5000, -5000, 0, 0,
       NULL,NULL,window_class.hInstance,0);
    return window;
@@ -155,7 +153,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    WINDOWINFO wi;
    int lsize, rsize, tsize, bsize; // left, right, top, bottom border sizes
-   wchar_t* window_title;
+   TCHAR* window_title;
 
    wi.cbSize = sizeof(WINDOWINFO);
 
@@ -174,9 +172,9 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       _al_win_get_window_center(win_display, width, height, &pos_x, &pos_y);
    }
 
-   window_title = _al_win_utf16(al_get_new_window_title());
+   window_title = _twin_utf8_to_tchar(al_get_new_window_title());
    my_window = CreateWindowEx(ex_style,
-      L"ALEX", window_title, style,
+      TEXT("ALEX"), window_title, style,
       pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
    al_free(window_title);
@@ -232,7 +230,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    DWORD ex_style;
    DEVMODE mode;
    LONG temp;
-   wchar_t* window_title;
+   TCHAR* window_title;
 
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    (void)flags;
@@ -242,9 +240,9 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    style = WS_VISIBLE;
    ex_style = WS_EX_TOPMOST;
 
-   window_title = _al_win_utf16(al_get_new_window_title());
+   window_title = _twin_utf8_to_tchar(al_get_new_window_title());
    my_window = CreateWindowEx(ex_style,
-      L"ALEX", window_title, style,
+      TEXT("ALEX"), window_title, style,
       x1, y1, width, height,
       NULL,NULL,window_class.hInstance,0);
    al_free(window_title);
@@ -999,15 +997,15 @@ int _al_win_init_window()
    window_class.hIcon = NULL;
    window_class.hInstance = GetModuleHandle(NULL);
    window_class.lpfnWndProc = window_callback;
-   window_class.lpszClassName = L"ALEX";
+   window_class.lpszClassName = TEXT("ALEX");
    window_class.lpszMenuName = NULL;
    window_class.style = CS_VREDRAW|CS_HREDRAW|CS_OWNDC;
 
    RegisterClass(&window_class);
 
    if (_al_win_msg_call_proc == 0 && _al_win_msg_suicide == 0) {
-      _al_win_msg_call_proc = RegisterWindowMessage(L"Allegro call proc");
-      _al_win_msg_suicide = RegisterWindowMessage(L"Allegro window suicide");
+      _al_win_msg_call_proc = RegisterWindowMessage(TEXT("Allegro call proc"));
+      _al_win_msg_suicide = RegisterWindowMessage(TEXT("Allegro window suicide"));
    }
 
    return true;
@@ -1300,9 +1298,9 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   wchar_t *utf16 = _al_win_utf16(title);
-   SetWindowText(win_display->window, utf16);
-   al_free(utf16);
+   TCHAR *ttitle = _twin_utf8_to_tchar(title);
+   SetWindowText(win_display->window, ttitle);
+   al_free(ttitle);
 }
 
 bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,

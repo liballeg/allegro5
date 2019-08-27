@@ -883,6 +883,8 @@ for values you are not interested in.
 
 Since: 5.2.5
 
+> *[Unstable API]:* New API.
+
 See also: [al_set_bitmap_blender], [al_get_separate_bitmap_blender]
 
 ### API: al_get_separate_bitmap_blender
@@ -892,6 +894,8 @@ for values you are not interested in.
 
 Since: 5.2.5
 
+> *[Unstable API]:* New API.
+
 See also: [al_set_separate_bitmap_blender], [al_get_bitmap_blender]
 
 ### API: al_get_bitmap_blend_color
@@ -900,6 +904,8 @@ Returns the color currently used for constant color blending on the target
 bitmap.
 
 Since: 5.2.5
+
+> *[Unstable API]:* New API.
 
 See also: [al_set_bitmap_blend_color]
 
@@ -918,6 +924,8 @@ See also: [al_set_separate_bitmap_blender], [al_reset_bitmap_blender]
 
 Since: 5.2.5
 
+> *[Unstable API]:* New API.
+
 ### API: al_set_separate_bitmap_blender
 
 Like [al_set_bitmap_blender], but allows specifying a separate blending
@@ -926,6 +934,8 @@ an alpha channel and the two alpha channels need to be combined in a different
 way than the color components.
 
 Since: 5.2.5
+
+> *[Unstable API]:* New API.
 
 See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
 
@@ -936,6 +946,8 @@ blend operations.
 
 Since: 5.2.5
 
+> *[Unstable API]:* New API.
+
 See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
 
 ### API: al_reset_bitmap_blender
@@ -945,6 +957,8 @@ bitmap blender, the values set for
 [al_set_bitmap_blender]/[al_set_separate_bitmap_blender] will be used instead.
 
 Since: 5.2.5
+
+> *[Unstable API]:* New API.
 
 See also: [al_set_bitmap_blender]
 
@@ -1898,7 +1912,7 @@ ALLEGRO_ALPHA_FUNCTION
 :   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_ALPHA_TEST is 1.
 
 ALLEGRO_ALPHA_TEST_VALUE
-:   Only used when ALLEGRO_ALPHA_TEST is 1.
+:   Only used when ALLEGRO_ALPHA_TEST is 1. Should be a value of 0 - 255.
 
 ALLEGRO_WRITE_MASK
 :   This determines how the framebuffer and depthbuffer are updated whenever a

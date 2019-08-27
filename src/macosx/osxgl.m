@@ -1236,6 +1236,40 @@ static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, u
 #define NSAppKitVersionNumber10_7 1138
 #endif
 
+static CVReturn display_link_callback(CVDisplayLinkRef display_link,
+                                      const CVTimeStamp *now,
+                                      const CVTimeStamp *output_time,
+                                      CVOptionFlags flags_in,
+                                      CVOptionFlags *flags_out,
+                                      void *user_info)
+{
+   (void)display_link;
+   (void)now;
+   (void)output_time;
+   (void)flags_in;
+   (void)flags_out;
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN*)user_info;
+
+   al_lock_mutex(dpy->flip_mutex);
+   dpy->num_flips += 1;
+   al_signal_cond(dpy->flip_cond);
+   al_unlock_mutex(dpy->flip_mutex);
+
+   return kCVReturnSuccess;
+}
+
+static void init_new_vsync(ALLEGRO_DISPLAY_OSX_WIN *dpy)
+{
+   dpy->flip_cond = al_create_cond();
+   dpy->flip_mutex = al_create_mutex();
+   CVDisplayLinkCreateWithActiveCGDisplays(&dpy->display_link);
+   CVDisplayLinkSetOutputCallback(dpy->display_link, &display_link_callback, dpy);
+   CGLContextObj ctx = [dpy->ctx CGLContextObj];
+   CGLPixelFormatObj pixel_format = CGLGetPixelFormat(ctx);
+   CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(dpy->display_link, ctx, pixel_format);
+   CVDisplayLinkStart(dpy->display_link);
+}
+
 /* create_display_fs:
  * Create a fullscreen display - capture the display
  */
@@ -1398,15 +1432,22 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
-   /* Turn on vsyncing possibly */
+   /* Turn on vsyncing possibly. The old way doesn't work on new OSX's,
+      but works better than the new way when it does work. */
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
+      init_new_vsync(dpy);
+   }
+#else
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
-      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+      [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
    }
    else {
       GLint swapInterval = 0;
-      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+      [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
    }
+#endif
 
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
@@ -1553,6 +1594,13 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
+   /* Turn on vsyncing possibly. The old way doesn't work on new OSX's,
+    but works better than the new way when it does work. */
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
+      init_new_vsync(dpy);
+   }
+#else
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
       [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
@@ -1561,6 +1609,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       GLint swapInterval = 0;
       [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
    }
+#endif
 
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
@@ -1677,6 +1726,13 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
    dpy->parent.ogl_extras->is_shared = true;
 
+   /* Turn on vsyncing possibly. The old way doesn't work on new OSX's,
+      but works better than the new way when it does work. */
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
+      init_new_vsync(dpy);
+   }
+#else
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
       [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
@@ -1685,6 +1741,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
       GLint swapInterval = 0;
       [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
    }
+#endif
 
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
@@ -1771,6 +1828,11 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
       _al_set_current_display_only(NULL);
    }
 
+   if (dpy->flip_mutex) {
+      al_destroy_mutex(dpy->flip_mutex);
+      al_destroy_cond(dpy->flip_cond);
+      CVDisplayLinkRelease(dpy->display_link);
+   }
    al_free(d->vertex_cache);
    al_free(d);
    [pool drain];
@@ -1800,6 +1862,16 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
    if (!((ALLEGRO_BITMAP_EXTRA_OPENGL *)disp->ogl_extras->opengl_target->extra)->is_backbuffer) {
    	old_target = al_get_target_bitmap();
 	al_set_target_backbuffer(disp);
+   }
+
+   if (dpy->flip_mutex) {
+      al_lock_mutex(dpy->flip_mutex);
+      int old_flips = dpy->num_flips;
+      while (dpy->num_flips == old_flips) {
+         al_wait_cond(dpy->flip_cond, dpy->flip_mutex);
+      }
+      dpy->num_flips = 0;
+      al_unlock_mutex(dpy->flip_mutex);
    }
 
    if (dpy->single_buffer) {

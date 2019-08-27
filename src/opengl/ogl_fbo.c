@@ -206,7 +206,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
       info->buffers.depth_buffer = rb;
       info->buffers.dw = w;
-      info->buffers.dw = h;
+      info->buffers.dh = h;
       info->buffers.depth = bits;
       GLint e = glGetError();
       if (e) {

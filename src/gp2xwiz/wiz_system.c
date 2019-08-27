@@ -141,6 +141,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
 
    gp2xwiz_vt = al_calloc(1, sizeof *gp2xwiz_vt);
 
+   gp2xwiz_vt->id = ALLEGRO_SYSTEM_ID_GP2XWIZ;
    gp2xwiz_vt->initialize = gp2xwiz_initialize;
    gp2xwiz_vt->get_display_driver = gp2xwiz_get_display_driver;
    gp2xwiz_vt->get_keyboard_driver = gp2xwiz_get_keyboard_driver;

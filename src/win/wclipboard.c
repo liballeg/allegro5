@@ -21,8 +21,6 @@
 #define WINVER 0x0501
 #endif
 
-#define UNICODE
-
 #include <windows.h>
 #include <windowsx.h>
 
@@ -71,7 +69,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    }
 
    /* Convert the text from UTF-8 to Windows Unicode */
-   tstr = _al_win_utf16(text);
+   tstr = _al_win_utf8_to_utf16(text);
    len  = wcslen(tstr);
    size = (len+1) * sizeof(wchar_t);
    /* Save the data to the clipboard */
@@ -113,7 +111,7 @@ static char *win_get_clipboard_text(ALLEGRO_DISPLAY *display)
       hMem = GetClipboardData(TEXT_FORMAT);
       if (hMem) {
          tstr = (LPTSTR)GlobalLock(hMem);
-         text = _al_win_utf8(tstr);
+         text = _twin_tchar_to_utf8(tstr);
          GlobalUnlock(hMem);
       } else {
          ALLEGRO_DEBUG("Couldn't get clipboard data");

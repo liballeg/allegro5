@@ -2,6 +2,127 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.4 to 5.2.5 (February 2019)
+==========================================
+
+The main developers this time were: Sebastian Krzyszkowiak, SiegeLord,
+Elias Pschernig, Bruce Pascoe, Aldrik Ramaekers, Firat Salgur.
+
+Core:
+
+  - Try to identify bitmap format for unknown extensions.
+
+  - Add some missing OpenGL 4.3 functions.
+
+  - Add `al_create_thread_with_stacksize` to create threads with a custom stack
+    size. (Aldrik Ramaekers)
+
+  - Add `al_get_system_id` function, letting you disambiguate platforms at
+    runtime.
+
+Graphics:
+
+  - Add `al_get_monitor_dpi` to query the DPI of a monitor.
+
+  - Add new API for making blender a bitmap-local state (like transformations),
+    which can simplify some code. See `al_set_bitmap_blender` and the related
+    APIs. Also see the `ex_blend_target` example.
+
+  - Added `al_transpose_transform`. This is useful for rotation transformations.
+
+  - Rework internal GLES support for better portability.
+
+  - Don't force POT bitmaps on GLES.
+
+  - Fix repeated bitmap locking on OpenGL.
+
+Android:
+
+  - Various documentation and other improvements (Christian Mauduit).
+
+  - Fix OpenGL version reporting after display creation.
+
+iOS:
+
+  - Fix OpenGL version reporting after display creation.
+
+Linux:
+
+  - Improve linux joystick detections.
+
+  - Fix a number of memory leaks/crashes in the audio addon when using
+    pulseaudio/alsa. (Julian Smythe)
+
+  - Fix compilation with Mesa 18.2.5 and later.
+
+  - Fix OpenGL version reporting after display creation (Edgar Reynaldo).
+
+  - Fix requesting specific OpenGL versions via display options
+    (Edgar Reynaldo).
+
+OSX:
+
+  - Make `al_get_monitor_info` return the correct values for Retina displays.
+
+  - Fix vsync on OSX 10.14+.
+
+RaspberryPi:
+
+  - Fix OpenGL version reporting after display creation.
+
+Windows:
+
+  - Fix toggling of menu checkboxes by id.
+
+  - Fix `al_draw_indexed_primitive` while using Direct3D.
+
+  - Fix crash when passing `NULL` display to `al_show_native_file_dialog` while
+    using `ALLEGRO_FILECHOOSER_FOLDER`.
+
+  - Fix OpenGL version reporting after display creation (Edgar Reynaldo).
+
+  - Fix requesting specific OpenGL versions via display options
+    (Edgar Reynaldo).
+
+SDL:
+
+  - Sebastian Krzyszkowiak has spent a lot of effort to making the SDL backend
+    usable as a nearly fully featured Allegro backend. You can use it on
+    platforms native Allegro implementations do not support (such as
+    emscripten, etc.).
+
+Addons:
+
+  - Better logging when failing to load a resource.
+
+  - Fix a memory leak when destroying a mixer with attached streams.
+
+  - Fix a memory leak in the audio  destroying a mixer with attached streams.
+
+Acodec addon:
+
+  - Allow modules to loop properly when the user hasn't specified loop points.
+    (Todd Cope)
+
+Audio addon:
+
+  - Better support for big endian. (Douglas Mencken)
+
+TTF addon:
+
+  - Added support of HarfBuzz in FreeType (Arves100).
+
+Documentation:
+
+  - Source links now point to the correct commit on GitHub.
+
+  - General improvements and clarifications.
+
+Examples:
+
+  - Add `ex_blend_target`.
+
+
 Changes from 5.2.3 to 5.2.4 (February 2018)
 ==========================================
 

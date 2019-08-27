@@ -12,6 +12,13 @@ typedef struct SDL_VOICE
    bool is_playing;
 } SDL_VOICE;
 
+typedef struct SDL_RECORDER
+{
+   SDL_AudioDeviceID device;
+   SDL_AudioSpec spec;
+   unsigned int fragment;
+} SDL_RECORDER;
+
 static void audio_callback(void *userdata, Uint8 *stream, int len)
 {
    // TODO: Allegro has those mysterious "non-streaming" samples, but I
@@ -93,7 +100,7 @@ static int sdl_start_voice(ALLEGRO_VOICE *voice)
 {
    SDL_VOICE *sv = voice->extra;
    sv->is_playing = true;
-   SDL_PauseAudioDevice(sv->device, 0); 
+   SDL_PauseAudioDevice(sv->device, 0);
    return 0;
 }
 
@@ -122,6 +129,75 @@ static int sdl_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
    return 0;
 }
 
+static void recorder_callback(void *userdata, Uint8 *stream, int len)
+{
+   ALLEGRO_AUDIO_RECORDER *r = (ALLEGRO_AUDIO_RECORDER *) userdata;
+   SDL_RECORDER *sdl = (SDL_RECORDER *) r->extra;
+
+   al_lock_mutex(r->mutex);
+   if (!r->is_recording) {
+      al_unlock_mutex(r->mutex);
+      return;
+   }
+
+   while (len > 0) {
+      int count = SDL_min(len, r->samples * r->sample_size);
+      memcpy(r->fragments[sdl->fragment], stream, count);
+
+      ALLEGRO_EVENT user_event;
+      ALLEGRO_AUDIO_RECORDER_EVENT *e;
+      user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+      e = al_get_audio_recorder_event(&user_event);
+      e->buffer = r->fragments[sdl->fragment];
+      e->samples = count / r->sample_size;
+      al_emit_user_event(&r->source, &user_event, NULL);
+
+      sdl->fragment++;
+      if (sdl->fragment == r->fragment_count) {
+         sdl->fragment = 0;
+      }
+      len -= count;
+   }
+
+   al_unlock_mutex(r->mutex);
+}
+
+static int sdl_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+{
+   SDL_RECORDER *sdl;
+
+   sdl = al_calloc(1, sizeof(*sdl));
+   if (!sdl) {
+     ALLEGRO_ERROR("Unable to allocate memory for SDL_RECORDER.\n");
+     return 1;
+   }
+
+   SDL_AudioSpec want;
+   memset(&want, 0, sizeof want);
+
+   want.freq = r->frequency;
+   want.format = allegro_format_to_sdl(r->depth);
+   want.channels = al_get_channel_count(r->chan_conf);
+   want.samples = r->samples;
+   want.callback = recorder_callback;
+   want.userdata = r;
+
+   sdl->device = SDL_OpenAudioDevice(NULL, 1, &want, &sdl->spec, 0);
+   sdl->fragment = 0;
+   r->extra = sdl;
+
+   SDL_PauseAudioDevice(sdl->device, 0);
+
+   return 0;
+}
+
+static void sdl_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+{
+   SDL_RECORDER *sdl = (SDL_RECORDER *) r->extra;
+   SDL_CloseAudioDevice(sdl->device);
+   al_free(r->extra);
+}
+
 ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
 {
    "SDL",
@@ -136,7 +212,6 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
    sdl_voice_is_playing,
    sdl_get_voice_position,
    sdl_set_voice_position,
-
-   NULL, //sdl_allocate_recorder,
-   NULL  //sdl_deallocate_recorder
+   sdl_allocate_recorder,
+   sdl_deallocate_recorder
 };

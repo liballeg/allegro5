@@ -874,7 +874,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          }
       }
       else if (strstr(vendor, "ATI Technologies")) {
-         if (_al_ogl_version_3_only(gl_disp->flags)) {
+         if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_3_0) {
             /* Assume okay. */
          }
          else if (!strstr((const char *)glGetString(GL_EXTENSIONS),

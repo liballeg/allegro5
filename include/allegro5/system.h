@@ -10,6 +10,21 @@
 
 typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
+/* Enum: ALLEGRO_SYSTEM_ID
+ */
+enum ALLEGRO_SYSTEM_ID {
+  ALLEGRO_SYSTEM_ID_UNKNOWN = 0,
+  ALLEGRO_SYSTEM_ID_XGLX = AL_ID('X', 'G', 'L', 'X'),
+  ALLEGRO_SYSTEM_ID_WINDOWS = AL_ID('W', 'I', 'N', 'D'),
+  ALLEGRO_SYSTEM_ID_MACOSX = AL_ID('O', 'S', 'X', ' '),
+  ALLEGRO_SYSTEM_ID_ANDROID = AL_ID('A', 'N', 'D', 'R'),
+  ALLEGRO_SYSTEM_ID_IPHONE = AL_ID('I', 'P', 'H', 'O'),
+  ALLEGRO_SYSTEM_ID_GP2XWIZ = AL_ID('W', 'I', 'Z', ' '),
+  ALLEGRO_SYSTEM_ID_RASPBERRYPI = AL_ID('R', 'A', 'S', 'P'),
+  ALLEGRO_SYSTEM_ID_SDL = AL_ID('S', 'D', 'L', '2')
+};
+typedef enum ALLEGRO_SYSTEM_ID ALLEGRO_SYSTEM_ID;
+
 /* Function: al_init
  */
 #define al_init()    (al_install_system(ALLEGRO_VERSION_INT, atexit))
@@ -19,6 +34,7 @@ AL_FUNC(void, al_uninstall_system, (void));
 AL_FUNC(bool, al_is_system_installed, (void));
 AL_FUNC(ALLEGRO_SYSTEM *, al_get_system_driver, (void));
 AL_FUNC(ALLEGRO_CONFIG *, al_get_system_config, (void));
+AL_FUNC(ALLEGRO_SYSTEM_ID, al_get_system_id, (void));
 
 enum {
    ALLEGRO_RESOURCES_PATH = 0,

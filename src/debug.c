@@ -21,6 +21,10 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 
+#ifdef ALLEGRO_WINDOWS
+#include "allegro5/internal/aintern_wunicode.h"
+#endif
+
 #ifdef ALLEGRO_ANDROID
 #include <unistd.h>
 #include <android/log.h>
@@ -174,12 +178,14 @@ static void open_trace_file(void)
       if (s)
          trace_info.trace_file = fopen(s, "w");
       else
-#ifdef ALLEGRO_IPHONE
+#if defined(ALLEGRO_IPHONE)
          // Remember, we have no (accessible) filesystem on (not jailbroken)
          // iphone.
          // stderr will be redirected to xcode's debug console though, so
          // it's as good to use as the NSLog stuff.
          trace_info.trace_file = stderr;
+#elif defined(ALLEGRO_ANDROID)
+         trace_info.trace_file = NULL;
 #else
          trace_info.trace_file = fopen("allegro.log", "w");
 #endif
@@ -193,7 +199,7 @@ static void do_trace(const char *msg, ...)
 {
    va_list ap;
 
-#ifdef ALLEGRO_ANDROID
+#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_WINDOWS)
    if (true)
 #else
    if (_al_user_trace_handler)
@@ -205,7 +211,7 @@ static void do_trace(const char *msg, ...)
          msg, ap);
       va_end(ap);
    }
-   else if (trace_info.trace_file) {
+   if (!_al_user_trace_handler && trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
@@ -305,7 +311,7 @@ void _al_trace_suffix(const char *msg, ...)
    int olderr = errno;
    va_list ap;
 
-#ifdef ALLEGRO_ANDROID
+#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_WINDOWS)
    if (true)
 #else
    if (_al_user_trace_handler)
@@ -326,9 +332,14 @@ void _al_trace_suffix(const char *msg, ...)
             static_trace_buffer);
       }
       #endif
+      #ifdef ALLEGRO_WINDOWS
+         TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
+         OutputDebugString(windows_output);
+         al_free(windows_output);
+      #endif
       static_trace_buffer[0] = '\0';
    }
-   else if (trace_info.trace_file) {
+   if (!_al_user_trace_handler && trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);

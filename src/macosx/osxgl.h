@@ -36,6 +36,11 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    BOOL in_fullscreen;
    BOOL single_buffer;
    CGDisplayModeRef original_mode;
+   /* For new (10.14+) vsyncing. */
+   CVDisplayLinkRef display_link;
+   ALLEGRO_MUTEX *flip_mutex;
+   ALLEGRO_COND *flip_cond;
+   int num_flips;
 } ALLEGRO_DISPLAY_OSX_WIN;
 
 /* This is our version of ALLEGRO_MOUSE_CURSOR */
