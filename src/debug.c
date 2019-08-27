@@ -170,21 +170,15 @@ void _al_configure_logging(void)
 
 static void open_trace_file(void)
 {
-   const char *s;
-
    if (trace_info.trace_virgin) {
-      s = getenv("ALLEGRO_TRACE");
+      const char *s = getenv("ALLEGRO_TRACE");
 
       if (s)
          trace_info.trace_file = fopen(s, "w");
       else
-#if defined(ALLEGRO_IPHONE)
-         // Remember, we have no (accessible) filesystem on (not jailbroken)
-         // iphone.
-         // stderr will be redirected to xcode's debug console though, so
-         // it's as good to use as the NSLog stuff.
-         trace_info.trace_file = stderr;
-#elif defined(ALLEGRO_ANDROID)
+#if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID)
+         /* iPhone and Android don't like us writing files, so we'll be doing
+          * something else there by default. */
          trace_info.trace_file = NULL;
 #else
          trace_info.trace_file = fopen("allegro.log", "w");
@@ -198,24 +192,11 @@ static void open_trace_file(void)
 static void do_trace(const char *msg, ...)
 {
    va_list ap;
-
-#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_WINDOWS)
-   if (true)
-#else
-   if (_al_user_trace_handler)
-#endif
-   {
-      int s = strlen(static_trace_buffer);
-      va_start(ap, msg);
-      vsnprintf(static_trace_buffer + s, sizeof(static_trace_buffer) - s,
-         msg, ap);
-      va_end(ap);
-   }
-   if (!_al_user_trace_handler && trace_info.trace_file) {
-      va_start(ap, msg);
-      vfprintf(trace_info.trace_file, msg, ap);
-      va_end(ap);
-   }
+   int s = strlen(static_trace_buffer);
+   va_start(ap, msg);
+   vsnprintf(static_trace_buffer + s, sizeof(static_trace_buffer) - s,
+      msg, ap);
+   va_end(ap);
 }
 
 
@@ -298,7 +279,7 @@ channel_included:
       do_trace("[%10.5f] ", t);
    }
 
-   /* Do not unlocked trace_mutex here; that is done by _al_trace_suffix. */
+   /* Do not unlock trace_mutex here; that is done by _al_trace_suffix. */
    return true;
 }
 
@@ -310,41 +291,41 @@ void _al_trace_suffix(const char *msg, ...)
 {
    int olderr = errno;
    va_list ap;
+   int s = strlen(static_trace_buffer);
+   va_start(ap, msg);
+   vsnprintf(static_trace_buffer + s, sizeof(static_trace_buffer) - s,
+      msg, ap);
+   va_end(ap);
 
-#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_WINDOWS)
-   if (true)
-#else
-   if (_al_user_trace_handler)
-#endif
-   {
-      int s = strlen(static_trace_buffer);
-      va_start(ap, msg);
-      vsnprintf(static_trace_buffer + s, sizeof(static_trace_buffer) - s,
-         msg, ap);
-      va_end(ap);
-
-      if (_al_user_trace_handler) {
-         _al_user_trace_handler(static_trace_buffer);
-      }
-      #ifdef ALLEGRO_ANDROID
-      else {
-         (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
-            static_trace_buffer);
-      }
-      #endif
-      #ifdef ALLEGRO_WINDOWS
-         TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
-         OutputDebugString(windows_output);
-         al_free(windows_output);
-      #endif
+   if (_al_user_trace_handler) {
+      _al_user_trace_handler(static_trace_buffer);
       static_trace_buffer[0] = '\0';
+      return;
    }
-   if (!_al_user_trace_handler && trace_info.trace_file) {
-      va_start(ap, msg);
-      vfprintf(trace_info.trace_file, msg, ap);
-      va_end(ap);
+
+#ifdef ALLEGRO_ANDROID
+   (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
+      static_trace_buffer);
+#endif
+#ifdef ALLEGRO_IPHONE
+   fprintf(stderr, "%s", static_trace_buffer);
+   fflush(stderr);
+#endif
+#ifdef ALLEGRO_WINDOWS
+   {
+      TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
+      OutputDebugString(windows_output);
+      al_free(windows_output);
+   }
+#endif
+
+   /* We're intentially still writing to a file if it's set even with the
+    * additional logging options above. */
+   if (trace_info.trace_file) {
+      fprintf(trace_info.trace_file, "%s", static_trace_buffer);
       fflush(trace_info.trace_file);
    }
+   static_trace_buffer[0] = '\0';
 
    _al_mutex_unlock(&trace_info.trace_mutex);
 
@@ -363,7 +344,7 @@ void _al_shutdown_logging(void)
       trace_info.configured = false;
    }
 
-   if (trace_info.trace_file && trace_info.trace_file != stderr) {
+   if (trace_info.trace_file) {
       fclose(trace_info.trace_file);
    }
 

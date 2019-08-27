@@ -364,7 +364,6 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 	mach_port_t master_port = 0;
 	io_iterator_t hid_object_iterator = 0;
 	io_object_t hid_device = 0;
-	CFMutableDictionaryRef class_dictionary = NULL;
 	int usage, usage_page;
 	CFTypeRef type_ref;
 	CFMutableDictionaryRef properties = NULL, usb_properties = NULL;
@@ -390,7 +389,7 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 	result = IOMasterPort(bootstrap_port, &master_port);
 	if (result == kIOReturnSuccess) {
 		result = _get_matching_services(master_port, usage_page, usage, &hid_object_iterator);
-		if ((type == HID_MOUSE) && (hid_object_iterator == NULL)) {
+		if ((type == HID_MOUSE) && (hid_object_iterator == IO_OBJECT_NULL)) {
 			/* in case of a mouse, GD_Mouse must not be true but can also be a pointing device */
 			result = _get_matching_services(master_port, usage_page, kHIDUsage_GD_Pointer, &hid_object_iterator);
 		}

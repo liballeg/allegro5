@@ -1,16 +1,15 @@
 package org.liballeg.android;
 
 import android.app.Activity;
-import android.content.Context;
-import android.os.PowerManager;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 
 class ScreenLock
 {
    private static final String TAG = "ScreenLock";
 
    private Activity activity;
-   private PowerManager.WakeLock wake_lock = null;
 
    ScreenLock(Activity activity)
    {
@@ -20,10 +19,10 @@ class ScreenLock
    boolean inhibitScreenLock(boolean inhibit)
    {
       try {
-         if (inhibit && wake_lock == null) {
+         if (inhibit) {
             acquire();
          }
-         else if (!inhibit && wake_lock != null) {
+         else if (!inhibit) {
             release();
          }
          return true;
@@ -36,17 +35,24 @@ class ScreenLock
 
    private void acquire()
    {
-      PowerManager pm = (PowerManager)
-         activity.getSystemService(Context.POWER_SERVICE);
-      wake_lock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK,
-         "Allegro Wake Lock");
-      wake_lock.acquire();
+      activity.runOnUiThread(new Runnable() {
+         @Override
+         public void run()
+         {
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+         }
+      });
    }
 
    private void release()
    {
-      wake_lock.release();
-      wake_lock = null;
+      activity.runOnUiThread(new Runnable() {
+         @Override
+         public void run()
+         {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+         }
+      });
    }
 }
 

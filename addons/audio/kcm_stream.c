@@ -44,7 +44,6 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
    }
 }
 
-
 /* Function: al_create_audio_stream
  */
 ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
@@ -608,7 +607,10 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
 
 /* _al_kcm_refill_stream:
  *  Called by the mixer when the current buffer has been used up.  It should
- *  point to the next pending buffer and reset the sample position.
+ *  point to the next pending buffer and adjust the sample position to reflect
+ *  the buffer being updated. It may be necessary to call this function multiple
+ *  times if the sample position is so far ahead that multiple buffers need to
+ *  be consumed.
  *  Returns true if the next buffer is available and set up.
  *  Otherwise returns false.
  */
@@ -618,6 +620,7 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
    void *old_buf = spl->spl_data.buffer.ptr;
    void *new_buf;
    size_t i;
+   int new_pos = spl->pos - spl->spl_data.len;
 
    if (old_buf) {
       /* Slide the buffers down one position and put the
@@ -649,15 +652,16 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
       const int bytes_per_sample =
          al_get_channel_count(spl->spl_data.chan_conf) *
          al_get_audio_depth_size(spl->spl_data.depth);
+
       memcpy(
          (char *) new_buf - bytes_per_sample * MAX_LAG,
-         (char *) old_buf + bytes_per_sample * (spl->pos-MAX_LAG),
+         (char *) old_buf + bytes_per_sample * (spl->pos-MAX_LAG-new_pos),
          bytes_per_sample * MAX_LAG);
 
       stream->consumed_fragments++;
    }
 
-   stream->spl.pos = 0;
+   stream->spl.pos = new_pos;
 
    return true;
 }

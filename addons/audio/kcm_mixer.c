@@ -224,17 +224,16 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
 
       case _ALLEGRO_PLAYMODE_STREAM_ONCE:
       case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
-         if (spl->pos < spl->spl_data.len) {
-            return true;
-         }
          stream = (ALLEGRO_AUDIO_STREAM *)spl;
-         is_empty = !_al_kcm_refill_stream(stream);
-         if (is_empty && stream->is_draining) {
-            stream->spl.is_playing = false;
+         is_empty = false;
+         while (spl->pos >= spl->spl_data.len && stream->spl.is_playing && !is_empty) {
+            is_empty = !_al_kcm_refill_stream(stream);
+            if (is_empty && stream->is_draining) {
+               stream->spl.is_playing = false;
+            }
+
+            _al_kcm_emit_stream_events(stream);
          }
-
-         _al_kcm_emit_stream_events(stream);
-
          return !(is_empty);
    }
 
@@ -310,15 +309,22 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
       for (c = 0; c < dest_maxc; c++) {                                       \
          ALLEGRO_STATIC_ASSERT(kcm_mixer, ALLEGRO_MAX_CHANNELS == 8);         \
          switch (maxc) {                                                      \
-            /* Each case falls through. */                                    \
             case 8: *buf += s[7] * spl->matrix[c*maxc + 7];                   \
+            /* fall through */                                                \
             case 7: *buf += s[6] * spl->matrix[c*maxc + 6];                   \
+            /* fall through */                                                \
             case 6: *buf += s[5] * spl->matrix[c*maxc + 5];                   \
+            /* fall through */                                                \
             case 5: *buf += s[4] * spl->matrix[c*maxc + 4];                   \
+            /* fall through */                                                \
             case 4: *buf += s[3] * spl->matrix[c*maxc + 3];                   \
+            /* fall through */                                                \
             case 3: *buf += s[2] * spl->matrix[c*maxc + 2];                   \
+            /* fall through */                                                \
             case 2: *buf += s[1] * spl->matrix[c*maxc + 1];                   \
+            /* fall through */                                                \
             case 1: *buf += s[0] * spl->matrix[c*maxc + 0];                   \
+            /* fall through */                                                \
             default: break;                                                   \
          }                                                                    \
          buf++;                                                               \

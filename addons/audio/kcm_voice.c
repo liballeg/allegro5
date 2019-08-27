@@ -213,6 +213,8 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
       *samples = len;
 
    if (pos >= len) {
+      /* XXX: Handle the case where we need to call _al_kcm_refill_stream
+       * multiple times due to ludicrous playback speed. */
       _al_kcm_refill_stream(stream);
       if (!stream->pending_bufs[0]) {
          if (stream->is_draining) {

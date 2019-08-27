@@ -37,20 +37,7 @@ static ALLEGRO_JOYSTICK* get_joystick(int);
 static void release_joystick(ALLEGRO_JOYSTICK*);
 static void get_joystick_state(ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE*);
 
-/* ALJoystickHelper:
-* The joystick events are delivered through the run loop. We need to
-* attach the callback to the main thread's run loop 
-* (otherwise the events are never delivered)
-* The class methods are used with performOnMainThread:withObject:waitUntilDone:
-* to ensure that we access the main thread
-*/
-@interface ALJoystickHelper : NSObject
-{ }
-+(void)startQueues;
-+(void)stopQueues;
-@end
-
-/* OSX HID Joystick 
+/* OSX HID Joystick
  * Maintains an array of links which connect a HID cookie to 
  * an element in the ALLEGRO_JOYSTICK_STATE structure.
  */
@@ -357,9 +344,16 @@ static bool init_joystick(void)
       }
       IOObjectRelease(iterator);
    }
-   [ALJoystickHelper performSelectorOnMainThread: @selector(startQueues)
-      withObject: nil
-      waitUntilDone: YES];
+   /* Ensure the source is added and started on the main thread */
+   dispatch_sync(dispatch_get_main_queue(), ^{
+      unsigned int i;
+      CFRunLoopRef current = CFRunLoopGetCurrent();
+      for (i=0; i<joystick_count; ++i) {
+         ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+         CFRunLoopAddSource(current,joy->source,kCFRunLoopDefaultMode);
+         (*joy->queue)->start(joy->queue);
+      }
+   });
    return true;
 }
 
@@ -370,9 +364,16 @@ static bool init_joystick(void)
  */
 static void exit_joystick(void)
 {
-   [ALJoystickHelper performSelectorOnMainThread: @selector(stopQueues)
-                              withObject: nil
-                           waitUntilDone: YES];
+   /* Ensure the source is stopped and removed on the main thread */
+   dispatch_sync(dispatch_get_main_queue(), ^{
+      unsigned int i;
+      CFRunLoopRef current = CFRunLoopGetCurrent();
+      for (i=0; i<joystick_count; ++i) {
+         ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+         (*joy->queue)->stop(joy->queue);
+         CFRunLoopRemoveSource(current,joy->source,kCFRunLoopDefaultMode);
+      }
+   });
    unsigned int i;
    for (i=0; i< joystick_count; ++i) {
       ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
@@ -437,30 +438,6 @@ static void get_joystick_state(ALLEGRO_JOYSTICK* ajoy, ALLEGRO_JOYSTICK_STATE* s
    ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) ajoy;
    memcpy(state, &joy->state,sizeof(*state));
 }
-
-@implementation ALJoystickHelper
-+(void)startQueues 
-{
-   unsigned int i;
-   CFRunLoopRef current = CFRunLoopGetCurrent();
-   for (i=0; i<joystick_count; ++i) {
-      ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
-      CFRunLoopAddSource(current,joy->source,kCFRunLoopDefaultMode);
-      (*joy->queue)->start(joy->queue);
-   }
-}
-+(void) stopQueues 
-{
-   unsigned int i;
-   CFRunLoopRef current = CFRunLoopGetCurrent();
-   for (i=0; i<joystick_count; ++i) {
-      ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
-      (*joy->queue)->stop(joy->queue);
-      CFRunLoopRemoveSource(current,joy->source,kCFRunLoopDefaultMode);
-   }   
-}
-@end
-
 
 /* Local variables:       */
 /* c-basic-offset: 3      */
