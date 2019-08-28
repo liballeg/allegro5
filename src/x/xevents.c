@@ -159,13 +159,13 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             d->embedder_window = None;
          }
          break;
-         
-      case SelectionNotify:        
+
+      case SelectionNotify:
         _al_xwin_display_selection_notify(&d->display, &event.xselection);
         d->is_selectioned = true;
         _al_cond_signal(&d->selectioned);
         break;
-         
+
       case SelectionRequest:
         _al_xwin_display_selection_request(&d->display, &event.xselectionrequest);
         break;
@@ -189,20 +189,20 @@ void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
        * Most older X11 implementations are not thread-safe no matter what, so
        * we simply cannot sit inside a blocking XNextEvent from another thread
        * if another thread also uses X11 functions.
-       * 
+       *
        * The usual use of XNextEvent is to only call it from the main thread. We
        * could of course do this for A5, just needs some slight adjustments to
        * the events system (polling for an Allegro event would call a function
        * of the system driver).
-       * 
+       *
        * As an alternative, we can use locking. This however can never fully
        * work, as for example OpenGL implementations also will access X11, in a
        * way we cannot know and cannot control (and we can't require users to
        * only call graphics functions inside a lock).
-       * 
+       *
        * However, most X11 implementations are somewhat thread safe, and do
        * use locking quite a bit themselves, so locking mostly does work.
-       * 
+       *
        * (Yet another alternative might be to use a separate X11 display
        * connection for graphics output.)
        *
@@ -220,7 +220,7 @@ void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
        * screensaver facility.  Probably it won't do anything for other
        * systems, though.
        */
-      #ifndef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
+#ifndef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
       if (s->inhibit_screensaver) {
          double now = al_get_time();
          if (now - last_reset_screensaver_time > 10.0) {
@@ -228,7 +228,7 @@ void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
             last_reset_screensaver_time = now;
          }
       }
-      #endif
+#endif
 
       _al_mutex_unlock(&s->lock);
 
@@ -245,4 +245,3 @@ void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
       select(x11_fd + 1, &fdset, NULL, NULL, &small_time);
    }
 }
-
