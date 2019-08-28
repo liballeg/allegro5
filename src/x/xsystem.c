@@ -196,7 +196,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
       ALLEGRO_INFO("XOpenDisplay failed; assuming headless mode.\n");
       gfxdisplay = NULL;
    }
-   
+
    _al_unix_init_time();
 
    s = al_calloc(1, sizeof *s);
@@ -360,31 +360,16 @@ static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
 static bool xglx_inhibit_screensaver(bool inhibit)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   int temp, temp_version_min, temp_version_max;
-   // int temp_interval, temp_prefer_blank, temp_allow_exp;
-   // static int temp_timeout = 0;
+   int temp, version_min, version_max;
 
-   #ifdef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
+#ifdef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
    if (!XScreenSaverQueryExtension(system->x11display, &temp, &temp) ||
-      !XScreenSaverQueryVersion(system->x11display, &temp_version_max, &temp_version_min) ||
-      temp_version_max < 1 || (temp_version_max == 1 && temp_version_min < 1)) {
+      !XScreenSaverQueryVersion(system->x11display, &version_max, &version_min) ||
+      version_max < 1 || (version_max == 1 && version_min < 1)) {
       return false;
    }
-
-   /*
-   if (inhibit) {
-      if (!temp_timeout) {
-         XGetScreenSaver(system->x11display, &temp_timeout, &temp_interval, &temp_prefer_blank, &temp_allow_exp);
-         XSetScreenSaver(system->x11display, 0, temp_interval, temp_prefer_blank, temp_allow_exp);
-      }
-   } else if (temp_timeout) {
-      XGetScreenSaver(system->x11display, 0, &temp_interval, &temp_prefer_blank, &temp_allow_exp);
-      XSetScreenSaver(system->x11display, temp_timeout, temp_interval, temp_prefer_blank, temp_allow_exp);
-      temp_timeout = 0;
-   }
-   */
    XScreenSaverSuspend(system->x11display, inhibit);
-   #endif
+#endif
 
    system->inhibit_screensaver = inhibit;
    return true;
