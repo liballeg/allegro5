@@ -29,14 +29,14 @@ static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
 char **x11_xpm = NULL;
 
+static bool xglx_inhibit_screensaver(bool inhibit);
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
 #include <stdio.h>
 #include "icon.xpm"
 
 static bool x11_xpm_set;
 static int x11_xpm_rows;
-
-static bool xglx_inhibit_screensaver(bool inhibit);
 
 static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
 {
