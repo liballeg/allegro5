@@ -368,7 +368,15 @@ static bool xglx_inhibit_screensaver(bool inhibit)
       version_max < 1 || (version_max == 1 && version_min < 1)) {
       return false;
    }
-   XScreenSaverSuspend(system->x11display, inhibit);
+
+   /* X11 maintains a counter on the number of identical calls to
+    * XScreenSaverSuspend for a given display. So, only call it if 'inhibit' is
+    * different to the previous invocation; otherwise we'd need to call it an
+    * identical number of times with the negated value if there were a change.
+    */
+   if (inhibit != system->inhibit_screensaver) {
+      XScreenSaverSuspend(system->x11display, inhibit);
+   }
 #endif
 
    system->inhibit_screensaver = inhibit;
