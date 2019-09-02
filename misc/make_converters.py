@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-import optparse, re, sys
+#!/usr/bin/env python3
+import collections, optparse, re, sys
 
 formats_by_name = {}
 formats_list = []
@@ -32,38 +32,50 @@ def parse_format(format):
     separator = format.find("_")
     class Info: pass
     class Component: pass
+
+    Info = collections.namedtuple("Info", "components, name, little_endian,"
+        "float, single_channel, size")
+    Component = collections.namedtuple("Component", "color, size,"
+        "position_from_left, position")
+
     pos = 0
-    info = Info()
-    info.components = {}
-    info.name = format
-    info.little_endian = "_LE" in format
-    info.float = False
-    info.single_channel = False
+    info = Info(
+        components={},
+        name=format,
+        little_endian="_LE" in format,
+        float=False,
+        single_channel=False,
+        size=None,
+    )
 
     if "F32" in format:
-        info.float = True
-        info.size = 128
-        return info
-   
+        return info._replace(
+            float=True,
+            size=128,
+        )
+
     if "SINGLE_CHANNEL" in format:
-        info.single_channel = True
-        info.size = 8
-        return info
-    
+        return info._replace(
+            single_channel=True,
+            size=8,
+        )
+
     for i in range(separator):
-        c = Component()
-        c.color = format[i]
-        c.size = int(format[separator + 1 + i])
-        c.position_from_left = pos
+        c = Component(
+            color=format[i],
+            size=int(format[separator + 1 + i]),
+            position_from_left=pos,
+            position=None,
+        )
         info.components[c.color] = c
         pos += c.size
     size = pos
-    for c in info.components.values():
-        c.position = size - c.position_from_left - c.size
-    info.size = size
-
-    info.float = False
-    return info
+    return info._replace(
+        components={k: c._replace(position=size - c.position_from_left - c.size)
+                    for k, c in info.components.items()},
+        size=size,
+        float=False,
+    )
 
 def macro_lines(info_a, info_b):
     """
@@ -71,7 +83,7 @@ def macro_lines(info_a, info_b):
     """
     r = ""
 
-    names = info_b.components.keys()
+    names = list(info_b.components.keys())
     names.sort()
 
     if info_a.float:
@@ -174,7 +186,7 @@ def macro_lines(info_a, info_b):
     # Collapse multiple components if possible.
     common_shifts = {}
     for name, (mask, shift, add, size_a, size_b, mask_pos) in ops.items():
-        if not add:
+        if not add and not (size_a != 8 and size_b == 8):
             if shift in common_shifts: common_shifts[shift].append(name)
             else: common_shifts[shift] = [name]
     for newshift, colors in common_shifts.items():
@@ -182,12 +194,16 @@ def macro_lines(info_a, info_b):
         newname = ""
         newmask = 0
         colors.sort()
+        masks_pos = []
         for name in colors:
+            mask, shift, add, size_a, size_b, mask_pos = ops[name]
+
             names.remove(name)
             newname += name
-            newmask |= ops[name][0]
+            newmask |= mask
+            masks_pos.append(mask_pos)
         names.append(newname)
-        ops[newname] = (newmask, shift, 0, size_a, size_b, mask_pos)
+        ops[newname] = (newmask, newshift, 0, size_a, size_b, min(masks_pos))
 
     # Write out a line for each remaining operation.
     lines = []
@@ -441,7 +457,7 @@ functions."""
 
     # Read in color.h to get the available formats.
     formats = read_color_h("include/allegro5/color.h")
-    
+
     print(formats)
 
     # Parse the component info for each format.

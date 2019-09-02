@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import re
 import optparse
@@ -244,6 +244,10 @@ class Allegro:
                             i = int(eval(val, globals(), self.constants))
                         except NameError:
                             i = val
+                        except Exception:
+                            raise ValueError(
+                                "Exception while parsing '{}'".format(
+                                    val))
                     else:
                         fname = field.strip()
                     if not fname:

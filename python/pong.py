@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
     Allegro Python port game example
     Original Author: Jeroen De Busser
