@@ -204,6 +204,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->resized);
    s->inhibit_screensaver = false;
+   s->screen_saver_query_available = false;
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_XGLX *));
 
@@ -366,16 +367,19 @@ static bool xglx_inhibit_screensaver(bool inhibit)
    if (!XScreenSaverQueryExtension(system->x11display, &temp, &temp) ||
       !XScreenSaverQueryVersion(system->x11display, &version_max, &version_min) ||
       version_max < 1 || (version_max == 1 && version_min < 1)) {
-      return false;
+      system->screen_saver_query_available = false;
    }
+   else {
+      system->screen_saver_query_available = true;
 
-   /* X11 maintains a counter on the number of identical calls to
-    * XScreenSaverSuspend for a given display. So, only call it if 'inhibit' is
-    * different to the previous invocation; otherwise we'd need to call it an
-    * identical number of times with the negated value if there were a change.
-    */
-   if (inhibit != system->inhibit_screensaver) {
-      XScreenSaverSuspend(system->x11display, inhibit);
+      /* X11 maintains a counter on the number of identical calls to
+      * XScreenSaverSuspend for a given display. So, only call it if 'inhibit' is
+      * different to the previous invocation; otherwise we'd need to call it an
+      * identical number of times with the negated value if there were a change.
+      */
+      if (inhibit != system->inhibit_screensaver) {
+         XScreenSaverSuspend(system->x11display, inhibit);
+      }
    }
 #endif
 
