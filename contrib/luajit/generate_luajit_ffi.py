@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 This script will use the prototypes from "checkdocs.py -s" to concoct
@@ -80,10 +80,17 @@ class Allegro:
                     if "=" in field:
                         fname, val = field.split("=", 1)
                         fname = fname.strip()
+                        # replace any 'X' (an integer value in C) with
+                        # ord('X') to match up in Python
+                        val = re.sub("('.')", "ord(\\1)", val)
                         try:
                             i = int(eval(val, globals(), self.constants))
                         except NameError:
                             i = val
+                        except Exception:
+                            raise ValueError(
+                                "Exception while parsing '{}'".format(
+                                    val))
                     else:
                         fname = field.strip()
                     if not fname:

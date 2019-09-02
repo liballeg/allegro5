@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # Run:
-#  python2 misc/make_resamplers.py | indent -kr -i3 -l0
+#  misc/make_resamplers.py | indent -kr -i3 -l0
 
 import sys, re
 
@@ -88,7 +88,7 @@ depths = [
 ]
 
 def make_point_interpolator(name, fmt):
-   print interp("""\
+   print(interp("""\
    static INLINE const void *
       #{name}
       (SAMP_BUF *samp_buf,
@@ -99,27 +99,27 @@ def make_point_interpolator(name, fmt):
       unsigned int i;
 
       switch (spl->spl_data.depth) {
-      """)
+      """))
 
    for depth in depths:
       buf_index = depth.index(fmt)("spl->spl_data.buffer", "i0 + i")
-      print interp("""\
+      print(interp("""\
          case #{depth.constant()}:
             for (i = 0; i < maxc; i++) {
                samp_buf-> #{fmt} [i] = #{buf_index};
             }
             break;
-         """)
+         """))
 
-   print interp("""\
+   print(interp("""\
       }
       return samp_buf-> #{fmt} ;
-   }""")
+   }"""))
 
 def make_linear_interpolator(name, fmt):
    assert fmt == "f32" or fmt == "s16"
 
-   print interp("""\
+   print(interp("""\
    static INLINE const void *
       #{name}
       (SAMP_BUF *samp_buf,
@@ -164,17 +164,17 @@ def make_linear_interpolator(name, fmt):
       p1 *= maxc;
 
       switch (spl->spl_data.depth) {
-      """)
+      """))
 
    for depth in depths:
       x0 = depth.index(fmt)("spl->spl_data.buffer", "p0 + i")
       x1 = depth.index(fmt)("spl->spl_data.buffer", "p1 + i")
-      print interp("""\
+      print(interp("""\
          case #{depth.constant()}:
-         {""")
+         {"""))
 
       if fmt == "f32":
-         print interp("""\
+         print(interp("""\
             const float t = (float)spl->pos_bresenham_error / spl->step_denom;
             int i;
             for (i = 0; i < (int)maxc; i++) {
@@ -182,9 +182,9 @@ def make_linear_interpolator(name, fmt):
                const float x1 = #{x1};
                const float s = (x0 * (1.0f - t)) + (x1 * t);
                samp_buf->f32[i] = s;
-            }""")
+            }"""))
       elif fmt == "s16":
-         print interp("""\
+         print(interp("""\
             const int32_t t = 256 * spl->pos_bresenham_error / spl->step_denom;
             int i;
             for (i = 0; i < (int)maxc; i++) {
@@ -192,22 +192,22 @@ def make_linear_interpolator(name, fmt):
                const int32_t x1 = #{x1};
                const int32_t s = ((x0 * (256 - t))>>8) + ((x1 * t)>>8);
                samp_buf->s16[i] = (int16_t)s;
-            }""")
+            }"""))
 
-      print interp("""\
+      print(interp("""\
          }
          break;
-         """)
+         """))
 
-   print interp("""\
+   print(interp("""\
       }
       return samp_buf-> #{fmt};
-   }""")
+   }"""))
 
 def make_cubic_interpolator(name, fmt):
    assert fmt == "f32"
 
-   print interp("""\
+   print(interp("""\
    static INLINE const void *
       #{name}
       (SAMP_BUF *samp_buf,
@@ -256,7 +256,7 @@ def make_cubic_interpolator(name, fmt):
       p3 *= maxc;
 
       switch (spl->spl_data.depth) {
-      """)
+      """))
 
    for depth in depths:
       value0 = depth.index(fmt)("spl->spl_data.buffer", "p0 + i")
@@ -267,7 +267,7 @@ def make_cubic_interpolator(name, fmt):
       # Code transcribed from "Polynomial Interpolators for High-Quality
       # Resampling of Oversampled Audio" by Olli Niemitalo
       # http://yehar.com/blog/?p=197
-      print interp("""\
+      print(interp("""\
          case #{depth.constant()}:
          {
             const float t = (float)spl->pos_bresenham_error / spl->step_denom;
@@ -286,16 +286,16 @@ def make_cubic_interpolator(name, fmt):
             }
          }
          break;
-         """)
+         """))
 
-   print interp("""\
+   print(interp("""\
       }
       return samp_buf-> #{fmt} ;
-   }""")
+   }"""))
 
 if __name__ == "__main__":
-   print "// Warning: This file was created by make_resamplers.py - do not edit."
-   print "// vim: set ft=c:"
+   print("// Warning: This file was created by make_resamplers.py - do not edit.")
+   print("// vim: set ft=c:")
 
    make_point_interpolator("point_spl32", "f32")
    make_point_interpolator("point_spl16", "s16")
