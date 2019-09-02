@@ -61,6 +61,7 @@ struct ALLEGRO_SYSTEM_XGLX
    int toggle_mouse_grab_keycode; /* Disabled if zero */
    unsigned int toggle_mouse_grab_modifiers;
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
+   bool screen_saver_query_available;
 
    bool mmon_interface_inited;
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
