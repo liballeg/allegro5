@@ -52,25 +52,6 @@ bool al_init_image_addon(void)
    should be used. i.e., ALLEGRO_CFG_IIO_HAVE_GDIPLUS and
    ALLEGRO_CFG_IIO_HAVE_PNG will never both be set. */
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_FREEIMAGE
-   {
-      char const *extensions[] = {".ico", ".jng", ".koala", ".lbm",
-         ".iff", ".mng", ".pbm", ".pcd", ".pgm", ".ppm", ".ras", ".wbmp",
-         ".psd", ".cut", ".xpm", ".hdr", ".fax", ".sgi", ".exr", ".raw",
-         ".j2k", ".jp2", ".jpf", ".jpm", ".jpx", ".mj2", ".pfm", ".pict",
-         ".jxr", ".jbg", NULL};
-      int i;
-
-      if (_al_init_fi()) {
-         for (i = 0; extensions[i]; i++) {
-            success |= al_register_bitmap_loader(extensions[i], _al_load_fi_bitmap);
-            success |= al_register_bitmap_loader_f(extensions[i], _al_load_fi_bitmap_f);
-            success |= al_register_bitmap_identifier(extensions[i], _al_identify_fi);
-         }
-      }
-   }
-#endif
-
 #ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS
    {
       char const *extensions[] = {".tif", ".tiff", ".jpg", ".jpeg", ".gif",
@@ -89,24 +70,8 @@ bool al_init_image_addon(void)
          success |= al_register_bitmap_saver_f(".gif", _al_save_gdiplus_gif_f);
          success |= al_register_bitmap_saver_f(".png", _al_save_gdiplus_png_f);
          success |= al_register_bitmap_saver_f(".jpg", _al_save_gdiplus_jpg_f);
-         success |= al_register_bitmap_saver_f(".jpeg", _al_save_gdiplus_jpg_f);  
+         success |= al_register_bitmap_saver_f(".jpeg", _al_save_gdiplus_jpg_f);
       }
-   }
-#endif
-
-#ifdef ALLEGRO_CFG_IIO_HAVE_ANDROID
-   {
-      char const *extensions[] = {".webp", ".jpg", ".jpeg", ".ico", ".gif", 
-         ".wbmp", ".png", NULL};
-      int i;
-
-
-      for (i = 0; extensions[i]; i++) {
-         success |= al_register_bitmap_loader(extensions[i], _al_load_android_bitmap);
-         success |= al_register_bitmap_loader_f(extensions[i], _al_load_android_bitmap_f);
-         //success |= al_register_bitmap_saver(extensions[i], _al_save_android_bitmap);
-      }
-      success |= al_register_bitmap_identifier(".webp", _al_identify_webp);
    }
 #endif
 
@@ -135,6 +100,41 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_loader_f(".webp", _al_load_webp_f);
    success |= al_register_bitmap_saver_f(".webp", _al_save_webp_f);
    success |= al_register_bitmap_identifier(".webp", _al_identify_webp);
+#endif
+
+#ifdef ALLEGRO_CFG_IIO_HAVE_FREEIMAGE
+   {
+      char const *extensions[] = {".ico", ".jng", ".koala", ".lbm",
+         ".iff", ".mng", ".pbm", ".pcd", ".pgm", ".ppm", ".ras", ".wbmp",
+         ".psd", ".cut", ".xpm", ".hdr", ".fax", ".sgi", ".exr", ".raw",
+         ".j2k", ".jp2", ".jpf", ".jpm", ".jpx", ".mj2", ".pfm", ".pict",
+         ".jxr", ".jbg", NULL};
+      int i;
+
+      if (_al_init_fi()) {
+         for (i = 0; extensions[i]; i++) {
+            success |= al_register_bitmap_loader(extensions[i], _al_load_fi_bitmap);
+            success |= al_register_bitmap_loader_f(extensions[i], _al_load_fi_bitmap_f);
+            success |= al_register_bitmap_identifier(extensions[i], _al_identify_fi);
+         }
+      }
+   }
+#endif
+
+#ifdef ALLEGRO_CFG_IIO_HAVE_ANDROID
+   {
+      char const *extensions[] = {".webp", ".jpg", ".jpeg", ".ico", ".gif",
+         ".wbmp", ".png", NULL};
+      int i;
+
+
+      for (i = 0; extensions[i]; i++) {
+         success |= al_register_bitmap_loader(extensions[i], _al_load_android_bitmap);
+         success |= al_register_bitmap_loader_f(extensions[i], _al_load_android_bitmap_f);
+         //success |= al_register_bitmap_saver(extensions[i], _al_save_android_bitmap);
+      }
+      success |= al_register_bitmap_identifier(".webp", _al_identify_webp);
+   }
 #endif
 
 #ifdef ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER
