@@ -230,6 +230,11 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
          display->ogl_extras->varlocs.projview_matrix_loc, &display->projview_transform);
    }
 
+   /* Alpha testing may be done in the shader and so when a shader is
+    * set the uniforms need to be synchronized.
+    */
+   _al_ogl_update_render_state(display);
+
    return true;
 }
 
