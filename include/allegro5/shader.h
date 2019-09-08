@@ -42,6 +42,7 @@ typedef enum ALLEGRO_SHADER_PLATFORM ALLEGRO_SHADER_PLATFORM;
 #define ALLEGRO_SHADER_VAR_USER_ATTR         "al_user_attr_"
 #define ALLEGRO_SHADER_VAR_USE_TEX           "al_use_tex"
 #define ALLEGRO_SHADER_VAR_USE_TEX_MATRIX    "al_use_tex_matrix"
+#define ALLEGRO_SHADER_VAR_ALPHA_TEST        "al_alpha_test"
 #define ALLEGRO_SHADER_VAR_ALPHA_FUNCTION    "al_alpha_func"
 #define ALLEGRO_SHADER_VAR_ALPHA_TEST_VALUE  "al_alpha_test_val"
 
