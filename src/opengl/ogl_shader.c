@@ -441,6 +441,7 @@ static void lookup_varlocs(ALLEGRO_OGL_VARLOCS *varlocs, GLuint program)
    varlocs->tex_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX);
    varlocs->use_tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
    varlocs->tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX_MATRIX);
+   varlocs->alpha_test_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_ALPHA_TEST);
    varlocs->alpha_func_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_ALPHA_FUNCTION);
    varlocs->alpha_test_val_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_ALPHA_TEST_VALUE);
 

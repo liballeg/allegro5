@@ -107,10 +107,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
          return NULL;
       }
       al_use_shader(display->default_shader);
-      // The call to update_render_state above inside of
-      // al_set_target_bitmap will have failed with programmable
-      // pipeline since there was no shader yet. Simply repeat it here.
-      display->vt->update_render_state(display);
    }
 
    /* Clear the screen */
