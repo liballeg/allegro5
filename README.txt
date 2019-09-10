@@ -72,6 +72,16 @@ The addons, too, may require additional libraries.  Since the addons are
 strictly optional, they are not required to build Allegro, but a lot of
 functionality may be disabled if they are not present.
 
+If you're using the vcpkg dependency manager, you may install Allegro and its
+dependencies using a single command:
+
+`vcpkg install allegro5`
+
+Vcpkg will build Allegro and its dependencies from source in your computer and 
+provide CMake integration for your projects.
+
+See <https://github.com/Microsoft/vcpkg> for more information.
+
 Windows users may find some precompiled binaries for the additional libraries
 from <http://gnuwin32.sourceforge.net/>.  You need to get the `bin` and `lib`
 packages.  The `bin` packages contain DLLs, and the `lib` packages contain the
