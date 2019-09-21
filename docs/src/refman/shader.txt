@@ -125,6 +125,11 @@ al_tex_matrix
 With GLSL alpha testing is done in the shader and uses these additional
 uniforms:
 
+al_alpha_test
+:   Whether to do any alpha testing. If false, the shader should render the
+    pixel, otherwise it should interpret the values of `al_alpha_func` and
+    `al_alpha_test_val`.
+
 al_alpha_func
 :   The alpha testing function used. One of the [ALLEGRO_RENDER_FUNCTION]
     values. The default is ALLEGRO_RENDER_ALWAYS which means all pixels
