@@ -542,6 +542,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->inhibit_screensaver = osx_inhibit_screensaver;
       vt->thread_init = osx_thread_init;
       vt->thread_exit = osx_thread_exit;
+      vt->get_time = _al_unix_get_time;
+      vt->rest = _al_unix_rest;
+      vt->init_timeout = _al_unix_init_timeout;
 
    };
 

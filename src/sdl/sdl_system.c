@@ -342,6 +342,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->close_library = sdl_close_library;*/
    vt->heartbeat = sdl_heartbeat;
    vt->heartbeat_init = sdl_heartbeat_init;
+   vt->get_time = _al_sdl_get_time;
+   vt->rest = _al_sdl_rest;
+   vt->init_timeout = _al_sdl_init_timeout;
 
    return vt;
 }

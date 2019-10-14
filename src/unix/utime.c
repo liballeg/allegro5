@@ -43,9 +43,7 @@ void _al_unix_init_time(void)
 
 
 
-/* Function: al_get_time
- */
-double al_get_time(void)
+double _al_unix_get_time(void)
 {
    struct timeval now;
    double time;
@@ -58,9 +56,7 @@ double al_get_time(void)
 
 
 
-/* Function: al_rest
- */
-void al_rest(double seconds)
+void _al_unix_rest(double seconds)
 {
    struct timespec timeout;
    double fsecs = floor(seconds);
@@ -71,31 +67,29 @@ void al_rest(double seconds)
 
 
 
-/* Function: al_init_timeout
- */
-void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 {
-    ALLEGRO_TIMEOUT_UNIX *ut = (ALLEGRO_TIMEOUT_UNIX *) timeout;
-    struct timeval now;
-    double integral;
-    double frac;
+   ALLEGRO_TIMEOUT_UNIX *ut = (ALLEGRO_TIMEOUT_UNIX *) timeout;
+   struct timeval now;
+   double integral;
+   double frac;
 
-    ASSERT(ut);
+   ASSERT(ut);
 
-    gettimeofday(&now, NULL);
+   gettimeofday(&now, NULL);
 
-    if (seconds <= 0.0) {
-	ut->abstime.tv_sec = now.tv_sec;
-	ut->abstime.tv_nsec = now.tv_usec * 1000;
-    }
-    else {
-	frac = modf(seconds, &integral);
+   if (seconds <= 0.0) {
+      ut->abstime.tv_sec = now.tv_sec;
+      ut->abstime.tv_nsec = now.tv_usec * 1000;
+   }
+   else {
+      frac = modf(seconds, &integral);
 
-	ut->abstime.tv_sec = now.tv_sec + integral;
-	ut->abstime.tv_nsec = (now.tv_usec * 1000) + (frac * 1000000000L);
-	ut->abstime.tv_sec += ut->abstime.tv_nsec / 1000000000L;
-	ut->abstime.tv_nsec = ut->abstime.tv_nsec % 1000000000L;
-    }
+      ut->abstime.tv_sec = now.tv_sec + integral;
+      ut->abstime.tv_nsec = (now.tv_usec * 1000) + (frac * 1000000000L);
+      ut->abstime.tv_sec += ut->abstime.tv_nsec / 1000000000L;
+      ut->abstime.tv_nsec = ut->abstime.tv_nsec % 1000000000L;
+   }
 }
 
 /* vim: set sts=3 sw=3 et */

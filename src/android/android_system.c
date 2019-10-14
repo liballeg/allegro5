@@ -545,6 +545,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt->get_path = _al_android_get_path;
    android_vt->shutdown_system = android_shutdown_system;
    android_vt->inhibit_screensaver = android_inhibit_screensaver;
+   android_vt->get_time = _al_unix_get_time;
+   android_vt->rest = _al_unix_rest;
+   android_vt->init_timeout = _al_unix_init_timeout;
 
    return android_vt;
 }

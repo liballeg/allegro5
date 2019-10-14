@@ -48,6 +48,9 @@ struct ALLEGRO_SYSTEM_INTERFACE
    void (*close_library)(void *handle);
    void (*heartbeat)(void);
    void (*heartbeat_init)(void);
+   double (*get_time)(void);
+   void (*rest)(double seconds);
+   void (*init_timeout)(ALLEGRO_TIMEOUT *timeout, double seconds);
 };
 
 struct ALLEGRO_SYSTEM

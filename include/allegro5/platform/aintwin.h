@@ -289,6 +289,11 @@ void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float 
 AL_FUNC(const char*, _al_win_error, (DWORD));
 AL_FUNC(const char*, _al_win_last_error, (void));
 
+/* Time handling */
+double _al_win_get_time(void);
+void _al_win_rest(double seconds);
+void _al_win_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
+
 #ifdef __cplusplus
    }
 #endif
