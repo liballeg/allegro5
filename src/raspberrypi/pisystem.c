@@ -195,6 +195,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_raspberrypi_driver(void)
    pi_vt->get_cursor_position = pi_get_cursor_position;
    pi_vt->get_path = _al_unix_get_path;
    pi_vt->inhibit_screensaver = pi_inhibit_screensaver;
+   pi_vt->get_time = _al_unix_get_time;
+   pi_vt->rest = _al_unix_rest;
+   pi_vt->init_timeout = _al_unix_init_timeout;
 
    return pi_vt;
 }

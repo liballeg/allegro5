@@ -913,6 +913,9 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->open_library = win_open_library;
    vt->import_symbol = win_import_symbol;
    vt->close_library = win_close_library;
+   vt->get_time = _al_win_get_time;
+   vt->rest = _al_win_rest;
+   vt->init_timeout = _al_win_init_timeout;
 
    return vt;
 }

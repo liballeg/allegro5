@@ -1,5 +1,6 @@
 #include "SDL.h"
 
+#include "allegro5/altime.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_mouse.h"
@@ -46,3 +47,6 @@ float _al_sdl_get_display_pixel_ratio(ALLEGRO_DISPLAY *display);
 
 void _al_sdl_event_hack(void);
 
+double _al_sdl_get_time(void);
+void _al_sdl_rest(double seconds);
+void _al_sdl_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);

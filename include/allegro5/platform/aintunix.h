@@ -18,6 +18,7 @@
 #ifndef __al_included_allegro5_aintunix_h
 #define __al_included_allegro5_aintunix_h
 
+#include "allegro5/altime.h"
 #include "allegro5/path.h"
 #include "allegro5/internal/aintern_driver.h"
 
@@ -30,7 +31,10 @@
 extern "C" {
 #endif
 
-   AL_FUNC(ALLEGRO_PATH *, _al_unix_get_path, (int id));
+ALLEGRO_PATH *_al_unix_get_path(int id);
+double _al_unix_get_time(void);
+void _al_unix_rest(double seconds);
+void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
 
 
 #ifdef __cplusplus
@@ -60,7 +64,7 @@ extern "C" {
 #endif
 
 /* time */
-AL_FUNC(void, _al_unix_init_time, (void));
+void _al_unix_init_time(void);
 
 /* fdwatch */
 void _al_unix_start_watching_fd(int fd, void (*callback)(void *), void *cb_data);

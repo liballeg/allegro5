@@ -495,4 +495,38 @@ void _al_close_library(void *library)
       active_sysdrv->vt->close_library(library);
 }
 
+
+/* Function: al_get_time
+ */
+double al_get_time(void)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->get_time)
+      return active_sysdrv->vt->get_time();
+   return 0.0;
+}
+
+
+/* Function: al_rest
+ */
+void al_rest(double seconds)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->rest)
+      active_sysdrv->vt->rest(seconds);
+}
+
+
+/* Function: al_init_timeout
+ */
+void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->init_timeout)
+      active_sysdrv->vt->init_timeout(timeout, seconds);
+}
+
 /* vim: set sts=3 sw=3 et: */

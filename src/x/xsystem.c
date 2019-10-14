@@ -454,6 +454,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->ungrab_mouse = _al_xwin_ungrab_mouse;
    xglx_vt->get_path = _al_unix_get_path;
    xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
+   xglx_vt->get_time = _al_unix_get_time;
+   xglx_vt->rest = _al_unix_rest;
+   xglx_vt->init_timeout = _al_unix_init_timeout;
 
    return xglx_vt;
 }

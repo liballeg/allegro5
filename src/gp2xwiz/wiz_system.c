@@ -156,6 +156,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
    gp2xwiz_vt->get_path = _al_unix_get_path;
    gp2xwiz_vt->inhibit_screensaver = gp2xwiz_inhibit_screensaver;
    gp2xwiz_vt->get_num_display_formats = gp2xwiz_get_num_display_formats;
+   gp2xwiz_vt->get_time = _al_unix_get_time;
+   gp2xwiz_vt->rest = _al_unix_rest;
+   gp2xwiz_vt->init_timeout = _al_unix_init_timeout;
 
    return gp2xwiz_vt;
 }
