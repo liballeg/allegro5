@@ -98,7 +98,7 @@ ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f)
    }
 
    /* Create sample from info variable. */
-   spl = al_create_sample(info.buffer, info.samples, info.hz,
+   spl = al_create_sample(info.buffer, info.samples / info.channels, info.hz,
       _al_word_size_to_depth_conf(sizeof(mp3d_sample_t)),
       _al_count_to_channel_conf(info.channels), true);
 
