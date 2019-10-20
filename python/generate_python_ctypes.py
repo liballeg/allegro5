@@ -62,7 +62,7 @@ class Allegro:
             "postprocess_callback_t": c_void_p,
             }
 
-        ptype = re.sub(r"\bstruct|union\b", "", ptype)
+        ptype = re.sub(r"\b(struct|union)\b", "", ptype)
         ptype = re.sub(r"\bconst\b", "", ptype)
         ptype = re.sub(r"\bextern\b", "", ptype)
         ptype = re.sub(r"\b__inline__\b", "", ptype)
