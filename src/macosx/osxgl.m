@@ -740,8 +740,9 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 {
    _al_ogl_setup_gl(d);
 
-   ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
-   [dpy->ctx update];
+   // TODO: This crashes on OSX Catalina, but does not seem to be needed
+   //ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
+   //[dpy->ctx update];
 }
 
 
