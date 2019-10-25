@@ -2,9 +2,16 @@ Mac OS X-specific notes
 =======================
 
 Building Allegro on Mac OS X is the same as on other Unix-like operating systems.
-See README_make.txt.  You may also use Xcode but that is not covered there.
+See README_make.txt.  
 
+Building with Xcode
+-------------------
 
+You may also use Xcode to build Allegro. This works similar to the instructions
+in README_make.txt, except add the parameter -GXCode when invoking cmake.
+
+Instead of creating a makefile this will create an XCode project which you can
+double click and open in XCode and then hit the arrow button to compile.
 
 Using the Clang compiler (OS X 10.6+)
 -------------------------------------
