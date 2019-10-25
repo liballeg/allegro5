@@ -8,10 +8,10 @@ Building with Xcode
 -------------------
 
 You may also use Xcode to build Allegro. This works similar to the instructions
-in README_make.txt, except add the parameter -GXCode when invoking cmake.
+in README_make.txt, except add the parameter -GXcode when invoking cmake.
 
-Instead of creating a makefile this will create an XCode project which you can
-double click and open in XCode and then hit the arrow button to compile.
+Instead of creating a makefile this will create an Xcode project which you can
+double click and open in Xcode and then hit the arrow button to compile.
 
 Using the Clang compiler (OS X 10.6+)
 -------------------------------------
