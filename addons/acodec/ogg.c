@@ -268,7 +268,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
 
    buffer = al_malloc(total_size);
    if (!buffer) {
-      ALLEGRO_ERROR("Unable to allocate buffer (%d).\n", total_size);
+      ALLEGRO_ERROR("Unable to allocate buffer (%ld).\n", total_size);
       return NULL;
    }
 
