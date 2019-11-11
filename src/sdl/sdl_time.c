@@ -15,7 +15,7 @@
 #include "SDL.h"
 
 #include "allegro5/altime.h"
-#include "allegro5/platform/allegro_sdl_thread.h"
+#include "allegro5/platform/allegro_internal_sdl.h"
 #include "allegro5/debug.h"
 
 ALLEGRO_DEBUG_CHANNEL("SDL")
