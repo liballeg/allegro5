@@ -161,7 +161,7 @@ static int oss_open_ver4()
 
       if (audioinfo.enabled) {
          if (strlen(audioinfo.devnode)) {
-            strncpy(oss_audio_device, audioinfo.devnode, 512);
+            strncpy(oss_audio_device, audioinfo.devnode, 511);
          }
          else if (audioinfo.legacy_device != -1) {
             sprintf(oss_audio_device, "/dev/dsp%i", audioinfo.legacy_device);
@@ -225,7 +225,7 @@ static int oss_open_ver3(void)
    }
 
    close(fd);
-   strncpy(oss_audio_device, oss_audio_device_ver3, 512);
+   strncpy(oss_audio_device, oss_audio_device_ver3, 511);
    ALLEGRO_INFO("Using device: %s\n", oss_audio_device);
 
    using_ver_4 = false;
