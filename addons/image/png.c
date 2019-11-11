@@ -58,7 +58,7 @@ static void user_error_fn(png_structp png_ptr, png_const_charp message)
  *  Custom read function to use Allegro packfile routines,
  *  rather than C streams (so we can read from datafiles!)
  */
-static void read_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
+static void read_data(png_structp png_ptr, png_bytep data, size_t length)
 {
    ALLEGRO_FILE *f = (ALLEGRO_FILE *)png_get_io_ptr(png_ptr);
    if ((png_uint_32) al_fread(f, data, length) != length)
@@ -436,7 +436,7 @@ ALLEGRO_BITMAP *_al_load_png(const char *filename, int flags)
  *  Custom write function to use Allegro packfile routines,
  *  rather than C streams.
  */
-static void write_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
+static void write_data(png_structp png_ptr, png_bytep data, size_t length)
 {
    ALLEGRO_FILE *f = (ALLEGRO_FILE *)png_get_io_ptr(png_ptr);
    if ((png_uint_32) al_fwrite(f, data, length) != length)
