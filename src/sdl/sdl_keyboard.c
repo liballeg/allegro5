@@ -379,6 +379,7 @@ static ALLEGRO_KEYBOARD *sdl_get_keyboard(void)
 
 static bool sdl_set_keyboard_leds(int leds)
 {
+   (void)leds;
    return false;
 }
 

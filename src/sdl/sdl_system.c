@@ -21,6 +21,7 @@ ALLEGRO_DEBUG_CHANNEL("SDL")
 
 static ALLEGRO_SYSTEM_INTERFACE *vt;
 
+#ifdef DEBUGMODE
 #define _E(x) if (type == x) return #x;
 static char const *event_name(int type)
 {
@@ -68,6 +69,7 @@ static char const *event_name(int type)
    return "(unknown)";
 }
 #undef _E
+#endif
 
 static void sdl_heartbeat(void)
 {
