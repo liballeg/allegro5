@@ -167,14 +167,6 @@ static uint32_t _al_ogl_version(void)
 
 
 
-static bool _al_ogl_version_3_only(int flags)
-{
-   const int mask = ALLEGRO_OPENGL_3_0 | ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
-   return (flags & mask) == mask;
-}
-
-
-
 /* print_extensions:
  * Given a string containing extensions (i.e. a NULL terminated string where
  * each extension are separated by a space and which names do not contain any
