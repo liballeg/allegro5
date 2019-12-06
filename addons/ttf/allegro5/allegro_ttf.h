@@ -39,6 +39,7 @@ ALLEGRO_TTF_FUNC(ALLEGRO_FONT *, al_load_ttf_font_f, (ALLEGRO_FILE *file, char c
 ALLEGRO_TTF_FUNC(ALLEGRO_FONT *, al_load_ttf_font_stretch, (char const *filename, int w, int h, int flags));
 ALLEGRO_TTF_FUNC(ALLEGRO_FONT *, al_load_ttf_font_stretch_f, (ALLEGRO_FILE *file, char const *filename, int w, int h, int flags));
 ALLEGRO_TTF_FUNC(bool, al_init_ttf_addon, (void));
+ALLEGRO_TTF_FUNC(bool, al_is_ttf_addon_initialized, (void));
 ALLEGRO_TTF_FUNC(void, al_shutdown_ttf_addon, (void));
 ALLEGRO_TTF_FUNC(uint32_t, al_get_allegro_ttf_version, (void));
 
