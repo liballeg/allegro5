@@ -30,6 +30,7 @@ extern "C" {
 
 
 ALLEGRO_ACODEC_FUNC(bool, al_init_acodec_addon, (void));
+ALLEGRO_ACODEC_FUNC(bool, al_is_acodec_addon_initialized, (void));
 ALLEGRO_ACODEC_FUNC(uint32_t, al_get_allegro_acodec_version, (void));
 
 
