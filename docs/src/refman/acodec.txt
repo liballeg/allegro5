@@ -36,6 +36,8 @@ Return true on success.
 
 Returns true if the acodec addon is initialized, otherwise returns false.
 
+Since: 5.2.6
+
 ## API: al_get_allegro_acodec_version
 
 Returns the (compiled) version of the addon, in the same format as

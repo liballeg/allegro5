@@ -33,6 +33,8 @@ have the pixel format matching the format in the file.
 
 Returns true if the image addon is initialized, otherwise returns false.
 
+Since: 5.2.6
+
 ## API: al_shutdown_image_addon
 
 Shut down the image addon. This is done automatically at program exit,

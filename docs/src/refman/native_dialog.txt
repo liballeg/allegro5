@@ -35,6 +35,8 @@ See also: [al_shutdown_native_dialog_addon]
 
 Returns true if the native dialog addon is initialized, otherwise returns false.
 
+Since: 5.2.6
+
 ## API: al_shutdown_native_dialog_addon
 
 Shut down the native dialog addon.
