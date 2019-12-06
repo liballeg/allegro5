@@ -31,7 +31,7 @@ have the pixel format matching the format in the file.
 
 ## API: al_is_image_addon_initialized
 
-Returns true if the image addon has been initialized, otherwise returns false.
+Returns true if the image addon is initialized, otherwise returns false.
 
 ## API: al_shutdown_image_addon
 

@@ -34,7 +34,7 @@ Return true on success.
 
 ## API: al_is_acodec_addon_initialized
 
-Returns true if the acodec addon has been initialized, otherwise returns false.
+Returns true if the acodec addon is initialized, otherwise returns false.
 
 ## API: al_get_allegro_acodec_version
 
