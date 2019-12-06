@@ -23,6 +23,12 @@ True on success, false on failure.
 
 See also: [al_shutdown_primitives_addon]
 
+### API: al_is_primitives_addon_initialized
+
+Returns true if the primitives addon is initialized, otherwise returns false.
+
+See also: [al_init_primitives_addon], [al_shutdown_primitives_addon]
+
 ### API: al_shutdown_primitives_addon
 
 Shut down the primitives addon. This is done automatically at program exit,

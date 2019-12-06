@@ -55,6 +55,13 @@ bool al_init_primitives_addon(void)
    return ret;
 }
 
+/* Function: al_is_primitives_addon_initialized
+ */
+bool al_is_primitives_addon_initialized(void)
+{
+   return addon_initialized;
+}
+
 /* Function: al_shutdown_primitives_addon
  */
 void al_shutdown_primitives_addon(void)
