@@ -276,6 +276,14 @@ bool al_init_video_addon(void)
 }
 
 
+/* Function: al_is_video_addon_initialized
+ */
+bool al_is_video_addon_initialized(void)
+{
+   return video_inited;
+}
+
+
 /* Function: al_shutdown_video_addon
  */
 void al_shutdown_video_addon(void)
