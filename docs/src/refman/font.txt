@@ -77,7 +77,7 @@ Returns true if the font addon is initialized, otherwise returns false.
 
 Since: 5.2.6
 
-See also: [al_init_image_addon], [al_shutdown_font_addon]
+See also: [al_init_font_addon], [al_shutdown_font_addon]
 
 ### API: al_shutdown_font_addon
 
