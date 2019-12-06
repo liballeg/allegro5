@@ -387,6 +387,16 @@ bool al_init_font_addon(void)
 }
 
 
+
+/* Function: al_is_font_addon_initialized
+ */
+bool al_is_font_addon_initialized(void)
+{
+   return font_inited;
+}
+
+
+
 /* Function: al_shutdown_font_addon
  */
 void al_shutdown_font_addon(void)
