@@ -31,6 +31,10 @@ an error message if Allegro fails to initialise.
 
 See also: [al_shutdown_native_dialog_addon]
 
+## API: al_is_native_dialog_addon_initialized
+
+Returns true if the native dialog addon is initialized, otherwise returns false.
+
 ## API: al_shutdown_native_dialog_addon
 
 Shut down the native dialog addon.

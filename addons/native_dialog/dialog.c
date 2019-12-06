@@ -27,6 +27,13 @@ bool al_init_native_dialog_addon(void)
    return true;
 }
 
+/* Function: al_is_native_dialog_addon_initialized
+ */
+bool al_is_native_dialog_addon_initialized(void)
+{
+   return inited_addon;
+}
+
 /* Function: al_shutdown_native_dialog_addon
  */
 void al_shutdown_native_dialog_addon(void)
