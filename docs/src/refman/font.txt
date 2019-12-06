@@ -702,6 +702,12 @@ Call this after [al_init_font_addon] to make [al_load_font] recognize
 
 Returns true on success, false on failure.
 
+### API: al_is_ttf_addon_initialized
+
+Returns true if the TTF addon has been initialized, otherwise returns false.
+
+See also: [al_init_ttf_addon], [al_shutdown_ttf_addon]
+
 ### API: al_shutdown_ttf_addon
 
 Unloads the ttf addon again. You normally don't need to call this.

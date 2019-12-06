@@ -1134,6 +1134,14 @@ bool al_init_ttf_addon(void)
 }
 
 
+/* Function: al_is_ttf_addon_initialized
+ */
+bool al_is_ttf_addon_initialized(void)
+{
+   return ttf_inited;
+}
+
+
 /* Function: al_shutdown_ttf_addon
  */
 void al_shutdown_ttf_addon(void)
