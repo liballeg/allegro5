@@ -27,6 +27,8 @@ See also: [al_shutdown_primitives_addon]
 
 Returns true if the primitives addon is initialized, otherwise returns false.
 
+Since: 5.2.6
+
 See also: [al_init_primitives_addon], [al_shutdown_primitives_addon]
 
 ### API: al_shutdown_primitives_addon

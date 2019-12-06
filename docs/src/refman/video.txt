@@ -69,6 +69,8 @@ Since: 5.1.12
 
 Returns true if the video addon is initialized, otherwise returns false.
 
+Since: 5.2.6
+
 ## API: al_shutdown_video_addon
 
 Shut down the video addon. This is done automatically at program exit,

@@ -75,6 +75,8 @@ See also: [al_init_image_addon], [al_init_ttf_addon], [al_shutdown_font_addon]
 
 Returns true if the font addon is initialized, otherwise returns false.
 
+Since: 5.2.6
+
 See also: [al_init_image_addon], [al_shutdown_font_addon]
 
 ### API: al_shutdown_font_addon
@@ -705,6 +707,8 @@ Returns true on success, false on failure.
 ### API: al_is_ttf_addon_initialized
 
 Returns true if the TTF addon is initialized, otherwise returns false.
+
+Since: 5.2.6
 
 See also: [al_init_ttf_addon], [al_shutdown_ttf_addon]
 
