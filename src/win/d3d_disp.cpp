@@ -108,6 +108,7 @@ typedef struct D3D_DISPLAY_PARAMETERS {
    int window_x, window_y;
    /* Not owned. */
    const char *window_title;
+   HWND existing_window;
 } D3D_DISPLAY_PARAMETERS;
 
 
@@ -893,7 +894,7 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_release_bitmaps((ALLEGRO_DISPLAY *)d3d_display);
 
    ALLEGRO_DEBUG("waiting for display %p's thread to end\n", d3d_display);
-   if (win_display->window) {
+   if (win_display->window && !win_display->dont_manage_display) {
       SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
       while (!win_display->thread_ended)
          al_rest(0.001);
@@ -1427,7 +1428,12 @@ static void *d3d_display_thread_proc(void *arg)
       info->h = al_display->h;
       info->flags = al_display->flags;
 
-      d3d_create_window_proc(info);
+      HWND window = params->existing_window;
+      if (!window)
+         d3d_create_window_proc(info);
+      else {
+         win_display->window = window;
+      }
    }
 
    if (!win_display->window) {
@@ -1464,6 +1470,16 @@ static void *d3d_display_thread_proc(void *arg)
 
    d3d_display->device->GetDeviceCaps(&caps);
    d3d_can_wait_for_vsync = ((caps.Caps & D3DCAPS_READ_SCANLINE) != 0);
+
+   if (params->existing_window) {
+      win_display->dont_manage_display = true;
+      win_display->thread_ended = true;
+      win_display->end_thread = false;
+      params->init_failed = false;
+
+      SetEvent(params->AckEvent);
+      return NULL;
+   }
 
    params->init_failed = false;
    win_display->thread_ended = false;
@@ -1580,6 +1596,16 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
    al_display->vt = vt;
    ASSERT(al_display->vt);
 
+   /* If use exist window, ignore w an h */
+   HWND exist_window = (HWND)al_get_new_display_option(ALLEGRO_USE_EXISTING_WINDOW, 0);
+   if (exist_window != 0 && !(al_display->flags & ALLEGRO_FULLSCREEN)) {
+      WINDOWINFO wi;
+      wi.cbSize = sizeof(WINDOWINFO);
+      GetWindowInfo(exist_window, &wi);
+      al_display->w = w = wi.rcClient.right - wi.rcClient.left;
+      al_display->h = h = wi.rcClient.bottom - wi.rcClient.top;
+   }
+
 #ifdef ALLEGRO_CFG_D3D9EX
    if (!is_vista)
 #endif
@@ -1688,7 +1714,13 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
       win_display->thread_ended = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
 
-      al_run_detached_thread(d3d_display_thread_proc, &params);
+      params.existing_window = (HWND)al_get_new_display_option(ALLEGRO_USE_EXISTING_WINDOW, 0);
+      al_set_new_display_option(ALLEGRO_USE_EXISTING_WINDOW, 0, ALLEGRO_REQUIRE);
+
+      if (params.existing_window)
+         d3d_display_thread_proc(&params);
+      else
+         al_run_detached_thread(d3d_display_thread_proc, &params);
       /* Wait some _finite_ time (10 secs or so) for display thread to init, and
        * give up if something horrible happened to it, unless we're in debug mode
        * and we may have intentionally stopped the execution to analyze the code.
@@ -2077,7 +2109,8 @@ static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
    al_unlock_mutex(present_mutex);
 
    if (hr == D3DERR_DEVICELOST) {
-      d3d_display->device_lost = true;
+      if (!win_display->dont_manage_display)
+         d3d_display->device_lost = true;
       return;
    }
    else {
@@ -2198,9 +2231,21 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    al_orthographic_transform(&disp->backbuffer_bmp.proj_transform, 0, 0, -1.0, w, h, 1.0);
 
    disp->do_reset = true;
-   while (!disp->reset_done) {
-      al_rest(0.001);
+   if (!win_display->dont_manage_display)
+      while (!disp->reset_done) {
+         al_rest(0.001);
+      }
+   else {
+      if (disp->do_reset) {
+         disp->reset_success = _al_d3d_reset_device(disp);
+         if (d3d_restore_callback) {
+            (*d3d_restore_callback)(d);
+         }
+         disp->do_reset = false;
+         disp->reset_done = true;
+      }
    }
+
    disp->reset_done = false;
 
    /* XXX: This is not very efficient, it'd probably be better to call
@@ -2276,26 +2321,28 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
    }
    else {
-      RECT win_size;
-      WINDOWINFO wi;
+      if (!win_display->dont_manage_display) {
+         RECT win_size;
+         WINDOWINFO wi;
 
-      win_size.left = 0;
-      win_size.top = 0;
-      win_size.right = width;
-      win_size.bottom = height;
+         win_size.left = 0;
+         win_size.top = 0;
+         win_size.right = width;
+         win_size.bottom = height;
 
-      wi.cbSize = sizeof(WINDOWINFO);
-      GetWindowInfo(win_display->window, &wi);
+         wi.cbSize = sizeof(WINDOWINFO);
+         GetWindowInfo(win_display->window, &wi);
 
-      AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
+         AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
 
-      // FIXME: Handle failure (for example if window constraints are active?)
-      SetWindowPos(win_display->window, HWND_TOP,
-         0, 0,
-         win_size.right-win_size.left,
-         win_size.bottom-win_size.top,
-         SWP_NOMOVE|SWP_NOZORDER);
+         // FIXME: Handle failure (for example if window constraints are active?)
+         SetWindowPos(win_display->window, HWND_TOP,
+            0, 0,
+            win_size.right-win_size.left,
+            win_size.bottom-win_size.top,
+            SWP_NOMOVE|SWP_NOZORDER);
 
+      }
       if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
          win_display->toggle_w = width;
          win_display->toggle_h = height;

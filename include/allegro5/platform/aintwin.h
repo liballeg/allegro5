@@ -92,6 +92,9 @@ struct ALLEGRO_DISPLAY_WIN
    int toggle_w;
    int toggle_h;
 
+   //allegro don't manage the display
+   bool dont_manage_display;
+
    /* A list of user callbacks associated with the window messages */
    _AL_VECTOR msg_callbacks;
 };
