@@ -2287,7 +2287,7 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       wi.cbSize = sizeof(WINDOWINFO);
       GetWindowInfo(win_display->window, &wi);
 
-      AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
+      AdjustWindowRectEx(&win_size, wi.dwStyle, GetMenu(win_display->window) ? TRUE : FALSE, wi.dwExStyle);
 
       // FIXME: Handle failure (for example if window constraints are active?)
       SetWindowPos(win_display->window, HWND_TOP,
