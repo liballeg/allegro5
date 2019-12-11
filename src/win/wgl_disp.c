@@ -1406,7 +1406,7 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       wi.cbSize = sizeof(WINDOWINFO);
       GetWindowInfo(win_disp->window, &wi);
 
-      AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
+      AdjustWindowRectEx(&win_size, wi.dwStyle, GetMenu(win_disp->window) ? TRUE : FALSE, wi.dwExStyle);
 
       if (!SetWindowPos(win_disp->window, HWND_TOP,
          0, 0,

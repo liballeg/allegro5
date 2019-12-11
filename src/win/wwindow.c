@@ -1173,7 +1173,7 @@ void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND hWnd,
       style |= WS_VISIBLE;
 
       GetWindowRect(hWnd, &r);
-      AdjustWindowRectEx(&r, style, false, exStyle);
+      AdjustWindowRectEx(&r, style, GetMenu(hWnd) ? TRUE : FALSE, exStyle);
 
       w = r.right - r.left;
       h = r.bottom - r.top;
