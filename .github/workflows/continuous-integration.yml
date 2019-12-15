@@ -20,11 +20,15 @@ jobs:
             - name: Configure
               run: |
                   cd build
-                  cmake .. -DCMAKE_BUILD_TYPE=Debug -DWANT_SHADERS_GL=on -DWANT_CURL_EXAMPLE=on
+                  cmake .. -DCMAKE_BUILD_TYPE=Debug -DWANT_SHADERS_GL=on -DWANT_CURL_EXAMPLE=on -DWANT_PYTHON_WRAPPER=1
             - name: Build
               run: |
                   cd build
                   make -j2
+            - name: Test Python wrapper
+              run: |
+                  cd build
+                  python python/allegro.py
             - name: Run test_driver
               run: |
                   cd build
