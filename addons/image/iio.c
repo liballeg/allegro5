@@ -166,7 +166,7 @@ bool al_init_image_addon(void)
 
 /* Function: al_is_image_addon_initialized
  */
-bool is_image_addon_initialized(void)
+bool al_is_image_addon_initialized(void)
 {
    return iio_inited;
 }
