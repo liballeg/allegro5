@@ -224,6 +224,8 @@ fail:
  */
 void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
 {
+   if (!decl)
+      return;
    al_free(decl->elements);
    /*
     * TODO: Somehow free the d3d_decl
