@@ -38,8 +38,6 @@ ALLEGRO_MOUSE_DRIVER *_al_get_iphone_mouse_driver(void);
 ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_iphone_touch_input_driver(void);
 ALLEGRO_JOYSTICK_DRIVER *_al_get_iphone_joystick_driver(void);
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d, bool manage_backbuffer);
-//void _al_iphone_generate_mouse_event(unsigned int type,
-//   int x, int y, unsigned int button, ALLEGRO_DISPLAY *d);
 //void _al_iphone_generate_touch_event(unsigned int type, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *d);
 void _al_iphone_update_visuals(void);
 void _al_iphone_accelerometer_control(int frequency);

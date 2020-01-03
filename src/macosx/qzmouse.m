@@ -33,7 +33,6 @@
 ALLEGRO_DEBUG_CHANNEL("MacOSX");
 
 typedef struct ALLEGRO_MOUSE AL_MOUSE;
-typedef struct ALLEGRO_MOUSE_STATE AL_MOUSE_STATE;
 
 static bool osx_init_mouse(void);
 static unsigned int osx_get_mouse_num_buttons(void);
@@ -47,7 +46,7 @@ static struct {
    unsigned int button_count;
    unsigned int axis_count;
    int minx, miny, maxx, maxy;
-   ALLEGRO_MOUSE_STATE state;
+   ALLEGRO_MOUSE_FLOAT_STATE state;
    float z_axis, w_axis;
    BOOL warped;
    int warped_x, warped_y;
@@ -56,7 +55,7 @@ static struct {
 
 void _al_osx_clear_mouse_state(void)
 {
-   memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
+   memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_FLOAT_STATE));
 }
 
 /* _al_osx_switch_keyboard_focus:
@@ -72,6 +71,35 @@ void _al_osx_switch_mouse_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
       osx_mouse.state.display = NULL;
 
    _al_event_source_unlock(&osx_mouse.parent.es);
+}
+
+static void generate_mouse_event(unsigned int type,
+                                 float x, float y, float z, float w, float pressure,
+                                 float dx, float dy, float dz, float dw,
+                                 unsigned int button,
+                                 ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_EVENT event;
+
+   if (!_al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
+      return;
+
+   event.mouse_float.type = type;
+   event.mouse_float.timestamp = al_get_time();
+   event.mouse_float.display = display;
+   event.mouse_float.x = x;
+   event.mouse_float.y = y;
+   event.mouse_float.z = z;
+   event.mouse_float.w = w;
+   event.mouse_float.dx = dx;
+   event.mouse_float.dy = dy;
+   event.mouse_float.dz = dz;
+   event.mouse_float.dw = dw;
+   event.mouse_float.button = button;
+   event.mouse_float.pressure = pressure;
+   _al_event_source_emit_event(&osx_mouse.parent.es, &event);
+   _al_make_int_mouse_event(&event);
+   _al_event_source_emit_event(&osx_mouse.parent.es, &event);
 }
 
 /* osx_get_mouse:
@@ -96,7 +124,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
    switch ([evt type])
    {
       case NSMouseMoved:
-         type = ALLEGRO_EVENT_MOUSE_AXES;
+         type = ALLEGRO_EVENT_MOUSE_AXES_FLOAT;
          dx = [evt deltaX];
          dy = [evt deltaY];
          pressure = [evt pressure];
@@ -104,7 +132,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       case NSLeftMouseDragged:
       case NSRightMouseDragged:
       case NSOtherMouseDragged:
-         type = ALLEGRO_EVENT_MOUSE_AXES;
+         type = ALLEGRO_EVENT_MOUSE_AXES_FLOAT;
          b = [evt buttonNumber]+1;
          dx = [evt deltaX];
          dy = [evt deltaY];
@@ -113,7 +141,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       case NSLeftMouseDown:
       case NSRightMouseDown:
       case NSOtherMouseDown:
-         type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
+         type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT;
          b = [evt buttonNumber]+1;
          b_change = 1;
          osx_mouse.state.buttons |= (1 << (b-1));
@@ -122,14 +150,14 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       case NSLeftMouseUp:
       case NSRightMouseUp:
       case NSOtherMouseUp:
-         type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
+         type = ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT;
          b = [evt buttonNumber]+1;
          b_change = 1;
          osx_mouse.state.buttons &= ~(1 << (b-1));
          pressure = [evt pressure];
          break;
       case NSScrollWheel:
-         type = ALLEGRO_EVENT_MOUSE_AXES;
+         type = ALLEGRO_EVENT_MOUSE_AXES_FLOAT;
          dx = 0;
          dy = 0;
          osx_mouse.w_axis += al_get_mouse_wheel_precision() * [evt deltaX];
@@ -138,13 +166,13 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
          dz = osx_mouse.z_axis - osx_mouse.state.z;
          break;
       case NSMouseEntered:
-         type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
+         type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY_FLOAT;
          b = [evt buttonNumber]+1;
          dx = [evt deltaX];
          dy = [evt deltaY];
          break;
       case NSMouseExited:
-         type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
+         type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY_FLOAT;
          b = [evt buttonNumber]+1;
          dx = [evt deltaX];
          dy = [evt deltaY];
@@ -174,33 +202,16 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
    }
    dx *= scaling_factor;
    dy *= scaling_factor;
-   if (osx_mouse.warped && type == ALLEGRO_EVENT_MOUSE_AXES) {
+   if (osx_mouse.warped && type == ALLEGRO_EVENT_MOUSE_AXES_FLOAT) {
        dx -= osx_mouse.warped_x;
        dy -= osx_mouse.warped_y;
        osx_mouse.warped = FALSE;
    }
    _al_event_source_lock(&osx_mouse.parent.es);
-   if ((within || b_change || type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY)
-      && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
+   if (within || b_change || type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY_FLOAT)
    {
-      ALLEGRO_EVENT new_event;
-      ALLEGRO_MOUSE_EVENT* mouse_event = &new_event.mouse;
-      mouse_event->type = type;
-      // Note: we use 'allegro time' rather than the time stamp
-      // from the event
-      mouse_event->timestamp = al_get_time();
-      mouse_event->display = dpy;
-      mouse_event->button = b;
-      mouse_event->x = pos.x * scaling_factor;
-      mouse_event->y = pos.y * scaling_factor;
-      mouse_event->z = osx_mouse.z_axis;
-      mouse_event->w = osx_mouse.w_axis;
-      mouse_event->dx = dx;
-      mouse_event->dy = dy;
-      mouse_event->dz = dz;
-      mouse_event->dw = dw;
-      mouse_event->pressure = pressure;
-      _al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
+      generate_mouse_event(type, pos.x * scaling_factor, pos.y * scaling_factor,
+         osx_mouse.z_axis, osx_mouse.w_axis, pressure, dx, dy, dz, dw, b, dpy);
    }
    // Record current state
    osx_mouse.state.x = pos.x * scaling_factor;
@@ -275,7 +286,7 @@ static bool osx_init_mouse(void)
    osx_mouse.button_count = max_buttons;
    osx_mouse.axis_count = max_axes;
    osx_mouse.warped = FALSE;
-   memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
+   memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_FLOAT_STATE));
    _al_osx_mouse_was_installed(YES);
    [pool drain];
    return true;
@@ -306,17 +317,17 @@ static unsigned int osx_get_mouse_num_axes(void)
 }
 
 
-static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
+static void osx_get_mouse_state(ALLEGRO_MOUSE_FLOAT_STATE *ret_state)
 {
    _al_event_source_lock(&osx_mouse.parent.es);
-   memcpy(ret_state, &osx_mouse.state, sizeof(ALLEGRO_MOUSE_STATE));
+   *ret_state = osx_mouse.state;
    _al_event_source_unlock(&osx_mouse.parent.es);
 }
 
 /* osx_set_mouse_xy:
 * Set the current mouse position
 */
-static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
+static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, float x, float y)
 {
    CGPoint pos;
    CGDirectDisplayID display = 0;
@@ -355,28 +366,14 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
    }
 
    _al_event_source_lock(&osx_mouse.parent.es);
-   if (_al_event_source_needs_to_generate_event(&osx_mouse.parent.es)) {
-      ALLEGRO_EVENT new_event;
-      ALLEGRO_MOUSE_EVENT* mouse_event = &new_event.mouse;
-      mouse_event->type = ALLEGRO_EVENT_MOUSE_WARPED;
-      // Note: we use 'allegro time' rather than the time stamp
-      // from the event
-      mouse_event->timestamp = al_get_time();
-      mouse_event->display = (ALLEGRO_DISPLAY *)dpy;
-      mouse_event->button = 0;
-      mouse_event->x = x;
-      mouse_event->y = y;
-      mouse_event->z = osx_mouse.z_axis;
-      mouse_event->dx = x - osx_mouse.state.x;
-      mouse_event->dy = y - osx_mouse.state.y;
-      mouse_event->dz = 0;
-      mouse_event->pressure = osx_mouse.state.pressure;
-      if (mouse_event->dx || mouse_event->dy) {
-         osx_mouse.warped = TRUE;
-         osx_mouse.warped_x = mouse_event->dx;
-         osx_mouse.warped_y = mouse_event->dy;
-         _al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
-      }
+   float dx = x - osx_mouse.state.x;
+   float dy = y - osx_mouse.state.y;
+   if (dx || dy) {
+      osx_mouse.warped = TRUE;
+      osx_mouse.warped_x = mouse_event->dx;
+      osx_mouse.warped_y = mouse_event->dy;
+      generate_mouse_event(type, x, y, osx_mouse.z_axis, osx_mouse.w_axis,
+         osx_mouse.state.pressure, dx, dy, 0, 0, 0, dpy);
    }
    CGDisplayMoveCursorToPoint(display, pos);
    osx_mouse.state.x = x;
@@ -388,10 +385,12 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
 /* osx_set_mouse_axis:
 * Set the axis value of the mouse
 */
-static bool osx_set_mouse_axis(int axis, int value)
+static bool osx_set_mouse_axis(int axis, float value)
 {
-    bool result = false;
+   bool result = false;
    _al_event_source_lock(&osx_mouse.parent.es);
+   float dz = 0;
+   float dw = 0;
    switch (axis)
    {
       case 0:
@@ -399,22 +398,34 @@ static bool osx_set_mouse_axis(int axis, int value)
          // By design, this doesn't apply to (x, y)
          break;
       case 2:
+         dz = value - osx_mouse.z_axis;
          osx_mouse.z_axis = value;
          result = true;
          break;
       case 3:
+         dw = value - osx_mouse.w_axis;
          osx_mouse.w_axis = value;
          result = true;
          break;
    }
-   /* XXX generate an event if the axis value changed */
+   if (dz != 0 || dw != 0) {
+      generate_mouse_event(
+         ALLEGRO_EVENT_MOUSE_AXES_FLOAT,
+         osx_mouse.state.x, osx_mouse.state.y, osx_mouse.z_axis,
+         osx_mouse.w_axis, osx_mouse.state.pressure,
+         0, 0, dz, dw,
+         0, osx_mouse.state.display);
+   }
    _al_event_source_unlock(&osx_mouse.parent.es);
    return result;
 }
+
+#define MOUSEDRV_OSX  AL_ID(' ','O','S','X')
+
 /* Mouse driver */
 static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
 {
-   0, //int  msedrv_id;
+   MOUSEDRV_OSX, //int  msedrv_id;
    "OSXMouse", //const char *msedrv_name;
    "Driver for Mac OS X",// const char *msedrv_desc;
    "OSX Mouse", //const char *msedrv_ascii_name;
@@ -423,9 +434,9 @@ static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
    osx_get_mouse, //AL_METHOD(ALLEGRO_MOUSE*, get_mouse, (void));
    osx_get_mouse_num_buttons, //AL_METHOD(unsigned int, get_mouse_num_buttons, (void));
    osx_get_mouse_num_axes, //AL_METHOD(unsigned int, get_mouse_num_axes, (void));
-   osx_set_mouse_xy, //AL_METHOD(bool, set_mouse_xy, (int x, int y));
-   osx_set_mouse_axis, //AL_METHOD(bool, set_mouse_axis, (int which, int value));
-   osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));
+   osx_set_mouse_xy, //AL_METHOD(bool, set_mouse_xy, (float x, float y));
+   osx_set_mouse_axis, //AL_METHOD(bool, set_mouse_axis, (int which, float value));
+   osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_FLOAT_STATE *ret_state));
 };
 ALLEGRO_MOUSE_DRIVER* _al_osx_get_mouse_driver(void)
 {
@@ -435,7 +446,7 @@ ALLEGRO_MOUSE_DRIVER* _al_osx_get_mouse_driver(void)
 /* list the available drivers */
 _AL_DRIVER_INFO _al_mouse_driver_list[] =
 {
-   {  1, &osx_mouse_driver, 1 },
+   {  MOUSEDRV_OSX, &osx_mouse_driver, 1 },
    {  0,  NULL,  0  }
 };
 

@@ -155,9 +155,7 @@ jclass _al_android_image_loader_class(void);
 jclass _al_android_clipboard_class(void);
 jclass _al_android_apk_fs_class(void);
 
-void _al_android_generate_mouse_event(unsigned int type, int x, int y,
-   unsigned int button, ALLEGRO_DISPLAY *d);
-void _al_android_mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
+void _al_android_mouse_get_state(ALLEGRO_MOUSE_FLOAT_STATE *ret_state);
 
 void _al_android_generate_accelerometer_event(float x, float y, float z);
 void _al_android_generate_joystick_axis_event(int index, int stick, int axis, float value);

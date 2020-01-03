@@ -5,56 +5,12 @@
 
 typedef struct ALLEGRO_MOUSE_ANDROID {
     ALLEGRO_MOUSE parent;
-    ALLEGRO_MOUSE_STATE state;
+    ALLEGRO_MOUSE_FLOAT_STATE state;
 } ALLEGRO_MOUSE_ANDROID;
 
 static ALLEGRO_MOUSE_ANDROID the_mouse;
 
 static bool amouse_installed;
-
-/*
- *  Helper to generate a mouse event.
- */
-void _al_android_generate_mouse_event(unsigned int type, int x, int y,
-   unsigned int button, ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_EVENT event;
-   
-   _al_event_source_lock(&the_mouse.parent.es);
-
-   //_al_android_translate_from_screen(d, &x, &y);
-
-   the_mouse.state.x = x;
-   the_mouse.state.y = y;
-
-   if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-      the_mouse.state.buttons |= (1 << button);
-   }
-   else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
-      the_mouse.state.buttons &= ~(1 << button);
-   }
-
-   the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; // TODO
-
-   if (_al_event_source_needs_to_generate_event(&the_mouse.parent.es)) {
-      event.mouse.type = type;
-      event.mouse.timestamp = al_get_time();
-      event.mouse.display = d;
-      event.mouse.x = x;
-      event.mouse.y = y;
-      event.mouse.z = 0;
-      event.mouse.w = 0;
-      event.mouse.dx = 0; // TODO
-      event.mouse.dy = 0; // TODO
-      event.mouse.dz = 0; // TODO
-      event.mouse.dw = 0; // TODO
-      event.mouse.button = button;
-      event.mouse.pressure = the_mouse.state.pressure;
-      _al_event_source_emit_event(&the_mouse.parent.es, &event);
-   }
-
-   _al_event_source_unlock(&the_mouse.parent.es);
-}
 
 static void amouse_exit(void);
 static bool amouse_init(void)
@@ -93,7 +49,7 @@ static unsigned int amouse_get_mouse_num_axes(void)
 }
 
 /* Hard to accomplish on a touch screen. */
-static bool amouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+static bool amouse_set_mouse_xy(ALLEGRO_DISPLAY *display, float x, float y)
 {
     (void)display;
     (void)x;
@@ -101,7 +57,7 @@ static bool amouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
     return false;
 }
 
-static bool amouse_set_mouse_axis(int which, int z)
+static bool amouse_set_mouse_axis(int which, float z)
 {
     (void)which;
     (void)z;

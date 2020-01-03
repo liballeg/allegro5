@@ -36,14 +36,14 @@ int main(int argc, char **argv)
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
    ALLEGRO_FONT *font;
-   int mx = 0;
-   int my = 0;
-   int mz = 0;
-   int mw = 0;
-   int mmx = 0;
-   int mmy = 0;
-   int mmz = 0;
-   int mmw = 0;
+   float mx = 0;
+   float my = 0;
+   float mz = 0;
+   float mw = 0;
+   float mmx = 0;
+   float mmy = 0;
+   float mmz = 0;
+   float mmw = 0;
    int precision = 1;
    bool in = true;
    bool buttons[NUM_BUTTONS] = {false};
@@ -102,8 +102,8 @@ int main(int argc, char **argv)
          }
          al_draw_bitmap(cursor, mx, my, 0);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-         al_draw_textf(font, black, 5, 5, 0, "dx %i, dy %i, dz %i, dw %i", mmx, mmy, mmz, mmw);
-         al_draw_textf(font, black, 5, 25, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
+         al_draw_textf(font, black, 5, 5, 0, "dx %g, dy %g, dz %g, dw %g", mmx, mmy, mmz, mmw);
+         al_draw_textf(font, black, 5, 25, 0, "x %g, y %g, z %g, w %g", mx, my, mz, mw);
          al_draw_textf(font, black, 5, 45, 0, "p = %g", p);
          al_draw_textf(font, black, 5, 65, 0, "%s", in ? "in" : "out");
          al_draw_textf(font, black, 5, 85, 0, "wheel precision (PgUp/PgDn) %d", precision);
@@ -114,37 +114,37 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_MOUSE_AXES:
-            mx = event.mouse.x;
-            my = event.mouse.y;
-            mz = event.mouse.z;
-            mw = event.mouse.w;
-            mmx = event.mouse.dx;
-            mmy = event.mouse.dy;
-            mmz = event.mouse.dz;
-            mmw = event.mouse.dw;
-            p = event.mouse.pressure;
+         case ALLEGRO_EVENT_MOUSE_AXES_FLOAT:
+            mx = event.mouse_float.x;
+            my = event.mouse_float.y;
+            mz = event.mouse_float.z;
+            mw = event.mouse_float.w;
+            mmx = event.mouse_float.dx;
+            mmy = event.mouse_float.dy;
+            mmz = event.mouse_float.dz;
+            mmw = event.mouse_float.dw;
+            p = event.mouse_float.pressure;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-            if (event.mouse.button-1 < NUM_BUTTONS) {
-               buttons[event.mouse.button-1] = true;
+         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT:
+            if (event.mouse_float.button-1 < NUM_BUTTONS) {
+               buttons[event.mouse_float.button-1] = true;
             }
             p = event.mouse.pressure;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
-            if (event.mouse.button-1 < NUM_BUTTONS) {
-               buttons[event.mouse.button-1] = false;
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT:
+            if (event.mouse_float.button-1 < NUM_BUTTONS) {
+               buttons[event.mouse_float.button-1] = false;
             }
-            p = event.mouse.pressure;
+            p = event.mouse_float.pressure;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+         case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY_FLOAT:
             in = true;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+         case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY_FLOAT:
             in = false;
             break;
 

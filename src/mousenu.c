@@ -208,10 +208,22 @@ bool al_set_mouse_axis(int which, int value)
  */
 void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
+   ALLEGRO_MOUSE_FLOAT_STATE ret_state_float;
+   int i;
    ASSERT(new_mouse_driver);
    ASSERT(ret_state);
 
-   new_mouse_driver->get_mouse_state(ret_state);
+   new_mouse_driver->get_mouse_state(&ret_state_float);
+
+   ret_state->x = (int)ret_state_float.x;
+   ret_state->y = (int)ret_state_float.y;
+   ret_state->z = (int)ret_state_float.z;
+   ret_state->w = (int)ret_state_float.w;
+   ret_state->buttons = ret_state_float.buttons;
+   ret_state->pressure = ret_state_float.pressure;
+   ret_state->display = ret_state_float.display;
+   for (i = 0; i < ALLEGRO_MOUSE_MAX_EXTRA_AXES; i++)
+      ret_state->more_axes[i] = (int)ret_state_float.more_axes[i];
 }
 
 
@@ -331,6 +343,53 @@ int al_get_mouse_wheel_precision(void)
    ALLEGRO_SYSTEM *alsys = al_get_system_driver();
    ASSERT(alsys);
    return alsys->mouse_wheel_precision;
+}
+
+
+
+void _al_make_int_mouse_event(ALLEGRO_EVENT *event)
+{
+   ALLEGRO_EVENT_TYPE new_type = 0;
+   ALLEGRO_EVENT old_event;
+   ASSERT(event);
+   old_event = *event;
+
+   switch (event->type) {
+      case ALLEGRO_EVENT_MOUSE_AXES_FLOAT:
+         new_type = ALLEGRO_EVENT_MOUSE_AXES;
+         break;
+      case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT:
+         new_type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
+         break;
+      case ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT:
+         new_type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
+         break;
+      case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY_FLOAT:
+         new_type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
+         break;
+      case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY_FLOAT:
+         new_type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
+         break;
+      case ALLEGRO_EVENT_MOUSE_WARPED_FLOAT:
+         new_type = ALLEGRO_EVENT_MOUSE_WARPED;
+         break;
+      default:
+         ASSERT(0);
+   }
+
+   event->type = new_type;
+   event->mouse.x = (int)old_event.mouse_float.x;
+   event->mouse.y = (int)old_event.mouse_float.y;
+   event->mouse.z = (int)old_event.mouse_float.z;
+   event->mouse.w = (int)old_event.mouse_float.w;
+
+   event->mouse.dx = (int)old_event.mouse_float.dx;
+   event->mouse.dy = (int)old_event.mouse_float.dy;
+   event->mouse.dz = (int)old_event.mouse_float.dz;
+   event->mouse.dw = (int)old_event.mouse_float.dw;
+
+   event->mouse.button = old_event.mouse_float.button;
+   event->mouse.pressure = old_event.mouse_float.pressure;
 }
 
 /* vim: set sts=3 sw=3 et: */

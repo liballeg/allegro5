@@ -49,7 +49,14 @@ enum
    ALLEGRO_EVENT_TOUCH_CANCEL                = 53,
    
    ALLEGRO_EVENT_DISPLAY_CONNECTED           = 60,
-   ALLEGRO_EVENT_DISPLAY_DISCONNECTED        = 61
+   ALLEGRO_EVENT_DISPLAY_DISCONNECTED        = 61,
+
+   ALLEGRO_EVENT_MOUSE_AXES_FLOAT            = 62,
+   ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT     = 63,
+   ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT       = 64,
+   ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY_FLOAT   = 65,
+   ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY_FLOAT   = 66,
+   ALLEGRO_EVENT_MOUSE_WARPED_FLOAT          = 67
 };
 
 
@@ -155,6 +162,24 @@ typedef struct ALLEGRO_MOUSE_EVENT
 
 
 
+typedef struct ALLEGRO_MOUSE_FLOAT_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_MOUSE)
+   struct ALLEGRO_DISPLAY *display;
+   /* (display) Window the event originate from
+    * (x, y) Primary mouse position
+    * (z) Mouse wheel position (1D 'wheel'), or,
+    * (w, z) Mouse wheel position (2D 'ball')
+    * (pressure) The pressure applied, for stylus (0 or 1 for normal mouse)
+    */
+   float x,  y,  z, w;
+   float dx, dy, dz, dw;
+   unsigned int button;
+   float pressure;
+} ALLEGRO_MOUSE_FLOAT_EVENT;
+
+
+
 typedef struct ALLEGRO_TIMER_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_TIMER)
@@ -209,14 +234,15 @@ union ALLEGRO_EVENT
     * common to all event types, without using some specific type
     * structure.
     */
-   ALLEGRO_ANY_EVENT      any;
-   ALLEGRO_DISPLAY_EVENT  display;
-   ALLEGRO_JOYSTICK_EVENT joystick;
-   ALLEGRO_KEYBOARD_EVENT keyboard;
-   ALLEGRO_MOUSE_EVENT    mouse;
-   ALLEGRO_TIMER_EVENT    timer;
-   ALLEGRO_TOUCH_EVENT    touch;
-   ALLEGRO_USER_EVENT     user;
+   ALLEGRO_ANY_EVENT         any;
+   ALLEGRO_DISPLAY_EVENT     display;
+   ALLEGRO_JOYSTICK_EVENT    joystick;
+   ALLEGRO_KEYBOARD_EVENT    keyboard;
+   ALLEGRO_MOUSE_EVENT       mouse;
+   ALLEGRO_MOUSE_FLOAT_EVENT mouse_float;
+   ALLEGRO_TIMER_EVENT       timer;
+   ALLEGRO_TOUCH_EVENT       touch;
+   ALLEGRO_USER_EVENT        user;
 };
 
 

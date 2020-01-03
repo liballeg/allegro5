@@ -43,7 +43,7 @@ ALLEGRO_DEBUG_CHANNEL("mouse")
 typedef struct ALLEGRO_MOUSE_XWIN
 {
    ALLEGRO_MOUSE parent;
-   ALLEGRO_MOUSE_STATE state;
+   ALLEGRO_MOUSE_FLOAT_STATE state;
    int min_x, min_y;
    int max_x, max_y;
 } ALLEGRO_MOUSE_XWIN;
@@ -63,15 +63,15 @@ static void xmouse_exit(void);
 static ALLEGRO_MOUSE *xmouse_get_mouse(void);
 static unsigned int xmouse_get_mouse_num_buttons(void);
 static unsigned int xmouse_get_mouse_num_axes(void);
-static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *,int x, int y);
-static bool xmouse_set_mouse_axis(int which, int z);
-static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
+static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *, float x, float y);
+static bool xmouse_set_mouse_axis(int which, float z);
+static void xmouse_get_state(ALLEGRO_MOUSE_FLOAT_STATE *ret_state);
 
 static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display);
 static unsigned int x_button_to_al_button(unsigned int x_button);
 static void generate_mouse_event(unsigned int type,
-   int x, int y, int z, int w, float pressure,
-   int dx, int dy, int dz, int dw,
+   float x, float y, float z, float w, float pressure,
+   float dx, float dy, float dz, float dw,
    unsigned int button,
    ALLEGRO_DISPLAY *display);
 
@@ -111,7 +111,7 @@ static bool xmouse_init(void)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY *display;
-   int x, y;
+   float x, y;
 
    if (system->x11display == NULL)
       return false;
@@ -216,7 +216,7 @@ static unsigned int xmouse_get_mouse_num_axes(void)
 /* xmouse_set_mouse_xy:
  *  Set the mouse position.  Return true if successful.
  */
-static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, float x, float y)
 {
    if (!xmouse_installed)
       return false;
@@ -268,7 +268,7 @@ static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 /* xmouse_set_mouse_axis:
  *  Set the mouse wheel position.  Return true if successful.
  */
-static bool xmouse_set_mouse_axis(int which, int v)
+static bool xmouse_set_mouse_axis(int which, float v)
 {
    ASSERT(xmouse_installed);
 
@@ -278,17 +278,17 @@ static bool xmouse_set_mouse_axis(int which, int v)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      int z = which == 2 ? v : the_mouse.state.z;
-      int w = which == 3 ? v : the_mouse.state.w;
-      int dz = z - the_mouse.state.z;
-      int dw = w - the_mouse.state.w;
+      float z = which == 2 ? v : the_mouse.state.z;
+      float w = which == 3 ? v : the_mouse.state.w;
+      float dz = z - the_mouse.state.z;
+      float dw = w - the_mouse.state.w;
 
       if (dz != 0 || dw != 0) {
          the_mouse.state.z = z;
          the_mouse.state.w = w;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES_FLOAT,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             the_mouse.state.w, the_mouse.state.pressure,
             0, 0, dz, dw,
@@ -306,7 +306,7 @@ static bool xmouse_set_mouse_axis(int which, int v)
 /* xmouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+static void xmouse_get_state(ALLEGRO_MOUSE_FLOAT_STATE *ret_state)
 {
    ASSERT(xmouse_installed);
 
@@ -344,7 +344,7 @@ void _al_xwin_mouse_button_press_handler(int x_button,
       the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; /* TODO */
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
+         ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          the_mouse.state.w, the_mouse.state.pressure,
          0, 0, 0, 0,
@@ -361,7 +361,7 @@ void _al_xwin_mouse_button_press_handler(int x_button,
  */
 static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
 {
-   int dz = 0, dw = 0;
+   float dz = 0, dw = 0;
    if (x_button == Button4) dz = 1;
    if (x_button == Button5) dz = -1;
    if (x_button == 6) dw = -1;
@@ -377,7 +377,7 @@ static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
       the_mouse.state.w += dw;
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES_FLOAT,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          the_mouse.state.w, the_mouse.state.pressure,
          0, 0, dz, dw,
@@ -410,7 +410,7 @@ void _al_xwin_mouse_button_release_handler(int x_button,
       the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; /* TODO */
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_BUTTON_UP,
+         ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          the_mouse.state.w, the_mouse.state.pressure,
          0, 0, 0, 0,
@@ -425,11 +425,13 @@ void _al_xwin_mouse_button_release_handler(int x_button,
  *  Called by _xwin_process_event() for MotionNotify events received from the X
  *  server.
  */
-void _al_xwin_mouse_motion_notify_handler(int x, int y,
+void _al_xwin_mouse_motion_notify_handler(int xi, int yi,
    ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   int event_type = ALLEGRO_EVENT_MOUSE_AXES;
+   int event_type = ALLEGRO_EVENT_MOUSE_AXES_FLOAT;
+   float x = xi;
+   float y = yi;
 
    if (!xmouse_installed)
       return;
@@ -437,7 +439,7 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
    /* Is this an event generated in response to al_set_mouse_xy? */
    if (glx->mouse_warp) {
       glx->mouse_warp = false;
-      event_type = ALLEGRO_EVENT_MOUSE_WARPED;
+      event_type = ALLEGRO_EVENT_MOUSE_WARPED_FLOAT;
    }
 
    _al_event_source_lock(&the_mouse.parent.es);
@@ -449,8 +451,8 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
    y *= scale_y;
 #endif
 
-   int dx = x - the_mouse.state.x;
-   int dy = y - the_mouse.state.y;
+   float dx = x - the_mouse.state.x;
+   float dy = y - the_mouse.state.y;
 
    the_mouse.state.x = x;
    the_mouse.state.y = y;
@@ -500,8 +502,8 @@ static unsigned int x_button_to_al_button(unsigned int x_button)
  *  Helper to generate a mouse event.
  */
 static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z, int w, float pressure,
-                                 int dx, int dy, int dz, int dw,
+                                 float x, float y, float z, float w, float pressure,
+                                 float dx, float dy, float dz, float dw,
                                  unsigned int button,
                                  ALLEGRO_DISPLAY *display)
 {
@@ -510,19 +512,21 @@ static void generate_mouse_event(unsigned int type,
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
 
-   event.mouse.type = type;
-   event.mouse.timestamp = al_get_time();
-   event.mouse.display = display;
-   event.mouse.x = x;
-   event.mouse.y = y;
-   event.mouse.z = z;
-   event.mouse.w = w;
-   event.mouse.dx = dx;
-   event.mouse.dy = dy;
-   event.mouse.dz = dz;
-   event.mouse.dw = dw;
-   event.mouse.button = button;
-   event.mouse.pressure = pressure;
+   event.mouse_float.type = type;
+   event.mouse_float.timestamp = al_get_time();
+   event.mouse_float.display = display;
+   event.mouse_float.x = x;
+   event.mouse_float.y = y;
+   event.mouse_float.z = z;
+   event.mouse_float.w = w;
+   event.mouse_float.dx = dx;
+   event.mouse_float.dy = dy;
+   event.mouse_float.dz = dz;
+   event.mouse_float.dw = dw;
+   event.mouse_float.button = button;
+   event.mouse_float.pressure = pressure;
+   _al_event_source_emit_event(&the_mouse.parent.es, &event);
+   _al_make_int_mouse_event(&event);
    _al_event_source_emit_event(&the_mouse.parent.es, &event);
 }
 
@@ -549,13 +553,13 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
          the_mouse.state.display = display;
          the_mouse.state.x = event->x;
          the_mouse.state.y = event->y;
-         event_type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
+         event_type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY_FLOAT;
          break;
       case LeaveNotify:
          the_mouse.state.display = NULL;
          the_mouse.state.x = event->x;
          the_mouse.state.y = event->y;
-         event_type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
+         event_type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY_FLOAT;
          break;
       default:
          ASSERT(false);

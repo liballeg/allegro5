@@ -155,10 +155,10 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
       ALLEGRO_MOUSE_STATE state;
 
       switch (type) {
-         case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN; break;
+         case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT; break;
          case ALLEGRO_EVENT_TOUCH_CANCEL:
-         case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;   break;
-         case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
+         case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT;   break;
+         case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES_FLOAT;        break;
       }
 
       al_get_mouse_state(&state);
@@ -166,12 +166,12 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
       event.mouse.type      = type;
       event.mouse.timestamp = timestamp;
       event.mouse.display   = (ALLEGRO_DISPLAY*)win_disp;
-      event.mouse.x         = (int)x;
-      event.mouse.y         = (int)y;
+      event.mouse.x         = x;
+      event.mouse.y         = y;
       event.mouse.z         = state.z;
       event.mouse.w         = state.w;
-      event.mouse.dx        = (int)dx;
-      event.mouse.dy        = (int)dy;
+      event.mouse.dx        = dx;
+      event.mouse.dy        = dy;
       event.mouse.dz        = 0;
       event.mouse.dw        = 0;
       event.mouse.button    = 1;
@@ -180,6 +180,8 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
       al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
 
       _al_event_source_lock(&touch_input.mouse_emulation_es);
+      _al_event_source_emit_event(&touch_input.mouse_emulation_es, &event);
+      _al_make_int_mouse_event(&event);
       _al_event_source_emit_event(&touch_input.mouse_emulation_es, &event);
       _al_event_source_unlock(&touch_input.mouse_emulation_es);
    }

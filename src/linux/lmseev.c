@@ -54,7 +54,7 @@ typedef struct AL_MOUSE_EVDEV
 {
    ALLEGRO_MOUSE parent;
    int fd;
-   ALLEGRO_MOUSE_STATE state;
+   ALLEGRO_MOUSE_FLOAT_STATE state;
 } AL_MOUSE_EVDEV;
 
 
@@ -67,10 +67,10 @@ static AL_MOUSE_EVDEV the_mouse;
 static void process_new_data(void *unused);
 static void process_event(struct input_event *event);
 static void handle_button_event(unsigned int button, bool is_down);
-static void handle_axis_event(int dx, int dy, int dz);
+static void handle_axis_event(float dx, float dy, float dz);
 static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z,
-                                 int dx, int dy, int dz,
+                                 float x, float y, float z,
+                                 float dx, float dy, float dz,
                                  unsigned int button);
 bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2);
 
@@ -168,7 +168,7 @@ typedef struct AXIS {
 /* in_to_screen:
  *  maps an input absolute position to a screen position
  */
-static int in_to_screen(const AXIS *axis, int v)
+static float in_to_screen(const AXIS *axis, float v)
 {
    return (((v-axis->in_min) * OUT_RANGE(*axis)) / IN_RANGE(*axis)) + axis->out_min;
 }
@@ -179,10 +179,10 @@ static int in_to_screen(const AXIS *axis, int v)
  *  returns the new screen position, given the input relative one.
  *  The tool mode is always relative
  */
-static int rel_event(AXIS *axis, int v)
+static float rel_event(AXIS *axis, int float)
 {
    /* When input only send relative events, the mode is always relative */
-   int ret = axis->out_abs + v*axis->speed;
+   float ret = axis->out_abs + v*axis->speed;
    axis->mickeys += v;
    axis->in_abs += v;
    return ret;
@@ -194,7 +194,7 @@ static int rel_event(AXIS *axis, int v)
  *  returns the new screen position, given the input absolute one,
  *  and depending on the tool mode
  */
-static int abs_event(AXIS *axis, MODE mode, int v)
+static float abs_event(AXIS *axis, MODE mode, float v)
 {
    if (mode == MODE_ABSOLUTE) {
       axis->mickeys = 0; /* No mickeys in absolute mode */
@@ -202,7 +202,7 @@ static int abs_event(AXIS *axis, MODE mode, int v)
       return in_to_screen(axis, v);
    }
    else { /* Input is absolute, but tool is relative */
-      int value = (v-axis->in_abs)*axis->scale;
+      float value = (v-axis->in_abs)*axis->scale;
       axis->mickeys += value;
       axis->in_abs = v;
       return axis->out_abs + value*axis->speed;
@@ -396,11 +396,11 @@ static void handle_button_event(unsigned int button, bool is_down)
 
    if (is_down) {
       the_mouse.state.buttons |= (1 << (button-1));
-      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
+      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT;
    }
    else {
       the_mouse.state.buttons &=~ (1 << (button-1));
-      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
+      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT;
    }
 
    generate_mouse_event(
@@ -477,7 +477,7 @@ static void process_abs(const struct input_event *event)
 
 
 /* [fdwatch thread] */
-static void handle_axis_event(int dx, int dy, int dz)
+static void handle_axis_event(float dx, float dy, float dz)
 {
    if (current_tool != no_tool) {
       x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
@@ -491,7 +491,7 @@ static void handle_axis_event(int dx, int dy, int dz)
       dz *= al_get_mouse_wheel_precision();
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_AXES,
+         ALLEGRO_EVENT_MOUSE_AXES_FLOAT,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, dz,
          0);
@@ -634,13 +634,13 @@ static unsigned int mouse_get_mouse_num_axes(void)
 /* mouse_set_mouse_xy:
  *
  */
-static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, float x, float y)
 {
    (void)display;
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      int dx, dy;
+      float dx, dy;
 
       x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x, x_axis.out_max);
       y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y, y_axis.out_max);
@@ -655,7 +655,7 @@ static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
          the_mouse.state.y = y_axis.out_abs;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES_FLOAT,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0);
@@ -672,7 +672,7 @@ static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
  *
  *   Number of mickeys to cross the screen horizontally: speed * 320.
  */
-static bool mouse_set_mouse_axis(int which, int z)
+static bool mouse_set_mouse_axis(int which, float z)
 {
    if (which != 2) {
       return false;
@@ -680,7 +680,7 @@ static bool mouse_set_mouse_axis(int which, int z)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      int dz;
+      float dz;
 
       z_axis.out_abs = z;
 
@@ -690,7 +690,7 @@ static bool mouse_set_mouse_axis(int which, int z)
          the_mouse.state.z = z_axis.out_abs;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES_FLOAT,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
             0);
@@ -710,7 +710,7 @@ bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2)
 {
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      int dx, dy;
+      float dx, dy;
 
       x_axis.out_min = x1;
       y_axis.out_min = y1;
@@ -728,7 +728,7 @@ bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2)
          the_mouse.state.y = y_axis.out_abs;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_AXES_FLOAT,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0);
@@ -744,12 +744,10 @@ bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2)
 /* mouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+static void mouse_get_state(ALLEGRO_MOUSE_FLOAT_STATE *ret_state)
 {
    _al_event_source_lock(&the_mouse.parent.es);
-   {
-      *ret_state = the_mouse.state;
-   }
+   *ret_state = the_mouse.state;
    _al_event_source_unlock(&the_mouse.parent.es);
 }
 
@@ -799,8 +797,8 @@ static void process_event(struct input_event *event)
 
 /* [fdwatch thread] */
 static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z,
-                                 int dx, int dy, int dz,
+                                 float x, float y, float z,
+                                 float dx, float dy, float dz,
                                  unsigned int button)
 {
    ALLEGRO_EVENT event;
@@ -808,17 +806,19 @@ static void generate_mouse_event(unsigned int type,
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
 
-   event.mouse.type = type;
-   event.mouse.timestamp = al_get_time();
-   event.mouse.display = NULL;
-   event.mouse.x = x;
-   event.mouse.y = y;
-   event.mouse.z = z;
-   event.mouse.dx = dx;
-   event.mouse.dy = dy;
-   event.mouse.dz = dz;
-   event.mouse.button = button;
-   event.mouse.pressure = 0.0; /* TODO */
+   event.mouse_float.type = type;
+   event.mouse_float.timestamp = al_get_time();
+   event.mouse_float.display = NULL;
+   event.mouse_float.x = x;
+   event.mouse_float.y = y;
+   event.mouse_float.z = z;
+   event.mouse_float.dx = dx;
+   event.mouse_float.dy = dy;
+   event.mouse_float.dz = dz;
+   event.mouse_float.button = button;
+   event.mouse_float.pressure = button ? 1.0 : 0.0; /* TODO */
+   _al_event_source_emit_event(&the_mouse.parent.es, &event);
+   _al_make_int_mouse_event(&event);
    _al_event_source_emit_event(&the_mouse.parent.es, &event);
 }
 

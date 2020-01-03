@@ -201,6 +201,13 @@ events instead which are identical except for their type.
 > *Note:* currently mouse.display may be NULL if an event is generated in
 response to [al_set_mouse_axis].
 
+### ALLEGRO_EVENT_MOUSE_AXES_FLOAT
+
+Like `ALLEGRO_EVENT_MOUSE_AXES`, but with floating point coordinates.
+Both event types are always generated, so you should only handle one type.
+
+Since: 5.2.6
+
 ### ALLEGRO_EVENT_MOUSE_BUTTON_DOWN
 
 A mouse button was pressed.
@@ -225,6 +232,13 @@ mouse.pressure (float)
 
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
+
+### ALLEGRO_EVENT_MOUSE_BUTTON_DOWN_FLOAT
+
+Like `ALLEGRO_EVENT_MOUSE_BUTTON_DOWN`, but with floating point coordinates.
+Both event types are always generated, so you should only handle one type.
+
+Since: 5.2.6
 
 ### ALLEGRO_EVENT_MOUSE_BUTTON_UP
 
@@ -251,10 +265,24 @@ mouse.pressure (float)
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
+### ALLEGRO_EVENT_MOUSE_BUTTON_UP_FLOAT
+
+Like `ALLEGRO_EVENT_MOUSE_BUTTON_UP`, but with floating point coordinates.
+Both event types are always generated, so you should only handle one type.
+
+Since: 5.2.6
+
 ### ALLEGRO_EVENT_MOUSE_WARPED
 
 [al_set_mouse_xy] was called to move the mouse.
 This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
+
+### ALLEGRO_EVENT_MOUSE_WARPED_FLOAT
+
+Like `ALLEGRO_EVENT_MOUSE_WARPED`, but with floating point coordinates.
+Both event types are always generated, so you should only handle one type.
+
+Since: 5.2.6
 
 ### ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY
 
@@ -275,6 +303,13 @@ mouse.w (int)
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
+### ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY_FLOAT
+
+Like `ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY`, but with floating point coordinates.
+Both event types are always generated, so you should only handle one type.
+
+Since: 5.2.6
+
 ### ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY
 
 The mouse cursor left the boundaries of a window opened by the program.
@@ -293,6 +328,13 @@ mouse.w (int)
 
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
+
+### ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY_FLOAT
+
+Like `ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY`, but with floating point coordinates.
+Both event types are always generated, so you should only handle one type.
+
+Since: 5.2.6
 
 ### ALLEGRO_EVENT_TOUCH_BEGIN
 
