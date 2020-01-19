@@ -13,6 +13,7 @@ jobs:
             - name: Setup
               run: |
                   vcpkg install allegro5
+                  mkdir build
                   mkdir deps
                   mkdir deps\include
                   mkdir deps\lib
