@@ -1,7 +1,30 @@
 name: Tests
 on: [push, pull_request]
-
 jobs:
+    windows_test:
+        name: Windows (MSYS2) tests
+        runs-on: windows-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v1
+              with:
+                  fetch-depth: 1
+            - uses: msys2/setup-msys2@v2
+            - name: Setup
+              shell: msys2 {0}
+              run: |
+                  pacman --noconfirm -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake make mingw-w64-x86_64-physfs mingw-w64-x86_64-freetype mingw-w64-x86_64-libvorbis mingw-w64-x86_64-flac mingw-w64-x86_64-dumb mingw-w64-x86_64-libtheora mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-opusfile mingw-w64-x86_64-enet mingw-w64-x86_64-libwebp
+                  mkdir build
+            - name: Configure
+              shell: msys2 {0}
+              run: |
+                  cd build
+                  cmake .. -G"MSYS Makefiles"
+            - name: Build
+              shell: msys2 {0}
+              run: |
+                  cd build
+                  make -j2
     osx_test:
         name: OSX tests
         runs-on: macos-latest
