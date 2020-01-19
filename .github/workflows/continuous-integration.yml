@@ -2,7 +2,7 @@ name: Tests
 on: [push, pull_request]
 jobs:
     windows_test:
-        name: Windows testss
+        name: Windows tests
         runs-on: windows-latest
         steps:
             - name: Checkout
