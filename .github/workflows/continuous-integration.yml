@@ -25,10 +25,6 @@ jobs:
               run: |
                   cd build
                   make -j2
-            - name: Test Python wrapper
-              run: |
-                  cd build
-                  python python/allegro.py
             - name: Run test_driver
               run: |
                   cd build
@@ -50,3 +46,7 @@ jobs:
                   gcc ../misc/install_test.c -o install_test $(pkg-config --cflags --libs allegro_image-debug-5 allegro_ttf-debug-5 allegro_acodec-debug-5 allegro_dialog-debug-5 allegro_primitives-debug-5 allegro_video-debug-5)
                   pulseaudio -D
                   xvfb-run ./install_test
+            - name: Test Python wrapper
+              run: |
+                  cd build
+                  python python/allegro.py
