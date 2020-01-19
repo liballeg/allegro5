@@ -24,7 +24,7 @@ jobs:
             - name: Configure
               run: |
                   cd build
-                  cmake .. -G "Visual Studio 15 2017" -DWANT_ACODEC_DYNAMIC_LOAD=off -DFLAC_STATIC=on
+                  cmake .. -DWANT_ACODEC_DYNAMIC_LOAD=off -DFLAC_STATIC=on
             - name: Build
               run: |
                   cd build
