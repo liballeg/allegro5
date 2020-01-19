@@ -1,7 +1,33 @@
 name: Tests
 on: [push, pull_request]
-
 jobs:
+    windows_test:
+        name: Windows testss
+        runs-on: windows-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v1
+              with:
+                  fetch-depth: 1
+            - name: Setup
+              uses: nuget/setup-nuget@v1
+              run: |
+                  vcpkg install allegro5
+                  mkdir deps
+                  mkdir deps\include
+                  mkdir deps\lib
+                  nuget install AllegroDeps -Version 1.5.0 -OutputDirectory deps -ExcludeVersion
+                  move deps\AllegroDeps\build\native\include\* deps\include -force
+                  move deps\AllegroDeps\build\native\v140\win32\deps\lib\* deps\lib -force
+              shell: powershell
+            - name: Configure
+              run: |
+                  cd build
+                  cmake .. -G "Visual Studio 15 2017" -DWANT_ACODEC_DYNAMIC_LOAD=off -DFLAC_STATIC=on
+            - name: Build
+              run: |
+                  cd build
+                  cmake --build . --config Debug
     osx_test:
         name: OSX tests
         runs-on: macos-latest
