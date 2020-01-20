@@ -2,7 +2,27 @@ name: Tests
 on: [push, pull_request]
 
 jobs:
-    test:
+    osx_test:
+        name: OSX tests
+        runs-on: macos-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v1
+              with:
+                  fetch-depth: 1
+            - name: Setup
+              run: |
+                  brew update && brew install opusfile libvorbis freetype flac physfs dumb theora enet
+                  mkdir build
+            - name: Configure
+              run: |
+                  cd build
+                  cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL -G Xcode
+            - name: Build
+              run: |
+                  cd build
+                  xcodebuild
+    ubuntu_test:
         name: Ubuntu tests
         runs-on: ubuntu-latest
         steps:
