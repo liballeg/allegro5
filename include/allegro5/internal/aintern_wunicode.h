@@ -10,6 +10,7 @@
 #endif
 
 
+AL_FUNC(wchar_t*, _al_win_ustr_to_utf16, (const ALLEGRO_USTR *s));
 AL_FUNC(wchar_t*, _al_win_utf8_to_utf16, (const char *s));
 AL_FUNC(char *, _al_win_utf16_to_utf8, (const wchar_t *ws));
 AL_FUNC(char*, _al_win_utf8_to_ansi, (const char* u));
@@ -20,7 +21,7 @@ AL_FUNC(char *, _al_win_copy_ansi_to_utf8, (char* u, const char *s, size_t size)
 AL_FUNC(char *, _al_win_copy_utf8_to_ansi, (char* s, const char *u, size_t size));
 
 #ifdef UNICODE
-#define _twin_ustr_to_tchar(str) _al_win_utf8_to_utf16(al_cstr(str))
+#define _twin_ustr_to_tchar(str) _al_win_ustr_to_utf16(str)
 #define _twin_utf8_to_tchar _al_win_utf8_to_utf16
 #define _twin_tchar_to_utf8 _al_win_utf16_to_utf8
 #define _twin_copy_tchar_to_utf8 _al_win_copy_utf16_to_utf8

@@ -20,6 +20,37 @@
 
 ALLEGRO_DEBUG_CHANNEL("wunicode")
 
+/* _al_win_ustr_to_utf16:
+ * Convert ALLEGRO_USTR to newly-allocated UTF-16 buffer
+ */
+wchar_t *_al_win_ustr_to_utf16(const ALLEGRO_USTR *s)
+{
+   int wslen;
+   wchar_t *ws;
+   const char* cstr = al_cstr(s);
+   size_t size = al_ustr_size(s);
+
+   wslen = MultiByteToWideChar(CP_UTF8, 0, cstr, size, NULL, 0);
+   if (wslen == 0) {
+       ALLEGRO_ERROR("MultiByteToWideChar failed\n");
+       return NULL;
+   }
+   /* For the NUL at the end. */
+   wslen += 1;
+   ws = al_malloc(sizeof(wchar_t) * wslen);
+   if (!ws) {
+       ALLEGRO_ERROR("Out of memory\n");
+       return NULL;
+   }
+   if (0 == MultiByteToWideChar(CP_UTF8, 0, cstr, size, ws, wslen)) {
+       al_free(ws);
+       ALLEGRO_ERROR("MultiByteToWideChar failed\n");
+       return NULL;
+   }
+   ws[wslen - 1] = 0;
+   return ws;
+}
+
 /* _al_win_utf8_to_utf16:
  * Convert UTF-8 to newly-allocated UTF-16 buffer
  */
