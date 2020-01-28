@@ -23,12 +23,12 @@ ALLEGRO_DEBUG_CHANNEL("wunicode")
 /* _al_win_ustr_to_utf16:
  * Convert ALLEGRO_USTR to newly-allocated UTF-16 buffer
  */
-wchar_t *_al_win_ustr_to_utf16(const ALLEGRO_USTR *s)
+wchar_t *_al_win_ustr_to_utf16(const ALLEGRO_USTR *u)
 {
    int wslen;
    wchar_t *ws;
-   const char* cstr = al_cstr(s);
-   size_t size = al_ustr_size(s);
+   const char* cstr = al_cstr(u);
+   size_t size = al_ustr_size(u);
 
    wslen = MultiByteToWideChar(CP_UTF8, 0, cstr, size, NULL, 0);
    if (wslen == 0) {
@@ -49,6 +49,60 @@ wchar_t *_al_win_ustr_to_utf16(const ALLEGRO_USTR *s)
    }
    ws[wslen - 1] = 0;
    return ws;
+}
+
+/* _al_win_utf8_to_ansi:
+ * Convert UTF-8 to newly-allocated ansi buffer
+ */
+char* _al_win_ustr_to_ansi(const ALLEGRO_USTR *u) {
+   int wslen;
+   wchar_t *ws;
+   int slen;
+   char *s;
+   const char* cstr = al_cstr(u);
+   size_t size = al_ustr_size(u);
+
+   if (u == NULL) {
+      return NULL;
+   }
+   wslen = MultiByteToWideChar(CP_UTF8, 0, cstr, size, NULL, 0);
+   if (wslen == 0) {
+       ALLEGRO_ERROR("MultiByteToWideChar failed\n");
+       return NULL;
+   }
+   ws = al_malloc(sizeof(wchar_t) * wslen);
+   if (!ws) {
+       ALLEGRO_ERROR("Out of memory\n");
+       return NULL;
+   }
+   if (0 == MultiByteToWideChar(CP_UTF8, 0, cstr, size, ws, wslen)) {
+       al_free(ws);
+       ALLEGRO_ERROR("MultiByteToWideChar failed\n");
+       return NULL;
+   }
+   slen = WideCharToMultiByte(CP_ACP, 0, ws, wslen, NULL, 0, NULL, NULL);
+   if (slen == 0) {
+       ALLEGRO_ERROR("WideCharToMultiByte failed\n");
+       al_free(ws);
+       return NULL;
+   }
+   /* For the NUL at the end. */
+   slen += 1;
+   s = al_malloc(sizeof(char) * slen);
+   if (!s) {
+       ALLEGRO_ERROR("Out of memory\n");
+       al_free(ws);
+       return NULL;
+   }
+   if (0 == WideCharToMultiByte(CP_ACP, 0, ws, wslen, s, slen, NULL, NULL)) {
+       al_free(ws);
+       al_free(s);
+       ALLEGRO_ERROR("WideCharToMultiByte failed\n");
+       return NULL;
+   }
+   s[slen - 1] = 0;
+   al_free(ws);
+   return s;
 }
 
 /* _al_win_utf8_to_utf16:
