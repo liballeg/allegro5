@@ -2319,8 +2319,8 @@ static void set_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP* b
    NSImage *image = NSImageFromAllegroBitmap(bitmap);
    (void)display;
    [NSApp performSelectorOnMainThread: @selector(setApplicationIconImage:)
-                           withObject: image
-                        waitUntilDone: YES];
+      withObject: image
+      waitUntilDone: YES];
    [image release];
    [pool drain];
 }
