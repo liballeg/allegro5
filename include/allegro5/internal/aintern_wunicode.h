@@ -10,16 +10,17 @@
 #endif
 
 
-AL_FUNC(wchar_t *, _al_win_ustr_to_utf16, (const ALLEGRO_USTR *s));
-AL_FUNC(char *, _al_win_ustr_to_ansi, (const ALLEGRO_USTR *s));
-AL_FUNC(wchar_t *, _al_win_utf8_to_utf16, (const char *s));
+AL_FUNC(wchar_t *, _al_win_ustr_to_utf16, (const ALLEGRO_USTR *u));
+AL_FUNC(char *, _al_win_ustr_to_ansi, (const ALLEGRO_USTR *u));
+AL_FUNC(wchar_t *, _al_win_utf8_to_utf16, (const char *us));
 AL_FUNC(char *, _al_win_utf16_to_utf8, (const wchar_t *ws));
-AL_FUNC(char *, _al_win_utf8_to_ansi, (const char* u));
-AL_FUNC(char *, _al_win_ansi_to_utf8, (const char *u));
-AL_FUNC(char *, _al_win_copy_utf16_to_utf8, (char* u, const wchar_t* ws, size_t size));
-AL_FUNC(char *, _al_win_copy_utf8_to_utf16, (wchar_t* ws, const char *u, size_t size));
-AL_FUNC(char *, _al_win_copy_ansi_to_utf8, (char* u, const char *s, size_t size));
-AL_FUNC(char *, _al_win_copy_utf8_to_ansi, (char* s, const char *u, size_t size));
+AL_FUNC(char *, _al_win_utf8_to_ansi, (const char* us));
+AL_FUNC(char *, _al_win_ansi_to_utf8, (const char *s));
+AL_FUNC(char *, _al_win_copy_utf16_to_utf8, (char* us, const wchar_t* ws, size_t uslen));
+// wslen is number of wide characters, not bytes.
+AL_FUNC(char *, _al_win_copy_utf8_to_utf16, (wchar_t* ws, const char *us, size_t wslen));
+AL_FUNC(char *, _al_win_copy_ansi_to_utf8, (char* us, const char *s, size_t uslen));
+AL_FUNC(char *, _al_win_copy_utf8_to_ansi, (char* s, const char *us, size_t slen));
 
 #ifdef UNICODE
 #define _twin_ustr_to_tchar(str) _al_win_ustr_to_utf16(str)

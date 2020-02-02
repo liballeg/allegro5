@@ -27,10 +27,15 @@ wchar_t *_al_win_ustr_to_utf16(const ALLEGRO_USTR *u)
 {
    int wslen;
    wchar_t *ws;
-   const char* cstr = al_cstr(u);
-   size_t size = al_ustr_size(u);
+   const char* us = al_cstr(u);
+   size_t uslen = al_ustr_size(u);
 
-   wslen = MultiByteToWideChar(CP_UTF8, 0, cstr, size, NULL, 0);
+   if (uslen == 0) {
+      ws = al_malloc(sizeof(wchar_t));
+      ws[0] = 0;
+      return ws;
+   }
+   wslen = MultiByteToWideChar(CP_UTF8, 0, us, uslen, NULL, 0);
    if (wslen == 0) {
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -42,7 +47,7 @@ wchar_t *_al_win_ustr_to_utf16(const ALLEGRO_USTR *u)
        ALLEGRO_ERROR("Out of memory\n");
        return NULL;
    }
-   if (0 == MultiByteToWideChar(CP_UTF8, 0, cstr, size, ws, wslen)) {
+   if (0 == MultiByteToWideChar(CP_UTF8, 0, us, uslen, ws, wslen)) {
        al_free(ws);
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -59,13 +64,15 @@ char* _al_win_ustr_to_ansi(const ALLEGRO_USTR *u) {
    wchar_t *ws;
    int slen;
    char *s;
-   const char* cstr = al_cstr(u);
-   size_t size = al_ustr_size(u);
+   const char* us = al_cstr(u);
+   size_t uslen = al_ustr_size(u);
 
-   if (u == NULL) {
-      return NULL;
+   if (uslen == 0) {
+      s = al_malloc(sizeof(char));
+      s[0] = 0;
+      return s;
    }
-   wslen = MultiByteToWideChar(CP_UTF8, 0, cstr, size, NULL, 0);
+   wslen = MultiByteToWideChar(CP_UTF8, 0, us, uslen, NULL, 0);
    if (wslen == 0) {
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -75,7 +82,7 @@ char* _al_win_ustr_to_ansi(const ALLEGRO_USTR *u) {
        ALLEGRO_ERROR("Out of memory\n");
        return NULL;
    }
-   if (0 == MultiByteToWideChar(CP_UTF8, 0, cstr, size, ws, wslen)) {
+   if (0 == MultiByteToWideChar(CP_UTF8, 0, us, uslen, ws, wslen)) {
        al_free(ws);
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -108,12 +115,15 @@ char* _al_win_ustr_to_ansi(const ALLEGRO_USTR *u) {
 /* _al_win_utf8_to_utf16:
  * Convert UTF-8 to newly-allocated UTF-16 buffer
  */
-wchar_t *_al_win_utf8_to_utf16(const char *s)
+wchar_t *_al_win_utf8_to_utf16(const char *us)
 {
    int wslen;
    wchar_t *ws;
 
-   wslen = MultiByteToWideChar(CP_UTF8, 0, s, -1, NULL, 0);
+   if (us == NULL) {
+      return NULL;
+   }
+   wslen = MultiByteToWideChar(CP_UTF8, 0, us, -1, NULL, 0);
    if (wslen == 0) {
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -123,7 +133,7 @@ wchar_t *_al_win_utf8_to_utf16(const char *s)
        ALLEGRO_ERROR("Out of memory\n");
        return NULL;
    }
-   if (0 == MultiByteToWideChar(CP_UTF8, 0, s, -1, ws, wslen)) {
+   if (0 == MultiByteToWideChar(CP_UTF8, 0, us, -1, ws, wslen)) {
        al_free(ws);
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -136,42 +146,42 @@ wchar_t *_al_win_utf8_to_utf16(const char *s)
  */
 char *_al_win_utf16_to_utf8(const wchar_t *ws)
 {
-   int slen;
-   char *s;
+   int uslen;
+   char *us;
 
    if (ws == NULL) {
       return NULL;
    }
-   slen = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);
-   if (slen == 0) {
+   uslen = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);
+   if (uslen == 0) {
        ALLEGRO_ERROR("WideCharToMultiByte failed\n");
        return NULL;
    }
-   s = al_malloc(sizeof(char) * slen);
-   if (!s) {
+   us = al_malloc(sizeof(char) * uslen);
+   if (!us) {
        ALLEGRO_ERROR("Out of memory\n");
        return NULL;
    }
-   if (0 == WideCharToMultiByte(CP_UTF8, 0, ws, -1, s, slen, NULL, NULL)) {
-       al_free(s);
+   if (0 == WideCharToMultiByte(CP_UTF8, 0, ws, -1, us, uslen, NULL, NULL)) {
+       al_free(us);
        ALLEGRO_ERROR("WideCharToMultiByte failed\n");
        return NULL;
    }
-   return s;
+   return us;
 }
 /* _al_win_utf8_to_ansi:
  * Convert UTF-8 to newly-allocated ansi buffer
  */
-char* _al_win_utf8_to_ansi(const char *u) {
+char* _al_win_utf8_to_ansi(const char *us) {
    int wslen;
    wchar_t *ws;
    int slen;
    char *s;
 
-   if (u == NULL) {
+   if (us == NULL) {
       return NULL;
    }
-   wslen = MultiByteToWideChar(CP_UTF8, 0, u, -1, NULL, 0);
+   wslen = MultiByteToWideChar(CP_UTF8, 0, us, -1, NULL, 0);
    if (wslen == 0) {
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -181,7 +191,7 @@ char* _al_win_utf8_to_ansi(const char *u) {
        ALLEGRO_ERROR("Out of memory\n");
        return NULL;
    }
-   if (0 == MultiByteToWideChar(CP_UTF8, 0, u, -1, ws, wslen)) {
+   if (0 == MultiByteToWideChar(CP_UTF8, 0, us, -1, ws, wslen)) {
        al_free(ws);
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
@@ -209,18 +219,18 @@ char* _al_win_utf8_to_ansi(const char *u) {
 }
 
 /* _al_win_ansi_to_utf8:
- * Convert UTF-8 to newly-allocated ansi buffer
+ * Convert ansi to newly-allocated UTF-8 buffer
  */
-char* _al_win_ansi_to_utf8(const char *u) {
+char* _al_win_ansi_to_utf8(const char *s) {
    int wslen;
    wchar_t *ws;
-   int slen;
-   char *s;
+   int uslen;
+   char *us;
 
-   if (u == NULL) {
+   if (s == NULL) {
       return NULL;
    }
-   wslen = MultiByteToWideChar(CP_ACP, 0, u, -1, NULL, 0);
+   wslen = MultiByteToWideChar(CP_ACP, 0, s, -1, NULL, 0);
    if (wslen == 0) {
       ALLEGRO_ERROR("MultiByteToWideChar failed\n");
       return NULL;
@@ -230,31 +240,31 @@ char* _al_win_ansi_to_utf8(const char *u) {
       ALLEGRO_ERROR("Out of memory\n");
       return NULL;
    }
-   if (0 == MultiByteToWideChar(CP_ACP, 0, u, -1, ws, wslen)) {
+   if (0 == MultiByteToWideChar(CP_ACP, 0, s, -1, ws, wslen)) {
       al_free(ws);
       ALLEGRO_ERROR("MultiByteToWideChar failed\n");
       return NULL;
    }
-   slen = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);
-   if (slen == 0) {
+   uslen = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);
+   if (uslen == 0) {
       ALLEGRO_ERROR("WideCharToMultiByte failed\n");
       al_free(ws);
       return NULL;
    }
-   s = al_malloc(sizeof(char) * slen);
+   us = al_malloc(sizeof(char) * uslen);
    if (!s) {
       ALLEGRO_ERROR("Out of memory\n");
       al_free(ws);
       return NULL;
    }
-   if (0 == WideCharToMultiByte(CP_UTF8, 0, ws, -1, s, slen, NULL, NULL)) {
+   if (0 == WideCharToMultiByte(CP_UTF8, 0, ws, -1, us, uslen, NULL, NULL)) {
       al_free(ws);
-      al_free(s);
+      al_free(us);
       ALLEGRO_ERROR("WideCharToMultiByte failed\n");
       return NULL;
    }
    al_free(ws);
-   return s;
+   return us;
 }
 
 /* _al_win_copy_utf16_to_utf8: Copy string and convert to UTF-8.
@@ -266,29 +276,30 @@ char* _al_win_ansi_to_utf8(const char *u) {
  * If the representation would overflow the buffer, nothing
  * is copied and the return value is NULL.
  */ 
-char *_al_win_copy_utf16_to_utf8(char* u, const wchar_t *ws, size_t size)
+char *_al_win_copy_utf16_to_utf8(char* us, const wchar_t *ws, size_t uslen)
 {
-   int rc = WideCharToMultiByte(CP_UTF8, 0, ws, -1, u, (int) size, NULL, NULL);
+   int rc = WideCharToMultiByte(CP_UTF8, 0, ws, -1, us, uslen, NULL, NULL);
    if (rc == 0) {
        ALLEGRO_ERROR("WideCharToMultiByte failed\n");
        return NULL;
    }
-   return u;
+   return us;
 }
-char *_al_win_copy_utf8_to_ansi(char* s, const char *u, size_t size)
+
+char *_al_win_copy_utf8_to_ansi(char* s, const char *us, size_t slen)
 {
-   int slen = MultiByteToWideChar(CP_UTF8, 0, u, -1, NULL, 0);
-    if (slen == 0) {
+    int wslen = MultiByteToWideChar(CP_UTF8, 0, us, -1, NULL, 0);
+    if (wslen == 0) {
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
     }
-    wchar_t* ws = al_malloc(slen * sizeof(wchar_t));
+    wchar_t* ws = al_malloc(wslen * sizeof(wchar_t));
     if (!ws) {
        ALLEGRO_ERROR("Out of memory\n");
        return NULL;
     }
-    MultiByteToWideChar(CP_UTF8, 0, u, -1, ws, slen);
-    int rc = WideCharToMultiByte(CP_ACP, 0, ws, slen, s, (int) size, NULL, NULL);
+    MultiByteToWideChar(CP_UTF8, 0, us, -1, ws, wslen);
+    int rc = WideCharToMultiByte(CP_ACP, 0, ws, wslen, s, slen, NULL, NULL);
     al_free(ws);
     if (rc == 0) {
        ALLEGRO_ERROR("WideCharToMultiByte failed\n");
@@ -297,26 +308,26 @@ char *_al_win_copy_utf8_to_ansi(char* s, const char *u, size_t size)
     return s;
 }
 
-char *_al_win_copy_ansi_to_utf8(char* u, const char *s, size_t size)
+char *_al_win_copy_ansi_to_utf8(char* us, const char *s, size_t uslen)
 {
-    int slen = MultiByteToWideChar(CP_ACP, 0, s, -1, NULL, 0);
-    if (slen == 0) {
+    int wslen = MultiByteToWideChar(CP_ACP, 0, s, -1, NULL, 0);
+    if (wslen == 0) {
        ALLEGRO_ERROR("MultiByteToWideChar failed\n");
        return NULL;
     }
-    wchar_t* ws = al_malloc(slen * sizeof(wchar_t));
+    wchar_t* ws = al_malloc(wslen * sizeof(wchar_t));
     if (!ws) {
        ALLEGRO_ERROR("Out of memory\n");
        return NULL;
     }
-    MultiByteToWideChar(CP_ACP, 0, s, -1, ws, slen);
-    int rc = WideCharToMultiByte(CP_UTF8, 0, ws, slen, u, (int) size, NULL, NULL);
+    MultiByteToWideChar(CP_ACP, 0, s, -1, ws, wslen);
+    int rc = WideCharToMultiByte(CP_UTF8, 0, ws, wslen, us, uslen, NULL, NULL);
     al_free(ws);
     if (rc == 0) {
        ALLEGRO_ERROR("WideCharToMultiByte failed\n");
        return NULL;
     }
-    return u;
+    return us;
 }
 
 
