@@ -23,12 +23,14 @@ AL_FUNC(char *, _al_win_copy_ansi_to_utf8, (char* us, const char *s, size_t usle
 AL_FUNC(char *, _al_win_copy_utf8_to_ansi, (char* s, const char *us, size_t slen));
 
 #ifdef UNICODE
+#define _twin_tchar_strlen(str) wcslen(str)
 #define _twin_ustr_to_tchar(str) _al_win_ustr_to_utf16(str)
 #define _twin_utf8_to_tchar _al_win_utf8_to_utf16
 #define _twin_tchar_to_utf8 _al_win_utf16_to_utf8
 #define _twin_copy_tchar_to_utf8 _al_win_copy_utf16_to_utf8
 #define _twin_copy_utf8_to_tchar _al_win_copy_utf8_to_utf16
 #else
+#define _twin_tchar_strlen(str) strlen(str)
 #define _twin_ustr_to_tchar(str) _al_win_ustr_to_ansi(str)
 #define _twin_utf8_to_tchar _al_win_utf8_to_ansi
 #define _twin_tchar_to_utf8 _al_win_ansi_to_utf8
