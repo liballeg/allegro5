@@ -2,6 +2,120 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.5 to 5.2.6 (February 2020)
+==========================================
+
+The main developers this time were: SiegeLord, Peter Hull,
+Karthik Kumar Viswanathan, Elias Pschernig, Sebastian Krzyszkowiak,
+Doug Thompson, PmProg, RmBeer.
+
+Core:
+
+  - Fix timestamps being clamped to ints on touch inputs with X11.
+
+  - Fix al_utf8_width argument type mismatch on platforms where
+    `sizeof(int) != 4`.
+
+  - Fix building for GNU/Linux without GNU extensions enabled
+
+  - Some refactoring to simplify adding new drivers.
+
+Graphics:
+
+  - Fix for OpenGL version selection and reporting on Windows and X
+    (Edgar Reynaldo).
+
+  - Report OpenGL version in display options on Android, iOS and Raspberry Pi.
+
+  - Fix creation of the bitmap depth buffer for non-square bitmaps
+    (Kevin Wellwood).
+
+  - Fix `ALLEGRO_ALPHA_TEST_VALUE` not being interpreted correctly.
+
+  - Fix reported bitshifts for `ARGB_4444` and `RGBA_4444` pixel formats.
+
+  - Fix alpha test with the GLSL version.
+
+Android:
+
+  - Do not build Android examples outside of Android.
+
+  - Use the cmake toolchain provided by the Android NDK.
+
+  - Use FLAG_KEEP_SCREEN_ON instead of a wakelock for screensaver inhibition.
+
+  - Use DisplayListener to listen to orientation changes.
+
+  - Implement `ALLEGRO_FRAMELESS` on Android. This hides the navigation buttons
+    and the bar on top.
+
+Linux:
+
+  - Fix `al_inhibit_screensaver` function.
+
+OSX:
+
+  - Ensure system calls happen on the main thread.
+
+  - Make things work on Catalina.
+
+Hurd:
+
+  - Fix pthreads (Andreas Rönnquist).
+
+Windows:
+
+  - Implement Windows version check using non-deprecated functions.
+
+  - Abstract UNICODE vs ANSI string handling, switch to using UNICODE by
+    default.
+
+  - Enable debug window for `DEBUGMODE` on Windows.
+
+SDL:
+
+  - Fix requesting GLES profile on GL Allegro.
+
+  - Add audio recorder implementation.
+
+  - Don't link with dl, it's unnecessary.
+
+Addons:
+
+  - Add a whole bunch of `al_is_*_initialized` functions (Mark Oates).
+
+Acodec addon:
+
+  - Add MP3 support via the MiniMP3 library.
+
+Audio addon:
+
+  - Allow calling `al_destroy_audio_recorder` on NULL.
+
+  - Fix some stream garbage audio issues for high playback speeds.
+
+Image addon:
+
+  - Add support for FreeImage library.
+
+  - Always prefer non-system image loaders.
+
+
+Python wrapper:
+
+  - Fix a number of bugs (zachs18 and others).
+
+Misc:
+
+  - Add an `.editorconfig` file.
+
+  - Convert our internal Python scripts to Python 3.
+
+Examples:
+
+  - `ex_draw_bitmap` - Add more options.
+
+
 Changes from 5.2.4 to 5.2.5 (February 2019)
 ==========================================
 
