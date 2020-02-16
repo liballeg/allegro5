@@ -615,7 +615,7 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Create the mouse device */
-   hr = IDirectInput_CreateDevice(mouse_dinput, &GUID_SysMouseEm2, &mouse_dinput_device, NULL);
+   hr = IDirectInput_CreateDevice(mouse_dinput, &GUID_SysMouse, &mouse_dinput_device, NULL);
    if (FAILED(hr))
       goto Error;
 
