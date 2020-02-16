@@ -689,7 +689,7 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Create the keyboard device */
-   hr = IDirectInput_CreateDevice(key_dinput, &GUID_SysKeyboardEm2, &key_dinput_device, NULL);
+   hr = IDirectInput_CreateDevice(key_dinput, &GUID_SysKeyboard, &key_dinput_device, NULL);
    if (FAILED(hr))
       goto Error;
 
