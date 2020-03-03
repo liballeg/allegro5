@@ -53,16 +53,16 @@ static void ensure_trailing_slash(ALLEGRO_USTR *us)
    }
 }
 
-ALLEGRO_USTR *_al_physfs_apply_cwd(const char *path)
+ALLEGRO_USTR *_al_physfs_process_path(const char *path)
 {
    ALLEGRO_USTR *us;
-
-   if (path_is_absolute(path)) {
-      return al_ustr_new(path);
-   }
-
-   us = al_ustr_new(fs_phys_cwd);
-   al_ustr_append_cstr(us, path);
+   ALLEGRO_PATH *p = al_create_path(path);
+   ALLEGRO_PATH *cwd = al_create_path(fs_phys_cwd);
+   al_rebase_path(cwd, p);
+   al_destroy_path(cwd);
+   /* PHYSFS always uses / separator. */
+   us = al_ustr_dup(al_path_ustr(p, '/'));
+   al_destroy_path(p);
    return us;
 }
 
@@ -76,7 +76,7 @@ static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
       return NULL;
    e->fs_entry.vtable = &fs_phys_vtable;
 
-   us = _al_physfs_apply_cwd(path);
+   us = _al_physfs_process_path(path);
    e->path = al_create_path(al_cstr(us));
    al_ustr_free(us);
    if (!e->path) {
@@ -113,7 +113,7 @@ static bool fs_phys_change_directory(const char *path)
    if (path_is_absolute(path))
       us = al_ustr_new(path);
    else
-      us = _al_physfs_apply_cwd(path);
+      us = _al_physfs_process_path(path);
 
    ret = false;
 
@@ -137,7 +137,7 @@ static bool fs_phys_filename_exists(const char *path)
    ALLEGRO_USTR *us;
    bool ret;
 
-   us = _al_physfs_apply_cwd(path);
+   us = _al_physfs_process_path(path);
    ret = PHYSFS_exists(al_cstr(us)) ? true : false;
    al_ustr_free(us);
    return ret;
@@ -148,7 +148,7 @@ static bool fs_phys_remove_filename(const char *path)
    ALLEGRO_USTR *us;
    bool ret;
 
-   us = _al_physfs_apply_cwd(path);
+   us = _al_physfs_process_path(path);
    ret = PHYSFS_delete(al_cstr(us)) ? true : false;
    al_ustr_free(us);
    return ret;
@@ -159,7 +159,7 @@ static bool fs_phys_make_directory(const char *path)
    ALLEGRO_USTR *us;
    bool ret;
 
-   us = _al_physfs_apply_cwd(path);
+   us = _al_physfs_process_path(path);
    ret = PHYSFS_mkdir(al_cstr(us)) ? true : false;
    al_ustr_free(us);
    return ret;

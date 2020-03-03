@@ -66,7 +66,7 @@ static void *file_phys_fopen(const char *filename, const char *mode)
    PHYSFS_file *phys;
    ALLEGRO_FILE_PHYSFS *fp;
 
-   us = _al_physfs_apply_cwd(filename);
+   us = _al_physfs_process_path(filename);
 
    /* XXX handle '+' modes */
    /* It might be worth adding a function to parse mode strings, to be
