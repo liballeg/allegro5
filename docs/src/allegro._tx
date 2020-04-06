@@ -23,6 +23,7 @@
 @man_shortdesc_force1=allegro
 @man_shortdesc_force2=Allegro game programming library.
 @$\input texinfo
+@$@documentencoding ISO-8859-1
 @$@setfilename allegro.inf
 @$@settitle Allegro Manual
 @$@setchapternewpage odd
