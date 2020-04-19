@@ -56,6 +56,7 @@ set(DATA_IMAGES
     fakeamp.bmp
     fixed_font.tga
     font.tga
+    gradient1.bmp
     haiku/air_effect.png
     icon.tga
     mysha.pcx
