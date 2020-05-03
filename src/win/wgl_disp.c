@@ -66,17 +66,13 @@ typedef struct WGL_DISPLAY_PARAMETERS {
    const char* window_title;
 } WGL_DISPLAY_PARAMETERS;
 
-static bool is_wgl_extension_supported(const char *extension, HDC dc)
+static bool is_wgl_extension_supported(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, const char *extension, HDC dc)
 {
-   _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB;
    int ret;
 
    /* XXX deprecated in OpenGL 3.0 */
    if (!glGetString(GL_EXTENSIONS))
       return false;
-
-   _wglGetExtensionsStringARB = (_ALLEGRO_wglGetExtensionsStringARB_t)
-      wglGetProcAddress("wglGetExtensionsStringARB");
    if (!_wglGetExtensionsStringARB)
       return false;
 
@@ -441,7 +437,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
 }
 
 
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, int fmt, HDC dc)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = NULL;
 
@@ -493,11 +489,11 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
       return NULL;
 
    /* If multisampling is supported, query for it. */
-   if (is_wgl_extension_supported("WGL_ARB_multisample", dc)) {
+   if (is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_ARB_multisample", dc)) {
       attrib[num_attribs - 3] = WGL_SAMPLE_BUFFERS_ARB;
       attrib[num_attribs - 2] = WGL_SAMPLES_ARB;
    }
-   if (is_wgl_extension_supported("WGL_EXT_depth_float", dc)) {
+   if (is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_EXT_depth_float", dc)) {
       attrib[num_attribs - 1] = WGL_DEPTH_FLOAT_EXT;
    }
 
@@ -623,7 +619,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
 }
 
 
-static HGLRC init_ogl_context_ex(HDC dc, bool fc, int major, int minor)
+static HGLRC init_ogl_context_ex(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, HDC dc, bool fc, int major, int minor)
 {
    HWND testwnd = NULL;
    HDC testdc   = NULL;
@@ -644,7 +640,7 @@ static HGLRC init_ogl_context_ex(HDC dc, bool fc, int major, int minor)
    if (!testrc)
       goto bail;
 
-   if (is_wgl_extension_supported("WGL_ARB_create_context", testdc)) {
+   if (is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_ARB_create_context", testdc)) {
       int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, major,
                       WGL_CONTEXT_MINOR_VERSION_ARB, minor,
                       WGL_CONTEXT_FLAGS_ARB, 0,
@@ -678,7 +674,7 @@ bail:
 }
 
 
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *count)
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, int *count)
 {
    HWND testwnd = NULL;
    HDC testdc   = NULL;
@@ -708,8 +704,8 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    if (!testrc)
       goto bail;
 
-  if (!is_wgl_extension_supported("WGL_ARB_pixel_format", testdc) &&
-      !is_wgl_extension_supported("WGL_EXT_pixel_format", testdc)) {
+   if (!is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_ARB_pixel_format", testdc) &&
+       !is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_EXT_pixel_format", testdc)) {
       ALLEGRO_ERROR("WGL_ARB/EXT_pf not supported.\n");
       goto bail;
   }
@@ -730,7 +726,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    for (j = i = 0; i < maxindex; i++) {
       ALLEGRO_INFO("-- \n");
       ALLEGRO_INFO("Decoding visual no. %i...\n", i+1);
-      eds_list[j] = read_pixel_format_ext(i, testdc);
+      eds_list[j] = read_pixel_format_ext(_wglGetExtensionsStringARB, i, testdc);
       if (!eds_list[j])
          continue;
       // Fill vsync setting here and enable/disable it after display creation
@@ -817,7 +813,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
 }
 
 
-static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
+static bool select_pixel_format(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, ALLEGRO_DISPLAY_WGL *d, HDC dc)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
    ALLEGRO_CONFIG *sys_cfg = al_get_system_config();
@@ -838,7 +834,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
    }
 
    if (!force_old)
-      eds = get_available_pixel_formats_ext(&eds_count);
+      eds = get_available_pixel_formats_ext(_wglGetExtensionsStringARB, &eds_count);
    if (!eds)
       eds = get_available_pixel_formats_old(&eds_count, dc);
 
@@ -879,7 +875,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
    return true;
 }
 
-static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
+static bool create_display_internals(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, ALLEGRO_DISPLAY_WGL *wgl_disp)
 {
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)wgl_disp;
@@ -921,7 +917,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    /* WGL display lists cannot be shared with the API currently in use. */
    disp->ogl_extras->is_shared = false;
 
-   if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
+   if (!select_pixel_format(_wglGetExtensionsStringARB, wgl_disp, wgl_disp->dc)) {
       destroy_display_internals(wgl_disp);
       return false;
    }
@@ -934,7 +930,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       if (major == 0)
          major = 3;
       bool fc = (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0;
-      wgl_disp->glrc = init_ogl_context_ex(wgl_disp->dc, fc, major,
+      wgl_disp->glrc = init_ogl_context_ex(_wglGetExtensionsStringARB, wgl_disp->dc, fc, major,
          minor);
    }
    else {
@@ -1024,7 +1020,9 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
 
    display->ogl_extras = al_calloc(1, sizeof(ALLEGRO_OGL_EXTRAS));
 
-   if (!create_display_internals(wgl_display)) {
+   _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB
+      = (_ALLEGRO_wglGetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
+   if (!create_display_internals(_wglGetExtensionsStringARB, wgl_display)) {
       al_free(display->ogl_extras);
       al_free(display);
       return NULL;
@@ -1331,7 +1329,7 @@ static void wgl_update_display_region(ALLEGRO_DISPLAY *d,
 }
 
 
-static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
+static bool wgl_resize_helper(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
@@ -1380,7 +1378,7 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
       d->w = width;
       d->h = height;
-      if (!create_display_internals(wgl_disp))
+      if(!create_display_internals(_wglGetExtensionsStringARB, wgl_disp))
          return false;
 
       /* We have a new backbuffer now. */
@@ -1435,8 +1433,10 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 
    win_display->ignore_resize = true;
 
-   if (!wgl_resize_helper(d, width, height)) {
-      wgl_resize_helper(d, orig_w, orig_h);
+   _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB
+      = (_ALLEGRO_wglGetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
+   if (!wgl_resize_helper(_wglGetExtensionsStringARB, d, width, height)) {
+      wgl_resize_helper(_wglGetExtensionsStringARB, d, orig_w, orig_h);
       ret = false;
    } else {
       ret = true;
