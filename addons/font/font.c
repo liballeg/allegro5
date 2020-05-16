@@ -36,7 +36,7 @@ typedef struct
 
 /* globals */
 static bool font_inited = false;
-static _AL_VECTOR font_handlers;
+static _AL_VECTOR font_handlers = _AL_VECTOR_INITIALIZER(FONT_HANDLER);
 
 
 /* al_font_404_character:
@@ -368,8 +368,6 @@ bool al_init_font_addon(void)
       ALLEGRO_WARN("Font addon already initialised.\n");
       return true;
    }
-
-   _al_vector_init(&font_handlers, sizeof(FONT_HANDLER));
 
    al_register_font_loader(".bmp", _al_load_bitmap_font);
    al_register_font_loader(".jpg", _al_load_bitmap_font);
