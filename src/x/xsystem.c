@@ -381,6 +381,10 @@ static bool xglx_inhibit_screensaver(bool inhibit)
          XScreenSaverSuspend(system->x11display, inhibit);
       }
    }
+#else
+   (void)temp;
+   (void)version_min;
+   (void)version_max;
 #endif
 
    system->inhibit_screensaver = inhibit;
