@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     char *fileextension = NULL;
     ALLEGRO_DISPLAY *display;
     ALLEGRO_FILE *file;
-    ALLEGRO_BITMAP *bitmap;
+    ALLEGRO_BITMAP *bitmap = NULL;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     // Load the image and time how long it took for the log.
     t0 = al_get_time();
     file = al_fopen(filename, "rb");
-    if(file) {
+    if (file) {
         fileextension = strrchr(filename, '.');
         bitmap = al_load_bitmap_f(file, fileextension);
         al_fclose( file );

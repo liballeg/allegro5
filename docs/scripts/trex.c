@@ -162,6 +162,7 @@ static int trex_charnode(TRex *exp,TRexBool isclass)
 					exp->_p++; 
 					return node;
 				} //else default
+				/* Intentional fallthrough */
 			default: 
 				t = *exp->_p; exp->_p++; 
 				return trex_newnode(exp,t);
