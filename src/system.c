@@ -184,6 +184,9 @@ static void read_allegro_cfg(void)
  */
 static bool compatible_versions(int a, int b)
 {
+   /* This is 1 << 31, we keep it a signed int because that's what
+    * al_install_system does.
+    */
    int a_unstable = a & -2147483648;
 
    int a_major = (a & 0x7f000000) >> 24;
