@@ -47,9 +47,10 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
    al_set_errno(-1);
 
    if (fp) {
-      const char *msg = PHYSFS_getLastError();
+      PHYSFS_ErrorCode error = PHYSFS_getLastErrorCode();
       fp->error_indicator = true;
-      if (msg) {
+      if (error != PHYSFS_ERR_OK) {
+         const char* msg = PHYSFS_getErrorByCode(error);
          strncpy(fp->error_msg, msg, sizeof(fp->error_msg));
          fp->error_msg[sizeof(fp->error_msg) - 1] = '\0';
       }
@@ -127,7 +128,7 @@ static size_t file_phys_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
    if (buf_size == 0)
       return 0;
 
-   n = PHYSFS_read(fp->phys, buf, 1, buf_size);
+   n = PHYSFS_readBytes(fp->phys, buf, buf_size);
    if (n < 0) {
       phys_set_errno(fp);
       return 0;
@@ -142,7 +143,7 @@ static size_t file_phys_fwrite(ALLEGRO_FILE *f, const void *buf,
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
-   n = PHYSFS_write(fp->phys, buf, 1, buf_size);
+   n = PHYSFS_writeBytes(fp->phys, buf, buf_size);
    if (n < 0) {
       phys_set_errno(fp);
       return 0;
