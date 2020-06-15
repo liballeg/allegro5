@@ -281,7 +281,8 @@ static bool xdpy_set_icon_inner(Display *x11display, Window window,
          for (x = 0; x < w; x++) {
             c = al_get_pixel(bitmap, x, y);
             al_unmap_rgba(c, &r, &g, &b, &a);
-            data[2 + y*w + x] = (a << 24) | (r << 16) | (g << 8) | b;
+            data[2 + y*w + x] = ((unsigned long)a << 24) | ((unsigned long)r << 16) |
+                                ((unsigned long)g << 8) | (unsigned long)b;
          }
       }
 
