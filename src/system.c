@@ -184,7 +184,7 @@ static void read_allegro_cfg(void)
  */
 static bool compatible_versions(int a, int b)
 {
-   int a_unstable = a & (1 << 31);
+   int a_unstable = a & -2147483648;
 
    int a_major = (a & 0x7f000000) >> 24;
    int a_sub   = (a & 0x00ff0000) >> 16;

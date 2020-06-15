@@ -58,7 +58,10 @@
 #define ALLEGRO_WIP_VERSION      7
 
 #ifdef ALLEGRO_UNSTABLE
-   #define ALLEGRO_UNSTABLE_BIT  1 << 31
+   /* 1 << 31 represented as a signed int to match the arg type of
+    * al_install_system.
+    */
+   #define ALLEGRO_UNSTABLE_BIT -2147483648
 #else
    #define ALLEGRO_UNSTABLE_BIT  0
 #endif
