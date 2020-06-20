@@ -707,7 +707,7 @@ static int x_keyboard_init(void)
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
    /* Otherwise we are restricted to ISO-8859-1 characters. */
-   if (setlocale(LC_ALL, "") == NULL) {
+   if (setlocale(LC_CTYPE, "") == NULL) {
       TRACE(PREFIX_W "Could not set default locale.\n");
    }
 
