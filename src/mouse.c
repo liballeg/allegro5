@@ -858,7 +858,7 @@ void set_mouse_range(int x1, int y1, int x2, int y2)
    ASSERT(x1 >= 0);
    ASSERT(y1 >= 0);
    ASSERT(x2 >= x1);
-   ASSERT(y2 >= y2);
+   ASSERT(y2 >= y1);
 
    if (!mouse_driver)
       return;
