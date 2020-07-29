@@ -1125,6 +1125,8 @@ bool al_init_ttf_addon(void)
 
    al_register_font_loader(".ttf", al_load_ttf_font);
 
+   _al_add_exit_func(al_shutdown_ttf_addon, "al_shutdown_ttf_addon");
+
    /* Can't fail right now - in the future we might dynamically load
     * the FreeType DLL here and/or initialize FreeType (which both
     * could fail and would cause a false return).
