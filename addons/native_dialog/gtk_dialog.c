@@ -51,7 +51,7 @@ void _al_gtk_make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
    /* Set the current display window (if any) as the parent of the dialog. */
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    if (glx) {
-      if (!GTK_WIDGET_REALIZED(window))
+      if (!gtk_widget_get_realized(window))
          g_signal_connect(window, "realize", G_CALLBACK(realized), (void *)glx);
       else
          really_make_transient(window, glx);
