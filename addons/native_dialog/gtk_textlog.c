@@ -100,12 +100,6 @@ static gboolean create_native_text_log(gpointer data)
    gtk_container_add(GTK_CONTAINER(top), scroll);
    GtkWidget *view = gtk_text_view_new();
    gtk_text_view_set_editable(GTK_TEXT_VIEW(view), false);
-   if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
-      PangoFontDescription *font_desc;
-      font_desc = pango_font_description_from_string("Monospace");
-      gtk_widget_modify_font(view, font_desc);
-      pango_font_description_free(font_desc);
-   }
    gtk_container_add(GTK_CONTAINER(scroll), view);
    gtk_widget_show(view);
    gtk_widget_show(scroll);
