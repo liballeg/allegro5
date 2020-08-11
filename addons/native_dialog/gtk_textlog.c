@@ -59,7 +59,7 @@ static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
    ALLEGRO_NATIVE_DIALOG *textlog = userdata;
    (void)w;
 
-   if (gevent->keyval == GDK_Escape) {
+   if (gevent->keyval == GDK_KEY_Escape) {
       emit_close_event(textlog, true);
    }
 
