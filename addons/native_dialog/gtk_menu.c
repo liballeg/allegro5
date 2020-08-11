@@ -85,14 +85,6 @@ static void checkbox_on_toggle(ALLEGRO_MENU_ITEM *item)
 }
 
 /* [gtk thread] */
-static void destroy_pixbuf(guchar *pixels, gpointer data)
-{
-   (void) data;
-   
-   al_free(pixels);
-}
-
-/* [gtk thread] */
 static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
 {
    GtkWidget *gitem;
@@ -116,39 +108,8 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
       }
       else {
          /* always create an image menu item, in case the user ever sets an icon */
-         gitem = gtk_image_menu_item_new_with_mnemonic(al_cstr(caption));
-         
-         if (aitem->icon) {
-            const int w = al_get_bitmap_width(aitem->icon), h = al_get_bitmap_height(aitem->icon);
-            const int stride = w * 4;
-            int x, y, i;
-            GdkPixbuf *pixbuf;
-            uint8_t *data = al_malloc(stride * h);
-            
-            if (data) {
-               for (y = 0, i = 0; y < h; ++y) {
-                  for (x = 0; x < w; ++x, i += 4) {
-                     al_unmap_rgba(al_get_pixel(aitem->icon, x, y),
-                        &data[i],
-                        &data[i + 1],
-                        &data[i + 2],
-                        &data[i + 3]
-                     );
-                  }
-               }
-               
-               pixbuf = gdk_pixbuf_new_from_data (data, GDK_COLORSPACE_RGB, TRUE, 8,
-                  w, h, stride, destroy_pixbuf, NULL);
-               
-               aitem->extra2 = gtk_image_new_from_pixbuf(pixbuf);
-               
-               gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gitem), aitem->extra2);
-               
-               /* Subtract the main reference. the image still holds a reference, so the
-                * pixbuf won't be destroyed until the image itself is. */
-               g_object_unref(pixbuf);
-            }
-         }
+         gitem = gtk_menu_item_new_with_label(al_cstr(caption));
+
       }
       
       al_ustr_free(caption);
@@ -404,20 +365,6 @@ static void popop_on_hide(ALLEGRO_MENU *menu)
    /* in case we want to notify on popup close */
 }
 
-/* [gtk thread]
- *
- * gtk_menu_popup has a propencity of failing silently, and having this *
- * function called seems to be the only reliable way of detecting when this
- * happens.
- */
-static void position_func(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data) {
-   (void)menu;
-   (void)x;
-   (void)y;
-   (void)push_in;
-   *((bool*)user_data) = true;
-}
-
 /* [gtk thread] */
 static gboolean do_show_popup_menu(gpointer data)
 {
@@ -425,8 +372,9 @@ static gboolean do_show_popup_menu(gpointer data)
    
    _al_gtk_lock_args(args);
    
+   GtkWidget *menu = NULL;
    if (!args->menu->extra1) {
-      GtkWidget *menu = gtk_menu_new();
+      menu = gtk_menu_new();
       
       build_menu(menu, args->menu);
       
@@ -438,8 +386,11 @@ static gboolean do_show_popup_menu(gpointer data)
    }
 
    bool position_called = false;
-   gtk_menu_popup(args->menu->extra1, NULL, NULL, position_func, &position_called, 0,
-      gtk_get_current_event_time());
+   if (menu)
+      gtk_menu_popup_at_widget(args->menu->extra1, menu,  GDK_GRAVITY_SOUTH_WEST,
+                              GDK_GRAVITY_NORTH_WEST,
+                              NULL);
+
    if (!position_called) {
       ALLEGRO_DEBUG("Position canary not called, most likely the menu didn't show "
       "up due to outstanding mouse events.\n");
