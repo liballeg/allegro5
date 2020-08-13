@@ -108,7 +108,7 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
       }
       else {
          /* always create an image menu item, in case the user ever sets an icon */
-         gitem = gtk_menu_item_new_with_label(al_cstr(caption));
+         gitem = gtk_menu_item_new_with_mnemonic(al_cstr(caption));
 
       }
       
