@@ -80,6 +80,8 @@ static gboolean create_native_text_log(gpointer data)
 {
    Msg *msg = data;
    ALLEGRO_NATIVE_DIALOG *textlog = msg->dialog;
+   GtkCssProvider *css_provider;
+   GtkStyleContext *context;
 
    /* Create a new text log window. */
    GtkWidget *top = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -100,6 +102,17 @@ static gboolean create_native_text_log(gpointer data)
    gtk_container_add(GTK_CONTAINER(top), scroll);
    GtkWidget *view = gtk_text_view_new();
    gtk_text_view_set_editable(GTK_TEXT_VIEW(view), false);
+   gtk_widget_set_name(GTK_WIDGET(view), "native_text_log");
+   if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
+      css_provider = gtk_css_provider_new();
+      gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(css_provider),
+                                      "#native_text_log {\n"
+                                      "   font: 11px 'Monospace';\n"
+                                      "}\n", -1, NULL);
+      context = gtk_widget_get_style_context(GTK_WIDGET(view));
+      gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+      g_object_unref(css_provider);
+   }
    gtk_container_add(GTK_CONTAINER(scroll), view);
    gtk_widget_show(view);
    gtk_widget_show(scroll);
