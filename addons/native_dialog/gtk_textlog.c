@@ -107,7 +107,7 @@ static gboolean create_native_text_log(gpointer data)
       css_provider = gtk_css_provider_new();
       gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(css_provider),
                                       "#native_text_log {\n"
-                                      "   font: 11px 'Monospace';\n"
+                                      "   font-family: monospace;\n"
                                       "}\n", -1, NULL);
       context = gtk_widget_get_style_context(GTK_WIDGET(view));
       gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
