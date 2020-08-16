@@ -156,9 +156,18 @@ DEFINE_PRIVATE_GUID(__al_GUID_Slider,0xA36D02E4,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x4
 DEFINE_PRIVATE_GUID(__al_GUID_Button,0xA36D02F0,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 DEFINE_PRIVATE_GUID(__al_GUID_POV,   0xA36D02F2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 
-DEFINE_PRIVATE_GUID(__al_IID_IDirectInput8A,         0xBF798030,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00);
-DEFINE_PRIVATE_GUID(__al_IID_IDirectInputDevice8A,   0x54D41080,0xDC15,0x4833,0xA4,0x1B,0x74,0x8F,0x73,0xA3,0x81,0x79);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInput8W,      0xBF798031,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInput8A,      0xBF798030,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInputDevice8A,0x54D41080,0xDC15,0x4833,0xA4,0x1B,0x74,0x8F,0x73,0xA3,0x81,0x79);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInputDevice8W,0x54D41081,0xDC15,0x4833,0xA4,0x1B,0x74,0x8F,0x73,0xA3,0x81,0x79);
 
+#ifdef UNICODE
+#define __al_IID_IDirectInput8 __al_IID_IDirectInput8W
+#define __al_IID_IDirectInputDevice8 __al_IID_IDirectInputDevice8W
+#else
+#define __al_IID_IDirectInput __al_IID_IDirectInput8A
+#define __al_IID_IDirectInputDevice __al_IID_IDirectInputDevice8A
+#endif
 
 /* definition of DirectInput Joystick was borrowed from Wine implementation */
 #define DIDFT_AXIS              0x00000003
@@ -883,7 +892,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       goto Error;
 
    /* query the DirectInputDevice2 interface needed for the poll() method */
-   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, __al_IID_IDirectInputDevice8A, &temp);
+   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, __al_IID_IDirectInputDevice8, &temp);
    IDirectInputDevice8_Release(_dinput_device1);
    if (FAILED(hr))
       goto Error;
@@ -1155,7 +1164,7 @@ static bool joydx_init_joystick(void)
    }
 
    /* get the DirectInput interface */
-   hr = _al_dinput_create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, __al_IID_IDirectInput8A, u.v, NULL);
+   hr = _al_dinput_create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, __al_IID_IDirectInput8, u.v, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("Failed to create DirectInput interface\n");
       FreeLibrary(_al_dinput_module);
