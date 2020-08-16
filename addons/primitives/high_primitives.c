@@ -1252,7 +1252,7 @@ void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
    int ii;
 
    if (num_segments*(thickness>0 ? 2 : 1) > ALLEGRO_VERTEX_CACHE_SIZE) {
-      ALLEGRO_ERROR("Ribbon has too many segments.\n");
+      ALLEGRO_ERROR("Ribbon has too many segments.");
       return;
    }
 
