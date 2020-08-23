@@ -262,10 +262,11 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
     * lock is on (ie, letters are upper case)
     */
    int scancode = mac_to_scancode[[event keyCode]];
-
-   if (pressed) {
-      /* Translate OS X modifier flags to Allegro modifier flags */
-      int key_shifts = translate_modifier_flags([event modifierFlags]);
+   
+   /* Translate OS X modifier flags to Allegro modifier flags */
+   int key_shifts = translate_modifier_flags([event modifierFlags]);
+   
+   if (pressed) {  
       NSString* raw_characters = [event charactersIgnoringModifiers];
       NSString* upper_characters = [event characters];
       const unichar raw_character = ([raw_characters length] > 0) ? [raw_characters characterAtIndex: 0] : 0;
