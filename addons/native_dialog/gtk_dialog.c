@@ -41,7 +41,7 @@ static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
       parent = gdk_x11_window_foreign_new_for_display(gdk, glx->window);
 
    if (gdk_window != NULL)
-      gtk_window_set_transient_for(GTK_WINDOW(window), parent);
+      gdk_window_set_transient_for(gdk_window, parent);
 }
 
 static void realized(GtkWidget *window, gpointer data)
