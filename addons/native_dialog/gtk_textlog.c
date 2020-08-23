@@ -59,7 +59,7 @@ static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
    ALLEGRO_NATIVE_DIALOG *textlog = userdata;
    (void)w;
 
-   if (gevent->keyval == GDK_Escape) {
+   if (gevent->keyval == GDK_KEY_Escape) {
       emit_close_event(textlog, true);
    }
 
@@ -80,6 +80,8 @@ static gboolean create_native_text_log(gpointer data)
 {
    Msg *msg = data;
    ALLEGRO_NATIVE_DIALOG *textlog = msg->dialog;
+   GtkCssProvider *css_provider;
+   GtkStyleContext *context;
 
    /* Create a new text log window. */
    GtkWidget *top = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -100,11 +102,16 @@ static gboolean create_native_text_log(gpointer data)
    gtk_container_add(GTK_CONTAINER(top), scroll);
    GtkWidget *view = gtk_text_view_new();
    gtk_text_view_set_editable(GTK_TEXT_VIEW(view), false);
+   gtk_widget_set_name(GTK_WIDGET(view), "native_text_log");
    if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
-      PangoFontDescription *font_desc;
-      font_desc = pango_font_description_from_string("Monospace");
-      gtk_widget_modify_font(view, font_desc);
-      pango_font_description_free(font_desc);
+      css_provider = gtk_css_provider_new();
+      gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(css_provider),
+                                      "#native_text_log {\n"
+                                      "   font-family: monospace;\n"
+                                      "}\n", -1, NULL);
+      context = gtk_widget_get_style_context(GTK_WIDGET(view));
+      gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+      g_object_unref(css_provider);
    }
    gtk_container_add(GTK_CONTAINER(scroll), view);
    gtk_widget_show(view);

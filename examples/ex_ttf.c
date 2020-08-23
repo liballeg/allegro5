@@ -270,9 +270,9 @@ int main(int argc, char **argv)
     {
         int ranges[] = {0x1F40A, 0x1F40A};
         ALLEGRO_BITMAP *icon = al_load_bitmap("data/icon.png");
-		if (!icon) {
-			abort_example("Couldn't load data/icon.png.\n");
-		}
+        if (!icon) {
+            abort_example("Couldn't load data/icon.png.\n");
+        }
         ALLEGRO_BITMAP *glyph = al_create_bitmap(50, 50);
         al_set_target_bitmap(glyph);
         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));

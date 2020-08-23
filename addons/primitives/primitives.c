@@ -55,6 +55,13 @@ bool al_init_primitives_addon(void)
    return ret;
 }
 
+/* Function: al_is_primitives_addon_initialized
+ */
+bool al_is_primitives_addon_initialized(void)
+{
+   return addon_initialized;
+}
+
 /* Function: al_shutdown_primitives_addon
  */
 void al_shutdown_primitives_addon(void)
@@ -217,6 +224,8 @@ fail:
  */
 void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
 {
+   if (!decl)
+      return;
    al_free(decl->elements);
    /*
     * TODO: Somehow free the d3d_decl

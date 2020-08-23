@@ -184,7 +184,10 @@ static void read_allegro_cfg(void)
  */
 static bool compatible_versions(int a, int b)
 {
-   int a_unstable = a & (1 << 31);
+   /* This is 1 << 31, we keep it a signed int because that's what
+    * al_install_system does.
+    */
+   int a_unstable = a & -2147483648;
 
    int a_major = (a & 0x7f000000) >> 24;
    int a_sub   = (a & 0x00ff0000) >> 16;
@@ -355,6 +358,13 @@ ALLEGRO_SYSTEM *al_get_system_driver(void)
    return active_sysdrv;
 }
 
+/* Function: al_get_system_id
+ */
+ALLEGRO_SYSTEM_ID al_get_system_id(void)
+{
+   ASSERT(active_sysdrv);
+   return active_sysdrv->vt->id;
+}
 
 /* Function: al_get_system_config
  */
@@ -486,6 +496,40 @@ void _al_close_library(void *library)
 
    if (active_sysdrv->vt->close_library)
       active_sysdrv->vt->close_library(library);
+}
+
+
+/* Function: al_get_time
+ */
+double al_get_time(void)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->get_time)
+      return active_sysdrv->vt->get_time();
+   return 0.0;
+}
+
+
+/* Function: al_rest
+ */
+void al_rest(double seconds)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->rest)
+      active_sysdrv->vt->rest(seconds);
+}
+
+
+/* Function: al_init_timeout
+ */
+void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->init_timeout)
+      active_sysdrv->vt->init_timeout(timeout, seconds);
 }
 
 /* vim: set sts=3 sw=3 et: */

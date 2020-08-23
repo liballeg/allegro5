@@ -55,10 +55,13 @@
 
 #define ALLEGRO_VERSION          5
 #define ALLEGRO_SUB_VERSION      2
-#define ALLEGRO_WIP_VERSION      5
+#define ALLEGRO_WIP_VERSION      7
 
 #ifdef ALLEGRO_UNSTABLE
-   #define ALLEGRO_UNSTABLE_BIT  1 << 31
+   /* 1 << 31 represented as a signed int to match the arg type of
+    * al_install_system.
+    */
+   #define ALLEGRO_UNSTABLE_BIT -2147483648
 #else
    #define ALLEGRO_UNSTABLE_BIT  0
 #endif
@@ -73,9 +76,9 @@
  */
 #define ALLEGRO_RELEASE_NUMBER   0
 
-#define ALLEGRO_VERSION_STR      "5.2.5 (GIT)"
-#define ALLEGRO_DATE_STR         "2018"
-#define ALLEGRO_DATE             20180224    /* yyyymmdd */
+#define ALLEGRO_VERSION_STR      "5.2.7 (GIT)"
+#define ALLEGRO_DATE_STR         "2020"
+#define ALLEGRO_DATE             20200207    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER | \

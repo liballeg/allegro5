@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <gtk/gtkx.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
@@ -94,7 +95,7 @@ static gboolean do_create_display_hook(gpointer data)
    g_signal_connect(G_OBJECT(window), "configure-event",
       G_CALLBACK(xgtk_handle_configure_event), display);
 
-   vbox = gtk_vbox_new(FALSE, 0);
+   vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
    gtk_container_add(GTK_CONTAINER(window), vbox);
 
    socket = gtk_socket_new();

@@ -268,7 +268,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
 
    buffer = al_malloc(total_size);
    if (!buffer) {
-      ALLEGRO_ERROR("Unable to allocate buffer (%d).\n", total_size);
+      ALLEGRO_ERROR("Unable to allocate buffer (%ld).\n", total_size);
       return NULL;
    }
 
@@ -402,10 +402,13 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    
    if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
       if (ctime + btime > extra->loop_end) {
+         const int frame_size = word_size * extra->vi->channels;
          read_length = (extra->loop_end - ctime) * rate * (double)word_size * (double)extra->vi->channels;
          if (read_length < 0)
             return 0;
-         read_length += read_length % word_size;
+         if (read_length % frame_size > 0) {
+           read_length += (frame_size - (read_length % frame_size));
+         }
       }
    }
    while (pos < (unsigned long)read_length) {

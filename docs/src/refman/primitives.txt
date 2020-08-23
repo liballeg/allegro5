@@ -23,6 +23,14 @@ True on success, false on failure.
 
 See also: [al_shutdown_primitives_addon]
 
+### API: al_is_primitives_addon_initialized
+
+Returns true if the primitives addon is initialized, otherwise returns false.
+
+Since: 5.2.6
+
+See also: [al_init_primitives_addon], [al_shutdown_primitives_addon]
+
 ### API: al_shutdown_primitives_addon
 
 Shut down the primitives addon. This is done automatically at program exit,
@@ -908,9 +916,10 @@ outline of the filled polygon.
   in each hole.  The array must be terminated with an element with value zero.
 * color - Color of the filled polygon
 
-All hole vertices must use the opposite order (clockwise with y down) of the
-polygon vertices.  All hole vertices must be inside the main polygon and no
-hole may overlap the main polygon.
+When the y-axis is facing downwards (the usual) the filled polygon coordinates
+must be ordered anti-clockwise. All hole vertices must use the opposite order
+(clockwise with y down).  All hole vertices must be inside the main polygon and
+no hole may overlap the main polygon.
 
 For example:
 

@@ -20,7 +20,7 @@ typedef struct ALLEGRO_SYSTEM_INTERFACE ALLEGRO_SYSTEM_INTERFACE;
 
 struct ALLEGRO_SYSTEM_INTERFACE
 {
-   int id;
+   ALLEGRO_SYSTEM_ID id;
    ALLEGRO_SYSTEM *(*initialize)(int flags);
    ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
    ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
@@ -48,6 +48,9 @@ struct ALLEGRO_SYSTEM_INTERFACE
    void (*close_library)(void *handle);
    void (*heartbeat)(void);
    void (*heartbeat_init)(void);
+   double (*get_time)(void);
+   void (*rest)(double seconds);
+   void (*init_timeout)(ALLEGRO_TIMEOUT *timeout, double seconds);
 };
 
 struct ALLEGRO_SYSTEM

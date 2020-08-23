@@ -32,6 +32,12 @@ streamed with [al_load_audio_stream] or [al_load_audio_stream_f].
 
 Return true on success.
 
+## API: al_is_acodec_addon_initialized
+
+Returns true if the acodec addon is initialized, otherwise returns false.
+
+Since: 5.2.6
+
 ## API: al_get_allegro_acodec_version
 
 Returns the (compiled) version of the addon, in the same format as

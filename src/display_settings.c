@@ -53,7 +53,7 @@ int _al_get_suggested_display_option(ALLEGRO_DISPLAY *d,
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *s = &d->extra_settings;
    uint64_t flags = s->required | s->suggested;
-   if (flags & (1 << option))
+   if (flags & ((uint64_t)1 << option))
       return s->settings[option];
    return default_value;
 }
@@ -883,14 +883,15 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       break;
       case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 12, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
+         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 4, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, importance);      
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   8, importance);      
+      break;
       case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 12, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 4, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, importance);      
+         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  4, importance);
+         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   12, importance);      
       break;
    }
 

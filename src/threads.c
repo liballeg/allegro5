@@ -126,7 +126,21 @@ ALLEGRO_THREAD *al_create_thread(
    return outer;
 }
 
-
+/* Function: al_create_thread_with_stacksize
+ */
+ALLEGRO_THREAD *al_create_thread_with_stacksize(
+   void *(*proc)(ALLEGRO_THREAD *thread, void *arg), void *arg, size_t stacksize)
+{
+   ALLEGRO_THREAD *outer = create_thread();
+   outer->thread_state = THREAD_STATE_CREATED;
+   _al_mutex_init(&outer->mutex);
+   _al_cond_init(&outer->cond);
+   outer->arg = arg;
+   outer->proc = proc;
+   _al_thread_create_with_stacksize(&outer->thread, thread_func_trampoline, outer, stacksize);
+   /* XXX _al_thread_create should return an error code */
+   return outer;
+}
 
 /* Function: al_run_detached_thread
  */

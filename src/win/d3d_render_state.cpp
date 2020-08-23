@@ -28,7 +28,7 @@ void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display)
    disp->device->SetRenderState(D3DRS_ALPHATESTENABLE,
       r->alpha_test ? TRUE : FALSE);
    disp->device->SetRenderState(D3DRS_ALPHAFUNC, _d3d_funcs[r->alpha_function]);
-   disp->device->SetRenderState(D3DRS_ALPHAREF, (int)(r->alpha_test_value * 255));
+   disp->device->SetRenderState(D3DRS_ALPHAREF, r->alpha_test_value);
 
    disp->device->SetRenderState(D3DRS_ZENABLE,
       r->depth_test ? D3DZB_TRUE : D3DZB_FALSE);

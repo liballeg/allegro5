@@ -188,6 +188,7 @@ int main(int argc, char **argv)
          switch (event.type) {
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
                quit = true;
+               break;
 
             case ALLEGRO_EVENT_KEY_DOWN:
                if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)

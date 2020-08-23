@@ -379,6 +379,52 @@
 /*ARB_vertex_type_2_10_10_10_rev*/
 #endif
 
+#if defined _ALLEGRO_GL_VERSION_4_3
+#define glClearBufferData _al_glClearBufferData
+#define glClearBufferSubData _al_glClearBufferSubData
+#define glDispatchCompute _al_glDispatchCompute
+#define glDispatchComputeIndirect _al_glDispatchComputeIndirect
+#define glCopyImageSubData _al_glCopyImageSubData
+#define glFramebufferParameteri _al_glFramebufferParameteri
+#define glGetFramebufferParameteriv _al_glGetFramebufferParameteriv
+#define glGetInternalformati64v _al_glGetInternalformati64v
+#define glInvalidateTexSubImage _al_glInvalidateTexSubImage
+#define glInvalidateTexImage _al_glInvalidateTexImage
+#define glInvalidateBufferSubData _al_glInvalidateBufferSubData
+#define glInvalidateBufferData _al_glInvalidateBufferData
+#define glInvalidateFramebuffer _al_glInvalidateFramebuffer
+#define glInvalidateSubFramebuffer _al_glInvalidateSubFramebuffer
+#define glMultiDrawArraysIndirect _al_glMultiDrawArraysIndirect
+#define glMultiDrawElementsIndirect _al_glMultiDrawElementsIndirect
+#define glGetProgramInterfaceiv _al_glGetProgramInterfaceiv
+#define glGetProgramResourceIndex _al_glGetProgramResourceIndex
+#define glGetProgramResourceName _al_glGetProgramResourceName
+#define glGetProgramResourceiv _al_glGetProgramResourceiv
+#define glGetProgramResourceLocation _al_glGetProgramResourceLocation
+#define glGetProgramResourceLocationIndex _al_glGetProgramResourceLocationIndex
+#define glShaderStorageBlockBinding _al_glShaderStorageBlockBinding
+#define glTexBufferRange _al_glTexBufferRange
+#define glTexStorage2DMultisample _al_glTexStorage2DMultisample
+#define glTexStorage3DMultisample _al_glTexStorage3DMultisample
+#define glTextureView _al_glTextureView
+#define glBindVertexBuffer _al_glBindVertexBuffer
+#define glVertexAttribFormat _al_glVertexAttribFormat
+#define glVertexAttribIFormat _al_glVertexAttribIFormat
+#define glVertexAttribLFormat _al_glVertexAttribLFormat
+#define glVertexAttribBinding _al_glVertexAttribBinding
+#define glVertexBindingDivisor _al_glVertexBindingDivisor
+#define glDebugMessageControl _al_glDebugMessageControl
+#define glDebugMessageInsert _al_glDebugMessageInsert
+#define glDebugMessageCallback _al_glDebugMessageCallback
+#define glGetDebugMessageLog _al_glGetDebugMessageLog
+#define glPushDebugGroup _al_glPushDebugGroup
+#define glPopDebugGroup _al_glPopDebugGroup
+#define glObjectLabel _al_glObjectLabel
+#define glGetObjectLabel _al_glGetObjectLabel
+#define glObjectPtrLabel _al_glObjectPtrLabel
+#define glGetObjectPtrLabel _al_glGetObjectPtrLabel
+#endif /* GL_VERSION_4_3 */
+
 
 /*</Core>*/
 /*<ARB>*/

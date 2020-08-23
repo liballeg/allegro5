@@ -82,6 +82,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
     
     vt = al_calloc(1, sizeof *vt);
     
+    vt->id = ALLEGRO_SYSTEM_ID_IPHONE;
     vt->initialize = iphone_initialize;
     vt->get_display_driver = iphone_get_display_driver;
     vt->get_keyboard_driver = _al_get_iphone_keyboard_driver;

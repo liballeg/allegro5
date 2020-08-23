@@ -42,7 +42,10 @@
 #include "allegro5/allegro_opengl.h"
 #endif
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/debug.h"
 #include <math.h>
+
+ALLEGRO_DEBUG_CHANNEL("primitives")
 
 #ifdef ALLEGRO_MSVC
    #define hypotf(x, y) _hypotf((x), (y))
@@ -1247,6 +1250,11 @@ void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
 {
    LOCAL_VERTEX_CACHE;
    int ii;
+
+   if (num_segments * (thickness > 0 ? 2 : 1) > ALLEGRO_VERTEX_CACHE_SIZE) {
+      ALLEGRO_ERROR("Ribbon has too many segments.\n");
+      return;
+   }
 
    al_calculate_ribbon(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, points_stride, thickness, num_segments);
    

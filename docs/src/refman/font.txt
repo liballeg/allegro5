@@ -71,6 +71,14 @@ checking the return value if your code needs to be compatible with Allegro
 
 See also: [al_init_image_addon], [al_init_ttf_addon], [al_shutdown_font_addon]
 
+### API: al_is_font_addon_initialized
+
+Returns true if the font addon is initialized, otherwise returns false.
+
+Since: 5.2.6
+
+See also: [al_init_font_addon], [al_shutdown_font_addon]
+
 ### API: al_shutdown_font_addon
 
 Shut down the font addon. This is done automatically at program exit,
@@ -695,6 +703,14 @@ Call this after [al_init_font_addon] to make [al_load_font] recognize
 ".ttf" and other formats supported by [al_load_ttf_font].
 
 Returns true on success, false on failure.
+
+### API: al_is_ttf_addon_initialized
+
+Returns true if the TTF addon is initialized, otherwise returns false.
+
+Since: 5.2.6
+
+See also: [al_init_ttf_addon], [al_shutdown_ttf_addon]
 
 ### API: al_shutdown_ttf_addon
 

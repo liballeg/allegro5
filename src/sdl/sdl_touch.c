@@ -1,3 +1,17 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      SDL touch driver.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
@@ -153,7 +167,7 @@ void _al_sdl_touch_input_event(SDL_Event *e)
       return;
    }
 
-   generate_touch_input_event(type, e->tfinger.timestamp, touchId,
+   generate_touch_input_event(type, e->tfinger.timestamp / 1000.0, touchId,
                               touch_input->state.touches[touchId].x,
                               touch_input->state.touches[touchId].y,
                               touch_input->state.touches[touchId].dx,
@@ -195,7 +209,7 @@ static void sdl_get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
    _al_event_source_unlock(&touch_input->touch_input.es);
 }
 
-static void touch_input_handle_cancel(int index, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+static void touch_input_handle_cancel(int index, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_TOUCH_STATE* state = touch_input->state.touches + index;
    (void)primary;

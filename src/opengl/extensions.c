@@ -167,14 +167,6 @@ static uint32_t _al_ogl_version(void)
 
 
 
-static bool _al_ogl_version_3_only(int flags)
-{
-   const int mask = ALLEGRO_OPENGL_3_0 | ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
-   return (flags & mask) == mask;
-}
-
-
-
 /* print_extensions:
  * Given a string containing extensions (i.e. a NULL terminated string where
  * each extension are separated by a space and which names do not contain any
@@ -724,11 +716,14 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_OGL_EXT_API *ext_api;
    ALLEGRO_OGL_EXT_LIST *ext_list;
 
+   /* Some functions depend on knowing the version of opengl in use */
+   fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_extras->ogl_info));
+
    /* Print out OpenGL extensions
     * We should use glGetStringi(GL_EXTENSIONS, i) for OpenGL 3.0+
     * but it doesn't seem to work until later.
     */
-   if (!_al_ogl_version_3_only(gl_disp->flags)) {
+   if (gl_disp->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_3_0) {
       ALLEGRO_DEBUG("OpenGL Extensions:\n");
       print_extensions((char const *)glGetString(GL_EXTENSIONS));
    }
@@ -787,8 +782,6 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    print_extensions(ext);
 #endif
 
-   fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_extras->ogl_info));
-
    /* Create & load extension API table */
    ext_api = create_extension_api_table();
    load_extensions(ext_api);
@@ -798,7 +791,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
 
-   if (_al_ogl_version_3_only(gl_disp->flags)) {
+   if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_3_0) {
       ALLEGRO_DEBUG("OpenGL Extensions:\n");
       print_extensions_3_0();
    }
@@ -873,7 +866,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          }
       }
       else if (strstr(vendor, "ATI Technologies")) {
-         if (_al_ogl_version_3_only(gl_disp->flags)) {
+         if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_3_0) {
             /* Assume okay. */
          }
          else if (!strstr((const char *)glGetString(GL_EXTENSIONS),

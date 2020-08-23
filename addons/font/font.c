@@ -36,7 +36,7 @@ typedef struct
 
 /* globals */
 static bool font_inited = false;
-static _AL_VECTOR font_handlers;
+static _AL_VECTOR font_handlers = _AL_VECTOR_INITIALIZER(FONT_HANDLER);
 
 
 /* al_font_404_character:
@@ -369,8 +369,6 @@ bool al_init_font_addon(void)
       return true;
    }
 
-   _al_vector_init(&font_handlers, sizeof(FONT_HANDLER));
-
    al_register_font_loader(".bmp", _al_load_bitmap_font);
    al_register_font_loader(".jpg", _al_load_bitmap_font);
    al_register_font_loader(".pcx", _al_load_bitmap_font);
@@ -385,6 +383,16 @@ bool al_init_font_addon(void)
    font_inited = true;
    return font_inited;
 }
+
+
+
+/* Function: al_is_font_addon_initialized
+ */
+bool al_is_font_addon_initialized(void)
+{
+   return font_inited;
+}
+
 
 
 /* Function: al_shutdown_font_addon

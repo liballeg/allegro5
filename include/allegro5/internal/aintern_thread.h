@@ -14,6 +14,7 @@ typedef struct _AL_COND _AL_COND;
 
 
 void _al_thread_create(_AL_THREAD*, void (*proc)(_AL_THREAD*, void*), void *arg);
+void _al_thread_create_with_stacksize(_AL_THREAD*, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize);
 void _al_thread_set_should_stop(_AL_THREAD *);
 /* static inline bool _al_get_thread_should_stop(_AL_THREAD *); */
 void _al_thread_join(_AL_THREAD*);

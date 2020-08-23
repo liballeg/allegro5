@@ -59,6 +59,7 @@ typedef struct ALLEGRO_MENU_INFO {
 #define ALLEGRO_END_OF_MENU                { NULL,          0, 0, NULL }
 
 ALLEGRO_DIALOG_FUNC(bool, al_init_native_dialog_addon, (void));
+ALLEGRO_DIALOG_FUNC(bool, al_is_native_dialog_addon_initialized, (void));
 ALLEGRO_DIALOG_FUNC(void, al_shutdown_native_dialog_addon, (void));
 
 ALLEGRO_DIALOG_FUNC(ALLEGRO_FILECHOOSER *, al_create_native_file_dialog, (char const *initial_path,

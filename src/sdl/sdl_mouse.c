@@ -1,3 +1,17 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      SDL mouse driver.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
@@ -14,6 +28,25 @@ typedef struct ALLEGRO_MOUSE_SDL
 static ALLEGRO_MOUSE_DRIVER *vt;
 static ALLEGRO_MOUSE_SDL *mouse;
 
+static ALLEGRO_DISPLAY *find_display(uint32_t window_id)
+{
+   ALLEGRO_DISPLAY *d = _al_sdl_find_display(window_id);
+   if (d) {
+      return d;
+   }
+   else {
+      // if there's only one display, we can assume that all
+      // events refer to its coordinate system
+      ALLEGRO_SYSTEM *s = al_get_system_driver();
+      if (_al_vector_size(&s->displays) == 1) {
+         void **v = (void **)_al_vector_ref(&s->displays, 0);
+         ALLEGRO_DISPLAY_SDL *d = *v;
+         return &d->display;
+      }
+   }
+   return NULL;
+}
+
 void _al_sdl_mouse_event(SDL_Event *e)
 {
    if (!mouse)
@@ -29,9 +62,13 @@ void _al_sdl_mouse_event(SDL_Event *e)
    ALLEGRO_DISPLAY *d = NULL;
 
    if (e->type == SDL_WINDOWEVENT) {
+      d = find_display(e->window.windowID);
+      float ratio = _al_sdl_get_display_pixel_ratio(d);
       if (e->window.event == SDL_WINDOWEVENT_ENTER) {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
-         SDL_GetMouseState(&event.mouse.x, &event.mouse.y );
+         SDL_GetMouseState(&event.mouse.x, &event.mouse.y);
+         event.mouse.x *= ratio;
+         event.mouse.y *= ratio;
       }
       else {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
@@ -40,24 +77,33 @@ void _al_sdl_mouse_event(SDL_Event *e)
          event.mouse.z = mouse->state.z;
          event.mouse.w = mouse->state.w;
       }
-      d = _al_sdl_find_display(e->window.windowID);
       mouse->display = e->window.event == SDL_WINDOWEVENT_ENTER ? d : NULL;
    }
    else if (e->type == SDL_MOUSEMOTION) {
+      if (e->motion.which == SDL_TOUCH_MOUSEID) {
+         _al_event_source_unlock(es);
+         return;
+      }
+      d = find_display(e->motion.windowID);
+      float ratio = d ? _al_sdl_get_display_pixel_ratio(d) : 1.0;
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
-      event.mouse.x = e->motion.x;
-      event.mouse.y = e->motion.y;
+      event.mouse.x = e->motion.x * ratio;
+      event.mouse.y = e->motion.y * ratio;
       event.mouse.z = mouse->state.z;
       event.mouse.w = mouse->state.w;
-      event.mouse.dx = e->motion.xrel;
-      event.mouse.dy = e->motion.yrel;
+      event.mouse.dx = e->motion.xrel * ratio;
+      event.mouse.dy = e->motion.yrel * ratio;
       event.mouse.dz = 0;
       event.mouse.dw = 0;
-      mouse->state.x = e->motion.x;
-      mouse->state.y = e->motion.y;
-      d = _al_sdl_find_display(e->motion.windowID);
+      mouse->state.x = e->motion.x * ratio;
+      mouse->state.y = e->motion.y * ratio;
    }
    else if (e->type == SDL_MOUSEWHEEL) {
+      if (e->wheel.which == SDL_TOUCH_MOUSEID) {
+         _al_event_source_unlock(es);
+         return;
+      }
+      d = find_display(e->wheel.windowID);
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       mouse->state.z += al_get_mouse_wheel_precision() * e->wheel.y;
       mouse->state.w += al_get_mouse_wheel_precision() * e->wheel.x;
@@ -69,9 +115,14 @@ void _al_sdl_mouse_event(SDL_Event *e)
       event.mouse.dy = 0;
       event.mouse.dz = al_get_mouse_wheel_precision() * e->wheel.y;
       event.mouse.dw = al_get_mouse_wheel_precision() * e->wheel.x;
-      d = _al_sdl_find_display(e->wheel.windowID);
    }
    else {
+      if (e->button.which == SDL_TOUCH_MOUSEID) {
+         _al_event_source_unlock(es);
+         return;
+      }
+      d = find_display(e->button.windowID);
+      float ratio = d ? _al_sdl_get_display_pixel_ratio(d) : 1.0;
       switch (e->button.button) {
          case SDL_BUTTON_LEFT: event.mouse.button = 1; break;
          case SDL_BUTTON_RIGHT: event.mouse.button = 2; break;
@@ -79,8 +130,8 @@ void _al_sdl_mouse_event(SDL_Event *e)
          case SDL_BUTTON_X1: event.mouse.button = 4; break;
          case SDL_BUTTON_X2: event.mouse.button = 5; break;
       }
-      event.mouse.x = e->button.x;
-      event.mouse.y = e->button.y;
+      event.mouse.x = e->button.x * ratio;
+      event.mouse.y = e->button.y * ratio;
       event.mouse.z = mouse->state.z;
       event.mouse.w = mouse->state.w;
       if (e->type == SDL_MOUSEBUTTONDOWN) {
@@ -91,7 +142,6 @@ void _al_sdl_mouse_event(SDL_Event *e)
          event.mouse.type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
          mouse->state.buttons &= ~(1 << (event.mouse.button - 1));
       }
-      d = _al_sdl_find_display(e->button.windowID);
    }
 
    event.mouse.pressure = mouse->state.buttons ? 1.0 : 0.0; /* TODO */
@@ -130,7 +180,8 @@ static unsigned int sdl_get_mouse_num_axes(void)
 static bool sdl_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
-   SDL_WarpMouseInWindow(sdl->window, x, y);
+   float ratio = _al_sdl_get_display_pixel_ratio(display);
+   SDL_WarpMouseInWindow(sdl->window, x / ratio, y / ratio);
    return true;
 }
 
@@ -145,11 +196,12 @@ static bool sdl_set_mouse_axis(int which, int value)
 static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    int x, y, i;
+   float ratio = _al_sdl_get_display_pixel_ratio(mouse->display);
    ALLEGRO_SYSTEM_INTERFACE *sdl = _al_sdl_system_driver();
    sdl->heartbeat();
    SDL_GetMouseState(&x, &y);
-   ret_state->x = x;
-   ret_state->y = y;
+   ret_state->x = x * ratio;
+   ret_state->y = y * ratio;
    ret_state->z = 0;
    ret_state->w = 0;
    for (i = 0; i < ALLEGRO_MOUSE_MAX_EXTRA_AXES; i++)

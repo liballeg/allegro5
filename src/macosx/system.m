@@ -66,7 +66,9 @@ static void osx_tell_dock(void)
 {
    ProcessSerialNumber psn = { 0, kCurrentProcess };
    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-   [[NSApplication sharedApplication] activateIgnoringOtherApps: YES];
+   [[NSApplication sharedApplication] performSelectorOnMainThread: @selector(activateIgnoringOtherApps:)
+      withObject: [NSNumber numberWithBool:YES]
+      waitUntilDone: YES];
 }
 
 
@@ -435,9 +437,10 @@ static int osx_get_monitor_dpi(int adapter)
 static bool osx_inhibit_screensaver(bool inhibit)
 {
    // Send a message to the App's delegate always on the main thread
-   [[NSApp delegate] performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
-      withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
-      waitUntilDone: NO];
+   NSObject* delegate = [NSApp delegate];
+   [delegate performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
+                              withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
+                           waitUntilDone: NO];
    ALLEGRO_INFO("Stop screensaver\n");
    return true;
 }
@@ -522,6 +525,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
    if (vt == NULL) {
       vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
+      vt->id = ALLEGRO_SYSTEM_ID_MACOSX;
       vt->initialize = osx_sys_init;
       vt->get_display_driver = _al_osx_get_display_driver;
       vt->get_keyboard_driver = _al_osx_get_keyboard_driver;
@@ -540,6 +544,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->inhibit_screensaver = osx_inhibit_screensaver;
       vt->thread_init = osx_thread_init;
       vt->thread_exit = osx_thread_exit;
+      vt->get_time = _al_unix_get_time;
+      vt->rest = _al_unix_rest;
+      vt->init_timeout = _al_unix_init_timeout;
 
    };
 

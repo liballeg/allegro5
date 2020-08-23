@@ -378,6 +378,52 @@ AGL_API(void, FramebufferTexture, (GLenum target, GLenum attachment, GLuint text
 /* ARB_vertex_type_2_10_10_10_rev */
 #endif
 
+#if defined _ALLEGRO_GL_VERSION_4_3
+AGL_API(void, ClearBufferData, (GLenum target, GLenum internalformat, GLenum format, GLenum type, const void *data))
+AGL_API(void, ClearBufferSubData, (GLenum target, GLenum internalformat, GLintptr offset, GLsizeiptr size, GLenum format, GLenum type, const void *data))
+AGL_API(void, DispatchCompute, (GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z))
+AGL_API(void, DispatchComputeIndirect, (GLintptr indirect))
+AGL_API(void, CopyImageSubData, (GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth))
+AGL_API(void, FramebufferParameteri, (GLenum target, GLenum pname, GLint param))
+AGL_API(void, GetFramebufferParameteriv, (GLenum target, GLenum pname, GLint *params))
+AGL_API(void, GetInternalformati64v, (GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint64 *params))
+AGL_API(void, InvalidateTexSubImage, (GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth))
+AGL_API(void, InvalidateTexImage, (GLuint texture, GLint level))
+AGL_API(void, InvalidateBufferSubData, (GLuint buffer, GLintptr offset, GLsizeiptr length))
+AGL_API(void, InvalidateBufferData, (GLuint buffer))
+AGL_API(void, InvalidateFramebuffer, (GLenum target, GLsizei numAttachments, const GLenum *attachments))
+AGL_API(void, InvalidateSubFramebuffer, (GLenum target, GLsizei numAttachments, const GLenum *attachments, GLint x, GLint y, GLsizei width, GLsizei height))
+AGL_API(void, MultiDrawArraysIndirect, (GLenum mode, const void *indirect, GLsizei drawcount, GLsizei stride))
+AGL_API(void, MultiDrawElementsIndirect, (GLenum mode, GLenum type, const void *indirect, GLsizei drawcount, GLsizei stride))
+AGL_API(void, GetProgramInterfaceiv, (GLuint program, GLenum programInterface, GLenum pname, GLint *params))
+AGL_API(GLuint, GetProgramResourceIndex, (GLuint program, GLenum programInterface, const GLchar *name))
+AGL_API(void, GetProgramResourceName, (GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei *length, GLchar *name))
+AGL_API(void, GetProgramResourceiv, (GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum *props, GLsizei bufSize, GLsizei *length, GLint *params))
+AGL_API(GLint, GetProgramResourceLocation, (GLuint program, GLenum programInterface, const GLchar *name))
+AGL_API(GLint, GetProgramResourceLocationIndex, (GLuint program, GLenum programInterface, const GLchar *name))
+AGL_API(void, ShaderStorageBlockBinding, (GLuint program, GLuint storageBlockIndex, GLuint storageBlockBinding))
+AGL_API(void, TexBufferRange, (GLenum target, GLenum internalformat, GLuint buffer, GLintptr offset, GLsizeiptr size))
+AGL_API(void, TexStorage2DMultisample, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations))
+AGL_API(void, TexStorage3DMultisample, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations))
+AGL_API(void, TextureView, (GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers))
+AGL_API(void, BindVertexBuffer, (GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride))
+AGL_API(void, VertexAttribFormat, (GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset))
+AGL_API(void, VertexAttribIFormat, (GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset))
+AGL_API(void, VertexAttribLFormat, (GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset))
+AGL_API(void, VertexAttribBinding, (GLuint attribindex, GLuint bindingindex))
+AGL_API(void, VertexBindingDivisor, (GLuint bindingindex, GLuint divisor))
+AGL_API(void, DebugMessageControl, (GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled))
+AGL_API(void, DebugMessageInsert, (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *buf))
+AGL_API(void, DebugMessageCallback, (GLDEBUGPROC callback, const void *userParam))
+AGL_API(GLuint, GetDebugMessageLog, (GLuint count, GLsizei bufSize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog))
+AGL_API(void, PushDebugGroup, (GLenum source, GLuint id, GLsizei length, const GLchar *message))
+AGL_API(void, PopDebugGroup, (void))
+AGL_API(void, ObjectLabel, (GLenum identifier, GLuint name, GLsizei length, const GLchar *label))
+AGL_API(void, GetObjectLabel, (GLenum identifier, GLuint name, GLsizei bufSize, GLsizei *length, GLchar *label))
+AGL_API(void, ObjectPtrLabel, (const void *ptr, GLsizei length, const GLchar *label))
+AGL_API(void, GetObjectPtrLabel, (const void *ptr, GLsizei bufSize, GLsizei *length, GLchar *label))
+#endif /* GL_VERSION_4_3 */
+
 
 /* </Core> */
 /* <ARB> */

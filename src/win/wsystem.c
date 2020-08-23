@@ -26,6 +26,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/aintwin.h"
+#include "allegro5/internal/aintern_wunicode.h"
 
 #if defined ALLEGRO_CFG_OPENGL
    #include "allegro5/allegro_opengl.h"
@@ -65,7 +66,6 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 {
    int (*mainfunc) (int argc, char *argv[]) = (int (*)(int, char *[]))_main;
    char *argbuf;
-   char *cmdline;
    char **argv;
    int argc;
    int argc_max;
@@ -77,10 +77,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    (void)nShow;
 
    /* can't use parameter because it doesn't include the executable name */
-   cmdline = GetCommandLine();
-   i = strlen(cmdline) + 1;
-   argbuf = al_malloc(i);
-   memcpy(argbuf, cmdline, i);
+   argbuf = _twin_tchar_to_utf8(GetCommandLine());
 
    argc = 0;
    argc_max = 64;
@@ -749,7 +746,7 @@ static bool win_inhibit_screensaver(bool inhibit)
    return true;
 }
 
-static HMODULE load_library_at_path(const char *path_str)
+static HMODULE load_library_at_path(const TCHAR *path_str)
 {
    HMODULE lib;
 
@@ -759,20 +756,20 @@ static HMODULE load_library_at_path(const char *path_str)
     * flags would fix that, but when I tried it I was unable to load dsound.dll
     * on Vista.
     */
-
-   ALLEGRO_DEBUG("Calling LoadLibrary %s\n", path_str);
-   lib = LoadLibraryA(path_str);
+   char* upath_str = _twin_tchar_to_utf8(path_str);
+   ALLEGRO_DEBUG("Calling LoadLibrary %s\n", upath_str);
+   lib = LoadLibrary(path_str);
    if (lib) {
-      ALLEGRO_INFO("Loaded %s\n", path_str);
+      ALLEGRO_INFO("Loaded %s\n", upath_str);
    }
    else {
       DWORD error = GetLastError();
       HRESULT hr = HRESULT_FROM_WIN32(error);
       /* XXX do something with it */
       (void)hr;
-      ALLEGRO_WARN("Failed to load %s (error: %ld)\n", path_str, error);
+      ALLEGRO_WARN("Failed to load %s (error: %ld)\n", upath_str, error);
    }
-
+   al_free(upath_str);
    return lib;
 }
 
@@ -814,10 +811,11 @@ HMODULE _al_win_safe_load_library(const char *filename)
 {
    ALLEGRO_PATH *path1 = NULL;
    ALLEGRO_PATH *path2 = NULL;
-   char buf[MAX_PATH];
-   const char *other_dirs[3];
+   TCHAR buf[MAX_PATH];
+   const TCHAR *other_dirs[3];
    HMODULE lib = NULL;
    bool msvc_only = false;
+   TCHAR* tfilename;
 
    /* MSVC only: if the executable is in the build configuration directory,
     * which is also just under the current directory, then also try to load the
@@ -837,25 +835,31 @@ HMODULE _al_win_safe_load_library(const char *filename)
       path1 = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
    }
    else if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
-      path1 = al_create_path(buf);
+      char* tmp = _twin_tchar_to_utf8(buf);
+      path1 = al_create_path(tmp);
+      al_free(tmp);
    }
    if (msvc_only) {
       path2 = maybe_parent_dir(path1);
    }
 
-   other_dirs[0] = path1 ? al_path_cstr(path1, '\\') : NULL;
-   other_dirs[1] = path2 ? al_path_cstr(path2, '\\') : NULL;
+   other_dirs[0] = path1 ? _twin_ustr_to_tchar(al_path_ustr(path1, '\\')) : NULL;
+   other_dirs[1] = path2 ? _twin_ustr_to_tchar(al_path_ustr(path2, '\\')) : NULL;
    other_dirs[2] = NULL; /* sentinel */
-
-   _al_sane_strncpy(buf, filename, sizeof(buf));
+   tfilename = _twin_utf8_to_tchar(filename);
+   _tcsncpy_s(buf, MAX_PATH, tfilename, _TRUNCATE);
+   al_free(tfilename);
    if (PathFindOnPath(buf, other_dirs)) {
-      ALLEGRO_DEBUG("PathFindOnPath found: %s\n", buf);
+      char* tmp = _twin_tchar_to_utf8(buf);
+      ALLEGRO_DEBUG("PathFindOnPath found: %s\n", tmp);
+      al_free(tmp);
       lib = load_library_at_path(buf);
    }
    else {
       ALLEGRO_WARN("PathFindOnPath failed to find %s\n", filename);
    }
-
+   al_free((void*) other_dirs[0]);
+   al_free((void*) other_dirs[1]);
    al_destroy_path(path1);
    al_destroy_path(path2);
 
@@ -885,6 +889,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 
    vt = al_calloc(1, sizeof *vt);
 
+   vt->id = ALLEGRO_SYSTEM_ID_WINDOWS;
    vt->initialize = win_initialize;
    vt->get_display_driver = win_get_display_driver;
    vt->get_keyboard_driver = win_get_keyboard_driver;
@@ -908,6 +913,9 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->open_library = win_open_library;
    vt->import_symbol = win_import_symbol;
    vt->close_library = win_close_library;
+   vt->get_time = _al_win_get_time;
+   vt->rest = _al_win_rest;
+   vt->init_timeout = _al_win_init_timeout;
 
    return vt;
 }
@@ -920,4 +928,26 @@ void _al_register_system_interfaces()
    *add = _al_system_win_driver();
 }
 
+const char* _al_win_error(DWORD err) {
+   LPTSTR msg = NULL;
+   int len;
+   static char buf[2048];
+
+   len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, err, 0, (LPTSTR)&msg, 0, NULL);
+   if (len == 0) {
+      _al_sane_strncpy(buf, "(Unable to decode the error code)", sizeof(buf));
+   }
+   else {
+      /* Truncate trailing CRLF if it has one */
+      if (len >= 2 && _tcscmp(msg + len - 2, TEXT("\r\n")) == 0) {
+         msg[len - 2] = (TCHAR)0;
+      }
+      _twin_copy_tchar_to_utf8(buf, msg, sizeof(buf));
+      LocalFree(msg);
+   }
+   return buf;
+}
+const char* _al_win_last_error() {
+   return _al_win_error(GetLastError());
+}
 /* vim: set sts=3 sw=3 et: */

@@ -13,6 +13,10 @@
 #include <X11/extensions/Xrandr.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
+#include <X11/extensions/scrnsaver.h>
+#endif
+
 #include "allegro5/internal/aintern_system.h"
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
@@ -57,6 +61,7 @@ struct ALLEGRO_SYSTEM_XGLX
    int toggle_mouse_grab_keycode; /* Disabled if zero */
    unsigned int toggle_mouse_grab_modifiers;
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
+   bool screen_saver_query_available;
 
    bool mmon_interface_inited;
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA

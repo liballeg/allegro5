@@ -23,6 +23,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_audio.h"
 
+#include <alloca.h>
 #include <alsa/asoundlib.h>
 
 ALLEGRO_DEBUG_CHANNEL("alsa")

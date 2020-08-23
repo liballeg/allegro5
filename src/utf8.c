@@ -985,7 +985,7 @@ bool al_ustr_has_suffix_cstr(const ALLEGRO_USTR *us1, const char *s2)
 
 /* Function: al_utf8_width
  */
-size_t al_utf8_width(int c)
+size_t al_utf8_width(int32_t c)
 {
    /* So we don't need to check for negative values nor use unsigned ints
     * in the interface, which are a pain.

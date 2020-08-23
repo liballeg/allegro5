@@ -29,6 +29,8 @@ static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
 char **x11_xpm = NULL;
 
+static bool xglx_inhibit_screensaver(bool inhibit);
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
 #include <stdio.h>
 #include "icon.xpm"
@@ -194,7 +196,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
       ALLEGRO_INFO("XOpenDisplay failed; assuming headless mode.\n");
       gfxdisplay = NULL;
    }
-   
+
    _al_unix_init_time();
 
    s = al_calloc(1, sizeof *s);
@@ -202,6 +204,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->resized);
    s->inhibit_screensaver = false;
+   s->screen_saver_query_available = false;
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_XGLX *));
 
@@ -269,6 +272,10 @@ static void xglx_shutdown_system(void)
       al_destroy_display(d);
    }
    _al_vector_free(&s->displays);
+
+   if (sx->inhibit_screensaver) {
+      xglx_inhibit_screensaver(false);
+   }
 
    // Makes sure we wait for any commands sent to the X server when destroying the displays.
    // Should make sure we don't shutdown before modes are restored.
@@ -354,6 +361,31 @@ static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
 static bool xglx_inhibit_screensaver(bool inhibit)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   int temp, version_min, version_max;
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
+   if (!XScreenSaverQueryExtension(system->x11display, &temp, &temp) ||
+      !XScreenSaverQueryVersion(system->x11display, &version_max, &version_min) ||
+      version_max < 1 || (version_max == 1 && version_min < 1)) {
+      system->screen_saver_query_available = false;
+   }
+   else {
+      system->screen_saver_query_available = true;
+
+      /* X11 maintains a counter on the number of identical calls to
+      * XScreenSaverSuspend for a given display. So, only call it if 'inhibit' is
+      * different to the previous invocation; otherwise we'd need to call it an
+      * identical number of times with the negated value if there were a change.
+      */
+      if (inhibit != system->inhibit_screensaver) {
+         XScreenSaverSuspend(system->x11display, inhibit);
+      }
+   }
+#else
+   (void)temp;
+   (void)version_min;
+   (void)version_max;
+#endif
 
    system->inhibit_screensaver = inhibit;
    return true;
@@ -405,6 +437,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 
    xglx_vt = al_calloc(1, sizeof *xglx_vt);
 
+   xglx_vt->id = ALLEGRO_SYSTEM_ID_XGLX;
    xglx_vt->initialize = xglx_initialize;
    xglx_vt->get_display_driver = xglx_get_display_driver;
    xglx_vt->get_keyboard_driver = xglx_get_keyboard_driver;
@@ -425,6 +458,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->ungrab_mouse = _al_xwin_ungrab_mouse;
    xglx_vt->get_path = _al_unix_get_path;
    xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
+   xglx_vt->get_time = _al_unix_get_time;
+   xglx_vt->rest = _al_unix_rest;
+   xglx_vt->init_timeout = _al_unix_init_timeout;
 
    return xglx_vt;
 }

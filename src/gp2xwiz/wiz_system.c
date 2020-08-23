@@ -141,6 +141,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
 
    gp2xwiz_vt = al_calloc(1, sizeof *gp2xwiz_vt);
 
+   gp2xwiz_vt->id = ALLEGRO_SYSTEM_ID_GP2XWIZ;
    gp2xwiz_vt->initialize = gp2xwiz_initialize;
    gp2xwiz_vt->get_display_driver = gp2xwiz_get_display_driver;
    gp2xwiz_vt->get_keyboard_driver = gp2xwiz_get_keyboard_driver;
@@ -155,6 +156,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
    gp2xwiz_vt->get_path = _al_unix_get_path;
    gp2xwiz_vt->inhibit_screensaver = gp2xwiz_inhibit_screensaver;
    gp2xwiz_vt->get_num_display_formats = gp2xwiz_get_num_display_formats;
+   gp2xwiz_vt->get_time = _al_unix_get_time;
+   gp2xwiz_vt->rest = _al_unix_rest;
+   gp2xwiz_vt->init_timeout = _al_unix_init_timeout;
 
    return gp2xwiz_vt;
 }

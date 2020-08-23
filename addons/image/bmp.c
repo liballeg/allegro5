@@ -661,7 +661,53 @@ static bool read_RGB_image(ALLEGRO_FILE *f, int flags,
    return true;
 }
 
+/* read_RGB_image_indices:
+ *  For reading the palette indices from BMP image format
+ */
+static bool read_RGB_image_indices(ALLEGRO_FILE *f, int flags,
+   const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr,
+   bmp_line_fn fn)
+{
+   int i, line, height, width, dir;
+   size_t linesize;
+   char *linebuf;
+   
+   (void)flags;
+   
+   height = infoheader->biHeight;
+   width = infoheader->biWidth;
 
+   // Includes enough space to read the padding for a line
+   linesize = (width + 3) & ~3;
+
+   // Indices are always 8-bit, so no need to adjust linesize
+   
+   linebuf = al_malloc(linesize);
+
+   if (!linebuf) {
+      ALLEGRO_WARN("Failed to allocate pixel row buffer\n");
+      return false;
+   }
+
+   if (height < 0) {
+      dir = 1;
+      line = 0;
+      height = -height;
+   } else {
+      dir = -1;
+      line = height - 1;
+   }
+
+   for (i = 0; i < height; i++, line += dir) {
+      char *data = (char *)lr->data + lr->pitch * line;
+      fn(f, linebuf, data, width, false);
+      memcpy(data, linebuf, width);
+   }
+
+   al_free(linebuf);
+
+   return true;
+}
 
 /* read_RGB_paletted_image:
  *  For reading the standard palette mapped BMP image format
@@ -1383,8 +1429,11 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
                fn = read_16_argb_1555_line;
             else if (infoheader.biBitCount == 32 && infoheader.biAlphaMask == 0xFF000000U)
                fn = read_32_argb_8888_line;
-
-            if (!keep_index && infoheader.biBitCount <= 8) {
+            if (keep_index) {
+               if (!read_RGB_image_indices(f, flags, &infoheader, lr, fn))
+                  return NULL;
+            }
+            else if (infoheader.biBitCount <= 8) {
                if (!read_RGB_paletted_image(f, flags, &infoheader, pal, lr, fn))
                   return NULL;
             }

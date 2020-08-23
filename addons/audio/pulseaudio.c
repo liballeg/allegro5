@@ -246,12 +246,13 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
       return 1;
    }
 
-   ba.maxlength = 0x10000; // maximum length of buffer
-   ba.tlength   = 0x2000;  // target length of buffer
-   ba.prebuf    = -1;      // minimum data size required before playback starts
-                           // set to -1 to work with the simple API.
-   ba.minreq    = 0;       // minimum size of request 
-   ba.fragsize  = -1;      // fragment size (recording)
+   // These settings match what pulseaudio does by default, but with a slightly lower latency.
+   // The latency can also be controlled via PULSE_LATENCY_MSEC environment variable.
+   ba.maxlength = -1;
+   ba.tlength   = pa_usec_to_bytes(50 * 1000, &ss);  // 50 ms of latency by default.
+   ba.prebuf    = -1;
+   ba.minreq    = -1;
+   ba.fragsize  = -1;
 
    pv->s = pa_simple_new(
       NULL,                // Use the default server.

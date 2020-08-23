@@ -1,5 +1,6 @@
 #include "SDL.h"
 
+#include "allegro5/altime.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_mouse.h"
@@ -10,6 +11,9 @@ typedef struct
 {
    ALLEGRO_SYSTEM system;
    ALLEGRO_MUTEX *mutex;
+   #ifdef __EMSCRIPTEN__
+      double timer_time;
+   #endif
 } ALLEGRO_SYSTEM_SDL;
 
 typedef struct ALLEGRO_DISPLAY_SDL
@@ -18,8 +22,6 @@ typedef struct ALLEGRO_DISPLAY_SDL
 
    int x, y;
    SDL_Window *window;
-   char *title;
-   SDL_Renderer *renderer;
    SDL_GLContext context;
 } ALLEGRO_DISPLAY_SDL;
 
@@ -41,6 +43,10 @@ int _al_sdl_get_allegro_pixel_format(int sdl_format);
 int _al_sdl_get_sdl_pixel_format(int allegro_format);
 
 ALLEGRO_DISPLAY *_al_sdl_find_display(uint32_t window_id);
+float _al_sdl_get_display_pixel_ratio(ALLEGRO_DISPLAY *display);
 
 void _al_sdl_event_hack(void);
 
+double _al_sdl_get_time(void);
+void _al_sdl_rest(double seconds);
+void _al_sdl_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);

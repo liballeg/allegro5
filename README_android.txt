@@ -19,10 +19,7 @@ Install the SDK
 
 
 The most simple way is to install Android Studio which by default will
-place a copy of the SDK into ~/Android/Sdk. Set the ANDROID_HOME
-environment variable to point to it:
-
-    export ANDROID_HOME=$HOME/Android/Sdk
+place a copy of the SDK into ~/Android/Sdk. 
 
 Alternatively you can also download the command-line SDK tools. In that
 case you will have to accept the licenses, for example like this:
@@ -41,75 +38,67 @@ will then proceed to place it into ~/Android/Sdk/ndk-bundle.
 Alternatively you can download the NDK and place anywhere you like.
 
 
-Make NDK standalone toolchain
-=============================
+Java
+====
 
-Next you need to setup a standalone NDK toolchain. Set an environment
-variable to point to the desired location of the Android toolchain:
 
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-arm
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-arm64
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-x86
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-x86_64
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-mips
-    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain-mips64
+Android Studio comes with a java runtime environment. To use it for
+building Android libraries set the evironment variable JAVA_HOME like
+this:
 
-If you do not want to distribute your game for all 6 supported Android
-architectures you can probably do it just for arm (most actual devices)
-amd x86_64 (the Android emulator).
+export JAVA_HOME=~/android-studio/jre
 
-Assuming the NDK was extracted into ~/Android/Sdk/ndk-bundle run the following
-command:
-
-    python ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py \
-        --api=15 --install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT --arch=arm
-
-You can use any api 9 or higher but 15 is the lowest this was tested
-with.
-
-Use the --arch parameter according to the toolchain you are creating:
-
---arch=arm
---arch=arm64
---arch=x86
---arch=x64_64
---arch=mips
---arch=mips64
 
 
 Build dependencies for Allegro
 ==============================
 
 Now you should build the dependencies for the Allegro addons that you want
-(you can skip this if just want to try out some simple examples).  Most of
+(you can skip this if just want to try out some simple examples). Most of
 the libraries use the standard GNU build system, and follow the same pattern.
 For example, to build libpng:
 
-    tar zxf libpng-1.6.6.tar.xz
-    cd libpng-1.6.6
-    ./configure --host=x86_64-linux-androideabi \
-	--prefix=$HOME/allegro/build/deps
+    tar zxf libpng-1.6.37.tar.xz
+    cd libpng-1.6.37
+    # see https://developer.android.com/ndk/guides/other_build_systems
+    export ABI=armeabi-v7a
+    export HOST=arm-linux-androideabi
+    export CHOST=armv7a-linux-androideabi
+    export SDK=21
+    export HOST_TAG=linux-x86_64
+    export PREFIX=$HOME/allegro/build/deps
+    export NDK=$HOME/Android/Sdk/ndk-bundle
+    export TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/$HOST_TAG
+    export AR=$TOOLCHAIN/bin/$HOST-ar
+    export AS=$TOOLCHAIN/bin/$HOST-as
+    export CC=$TOOLCHAIN/bin/$CHOST$SDK-clang
+    export CXX=$TOOLCHAIN/bin/$CHOST$SDK-clang++
+    export LD=$TOOLCHAIN/bin/$HOST-ld
+    export RANLIB=$TOOLCHAIN/bin/$HOST-ranlib
+    export STRIP=$TOOLCHAIN/bin/$HOST-strip
+    ./configure --host $HOST --prefix $PREFIX
     make
     make install
 
-For host you will generally use the following host for each architecture:
+For HOST_TAG you will want:
+    linux-x86_64 if you are using Linux
+    darwin-x86_64 in OSX
+    windows in 32-bit Windows
+    windows-x86_64 in 64-bit Windows
 
-    if arch == "x86" then host = "i686-linux-android"
-    if arch == "x86_64" then host = "x86_64-linux-android"
-    if arch == "arm" then host = "arm-linux-androideabi"
-    if arch == "arm64" then host = "aarch64-linux-android"
-    if arch == "mips" then host = "mipsel-linux-android"
-    if arch == "mips64" then host = "mips64el-linux-android"
+For ABI and HOST you will generally use the following (use a separate build folder for each):
 
-If you get an error during configure about the system being unrecognised then
-update the `config.guess` and `config.sub` files.  The files in libpng-1.6.6
-are known to work.
+    if ABI == "x86" then HOST = "i686-linux-android"
+    if ABI == "x86_64" then HOST = "x86_64-linux-android"
+    if ABI == "armeabi-v7" then HOST = "arm-linux-androideabi"
+    if ABI == "arm64-v8a" then HOST = "aarch64-linux-android"
+
+CHOST is HOST, except if ABI is armeabi-v7 then CHOST = "armv7a-linux-android".
 
 The above commands will usually install both static and shared libraries into
-the `deps` directory where it can be found by CMake, next.  You could install
-into the toolchain directory instead.  If you want only static or shared
-libraries, you can usually pass `--disable-static` or `--disable-shared` to
-configure.
+the `deps` directory where it can be found by CMake, next.  If you want only
+static or shared libraries, you can usually pass `--disable-static` or
+`--disable-shared` to configure.
 
 The static libraries should be easier to use (though I often had problems with
 unresolved symbols when it came to run the programs, to investigate later).
@@ -135,53 +124,51 @@ or modify the paths in CMake variables manually.
 Building Allegro
 ================
 
-The following steps will build Allegro for Android. Note that you still
-need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your environment, and
-repeat for each of the architectures you want to build for.
+The following steps will build Allegro for Android. It uses the cmake
+toolchain provided by the Android NDK. (Adjust the path if yours is not
+under ~/Android/Sdk/ndk-bundle.)
 
-    mkdir build
-    cd build
-    cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
-        -DCMAKE_BUILD_TYPE=Debug
-        -DANDROID_TARGET=android-15
-        -DARM_TARGETS=armeabi-v7a
+    mkdir build_android_armeabi-v7a
+    cd build_android_armeabi-v7a
+    cmake .. -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake
+        -DANDROID_ABI=armeabi-v7a
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        -DWANT_EXAMPLES=ON
+        -DCMAKE_INSTALL_PREFIX=~/allegro/build/deps
+
+You can also use all the normal cmake options supported by Allegro or
+run cmake (or cmake-gui) to modify them.
+
+    Finally run:
+
     make
     make install
 
-Under Windows append -G"MSYS Makefiles" to the cmake options.
-
-Change ANDROID_TARGETS to whichever architecture you are building for.
+Change ANDROID_ABI to whichever architecture you are building for.
 The recognized architectures are:
 
-armeabi
-armeabi-v7a
-arm64-v8a
-x86
-x86_64
-mips
-mips64
+    -DANDROID_ABI="armeabi"
+    -DANDROID_ABI="armeabi-v7a"
+    -DANDROID_ABI="armeabi-v7a with NEON"
+    -DANDROID_ABI="arm64-v8a"
+    -DANDROID_ABI="x86"
+    -DANDROID_ABI="x86_64"
 
 See here for more information: https://developer.android.com/ndk/guides/abis.html
 
 This produces the normal Allegro native libraries (liballegro-*.so) as
 well as allegro-release.aar.
 
-Run `make install` to install the headers into the toolchain directory
-and can be found when compiling Allegro code later.
-
 You may want to add -DWANT_MONOLITH=ON if you prefer a single Allegro library
 instead of one for each addon.
-
-NOTE: On OS X, add -DCMAKE_INSTALL_NAME_TOOL=/usr/bin/install_name_tool to
-the cmake command line.
 
 
 Running examples
 ================
 
 You need the adb tool (the Android Debug Bridge) set up, and USB debugging
-enabled on your device.  This can be quite involved, so please refer to the
-Android tool documentation.
+enabled on your device or emulator. This can be quite involved, so please
+refer to the Android tool documentation.
 
 There are makefile targets named "run_FOO", so you can install and run
 examples easily by typing, e.g.

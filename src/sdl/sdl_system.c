@@ -1,11 +1,27 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      SDL system interface.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
+#include "allegro5/internal/aintern_timer.h"
 
 ALLEGRO_DEBUG_CHANNEL("SDL")
 
 static ALLEGRO_SYSTEM_INTERFACE *vt;
 
+#ifdef DEBUGMODE
 #define _E(x) if (type == x) return #x;
 static char const *event_name(int type)
 {
@@ -53,6 +69,7 @@ static char const *event_name(int type)
    return "(unknown)";
 }
 #undef _E
+#endif
 
 static void sdl_heartbeat(void)
 {
@@ -106,6 +123,12 @@ static void sdl_heartbeat(void)
             }
       }
    }
+#ifdef __EMSCRIPTEN__
+   double t = al_get_time();
+   double interval = t - s->timer_time;
+   _al_timer_thread_handle_tick(interval);
+   s->timer_time = t;
+#endif
    al_unlock_mutex(s->mutex);
 }
 
@@ -132,6 +155,10 @@ static void sdl_heartbeat_init(void)
     * once the system was created.
     */
    s->mutex = al_create_mutex();
+
+#ifdef __EMSCRIPTEN__
+   s->timer_time = al_get_time();
+#endif
 }
 
 static void sdl_shutdown_system(void)
@@ -273,6 +300,16 @@ static ALLEGRO_DISPLAY_MODE *sdl_get_display_mode(int index, ALLEGRO_DISPLAY_MOD
    return mode;
 }
 
+static bool sdl_inhibit_screensaver(bool inhibit)
+{
+  if (inhibit) {
+    SDL_DisableScreenSaver();
+  } else {
+    SDL_EnableScreenSaver();
+  }
+  return SDL_IsScreenSaverEnabled() != inhibit;
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
 {
@@ -280,7 +317,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
       return vt;
 
    vt = al_calloc(1, sizeof *vt);
-   vt->id = AL_ID('S', 'D', 'L', '2');
+   vt->id = ALLEGRO_SYSTEM_ID_SDL;
    vt->initialize = sdl_initialize;
    vt->get_display_driver = sdl_get_display_driver;
    vt->get_keyboard_driver = sdl_get_keyboard_driver;
@@ -299,14 +336,17 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->grab_mouse = sdl_grab_mouse;
    vt->ungrab_mouse = sdl_ungrab_mouse;*/
    vt->get_path = sdl_get_path;
-   /*vt->inhibit_screensaver = sdl_inhibit_screensaver;
-   vt->thread_init = sdl_thread_init;
+   vt->inhibit_screensaver = sdl_inhibit_screensaver;
+   /*vt->thread_init = sdl_thread_init;
    vt->thread_exit = sdl_thread_exit;
    vt->open_library = sdl_open_library;
    vt->import_symbol = sdl_import_symbol;
    vt->close_library = sdl_close_library;*/
    vt->heartbeat = sdl_heartbeat;
    vt->heartbeat_init = sdl_heartbeat_init;
+   vt->get_time = _al_sdl_get_time;
+   vt->rest = _al_sdl_rest;
+   vt->init_timeout = _al_sdl_init_timeout;
 
    return vt;
 }

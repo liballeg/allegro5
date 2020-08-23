@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import re
 import optparse
@@ -62,7 +62,7 @@ class Allegro:
             "postprocess_callback_t": c_void_p,
             }
 
-        ptype = re.sub(r"\bstruct|union\b", "", ptype)
+        ptype = re.sub(r"\b(struct|union)\b", "", ptype)
         ptype = re.sub(r"\bconst\b", "", ptype)
         ptype = re.sub(r"\bextern\b", "", ptype)
         ptype = re.sub(r"\b__inline__\b", "", ptype)
@@ -237,10 +237,17 @@ class Allegro:
                     if "=" in field:
                         fname, val = field.split("=", 1)
                         fname = fname.strip()
+                        # replace any 'X' (an integer value in C) with
+                        # ord('X') to match up in Python
+                        val = re.sub("('.')", "ord(\\1)", val)
                         try:
                             i = int(eval(val, globals(), self.constants))
                         except NameError:
                             i = val
+                        except Exception:
+                            raise ValueError(
+                                "Exception while parsing '{}'".format(
+                                    val))
                     else:
                         fname = field.strip()
                     if not fname:
@@ -410,6 +417,7 @@ _add_dll("allegro_memfile")
 _add_dll("allegro_physfs")
 _add_dll("allegro_shader")
 _add_dll("allegro_main")
+_add_dll("allegro_video")
 _add_dll("allegro_monolith")
 
 # We don't have information ready which A5 function is in which DLL,

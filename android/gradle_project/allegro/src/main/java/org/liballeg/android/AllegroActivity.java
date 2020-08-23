@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,6 +23,8 @@ import java.lang.Runnable;
 import java.lang.String;
 import android.view.InputDevice;
 import java.util.Vector;
+import android.os.Build;
+import android.view.View;
 
 public class AllegroActivity extends Activity
 {
@@ -36,6 +39,7 @@ public class AllegroActivity extends Activity
    private boolean joystickReconfigureNotified = false;
    private Vector<Integer> joysticks;
    private Clipboard clipboard;
+   private DisplayManager.DisplayListener displayListener;
 
    public final static int JS_A = 0;
    public final static int JS_B = 1;
@@ -278,6 +282,10 @@ public class AllegroActivity extends Activity
       t.start();
    }
 
+   public void updateOrientation() {
+      nativeOnOrientationChange(getAllegroOrientation(), false);
+   }
+
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState)
@@ -328,11 +336,8 @@ public class AllegroActivity extends Activity
          return;
       }
 
-      nativeOnOrientationChange(getAllegroOrientation(), true);
-
       requestWindowFeature(Window.FEATURE_NO_TITLE);
-      this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
       Log.d("AllegroActivity", "onCreate end");
    }
@@ -341,7 +346,25 @@ public class AllegroActivity extends Activity
    public void onStart()
    {
       super.onStart();
-      Log.d("AllegroActivity", "onStart.");
+      Log.d("AllegroActivity", "onStart");
+
+      final AllegroActivity activity = this;
+      displayListener = new DisplayManager.DisplayListener() {
+         @Override
+         public void onDisplayAdded(int displayId) {}
+         @Override
+         public void onDisplayRemoved(int displayId) {}
+         @Override
+         public void onDisplayChanged(int displayId) {
+            activity.updateOrientation();
+         }
+      };
+      DisplayManager displayManager = (DisplayManager) getApplicationContext().getSystemService(getApplicationContext().DISPLAY_SERVICE);
+      displayManager.registerDisplayListener(displayListener, handler);
+
+      nativeOnOrientationChange(getAllegroOrientation(), true);
+
+      Log.d("AllegroActivity", "onStart end");
    }
 
    @Override
@@ -356,6 +379,9 @@ public class AllegroActivity extends Activity
    {
       super.onStop();
       Log.d("AllegroActivity", "onStop.");
+
+      DisplayManager displayManager = (DisplayManager) getApplicationContext().getSystemService(getApplicationContext().DISPLAY_SERVICE);
+      displayManager.unregisterDisplayListener(displayListener);
 
       // TODO: Should we destroy the surface here?
       // onStop is paired with onRestart and onCreate with onDestroy -
@@ -438,7 +464,7 @@ public class AllegroActivity extends Activity
 
       if ((changes & ActivityInfo.CONFIG_ORIENTATION) != 0) {
          Log.d("AllegroActivity", "orientation changed");
-         nativeOnOrientationChange(getAllegroOrientation(), false);
+         updateOrientation();
       }
 
       if ((changes & ActivityInfo.CONFIG_SCREEN_LAYOUT) != 0)
@@ -581,6 +607,20 @@ public class AllegroActivity extends Activity
       }
       while (set_clip == false);
       return set_clip_result;
+   }
+
+   public void setAllegroFrameless(final boolean on) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+         runOnUiThread(new Runnable() {
+            @Override public void run() {
+               View view = AllegroActivity.this.getWindow().getDecorView();
+               int flags = view.getSystemUiVisibility();
+               int bits = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+               if (on) flags |= bits; else flags &= ~bits;
+               view.setSystemUiVisibility(flags);
+            }
+         });
+      }
    }
 }
 

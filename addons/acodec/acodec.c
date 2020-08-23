@@ -3,6 +3,11 @@
 #include "allegro5/internal/aintern_acodec_cfg.h"
 #include "acodec.h"
 
+
+/* globals */
+static bool acodec_inited = false;
+
+
 /* Function: al_get_allegro_acodec_version
  */
 uint32_t al_get_allegro_acodec_version(void)
@@ -54,7 +59,24 @@ bool al_init_acodec_addon(void)
    ret &= al_register_audio_stream_loader_f(".opus", _al_load_ogg_opus_audio_stream_f);
 #endif
 
+#ifdef ALLEGRO_CFG_ACODEC_MP3
+   ret &= al_register_sample_loader(".mp3", _al_load_mp3);
+   ret &= al_register_audio_stream_loader(".mp3", _al_load_mp3_audio_stream);
+   ret &= al_register_sample_loader_f(".mp3", _al_load_mp3_f);
+   ret &= al_register_audio_stream_loader_f(".mp3", _al_load_mp3_audio_stream_f);
+#endif
+
+   acodec_inited = ret;
+
    return ret;
+}
+
+
+/* Function: al_is_acodec_addon_initialized
+ */
+bool al_is_acodec_addon_initialized(void)
+{
+   return acodec_inited;
 }
 
 

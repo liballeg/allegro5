@@ -533,6 +533,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt = al_malloc(sizeof *android_vt);
    memset(android_vt, 0, sizeof *android_vt);
 
+   android_vt->id = ALLEGRO_SYSTEM_ID_ANDROID;
    android_vt->initialize = android_initialize;
    android_vt->get_display_driver = _al_get_android_display_driver;
    android_vt->get_keyboard_driver = _al_get_android_keyboard_driver;
@@ -544,6 +545,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt->get_path = _al_android_get_path;
    android_vt->shutdown_system = android_shutdown_system;
    android_vt->inhibit_screensaver = android_inhibit_screensaver;
+   android_vt->get_time = _al_unix_get_time;
+   android_vt->rest = _al_unix_rest;
+   android_vt->init_timeout = _al_unix_init_timeout;
 
    return android_vt;
 }

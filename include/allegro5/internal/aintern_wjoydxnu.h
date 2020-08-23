@@ -42,15 +42,15 @@ typedef enum
 
 typedef struct
 {
-   bool have_x;      char name_x[NAME_LEN];
-   bool have_y;      char name_y[NAME_LEN];
-   bool have_z;      char name_z[NAME_LEN];
-   bool have_rx;     char name_rx[NAME_LEN];
-   bool have_ry;     char name_ry[NAME_LEN];
-   bool have_rz;     char name_rz[NAME_LEN];
-   int num_sliders;  char name_slider[MAX_SLIDERS][NAME_LEN];
-   int num_povs;     char name_pov[MAX_POVS][NAME_LEN];
-   int num_buttons;  char name_button[MAX_BUTTONS][NAME_LEN];
+   bool have_x;      TCHAR name_x[NAME_LEN];
+   bool have_y;      TCHAR name_y[NAME_LEN];
+   bool have_z;      TCHAR name_z[NAME_LEN];
+   bool have_rx;     TCHAR name_rx[NAME_LEN];
+   bool have_ry;     TCHAR name_ry[NAME_LEN];
+   bool have_rz;     TCHAR name_rz[NAME_LEN];
+   int num_sliders;  TCHAR name_slider[MAX_SLIDERS][NAME_LEN];
+   int num_povs;     TCHAR name_pov[MAX_POVS][NAME_LEN];
+   int num_buttons;  TCHAR name_button[MAX_BUTTONS][NAME_LEN];
 } CAPS_AND_NAMES;
 
 

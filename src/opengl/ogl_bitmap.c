@@ -567,15 +567,21 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
+   ALLEGRO_DISPLAY *bmp_disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
 
    ASSERT(!al_is_sub_bitmap(bitmap));
 
+   bmp_disp = _al_get_bitmap_display(bitmap);
    disp = al_get_current_display();
-   if (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
-       _al_get_bitmap_display(bitmap) != disp) {
+   if (bmp_disp->ogl_extras->is_shared == false &&
+       bmp_disp != disp) {
       old_disp = disp;
-      _al_set_current_display_only(_al_get_bitmap_display(bitmap));
+      _al_set_current_display_only(bmp_disp);
+   }
+
+   if (bmp_disp->ogl_extras->opengl_target == bitmap) {
+     bmp_disp->ogl_extras->opengl_target = NULL;
    }
 
    al_remove_opengl_fbo(bitmap);
@@ -588,7 +594,7 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if (old_disp) {
       _al_set_current_display_only(old_disp);
    }
-   
+
    al_free(ogl_bitmap);
 }
 

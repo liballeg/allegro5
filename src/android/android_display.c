@@ -486,6 +486,18 @@ static int select_best_visual_and_update(JNIEnv *env,
 
 /* driver implementation hooks */
 
+static bool android_set_display_flag(ALLEGRO_DISPLAY *dpy, int flag, bool onoff)
+{
+   (void)dpy; (void)flag; (void)onoff;
+
+   if (flag == ALLEGRO_FRAMELESS) {
+      _jni_callVoidMethodV(_al_android_get_jnienv(),
+         _al_android_activity_object(), "setAllegroFrameless", "(Z)V", onoff);
+   }
+   
+   return false;
+}
+
 static ALLEGRO_DISPLAY *android_create_display(int w, int h)
 {
    ALLEGRO_DEBUG("begin");
@@ -567,6 +579,15 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    /* Don't need to repeat what this does */
    android_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS,
       al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
+
+   /* Fill in opengl version */
+   const int v = d->display.ogl_extras->ogl_info.version;
+   d->display.extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   d->display.extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+
+   if (flags & ALLEGRO_FRAMELESS) {
+      android_set_display_flag(display, ALLEGRO_FRAMELESS, true);
+   }
 
    ALLEGRO_DEBUG("end");
    return display;
@@ -759,12 +780,6 @@ static void android_get_window_position(ALLEGRO_DISPLAY *dpy, int *x, int *y)
 {
    (void)dpy;
    *x = *y = 0;
-}
-
-static bool android_set_display_flag(ALLEGRO_DISPLAY *dpy, int flag, bool onoff)
-{
-   (void)dpy; (void)flag; (void)onoff;
-   return false;
 }
 
 static bool android_wait_for_vsync(ALLEGRO_DISPLAY *dpy)

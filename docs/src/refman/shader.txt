@@ -122,6 +122,24 @@ al_tex_matrix
     multiply the texture coordinates by this matrix. The type is `mat4` in
     GLSL, and `float4x4` in HLSL.
 
+With GLSL alpha testing is done in the shader and uses these additional
+uniforms:
+
+al_alpha_test
+:   Whether to do any alpha testing. If false, the shader should render the
+    pixel, otherwise it should interpret the values of `al_alpha_func` and
+    `al_alpha_test_val`.
+
+al_alpha_func
+:   The alpha testing function used. One of the [ALLEGRO_RENDER_FUNCTION]
+    values. The default is ALLEGRO_RENDER_ALWAYS which means all pixels
+    (even completely transparent ones) are rendered. The type is `int`.
+    See [ALLEGRO_RENDER_STATE].
+
+al_alpha_test_val
+:   If alpha testing is not ALLEGRO_RENDER_NEVER or ALLEGRO_RENDER_ALWAYS
+    the alpha value to compare to for alpha testing. The type is `float`.
+
 For GLSL shaders the vertex attributes are passed using the following variables:
 
 al_pos
@@ -163,6 +181,8 @@ other shader functions as that will lead to undefined behavior.
 * ALLEGRO_SHADER_VAR_TEX for "al_tex"
 * ALLEGRO_SHADER_VAR_USE_TEX_MATRIX for "al_use_tex_matrix"
 * ALLEGRO_SHADER_VAR_TEX_MATRIX for "al_tex_matrix"
+* ALLEGRO_SHADER_VAR_ALPHA_FUNCTION for "al_alpha_func"
+* ALLEGRO_SHADER_VAR_ALPHA_TEST_VALUE for "al_alpha_test_val"
 
 Examine the output of [al_get_default_shader_source] for an example of how to
 use the above uniforms and attributes.

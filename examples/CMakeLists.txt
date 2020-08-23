@@ -56,6 +56,7 @@ set(DATA_IMAGES
     fakeamp.bmp
     fixed_font.tga
     font.tga
+    gradient1.bmp
     haiku/air_effect.png
     icon.tga
     mysha.pcx
@@ -109,8 +110,12 @@ if(NOT MSVC)
     example(ex_utf8)
 endif(NOT MSVC)
 
-example(ex_android ${IMAGE} ${PRIM} ${DATA_IMAGES})
+if(ANDROID)
+    example(ex_android ${IMAGE} ${PRIM} ${DATA_IMAGES})
+endif(ANDROID)
+
 example(ex_bitmap ${IMAGE} ${DATA_IMAGES})
+example(ex_bitmap_file ${IMAGE} ${DATA_IMAGES})
 example(ex_bitmap_flip ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_blend ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_blend2 ex_blend2.cpp ${NIHGUI} ${IMAGE} ${DATA_IMAGES})
@@ -218,7 +223,7 @@ example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
 example(ex_acodec_multi CONSOLE ${AUDIO} ${ACODEC})
 example(ex_audio_chain ex_audio_chain.cpp ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${TTF} DATA ${DATA_TTF} ${DATA_HAIKU})
 example(ex_audio_props ex_audio_props.cpp ${NIHGUI} ${ACODEC} DATA ${DATA_AUDIO})
-example(ex_audio_simple CONSOLE ${AUDIO} ${ACODEC})
+example(ex_audio_simple CONSOLE ${AUDIO} ${ACODEC} ${FONT})
 example(ex_audio_timer ${AUDIO} ${FONT})
 example(ex_haiku ${AUDIO} ${ACODEC} ${IMAGE} ${DATA_IMAGES} ${DATA_HAIKU})
 example(ex_kcm_direct CONSOLE ${AUDIO} ${ACODEC})

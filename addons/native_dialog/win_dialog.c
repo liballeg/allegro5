@@ -14,6 +14,7 @@
 #include "allegro5/internal/aintern_native_dialog.h"
 
 #include "allegro5/platform/aintwin.h"
+#include "allegro5/internal/aintern_wunicode.h"
 
 #include "allegro5/allegro_windows.h"
 
@@ -36,7 +37,7 @@ static int wlog_count = 0;
 static void *wlog_rich_edit_module = 0;
 
 /* Name of the edit control. Depend on system resources. */
-static wchar_t* wlog_edit_control = L"EDIT";
+static TCHAR* wlog_edit_control = TEXT("EDIT");
 
 /* True if output support unicode */
 static bool wlog_unicode = false;
@@ -46,6 +47,31 @@ static ALLEGRO_MUTEX* global_mutex;
 static ALLEGRO_COND* wm_size_cond;
 static bool got_wm_size_event = false;
 
+/* For Unicode support, define some helper functions
+ * which work with either UTF-16 or ANSI code pages
+ * depending on whether UNICODE is defined or not.
+ */ 
+
+/* tcreate_path:
+ * Create path from TCHARs
+ */
+static ALLEGRO_PATH* _tcreate_path(const TCHAR* ts) 
+{
+   char* tmp = _twin_tchar_to_utf8(ts);
+   ALLEGRO_PATH* path = al_create_path(tmp);
+   al_free(tmp);
+   return path;
+}
+/* tcreate_path:
+ * Create directory path from TCHARs
+ */
+static ALLEGRO_PATH* _tcreate_path_for_directory(const TCHAR* ts) 
+{
+   char* tmp = _twin_tchar_to_utf8(ts);
+   ALLEGRO_PATH* path = al_create_path_for_directory(tmp);
+   al_free(tmp);
+   return path;
+}
 
 bool _al_init_native_dialog_addon(void)
 {
@@ -73,22 +99,27 @@ static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
 {
    BROWSEINFO folderinfo;
    LPCITEMIDLIST pidl;
-   char buf[MAX_PATH] = "";
-   char dbuf[MAX_PATH] = "";
+   /* Selected path */
+   TCHAR buf[MAX_PATH] = TEXT("");
+   /* Display name */
+   TCHAR dbuf[MAX_PATH] = TEXT("");
 
-   folderinfo.hwndOwner = win_display->window;
+   folderinfo.hwndOwner = win_display ? win_display->window : NULL;
    folderinfo.pidlRoot = NULL;
    folderinfo.pszDisplayName = dbuf;
-   folderinfo.lpszTitle = al_cstr(fd->title);
+   folderinfo.lpszTitle = _twin_ustr_to_tchar(fd->title);
    folderinfo.ulFlags = 0;
    folderinfo.lpfn = NULL;
 
    pidl = SHBrowseForFolder(&folderinfo);
+
+   al_free((void*) folderinfo.lpszTitle);
+
    if (pidl) {
       SHGetPathFromIDList(pidl, buf);
       fd->fc_path_count = 1;
       fd->fc_paths = al_malloc(sizeof(void *));
-      fd->fc_paths[0] = al_create_path(buf);
+      fd->fc_paths[0] = _tcreate_path(buf);
       return true;
    }
    return false;
@@ -144,7 +175,7 @@ static ALLEGRO_USTR *create_filter_string(const ALLEGRO_USTR *patterns)
    return filter;
 }
 
-static int skip_nul_terminated_string(char *s)
+static int skip_nul_terminated_string(TCHAR *s)
 {
    int i = 0;
 
@@ -161,8 +192,10 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_WIN *win_display;
    int flags = 0;
    bool ret;
-   char buf[4096];
-   const int BUFSIZE = sizeof(buf);
+   TCHAR buf[4096];
+   const int BUFSIZE = sizeof(buf) / sizeof(TCHAR);
+   TCHAR* wfilter = NULL;
+   TCHAR* wpath = NULL;
    ALLEGRO_USTR *filter_string = NULL;
    ALLEGRO_PATH* initial_dir_path = NULL;
 
@@ -177,29 +210,30 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    /* Selecting a file. */
    memset(&ofn, 0, sizeof(OPENFILENAME));
    ofn.lStructSize = sizeof(OPENFILENAME);
-   ofn.hwndOwner = (win_display) ? win_display->window : NULL;
+   ofn.hwndOwner = win_display ? win_display->window : NULL;
 
    /* Create filter string. */
    if (fd->fc_patterns) {
       filter_string = create_filter_string(fd->fc_patterns);
-      ofn.lpstrFilter = al_cstr(filter_string);
+      wfilter = _twin_ustr_to_tchar(filter_string);
+      ofn.lpstrFilter = wfilter;
    }
    else {
       /* List all files by default. */
-      ofn.lpstrFilter = "All Files\0*.*\0\0";
+      ofn.lpstrFilter = TEXT("All Files\0*.*\0\0");
    }
 
    /* Provide buffer for file chosen by dialog. */
    ofn.lpstrFile = buf;
-   ofn.nMaxFile = sizeof(buf);
+   ofn.nMaxFile = BUFSIZE;
 
    /* Initialize file name buffer and starting directory. */
    if (fd->fc_initial_path) {
       bool is_dir;
-      const char *path = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+      const ALLEGRO_USTR *path = al_path_ustr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
 
-      if (al_filename_exists(path)) {
-         ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(path);
+      if (al_filename_exists(al_cstr(path))) {
+         ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(al_cstr(path));
          is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
          al_destroy_fs_entry(fs);
       }
@@ -208,21 +242,21 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       }
 
       if (is_dir) {
-         ofn.lpstrInitialDir = path;
+         wpath = _twin_ustr_to_tchar(path);
       }
       else {
-         strncpy(buf, path, BUFSIZE - 1);
          /* Extract the directory from the path. */
          initial_dir_path = al_clone_path(fd->fc_initial_path);
          if (initial_dir_path) {
             al_set_path_filename(initial_dir_path, NULL);
-            ofn.lpstrInitialDir = al_path_cstr(initial_dir_path, ALLEGRO_NATIVE_PATH_SEP);
+            wpath = _twin_utf8_to_tchar(al_path_cstr(initial_dir_path, ALLEGRO_NATIVE_PATH_SEP));
          }
       }
+      ofn.lpstrInitialDir = wpath;
    }
 
    if (fd->title)
-      ofn.lpstrTitle = al_cstr(fd->title);
+      ofn.lpstrTitle = _twin_ustr_to_tchar(fd->title);
 
    flags |= OFN_NOCHANGEDIR | OFN_EXPLORER;
    if (fd->flags & ALLEGRO_FILECHOOSER_SAVE) {
@@ -245,15 +279,15 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    if (initial_dir_path) {
       al_destroy_path(initial_dir_path);
    }
-
+   al_free((void*) ofn.lpstrTitle);
+   al_free(wfilter);
+   al_free(wpath);
    al_ustr_free(filter_string);
 
    if (!ret) {
       DWORD err = GetLastError();
       if (err != ERROR_SUCCESS) {
-         char buf[1000];
-         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, sizeof(buf), NULL);
-         ALLEGRO_ERROR("al_show_native_file_dialog failed: %s\n", buf);
+         ALLEGRO_ERROR("al_show_native_file_dialog failed: %s\n", _al_win_error(err));
       }
       return false;
    }
@@ -276,7 +310,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
    if (fd->fc_path_count == 1) {
       fd->fc_paths = al_malloc(sizeof(void *));
-      fd->fc_paths[0] = al_create_path(buf);
+      fd->fc_paths[0] = _tcreate_path(buf);
    }
    else {
       int i, p;
@@ -287,8 +321,10 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       fd->fc_paths = al_malloc(fd->fc_path_count * sizeof(void *));
       i = skip_nul_terminated_string(buf);
       for (p = 0; p < (int)fd->fc_path_count; p++) {
-         fd->fc_paths[p] = al_create_path_for_directory(buf);
-         al_set_path_filename(fd->fc_paths[p], buf+i);
+         fd->fc_paths[p] = _tcreate_path_for_directory(buf);
+         char* tmp = _twin_tchar_to_utf8(buf + i);
+         al_set_path_filename(fd->fc_paths[p], tmp);
+         al_free(tmp);
          i += skip_nul_terminated_string(buf+i);
       }
    }
@@ -301,9 +337,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 {
    UINT type = MB_SETFOREGROUND;
    int result;
-
-   uint16_t *wide_text, *wide_title;
-   size_t text_len, title_len;
+   TCHAR *text, *title;
 
    /* Note: the message box code cannot assume that Allegro is installed. */
 
@@ -328,27 +362,20 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
    al_ustr_append(fd->mb_heading, fd->mb_text);
 
-   text_len = al_ustr_size_utf16(fd->mb_heading);
-   title_len = al_ustr_size_utf16(fd->title);
-
-   wide_text = al_malloc(text_len + 1);
-   if (!wide_text)
-      return 0;
-
-   wide_title = al_malloc(title_len + 1);
-   if (!wide_title) {
-      al_free(wide_text);
+   text = _twin_ustr_to_tchar(fd->mb_heading);
+   if (!text) {
       return 0;
    }
+   title = _twin_ustr_to_tchar(fd->title);
+   if (!title) {
+      al_free(text);
+      return 0;
+   }
+   result = MessageBox(al_get_win_window_handle(display),
+      text, title, type);
 
-   al_ustr_encode_utf16(fd->mb_heading, wide_text, text_len);
-   al_ustr_encode_utf16(fd->title, wide_title, title_len);
-
-   result = MessageBoxW(al_get_win_window_handle(display),
-      (LPCWSTR) wide_text, (LPCWSTR) wide_title, type);
-
-   al_free(wide_text);
-   al_free(wide_title);
+   al_free(text);
+   al_free(title);
 
    if (result == IDYES || result == IDOK)
       return 1;
@@ -368,64 +395,37 @@ static void wlog_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
    al_emit_user_event(&textlog->tl_events, &event, NULL);
 }
 
-/* Output message to ANSI log. */
-static void wlog_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
-{
-   int index;
-   index = GetWindowTextLength(textlog->tl_textview);
-   SendMessageA(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
-   SendMessageA(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)al_cstr(textlog->tl_pending_text));
-
-   al_ustr_truncate(textlog->tl_pending_text, 0);
-   textlog->tl_have_pending = false;
-}
-
-/* Output message to Unicode log. */
-static void wlog_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlog)
-{
-#define BUFFER_SIZE  512
-   bool flush;
-   int index, ch, next;
-   static WCHAR buffer[BUFFER_SIZE + 1] = { 0 };
-
-   index = GetWindowTextLength(textlog->tl_textview);
-   SendMessageW(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
-
-   next = 0;
-   index = 0;
-   flush = false;
-   while ((ch = al_ustr_get_next(textlog->tl_pending_text, &next)) >= 0) {
-      buffer[index] = (WCHAR)ch;
-      flush = true;
-
-      index++;
-
-      if ((index % BUFFER_SIZE) == 0) {
-         buffer[BUFFER_SIZE] = L'\0';
-         SendMessageW(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)buffer);
-         flush = false;
-         index = 0;
+/* convert_crlf:
+ * Alter this string to change every LF to CRLF
+ */
+static ALLEGRO_USTR* convert_crlf(ALLEGRO_USTR* s) {
+   int pos = 0;
+   int ch, prev;
+   while ((pos = al_ustr_find_chr(s, pos, '\n')) >= 0) {
+      prev = pos;
+      ch = al_ustr_prev_get(s, &prev);
+      if (ch == -2) {
+         return s;
+      } else if (ch != '\r') {
+         al_ustr_insert_chr(s, pos, '\r');
+         al_ustr_next(s, &pos);
       }
+      al_ustr_next(s, &pos);
    }
-
-   if (flush) {
-      buffer[index] = L'\0';
-      SendMessageW(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)buffer);
-   }
-
-   al_ustr_truncate(textlog->tl_pending_text, 0);
-   textlog->tl_have_pending = false;
+   return s;
 }
-
 /* General function to output log message. */
 static void wlog_do_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   if (wlog_unicode) {
-      wlog_do_append_native_text_log_unicode(textlog);
-   }
-   else {
-      wlog_do_append_native_text_log_ansi(textlog);
-   }
+   int index;
+   index = GetWindowTextLength(textlog->tl_textview);
+   SendMessage(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
+   convert_crlf(textlog->tl_pending_text);
+   TCHAR* buf = _twin_utf8_to_tchar(al_cstr(textlog->tl_pending_text));   
+   SendMessage(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM) buf);
+   al_free(buf);
+   al_ustr_truncate(textlog->tl_pending_text, 0);
+   textlog->tl_have_pending = false;
 
    SendMessage(textlog->tl_textview, WM_VSCROLL, SB_BOTTOM, 0);
 }
@@ -439,7 +439,7 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 
    switch (uMsg) {
       case WM_CREATE:
-         /* Set user data for window, so we will be able to retieve text log structure any time */
+         /* Set user data for window, so we will be able to retrieve text log structure any time */
          create_struct = (CREATESTRUCT*)lParam;
          SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)create_struct->lpCreateParams);
          break;
@@ -492,21 +492,24 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 /* We hold textlog->tl_text_mutex. */
 static bool open_native_text_log_inner(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   LPCSTR font_name;
+   LPCTSTR font_name;
    HWND hWnd;
    HWND hLog;
    RECT client_rect;
    HFONT hFont;
    MSG msg;
    BOOL ret;
+   TCHAR* title;
 
    /* Create text log window. */
-   hWnd = CreateWindowA("Allegro Text Log", al_cstr(textlog->title),
+   title = _twin_ustr_to_tchar(textlog->title);
+   hWnd = CreateWindow(TEXT("Allegro Text Log"), title,
       WS_CAPTION | WS_SIZEBOX | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU,
       CW_USEDEFAULT, CW_USEDEFAULT, 640, 480, NULL, NULL,
       (HINSTANCE)GetModuleHandle(NULL), textlog);
+   al_free(title);
    if (!hWnd) {
-      ALLEGRO_ERROR("CreateWindowA failed\n");
+      ALLEGRO_ERROR("CreateWindow failed\n");
       return false;
    }
 
@@ -514,12 +517,12 @@ static bool open_native_text_log_inner(ALLEGRO_NATIVE_DIALOG *textlog)
    GetClientRect(hWnd, &client_rect);
 
    /* Create edit control. */
-   hLog = CreateWindowW(wlog_edit_control, NULL,
+   hLog = CreateWindow(wlog_edit_control, NULL,
       WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_READONLY,
       client_rect.left, client_rect.top, client_rect.right - client_rect.left, client_rect.bottom - client_rect.top,
       hWnd, NULL, (HINSTANCE)GetModuleHandle(NULL), NULL);
    if (!hLog) {
-      ALLEGRO_ERROR("CreateWindowW failed\n");
+      ALLEGRO_ERROR("CreateWindow failed\n");
       DestroyWindow(hWnd);
       return false;
    }
@@ -529,9 +532,9 @@ static bool open_native_text_log_inner(ALLEGRO_NATIVE_DIALOG *textlog)
 
    /* Select font name. */
    if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE)
-      font_name = "Courier New";
+      font_name = TEXT("Courier New");
    else
-      font_name = "Arial";
+      font_name = TEXT("Arial");
 
    /* Create font and set font. */
    hFont = CreateFont(-11, 0, 0, 0, FW_LIGHT, 0, 0,
@@ -589,7 +592,7 @@ static bool open_native_text_log_inner(ALLEGRO_NATIVE_DIALOG *textlog)
 
 bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   WNDCLASSA text_log_class;
+   WNDCLASS text_log_class;
    bool rc;
 
    al_lock_mutex(textlog->tl_text_mutex);
@@ -604,16 +607,16 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
       memset(&text_log_class, 0, sizeof(text_log_class));
       text_log_class.hInstance      = (HINSTANCE)GetModuleHandle(NULL);
-      text_log_class.lpszClassName  = "Allegro Text Log";
+      text_log_class.lpszClassName  = TEXT("Allegro Text Log");
       text_log_class.lpfnWndProc    = wlog_text_log_callback;
       text_log_class.hIcon          = NULL;
       text_log_class.hCursor        = NULL;
       text_log_class.lpszMenuName   = NULL;
       text_log_class.hbrBackground  = (HBRUSH)GetStockObject(GRAY_BRUSH);
 
-      if (RegisterClassA(&text_log_class) == 0) {
+      if (RegisterClass(&text_log_class) == 0) {
          /* Failure, window class is a basis and we do not have one. */
-         ALLEGRO_ERROR("RegisterClassA failed\n");
+         ALLEGRO_ERROR("RegisterClass failed\n");
          al_unlock_mutex(textlog->tl_text_mutex);
          return false;
       }
@@ -626,21 +629,21 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
       if ((wlog_rich_edit_module = _al_open_library("msftedit.dll"))) {
          /* 4.1 and emulation of 3.0, 2.0, 1.0 */
-         wlog_edit_control = L"RICHEDIT50W"; /*MSFTEDIT_CLASS*/
+         wlog_edit_control = TEXT("RICHEDIT50W"); /*MSFTEDIT_CLASS*/
          wlog_unicode      = true;
       }
       else if ((wlog_rich_edit_module = _al_open_library("riched20.dll"))) {
          /* 3.0, 2.0 */
-         wlog_edit_control = L"RichEdit20W"; /*RICHEDIT_CLASS*/
+         wlog_edit_control = TEXT("RichEdit20W"); /*RICHEDIT_CLASS*/
          wlog_unicode      = true;
       }
       else if ((wlog_rich_edit_module = _al_open_library("riched32.dll"))) {
          /* 1.0 */
-         wlog_edit_control = L"RichEdit"; /*RICHEDIT_CLASS*/
+         wlog_edit_control = TEXT("RichEdit"); /*RICHEDIT_CLASS*/
          wlog_unicode      = false;
       }
       else {
-         wlog_edit_control = L"EDIT";
+         wlog_edit_control = TEXT("EDIT");
          wlog_unicode      = false;
       }
    }
@@ -663,7 +666,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    /* Unregister window class. */
    if (wlog_count == 0) {
       ALLEGRO_DEBUG("Unregister text log class\n");
-      UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
+      UnregisterClass(TEXT("Allegro Text Log"), (HINSTANCE)GetModuleHandle(NULL));
    }
 
    al_unlock_mutex(textlog->tl_text_mutex);
@@ -768,7 +771,7 @@ static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
    }
    else {
       info->fType = MFT_STRING;
-      info->dwTypeData = (LPSTR) al_cstr(menu->caption);
+      info->dwTypeData = _twin_ustr_to_tchar(menu->caption);
       info->cch = al_ustr_size(menu->caption);
    }
 
@@ -816,7 +819,11 @@ static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
    }
 
 }
-
+static void destroy_menu_info(MENUITEMINFO *info) {
+   if (info->dwTypeData) {
+      al_free(info->dwTypeData);
+   }
+}
 bool _al_init_menu(ALLEGRO_MENU *menu)
 {
    menu->extra1 = CreateMenu();
@@ -835,7 +842,7 @@ bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
    init_menu_info(&info, item);
   
    InsertMenuItem((HMENU) item->parent->extra1, i, TRUE, &info);
-
+   destroy_menu_info(&info);
    return true;
 }
 
@@ -848,7 +855,7 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 
    if (item->parent->display)
       DrawMenuBar(al_get_win_window_handle(item->parent->display));
-
+   destroy_menu_info(&info);
    return true;
 }
 
@@ -932,5 +939,6 @@ int _al_get_menu_display_height(void)
 {
    return GetSystemMetrics(SM_CYMENU);
 }
+
 
 /* vim: set sts=3 sw=3 et: */

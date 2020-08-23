@@ -83,7 +83,7 @@ static double high_res_current_time(void)
 }
 
 
-double al_get_time(void)
+double _al_win_get_time(void)
 {
    return (*real_get_time_func)();
 }
@@ -117,11 +117,8 @@ void _al_win_shutdown_time(void)
 }
 
 
-/* al_rest:
- *  Rests the specified amount of milliseconds.
- *  Does nothing with values <= 0.
- */
-void al_rest(double seconds)
+
+void _al_win_rest(double seconds)
 {
    if (seconds <= 0)
       return;
@@ -130,10 +127,8 @@ void al_rest(double seconds)
 }
 
 
-/* al_init_timeout:
- *  Set a timeout value.
- */
-void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+
+void _al_win_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 {
    ALLEGRO_TIMEOUT_WIN *wt = (ALLEGRO_TIMEOUT_WIN *) timeout;
 

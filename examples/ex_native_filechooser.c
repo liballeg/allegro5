@@ -92,13 +92,15 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
 
 /* Function to start the new thread. */
 static AsyncDialog *spawn_async_file_dialog(ALLEGRO_DISPLAY *display,
-   const char *initial_path)
+                                            const char *initial_path,
+                                            bool save)
 {
    AsyncDialog *data = malloc(sizeof *data);
-
+   int flags = save ? ALLEGRO_FILECHOOSER_SAVE : ALLEGRO_FILECHOOSER_MULTIPLE;
+   const char* title = save ? "Save (no files will be changed)" : "Choose files";
    data->file_dialog = al_create_native_file_dialog(
-      initial_path, "Choose files", NULL,
-      ALLEGRO_FILECHOOSER_MULTIPLE);
+      initial_path, title, NULL,
+      flags);
    al_init_user_event_source(&data->event_source);
    data->display = display;
    data->thread = al_create_thread(async_file_dialog_thread_func, data);
@@ -239,6 +241,7 @@ restart:
 
    while (1) {
       float h = al_get_display_height(display);
+      
       ALLEGRO_EVENT event;
       al_wait_for_event(queue, &event);
 
@@ -276,6 +279,7 @@ restart:
           }
           else if (!cur_dialog) {
              const char *last_path = NULL;
+             bool save = event.mouse.x > al_get_display_width(display) / 2;
              /* If available, use the path from the last dialog as
               * initial path for the new one.
               */
@@ -283,7 +287,7 @@ restart:
                 last_path = al_get_native_file_dialog_path(
                    old_dialog->file_dialog, 0);
              }
-             cur_dialog = spawn_async_file_dialog(display, last_path);
+             cur_dialog = spawn_async_file_dialog(display, last_path, save);
              al_register_event_source(queue, &cur_dialog->event_source);
           }
       }
@@ -326,7 +330,8 @@ restart:
          redraw = false;
          al_clear_to_color(background);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-         al_draw_textf(font, cur_dialog ? inactive : active, x, y, ALLEGRO_ALIGN_CENTRE, "Open");
+         al_draw_textf(font, cur_dialog ? inactive : active, x/2, y, ALLEGRO_ALIGN_CENTRE, "Open");
+         al_draw_textf(font, cur_dialog ? inactive : active, x/2*3, y, ALLEGRO_ALIGN_CENTRE, "Save");
          al_draw_textf(font, cur_dialog ? inactive : active, x, h - 30,
             ALLEGRO_ALIGN_CENTRE, message_log ? "Close Message Log" : "Open Message Log");
          if (old_dialog)

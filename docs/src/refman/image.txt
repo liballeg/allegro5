@@ -29,6 +29,12 @@ contains textures compressed in the DXT1, DXT3 and DXT5 formats. Note that when
 loading a DDS file, the created bitmap will always be a video bitmap and will
 have the pixel format matching the format in the file.
 
+## API: al_is_image_addon_initialized
+
+Returns true if the image addon is initialized, otherwise returns false.
+
+Since: 5.2.6
+
 ## API: al_shutdown_image_addon
 
 Shut down the image addon. This is done automatically at program exit,

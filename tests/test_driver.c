@@ -65,8 +65,10 @@ int               vertex_counts[MAX_POLYGONS];
 int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
+bool              save_on_failure = false;
 bool              quiet = false;
 bool              want_display = true;
+bool              on_xvfb = true;
 int               verbose = 0;
 int               total_tests = 0;
 int               passed_tests = 0;
@@ -783,7 +785,7 @@ static bool similar_signatures(char const sig1[SIG_LEN], char const sig2[SIG_LEN
    return ((float)correct / SIG_LEN) > 0.95;
 }
 
-static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
+static bool check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    ALLEGRO_BITMAP *bmp, BmpType bmp_type)
 {
    char const *bt = bmp_type_to_string(bmp_type);
@@ -799,7 +801,7 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    if (exp && streq(exp, "off")) {
       printf("OK   %s [%s] - hash check off\n", testname, bt);
       passed_tests++;
-      return;
+      return true;
    }
 
    sprintf(hash, "%08x", hash_bitmap(bmp));
@@ -813,13 +815,13 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    if (!exp && !sigexp) {
       printf("NEW  %s [%s]\n\thash=%s\n\tsig=%s\n",
          testname, bt, hash, sig);
-      return;
+      return true;
    }
 
    if (exp && streq(hash, exp)) {
       printf("OK   %s [%s]\n", testname, bt);
       passed_tests++;
-      return;
+      return true;
    }
 
    if (sigexp && strlen(sigexp) != SIG_LEN) {
@@ -830,11 +832,12 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    if (sigexp && similar_signatures(sig, sigexp)) {
       printf("OK   %s [%s] - by signature\n", testname, bt);
       passed_tests++;
-      return;
+      return true;
    }
 
    printf("FAIL %s [%s] - hash=%s\n", testname, bt, hash);
    failed_tests++;
+   return false;
 }
 
 static double bitmap_dissimilarity(ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2)
@@ -868,7 +871,7 @@ static double bitmap_dissimilarity(ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2)
    return sqrt(sqerr / (w*h*4.0));
 }
 
-static void check_similarity(ALLEGRO_CONFIG const *cfg,
+static bool check_similarity(ALLEGRO_CONFIG const *cfg,
    char const *testname,
    ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2, BmpType bmp_type, bool reliable)
 {
@@ -886,7 +889,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
       if (exp && streq(hash, exp)) {
          printf("OK   %s [%s]\n", testname, bt);
          passed_tests++;
-         return;
+         return true;
       }
 
       if (sigexp && strlen(sigexp) != SIG_LEN) {
@@ -899,7 +902,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
       if (sigexp && similar_signatures(sig, sigexp)) {
          printf("OK   %s [%s] - by signature\n", testname, bt);
          passed_tests++;
-         return;
+         return true;
       }
    }
 
@@ -915,6 +918,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
       else
          printf("OK?  %s [%s]\n", testname, bt);
       passed_tests++;
+      return true;
    }
    else {
       char const *exp = al_get_config_value(cfg, testname, "hash");
@@ -925,7 +929,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
       if (exp && streq(hash, exp)) {
          printf("OK   %s [%s]\n", testname, bt);
          passed_tests++;
-         return;
+         return true;
       }
 
       printf("FAIL %s [%s] - RMS error is %g\n", testname, bt, rms);
@@ -933,10 +937,11 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
       compute_signature(bmp1, sig);
       printf("sig_hw=%s\n", sig);
       failed_tests++;
+      return false;
    }
 }
 
-static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
+static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
    ALLEGRO_BITMAP *target, int bmp_type, bool reliable, bool do_check_hash)
 {
 #define MAXBUF    80
@@ -1520,16 +1525,17 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
+   bool good;
    if (do_check_hash) {
-      check_hash(cfg, testname, target, bmp_type);
+      good = check_hash(cfg, testname, target, bmp_type);
    }
    else {
-      check_similarity(cfg, testname, target, membuf, bmp_type, reliable);
+      good = check_similarity(cfg, testname, target, membuf, bmp_type, reliable);
    }
 
    total_tests++;
 
-   if (save_outputs) {
+   if (save_outputs && (!save_on_failure || !good)) {
       ALLEGRO_USTR *filename = al_ustr_newf("%s [%s].png", testname,
          bmp_type_to_string(bmp_type));
       al_save_bitmap(al_cstr(filename), target);
@@ -1565,24 +1571,29 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       transforms[i].name = NULL;
    }
 
+   return good;
 #undef MAXBUF
 }
 
 static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
 {
-   int old_failed_tests = failed_tests;
-   bool reliable;
+   bool reliable = true;
    char const *hw_only_str = al_get_config_value(cfg, testname, "hw_only");
    char const *sw_only_str = al_get_config_value(cfg, testname, "sw_only");
+   char const *skip_on_xvfb_str = al_get_config_value(cfg, testname, "skip_on_xvfb");
    bool hw_only = hw_only_str && get_bool(hw_only_str);
    bool sw_only = sw_only_str && get_bool(sw_only_str);
+   bool skip_on_xvfb = skip_on_xvfb_str && get_bool(skip_on_xvfb_str);
+
+   if (skip_on_xvfb && on_xvfb) {
+      skipped_tests++;
+      return;
+   }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    if (!hw_only) {
-      do_test(cfg, testname, membuf, SW, true, true);
+      reliable = do_test(cfg, testname, membuf, SW, true, true);
    }
-
-   reliable = (failed_tests == old_failed_tests);
 
    if (sw_only) return;
 
@@ -1752,17 +1763,19 @@ const char* help_str =
 "file, but individual TEST_NAMEs can be specified after each CONFIG_FILE.\n"
 "\n"
 "Options:\n"
-" -d, --delay        duration (in sec) to wait between tests\n"
-" --force-d3d        force using D3D (Windows only)\n"
-" --force-opengl-1.2 force using OpenGL 1.2\n"
-" --force-opengl-2.0 force using OpenGL 2.0\n"
-" --force-opengl     force using OpenGL\n"
-" -h, --help         display this message\n"
-" -n, --no-display   do not create a display (hardware drawing is disabled)\n"
-" -s, --save         save the output of each test in the current directory\n"
-" --use-shaders      use the programmable pipeline for drawing\n"
-" -v, --verbose      show additional information after each test\n"
-" -q, --quiet        do not draw test output to the display\n";
+" -d, --delay           duration (in sec) to wait between tests\n"
+" --force-d3d           force using D3D (Windows only)\n"
+" --force-opengl-1.2    force using OpenGL 1.2\n"
+" --force-opengl-2.0    force using OpenGL 2.0\n"
+" --force-opengl        force using OpenGL\n"
+" -f, --save_on_failure save the output of failred tests in the current directory\n"
+" -h, --help            display this message\n"
+" -n, --no-display      do not create a display (hardware drawing is disabled)\n"
+" -s, --save            save the output of each test in the current directory\n"
+" --use-shaders         use the programmable pipeline for drawing\n"
+" -v, --verbose         show additional information after each test\n"
+" -q, --quiet           do not draw test output to the display\n"
+" --xvfb                indicates that we're running on XVFB, skipping tests if necessary\n";
 
 int main(int _argc, char *_argv[])
 {
@@ -1792,6 +1805,13 @@ int main(int _argc, char *_argv[])
       }
       else if (streq(opt, "-s") || streq(opt, "--save")) {
          save_outputs = true;
+      }
+      else if (streq(opt, "-f") || streq(opt, "--save_on_failure")) {
+         save_on_failure = true;
+         save_outputs = true;
+      }
+      else if (streq(opt, "--xvfb")) {
+         on_xvfb = true;
       }
       else if (streq(opt, "-q") || streq(opt, "--quiet")) {
          quiet = true;

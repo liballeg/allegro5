@@ -25,15 +25,28 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)
     * avoid so many redundant OpenGL calls.
     */
 
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+      GLint atloc = display->ogl_extras->varlocs.alpha_test_loc;
+      GLint floc = display->ogl_extras->varlocs.alpha_func_loc;
+      GLint tvloc = display->ogl_extras->varlocs.alpha_test_val_loc;
+
+      if (display->ogl_extras->program_object > 0 && floc >= 0 && tvloc >= 0) {
+         glUniform1i(atloc, r->alpha_test);
+         glUniform1i(floc, r->alpha_function);
+         glUniform1f(tvloc, (float)r->alpha_test_value / 255.0);
+      }
+#endif
+   }
+   else {
 #ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
-   if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       if (r->alpha_test == 0)
          glDisable(GL_ALPHA_TEST);
       else
          glEnable(GL_ALPHA_TEST);
-      glAlphaFunc(_gl_funcs[r->alpha_function], r->alpha_test_value);
-   }
+      glAlphaFunc(_gl_funcs[r->alpha_function], (float)r->alpha_test_value / 255.0);
 #endif
+   }
 
    if (r->depth_test == 0)
       glDisable(GL_DEPTH_TEST);

@@ -41,7 +41,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_DISPLAY_INTERFACE *driver;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings;
-   int flags;
+   int64_t flags;
 
    system = al_get_system_driver();
    driver = system->vt->get_display_driver();
