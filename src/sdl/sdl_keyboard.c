@@ -32,6 +32,26 @@ typedef struct ALLEGRO_KEYBOARD_SDL
 static ALLEGRO_KEYBOARD_DRIVER *vt;
 static ALLEGRO_KEYBOARD_SDL *keyboard;
 
+
+static unsigned int get_modifiers(int modifiers)
+{
+   int result = 0;
+
+   if (modifiers & KMOD_LSHIFT) result |= ALLEGRO_KEYMOD_SHIFT;
+   if (modifiers & KMOD_RSHIFT) result |= ALLEGRO_KEYMOD_SHIFT;
+   if (modifiers & KMOD_LCTRL) result |= ALLEGRO_KEYMOD_CTRL;
+   if (modifiers & KMOD_RCTRL) result |= ALLEGRO_KEYMOD_CTRL;  
+   if (modifiers & KMOD_LALT) result |= ALLEGRO_KEYMOD_ALT;
+   if (modifiers & KMOD_RALT) result |= ALLEGRO_KEYMOD_ALT;
+   if (modifiers & KMOD_LGUI) result |= ALLEGRO_KEYMOD_LWIN;
+   if (modifiers & KMOD_RGUI) result |= ALLEGRO_KEYMOD_RWIN;
+   if (modifiers & KMOD_NUM) result |= ALLEGRO_KEYMOD_NUMLOCK;
+   if (modifiers & KMOD_CAPS) result |= ALLEGRO_KEYMOD_CAPSLOCK;
+   if (modifiers & KMOD_MODE) result |= ALLEGRO_KEYMOD_ALTGR;
+
+   return result;
+}
+
 void _al_sdl_keyboard_event(SDL_Event *e)
 {
    if (!keyboard)
@@ -50,7 +70,7 @@ void _al_sdl_keyboard_event(SDL_Event *e)
    _al_event_source_lock(es);
    event.keyboard.timestamp = al_get_time();
    event.keyboard.display = NULL;
-   event.keyboard.modifiers = 0;
+   event.keyboard.modifiers = get_modifiers(e->key.keysym.mod);
    event.keyboard.repeat = false;
 
    if (e->type == SDL_TEXTINPUT) {

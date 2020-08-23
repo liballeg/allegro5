@@ -368,7 +368,8 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    event.keyboard.display = display;
    event.keyboard.keycode = my_code;
    event.keyboard.unichar = 0;
-   event.keyboard.modifiers = 0;
+   update_toggle_modifiers();
+   event.keyboard.modifiers = modifiers;
    event.keyboard.repeat = false;
 
    _al_event_source_lock(&the_keyboard.es);
@@ -461,7 +462,8 @@ void _al_win_kbd_handle_key_release(int scode, int vcode, bool extended, ALLEGRO
    event.keyboard.display = (void*)win_disp;
    event.keyboard.keycode = my_code;
    event.keyboard.unichar = 0;
-   event.keyboard.modifiers = 0;
+   update_toggle_modifiers();
+   event.keyboard.modifiers = modifiers;
 
    _al_event_source_lock(&the_keyboard.es);
    _al_event_source_emit_event(&the_keyboard.es, &event);

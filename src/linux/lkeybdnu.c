@@ -648,7 +648,7 @@ static void handle_key_release(int mycode)
    event.keyboard.display = NULL;
    event.keyboard.keycode = mycode;
    event.keyboard.unichar = 0;
-   event.keyboard.modifiers = 0;
+   event.keyboard.modifiers = the_keyboard.modifiers;
 
    _al_event_source_emit_event(&the_keyboard.parent.es, &event);
 }

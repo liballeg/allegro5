@@ -50,7 +50,7 @@ ALLEGRO_DEBUG_CHANNEL("keyboard")
 /*----------------------------------------------------------------------*/
 static void handle_key_press(int mycode, int unichar, int filtered,
    unsigned int modifiers, ALLEGRO_DISPLAY *display);
-static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display);
+static void handle_key_release(int mycode, unsigned int modifiers, ALLEGRO_DISPLAY *display);
 static int _key_shifts;
 /*----------------------------------------------------------------------*/
 
@@ -467,7 +467,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
             return;
          }
       }
-      handle_key_release(keycode, display);
+      handle_key_release(keycode, _key_shifts, display);
    }
 }
 
@@ -1052,7 +1052,7 @@ static void handle_key_press(int mycode, int unichar, int filtered,
          event.keyboard.display = display;
          event.keyboard.keycode = last_press_code;
          event.keyboard.unichar = 0;
-         event.keyboard.modifiers = 0;
+         event.keyboard.modifiers = modifiers;
          event.keyboard.repeat = false;
 
          /* Don't send KEY_DOWN for non-physical key events. */
@@ -1110,7 +1110,7 @@ static void handle_key_press(int mycode, int unichar, int filtered,
  *  Hook for the X event dispatcher to handle key releases.
  *  The caller must lock the X-display.
  */
-static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
+static void handle_key_release(int mycode, unsigned int modifiers, ALLEGRO_DISPLAY *display)
 {
    if (last_press_code == mycode)
       last_press_code = -1;
@@ -1128,7 +1128,7 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
          event.keyboard.display = display;
          event.keyboard.keycode = mycode;
          event.keyboard.unichar = 0;
-         event.keyboard.modifiers = 0;
+         event.keyboard.modifiers = modifiers;
          _al_event_source_emit_event(&the_keyboard.parent.es, &event);
       }
    }
