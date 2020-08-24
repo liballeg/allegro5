@@ -310,6 +310,7 @@ void _al_osx_keyboard_modifiers(unsigned int modifiers, ALLEGRO_DISPLAY* dpy)
             if (i == 0) {
                _handle_key_press(dpy, -1, mod_info[0][2], key_shifts, false);
             }
+            
             _handle_key_release(dpy, key_shifts, mod_info[i][2]);
          }
       }
