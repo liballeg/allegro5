@@ -806,6 +806,10 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    }
    d3d_pp.hDeviceWindow = win_display->window;
 
+   if (!refresh_rate) {
+      al_display->refresh_rate = d3d_get_default_refresh_rate(win_display->adapter);
+   }
+
    if (adapter < 0)
       adapter = 0;
 
