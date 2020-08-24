@@ -12,6 +12,7 @@
 #include "allegro5/internal/aintern_ttf_cfg.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_exitfunc.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

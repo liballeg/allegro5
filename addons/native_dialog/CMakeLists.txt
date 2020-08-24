@@ -37,7 +37,7 @@ if(WIN32)
 endif(WIN32)
 
 if(NOT SUPPORT_NATIVE_DIALOG AND SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
-    pkg_check_modules(GTK gtk+-2.0)
+    pkg_check_modules(GTK gtk+-3.0)
     pkg_check_modules(GT gthread-2.0)
     if(GTK_FOUND AND GT_FOUND)
         list(APPEND NATIVE_DIALOG_SOURCES ${GTK_NATIVE_DIALOG_SOURCES})

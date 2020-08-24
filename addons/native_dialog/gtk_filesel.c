@@ -42,8 +42,8 @@ static gboolean create_gtk_file_dialog(gpointer data)
       gtk_file_chooser_dialog_new(al_cstr(fd->title),
                                   NULL,
                                   save ? GTK_FILE_CHOOSER_ACTION_SAVE : folder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER : GTK_FILE_CHOOSER_ACTION_OPEN,
-                                  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                  save ? GTK_STOCK_SAVE : GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+                                  "_Cancel", GTK_RESPONSE_CANCEL,
+                                  save ? "_Save" : "_Open", GTK_RESPONSE_ACCEPT, NULL);
 
    _al_gtk_make_transient(display, window);
 

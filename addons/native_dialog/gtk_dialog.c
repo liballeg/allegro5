@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <gdk/gdkx.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
@@ -29,16 +30,19 @@ void _al_shutdown_native_dialog_addon(void)
    _al_gtk_set_display_overridable_interface(false);
 }
 
-
 static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
 {
-   GdkDisplay *gdk = gdk_drawable_get_display(GDK_DRAWABLE(window->window));
-   GdkWindow *parent = gdk_window_lookup_for_display(gdk, glx->window);
-   if (!parent)
-      parent = gdk_window_foreign_new_for_display(gdk, glx->window);
-   gdk_window_set_transient_for(window->window, parent);
-}
 
+   GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
+   GdkDisplay *gdk = GDK_DISPLAY(gdk_window_get_display(gdk_window));
+
+   GdkWindow *parent = gdk_x11_window_lookup_for_display(gdk, glx->window);
+   if (!parent)
+      parent = gdk_x11_window_foreign_new_for_display(gdk, glx->window);
+
+   if (gdk_window != NULL)
+      gdk_window_set_transient_for(gdk_window, parent);
+}
 
 static void realized(GtkWidget *window, gpointer data)
 {
@@ -51,7 +55,7 @@ void _al_gtk_make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
    /* Set the current display window (if any) as the parent of the dialog. */
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    if (glx) {
-      if (!GTK_WIDGET_REALIZED(window))
+      if (!gtk_widget_get_realized(window))
          g_signal_connect(window, "realize", G_CALLBACK(realized), (void *)glx);
       else
          really_make_transient(window, glx);
