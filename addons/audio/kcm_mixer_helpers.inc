@@ -117,6 +117,7 @@ static INLINE const void *linear_spl32(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE
       if (p1 >= spl->loop_end)
 	 p1 = spl->loop_start;
       break;
+   case ALLEGRO_PLAYMODE_REVERSED:
    case ALLEGRO_PLAYMODE_BIDIR:
       if (p1 >= spl->loop_end) {
 	 p1 = spl->loop_end - 1;
@@ -244,6 +245,7 @@ static INLINE const void *linear_spl16(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE
       if (p1 >= spl->loop_end)
 	 p1 = spl->loop_start;
       break;
+   case ALLEGRO_PLAYMODE_REVERSED:
    case ALLEGRO_PLAYMODE_BIDIR:
       if (p1 >= spl->loop_end) {
 	 p1 = spl->loop_end - 1;
@@ -374,6 +376,7 @@ static INLINE const void *cubic_spl32(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE_
 	 p3 = spl->spl_data.len - 1;
       break;
    case ALLEGRO_PLAYMODE_LOOP:
+   case ALLEGRO_PLAYMODE_REVERSED:
    case ALLEGRO_PLAYMODE_BIDIR:
       /* These positions should really wrap/bounce instead of clamping
        * but it's probably unnoticeable.

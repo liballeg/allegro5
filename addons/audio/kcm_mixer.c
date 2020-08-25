@@ -214,6 +214,15 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          }
          return true;
 
+      case ALLEGRO_PLAYMODE_REVERSED:
+         if (spl->step > 0)
+            spl->step = -spl->step;
+         if (spl->pos > spl->loop_start) {
+            return true;
+         }
+         spl->pos = spl->loop_end;
+         spl->is_playing = false;
+         return false;
       case ALLEGRO_PLAYMODE_ONCE:
          if (spl->pos < spl->spl_data.len) {
             return true;

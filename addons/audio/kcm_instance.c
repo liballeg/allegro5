@@ -520,7 +520,7 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
 {
    ASSERT(spl);
 
-   if (val < ALLEGRO_PLAYMODE_ONCE || val > ALLEGRO_PLAYMODE_BIDIR) {
+   if (val < ALLEGRO_PLAYMODE_ONCE || val > ALLEGRO_PLAYMODE_REVERSED) {
       _al_set_error(ALLEGRO_INVALID_PARAM,
          "Invalid loop mode");
       return false;
@@ -529,7 +529,10 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
    maybe_lock_mutex(spl->mutex);
 
    spl->loop = val;
-   if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
+   if (spl->loop == ALLEGRO_PLAYMODE_REVERSED) {
+      spl->pos = spl->loop_end-1;
+   }
+   else if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
       if (spl->pos < spl->loop_start)
          spl->pos = spl->loop_start;
       else if (spl->pos > spl->loop_end-1)
