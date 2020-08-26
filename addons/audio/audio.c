@@ -196,6 +196,11 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 }
 
+const char* al_get_audio_driver_specifier(void)
+{
+   return _al_kcm_driver ? _al_kcm_driver->specifier : 0;
+}
+
 static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
    bool retVal;

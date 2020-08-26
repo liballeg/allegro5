@@ -345,6 +345,7 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_voice_position, (ALLEGRO_VOICE *voice, unsig
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_voice_playing, (ALLEGRO_VOICE *voice, bool val));
 
 /* Misc. audio functions */
+ALLEGRO_KCM_AUDIO_FUNC(const char*, al_get_audio_driver_specifier, (void));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_install_audio, (void));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_uninstall_audio, (void));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_is_audio_installed, (void));
