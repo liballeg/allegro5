@@ -214,6 +214,10 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
             alsa_voice->reversed = true;
             voice->attached_stream->pos = alsa_voice->len;
          }
+         else if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_REVERSED) {
+            alsa_voice->reversed = true;
+            voice->attached_stream->pos = alsa_voice->len;
+         }
          return 1;
       }
       else
@@ -222,13 +226,16 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
    else {
       if (bpos - *bytes < 0) {
          *bytes = bpos;
-         /* loop will be ALLEGRO_PLAYMODE_BIDIR, other playing modes that play
-            backwards are not currently supported by the API */
-         /*if (voice->attached_stream->loop != ALLEGRO_PLAYMODE_BIDIR)
-            alsa_voice->stop = true;*/
 
-         voice->attached_stream->pos = 0;
-         alsa_voice->reversed = false;
+         if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_REVERSED) {
+            alsa_voice->stop = true;
+            voice->attached_stream->pos = alsa_voice->len;
+         }
+         else {
+            voice->attached_stream->pos = 0;
+            alsa_voice->reversed = false;
+         }
+
          return 1;
       }
       else

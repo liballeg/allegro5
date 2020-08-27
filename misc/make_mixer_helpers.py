@@ -138,6 +138,7 @@ def make_linear_interpolator(name, fmt):
             if (p1 >= spl->loop_end)
                p1 = spl->loop_start;
             break;
+         case ALLEGRO_PLAYMODE_REVERSED:
          case ALLEGRO_PLAYMODE_BIDIR:
             if (p1 >= spl->loop_end) {
                p1 = spl->loop_end - 1;
@@ -229,6 +230,7 @@ def make_cubic_interpolator(name, fmt):
                p3 = spl->spl_data.len - 1;
             break;
          case ALLEGRO_PLAYMODE_LOOP:
+         case ALLEGRO_PLAYMODE_REVERSED:
          case ALLEGRO_PLAYMODE_BIDIR:
             /* These positions should really wrap/bounce instead of clamping
              * but it's probably unnoticeable.

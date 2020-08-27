@@ -326,7 +326,7 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
     * mmap(2) the FD and write reversed samples into that. To much trouble for
     * an optional feature IMO. -- milan
     */
-   if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
+   if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR || voice->attached_stream->loop == ALLEGRO_PLAYMODE_REVERSED) {
       ALLEGRO_INFO("Backwards playing not supported by the driver.\n");
       return -1;
    }
