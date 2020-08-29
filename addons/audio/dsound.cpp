@@ -300,7 +300,10 @@ static int _dsound_open()
 static void _dsound_close()
 {
    ALLEGRO_DEBUG("Releasing device\n");
+   
+   _al_list_destroy(device_list);
    device->Release();
+   
    ALLEGRO_DEBUG("Released device\n");
    ALLEGRO_INFO("DirectSound closed\n");
 }
