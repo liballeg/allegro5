@@ -201,17 +201,26 @@ static void sdl_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
 ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
 {
    "SDL",
+   
    sdl_open,
    sdl_close,
+
    sdl_allocate_voice,
    sdl_deallocate_voice,
+
    sdl_load_voice,
    sdl_unload_voice,
+
    sdl_start_voice,
    sdl_stop_voice,
+
    sdl_voice_is_playing,
+
    sdl_get_voice_position,
    sdl_set_voice_position,
+
    sdl_allocate_recorder,
-   sdl_deallocate_recorder
+   sdl_deallocate_recorder,
+
+   NULL,
 };

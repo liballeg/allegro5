@@ -173,6 +173,10 @@ typedef struct ALLEGRO_MIXER ALLEGRO_MIXER;
  */
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
+/* Type: ALLEGRO_AUDIO_DEVICE
+ */
+typedef struct ALLEGRO_AUDIO_DEVICE ALLEGRO_AUDIO_DEVICE;
+
 
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
 /* Type: ALLEGRO_AUDIO_RECORDER
@@ -354,6 +358,10 @@ ALLEGRO_KCM_AUDIO_FUNC(size_t, al_get_audio_depth_size, (ALLEGRO_AUDIO_DEPTH con
 
 ALLEGRO_KCM_AUDIO_FUNC(void, al_fill_silence, (void *buf, unsigned int samples,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
+
+ALLEGRO_KCM_AUDIO_FUNC(int, al_get_audio_device_count, (void));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEVICE *, al_get_audio_device, (int index));
+ALLEGRO_KCM_AUDIO_FUNC(char *, al_get_audio_device_name, (ALLEGRO_AUDIO_DEVICE * device));
 
 /* Simple audio layer */
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_reserve_samples, (int reserve_samples));
