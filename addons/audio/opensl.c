@@ -720,5 +720,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_opensl_driver = {
    _opensl_set_voice_position,
 
    NULL,
+   NULL,
+
    NULL
 };

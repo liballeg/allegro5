@@ -661,6 +661,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_openal_driver = {
    _openal_set_voice_position,
 
    NULL,
+   NULL,
+
    NULL
 };
 

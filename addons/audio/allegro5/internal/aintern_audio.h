@@ -84,6 +84,8 @@ struct ALLEGRO_AUDIO_DRIVER {
    
    int            (*allocate_recorder)(struct ALLEGRO_AUDIO_RECORDER *);
    void           (*deallocate_recorder)(struct ALLEGRO_AUDIO_RECORDER *);
+
+   _AL_LIST*      (*get_devices)(void);
 };
 
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
@@ -361,6 +363,11 @@ typedef enum {
 } AL_ERROR_ENUM;
 
 extern void _al_set_error(int error, char* string);
+
+struct ALLEGRO_AUDIO_DEVICE {
+   char* name;
+   void* identifier;
+};
 
 /* Supposedly internal */
 ALLEGRO_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
