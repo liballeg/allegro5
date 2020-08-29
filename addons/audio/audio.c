@@ -196,6 +196,44 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 }
 
+int al_get_audio_device_count()
+{
+   if (_al_kcm_driver) {
+      if (_al_kcm_driver->get_devices) {
+         _AL_LIST* audio_devices = _al_kcm_driver->get_devices();
+         return _al_list_size(audio_devices);
+      }
+      else {
+         return -1;
+      }
+   }
+
+   return 0;
+}
+
+ALLEGRO_AUDIO_DEVICE* al_get_audio_device(int index)
+{
+   if (_al_kcm_driver) {
+      if (_al_kcm_driver->get_devices) {
+         _AL_LIST* audio_devices = _al_kcm_driver->get_devices();
+
+         if (index >= 0 && index < _al_list_size(audio_devices)) {
+            return _al_list_item_data(_al_list_at(audio_devices, index));
+         }
+      }
+      else {
+         return 0;
+      }
+   }
+
+   return 0;
+}
+
+char* al_get_audio_device_name(ALLEGRO_AUDIO_DEVICE * device)
+{
+   return device ? device->name : 0;
+}
+
 static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
    bool retVal;

@@ -621,6 +621,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_oss_driver =
    oss_set_voice_position,
 
    NULL,
+   NULL,
+
    NULL
 };
 

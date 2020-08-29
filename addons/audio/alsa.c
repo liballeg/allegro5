@@ -897,7 +897,9 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
    alsa_set_voice_position,
 
    alsa_allocate_recorder,
-   alsa_deallocate_recorder
+   alsa_deallocate_recorder,
+
+   NULL,
 };
 
 /* vim: set sts=3 sw=3 et: */
