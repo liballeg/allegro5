@@ -609,6 +609,8 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
    result = ChangeDisplaySettingsEx(dev_name, &dm, NULL, CDS_FULLSCREEN, 0);
 
+   d->refresh_rate = dm.dmDisplayFrequency;
+
    if (result != DISP_CHANGE_SUCCESSFUL) {
       ALLEGRO_ERROR("Unable to set mode. %s\n", _al_win_last_error());
       return false;
@@ -1186,14 +1188,24 @@ static void display_thread_proc(void *arg)
       ALLEGRO_MONITOR_INFO mi;
       int adapter = win_disp->adapter;
       al_get_monitor_info(adapter, &mi);
+
       win_disp->toggle_w = disp->w;
       win_disp->toggle_h = disp->h;
+
       disp->w = mi.x2 - mi.x1;
       disp->h = mi.y2 - mi.y1;
+
+      disp->refresh_rate = mi.refresh_rate;
    }
    else {
+      ALLEGRO_MONITOR_INFO mi;
+      int adapter = win_disp->adapter;
+      al_get_monitor_info(adapter, &mi);
+
       win_disp->toggle_w = disp->w;
       win_disp->toggle_h = disp->h;
+
+      disp->refresh_rate = mi.refresh_rate;
    }
 
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
