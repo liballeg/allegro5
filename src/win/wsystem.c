@@ -518,6 +518,7 @@ static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    /* Disabled this assertion for now as it fails under Wine 1.2. */
    /* ASSERT(dm.dmFields & DM_POSITION); */
 
+   info->refresh_rate = dm.dmDisplayFrequency;
    info->x1 = dm.dmPosition.x;
    info->y1 = dm.dmPosition.y;
    info->x2 = info->x1 + dm.dmPelsWidth;
