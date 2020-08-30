@@ -277,7 +277,7 @@ static int _dsound_open()
    DirectSoundEnumerate((LPDSENUMCALLBACK)DSEnumCallback, NULL);
 
    /* FIXME: Use default device until we have device enumeration */
-   hr = DirectSoundCreate8(NULL, &device, NULL); // pass device guid here or NULL for default playback device
+   hr = DirectSoundCreate8(NULL, &device, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("DirectSoundCreate8 failed: %s\n", ds_get_error(hr));
       return 1;
