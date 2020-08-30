@@ -4,6 +4,8 @@
 
 ALLEGRO_DEBUG_CHANNEL("SDL")
 
+_AL_LIST* device_list;
+
 typedef struct SDL_VOICE
 {
    SDL_AudioDeviceID device;
@@ -209,6 +211,28 @@ static void sdl_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    al_free(r->extra);
 }
 
+_AL_LIST* sdl_get_devices()
+{
+   if (!device_list) {
+      device_list = _al_list_create();
+
+      int i, count = SDL_GetNumAudioDevices(0);
+      for (i = 0; i < count; ++i) {
+
+         ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+         device->identifier = (void*)al_malloc(sizeof(int));
+         device->name = (char*)al_malloc(strlen(SDL_GetAudioDeviceName(i, 0)) + 1);
+
+         memcpy(device->identifier, i, sizeof(int));
+         strcpy(device->name, SDL_GetAudioDeviceName(i, 0));
+
+         _al_list_push_back(device_list, device);
+      }
+   }
+
+   return device_list;
+}
+
 ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
 {
    "SDL",
@@ -233,5 +257,5 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
    sdl_allocate_recorder,
    sdl_deallocate_recorder,
 
-   NULL,
+   sdl_get_devices,
 };
