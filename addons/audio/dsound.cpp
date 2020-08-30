@@ -816,6 +816,13 @@ void _dsound_close_recorder(ALLEGRO_AUDIO_RECORDER *r) {
    capture_device = NULL;
 }
 
+void _device_list_dtor(void* value, void* userdata)
+{
+   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   al_free(device->name);
+   al_free(device->identifier);
+}
+
 BOOL CALLBACK DSEnumCallback(
          LPGUID lpGuid,
          LPCTSTR lpcstrDescription,
@@ -830,12 +837,15 @@ BOOL CALLBACK DSEnumCallback(
 
       ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
       device->identifier = (void*)al_malloc(sizeof(GUID));
-      device->name = (char*)al_malloc((desc_size + 1));
+      device->name = (char*)al_malloc(desc_size + 1);
+
+      memset(device->identifier, 0, sizeof(GUID));
+      memset(device->name, 0, desc_size + 1);
 
       memcpy(device->identifier, lpGuid, sizeof(GUID));
       wcstombs(device->name, lpcstrDescription, desc_size);
 
-      _al_list_push_back(device_list, device);
+      _al_list_push_back_ex(device_list, device, _device_list_dtor);
    }
 
    return TRUE;
