@@ -1195,17 +1195,14 @@ static void display_thread_proc(void *arg)
       disp->w = mi.x2 - mi.x1;
       disp->h = mi.y2 - mi.y1;
 
-      disp->refresh_rate = mi.refresh_rate;
+      disp->refresh_rate = al_get_monitor_refresh_rate(adapter);
    }
    else {
-      ALLEGRO_MONITOR_INFO mi;
       int adapter = win_disp->adapter;
-      al_get_monitor_info(adapter, &mi);
-
       win_disp->toggle_w = disp->w;
       win_disp->toggle_h = disp->h;
 
-      disp->refresh_rate = mi.refresh_rate;
+      disp->refresh_rate = al_get_monitor_refresh_rate(adapter);
    }
 
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
