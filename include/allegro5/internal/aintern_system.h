@@ -33,6 +33,7 @@ struct ALLEGRO_SYSTEM_INTERFACE
    void (*shutdown_system)(void);
    int (*get_num_video_adapters)(void);
    bool (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
+   int (*get_monitor_refresh_rate)(int adapter);
    int (*get_monitor_dpi)(int adapter);
    ALLEGRO_MOUSE_CURSOR *(*create_mouse_cursor)(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus);
    void (*destroy_mouse_cursor)(ALLEGRO_MOUSE_CURSOR *cursor);
