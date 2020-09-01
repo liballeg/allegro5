@@ -93,6 +93,7 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
 static void sdl_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    SDL_VOICE *sv = voice->extra;
+   _al_list_destroy(device_list);
    SDL_CloseAudioDevice(sv->device);
    al_free(sv);
 }
@@ -234,7 +235,7 @@ _AL_LIST* sdl_get_devices()
          memset(device->identifier, 0, sizeof(int));
          memset(device->name, 0, len);
 
-         memcpy(device->identifier, i, sizeof(int));
+         memcpy(device->identifier, &i, sizeof(int));
          strcpy(device->name, SDL_GetAudioDeviceName(i, 0));
 
          _al_list_push_back_ex(device_list, device, _device_list_dtor);
