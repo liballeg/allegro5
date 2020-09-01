@@ -54,7 +54,7 @@ typedef struct PULSEAUDIO_VOICE
    char *buffer_end;
 } PULSEAUDIO_VOICE;
 
-_AL_LIST* device_list;
+static _AL_LIST* device_list;
 
 #define DEFAULT_BUFFER_SIZE   1024
 #define MIN_BUFFER_SIZE       128

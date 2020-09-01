@@ -41,6 +41,7 @@ do {                                                                  \
 static snd_output_t *snd_output = NULL;
 static char *default_device = "default";
 static char *alsa_device = NULL;
+static _AL_LIST* device_list;
 
 // TODO: Setting this to 256 causes (extreme, about than 10 seconds)
 // lag if the alsa device is really pulseaudio.
@@ -140,6 +141,8 @@ Error:
    other processes to use the device */
 static void alsa_close(void)
 {
+   _al_list_destroy(device_list);
+
    if (alsa_device != default_device)
       al_free(alsa_device);
    
@@ -875,6 +878,73 @@ static void alsa_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    snd_pcm_close(data->capture_handle);
 }
 
+void _device_list_dtor(void* value, void* userdata)
+{
+   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   al_free(device->name);
+   al_free(device->identifier);
+}
+
+_AL_LIST* alsa_get_devices()
+{
+   if (!device_list) {
+      device_list = _al_list_create();
+
+      int rcard = -1;
+      while(snd_card_next(&rcard) == 0) {
+         if (rcard < 0) return device_list;
+
+         snd_ctl_t *handle;
+         char str[64];
+
+         sprintf(str, "hw:%i", rcard);
+         if (snd_ctl_open(&handle, str, 0) < 0) {
+            return device_list;
+         }
+
+         int dev_num = -1;
+
+         while(1) {
+            if (snd_ctl_pcm_next_device(handle, &dev_num) < 0) {
+               break;
+            }
+
+            if (dev_num < 0) break;
+
+            snd_ctl_card_info_t *card_info;
+            snd_ctl_card_info_alloca(&card_info);
+
+            if (snd_ctl_card_info(handle, card_info) < 0) {
+               break;
+            }
+            else {
+               char *name = snd_ctl_card_info_get_name(card_info);
+               char *identifier = snd_ctl_card_info_get_id(card_info);
+               int len = strlen(name) + 1;
+               int identifier_len = strlen(identifier) + 1;
+
+               ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+               device->identifier = (char*)al_malloc(identifier_len);
+               device->name = (char*)al_malloc(len);
+
+               memset(device->name, 0, len);
+               strcpy(device->name, name);
+
+               memset(device->identifier, 0, identifier_len);
+               strcpy(device->identifier, identifier);
+
+               // identifier or maybe even name should be subdevice gist.github.com/dontknowmyname/4536543
+               _al_list_push_back_ex(device_list, device, _device_list_dtor);
+            }
+         }
+
+         snd_ctl_close(handle);
+      }
+   }
+
+   return device_list;
+}
+
 ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
 {
    "ALSA",
@@ -899,7 +969,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
    alsa_allocate_recorder,
    alsa_deallocate_recorder,
 
-   NULL,
+   alsa_get_devices
 };
 
 /* vim: set sts=3 sw=3 et: */
