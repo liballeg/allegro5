@@ -54,6 +54,8 @@ typedef struct PULSEAUDIO_VOICE
    char *buffer_end;
 } PULSEAUDIO_VOICE;
 
+_AL_LIST* device_list;
+
 #define DEFAULT_BUFFER_SIZE   1024
 #define MIN_BUFFER_SIZE       128
 
@@ -73,16 +75,40 @@ static unsigned int get_buffer_size(const ALLEGRO_CONFIG *config)
    return DEFAULT_BUFFER_SIZE;
 }
 
+void _device_list_dtor(void* value, void* userdata)
+{
+   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   al_free(device->name);
+   al_free(device->identifier);
+}
+
 static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
    void *userdata)
 {
    (void)c;
    (void)eol;
 
+   if (!device_list) {
+      device_list = _al_list_create();
+   }
+
    pa_sink_state_t *ret = userdata;
    if (!i)
       return;
    *ret = i->state;
+
+   int len = strlen(i->description) + 1;
+   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+   device->identifier = (void*)al_malloc(sizeof(uint32_t));
+   device->name = (char*)al_malloc(len);
+
+   memset(device->identifier, 0, sizeof(uint32_t));
+   memset(device->name, 0, len);
+
+   memcpy(device->identifier, &i->index, sizeof(uint32_t));
+   strcpy(device->name, i->description);
+
+   _al_list_push_back_ex(device_list, device, _device_list_dtor);
 }
 
 static int pulseaudio_open(void)
@@ -144,6 +170,7 @@ static int pulseaudio_open(void)
       pa_mainloop_free(mainloop);
       return 1;
    }*/
+
    pa_operation_unref(op);
    pa_context_disconnect(c);
    pa_context_unref(c);
@@ -153,6 +180,7 @@ static int pulseaudio_open(void)
 
 static void pulseaudio_close(void)
 {
+   _al_list_destroy(device_list);
 }
 
 static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
@@ -511,6 +539,11 @@ static void pulseaudio_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    al_free(r->extra);
 }
 
+_AL_LIST* pulseaudio_get_devices()
+{
+   return device_list;
+}
+
 ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
 {
    "PulseAudio",
@@ -535,7 +568,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
    pulseaudio_allocate_recorder,
    pulseaudio_deallocate_recorder,
 
-   NULL
+   pulseaudio_get_devices
 };
 
 /* vim: set sts=3 sw=3 et: */
