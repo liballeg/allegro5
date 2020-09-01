@@ -4,8 +4,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("SDL")
 
-_AL_LIST* device_list;
-
 typedef struct SDL_VOICE
 {
    SDL_AudioDeviceID device;
@@ -20,6 +18,8 @@ typedef struct SDL_RECORDER
    SDL_AudioSpec spec;
    unsigned int fragment;
 } SDL_RECORDER;
+
+static _AL_LIST* device_list;
 
 static void audio_callback(void *userdata, Uint8 *stream, int len)
 {
