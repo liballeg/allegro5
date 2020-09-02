@@ -878,14 +878,14 @@ static void alsa_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    snd_pcm_close(data->capture_handle);
 }
 
-void _device_list_dtor(void* value, void* userdata)
+static void _device_list_dtor(void* value, void* userdata)
 {
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
 }
 
-_AL_LIST* alsa_get_devices()
+static _AL_LIST* alsa_get_devices()
 {
    if (!device_list) {
       device_list = _al_list_create();
