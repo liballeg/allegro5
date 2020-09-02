@@ -816,14 +816,14 @@ void _dsound_close_recorder(ALLEGRO_AUDIO_RECORDER *r) {
    capture_device = NULL;
 }
 
-void _device_list_dtor(void* value, void* userdata)
+static void _device_list_dtor(void* value, void* userdata)
 {
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
 }
 
-BOOL CALLBACK DSEnumCallback(
+static BOOL CALLBACK DSEnumCallback(
          LPGUID lpGuid,
          LPCTSTR lpcstrDescription,
          LPCTSTR lpcstrModule,
@@ -851,7 +851,7 @@ BOOL CALLBACK DSEnumCallback(
    return TRUE;
 }
 
-_AL_LIST* _dsound_get_devices()
+static _AL_LIST* _dsound_get_devices()
 {
    return device_list;
 }
