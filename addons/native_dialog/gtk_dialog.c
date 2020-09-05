@@ -16,6 +16,7 @@ bool _al_init_native_dialog_addon(void)
 {
    int argc = 0;
    char **argv = NULL;
+   gdk_set_allowed_backends("x11");
    if (!gtk_init_check(&argc, &argv)) {
       ALLEGRO_ERROR("gtk_init_check failed\n");
       return false;
