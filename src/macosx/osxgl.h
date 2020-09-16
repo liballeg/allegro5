@@ -17,8 +17,6 @@
 
 @property ALLEGRO_DISPLAY *display;
 
-/* A helper method to call setStyleMask from a separate thread. */
-- (void)setStyleMaskSelector:(NSNumber *)mask;
 @end
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
