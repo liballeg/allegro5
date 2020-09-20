@@ -22,6 +22,9 @@
 
 #include <windows.h>
 #include <windowsx.h>
+#include <winuser.h>
+#include <dinput.h>
+#include <dbt.h>
 
 /* Only used for Vista and up. */
 #ifndef WM_MOUSEHWHEEL
@@ -37,6 +40,8 @@
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_wunicode.h"
+#include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_wjoydxnu.h"
 #include "allegro5/platform/aintwin.h"
 
 
@@ -148,6 +153,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    HWND my_window;
    DWORD style;
    DWORD ex_style;
+   DEV_BROADCAST_DEVICEINTERFACE notification_filter;
    int pos_x, pos_y;
    bool center = false;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
@@ -181,6 +187,11 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    if (_al_win_register_touch_window)
       _al_win_register_touch_window(my_window, 0);
+
+   ZeroMemory(&notification_filter, sizeof(notification_filter));
+   notification_filter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
+   notification_filter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
+   RegisterDeviceNotification(my_window, &notification_filter, DEVICE_NOTIFY_WINDOW_HANDLE | DEVICE_NOTIFY_ALL_INTERFACE_CLASSES);
 
    GetWindowInfo(my_window, &wi);
 
@@ -981,6 +992,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                SWP_NOZORDER | SWP_NOACTIVATE);
             win_generate_resize_event(win_display);
         }
+        break;
+      case WM_DEVICECHANGE:
+        _al_win_joystick_dinput_trigger_enumeration();
         break;
    }
 

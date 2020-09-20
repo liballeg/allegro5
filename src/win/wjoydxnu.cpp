@@ -260,6 +260,9 @@ static ALLEGRO_JOYSTICK_DIRECTX joydx_joystick[MAX_JOYSTICKS];
 static HANDLE joydx_thread = NULL;
 static CRITICAL_SECTION joydx_thread_cs;
 
+/* whether the DirectInput devices need to be enumerated again */
+static bool need_device_enumeration = false;
+
 /* whether the user should call al_reconfigure_joysticks */
 static bool config_needs_merging = false;
 
@@ -387,6 +390,14 @@ static void joystick_dinput_acquire(void)
    }
 }
 
+
+/* _al_win_joystick_dinput_trigger_enumeration: [window thread]
+ *  Let joydx_thread_proc() know to reenumerate joysticks.
+ */
+void _al_win_joystick_dinput_trigger_enumeration(void)
+{
+  need_device_enumeration = true;
+}
 
 /* _al_win_joystick_dinput_unacquire: [window thread]
  *  Unacquires the joystick devices.
@@ -1398,8 +1409,12 @@ static unsigned __stdcall joydx_thread_proc(LPVOID unused)
 
       EnterCriticalSection(&joydx_thread_cs);
       {
+         /* handle hot plugging */
          if (al_get_time() > last_update+1 || result == WAIT_TIMEOUT) {
-            joydx_scan(true);
+            if (need_device_enumeration) {
+              joydx_scan(true);
+              need_device_enumeration = false;
+            }
             last_update = al_get_time();
          }
 
