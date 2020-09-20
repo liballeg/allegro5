@@ -84,6 +84,17 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX
    char all_names[512]; /* button/stick/axis names with NUL terminators */
 } ALLEGRO_JOYSTICK_DIRECTX;
 
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void _al_win_joystick_dinput_trigger_enumeration(void);
+#ifdef __cplusplus
+}
+#endif
+
+
 #endif
 
 /* vim: set sts=3 sw=3 et: */
