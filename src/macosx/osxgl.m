@@ -1632,7 +1632,6 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
       [fmt release];
       [view release];
       if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-           // TODO fix main thread
            NSRect sc = [[dpy->win screen] frame];
            dpy->parent.w = sc.size.width;
            dpy->parent.h = sc.size.height;
