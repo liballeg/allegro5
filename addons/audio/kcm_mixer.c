@@ -218,7 +218,10 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          if (spl->pos < spl->spl_data.len && spl->pos >= 0) {
             return true;
          }
-         spl->pos = 0;
+         if (spl->step >= 0)
+            spl->pos = 0;
+         else
+            spl->pos = spl->spl_data.len - 1;
          spl->is_playing = false;
          return false;
 
