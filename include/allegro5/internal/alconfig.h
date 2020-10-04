@@ -58,6 +58,8 @@
 #include "allegro5/platform/astdbool.h"
 
 
+/* 1 << 31 represented as a signed int */
+#define _ALLEGRO_UNSTABLE_BIT_SET INT32_MIN
 
 /* special definitions for the GCC compiler */
 #ifdef __GNUC__
