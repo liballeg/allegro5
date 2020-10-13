@@ -396,7 +396,11 @@ static void joystick_dinput_acquire(void)
  */
 void _al_win_joystick_dinput_trigger_enumeration(void)
 {
+  if (!joystick_dinput)
+    return;
+  EnterCriticalSection(&joydx_thread_cs);
   need_device_enumeration = true;
+  LeaveCriticalSection(&joydx_thread_cs);
 }
 
 /* _al_win_joystick_dinput_unacquire: [window thread]
