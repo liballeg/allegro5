@@ -847,7 +847,7 @@ HMODULE _al_win_safe_load_library(const char *filename)
    other_dirs[1] = path2 ? _twin_ustr_to_tchar(al_path_ustr(path2, '\\')) : NULL;
    other_dirs[2] = NULL; /* sentinel */
    tfilename = _twin_utf8_to_tchar(filename);
-   _tcsncpy_s(buf, MAX_PATH, tfilename, _TRUNCATE);
+   _tcsncpy(buf, tfilename, MAX_PATH);
    al_free(tfilename);
    if (PathFindOnPath(buf, other_dirs)) {
       char* tmp = _twin_tchar_to_utf8(buf);
