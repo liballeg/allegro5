@@ -18,7 +18,7 @@
 #define __al_included_allegro5_allegro_direct3d_h
 
 #include <d3d9.h>
-#if defined ALLEGRO_CFG_SHADER_HLSL && defined __cplusplus
+#if defined ALLEGRO_CFG_D3DX9 && defined __cplusplus
 #include <d3dx9.h>
 #endif
 #include "allegro5/platform/alplatf.h"

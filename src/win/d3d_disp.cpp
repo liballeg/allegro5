@@ -1861,7 +1861,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    s[ALLEGRO_SUPPORT_NPOT_BITMAP] = al_have_d3d_non_pow2_texture_support();
    s[ALLEGRO_CAN_DRAW_INTO_BITMAP] = render_to_texture_supported;
 
-#ifdef ALLEGRO_CFG_SHADER_HLSL
+#ifdef ALLEGRO_CFG_D3DX9
    _al_load_d3dx9_module();
 #endif
 
@@ -2654,7 +2654,7 @@ void _al_d3d_shutdown_display(void)
    FreeLibrary(_al_d3d_module);
    _al_d3d_module = NULL;
 
-#ifdef ALLEGRO_CFG_SHADER_HLSL
+#ifdef ALLEGRO_CFG_D3DX9
    _al_unload_d3dx9_module();
 #endif
 
