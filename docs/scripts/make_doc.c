@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(_BSD_SOURCE) || defined(_SVID_SOURCE) || (_XOPEN_SOURCE >= 500)
+#if defined(_BSD_SOURCE) || defined(_SVID_SOURCE) || (_XOPEN_SOURCE >= 500) || defined(__APPLE__)
    #include <unistd.h>
    #define USE_MKSTEMP 1
 #elif defined(_MSC_VER)
@@ -256,7 +256,7 @@ void call_pandoc(const char *input, const char *output,
       }
    }
 
-   sprintf(cmd, "\"%s\" %s %s %s --to %s --output %s",
+   sprintf(cmd, "\"%s\" %s %s %s --from markdown --to %s --output %s",
       pandoc, input_native, pandoc_options, extra_options, to_format, output);
    if (system(cmd) != 0) {
       d_abort("system call failed: ", cmd);
