@@ -5,6 +5,7 @@
  *
  *    --pandoc PANDOC
  *    --protos PROTOS-FILE
+ *    --examples EXAMPLES-FILE
  *    --to FORMAT (html, man, latex, texinfo, etc.)
  *    --raise-sections
  *
@@ -32,6 +33,7 @@
 dstr pandoc                = "pandoc";
 dstr pandoc_options        = "";
 dstr protos_file           = "protos";
+dstr examples_file         = "";
 dstr to_format             = "html";
 dstr allegro5_cfg_filename = "";
 bool raise_sections        = false;
@@ -40,11 +42,13 @@ dstr tmp_pandoc_output;
 dstr git_ref               = "master";
 
 static Aatree *protos = &aa_nil;
+static Aatree *examples = &aa_nil;
 static Aatree *sources = &aa_nil;
 
 
 static int process_options(int argc, char *argv[]);
 static void load_prototypes(const char *filename);
+static void load_examples(const char *filename);
 static void generate_temp_file(char *filename);
 static void remove_temp_files(void);
 
@@ -53,6 +57,7 @@ int main(int argc, char *argv[])
 {
    argc = process_options(argc, argv);
    load_prototypes(protos_file);
+   load_examples(examples_file);
 
    generate_temp_file(tmp_preprocess_output);
    generate_temp_file(tmp_pandoc_output);
@@ -86,6 +91,10 @@ static int process_options(int argc, char *argv[])
       }
       else if (streq(argv[i], "--protos")) {
          d_assign(protos_file, argv[i + 1]);
+         i += 2;
+      }
+      else if (streq(argv[i], "--examples")) {
+         d_assign(examples_file, argv[i + 1]);
          i += 2;
       }
       else if (streq(argv[i], "--to")) {
@@ -158,6 +167,35 @@ static void load_prototypes(const char *filename)
    d_close_input();
 }
 
+static void load_examples(const char *filename)
+{
+   dstr line;
+   const char *name;
+   const char *files;
+
+   if (filename == NULL || *filename == '\0') {
+      return;
+   }
+
+   d_open_input(filename);
+
+   while (d_getline(line)) {
+      if (d_match(line, "([^:]*): ")) {
+         name = d_submatch(1);
+         files = d_after_match;
+         examples = aa_insert(examples, name, files);
+      }
+   }
+
+   d_close_input();
+}
+
+const char* example_source(dstr buffer, const char *file_name, const char *line_number) {
+  sprintf(buffer,  "https://github.com/liballeg/allegro5/blob/%s/%s#L%s",
+	  git_ref, file_name, line_number);
+  return buffer;
+}
+
 
 char *load_allegro5_cfg(void)
 {
@@ -203,6 +241,10 @@ const char *lookup_source(const char *name)
    return (r) ? r : "";
 }
 
+const char *lookup_example(const char *name)
+{
+   return aa_search(examples, name);
+}
 
 void generate_temp_file(char *filename)
 {
@@ -262,5 +304,9 @@ void call_pandoc(const char *input, const char *output,
       d_abort("system call failed: ", cmd);
    }
 }
+
+/* Local Variables: */
+/* c-basic-offset: 3 */
+/* End: */
 
 /* vim: set sts=3 sw=3 et: */
