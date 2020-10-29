@@ -184,6 +184,8 @@ endif
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
 CFLAGS = -DALLEGRO_LIB_BUILD
+C_STD = -std=gnu89
+CXX_STD = -std=gnu++98
 
 
 
@@ -336,10 +338,10 @@ endef
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.o: %.c
-	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+	$(CC) $(COMPILE_FLAGS) $(C_STD) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.cpp
-	$(CC) -fno-exceptions $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+	$(CC) -fno-exceptions $(COMPILE_FLAGS) $(CXX_STD) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.s
 	$(CC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
@@ -353,7 +355,7 @@ obj/djgpp/setupdat.o: obj/djgpp/setupdat.s
 	$(CC) -o obj/djgpp/setupdat.o -c obj/djgpp/setupdat.s
 
 $(OBJ_DIR)/setup.o: setup/setup.c
-	$(CC) $(COMPILE_FLAGS) -DSETUP_USE_COMPILED_DATAFILES -I. -I./include -o $(OBJ_DIR)/setup.o -c setup/setup.c
+	$(CC) $(COMPILE_FLAGS) $(C_STD) -DSETUP_USE_COMPILED_DATAFILES -I. -I./include -o $(OBJ_DIR)/setup.o -c setup/setup.c
 
 setup/setup.exe: $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
 	$(CC) $(LFLAGS) -o setup/setup.exe $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
@@ -381,7 +383,7 @@ obj/djgpp/asmdef.inc: obj/djgpp/asmdef.exe
 	obj/djgpp/asmdef.exe obj/djgpp/asmdef.inc
 
 obj/djgpp/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/asmcapa.h
-	$(CC) -O $(WFLAGS) -I. -I./include -o obj/djgpp/asmdef.exe src/i386/asmdef.c
+	$(CC) -O $(WFLAGS) $(C_STD) -I. -I./include -o obj/djgpp/asmdef.exe src/i386/asmdef.c
 
 endif
 
