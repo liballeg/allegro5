@@ -343,7 +343,7 @@ static void *map_to_process(void *linear, unsigned long limit)
 
 
 /* for the save_ds() / load_ds() functions */
-static unsigned short saved_ds = 0;
+unsigned short saved_ds = 0;
 
 
 
