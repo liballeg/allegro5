@@ -5,7 +5,7 @@
 /** Part of the Windows DirectInput joystick
  * types are shared here for use by the haptic susbystem. */
 
-/* arbitrary limit to make life easier; this was the limit in Allegro 4.1.x */
+/* arbitrary limit */
 #define MAX_JOYSTICKS        32
 
 /* these limits are from DIJOYSTICK_STATE in dinput.h */
