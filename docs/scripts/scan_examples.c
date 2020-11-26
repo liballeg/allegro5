@@ -101,7 +101,12 @@ int main(int argc, char* argv[])
    }
    /* Sort the files */
    qsort(lookup, argc, sizeof(lookup_t), compare);
-   /* Output the EXAMPLES_PER_API (three) 'best' examples */
+   /* Output the EXAMPLES_PER_API (three) 'best' examples.
+    *
+    * The 'best' is defined as the probability of having a usage of an API in
+    * the set of all other API usages in the example. Effectively, this means
+    * that examples with fewer other APIs showcased get selected.
+    */
    for (i = 0; i < apis.count; ++i) {
       int found = 0;
       for (j = 0; j < argc && found < EXAMPLES_PER_API; ++j) {
