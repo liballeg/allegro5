@@ -29,9 +29,9 @@
 static dstr protos;
 
 typedef struct {
-  char **items;
-  int count;
-  int capacity;
+   char **items;
+   int count;
+   int capacity;
 } slist_t;
 
 static void sl_init(slist_t *);
@@ -62,87 +62,88 @@ static int compare(const void *pa, const void *pb) {
 
 int main(int argc, char* argv[])
 {
-  dstr line;
-  int i, j;
-  argv = responsefile(&argc, argv);
-  /* Handle --protos flag */
-  if (argc >=3 && strcmp(argv[1], "--protos") == 0) {
-     strcpy(protos, argv[2]);
-     argc -= 2;
-     memmove(&argv[1], &argv[3], argc * sizeof(char*));
-  } else {
-     strcpy(protos, "protos");
-  }
-  d_cleanup = cleanup;
-  sl_init(&apis);
-  load_api_list();
-  table = calloc(apis.count * argc, sizeof(int));
+   dstr line;
+   int i, j;
+   argv = responsefile(&argc, argv);
+   /* Handle --protos flag */
+   if (argc >=3 && strcmp(argv[1], "--protos") == 0) {
+      strcpy(protos, argv[2]);
+      argc -= 2;
+      memmove(&argv[1], &argv[3], argc * sizeof(char*));
+   } else {
+      strcpy(protos, "protos");
+   }
+   d_cleanup = cleanup;
+   sl_init(&apis);
+   load_api_list();
+   table = calloc(apis.count * argc, sizeof(int));
 
-  lookup = calloc(argc, sizeof(lookup_t));
-  for (j = 0; j < argc; ++j) {
-     lookup[j].index = j;
-  }
+   lookup = calloc(argc, sizeof(lookup_t));
+   for (j = 0; j < argc; ++j) {
+      lookup[j].index = j;
+   }
 
-  for (j = 1; j < argc; ++j) {
-    d_open_input(argv[j]);
-    while (d_getline(line)) {
-      for (i = 0; i < apis.count; ++i) {
-	if (strstr(line, apis.items[i])) {
-	  int *ptr = &table[i + j * apis.count];
-	  if (*ptr == 0) {
-	    *ptr = d_line_num;
-	    ++lookup[j].count;
-	  }
-	}
+   
+   for (j = 1; j < argc; ++j) {
+      d_open_input(argv[j]);
+      while (d_getline(line)) {
+         for (i = 0; i < apis.count; ++i) {
+            if (strstr(line, apis.items[i])) {
+               int *ptr = &table[i + j * apis.count];
+               if (*ptr == 0) {
+                  *ptr = d_line_num;
+                  ++lookup[j].count;
+               }
+            }
+         }
       }
-    }
-    d_close_input();
-  }
-  /* Sort the files */
-  qsort(lookup, argc, sizeof(lookup_t), compare);
-  /* Output the EXAMPLES_PER_API (three) 'best' examples */
-  for (i = 0; i < apis.count; ++i) {
-     int found = 0;
-     for (j = 0; j < argc && found < EXAMPLES_PER_API; ++j) {
-	int index = lookup[j].index;
-	int line_num = table[i + index * apis.count];
-	if (line_num != 0) {
-	   if (found == 0) {
-	      d_printf("%s: ", apis.items[i]);
-	   }
-	   ++found;
-	   d_printf("%s:%d ", argv[index], line_num);
-	}
-     }
-     if (found > 0) {
-	d_print("\n");
-     }
-  }
-  d_cleanup();
-  return 0;
+      d_close_input();
+   }
+   /* Sort the files */
+   qsort(lookup, argc, sizeof(lookup_t), compare);
+   /* Output the EXAMPLES_PER_API (three) 'best' examples */
+   for (i = 0; i < apis.count; ++i) {
+      int found = 0;
+      for (j = 0; j < argc && found < EXAMPLES_PER_API; ++j) {
+            int index = lookup[j].index;
+            int line_num = table[i + index * apis.count];
+            if (line_num != 0) {
+               if (found == 0) {
+                     d_printf("%s: ", apis.items[i]);
+               }
+               ++found;
+               d_printf("%s:%d ", argv[index], line_num);
+            }
+      }
+      if (found > 0) {
+            d_print("\n");
+      }
+   }
+   d_cleanup();
+   return 0;
 }
 
 void cleanup(void)
 {
-  free(table);
-  free(lookup);
-  sl_free(&apis);
+   free(table);
+   free(lookup);
+   sl_free(&apis);
 }
 
 void sl_init(slist_t* s)
 {
-  s->items = NULL;
-  s->count = s->capacity = 0;
+   s->items = NULL;
+   s->count = s->capacity = 0;
 }
 
 void sl_append(slist_t *s, const char *item)
 {
-  if (s->count == s->capacity) {
-    int capacity = s->capacity == 0 ? SL_INITIAL_CAPACITY : (s->capacity * 2);
-    s->items = realloc(s->items, capacity * sizeof(char*));
-    s->capacity = capacity;
-  }
-  s->items[s->count++] = strcpy(malloc(1+strlen(item)), item);
+   if (s->count == s->capacity) {
+      int capacity = s->capacity == 0 ? SL_INITIAL_CAPACITY : (s->capacity * 2);
+      s->items = realloc(s->items, capacity * sizeof(char*));
+      s->capacity = capacity;
+   }
+   s->items[s->count++] = strcpy(malloc(1+strlen(item)), item);
 }
 
 void sl_free(slist_t *s)
@@ -157,30 +158,31 @@ void sl_clear(slist_t *s)
 {
    int i;
    for (i = 0; i < s->count; ++i) {
-      free(s->items[i]);
+         free(s->items[i]);
    }
    s->count = 0;
 }
+
 void load_api_list(void)
 {
    dstr line;
    d_open_input(protos);
    while (d_getline(line)) {
-      int i;
-      bool found = false;
-      char *ptr = line;
-      strsep(&ptr, ":");
-      for (i = apis.count - 1; i >=0; --i) {
-	 if (strcmp(line, apis.items[i]) == 0) {
-	    found = true;
-	    break;
-	 }
-      }
-      if (!found) {
-	 sl_append(&apis, line);
-      }
+         int i;
+         bool found = false;
+         char *ptr = line;
+         strsep(&ptr, ":");
+         for (i = apis.count - 1; i >=0; --i) {
+            if (strcmp(line, apis.items[i]) == 0) {
+                  found = true;
+                  break;
+            }
+         }
+         if (!found) {
+            sl_append(&apis, line);
+         }
    }
-  d_close_input();
+   d_close_input();
 }
 
 /* Re-process the command line args by loading any response files */
@@ -192,27 +194,27 @@ char **responsefile(int *pargc, char **argv)
    int i;
    bool found_at = false;
    for (i = 1; i < argc; ++i) {
-      if (*argv[i] == '@') {
-	 found_at = true;
-	 break;
-      }
+         if (*argv[i] == '@') {
+            found_at = true;
+            break;
+         }
    }
    if (!found_at) {
-      /* Nothing to do */
-      return argv;
+         /* Nothing to do */
+         return argv;
    }
    sl_clear(&args);
    for (i = 0; i < argc; ++i) {
-      if (*argv[i] == '@') {
-	 d_open_input(argv[i] + 1);
-	 dstr line;
-	 while (d_getline(line)) {
-	    sl_append(&args, line);
-	 }
-	 d_close_input();
-      } else {
-	 sl_append(&args, argv[i]);
-      }
+         if (*argv[i] == '@') {
+            d_open_input(argv[i] + 1);
+            dstr line;
+            while (d_getline(line)) {
+                  sl_append(&args, line);
+            }
+            d_close_input();
+         } else {
+            sl_append(&args, argv[i]);
+         }
    }
    /* Make a copy because code might alter the argv array */
    new_argv = realloc(new_argv, args.count * sizeof(char*));

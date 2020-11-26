@@ -41,9 +41,9 @@ static void preprocess(void)
 
    while (d_getline(line)) {
       /* If this is a heading, a new section is about to start.
-	 Insert the pending code examples (if any) beforehand. */
+         Insert the pending code examples (if any) beforehand. */
       if (line[0] == '#') {
-	 insert_examples();
+         insert_examples();
       }
 
       /* Raise sections by one level. Top-most becomes the document title. */
@@ -80,7 +80,7 @@ static void preprocess(void)
             d_printf("~~~~");
          }
          d_printf("\n[Source Code](%s)\n", source);
-	 strcpy(current_api, name);
+         strcpy(current_api, name);
       }
       else if (d_match(line, "^__ALLEGRO_5_CFG")) {
          char *allegro5_cfg = load_allegro5_cfg();
@@ -104,7 +104,7 @@ static void postprocess_latex(void)
        * T-Rex doesn't seem to backtrack properly if we write "(sub)*".
        */
       if (d_match(line,
-	    "\\\\(sub)?(sub)?(sub)?(sub)?section\\{((al|ALLEGRO)[^}]+)")) {
+            "\\\\(sub)?(sub)?(sub)?(sub)?section\\{((al|ALLEGRO)[^}]+)")) {
          d_print(line);
          d_printf("\\label{");
          print_sans_backslashes(d_submatch(5));
@@ -149,23 +149,23 @@ static void insert_examples(void) {
    if (*current_api) {
       const char* exs = lookup_example(current_api);
       if (exs) {
-	 /* This will be of the form "FILE:LINE FILE:LINE FILE:LINE " */
-	 dstr items;
-	 char* pitem = strcpy(items, exs);
-	 d_print("Examples:\n");
-	 char* item;
-	 while ((item = strsep(&pitem, " ")) != NULL) {
-	    dstr buffer;
-	    char* filename = strsep(&item, ":");
-	    if (item) {
-	       dstr base;
-	       d_basename(filename, NULL, base);
-	       d_printf("* [%s](%s)\n",
-			base,
-			example_source(buffer, filename, item));
-	    }
-	 }
-	 d_print("");
+         /* This will be of the form "FILE:LINE FILE:LINE FILE:LINE " */
+         dstr items;
+         char* pitem = strcpy(items, exs);
+         d_print("Examples:\n");
+         char* item;
+         while ((item = strsep(&pitem, " ")) != NULL) {
+            dstr buffer;
+            char* filename = strsep(&item, ":");
+            if (item) {
+               dstr base;
+               d_basename(filename, NULL, base);
+               d_printf("* [%s](%s)\n",
+                        base,
+                        example_source(buffer, filename, item));
+            }
+         }
+         d_print("");
       }
       strcpy(current_api, "");
    }

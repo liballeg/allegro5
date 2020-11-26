@@ -278,7 +278,7 @@ if(WANT_DOCS_HTML)
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.a.html
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.z.html
                 ${SEARCH_INDEX_JS}
-		${API_EXAMPLES}
+                ${API_EXAMPLES}
                 make_doc
                 insert_timestamp
             COMMAND
