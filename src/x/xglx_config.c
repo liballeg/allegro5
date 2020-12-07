@@ -485,7 +485,7 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 }
 
 static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
-   GLXContext ctx, bool forward_compat, bool want_es, int major, int minor)
+   GLXContext ctx, bool forward_compat, bool want_es, bool core_profile, int major, int minor)
 {
    typedef GLXContext (*GCCA_PROC) (Display*, GLXFBConfig, GLXContext, Bool, const int*);
    GCCA_PROC _xglx_glXCreateContextAttribsARB = NULL;
@@ -519,6 +519,10 @@ static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
       attrib[6] = GLX_CONTEXT_PROFILE_MASK_ARB;
       attrib[7] = GLX_CONTEXT_ES_PROFILE_BIT_EXT;
    }
+   else if (core_profile) {
+      attrib[6] = GLX_CONTEXT_PROFILE_MASK_ARB;
+      attrib[7] = GLX_CONTEXT_CORE_PROFILE_BIT_ARB;
+   }
    return _xglx_glXCreateContextAttribsARB(dpy, fb, ctx, True, attrib);
 }
 
@@ -541,20 +545,23 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 
    if (glx->fbc) {
       bool forward_compat = (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0;
+      bool core_profile = (disp->flags & ALLEGRO_OPENGL_CORE_PROFILE) != 0;
       /* Create a GLX context from FBC. */
       if (disp->flags & ALLEGRO_OPENGL_ES_PROFILE) {
          if (major == 0)
             major = 2;
          glx->context = create_context_new(glx->glx_version,
             system->gfxdisplay, *glx->fbc, existing_ctx, forward_compat,
-            true, major, minor);
+            true, core_profile, major, minor);
       }
-      else if ((disp->flags & ALLEGRO_OPENGL_3_0) || major != 0) {
+      else if ((disp->flags & ALLEGRO_OPENGL_3_0) || major != 0 || core_profile) {
          if (major == 0)
             major = 3;
+         if (core_profile && major == 3 && minor < 2) // core profile requires at least 3.2
+            minor = 2;
          glx->context = create_context_new(glx->glx_version,
             system->gfxdisplay, *glx->fbc, existing_ctx, forward_compat,
-               false, major, minor);
+               false, core_profile, major, minor);
          /* TODO: Right now Allegro's own OpenGL driver only works with a 3.0+
           * context when using the programmable pipeline, for some reason. All
           * that's missing is probably a default shader though.
