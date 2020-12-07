@@ -160,6 +160,13 @@ ALLEGRO_OPENGL_ES_PROFILE
     Note: Currently this is only supported by the X11/GLX driver.
     Since: 5.1.13
 
+ALLEGRO_OPENGL_CORE_PROFILE
+:   Used together with ALLEGRO_OPENGL, requests that the OpenGL context
+    uses the OpenGL Core profile. A specific version can be requested
+    with [al_set_new_display_option].
+    Note: Currently this is only supported by the X11/GLX driver.
+    Since: 5.2.7
+
 ALLEGRO_DIRECT3D
 :   Require the driver to do rendering with Direct3D and
     provide a Direct3D device.

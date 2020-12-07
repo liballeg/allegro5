@@ -102,6 +102,7 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
    GLenum e;
    bool ok;
    bool restore_fbo = false;
+   bool reset_alignment = false;
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
       /* Never pick compressed formats with ANY, as it interacts weirdly with
@@ -135,16 +136,20 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
-   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+   int previous_alignment;
+   glGetIntegerv(GL_PACK_ALIGNMENT, &previous_alignment);
    {
       const int pixel_size = al_get_pixel_size(format);
       const int pixel_alignment = ogl_pixel_alignment(pixel_size);
-      glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
-      e = glGetError();
-      if (e) {
-         ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
-            pixel_alignment, _al_gl_error_string(e));
-         ok = false;
+      if (previous_alignment != pixel_alignment) {
+         reset_alignment = true;
+         glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
+               pixel_alignment, _al_gl_error_string(e));
+            ok = false;
+         }
       }
    }
 
@@ -166,7 +171,9 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-   glPopClientAttrib();
+   if (reset_alignment) {
+      glPixelStorei(GL_PACK_ALIGNMENT, previous_alignment);
+   }
 
    /* Restore state after switching FBO. */
    if (restore_fbo) {
@@ -438,6 +445,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_DISPLAY *disp;
    int orig_format;
    bool biased_alpha = false;
+   bool reset_alignment = false;
    GLenum e;
 
    disp = al_get_current_display();
@@ -453,15 +461,19 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    }
 
    /* Keep this in sync with ogl_lock_region. */
-   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+   int previous_alignment;
+   glGetIntegerv(GL_UNPACK_ALIGNMENT, &previous_alignment);
    {
       const int lock_pixel_size = al_get_pixel_size(lock_format);
       const int pixel_alignment = ogl_pixel_alignment(lock_pixel_size);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
-      e = glGetError();
-      if (e) {
-         ALLEGRO_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
-            pixel_alignment, _al_gl_error_string(e));
+      if (pixel_alignment != previous_alignment) {
+         reset_alignment = true;
+         glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
+               pixel_alignment, _al_gl_error_string(e));
+         }
       }
    }
    if (exactly_15bpp(lock_format)) {
@@ -504,7 +516,9 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    if (biased_alpha) {
       glPixelTransferi(GL_ALPHA_BIAS, 0);
    }
-   glPopClientAttrib();
+   if (reset_alignment) {
+      glPixelStorei(GL_UNPACK_ALIGNMENT, previous_alignment);
+   }
 
    if (old_disp) {
       _al_set_current_display_only(old_disp);
