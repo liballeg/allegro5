@@ -154,15 +154,18 @@ static void insert_examples(void) {
          char* pitem = strcpy(items, exs);
          d_print("Examples:\n");
          char* item;
-         while ((item = strsep(&pitem, " ")) != NULL) {
+         for (item = strtok(pitem, " "); item; item = strtok(NULL, " ")) {
             dstr buffer;
-            char* filename = strsep(&item, ":");
-            if (item) {
+            char* colon = strchr(item, ':');
+            if (colon) {
+               char* filename = item;
+               char* line = colon + 1;
+               *colon = '\0';
                dstr base;
                d_basename(filename, NULL, base);
                d_printf("* [%s](%s)\n",
                         base,
-                        example_source(buffer, filename, item));
+                        example_source(buffer, filename, line));
             }
          }
          d_print("");
@@ -173,6 +176,7 @@ static void insert_examples(void) {
 
 /* Local Variables: */
 /* c-basic-offset: 3 */
+/* indent-tabs-mode: nil */
 /* End: */
 
 /* vim: set sts=3 sw=3 et: */

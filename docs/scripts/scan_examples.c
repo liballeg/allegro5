@@ -175,12 +175,14 @@ void load_api_list(void)
    while (d_getline(line)) {
          int i;
          bool found = false;
-         char *ptr = line;
-         strsep(&ptr, ":");
-         for (i = apis.count - 1; i >=0; --i) {
-            if (strcmp(line, apis.items[i]) == 0) {
+         char *ptr = strchr(line, ':');
+         if (ptr) {
+            *ptr = '\0';
+            for (i = apis.count - 1; i >=0; --i) {
+               if (strcmp(line, apis.items[i]) == 0) {
                   found = true;
                   break;
+               }
             }
          }
          if (!found) {
@@ -232,5 +234,6 @@ char **responsefile(int *pargc, char **argv)
 
 /* Local Variables: */
 /* c-basic-offset: 3 */
+/* indent-tabs-mode: nil */
 /* End: */
 /* vim: set sts=3 sw=3 et: */
