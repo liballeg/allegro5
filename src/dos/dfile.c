@@ -144,7 +144,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 
    if (!ff_data) {
       *allegro_errno = ENOMEM;
-      return NULL;
+      return -1;
    }
 
    /* attach it to the info structure */
