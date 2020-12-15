@@ -991,11 +991,10 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       }
 
       {
-         LARGE_INTEGER due_time;
-         due_time.HighPart = 0;
-         due_time.LowPart = 150; /* 15 ms (arbitrary) */
+         LARGE_INTEGER due_time = { 0 };
+         due_time.QuadPart = -1; /* Start ASAP... */
          SetWaitableTimer(joy->waker_event,
-                          &due_time, true, /* periodic */
+                          &due_time, 15, /* ... then periodic, every 15ms*/
                           NULL, NULL, false);
       }
    }
