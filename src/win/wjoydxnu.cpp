@@ -156,9 +156,18 @@ DEFINE_PRIVATE_GUID(__al_GUID_Slider,0xA36D02E4,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x4
 DEFINE_PRIVATE_GUID(__al_GUID_Button,0xA36D02F0,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 DEFINE_PRIVATE_GUID(__al_GUID_POV,   0xA36D02F2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 
-DEFINE_PRIVATE_GUID(__al_IID_IDirectInput8A,         0xBF798030,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00);
-DEFINE_PRIVATE_GUID(__al_IID_IDirectInputDevice8A,   0x54D41080,0xDC15,0x4833,0xA4,0x1B,0x74,0x8F,0x73,0xA3,0x81,0x79);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInput8W,      0xBF798031,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInput8A,      0xBF798030,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInputDevice8A,0x54D41080,0xDC15,0x4833,0xA4,0x1B,0x74,0x8F,0x73,0xA3,0x81,0x79);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInputDevice8W,0x54D41081,0xDC15,0x4833,0xA4,0x1B,0x74,0x8F,0x73,0xA3,0x81,0x79);
 
+#ifdef UNICODE
+#define __al_IID_IDirectInput8 __al_IID_IDirectInput8W
+#define __al_IID_IDirectInputDevice8 __al_IID_IDirectInputDevice8W
+#else
+#define __al_IID_IDirectInput __al_IID_IDirectInput8A
+#define __al_IID_IDirectInputDevice __al_IID_IDirectInputDevice8A
+#endif
 
 /* definition of DirectInput Joystick was borrowed from Wine implementation */
 #define DIDFT_AXIS              0x00000003
@@ -250,6 +259,9 @@ static ALLEGRO_JOYSTICK_DIRECTX joydx_joystick[MAX_JOYSTICKS];
 /* for the background thread */
 static HANDLE joydx_thread = NULL;
 static CRITICAL_SECTION joydx_thread_cs;
+
+/* whether the DirectInput devices need to be enumerated again */
+static bool need_device_enumeration = false;
 
 /* whether the user should call al_reconfigure_joysticks */
 static bool config_needs_merging = false;
@@ -378,6 +390,18 @@ static void joystick_dinput_acquire(void)
    }
 }
 
+
+/* _al_win_joystick_dinput_trigger_enumeration: [window thread]
+ *  Let joydx_thread_proc() know to reenumerate joysticks.
+ */
+void _al_win_joystick_dinput_trigger_enumeration(void)
+{
+  if (!joystick_dinput)
+    return;
+  EnterCriticalSection(&joydx_thread_cs);
+  need_device_enumeration = true;
+  LeaveCriticalSection(&joydx_thread_cs);
+}
 
 /* _al_win_joystick_dinput_unacquire: [window thread]
  *  Unacquires the joystick devices.
@@ -883,7 +907,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       goto Error;
 
    /* query the DirectInputDevice2 interface needed for the poll() method */
-   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, __al_IID_IDirectInputDevice8A, &temp);
+   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, __al_IID_IDirectInputDevice8, &temp);
    IDirectInputDevice8_Release(_dinput_device1);
    if (FAILED(hr))
       goto Error;
@@ -1155,7 +1179,7 @@ static bool joydx_init_joystick(void)
    }
 
    /* get the DirectInput interface */
-   hr = _al_dinput_create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, __al_IID_IDirectInput8A, u.v, NULL);
+   hr = _al_dinput_create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, __al_IID_IDirectInput8, u.v, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("Failed to create DirectInput interface\n");
       FreeLibrary(_al_dinput_module);
@@ -1389,8 +1413,12 @@ static unsigned __stdcall joydx_thread_proc(LPVOID unused)
 
       EnterCriticalSection(&joydx_thread_cs);
       {
+         /* handle hot plugging */
          if (al_get_time() > last_update+1 || result == WAIT_TIMEOUT) {
-            joydx_scan(true);
+            if (need_device_enumeration) {
+              joydx_scan(true);
+              need_device_enumeration = false;
+            }
             last_update = al_get_time();
          }
 

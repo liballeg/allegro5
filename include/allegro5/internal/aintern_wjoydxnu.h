@@ -5,8 +5,8 @@
 /** Part of the Windows DirectInput joystick
  * types are shared here for use by the haptic susbystem. */
 
-/* arbitrary limit to make life easier; this was the limit in Allegro 4.1.x */
-#define MAX_JOYSTICKS        8
+/* arbitrary limit */
+#define MAX_JOYSTICKS        32
 
 /* these limits are from DIJOYSTICK_STATE in dinput.h */
 #define MAX_SLIDERS          2
@@ -14,7 +14,7 @@
 #define MAX_BUTTONS          32
 
 /* the number of joystick events that DirectInput is told to buffer */
-#define DEVICE_BUFFER_SIZE   10
+#define DEVICE_BUFFER_SIZE   128
 
 /* make sure all the constants add up */
 /* the first two sticks are (x,y,z) and (rx,ry,rz) */
@@ -83,6 +83,17 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX
    char name[80];
    char all_names[512]; /* button/stick/axis names with NUL terminators */
 } ALLEGRO_JOYSTICK_DIRECTX;
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void _al_win_joystick_dinput_trigger_enumeration(void);
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif
 

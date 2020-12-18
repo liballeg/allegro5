@@ -106,6 +106,7 @@ Restart:
          if (event.keyboard.keycode >= ALLEGRO_KEY_0 && event.keyboard.keycode <= ALLEGRO_KEY_9) {
             bool loop = event.keyboard.modifiers & ALLEGRO_KEYMOD_ALT;
             bool bidir = event.keyboard.modifiers & ALLEGRO_KEYMOD_CTRL;
+            bool reversed = event.keyboard.modifiers & ALLEGRO_KEYMOD_SHIFT;
             i = (event.keyboard.keycode - ALLEGRO_KEY_0 + 9) % 10;
             if (sample_data[i]) {
                ALLEGRO_SAMPLE_ID new_sample_id;
@@ -125,6 +126,12 @@ Restart:
                }
                bool ret = al_play_sample(sample_data[i], 1.0, 0.0, 1.0,
                   playmode, &new_sample_id);
+               if (reversed) {
+                  ALLEGRO_SAMPLE_INSTANCE* inst = al_lock_sample_id(&new_sample_id);
+                  al_set_sample_instance_position(inst, al_get_sample_instance_length(inst) - 1);
+                  al_set_sample_instance_speed(inst, -1);
+                  al_unlock_sample_id(&new_sample_id);
+               }
                if (ret) {
                   log_printf("Playing %d %s\n", i, playmode_str);
                }
@@ -195,6 +202,9 @@ Restart:
             ALLEGRO_ALIGN_LEFT, "Alt 1-9 - play sounds with regular looping");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
+            ALLEGRO_ALIGN_LEFT, "Shift 1-9 - play sounds reversed");
+         y += dy;
+         al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
             ALLEGRO_ALIGN_LEFT, "p - pan the last played sound");
          y += 2 * dy;
          al_draw_text(font, al_map_rgb_f(0.5, 1., 0.5), 12, y,
@@ -219,7 +229,7 @@ Restart:
 
 done:
    al_destroy_display(display);
-   close_log(false);
+   close_log(true);
    return 0;
 }
 

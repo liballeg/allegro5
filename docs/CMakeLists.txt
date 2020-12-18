@@ -15,7 +15,7 @@ mark_as_advanced(CTAGS)
 
 #-----------------------------------------------------------------------------#
 
-option(DOC_GIT_REF "Git ref to use for source links in the documentation. If empty, will query git for this." "")
+set(DOC_GIT_REF "" CACHE STRING "Git ref to use for source links in the documentation. If empty, will query git for this.")
 
 set(REAL_DOC_GIT_REF "")
 if(DOC_GIT_REF)

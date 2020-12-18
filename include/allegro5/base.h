@@ -61,7 +61,7 @@
    /* 1 << 31 represented as a signed int to match the arg type of
     * al_install_system.
     */
-   #define ALLEGRO_UNSTABLE_BIT -2147483648
+   #define ALLEGRO_UNSTABLE_BIT _ALLEGRO_UNSTABLE_BIT_SET
 #else
    #define ALLEGRO_UNSTABLE_BIT  0
 #endif

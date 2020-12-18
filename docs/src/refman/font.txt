@@ -515,7 +515,7 @@ drawing it, or if you need a complex and/or custom layout, you can use [al_do_mu
 
 Since: 5.1.9
 
-See also: [al_do_multiline_text], [al_draw_multiline_text],
+See also: [al_do_multiline_text], [al_draw_multiline_ustr],
 [al_draw_multiline_textf]
 
 ### API: al_draw_multiline_ustr

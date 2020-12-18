@@ -15,6 +15,8 @@ extern dstr tmp_pandoc_output;
 
 const char *lookup_prototype(const char *name);
 const char *lookup_source(const char *name);
+const char *lookup_example(const char *name);
+const char* example_source(dstr buffer, const char *file_name, const char *line_number);
 extern void call_pandoc(const char *input, const char *output,
     const char *extra_options);
 extern void make_single_doc(int argc, char *argv[]);

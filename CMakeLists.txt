@@ -14,7 +14,10 @@
 
 # Set the project name.
 # We use C++ in a few cases.
-project(ALLEGRO C CXX)
+set(ALLEGRO_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
+set(ALLEGRO_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
+
+project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX} C CXX)
 
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 if(COMMAND cmake_policy)

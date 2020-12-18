@@ -78,7 +78,9 @@ set(LATEX_DIR ${CMAKE_CURRENT_BINARY_DIR}/latex)
 set(PDF_DIR ${CMAKE_CURRENT_BINARY_DIR}/pdf)
 
 set(PROTOS ${CMAKE_CURRENT_BINARY_DIR}/protos)
+set(API_EXAMPLES ${CMAKE_CURRENT_BINARY_DIR}/examples)
 set(PROTOS_TIMESTAMP ${PROTOS}.timestamp)
+set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 set(HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/html_refs)
 set(HTML_REFS_TIMESTAMP ${HTML_REFS}.timestamp)
 set(INDEX_ALL ${CMAKE_CURRENT_BINARY_DIR}/index_all.txt)
@@ -88,6 +90,7 @@ set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
 set(MAKE_PROTOS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_protos)
 set(MAKE_HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_html_refs)
 set(MAKE_INDEX ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_index)
+set(SCAN_EXAMPLES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/scan_examples)
 set(MAKE_DOC ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_doc
     --pandoc "${PANDOC}"
     --protos ${PROTOS}
@@ -110,6 +113,7 @@ add_executable(insert_timestamp
    scripts/insert_timestamp.c
    ${DAWK_SOURCES})
 add_executable(make_search_index scripts/make_search_index.c ${DAWK_SOURCES})
+add_executable(scan_examples scripts/scan_examples.c ${DAWK_SOURCES})
 
 #-----------------------------------------------------------------------------#
 #
@@ -181,6 +185,41 @@ endif()
 
 #-----------------------------------------------------------------------------#
 #
+# API Examples
+#
+#-----------------------------------------------------------------------------#
+
+# Build a list of all the API entries. Then cross-reference these against
+# which of the example files make use of them.
+
+set(RESP ${CMAKE_CURRENT_BINARY_DIR}/ex_files)
+
+file(GLOB EXAMPLE_FILES
+  ${EXAMPLES_DIR}/*.c
+  ${EXAMPLES_DIR}/*.cpp)
+
+file(GLOB EXAMPLE_FILES_REL
+  RELATIVE ${CMAKE_SOURCE_DIR}
+  ${EXAMPLES_DIR}/*.c
+  ${EXAMPLES_DIR}/*.cpp)
+
+foreach(f IN LISTS EXAMPLE_FILES_REL)
+  string(APPEND multiline "${f}\n")
+endforeach()
+
+file(WRITE ${RESP} "${multiline}")
+
+add_custom_command(
+    OUTPUT ${API_EXAMPLES}
+    DEPENDS ${PROTOS}
+	    ${EXAMPLE_FILES}
+	    ${SCAN_EXAMPLES}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND ${SCAN_EXAMPLES} --protos ${PROTOS} "@${RESP}" > ${API_EXAMPLES}.t
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${API_EXAMPLES}.t ${API_EXAMPLES})
+
+#-----------------------------------------------------------------------------#
+#
 #   HTML
 #
 #-----------------------------------------------------------------------------#
@@ -239,12 +278,14 @@ if(WANT_DOCS_HTML)
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.a.html
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.z.html
                 ${SEARCH_INDEX_JS}
+                ${API_EXAMPLES}
                 make_doc
                 insert_timestamp
             COMMAND
                 ${INSERT_TIMESTAMP} ${CMAKE_SOURCE_DIR}/include/allegro5/base.h > inc.timestamp.html
             COMMAND
                 ${MAKE_DOC}
+                --examples ${API_EXAMPLES}
                 --to html
                 --raise-sections
                 --include-before-body inc.a.html
@@ -266,13 +307,13 @@ if(WANT_DOCS_HTML)
             OUTPUT ${HTML_DIR}/images/${image}.png
             DEPENDS
                 ${SRC_REFMAN_DIR}/images/${image}.png
-            COMMAND 
+            COMMAND
                 "${CMAKE_COMMAND}" -E copy
                 "${SRC_REFMAN_DIR}/images/${image}.png" "${HTML_DIR}/images/${image}.png"
-            ) 
+            )
          list(APPEND HTML_IMAGES ${HTML_DIR}/images/${image}.png)
     endforeach(image)
-    
+
     add_custom_target(html ALL DEPENDS ${HTML_PAGES} ${HTML_IMAGES})
 
     foreach(file pandoc.css autosuggest.js)
