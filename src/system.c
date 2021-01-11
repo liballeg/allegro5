@@ -276,8 +276,6 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    _al_init_events();
 
-   _al_init_pixels();
-
    _al_init_iio_table();
    
    _al_init_convert_bitmap_list();

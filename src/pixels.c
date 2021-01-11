@@ -22,11 +22,7 @@ ALLEGRO_DEBUG_CHANNEL("pixels")
 
 
 /* lookup table for scaling 8 bit integers up to floats [0.0, 1.0] */
-float _al_u8_to_float[256];
-int _al_rgb_scale_1[2];
-int _al_rgb_scale_4[16];
-int _al_rgb_scale_5[32];
-int _al_rgb_scale_6[64];
+#include "pixel_tables.inc"
 
 static int pixel_sizes[] = {
    0, /* ALLEGRO_PIXEL_FORMAT_ANY */
@@ -371,26 +367,6 @@ static bool format_is_compressed[ALLEGRO_NUM_PIXEL_FORMATS] =
    true,
    true,
 };
-
-
-void _al_init_pixels(void)
-{
-   int i;
-   for (i = 0; i < 256; i++)
-      _al_u8_to_float[i] = i / 255.0;
-
-   for (i = 0; i < 2; i++)
-      _al_rgb_scale_1[i] = i * 255 / 1;
-
-   for (i = 0; i < 16; i++)
-      _al_rgb_scale_4[i] = i * 255 / 15;
-
-   for (i = 0; i < 32; i++)
-      _al_rgb_scale_5[i] = i * 255 / 31;
-
-   for (i = 0; i < 64; i++)
-      _al_rgb_scale_6[i] = i * 255 / 63;
-}
 
 
 /* Function: al_get_pixel_block_size

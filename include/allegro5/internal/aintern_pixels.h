@@ -487,7 +487,6 @@ AL_ARRAY(int, _al_rgb_scale_5);
 AL_ARRAY(int, _al_rgb_scale_6);
 AL_ARRAY(float, _al_u8_to_float);
 
-AL_FUNC(void, _al_init_pixels, (void));
 AL_FUNC(bool, _al_pixel_format_has_alpha, (int format));
 AL_FUNC(bool, _al_pixel_format_is_real, (int format));
 AL_FUNC(bool, _al_pixel_format_is_video_only, (int format));

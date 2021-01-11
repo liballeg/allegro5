@@ -19,6 +19,8 @@ translate from and to various color representations.
 Convert r, g, b (ranging from 0-255) into an [ALLEGRO_COLOR],
 using 255 for alpha.
 
+This function can be called before Allegro is initialized.
+
 See also: [al_map_rgba], [al_map_rgba_f], [al_map_rgb_f]
 
 ### API: al_map_rgb_f
@@ -26,11 +28,15 @@ See also: [al_map_rgba], [al_map_rgba_f], [al_map_rgb_f]
 Convert r, g, b, (ranging from 0.0f-1.0f) into an [ALLEGRO_COLOR],
 using 1.0f for alpha.
 
+This function can be called before Allegro is initialized.
+
 See also: [al_map_rgba], [al_map_rgb], [al_map_rgba_f]
 
 ### API: al_map_rgba
 
 Convert r, g, b, a  (ranging from 0-255) into an [ALLEGRO_COLOR].
+
+This function can be called before Allegro is initialized.
 
 See also: [al_map_rgb], [al_premul_rgba], [al_map_rgb_f]
 
@@ -54,6 +60,8 @@ ALLEGRO_COLOR c = al_premul_rgba(r, g, b, a);
 al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
 ~~~~
 
+This function can be called before Allegro is initialized.
+
 Since: 5.1.12
 
 See also: [al_map_rgba], [al_premul_rgba_f]
@@ -61,6 +69,8 @@ See also: [al_map_rgba], [al_premul_rgba_f]
 ### API: al_map_rgba_f
 
 Convert r, g, b, a (ranging from 0.0f-1.0f) into an [ALLEGRO_COLOR].
+
+This function can be called before Allegro is initialized.
 
 See also: [al_map_rgba], [al_premul_rgba_f], [al_map_rgb_f]
 
@@ -84,6 +94,8 @@ ALLEGRO_COLOR c = al_premul_rgba_f(r, g, b, a);
 al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
 ~~~~
 
+This function can be called before Allegro is initialized.
+
 Since: 5.1.12
 
 See also: [al_map_rgba_f], [al_premul_rgba]
@@ -93,12 +105,16 @@ See also: [al_map_rgba_f], [al_premul_rgba]
 Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
 Components will range from 0-255.
 
+This function can be called before Allegro is initialized.
+
 See also: [al_unmap_rgba], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ### API: al_unmap_rgb_f
 
 Retrieves components of an [ALLEGRO_COLOR], ignoring alpha.
 Components will range from 0.0f-1.0f.
+
+This function can be called before Allegro is initialized.
 
 See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgba_f]
 
@@ -107,12 +123,16 @@ See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgba_f]
 Retrieves components of an [ALLEGRO_COLOR].
 Components will range from 0-255.
 
+This function can be called before Allegro is initialized.
+
 See also: [al_unmap_rgb], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ### API: al_unmap_rgba_f
 
 Retrieves components of an [ALLEGRO_COLOR].
 Components will range from 0.0f-1.0f.
+
+This function can be called before Allegro is initialized.
 
 See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgb_f]
 
