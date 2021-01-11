@@ -456,7 +456,9 @@ relevant if you plan to use this bitmap with the primitives addon. If
 you try to create a bitmap smaller than this, this call will not fail
 but the returned bitmap will be a section of a larger bitmap with the
 minimum size. The minimum size that will work on all platforms is 32 by
-32.
+32. There is an experimental switch to turns this padding off by editing
+the system configuration (see `min_bitmap_size` key in
+[al_get_system_config]).
 
 Some platforms do not directly support display bitmaps whose dimensions
 are not powers of two. Allegro handles this by creating a larger bitmap

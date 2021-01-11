@@ -1025,6 +1025,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
    int true_h;
    int block_width;
    int block_height;
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    (void)d;
 
    format = _al_get_real_pixel_format(d, format);
@@ -1053,8 +1054,8 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
     * work with them on some of these chips. This is a
     * workaround.
     */
-   if (true_w < 16) true_w = 16;
-   if (true_h < 16) true_h = 16;
+   if (true_w < system->min_bitmap_size) true_w = system->min_bitmap_size;
+   if (true_h < system->min_bitmap_size) true_h = system->min_bitmap_size;
 
    /* glReadPixels requires 32 byte aligned rows */
    if (IS_ANDROID) {

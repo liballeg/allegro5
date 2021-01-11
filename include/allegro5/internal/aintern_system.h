@@ -59,6 +59,7 @@ struct ALLEGRO_SYSTEM
    _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
    ALLEGRO_PATH *user_exe_path;
    int mouse_wheel_precision;
+   int min_bitmap_size;
    bool installed;
 };
 
