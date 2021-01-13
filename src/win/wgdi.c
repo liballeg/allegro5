@@ -524,7 +524,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
 
    /* create the screen surface */
    screen_surf = _AL_MALLOC_ATOMIC(w * h * BYTES_PER_PIXEL(color_depth));
-   gdi_screen = _make_bitmap(w, h, (unsigned long)screen_surf, &gfx_gdi, color_depth, w * BYTES_PER_PIXEL(color_depth));
+   gdi_screen = _make_bitmap(w, h, (unsigned long long)screen_surf, &gfx_gdi, color_depth, w * BYTES_PER_PIXEL(color_depth));
    if (!gdi_screen) {
       _TRACE(PREFIX_E "Could not make a bitmap out of the screen surface.\n");	   
       goto Error;

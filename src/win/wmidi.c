@@ -242,8 +242,8 @@ int midi_win32_in_init(int input, int voices)
    id = (midi_input_driver->id & 0xFF) - 'A';
 
    /* open midi input device */
-   hr = midiInOpen(&midi_in_device, id, (DWORD)midi_in_proc,
-		   (DWORD)NULL, CALLBACK_FUNCTION);
+   hr = midiInOpen(&midi_in_device, id, (unsigned long long)midi_in_proc,
+		   (unsigned long long)NULL, CALLBACK_FUNCTION);
    if (hr != MMSYSERR_NOERROR) {
       _TRACE(PREFIX_E "midiInOpen failed (%x)\n", hr);
       midi_win32_in_exit(input);

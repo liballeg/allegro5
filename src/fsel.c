@@ -933,7 +933,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    if (ugetc(get_filename(path))) {
       p = get_extension(path);
       if ((!ugetc(p)) && (ext) && (ugetc(ext)) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp)))) {
-         size -= ((long)p - (long)path + ucwidth('.'));
+         size -= ((unsigned long long)p - (unsigned long long)path + ucwidth('.')); //64bit  long
          if (size >= uwidth_max(U_CURRENT) + ucwidth(0)) {  /* do not end with '.' */
             p += usetc(p, '.');
             ustrzcpy(p, size, ext);

@@ -212,7 +212,7 @@ static void digi_waveout_mixer_callback(void)
       if (++digiwobufpos > (digiwobufdivs-1))
          digiwobufpos = 0;
 
-      _mix_some_samples((unsigned long) (digiwobufdata+((digiwobufsize/digiwobufdivs)*digiwobufpos)), 0, TRUE);
+      _mix_some_samples((unsigned long long) (digiwobufdata+((digiwobufsize/digiwobufdivs)*digiwobufpos)), 0, TRUE);
    }
 }
 
@@ -309,7 +309,7 @@ static int digi_waveout_init(int input, int voices)
       goto Error;
    }
 
-   _mix_some_samples((unsigned long) digiwobufdata, 0, TRUE);
+   _mix_some_samples((unsigned long long) digiwobufdata, 0, TRUE);
 
    /* get volume */
    waveOutGetVolume(hWaveOut, &initial_volume);

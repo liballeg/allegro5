@@ -139,7 +139,7 @@ void _soft_draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1
 	       addr = bmp_write_line(bmp, j) + x1*3;
 	       for (i=x1; i<x2; i++) {
 		  bmp_select(sprite);
-		  pixel = bmp_read24((unsigned long)(sprite->line[j-y] + (i-x)*3));
+		  pixel = bmp_read24((unsigned long long)(sprite->line[j-y] + (i-x)*3));  //64bit unsigned long
 		  bmp_select(bmp);
 		  if (pixel != MASK_COLOR_24) {
 		     pixel = _blender_func24(pixel, _blender_col_24, fixtoi(hc));
