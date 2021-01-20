@@ -145,7 +145,7 @@ div.searchbox {
 /* font-size isn't inherited (at least not in Firefox and Chrome) */
 input#q {
    font-size: small;
-   width: 95%; /* fix searchfield being wider than sidebar */
+   width: 85%;
 }
 
 /* Body of page */
@@ -199,7 +199,7 @@ p.timestamp {
 .autosuggest-body table
 {
 	width: 100%;
-	background-color: #FFFFF0;
+	background-color: #f3f3fa;
 }
 
 .autosuggest-body tr
