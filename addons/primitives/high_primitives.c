@@ -520,7 +520,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
    }
    
    if (thickness <= 0) {
-      num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+      num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * r));
 
       if (num_segments < 2)
          num_segments = 2;
@@ -566,7 +566,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
          vertex_cache[0].x = cx + (r - thickness / 2) * cosf(central_start_angle);
          vertex_cache[0].y = cy + (r - thickness / 2) * sinf(central_start_angle);
          
-         num_segments = (inner_side_angle + outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r + ht);
+         num_segments = (inner_side_angle + outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (r + ht));
          
          if (num_segments < 2)
             num_segments = 2;
@@ -620,7 +620,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
          /* Apex: 2 vertices if the apex is blunt) */
          int extra_vtx = blunt_tip ? 2 : 1;
          
-         num_segments = (2 * outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r + ht);
+         num_segments = (2 * outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (r + ht));
          
          if (num_segments < 2)
             num_segments = 2;
@@ -669,7 +669,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
    
    ASSERT(r >= 0);
    
-   num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+   num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * r));
 
    if (num_segments < 2)
       num_segments = 2;
@@ -701,7 +701,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ASSERT(ry >= 0);
 
    if (thickness > 0) {
-      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f);
+      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
       int ii;
 
       /* In case rx and ry are both 0. */
@@ -720,7 +720,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
          
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f);
+      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
       int ii;
       
       /* In case rx and ry are both 0. */
@@ -753,7 +753,7 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
    
-   num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f);
+   num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
 
    /* In case rx and ry are both close to 0. If al_calculate_arc is passed
     * 0 or 1 it will assert.
@@ -801,7 +801,7 @@ void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_
 
    ASSERT(rx >= 0 && ry >= 0);
    if (thickness > 0) {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)
@@ -820,7 +820,7 @@ void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_
       
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)
@@ -861,7 +861,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
    ASSERT(ry >= 0);
 
    if (thickness > 0) {
-      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
+      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
       int ii;
 
       /* In case rx and ry are both 0. */
@@ -908,7 +908,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
          
       al_draw_prim(vertex_cache, 0, 0, 0, 8 * num_segments + 2, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
+      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
       int ii;
       
       /* In case rx and ry are both 0. */
@@ -955,7 +955,7 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    LOCAL_VERTEX_CACHE;
    int ii;
    float scale = get_scale();
-   int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
+   int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
 
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
