@@ -23,6 +23,9 @@
 
 
 #include <string.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -402,9 +405,16 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
    _al_mutex_lock(&queue->mutex);
    {
+      #ifdef __EMSCRIPTEN__
+      while (is_event_queue_empty(queue)) {
+         emscripten_sleep(1);
+         heartbeat();
+      }
+      #else
       while (is_event_queue_empty(queue)) {
          _al_cond_wait(&queue->cond, &queue->mutex);
       }
+      #endif
 
       if (ret_event) {
          next_event = get_next_event_if_any(queue, true);

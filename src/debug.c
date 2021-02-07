@@ -176,7 +176,7 @@ static void open_trace_file(void)
       if (s)
          trace_info.trace_file = fopen(s, "w");
       else
-#if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID)
+#if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID) || defined(__EMSCRIPTEN__)
          /* iPhone and Android don't like us writing files, so we'll be doing
           * something else there by default. */
          trace_info.trace_file = NULL;
@@ -303,6 +303,9 @@ void _al_trace_suffix(const char *msg, ...)
       return;
    }
 
+#ifdef __EMSCRIPTEN__
+   printf("%s", static_trace_buffer);
+#endif
 #ifdef ALLEGRO_ANDROID
    (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
       static_trace_buffer);
