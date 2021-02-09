@@ -303,14 +303,11 @@ void _al_trace_suffix(const char *msg, ...)
       return;
    }
 
-#ifdef __EMSCRIPTEN__
-   printf("%s", static_trace_buffer);
-#endif
 #ifdef ALLEGRO_ANDROID
    (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
       static_trace_buffer);
 #endif
-#ifdef ALLEGRO_IPHONE
+#if defined(ALLEGRO_IPHONE) || defined(__EMSCRIPTEN__)
    fprintf(stderr, "%s", static_trace_buffer);
    fflush(stderr);
 #endif
