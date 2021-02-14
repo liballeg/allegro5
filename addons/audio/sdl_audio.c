@@ -54,6 +54,15 @@ static SDL_AudioFormat allegro_format_to_sdl(ALLEGRO_AUDIO_DEPTH d)
    return AUDIO_F32;
 }
 
+static ALLEGRO_AUDIO_DEPTH sdl_format_to_allegro(SDL_AudioFormat d)
+{
+   if (d == AUDIO_S8) return ALLEGRO_AUDIO_DEPTH_INT8;
+   if (d == AUDIO_U8) return ALLEGRO_AUDIO_DEPTH_UINT8;
+   if (d == AUDIO_S16) return ALLEGRO_AUDIO_DEPTH_INT16;
+   if (d == AUDIO_U16) return ALLEGRO_AUDIO_DEPTH_UINT16;
+   return ALLEGRO_AUDIO_DEPTH_FLOAT32;
+}
+
 static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
 {
    SDL_VOICE *sv = al_malloc(sizeof *sv);
@@ -73,6 +82,8 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = sv;
    sv->voice = voice;
+   // we allow format change above so need to update here
+   voice->depth = sdl_format_to_allegro(sv->spec.format);
 
    return 0;
 }
