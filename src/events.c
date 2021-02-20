@@ -403,7 +403,7 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
    _al_mutex_lock(&queue->mutex);
    {
       while (is_event_queue_empty(queue)) {
-         #ifdef ALLEGRO_NO_THREADS
+         #ifdef ALLEGRO_WAIT_EVENT_SLEEP
          al_rest(1);
          heartbeat();
          #else

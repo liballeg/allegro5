@@ -204,10 +204,10 @@ option(WANT_EXAMPLES "Build example programs" on)
 option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 option(WANT_TESTS "Build test programs" on)
 
-option(WANT_NO_THREADS "Do not use threads (only useful for emscripten without web workers)" off)
+option(WANT_WAIT_EVENT_SLEEP "Use sleep instead of threads in al_wait_for_event (only useful for emscripten without web workers)" off)
 
-if(WANT_NO_THREADS)
-    set(ALLEGRO_NO_THREADS 1)
+if(WANT_WAIT_EVENT_SLEEP)
+    set(ALLEGRO_WAIT_EVENT_SLEEP 1)
 endif()
 
 #-----------------------------------------------------------------------------#
