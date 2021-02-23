@@ -20,6 +20,8 @@
  */
 //#define BYPASS_MIXER
 
+char *default_files[] = {NULL, "../demos/skater/data/menu/skate2.ogg"};
+
 int main(int argc, char **argv)
 {
    int i;
@@ -35,9 +37,10 @@ int main(int argc, char **argv)
    open_log();
 
    if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\n");
+      log_printf("This example can be run from the command line.\n");
       log_printf("Usage: %s [--loop] {audio_files}\n", argv[0]);
-      goto done;
+      argv = default_files;
+      argc = 2;
    }
 
    if (strcmp(argv[1], "--loop") == 0) {
@@ -122,7 +125,6 @@ int main(int argc, char **argv)
    al_destroy_voice(voice);
 
    al_uninstall_audio();
-done:
    close_log(true);
 
    return 0;

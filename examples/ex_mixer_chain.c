@@ -11,6 +11,9 @@
 
 #include "common.c"
 
+char *default_files[] = {NULL, "data/haiku/water_0.ogg",
+   "data/haiku/water_7.ogg"};
+
 int main(int argc, char **argv)
 {
    ALLEGRO_VOICE *voice;
@@ -29,8 +32,9 @@ int main(int argc, char **argv)
    open_log();
 
    if (argc < 3) {
-      log_printf("This example needs to be run from the command line.\nUsage: %s file1 file2\n", argv[0]);
-      goto done;
+      log_printf("This example can be run from the command line.\nUsage: %s file1 file2\n", argv[0]);
+      argv = default_files;
+      argc = 3;
    }
 
    al_init_acodec_addon();
@@ -117,7 +121,6 @@ int main(int argc, char **argv)
 
    al_uninstall_audio();
 
-done:
    close_log(true);
 
    return 0;
