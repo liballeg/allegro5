@@ -17,6 +17,13 @@
 #define RESERVED_SAMPLES   16
 #define MAX_SAMPLE_DATA    10
 
+const char *default_files[] = {NULL, "data/welcome.wav",
+         "data/haiku/fire_0.ogg", "data/haiku/fire_1.ogg",
+         "data/haiku/fire_2.ogg", "data/haiku/fire_3.ogg",
+         "data/haiku/fire_4.ogg", "data/haiku/fire_5.ogg",
+         "data/haiku/fire_6.ogg", "data/haiku/fire_7.ogg",
+         };
+
 int main(int argc, const char *argv[])
 {
    ALLEGRO_SAMPLE *sample_data[MAX_SAMPLE_DATA] = {NULL};
@@ -40,8 +47,9 @@ int main(int argc, const char *argv[])
    open_log();
 
    if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
-      goto done;
+      log_printf("This example can be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
+      argv = default_files;
+      argc = 10;
    }
    argc--;
    argv++;
@@ -227,7 +235,6 @@ Restart:
    /* Sample data and other objects will be automatically freed. */
    al_uninstall_audio();
 
-done:
    al_destroy_display(display);
    close_log(true);
    return 0;
