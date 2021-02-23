@@ -84,6 +84,12 @@ int main(int argc, char **argv)
 
       stream = al_load_audio_stream(filename, 4, 2048);
       if (!stream) {
+         /* If it is not packed, e.g. on Android or iOS. */
+         if (!strcmp(filename, default_files[1])) {
+            stream = al_load_audio_stream("data/welcome.wav", 4, 2048);
+         }
+      }
+      if (!stream) {
          log_printf("Could not create an ALLEGRO_AUDIO_STREAM from '%s'!\n",
                  filename);
          continue;
