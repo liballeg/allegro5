@@ -7,6 +7,8 @@
 
 #include "common.c"
 
+char *default_files[] = {NULL, "data/welcome.wav"};
+
 int main(int argc, char **argv)
 {
    ALLEGRO_VOICE *voice;
@@ -20,8 +22,9 @@ int main(int argc, char **argv)
    open_log();
 
    if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
-      goto done;
+      log_printf("This example can be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
+      argv = default_files;
+      argc = 2;
    }
 
    al_init_acodec_addon();
@@ -93,7 +96,6 @@ int main(int argc, char **argv)
    }
 
    al_uninstall_audio();
-done:
    close_log(true);
 
    return 0;

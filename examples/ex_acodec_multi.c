@@ -11,6 +11,10 @@
 
 #include "common.c"
 
+char *default_files[] = {NULL, "data/welcome.voc",
+   "data/haiku/earth_0.ogg", "data/haiku/water_0.ogg",
+   "data/haiku/fire_0.ogg", "data/haiku/air_0.ogg"};
+
 int main(int argc, char **argv)
 {
    int i;
@@ -27,8 +31,9 @@ int main(int argc, char **argv)
    open_log();
 
    if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
-      goto done;
+      log_printf("This example can be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
+      argv = default_files;
+      argc = 6;
    }
 
    al_init_acodec_addon();
@@ -128,7 +133,6 @@ int main(int argc, char **argv)
 
    al_uninstall_audio();
 
-done:
    close_log(true);
 
    return 0;
