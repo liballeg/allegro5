@@ -38,6 +38,36 @@ extern struct ALLEGRO_FONT *font;
 extern struct ALLEGRO_FONT *font_video;
 
 
+typedef struct DATAFILE DATAFILE;
+struct DATAFILE {
+    void* dat;
+};
+typedef ALLEGRO_BITMAP RLE_SPRITE;
+typedef ALLEGRO_BITMAP BITMAP;
+typedef ALLEGRO_COLOR RGB;
+typedef ALLEGRO_FONT FONT;
+#define SCREEN_W al_get_display_width(al_get_current_display())
+#define SCREEN_H al_get_display_height(al_get_current_display())
+#define allegro_init al_init
+#define install_keyboard al_install_keyboard
+#define install_mouse al_install_mouse
+#define install_sound(a, b, c) al_install_audio()
+#define allegro_message printf
+#define allegro_error ""
+#define uisspace(x) ((x) == ' ')
+#define text_length(f, x) al_get_text_width(f, x)
+#define text_height(f) al_get_font_line_height(f)
+#define itofix al_itofix
+#define fixtoi al_fixtoi
+#define fixdiv al_fixdiv
+#define fixsin al_fixsin
+#define fixcos al_fixcos
+#define fixsqrt al_fixsqrt
+#define fixmul al_fixmul
+#define blit al_draw_bitmap
+#define draw_sprite al_draw_bitmap
+#define rectfill al_draw_filled_rectangle
+
 const char *get_config_string(const ALLEGRO_CONFIG *cfg, const char *section, const char *name, const char *def);
 int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section, const char *name, int def);
 void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name, int val);
