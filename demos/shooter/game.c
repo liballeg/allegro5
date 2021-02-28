@@ -4,8 +4,6 @@
 #include "expl.h"
 #include "star.h"
 #include "aster.h"
-#include "dirty.h"
-#include "display.h"
 
 #define BULLET_DELAY   20
 
@@ -28,6 +26,7 @@ static volatile unsigned int game_time;
 static unsigned int prev_bullet_time;
 static int new_asteroid_time;
 static int score_pos;
+static ALLEGRO_SAMPLE_ID engine;
 
 #define MAX_SPEED       32
 
@@ -36,20 +35,9 @@ static int score_pos;
 /* handles fade effects and timing for the ready, steady, go messages */
 static int fade_intro_item(int music_pos, int fade_speed)
 {
-   while (midi_pos < music_pos) {
-      if (keypressed())
-         return TRUE;
-
-      poll_joystick();
-
-      if ((joy[0].button[0].b) || (joy[0].button[1].b))
-         return TRUE;
-   }
-
    set_palette(data[GAME_PAL].dat);
    fade_out(fade_speed);
-
-   return FALSE;
+   return keypressed();
 }
 
 
@@ -61,31 +49,14 @@ static void draw_intro_item(int item, int size)
    int w = MIN(SCREEN_W, (SCREEN_W * 2 / size));
    int h = SCREEN_H / size;
 
-   clear_bitmap(screen);
-   stretch_blit(b, screen, 0, 0, b->w, b->h, (SCREEN_W - w) / 2,
+   //clear_bitmap(screen);
+   int bw = al_get_bitmap_width(b);
+   int bh = al_get_bitmap_height(b);
+   al_clear_to_color(makecol(0, 0, 0));
+   stretch_blit(b, 0, 0, bw, bh, (SCREEN_W - w) / 2,
                 (SCREEN_H - h) / 2, w, h);
+   al_flip_display();
 }
-
-
-
-/* timer callback for controlling the game speed */
-static void game_timer(void)
-{
-   game_time++;
-}
-
-END_OF_STATIC_FUNCTION(game_timer);
-
-
-
-/* timer callback for measuring the frames per second */
-static void fps_proc(void)
-{
-   fps = frame_count;
-   frame_count = 0;
-}
-
-END_OF_STATIC_FUNCTION(fps_proc);
 
 
 
@@ -114,12 +85,12 @@ static void move_everyone(void)
    }
    else {
       if (skip_count <= 0) {
-         if ((key[KEY_LEFT]) || (joy[0].stick[0].axis[0].d1)) {
+         if ((key[ALLEGRO_KEY_LEFT])) { // || (joy[0].stick[0].axis[0].d1)) {
             /* moving left */
             if (xspeed > -MAX_SPEED)
                xspeed -= 2;
          }
-         else if ((key[KEY_RIGHT]) || (joy[0].stick[0].axis[0].d2)) {
+         else if ((key[ALLEGRO_KEY_RIGHT])) { // || (joy[0].stick[0].axis[0].d2)) {
             /* moving right */
             if (xspeed < MAX_SPEED)
                xspeed += 2;
@@ -157,25 +128,29 @@ static void move_everyone(void)
       }
 
       if (skip_count <= 0) {
-         if ((key[KEY_UP]) || (joy[0].stick[0].axis[1].d1)) {
+         if ((key[ALLEGRO_KEY_UP])) { // || (joy[0].stick[0].axis[1].d1)) {
             /* firing thrusters */
             if (yspeed < MAX_SPEED) {
                if (yspeed == 0) {
-                  play_sample(data[ENGINE_SPL].dat, 0,
-                              PAN(player_x_pos >> SPEED_SHIFT), 1000, TRUE);
+                  al_stop_sample(&engine);
+                  al_play_sample(data[ENGINE_SPL].dat, 0.9, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0,
+                     1.0, ALLEGRO_PLAYMODE_LOOP, &engine);
                }
                else {
                   /* fade in sample while speeding up */
-                  adjust_sample(data[ENGINE_SPL].dat,
-                                yspeed * 64 / MAX_SPEED,
-                                PAN(player_x_pos >> SPEED_SHIFT), 1000, TRUE);
+                  ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+                  al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
+                  al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
+                  al_unlock_sample_id(&engine);
                }
                yspeed++;
             }
             else {
                /* adjust pan while the sample is looping */
-               adjust_sample(data[ENGINE_SPL].dat, 64,
-                             PAN(player_x_pos >> SPEED_SHIFT), 1000, TRUE);
+               ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+               al_set_sample_instance_gain(si, 64 / 255.0);
+               al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
+               al_unlock_sample_id(&engine);
             }
 
             ship_burn = TRUE;
@@ -186,14 +161,15 @@ static void move_everyone(void)
             if (yspeed) {
                yspeed--;
                if (yspeed == 0) {
-                  stop_sample(data[ENGINE_SPL].dat);
+                  al_stop_sample(&engine);
                }
                else {
                   /* fade out and reduce frequency when slowing down */
-                  adjust_sample(data[ENGINE_SPL].dat,
-                                yspeed * 64 / MAX_SPEED,
-                                PAN(player_x_pos >> SPEED_SHIFT),
-                                500 + yspeed * 500 / MAX_SPEED, TRUE);
+                  ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+                  al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
+                  al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
+                  al_set_sample_instance_speed(si, (500 + yspeed * 500 / MAX_SPEED) / 1000.0);
+                  al_unlock_sample_id(&engine);
                }
             }
 
@@ -224,8 +200,8 @@ static void move_everyone(void)
 
    /* fire bullet? */
    if (!player_hit) {
-      if ((key[KEY_SPACE] || key[KEY_ENTER] || key[KEY_LCONTROL] || key[KEY_RCONTROL]) ||
-          (joy[0].button[0].b) || (joy[0].button[1].b)) {
+      if ((key[ALLEGRO_KEY_SPACE] || key[ALLEGRO_KEY_ENTER] || key[ALLEGRO_KEY_LCTRL] || key[ALLEGRO_KEY_RCTRL])) {
+         // ||(joy[0].button[0].b) || (joy[0].button[1].b)) {
          if (prev_bullet_time + BULLET_DELAY < game_time) {
             bullet = add_bullet((player_x_pos >> SPEED_SHIFT) - 2, SCREEN_H - 64);
             if (bullet) {
@@ -257,40 +233,24 @@ static void move_everyone(void)
 
 
 /* main screen update function */
-static void draw_screen(BITMAP *bmp)
+static void draw_screen(void)
 {
    int x;
    RLE_SPRITE *spr;
-   char *animation_type_str = NULL;
 
-   switch (animation_type) {
-      case DOUBLE_BUFFER:
-	 animation_type_str = "double buffered";
-	 break;
-      case PAGE_FLIP:
-	 animation_type_str = "page flipping";
-	 break;
-      case TRIPLE_BUFFER:
-	 animation_type_str = "triple buffered";
-	 break;
-      case DIRTY_RECTANGLE:
-	 animation_type_str = "dirty rectangles";
-	 break;
-   }
+   //acquire_bitmap(bmp);
+   al_clear_to_color(makecol(0, 0, 0));
 
-   acquire_bitmap(bmp);
-
-   draw_starfield_2d(bmp);
+   draw_starfield_2d();
 
    /* draw the player */
    x = player_x_pos >> SPEED_SHIFT;
 
    if ((ship_burn) && (ship_state < EXPLODE_FLAG)) {
-      spr = (RLE_SPRITE *) data[ENGINE1 + (retrace_count / 4) % 7].dat;
-      draw_rle_sprite(bmp, spr, x - spr->w / 2, SCREEN_H - 24);
-
-      if (animation_type == DIRTY_RECTANGLE)
-         dirty_rectangle(x - spr->w / 2, SCREEN_H - 24, spr->w, spr->h);
+      spr = data[ENGINE1 + (retrace_count() / 4) % 7].dat;
+      int sprw = al_get_bitmap_width(spr);
+      int sprh = al_get_bitmap_height(spr);
+      draw_sprite(spr, x - sprw / 2, SCREEN_H - 24);
    }
 
    if (ship_state >= EXPLODE_FLAG)
@@ -298,28 +258,26 @@ static void draw_screen(BITMAP *bmp)
    else
       spr = (RLE_SPRITE *) data[ship_state].dat;
 
-   draw_rle_sprite(bmp, spr, x - spr->w / 2, SCREEN_H - 42 - spr->h / 2);
-   if (animation_type == DIRTY_RECTANGLE)
-      dirty_rectangle(x - spr->w / 2, SCREEN_H - 42 - spr->h / 2, spr->w, spr->h);
-
+   int sprw = al_get_bitmap_width(spr);
+   int sprh = al_get_bitmap_height(spr);
+   draw_sprite(spr, x - sprw / 2, SCREEN_H - 42 - sprh / 2);
+   
    /* draw the asteroids */
-   draw_asteroids(bmp);
+   draw_asteroids();
 
    /* draw the bullets */
-   draw_bullets(bmp);
+   draw_bullets();
 
    /* draw the score and fps information */
    if (fps)
-      sprintf(score_buf, "Lives: %d - Score: %d - (%s, %d fps)",
-              ship_count, score, animation_type_str, fps);
+      sprintf(score_buf, "Lives: %d - Score: %d - (%d fps)",
+              ship_count, score, fps);
    else
       sprintf(score_buf, "Lives: %d - Score: %d", ship_count, score);
 
-   textout_ex(bmp, font, score_buf, 0, 0, 7, 0);
-   if (animation_type == DIRTY_RECTANGLE)
-      dirty_rectangle(0, 0, text_length(font, score_buf), 8);
-
-   release_bitmap(bmp);
+   textout(data[TITLE_FONT].dat, score_buf, 0, 0, get_palette(7));
+  
+   //release_bitmap(bmp);
 }
 
 
@@ -328,31 +286,23 @@ static void move_score(void)
 {
    score_pos++;
    if (score_pos > SCREEN_H)
-      score_pos = -160;
+      score_pos = 0;
 }
 
 
 
-static void draw_score(BITMAP *bmp)
+static void draw_score(void)
 {
-   static BITMAP *b = NULL, *b2 = NULL;
-   if (!b)
-      b = create_bitmap(160, 160);
-   if (!b2)
-      b2 = create_bitmap(160, 160);
-
-   blit(bmp, b2, score_pos, score_pos, 0, 0, 160, 160);
-
-   clear_bitmap(b);
-   textout_centre_ex(b, data[END_FONT].dat, "GAME OVER", 80, 50, 2, 0);
+   ALLEGRO_TRANSFORM tr;
+   al_identity_transform(&tr);
+   al_rotate_transform(&tr, score_pos * ALLEGRO_PI / 300);
+   al_translate_transform(&tr, score_pos, score_pos);
+   al_use_transform(&tr);
+   textout_centre(data[END_FONT].dat, "GAME OVER", 0, -24, get_palette(2));
    sprintf(score_buf, "Score: %d", score);
-   textout_centre_ex(b, data[END_FONT].dat, score_buf, 80, 82, 2, 0);
-
-   rotate_sprite(b2, b, 0, 0, itofix(score_pos) / 4);
-
-   blit(b2, bmp, 0, 0, score_pos, score_pos, 160, 160);
-   if (animation_type == DIRTY_RECTANGLE)
-      dirty_rectangle(score_pos, score_pos, 160, 160);
+   textout_centre(data[END_FONT].dat, score_buf, 0, 24, get_palette(2));
+   al_identity_transform(&tr);
+   al_use_transform(&tr);
 }
 
 
@@ -374,7 +324,7 @@ void play_game(void)
    frame_count = fps = 0;
    bullet_list = NULL;
    score = 0;
-   score_pos = -160;
+   score_pos = 0;
 
    skip_count = 0;
    if (SCREEN_W < 400)
@@ -411,55 +361,53 @@ void play_game(void)
    if (fade_intro_item(11, 4))
       goto skip;
 
-   draw_intro_item(GO_BMP, 1);
-
+   draw_intro_item(GO_BMP, 4);
    if (fade_intro_item(13, 16))
       goto skip;
 
+   draw_intro_item(GO_BMP, 4);
    if (fade_intro_item(14, 16))
       goto skip;
 
+   draw_intro_item(GO_BMP, 4);
    if (fade_intro_item(15, 16))
       goto skip;
 
+   draw_intro_item(GO_BMP, 4);
    if (fade_intro_item(16, 16))
       goto skip;
 
  skip:
 
-   clear_display();
-
-   if ((!keypressed()) && (!joy[0].button[0].b) && (!joy[0].button[1].b)) {
-      do {
-      } while (midi_pos < 17);
-   }
+   al_clear_to_color(makecol(0, 0, 0));
 
    clear_keybuf();
 
    set_palette(data[GAME_PAL].dat);
-   position_mouse(SCREEN_W / 2, SCREEN_H / 2);
-
-   /* set up the interrupt routines... */
-   LOCK_VARIABLE(score);
-   LOCK_VARIABLE(frame_count);
-   LOCK_VARIABLE(fps);
-   LOCK_FUNCTION(fps_proc);
-   install_int(fps_proc, 1000);
-
-   LOCK_VARIABLE(game_time);
-   LOCK_FUNCTION(game_timer);
-   install_int(game_timer, 6400 / SCREEN_W);
 
    game_time = 0;
    prev_bullet_time = 0;
    prev_update_time = 0;
+   int speed = 6400 / SCREEN_W;
+   double t0 = al_get_time();
+   double fps_t0 = t0;
+
+   if (speed < 4) speed = 4;
 
    /* main game loop */
    while (!esc) {
       int updated = 0;
+      double t = al_get_time();
 
-      poll_keyboard();
-      poll_joystick();
+      poll_input();
+      //poll_joystick();
+
+      game_time = (t - t0) * 1000 / speed;
+      if (t > fps_t0 + 1) {
+         fps_t0 = t;
+         fps = frame_count;
+         frame_count = 0;
+      }
 
       while (prev_update_time < game_time) {
          if (dead) {
@@ -476,14 +424,12 @@ void play_game(void)
       }
 
       if (max_fps || updated) {
-         BITMAP *bmp = prepare_display();
-
-         draw_screen(bmp);
+         draw_screen();
          if (dead) {
-            draw_score(bmp);
+            draw_score();
          }
 
-         flip_display();
+         al_flip_display();
 
          frame_count++;
       }
@@ -493,25 +439,23 @@ void play_game(void)
          rest(1);
       }
 
-      if (key[KEY_ESC] || (dead && (
-         keypressed() || joy[0].button[0].b || joy[0].button[1].b)))
+      poll_input();
+
+      if (key[ALLEGRO_KEY_ESCAPE] || (dead && (
+         keypressed()))) // || joy[0].button[0].b || joy[0].button[1].b)))
          esc = TRUE;
    }
 
    /* cleanup */
-   remove_int(fps_proc);
-
-   remove_int(game_timer);
-
-   stop_sample(data[ENGINE_SPL].dat);
+   al_stop_sample(&engine);
 
    while (bullet_list)
       delete_bullet(bullet_list);
 
    if (esc) {
       do {
-         poll_keyboard();
-      } while (key[KEY_ESC]);
+        poll_input();
+      } while (key[ALLEGRO_KEY_ESCAPE]);
 
       fade_out(5);
       return;

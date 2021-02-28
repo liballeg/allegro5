@@ -16,6 +16,7 @@
 
 #include "a4_aux.h"
 
+ALLEGRO_AUDIO_STREAM *_midi_stream;
 
 
 /*
@@ -139,6 +140,10 @@ void poll_input()
    while (al_get_next_event(input_queue, &event)) {
 
       switch (event.type) {
+
+    case ALLEGRO_EVENT_DISPLAY_RESIZE:
+       al_acknowledge_resize(event.display.source);
+       break;
 
 	 case ALLEGRO_EVENT_KEY_DOWN:
 	    key[event.keyboard.keycode] = 1;
@@ -272,6 +277,30 @@ ALLEGRO_BITMAP *replace_bitmap(ALLEGRO_BITMAP *bmp)
    ALLEGRO_BITMAP *tmp = al_clone_bitmap(bmp);
    al_destroy_bitmap(bmp);
    return tmp;
+}
+
+
+
+void stretch_blit(BITMAP *bitmap, int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
+   al_draw_scaled_bitmap(bitmap, x1, y1, w1, h1, x2, y2, w2, h2, 0);
+}
+
+
+
+void blit(BITMAP *bitmap, int x1, int y1, int x2, int y2, int w, int h) {
+   stretch_blit(bitmap, x1, y1, w, h, x2, y2, w, h);
+}
+
+
+
+void draw_sprite(BITMAP *bitmap, int x, int y) {
+   al_draw_bitmap(bitmap, x, y, 0);
+}
+
+
+
+void rotate_sprite(BITMAP *bitmap, int x, int y, int angle) {
+   al_draw_rotated_bitmap(bitmap, 0, 0, x, y, angle, 0);
 }
 
 
@@ -595,6 +624,14 @@ void rest(unsigned int time)
 
 
 
+void install_timer()
+{
+   init_input();
+   start_retrace_count();
+}
+
+
+
 /*
  * Sound routines
  */
@@ -622,3 +659,39 @@ void play_sample(ALLEGRO_SAMPLE *spl, int vol, int pan, int freq, int loop)
 }
 
 
+
+int install_sound(void)
+{
+   if (!al_install_audio())
+      return 0;
+   al_reserve_samples(100);
+   return 1;
+}
+
+
+
+void play_midi(char const *midi, int loop)
+{
+   stop_midi();
+   _midi_stream = al_load_audio_stream(midi, 2, 4096);
+   al_attach_audio_stream_to_mixer(_midi_stream, al_get_default_mixer());
+   if (loop) {
+      al_set_audio_stream_playmode(_midi_stream, ALLEGRO_PLAYMODE_LOOP);
+   }
+}
+
+
+
+void stop_midi(void)
+{
+   if (_midi_stream) {
+      al_destroy_audio_stream(_midi_stream);
+      _midi_stream = NULL;
+   }
+}
+
+
+
+int AL_RAND() {
+   return rand();
+}

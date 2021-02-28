@@ -6,7 +6,7 @@
 /* explosion graphics */
 #define EXPLODE_FLAG    100
 #define EXPLODE_FRAMES  64
-#define EXPLODE_SIZE    80
+#define EXPLODE_SIZE    160
 
 extern RLE_SPRITE *explosion[EXPLODE_FRAMES];
 

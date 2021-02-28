@@ -1,8 +1,6 @@
 #include "aster.h"
 #include "expl.h"
 #include "data.h"
-#include "display.h"
-#include "dirty.h"
 #include "game.h"
 
 /* info about the asteroids (they used to be asteroids at least,
@@ -134,7 +132,7 @@ int asteroid_collision(int x, int y, int s)
 
 
 
-void draw_asteroids(BITMAP *bmp)
+void draw_asteroids()
 {
    int i, j, c, x, y;
    RLE_SPRITE *spr;
@@ -160,16 +158,15 @@ void draw_asteroids(BITMAP *bmp)
                i = 0;
                break;
          }
-         j = (retrace_count / (6 - (c & 3)) + c) % 15;
+         j = (retrace_count() / (6 - (c & 3)) + c) % 15;
          if (c & 1)
             spr = (RLE_SPRITE *) data[i + 14 - j].dat;
          else
             spr = (RLE_SPRITE *) data[i + j].dat;
       }
 
-      draw_rle_sprite(bmp, spr, x - spr->w / 2, y - spr->h / 2);
-      if (animation_type == DIRTY_RECTANGLE)
-         dirty_rectangle(x - spr->h / 2, y - spr->h / 2, spr->w,
-            spr->h);
+      int sprw = al_get_bitmap_width(spr);
+      int sprh = al_get_bitmap_height(spr);
+      draw_sprite(spr, x - sprw / 2, y - sprh / 2);
    }
 }

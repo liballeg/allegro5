@@ -81,3 +81,8 @@
 #define TITLE_MUSIC                      75     /* MIDI */
 #define TITLE_PAL                        76     /* PAL  */
 #define WELCOME_SPL                      77     /* SAMP */
+#define DATA_COUNT                       78
+
+extern DATAFILE *data;
+void data_load(void);
+void unload_datafile(void);
