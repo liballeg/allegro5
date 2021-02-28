@@ -6,10 +6,10 @@
 void init_starfield_2d(void);
 void starfield_2d(void);
 void scroll_stars(void);
-void draw_starfield_2d(BITMAP *bmp);
+void draw_starfield_2d(void);
 
 void init_starfield_3d(void);
 void starfield_3d(void);
-void draw_starfield_3d(BITMAP *bmp);
+void draw_starfield_3d(void);
 
 #endif

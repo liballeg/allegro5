@@ -1,7 +1,5 @@
 #include "bullet.h"
 #include "data.h"
-#include "display.h"
-#include "dirty.h"
 #include "aster.h"
 #include "game.h"
 
@@ -88,7 +86,7 @@ void move_bullets(void)
 
 
 
-void draw_bullets(BITMAP *bmp)
+void draw_bullets()
 {
    BULLET *bullet;
    for (bullet = bullet_list; bullet; bullet = bullet->next) {
@@ -96,8 +94,8 @@ void draw_bullets(BITMAP *bmp)
       int y = bullet->y;
 
       RLE_SPRITE *spr = data[ROCKET].dat;
-      draw_rle_sprite(bmp, spr, x - spr->w / 2, y - spr->h / 2);
-      if (animation_type == DIRTY_RECTANGLE)
-         dirty_rectangle(x - spr->w / 2, y - spr->h / 2, spr->w, spr->h);
+      int sprw = al_get_bitmap_width(spr);
+      int sprh = al_get_bitmap_height(spr);
+      draw_sprite(spr, x - sprw / 2, y - sprh / 2);
    }
 }

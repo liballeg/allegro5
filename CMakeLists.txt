@@ -1087,6 +1087,7 @@ if(NOT MSVC80 AND WANT_DEMO) # XXX disabled because it breaks MSVC's intellisens
     add_subdirectory(demos/cosmic_protector)
     add_subdirectory(demos/speed)
     add_subdirectory(demos/skater)
+    add_subdirectory(demos/shooter)
 endif(NOT MSVC80 AND WANT_DEMO)
 
 #-----------------------------------------------------------------------------#

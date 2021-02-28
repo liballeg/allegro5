@@ -13,7 +13,7 @@ extern BULLET *bullet_list;
 
 BULLET *add_bullet(int x, int y);
 BULLET *delete_bullet(BULLET * bullet);
-void draw_bullets(BITMAP *bmp);
+void draw_bullets(void);
 void move_bullets(void);
 
 #endif

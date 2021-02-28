@@ -1,12 +1,10 @@
 #include "star.h"
-#include "dirty.h"
-#include "display.h"
 
 /* for the starfield */
-#define MAX_STARS       128
+#define MAX_STARS       512
 
 volatile struct {
-   fixed x, y, z;
+   al_fixed x, y, z;
    int ox, oy;
 } star[MAX_STARS];
 
@@ -49,7 +47,7 @@ void scroll_stars(void)
 
 
 
-void draw_starfield_2d(BITMAP *bmp)
+void draw_starfield_2d()
 {
    int x, y, c;
    for (c = 0; c < MAX_STARS; c++) {
@@ -58,9 +56,7 @@ void draw_starfield_2d(BITMAP *bmp)
                                           SCREEN_H) / SCREEN_H) +
           SCREEN_W / 2;
 
-      putpixel(bmp, x, y, 15 - (int)star[c].z);
-      if (animation_type == DIRTY_RECTANGLE)
-         dirty_rectangle(x, y, 1, 1);
+      al_draw_filled_circle(x, y, 1, get_palette(15 - (int)star[c].z));
    }
 }
 
@@ -78,7 +74,7 @@ void init_starfield_3d(void)
 void starfield_3d(void)
 {
    int c;
-   fixed x, y;
+   al_fixed x, y;
    int ix, iy;
 
    for (c = 0; c < star_count; c++) {
@@ -112,7 +108,7 @@ void starfield_3d(void)
 
    /* wake up new star */
    if (star_count < MAX_STARS) {
-      if (star_count_count++ >= 32) {
+      if (star_count_count++ >= 8) {
          star_count_count = 0;
          star_count++;
       }
@@ -121,13 +117,11 @@ void starfield_3d(void)
 
 
 
-void draw_starfield_3d(BITMAP *bmp)
+void draw_starfield_3d(void)
 {
    int c, c2;
    for (c = 0; c < star_count; c++) {
       c2 = 7 - (int)(star[c].z >> 18);
-      putpixel(bmp, star[c].ox, star[c].oy, CLAMP(0, c2, 7));
-      if (animation_type == DIRTY_RECTANGLE)
-         dirty_rectangle(star[c].ox, star[c].oy, 1, 1);
+      al_draw_filled_circle(star[c].ox, star[c].oy, 3, get_palette(CLAMP(0, c2, 7)));
    }
 }
