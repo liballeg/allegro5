@@ -41,18 +41,19 @@ emsdk_env.sh
 
 or equivalent as provided by emscripten.
 
-2. The "--preload-file data" option below includes a folder named "data"
-with each binary, so we make sure each example and demo has such a
-folder:
-
-( cd examples; ln -s {path-to-allegro-source-folder}/examples/data )
-mkdir demos/speed/data
-touch demos/speed/data/nothing.txt
-
-3. Create a build folder and configure CMake, using emcmake
+2. Create a build folder.
 
 mkdir build_emscripten
 cd build_emscripten
+
+3. The "--preload-file data" option below includes a folder named "data"
+with each binary, so we make sure each example and demo has such a
+folder:
+
+mkdir -p demos/speed/data
+demos/speed/data/nothing.txt
+
+4. Configure CMake, using emcmake.
 
 USE_FLAGS=(
     -s USE_FREETYPE=1
@@ -81,22 +82,41 @@ emcmake cmake {path-to-allegro-source-folder}
      # we use a  hack - we manually specify the cache path, so cmake
      # will fail on first run in the compile test but populate the cache
      # (from the -s options) and on second run it all works
-    -D SDL2_INCLUDE_DIR=$EM_CACHE/include
-    -D PNG_PNG_INCLUDE_DIR=$EM_CACHE/include
-    -D PNG_LIBRARY=$EM_CACHE/wasm/libpng.a
-    -D JPEG_INCLUDE_DIR=$EM_CACHE/include
-    -D JPEG_LIBRARY=$EM_CACHE/wasm/libjpeg.a
-    -D FREETYPE_INCLUDE_DIRS=$EM_CACHE/include
-    -D FREETYPE_LIBRARY=$EM_CACHE/wasm/libfreetype.a
-    -D VORBIS_INCLUDE_DIR=$EM_CACHE/include/vorbis
-    -D VORBIS_LIBRARY=$EM_CACHE/wasm/libvorbis.a
-    -D VORBISFILE_LIBRARY=$EM_CACHE/wasm/libvorbis.a
-    -D OGG_INCLUDE_DIR=$EM_CACHE/include
-    -D OGG_LIBRARY=$EM_CACHE/wasm/libogg.a
-    -D CMAKE_C_FLAGS="${USE_FLAGS[@]}"
-    -D CMAKE_CXX_FLAGS="${USE_FLAGS[@]}"
-    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS[@]} --preload-file data"
-    -D CMAKE_EXECUTABLE_SUFFIX=".html"
+    -D SDL2_INCLUDE_DIR=$EM_CACHE/sysroot/include
+    -D PNG_PNG_INCLUDE_DIR=$EM_CACHE/sysroot/include
+    -D PNG_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libpng.a
+    -D JPEG_INCLUDE_DIR=$EM_CACHE/sysroot/include
+    -D JPEG_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libjpeg.a
+    -D FREETYPE_INCLUDE_DIRS=$EM_CACHE/sysroot/include
+    -D FREETYPE_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libfreetype.a
+    -D VORBIS_INCLUDE_DIR=$EM_CACHE/sysroot/include/vorbis
+    -D VORBIS_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libvorbis.a
+    -D VORBISFILE_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libvorbis.a
+    -D OGG_INCLUDE_DIR=$EM_CACHE/sysroot/include
+    -D OGG_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libogg.a
+    -D CMAKE_C_FLAGS="${USE_FLAGS}"
+    -D CMAKE_CXX_FLAGS="${USE_FLAGS}"
+    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS} --preload-file data"
+    -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
+
+Emscripten will take care of downloading the dependencies mentioned above via
+its ports system.
 
 To compile your own game adjust as necessary. You can use the
 lib/liballegro_monolith-static.a library.
+
+5. Compile the library and examples.
+
+make
+
+Since that can take awhile (a lot slower than regular compilation speed), you
+may want to compile individual examples, e.g.
+
+make ex_draw_bitmap
+
+6. To run the examples, navigate to the examples folder. At this point it is
+easiest to start a local webserver, and then navigate to the examples using a
+web browser. E.g. you could use the Python's web server module which prints out
+a URL you can open:
+
+python3 -m http.server
