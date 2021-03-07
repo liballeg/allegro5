@@ -424,6 +424,10 @@ if(COMPILER_GCC_OR_CLANG)
 endif()
 if(COMPILER_MSVC)
     set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        # Clang is more strict than MSVC's compiler here.
+        set(WFLAGS "${WFLAGS} -Wno-c++11-narrowing")
+    endif()
 endif(COMPILER_MSVC)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
