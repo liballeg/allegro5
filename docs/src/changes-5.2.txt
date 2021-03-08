@@ -2,6 +2,131 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.6 to 5.2.7 (March 2021)
+========================================
+
+The main developers this time were: SiegeLord, Peter Hull, Elias Pschernig,
+Aldrik Ramaekers, Andreas Rönnquist.
+
+Build system:
+
+- Allow generating projects with a suffix (lorry-lee).
+
+- Fix build under Clang-CL in Visual Studio.
+
+Core:
+
+- Avoid some undefined behavior errors.
+
+- Return key modifiers in `ALLEGRO_EVENT_KEY_UP` and `ALLEGRO_EVENT_KEY_DOWN`.
+
+- Allow calling `al_map_*` color functions before Allegro is initialized.
+
+- Allow minimum bitmap size to be something other than 16 on non-Android
+  platforms (controlled via `allegro5.cfg`).
+
+- Add `al_get_monitor_refresh_rate` (only implemented on Windows for now).
+
+Graphics:
+
+- Fix `ALLEGRO_KEEP_INDEX` flag for bitmaps.
+
+- Add `ALLEGRO_OPENGL_CORE_PROFILE` display flag.
+
+Emscripten:
+
+- The experimental Emscripten support (via the SDL backend) is now documented
+  in `README_sdl.txt`.
+
+OSX:
+
+- Move more Cocoa operations to the main thread.
+
+- Explicitly link CoreVideo to fix the static build.
+
+Windows:
+
+- Issue #1125: Speed up OpenGL extension detection (Tobias Scheuer).
+
+- Use Unicode APIs when enumerating joysticks.
+
+- Use `WM_DEVICECHANGE` rather than polling to detect joystick hotlugging,
+  reducing input drops and lags (Todd Cope).
+
+- Fix joystick polling period.
+
+- Restore WinXP compatibility by using slightly older API when loading shared
+  libraries (Julian Smythe).
+
+- Fix build with HLSL disabled (Julian Smythe).
+
+- Raise DirectInput `MAX_JOYSTICKS` to 32 and `DEVICE_BUFFER_SIZE` to 128.
+
+SDL:
+
+- Issue #1224: Fix bug in SDL voice driver.
+
+Audio addon:
+
+- Allows playing sounds in reverse by specifying a negative speed.
+
+Acodec addon:
+
+- Fix edge-case looping in Ogg Vorbis stream (Cody Licorish)
+
+Audio addon:
+
+- Use more sensible values for PulseAudio's playback buffer, potentially
+  resolving some crashes and high CPU usage.
+
+Native Dialog Addon:
+
+- Migrate from GTK2 to GTK3. Sadly, we lose menu icons as GTK3 dropped support
+  for them.
+
+TTF addon:
+
+- Allow initializing TTF addon before the Font addon.
+
+- Shut-down the TTF addon automatically in `al_uninstall_system`.
+
+PhysFS addon:
+
+- Fix handling of native path separators.
+
+- Stop using deprecated PhysFS API.
+
+Primitives addon:
+
+- Fix segfault in `al_draw_ribbon` when `num_segments > 128` (Rodolfo Borges).
+
+- Issue 1215: Correctly handle small scales when determining subdivision level
+  for high level primitives (Robin Heydon).
+
+Documentation:
+
+- Fix LaTeX errors in the generation of the reference manual PDF.
+
+- Add links to examples into the reference manual.
+
+- Allow pressing 'S' to focus the search bar in the docs.
+
+- Assorted documentation improvements.
+
+Misc:
+
+- Add a security policy and an associated private security mailing list -
+  allegro-security@lists.liballeg.org.
+
+- Add Emscripten-powered examples to https://liballeg.org/examples_demos.html.
+
+Examples:
+
+- `ex_audio_simple` now displays instructions and supports bidirectional looping.
+
+- Add default files to some audio examples.
+
+
 Changes from 5.2.5 to 5.2.6 (February 2020)
 ==========================================
 
