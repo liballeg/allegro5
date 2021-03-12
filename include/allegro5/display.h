@@ -27,6 +27,9 @@ enum {
    ALLEGRO_GTK_TOPLEVEL_INTERNAL       = 1 << 12,
    ALLEGRO_MAXIMIZED                   = 1 << 13,
    ALLEGRO_OPENGL_ES_PROFILE           = 1 << 14,
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+   ALLEGRO_OPENGL_CORE_PROFILE         = 1 << 15,
+#endif
 };
 
 /* Possible parameters for al_set_display_option.

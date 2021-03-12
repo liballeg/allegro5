@@ -20,6 +20,8 @@
  */
 //#define BYPASS_MIXER
 
+char *default_files[] = {NULL, "../demos/skater/data/menu/skate2.ogg"};
+
 int main(int argc, char **argv)
 {
    int i;
@@ -35,9 +37,10 @@ int main(int argc, char **argv)
    open_log();
 
    if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\n");
+      log_printf("This example can be run from the command line.\n");
       log_printf("Usage: %s [--loop] {audio_files}\n", argv[0]);
-      goto done;
+      argv = default_files;
+      argc = 2;
    }
 
    if (strcmp(argv[1], "--loop") == 0) {
@@ -81,6 +84,12 @@ int main(int argc, char **argv)
 
       stream = al_load_audio_stream(filename, 4, 2048);
       if (!stream) {
+         /* If it is not packed, e.g. on Android or iOS. */
+         if (!strcmp(filename, default_files[1])) {
+            stream = al_load_audio_stream("data/welcome.wav", 4, 2048);
+         }
+      }
+      if (!stream) {
          log_printf("Could not create an ALLEGRO_AUDIO_STREAM from '%s'!\n",
                  filename);
          continue;
@@ -122,7 +131,6 @@ int main(int argc, char **argv)
    al_destroy_voice(voice);
 
    al_uninstall_audio();
-done:
    close_log(true);
 
    return 0;

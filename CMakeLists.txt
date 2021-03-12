@@ -49,7 +49,7 @@ endif(ANDROID)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented on Windows)" OFF)
 
-set(ALLEGRO_VERSION 5.2.7)
+set(ALLEGRO_VERSION 5.2.8)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
@@ -203,6 +203,12 @@ option(WANT_DEMO "Build demo programs" on)
 option(WANT_EXAMPLES "Build example programs" on)
 option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 option(WANT_TESTS "Build test programs" on)
+
+option(WANT_WAIT_EVENT_SLEEP "Use sleep instead of threads in al_wait_for_event (only useful for emscripten without web workers)" off)
+
+if(WANT_WAIT_EVENT_SLEEP)
+    set(ALLEGRO_WAIT_EVENT_SLEEP 1)
+endif()
 
 #-----------------------------------------------------------------------------#
 #
@@ -418,6 +424,10 @@ if(COMPILER_GCC_OR_CLANG)
 endif()
 if(COMPILER_MSVC)
     set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        # Clang is more strict than MSVC's compiler here.
+        set(WFLAGS "${WFLAGS} -Wno-c++11-narrowing")
+    endif()
 endif(COMPILER_MSVC)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
@@ -903,8 +913,10 @@ if(MACOSX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_MACOSX_FILES})
     find_library(APPKIT_LIBRARY AppKit)
     find_library(IOKIT_LIBRARY IOKit)
+    find_library(COREVIDEO_LIBRARY CoreVideo)
     list(APPEND PLATFORM_LIBS ${APPKIT_LIBRARY})
     list(APPEND PLATFORM_LIBS ${IOKIT_LIBRARY})
+    list(APPEND PLATFORM_LIBS ${COREVIDEO_LIBRARY})
 endif(MACOSX)
 
 if(IPHONE)

@@ -79,3 +79,13 @@ On Windows, use [al_set_new_display_flags] to switch between Direct3D and
 OpenGL backends, which will often have different adapters available.
 
 See also: [al_get_monitor_info]
+
+## API: al_get_monitor_refresh_rate
+
+Returns the current refresh rate of a monitor attached to the display adapter.
+
+Since: 5.2.6
+
+> *[Unstable API]:* This is an experimental feature and currently only works on Windows.
+
+See also: [al_get_monitor_info]

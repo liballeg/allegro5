@@ -264,6 +264,10 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    active_sysdrv = real_system;
    active_sysdrv->mouse_wheel_precision = 1;
 
+   const char *min_bitmap_size = al_get_config_value(
+      al_get_system_config(), "graphics", "min_bitmap_size");
+   active_sysdrv->min_bitmap_size = min_bitmap_size ? atoi(min_bitmap_size) : 16;
+
    ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
 
    if (strcmp(al_get_app_name(), "") == 0) {
@@ -275,8 +279,6 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    _al_dtor_list = _al_init_destructors();
 
    _al_init_events();
-
-   _al_init_pixels();
 
    _al_init_iio_table();
    

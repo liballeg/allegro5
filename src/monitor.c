@@ -31,6 +31,21 @@ int al_get_num_video_adapters(void)
    return 0;
 }
 
+/* Function: al_get_monitor_refresh_rate
+ */
+int al_get_monitor_refresh_rate(int adapter)
+{
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
+
+   if (adapter < al_get_num_video_adapters()) {
+      if (system && system->vt && system->vt->get_monitor_refresh_rate) {
+         return system->vt->get_monitor_refresh_rate(adapter);
+      }
+   }
+
+   return 0;
+}
+
 
 /* Function: al_get_monitor_info
  */

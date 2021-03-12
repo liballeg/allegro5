@@ -120,5 +120,8 @@
 /* Define if we are building with SDL backend. */
 #cmakedefine ALLEGRO_SDL
 
+/* Define if sleep should be used instead of threads (only useful for emscripten without web workers) */
+#cmakedefine ALLEGRO_WAIT_EVENT_SLEEP
+
 /*---------------------------------------------------------------------------*/
 /* vi: set ft=c ts=3 sts=3 sw=3 et: */

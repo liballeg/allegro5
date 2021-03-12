@@ -143,8 +143,49 @@ autosuggest.prototype = {
 
 		this.addEvent(this.field, "focus", callLater(this.setupEvents, this));
 		this.addEvent(window, "resize", callLater(this.reposition, this));
+		
+		var obj = this;
+		this.addEvent(document, "keypress", function(event) { obj.funcShortcut(obj, event); });
+		this.addEvent(document, "keydown", function(event) { obj.funcShortcut(obj, event); });
 
 		return this;
+	},
+
+	funcShortcut: function(obj, event)
+	{
+		event = event || window.event;
+		
+		var s;
+		if("key" in event && typeof event.key != "undefined")
+		{
+			s = event.key;
+		}
+		else
+		{
+			var c = event.charCode || event.keyCode;
+			if(c == 27)
+			{
+				s = "Escape";
+			}
+			else
+			{
+				s = String.fromCharCode(c);
+			}
+		}
+		switch(s)
+		{
+			case "Escape":
+				obj.field.blur();
+				break;
+			case "s":
+			case "S":
+				if(!this.evsetup)
+				{
+					event.preventDefault();
+					obj.field.focus();
+					break;
+				}
+		}
 	},
 
 	bindArray: function(array)

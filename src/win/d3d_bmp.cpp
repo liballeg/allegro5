@@ -667,6 +667,7 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
 static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    int bitmap_format = al_get_bitmap_format(bitmap);
    int system_format = d3d_bmp->system_format;
    int block_width = al_get_pixel_block_width(bitmap_format);
@@ -699,8 +700,8 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       }
 
       // Some cards/drivers don't like small textures
-      if (d3d_bmp->texture_w < 16) d3d_bmp->texture_w = 16;
-      if (d3d_bmp->texture_h < 16) d3d_bmp->texture_h = 16;
+      if (d3d_bmp->texture_w < system->min_bitmap_size) d3d_bmp->texture_w = system->min_bitmap_size;
+      if (d3d_bmp->texture_h < system->min_bitmap_size) d3d_bmp->texture_h = system->min_bitmap_size;
 
       ASSERT(d3d_bmp->texture_w % block_width == 0);
       ASSERT(d3d_bmp->texture_h % block_height == 0);

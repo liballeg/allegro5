@@ -780,10 +780,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
-#ifdef GL_CLIENT_PIXEL_STORE_BIT
-   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
-   {
+   int previous_alignment;
+   glGetIntegerv(GL_PACK_ALIGNMENT, &previous_alignment);
+   if (previous_alignment != 1) {
       glPixelStorei(GL_PACK_ALIGNMENT, 1);
       e = glGetError();
       if (e) {
@@ -842,9 +841,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-#ifdef GL_CLIENT_PIXEL_STORE_BIT
-   glPopClientAttrib();
-#endif
+   if (previous_alignment != 1) {
+      glPixelStorei(GL_PACK_ALIGNMENT, previous_alignment);
+   }
 
    if (old_disp != NULL) {
       _al_set_current_display_only(old_disp);
@@ -908,10 +907,9 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
    }
 
    /* Keep this in sync with ogl_lock_compressed_region. */
-#ifdef GL_CLIENT_PIXEL_STORE_BIT
-   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
-   {
+   int previous_alignment;
+   glGetIntegerv(GL_UNPACK_ALIGNMENT, &previous_alignment);
+   if (previous_alignment != 1) {
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       e = glGetError();
       if (e) {
@@ -934,9 +932,9 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
          _al_pixel_format_name(lock_format), _al_gl_error_string(e));
    }
 
-#ifdef GL_CLIENT_PIXEL_STORE_BIT
-   glPopClientAttrib();
-#endif
+   if (previous_alignment != 1) {
+      glPixelStorei(GL_UNPACK_ALIGNMENT, previous_alignment);
+   }
 
    if (old_disp) {
       _al_set_current_display_only(old_disp);
@@ -1027,6 +1025,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
    int true_h;
    int block_width;
    int block_height;
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    (void)d;
 
    format = _al_get_real_pixel_format(d, format);
@@ -1055,8 +1054,8 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
     * work with them on some of these chips. This is a
     * workaround.
     */
-   if (true_w < 16) true_w = 16;
-   if (true_h < 16) true_h = 16;
+   if (true_w < system->min_bitmap_size) true_w = system->min_bitmap_size;
+   if (true_h < system->min_bitmap_size) true_h = system->min_bitmap_size;
 
    /* glReadPixels requires 32 byte aligned rows */
    if (IS_ANDROID) {

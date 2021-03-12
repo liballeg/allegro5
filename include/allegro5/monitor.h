@@ -25,7 +25,9 @@ enum {
 AL_FUNC(int, al_get_num_video_adapters, (void));
 AL_FUNC(bool, al_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
 AL_FUNC(int, al_get_monitor_dpi, (int adapter));
-
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+AL_FUNC(int, al_get_monitor_refresh_rate, (int adapter));
+#endif
 
 #ifdef __cplusplus
    }

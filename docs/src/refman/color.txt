@@ -405,7 +405,7 @@ Since: 5.2.3
 See also: [al_color_lch], [al_color_rgb_to_lch]
 
 
-## API: al_color_distance_ciede2000_lab
+## API: al_color_distance_ciede2000
 
 This function computes the CIEDE2000 color difference between two
 RGB colors. This is a visually uniform color difference, unlike for

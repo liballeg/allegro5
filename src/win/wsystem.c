@@ -496,6 +496,26 @@ static int win_find_nth_adapter_with_desktop(DISPLAY_DEVICE* pdd, int adapter)
    return false;
 }
 
+static int win_get_monitor_refresh_rate(int adapter)
+{
+   DISPLAY_DEVICE dd;
+   DEVMODE dm;
+
+   memset(&dd, 0, sizeof(dd));
+   dd.cb = sizeof(dd);
+   if (!win_find_nth_adapter_with_desktop(&dd, adapter)) {
+      return 0;
+   }
+
+   memset(&dm, 0, sizeof(dm));
+   dm.dmSize = sizeof(dm);
+   if (!EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm)) {
+      return 0;
+   }
+
+   return dm.dmDisplayFrequency;
+}
+
 static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    DISPLAY_DEVICE dd;
@@ -905,6 +925,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_monitor_dpi = win_get_monitor_dpi;
+   vt->get_monitor_refresh_rate = win_get_monitor_refresh_rate;
    vt->get_cursor_position = win_get_cursor_position;
    vt->grab_mouse = win_grab_mouse;
    vt->ungrab_mouse = win_ungrab_mouse;

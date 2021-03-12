@@ -71,7 +71,7 @@ function on_search(index, control) {
 }
 </script>
 Search<br/>
-<input type="text" name="q" id="q" size="15" autocomplete="off"/><br/>
+<input type="text" name="q" id="q" size="15" autocomplete="off" placeholder="Press ‘S’ to search" /><br/>
 <script type="text/javascript"> new autosuggest("q", search_index, null, on_search); </script>
 </div>
 
