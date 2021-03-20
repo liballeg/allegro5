@@ -117,6 +117,7 @@ int main(int argc, char **argv)
    event_queue = al_create_event_queue();
    al_register_event_source(event_queue, al_get_keyboard_event_source());
    al_register_event_source(event_queue, al_get_timer_event_source(timer));
+   al_register_event_source(event_queue, al_get_display_event_source(display));
 
    al_identity_transform(&trans);
    al_scale_transform(&trans, 16.0, 16.0);
@@ -150,6 +151,9 @@ int main(int argc, char **argv)
                al_set_timer_speed(timer, 1.0 / bps);
             }
          }
+      }
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+         break;
       }
 
       if (redraw && al_is_event_queue_empty(event_queue)) {
