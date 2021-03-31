@@ -96,6 +96,8 @@ static bool lhap_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
 static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev);
 static bool lhap_set_autocenter(ALLEGRO_HAPTIC *dev, double);
 
+static void lhap_timerclear(struct input_event *evt);
+
 ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
 {
    _ALLEGRO_HAPDRV_LINUX,
@@ -131,7 +133,7 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
    lhap_release_effect,
 
    lhap_release,
-   
+
    lhap_get_autocenter,
    lhap_set_autocenter
 };
@@ -608,11 +610,11 @@ static double lhap_get_gain(ALLEGRO_HAPTIC *dev)
 {
    ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    (void)dev;
-   
-   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_GAIN)) { 
-     return 0.0;  
-   } 
-   
+
+   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_GAIN)) {
+     return 0.0;
+   }
+
    /* Unfortunately there seems to be no API to GET gain, only to set?!
     * So, return the stored gain.
     */
@@ -626,7 +628,7 @@ static bool lhap_set_gain(ALLEGRO_HAPTIC *dev, double gain)
    struct input_event ie;
 
    lhap->parent.gain = gain;
-   timerclear(&ie.time);
+   lhap_timerclear(&ie);
    ie.type = EV_FF;
    ie.code = FF_GAIN;
    ie.value = (__s32) ((double)0xFFFF * gain);
@@ -643,7 +645,7 @@ static bool lhap_set_autocenter(ALLEGRO_HAPTIC *dev, double autocenter)
    struct input_event ie;
 
    lhap->parent.autocenter = autocenter;
-   timerclear(&ie.time);
+   lhap_timerclear(&ie);
    ie.type = EV_FF;
    ie.code = FF_AUTOCENTER;
    ie.value = (__s32) ((double)0xFFFF * autocenter);
@@ -657,8 +659,8 @@ static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev)
 {
    ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    (void)dev;
-   
-   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_AUTOCENTER)) { 
+
+   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_AUTOCENTER)) {
      return 0.0;
    }
 
@@ -769,7 +771,7 @@ static bool lhap_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loops)
 
    fd = lhap->fd;
 
-   timerclear(&play.time);
+   lhap_timerclear(&play);
    play.type = EV_FF;
    play.code = id->_handle;
    loops = (loops < 0) ? 1 : loops;
@@ -852,6 +854,11 @@ static bool lhap_release(ALLEGRO_HAPTIC *haptic)
    return true;
 }
 
+void lhap_timerclear(struct input_event* evt)
+{
+   evt->input_event_sec = 0;
+   evt->input_event_usec = 0;
+}
 
 #endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
 
