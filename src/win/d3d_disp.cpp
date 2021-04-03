@@ -467,10 +467,25 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
       d->samples = 0;
    }
    else {
-      if (msaa) {
-         d3d_pp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
-      }
       d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+      if (msaa) {
+         int quality = d->samples;
+         DWORD levels = 0;
+         while (quality >= 2) {
+            if (D3D_OK == SUCCEEDED(_al_d3d->CheckDeviceMultiSampleType(
+                                                D3DADAPTER_DEFAULT , D3DDEVTYPE_HAL , 
+                                                d3d_pp.BackBufferFormat , FALSE , (D3DMULTISAMPLE_TYPE)quality , &levels))) {
+               if (levels) {
+                  d3d_pp.MultiSampleType = (D3DMULTISAMPLE_TYPE)quality;
+                  d3d_pp.MultiSampleQuality = (int)levels;
+                  d->samples = quality;
+                  break;
+               }
+               levels = 0;
+            }
+            quality--;
+         }
+      }
    }
    d3d_pp.hDeviceWindow = win_display->window;
 
@@ -586,17 +601,9 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    if (ret != D3D_OK) {
       return 0;
    }
-   if (d3d_pp.SwapEffect == D3DSWAPEFFECT_DISCARD && msaa) {
-      if ((ret = IDirect3D9_CheckDeviceMultiSampleType(_al_d3d , win_display->adapter , dev_type , (D3DFORMAT)_al_pixel_format_to_d3d(d->format) , FALSE , D3DMULTISAMPLE_NONMASKABLE , &sample_quality)) != D3D_OK) {
-         d->samples = 0;
-         al_display->extra_settings.settings[ALLEGRO_SAMPLES] = 0;
-         al_display->extra_settings.settings[ALLEGRO_SAMPLES] = 0;
-         ALLEGRO_WARN("CheckDeviceMultiSampleType failed.\n");
-      }
-      else {
-         al_display->extra_settings.settings[ALLEGRO_SAMPLES] = sample_quality;
-         d->samples = sample_quality;
-      }
+   
+   if (d->samples) {
+      al_display->extra_settings.settings[ALLEGRO_SAMPLES] = d->samples;
    }
    
    d->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d->render_target);
