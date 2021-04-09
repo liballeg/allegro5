@@ -60,7 +60,7 @@ static _AL_LIST* device_list;
 #define MIN_FILL           512
 #define MAX_FILL           1024
 
-BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTSTR lpcstrModule, LPVOID lpContext);
+static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTSTR lpcstrModule, LPVOID lpContext);
 
 static HWND get_window()
 {
