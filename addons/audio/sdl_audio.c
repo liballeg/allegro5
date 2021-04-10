@@ -214,12 +214,13 @@ static void sdl_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
 
 static void _device_list_dtor(void* value, void* userdata)
 {
+   (void)userdata;
+
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
    al_free(device->name);
-   al_free(device->identifier);
 }
 
-static _AL_LIST* sdl_get_devices()
+static _AL_LIST* sdl_get_devices(void)
 {
    if (!device_list) {
       device_list = _al_list_create();
@@ -229,13 +230,8 @@ static _AL_LIST* sdl_get_devices()
          int len = strlen(SDL_GetAudioDeviceName(i, 0)) + 1;
 
          ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
-         device->identifier = (void*)al_malloc(sizeof(int));
          device->name = (char*)al_malloc(len);
-
-         memset(device->identifier, 0, sizeof(int));
-         memset(device->name, 0, len);
-
-         memcpy(device->identifier, &i, sizeof(int));
+         device->identifier = device->name; // Name returned by SDL2 is used to identify devices.
          strcpy(device->name, SDL_GetAudioDeviceName(i, 0));
 
          _al_list_push_back_ex(device_list, device, _device_list_dtor);
