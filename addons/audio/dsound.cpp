@@ -277,6 +277,7 @@ static int _dsound_open()
    DirectSoundEnumerate((LPDSENUMCALLBACK)DSEnumCallback, NULL);
 
    /* FIXME: Use default device until we have device enumeration */
+
    hr = DirectSoundCreate8(NULL, &device, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("DirectSoundCreate8 failed: %s\n", ds_get_error(hr));
@@ -818,6 +819,8 @@ void _dsound_close_recorder(ALLEGRO_AUDIO_RECORDER *r) {
 
 static void _device_list_dtor(void* value, void* userdata)
 {
+   (void)userdata;
+
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
@@ -833,14 +836,11 @@ static BOOL CALLBACK DSEnumCallback(
    (void)lpContext;
 
    if (lpGuid != NULL) {
-      size_t desc_size = wcslen(lpcstrDescription);
+      size_t desc_size = wcslen(lpcstrDescription) + 1;
 
       ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
       device->identifier = (void*)al_malloc(sizeof(GUID));
-      device->name = (char*)al_malloc(desc_size + 1);
-
-      memset(device->identifier, 0, sizeof(GUID));
-      memset(device->name, 0, desc_size + 1);
+      device->name = (char*)al_malloc(desc_size);
 
       memcpy(device->identifier, lpGuid, sizeof(GUID));
       wcstombs(device->name, lpcstrDescription, desc_size);
@@ -851,7 +851,7 @@ static BOOL CALLBACK DSEnumCallback(
    return TRUE;
 }
 
-static _AL_LIST* _dsound_get_devices()
+static _AL_LIST* _dsound_get_devices(void)
 {
    return device_list;
 }
