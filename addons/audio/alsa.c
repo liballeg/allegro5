@@ -880,12 +880,14 @@ static void alsa_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
 
 static void _device_list_dtor(void* value, void* userdata)
 {
+   (void)userdata;
+
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
 }
 
-static _AL_LIST* alsa_get_devices()
+static _AL_LIST* alsa_get_devices(void)
 {
    if (!device_list) {
       device_list = _al_list_create();
@@ -902,6 +904,15 @@ static _AL_LIST* alsa_get_devices()
             return device_list;
          }
 
+         snd_ctl_card_info_t *card_info;
+         snd_ctl_card_info_alloca(&card_info);
+         if (snd_ctl_card_info(handle, card_info) < 0) {
+            continue;
+         }
+
+         snd_ctl_card_info_get_name(card_info);
+         snd_ctl_card_info_get_id(card_info);
+
          int dev_num = -1;
 
          while(1) {
@@ -911,31 +922,41 @@ static _AL_LIST* alsa_get_devices()
 
             if (dev_num < 0) break;
 
-            snd_ctl_card_info_t *card_info;
-            snd_ctl_card_info_alloca(&card_info);
-
-            if (snd_ctl_card_info(handle, card_info) < 0) {
-               break;
+            void **hints;
+            int success = snd_device_name_hint(dev_num, "pcm", &hints);
+            if (success < 0) continue;
+            char**n = (char**)hints;
+               
+            char* identifier = 0;
+            char* name = 0;
+            while(*n != NULL)
+            {
+               identifier = snd_device_name_get_hint(*n, "NAME");
+               name = snd_device_name_get_hint(*n, "DESC");
+                  
+               char* ioid = snd_device_name_get_hint(*n, "IOID");
+               if (ioid == NULL || strcmp(ioid, "Output") == 0) break;
+               n++;
             }
-            else {
-               char *name = snd_ctl_card_info_get_name(card_info);
-               char *identifier = snd_ctl_card_info_get_id(card_info);
-               int len = strlen(name) + 1;
-               int identifier_len = strlen(identifier) + 1;
 
-               ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
-               device->identifier = (char*)al_malloc(identifier_len);
-               device->name = (char*)al_malloc(len);
+            if (!identifier || !name) continue;
 
-               memset(device->name, 0, len);
-               strcpy(device->name, name);
+            char* sep_at = strchr(name, '\n');
+            name = sep_at ? sep_at+1 : name;
+            
+            int len = strlen(name) + 1;
+            int identifier_len = strlen(identifier) + 1;
 
-               memset(device->identifier, 0, identifier_len);
-               strcpy(device->identifier, identifier);
+            ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+            device->identifier = (char*)al_malloc(identifier_len);
+            device->name = (char*)al_malloc(len);
 
-               // identifier or maybe even name should be subdevice gist.github.com/dontknowmyname/4536543
-               _al_list_push_back_ex(device_list, device, _device_list_dtor);
-            }
+            strcpy(device->name, name);
+            strcpy(device->identifier, identifier);
+
+            snd_device_name_free_hint(hints);
+            _al_list_push_back_ex(device_list, device, _device_list_dtor);
+    
          }
 
          snd_ctl_close(handle);
