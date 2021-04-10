@@ -196,7 +196,7 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 }
 
-int al_get_audio_device_count()
+int al_get_num_audio_devices()
 {
    if (_al_kcm_driver) {
       if (_al_kcm_driver->get_devices) {
