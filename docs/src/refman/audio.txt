@@ -1740,3 +1740,25 @@ ignored, as the fragment buffer will no longer be valid.
 Since: 5.1.1
 
 > *[Unstable API]:* The API may need a slight redesign.
+
+
+## Audio device functions
+
+### API: ALLEGRO_AUDIO_DEVICE
+
+An opaque datatype that represents an audio device. 
+
+### API: al_get_num_audio_devices
+
+Get the number of available audio devices on the system. Currently supported
+by the ALSA, SDL, DirectSound8, and PulseAudio drivers.
+
+return -1 for unsupported drivers.
+
+### API: al_get_audio_device
+
+Get the audio device of the specified index.
+
+### API: al_get_audio_device_name
+
+Get the user friendly display name of the device.
