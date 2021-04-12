@@ -26,9 +26,6 @@ typedef struct CREDIT_NAME {
 /* text messages (loaded from readme.txt) */
 static char *title_text;
 static int title_size;
-static int title_alloced;
-
-static char *end_text;
 
 static PALETTE title_palette;
 
@@ -97,7 +94,7 @@ static void load_credits(void)
 
 static void scroller(void)
 {
-   int c, n;
+   int n;
    TEXT_LIST *tl;
 
    starfield_3d();
@@ -146,20 +143,15 @@ static void scroller(void)
 
 static void draw_scroller(void)
 {
-   /* for the text scroller */
-   char buf[2] = " ";
    TEXT_LIST *tl;
    int n, n2, c, c2, c3;
    char *p;
-   char cbuf[2] = " ";
    FONT *bigfont = data[TITLE_FONT].dat;
    int th = text_height(bigfont);
 
    /* draw the text scroller at the bottom */
-   if (text_char >= 0)
-      buf[0] = title_text[text_char];
    textout(bigfont, title_text,
-              SCREEN_W - text_scroll, SCREEN_H - th, makecol(255, 255, 255));
+           SCREEN_W - text_scroll, SCREEN_H - th, makecol(255, 255, 255));
 
    /* draw author file credits */
    if (credit_name) {
@@ -266,7 +258,6 @@ int title_screen(void)
 {
    static int color = 0;
    int c;
-   BITMAP *bmp;
    RGB rgb;
    int updated;
    int scroll_pos = 0;

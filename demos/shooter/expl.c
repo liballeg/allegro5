@@ -60,7 +60,7 @@ void generate_explosions(void)
             else
                c2 = 16 + c2 / 4;
 
-            uint8_t *lp = locked->data + y * locked->pitch + x * 4;
+            uint8_t *lp = (uint8_t *)locked->data + y * locked->pitch + x * 4;
             lp[0] = pal->rgb[c2].r * 255;
             lp[1] = pal->rgb[c2].g * 255;
             lp[2] = pal->rgb[c2].b * 255;

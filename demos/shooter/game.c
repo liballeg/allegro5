@@ -249,7 +249,6 @@ static void draw_screen(void)
    if ((ship_burn) && (ship_state < EXPLODE_FLAG)) {
       spr = data[ENGINE1 + (retrace_count() / 4) % 7].dat;
       int sprw = al_get_bitmap_width(spr);
-      int sprh = al_get_bitmap_height(spr);
       draw_sprite(spr, x - sprw / 2, SCREEN_H - 24);
    }
 

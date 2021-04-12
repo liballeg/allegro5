@@ -11,6 +11,7 @@ include_directories(
    ${PROJECT_SOURCE_DIR}/addons/image
    ${PROJECT_SOURCE_DIR}/addons/main
    ${PROJECT_SOURCE_DIR}/addons/primitives
+   ${PROJECT_SOURCE_DIR}/addons/ttf
    )
 
 set(DEMO_SRCS

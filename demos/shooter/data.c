@@ -88,7 +88,7 @@ int title_pal[];
 int game_pal[];
 ALLEGRO_BITMAP *ast;
 
-PALETTE *_make_pal(int *pal) {
+static PALETTE *_make_pal(int *pal) {
     PALETTE *p = al_calloc(1, sizeof *p);
     for (int i = 0; i < 256; i++) {
         p->rgb[i] = al_map_rgb(pal[i * 3 + 0], pal[i * 3 + 1], pal[i * 3 + 2]);

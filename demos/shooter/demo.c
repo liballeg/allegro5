@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
 {
    int c;
    int w, h;
-   char buf[256], buf2[256];
   
    for (c = 1; c < argc; c++) {
       if (stricmp(argv[c], "-cheat") == 0)
@@ -102,6 +101,7 @@ int main(int argc, char *argv[])
    install_timer();
    al_init_font_addon();
    al_init_ttf_addon();
+   al_init_primitives_addon();
 
    font = al_create_builtin_font();
 
