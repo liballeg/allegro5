@@ -299,37 +299,35 @@ void _al_trace_suffix(const char *msg, ...)
 
    if (_al_user_trace_handler) {
       _al_user_trace_handler(static_trace_buffer);
-      static_trace_buffer[0] = '\0';
-      return;
    }
-
+   else {
 #ifdef ALLEGRO_ANDROID
-   (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
-      static_trace_buffer);
+      (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
+         static_trace_buffer);
 #endif
 #if defined(ALLEGRO_IPHONE) || defined(__EMSCRIPTEN__)
-   fprintf(stderr, "%s", static_trace_buffer);
-   fflush(stderr);
+      fprintf(stderr, "%s", static_trace_buffer);
+      fflush(stderr);
 #endif
 #ifdef ALLEGRO_WINDOWS
-   {
-      TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
-      OutputDebugString(windows_output);
-      al_free(windows_output);
-   }
+      {
+         TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
+         OutputDebugString(windows_output);
+         al_free(windows_output);
+      }
 #endif
 
-   /* We're intentially still writing to a file if it's set even with the
-    * additional logging options above. */
-   if (trace_info.trace_file) {
-      fprintf(trace_info.trace_file, "%s", static_trace_buffer);
-      fflush(trace_info.trace_file);
+      /* We're intentially still writing to a file if it's set even with the
+       * additional logging options above. */
+      if (trace_info.trace_file) {
+         fprintf(trace_info.trace_file, "%s", static_trace_buffer);
+         fflush(trace_info.trace_file);
+      }
    }
    static_trace_buffer[0] = '\0';
+   errno = olderr;
 
    _al_mutex_unlock(&trace_info.trace_mutex);
-
-   errno = olderr;
 }
 
 
