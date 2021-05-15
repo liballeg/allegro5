@@ -1682,7 +1682,10 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
       ALLEGRO_DEBUG("Trying format %d.\n", eds->index);
 
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds);
-      d3d_display->samples = eds->settings[ALLEGRO_SAMPLES] - 1;
+      if (eds->settings[ALLEGRO_SAMPLES] > 0)
+         d3d_display->samples = eds->settings[ALLEGRO_SAMPLES] - 1;
+      else
+         d3d_display->samples = 0;
       d3d_display->single_buffer = eds->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
       d3d_display->vsync = eds->settings[ALLEGRO_VSYNC] == 1;
 
