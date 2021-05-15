@@ -225,12 +225,12 @@ elseif(WANT_VORBIS)
     find_package(Vorbis)
     if(VORBIS_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
-        if(COMPILER_GCC_OR_CLANG)
+        if(MSVC)
+            set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES}")
+        else()
             # libm is required when linking statically.
             set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES};m")
-        else()
-            set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES}")
-        endif(COMPILER_GCC_OR_CLANG)
+        endif()
         run_c_compile_test("
             #include <vorbis/vorbisfile.h>
             int main(void)
@@ -284,12 +284,12 @@ if(WANT_OPUS)
     find_package(Opus)
     if(OPUS_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${OPUS_INCLUDE_DIR})
-        if(COMPILER_GCC_OR_CLANG)
+        if(MSVC)
+            set(CMAKE_REQUIRED_LIBRARIES "${OPUS_LIBRARIES}")
+        else()
             # libm is required when linking statically.
             set(CMAKE_REQUIRED_LIBRARIES "${OPUS_LIBRARIES};m")
-        else()
-            set(CMAKE_REQUIRED_LIBRARIES "${OPUS_LIBRARIES}")
-        endif(COMPILER_GCC_OR_CLANG)
+        endif()
         run_c_compile_test("
             #include <opus/opusfile.h>
             int main(void)
