@@ -93,6 +93,8 @@ endif(WANT_NATIVE_IMAGE_LOADER)
 
 if(WIN32)
     image_summary(" - GDI+" SUPPORT_GDIPLUS)
+elseif(MACOSX OR ANDROID OR IPHONE)
+    image_summary(" - Native image loader" WANT_NATIVE_IMAGE_LOADER)
 endif()
 
 # Now look for third party libraries to handle the unsupported formats
