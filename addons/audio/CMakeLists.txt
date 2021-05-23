@@ -22,6 +22,18 @@ set(AUDIO_INCLUDE_FILES allegro5/allegro_audio.h)
 
 set_our_header_properties(${AUDIO_INCLUDE_FILES})
 
+set(AUDIO_CONFIGURATION_SUMMARY "")
+
+function(audio_summary msg yesno)
+    if(${yesno})
+        set(yesno "yes")
+    else()
+        # No's are more important, so shout them.
+        set(yesno "NO")
+    endif()
+    set(AUDIO_CONFIGURATION_SUMMARY "${AUDIO_CONFIGURATION_SUMMARY}${msg}: ${yesno}\n" PARENT_SCOPE)
+endfunction()
+
 # The platform conditions are not really necessary but prevent confusing the
 # user, e.g. it's pretty weird to get a warning about missing DSound on Unix.
 
@@ -37,6 +49,10 @@ if(SUPPORT_OSS)
     list(APPEND AUDIO_SOURCES oss.c)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OSS)
+
+if(ALLEGRO_UNIX)
+    audio_summary(" - OSS" SUPPORT_OSS)
+endif()
 
 if(WANT_PULSEAUDIO AND ALLEGRO_UNIX)
     pkg_check_modules(PULSEAUDIO libpulse-simple)
@@ -73,6 +89,10 @@ if(SUPPORT_PULSEAUDIO)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_PULSEAUDIO)
 
+if(ALLEGRO_UNIX)
+    audio_summary(" - PulseAudio" SUPPORT_PULSEAUDIO)
+endif()
+
 if(WANT_ALSA AND ALLEGRO_UNIX)
     pkg_check_modules(ALSA alsa)
     if(ALSA_FOUND)
@@ -88,6 +108,10 @@ if(SUPPORT_ALSA)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_ALSA)
 
+if(ALLEGRO_UNIX)
+    audio_summary(" - ALSA" SUPPORT_ALSA)
+endif()
+
 if(WANT_DSOUND AND WIN32)
     find_package(DirectX)
     if(DSOUND_FOUND)
@@ -102,6 +126,10 @@ if(SUPPORT_DSOUND)
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${DSOUND_INCLUDE_DIR})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_DSOUND)
+
+if(WIN32)
+    audio_summary(" - DirectSound" SUPPORT_DSOUND)
+endif()
 
 if(WANT_AQUEUE AND MACOSX)
     # Should check the presence just to be sure.
@@ -125,6 +153,10 @@ if(SUPPORT_AQUEUE)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_AQUEUE)
 
+if(MACOSX)
+    audio_summary(" - AudioQueue" SUPPORT_AQUEUE)
+endif()
+
 if(WANT_OPENAL)
     find_package(OpenAL)
     mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
@@ -141,6 +173,8 @@ if(SUPPORT_OPENAL)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OPENAL)
 
+audio_summary(" - OpenAL" SUPPORT_OPENAL)
+
 if(WANT_OPENSL)
     find_package(OpenSL)
     if(OPENSL_FOUND)
@@ -155,6 +189,8 @@ if(SUPPORT_OPENSL)
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENSL_INCLUDE_DIR})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OPENSL)
+
+audio_summary(" - OpenSL" SUPPORT_OPENSL)
 
 if(ALLEGRO_SDL)
     set(ALLEGRO_CFG_KCM_SDL 1)
@@ -186,6 +222,8 @@ add_our_addon_library(allegro_audio
 install_our_headers(${AUDIO_INCLUDE_FILES})
 
 add_addon(audio)
+
+set(AUDIO_CONFIGURATION_SUMMARY "${AUDIO_CONFIGURATION_SUMMARY}" PARENT_SCOPE)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
