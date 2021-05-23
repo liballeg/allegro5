@@ -12,7 +12,7 @@ set(IMAGE_DEFINES)
 set(IMAGE_CONFIGURATION_SUMMARY "")
 
 function(image_summary msg yesno)
-    if(${yesno} EQUAL 1)
+    if(${yesno})
         set(yesno "yes")
     else()
         # No's are more important, so shout them.

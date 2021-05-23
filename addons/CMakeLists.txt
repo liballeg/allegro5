@@ -10,7 +10,7 @@ set(ADDON_PKG_CONFIG_FILES)
 set(ADDONS_CONFIGURATION_SUMMARY "")
 
 function(addons_summary msg yesno)
-    if(${yesno} EQUAL 1)
+    if(${yesno})
         set(yesno "yes")
     else()
         # No's are more important, so shout them.
