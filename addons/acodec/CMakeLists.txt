@@ -71,7 +71,7 @@ endfunction(get_dll_name)
 set(ACODEC_CONFIGURATION_SUMMARY "")
 
 function(acodec_summary msg yesno)
-    if(${yesno} EQUAL 1)
+    if(${yesno})
         set(yesno "yes")
     else()
         # No's are more important, so shout them.
