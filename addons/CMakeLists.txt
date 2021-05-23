@@ -7,6 +7,18 @@ include(FindPackageHandleStandardArgs)
 
 set(ADDON_PKG_CONFIG_FILES)
 
+set(ADDONS_CONFIGURATION_SUMMARY "")
+
+function(addons_summary msg yesno)
+    if(${yesno} EQUAL 1)
+        set(yesno "yes")
+    else()
+        # No's are more important, so shout them.
+        set(yesno "NO")
+    endif()
+    set(ADDONS_CONFIGURATION_SUMMARY "${ADDONS_CONFIGURATION_SUMMARY}${msg}: ${yesno}\n" PARENT_SCOPE)
+endfunction()
+
 if(WANT_PRIMITIVES)
     add_subdirectory(primitives)
     set(SUPPORT_PRIMITIVES 1)
@@ -14,6 +26,8 @@ if(WANT_PRIMITIVES)
     set(PRIMITIVES_LINK_WITH ${PRIMITIVES_LINK_WITH} PARENT_SCOPE)
     list(APPEND ADDON_PKG_CONFIG_FILES allegro_primitives)
 endif(WANT_PRIMITIVES)
+
+addons_summary("- Primitives addon" SUPPORT_PRIMITIVES)
 
 if(WANT_IMAGE)
     add_subdirectory(image)
@@ -23,6 +37,9 @@ if(WANT_IMAGE)
     list(APPEND ADDON_PKG_CONFIG_FILES allegro_image)
 endif(WANT_IMAGE)
 
+addons_summary("- Image addon" SUPPORT_IMAGE)
+set(ADDONS_CONFIGURATION_SUMMARY "${ADDONS_CONFIGURATION_SUMMARY}${IMAGE_CONFIGURATION_SUMMARY}")
+
 if(WANT_FONT AND SUPPORT_IMAGE)
     add_subdirectory(font)
     set(SUPPORT_FONT 1)
@@ -30,6 +47,8 @@ if(WANT_FONT AND SUPPORT_IMAGE)
     set(FONT_LINK_WITH ${FONT_LINK_WITH} PARENT_SCOPE)
     list(APPEND ADDON_PKG_CONFIG_FILES allegro_font)
 endif(WANT_FONT AND SUPPORT_IMAGE)
+
+addons_summary("- Font addon" SUPPORT_FONT)
 
 if(WANT_AUDIO)
     add_subdirectory(audio)
@@ -40,6 +59,8 @@ if(WANT_AUDIO)
     endif(SUPPORT_AUDIO)
 endif(WANT_AUDIO)
 
+addons_summary("- Audio addon" SUPPORT_AUDIO)
+
 if(SUPPORT_AUDIO)
     add_subdirectory(acodec)
     if(SUPPORT_ACODEC)
@@ -48,6 +69,9 @@ if(SUPPORT_AUDIO)
         list(APPEND ADDON_PKG_CONFIG_FILES allegro_acodec)
     endif(SUPPORT_ACODEC)
 endif(SUPPORT_AUDIO)
+
+addons_summary("- Acodec addon" SUPPORT_ACODEC)
+set(ADDONS_CONFIGURATION_SUMMARY "${ADDONS_CONFIGURATION_SUMMARY}${ACODEC_CONFIGURATION_SUMMARY}")
 
 if(SUPPORT_FONT AND WANT_TTF)
     find_package(Freetype)
@@ -141,6 +165,8 @@ if(SUPPORT_FONT AND WANT_TTF)
     endif(FREETYPE_FOUND)
 endif(SUPPORT_FONT AND WANT_TTF)
 
+addons_summary("- TTF addon" SUPPORT_TTF)
+
 if(WANT_COLOR)
     add_subdirectory(color)
     set(SUPPORT_COLOR 1 PARENT_SCOPE)
@@ -148,12 +174,16 @@ if(WANT_COLOR)
     list(APPEND ADDON_PKG_CONFIG_FILES allegro_color)
 endif(WANT_COLOR)
 
+addons_summary("- Color addon" SUPPORT_COLOR)
+
 if(WANT_MEMFILE)
     add_subdirectory(memfile)
     set(SUPPORT_MEMFILE 1 PARENT_SCOPE)
     set(MEMFILE_LINK_WITH ${MEMFILE_LINK_WITH} PARENT_SCOPE)
     list(APPEND ADDON_PKG_CONFIG_FILES allegro_memfile)
 endif(WANT_MEMFILE)
+
+addons_summary("- Memfile addon" SUPPORT_MEMFILE)
 
 if(WANT_PHYSFS)
     find_package(PhysFS)
@@ -203,6 +233,8 @@ if(WANT_PHYSFS)
     endif(SUPPORT_PHYSFS)
 endif(WANT_PHYSFS)
 
+addons_summary("- PhysFS addon" SUPPORT_PHYSFS)
+
 if(WANT_NATIVE_DIALOG)
     add_subdirectory(native_dialog)
     if(SUPPORT_NATIVE_DIALOG)
@@ -212,6 +244,8 @@ if(WANT_NATIVE_DIALOG)
     endif()
 endif(WANT_NATIVE_DIALOG)
 
+addons_summary("- Native Dialog addon" SUPPORT_NATIVE_DIALOG)
+
 if(WANT_VIDEO)
     add_subdirectory(video)
     if(SUPPORT_VIDEO)
@@ -220,6 +254,8 @@ if(WANT_VIDEO)
         list(APPEND ADDON_PKG_CONFIG_FILES allegro_video)
     endif(SUPPORT_VIDEO)
 endif(WANT_VIDEO)
+
+addons_summary("- Video addon" SUPPORT_VIDEO)
 
 add_subdirectory(main)
 # SUPPORT_MAIN and MAIN_LINK_WITH are spelt as such in this scope,
@@ -236,6 +272,8 @@ set(MONOLITH_HEADERS ${MONOLITH_HEADERS} PARENT_SCOPE)
 set(MONOLITH_DEFINES ${MONOLITH_DEFINES} PARENT_SCOPE)
 
 set(ADDON_PKG_CONFIG_FILES ${ADDON_PKG_CONFIG_FILES} PARENT_SCOPE)
+
+set(CONFIGURATION_SUMMARY "${CONFIGURATION_SUMMARY}${ADDONS_CONFIGURATION_SUMMARY}" PARENT_SCOPE)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
