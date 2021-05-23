@@ -9,6 +9,18 @@ set_our_header_properties(${IMAGE_INCLUDE_FILES})
 set(IMAGE_LIBRARIES)
 set(IMAGE_DEFINES)
 
+set(IMAGE_CONFIGURATION_SUMMARY "")
+
+function(image_summary msg yesno)
+    if(${yesno} EQUAL 1)
+        set(yesno "yes")
+    else()
+        # No's are more important, so shout them.
+        set(yesno "NO")
+    endif()
+    set(IMAGE_CONFIGURATION_SUMMARY "${IMAGE_CONFIGURATION_SUMMARY}${msg}: ${yesno}\n" PARENT_SCOPE)
+endfunction()
+
 # ALLEGRO_CFG_IIO_HAVE_* are the available libraries.
 # ALLEGRO_CFG_IIO_SUPPORT_* are the supported formats.
 
@@ -79,6 +91,10 @@ if(WANT_NATIVE_IMAGE_LOADER)
     endif(IPHONE)
 endif(WANT_NATIVE_IMAGE_LOADER)
 
+if(WIN32)
+    image_summary(" - GDI+" SUPPORT_GDIPLUS)
+endif()
+
 # Now look for third party libraries to handle the unsupported formats
 if(WANT_IMAGE_FREEIMAGE)
     find_package(FreeImage)
@@ -96,6 +112,8 @@ if(WANT_IMAGE_FREEIMAGE)
     endif(FREEIMAGE_FOUND)
 endif(WANT_IMAGE_FREEIMAGE)
 
+image_summary(" - FreeImage" ALLEGRO_CFG_IIO_SUPPORT_FREEIMAGE)
+
 if(WANT_IMAGE_PNG AND NOT ALLEGRO_CFG_IIO_SUPPORT_PNG)
     find_package(PNG)
     if(PNG_FOUND)
@@ -111,6 +129,8 @@ if(WANT_IMAGE_PNG AND NOT ALLEGRO_CFG_IIO_SUPPORT_PNG)
         message("WARNING: libpng not found, disabling support")
     endif(PNG_FOUND)
 endif(WANT_IMAGE_PNG AND NOT ALLEGRO_CFG_IIO_SUPPORT_PNG)
+
+image_summary(" - libpng" PNG_FOUND)
 
 if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
     find_package(JPEG)
@@ -150,6 +170,8 @@ if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
     endif()
 endif(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
 
+image_summary(" - libjpeg" SUPPORT_JPEG)
+
 if(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
     find_package(WebP)
     if(WEBP_FOUND)
@@ -163,6 +185,8 @@ if(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
         message("WARNING: libwebp not found, disabling support")
     endif(WEBP_FOUND)
 endif(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
+
+image_summary(" - libwebp" WEBP_FOUND)
 
 configure_file(
     allegro5/internal/aintern_image_cfg.h.cmake
@@ -179,6 +203,8 @@ add_our_addon_library(allegro_image
 install_our_headers(${IMAGE_INCLUDE_FILES})
 
 add_addon(image)
+
+set(IMAGE_CONFIGURATION_SUMMARY "${IMAGE_CONFIGURATION_SUMMARY}" PARENT_SCOPE)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

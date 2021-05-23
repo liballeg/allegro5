@@ -579,12 +579,17 @@ run_c_compile_test("
 # generally that's just due to sloppiness.
 #
 
+
+set(SPACER "===========================")
+set(CONFIGURATION_SUMMARY "Configuration summary\n${SPACER}\n")
+
 if(PREFER_STATIC_DEPS)
    set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_STATIC_LIBRARY_SUFFIX}"
                                    "${CMAKE_SHARED_LIBRARY_SUFFIX}"
                                    "${CMAKE_SHARED_MODULE_SUFFIX}")
 endif()
 
+set(OPENGL_SUMMARY "- OpenGL: NO")
 if(WANT_OPENGL)
     find_package(OpenGL)
 
@@ -605,7 +610,7 @@ if(WANT_OPENGL)
                 set(OPENGL_LIBRARIES ${OPENGL_opengl_LIBRARY} ${OPENGL_glu_LIBRARY})
             endif()
             include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-            message("Using OpenGL")
+            set(OPENGL_SUMMARY "- OpenGL: Desktop")
         else(OPENGL_FOUND)
             if(GL_BUILD_TYPE MATCHES "auto")
                 set(GL_REAL_BUILD_TYPE "gles2+")
@@ -636,9 +641,9 @@ if(WANT_OPENGL)
             if(WANT_GLES3)
                 set(SUPPORT_OPENGLES3 1)
                 set(ALLEGRO_CFG_OPENGLES3 1)
-                message("Using OpenGL ES 3.0")
+                set(OPENGL_SUMMARY "- OpenGL: ES 3.0")
             else(WANT_GLES3)
-                message("Using OpenGL ES 2.0")
+                set(OPENGL_SUMMARY "- OpenGL: ES 2.0")
             endif(WANT_GLES3)
             set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
             set(OPENGL_LIBRARIES "${OPENGLES2_LIBRARIES}")
@@ -671,7 +676,7 @@ if(WANT_OPENGL)
             set(ALLEGRO_CFG_OPENGLES 1)
             set(ALLEGRO_CFG_OPENGLES1 1)
             set(ALLEGRO_CFG_OPENGL_FIXED_FUNCTION 1)
-            message("Using OpenGL ES 1.1")
+            set(OPENGL_SUMMARY "- OpenGL: ES 1.1")
             set(OPENGL_LIBRARIES ${OPENGLES1_LIBRARIES})
             if(NOT IPHONE)
 	        include_directories(SYSTEM ${OPENGLES1_INCLUDE_DIR})
@@ -681,6 +686,8 @@ if(WANT_OPENGL)
     endif()
 
 endif(WANT_OPENGL)
+
+set(CONFIGURATION_SUMMARY "${CONFIGURATION_SUMMARY}${OPENGL_SUMMARY}\n")
 
 #
 # Unix-specific
@@ -1196,6 +1203,16 @@ endif(WANT_DOCS)
 if(WANT_PYTHON_WRAPPER)
     add_subdirectory(python)
 endif(WANT_PYTHON_WRAPPER)
+
+#-----------------------------------------------------------------------------#
+#
+#   Configuration summary
+#
+#-----------------------------------------------------------------------------#
+
+# Output a report string showing what features are supported.
+message(NOTICE "${SPACER}\n${CONFIGURATION_SUMMARY}${SPACER}\n")
+
 
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:

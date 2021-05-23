@@ -68,6 +68,18 @@ function(get_dll_name implib dllname_var)
     set(${dllname_var} ${dllname} PARENT_SCOPE)
 endfunction(get_dll_name)
 
+set(ACODEC_CONFIGURATION_SUMMARY "")
+
+function(acodec_summary msg yesno)
+    if(${yesno} EQUAL 1)
+        set(yesno "yes")
+    else()
+        # No's are more important, so shout them.
+        set(yesno "NO")
+    endif()
+    set(ACODEC_CONFIGURATION_SUMMARY "${ACODEC_CONFIGURATION_SUMMARY}${msg}: ${yesno}\n" PARENT_SCOPE)
+endfunction()
+
 #
 # FLAC
 #
@@ -132,6 +144,8 @@ if(SUPPORT_FLAC)
     endif()
 endif(SUPPORT_FLAC)
 
+acodec_summary(" - FLAC" SUPPORT_FLAC)
+
 #
 # MOD audio
 #
@@ -187,6 +201,8 @@ if(SUPPORT_MODAUDIO)
         list(APPEND ACODEC_LIBRARIES ${DUMB_LIBRARIES})
     endif()
 endif()
+
+acodec_summary(" - DUMB" SUPPORT_MODAUDIO)
 
 #
 # Vorbis/Tremor
@@ -276,6 +292,8 @@ if(SUPPORT_VORBIS)
     endif()
 endif(SUPPORT_VORBIS)
 
+acodec_summary(" - Ogg/Vorbis" SUPPORT_VORBIS)
+
 #
 # Opus
 #
@@ -333,6 +351,7 @@ if(SUPPORT_OPUS)
     endif()
 endif(SUPPORT_OPUS)
 
+acodec_summary(" - Opus" SUPPORT_OPUS)
 
 #
 # MP3
@@ -348,6 +367,8 @@ if(WANT_MP3)
         message("WARNING: minimp3 was not found")
     endif(NOT MINIMP3_FOUND)
 endif()
+
+acodec_summary(" - MP3" MINIMP3_FOUND)
 
 
 configure_file(
@@ -365,6 +386,8 @@ add_our_addon_library(allegro_acodec
 install_our_headers(${ACODEC_INCLUDE_FILES})
 
 add_addon(acodec)
+
+set(ACODEC_CONFIGURATION_SUMMARY "${ACODEC_CONFIGURATION_SUMMARY}" PARENT_SCOPE)
 
 
 #-----------------------------------------------------------------------------#
