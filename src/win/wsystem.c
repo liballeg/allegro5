@@ -57,6 +57,9 @@ static bool using_higher_res_timer;
 
 static ALLEGRO_SYSTEM_WIN *_al_win_system;
 
+/* This is mostly here for _al_display_d3d_driver, which is stateful. */
+static ALLEGRO_MUTEX* win_mutex;
+
 /* _WinMain:
  *  Entry point for Windows GUI programs, hooked by a macro in alwin.h,
  *  which makes it look as if the application can still have a normal
@@ -202,6 +205,8 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
    _al_win_system->system.vt = vt;
 
+   win_mutex = al_create_mutex();
+
    return &_al_win_system->system;
 }
 
@@ -233,6 +238,8 @@ static void win_shutdown(void)
 
    al_free(vt);
    vt = NULL;
+
+   al_destroy_mutex(win_mutex);
 
    ASSERT(_al_win_system);
    al_free(_al_win_system);
@@ -269,7 +276,9 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    /* Programmatic selection. */
 #ifdef ALLEGRO_CFG_D3D
    if (flags & ALLEGRO_DIRECT3D_INTERNAL) {
+      al_lock_mutex(win_mutex);
       ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+      al_unlock_mutex(win_mutex);
       if (iface == NULL)
          ALLEGRO_WARN("Direct3D graphics driver not available.\n");
       return iface;
@@ -290,7 +299,9 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
       ALLEGRO_DEBUG("Configuration value graphics.driver = %s\n", s);
       if (0 == _al_stricmp(s, "DIRECT3D") || 0 == _al_stricmp(s, "D3D")) {
 #ifdef ALLEGRO_CFG_D3D
+         al_lock_mutex(win_mutex);
          ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+         al_unlock_mutex(win_mutex);
          if (iface != NULL) {
             al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
             return iface;
@@ -312,7 +323,9 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    /* XXX is implicitly setting new_display_flags the desired behaviour? */
 #ifdef ALLEGRO_CFG_D3D
    {
+      al_lock_mutex(win_mutex);
       ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+      al_unlock_mutex(win_mutex);
       if (iface != NULL) {
          al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
          return iface;
