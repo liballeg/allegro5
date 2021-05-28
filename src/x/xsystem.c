@@ -301,7 +301,12 @@ static void xglx_shutdown_system(void)
 
 static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
 {
-   return _al_display_xglx_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   _al_mutex_lock(&system->lock);
+   /* _al_display_xglx_driver has global state. */
+   ALLEGRO_DISPLAY_INTERFACE *driver = _al_display_xglx_driver();
+   _al_mutex_unlock(&system->lock);
+   return driver;
 }
 
 static ALLEGRO_KEYBOARD_DRIVER *xglx_get_keyboard_driver(void)

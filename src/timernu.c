@@ -161,14 +161,16 @@ static void shutdown_timers(void)
 {
    ASSERT(_al_vector_size(&active_timers) == 0);
 
-   _al_vector_free(&active_timers);
-
    if (timer_thread != NULL) {
-      destroy_thread = true;
       al_lock_mutex(timers_mutex);
+      _al_vector_free(&active_timers);
+      destroy_thread = true;
       al_signal_cond(timer_cond);
       al_unlock_mutex(timers_mutex);
       _al_thread_join(timer_thread);
+   }
+   else {
+      _al_vector_free(&active_timers);
    }
 
    al_free(timer_thread);

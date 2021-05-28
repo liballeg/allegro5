@@ -251,7 +251,10 @@ bool al_is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
 
    heartbeat();
 
-   return is_event_queue_empty(queue);
+   _al_mutex_lock(&queue->mutex);
+   bool ret = is_event_queue_empty(queue);
+   _al_mutex_unlock(&queue->mutex);
+   return ret;
 }
 
 
