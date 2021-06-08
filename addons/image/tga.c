@@ -13,7 +13,7 @@
  *      By Tim Gunn.
  *
  *      RLE support added by Michal Mertl and Salvador Eduardo Tropea.
- * 
+ *
  *      Palette reading improved by Peter Wang.
  *
  *      Big-endian support added by Eric Botcazou.
@@ -34,6 +34,7 @@ ALLEGRO_DEBUG_CHANNEL("image")
 
 /* raw_tga_read8:
  *  Helper for reading 256-color raw data from TGA files.
+ *  Returns pointer past the end.
  */
 static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
 {
@@ -44,8 +45,9 @@ static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, ALLEGRO_FILE
 
 /* rle_tga_read8:
  *  Helper for reading 256-color RLE data from TGA files.
+ *  Returns pointer past the end or NULL for error.
  */
-static void rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
+static unsigned char *rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
 {
    int value, count, c = 0;
 
@@ -55,6 +57,10 @@ static void rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          value = al_fgetc(f);
          while (count--)
             *b++ = value;
@@ -63,9 +69,14 @@ static void rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
          /* raw packet */
          count++;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          b = raw_tga_read8(b, count, f);
       }
    } while (c < w);
+   return b;
 }
 
 
@@ -82,6 +93,7 @@ static INLINE int32_t single_tga_read32(ALLEGRO_FILE *f)
 
 /* raw_tga_read32:
  *  Helper for reading 32-bit raw data from TGA files.
+ *  Returns pointer past the end.
  */
 static unsigned int *raw_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
 {
@@ -95,8 +107,9 @@ static unsigned int *raw_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
 
 /* rle_tga_read32:
  *  Helper for reading 32-bit RLE data from TGA files.
+ *  Returns pointer past the end or NULL for error.
  */
-static void rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
+static unsigned int *rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
 {
    int color, count, c = 0;
 
@@ -106,6 +119,10 @@ static void rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          color = single_tga_read32(f);
          while (count--)
             *b++ = color;
@@ -114,9 +131,14 @@ static void rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
          /* raw packet */
          count++;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          b = raw_tga_read32(b, count, f);
       }
    } while (c < w);
+   return b;
 }
 
 
@@ -132,6 +154,7 @@ static INLINE void single_tga_read24(ALLEGRO_FILE *f, unsigned char color[3])
 
 /* raw_tga_read24:
  *  Helper for reading 24-bit raw data from TGA files.
+ *  Returns pointer past the end.
  */
 static unsigned char *raw_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
 {
@@ -147,8 +170,9 @@ static unsigned char *raw_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
 
 /* rle_tga_read24:
  *  Helper for reading 24-bit RLE data from TGA files.
+ *  Returns pointer past the end or NULL for error.
  */
-static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
+static unsigned char *rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
 {
    int count, c = 0;
    unsigned char color[3];
@@ -159,6 +183,10 @@ static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          single_tga_read24(f, color);
          while (count--) {
             b[0] = color[0];
@@ -171,9 +199,14 @@ static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
          /* raw packet */
          count++;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          b = raw_tga_read24(b, count, f);
       }
    } while (c < w);
+   return b;
 }
 
 
@@ -190,6 +223,7 @@ static INLINE int single_tga_read16(ALLEGRO_FILE *f)
 
 /* raw_tga_read16:
  *  Helper for reading 16-bit raw data from TGA files.
+ *  Returns pointer past the end.
  */
 static unsigned short *raw_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
 {
@@ -203,8 +237,9 @@ static unsigned short *raw_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
 
 /* rle_tga_read16:
  *  Helper for reading 16-bit RLE data from TGA files.
+ *  Returns pointer past the end or NULL for error.
  */
-static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
+static unsigned short *rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
 {
    int color, count, c = 0;
 
@@ -214,6 +249,10 @@ static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          color = single_tga_read16(f);
          while (count--)
             *b++ = color;
@@ -222,9 +261,14 @@ static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
          /* raw packet */
          count++;
          c += count;
+         if (c > w) {
+            /* Stepped past the end of the line, error */
+            return NULL;
+         }
          b = raw_tga_read16(b, count, f);
       }
    } while (c < w);
+   return b;
 }
 
 
@@ -388,12 +432,20 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
       switch (image_type) {
 
          case 1:
-         case 3:
+         case 3: {
+            unsigned char *ptr;
             if (compressed)
-               rle_tga_read8(buf, image_width, f);
+               ptr = rle_tga_read8(buf, image_width, f);
             else
-               raw_tga_read8(buf, image_width, f);
-
+               ptr = raw_tga_read8(buf, image_width, f);
+            if (!ptr) {
+               al_free(buf);
+               al_unlock_bitmap(bmp);
+               al_destroy_bitmap(bmp);
+               ALLEGRO_ERROR("Invalid image data.\n");
+               return NULL;
+            }
+         }
             for (i = 0; i < image_width; i++) {
                int true_x = (left_to_right) ? i : (image_width - 1 - i);
                int pix = buf[i];
@@ -410,11 +462,18 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 
          case 2:
             if (bpp == 32) {
+               unsigned int *ptr;
                if (compressed)
-                  rle_tga_read32((unsigned int *)buf, image_width, f);
+                  ptr = rle_tga_read32((unsigned int *)buf, image_width, f);
                else
-                  raw_tga_read32((unsigned int *)buf, image_width, f);
-
+                  ptr = raw_tga_read32((unsigned int *)buf, image_width, f);
+               if (!ptr) {
+                  al_free(buf);
+                  al_unlock_bitmap(bmp);
+                  al_destroy_bitmap(bmp);
+                  ALLEGRO_ERROR("Invalid image data.\n");
+                  return NULL;
+               }
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   unsigned char *dest = (unsigned char *)lr->data +
@@ -425,12 +484,12 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                   int r = buf[i * 4 + 1];
                   int g = buf[i * 4 + 2];
                   int b = buf[i * 4 + 3];
-#else					 
+#else
                   int b = buf[i * 4 + 0];
                   int g = buf[i * 4 + 1];
                   int r = buf[i * 4 + 2];
                   int a = buf[i * 4 + 3];
-#endif                  
+#endif
                   if (premul) {
                      r = r * a / 255;
                      g = g * a / 255;
@@ -444,10 +503,18 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                }
             }
             else if (bpp == 24) {
+               unsigned char *ptr;
                if (compressed)
-                  rle_tga_read24(buf, image_width, f);
+                  ptr = rle_tga_read24(buf, image_width, f);
                else
-                  raw_tga_read24(buf, image_width, f);
+                  ptr = raw_tga_read24(buf, image_width, f);
+               if (!ptr) {
+                  al_free(buf);
+                  al_unlock_bitmap(bmp);
+                  al_destroy_bitmap(bmp);
+                  ALLEGRO_ERROR("Invalid image data.\n");
+                  return NULL;
+               }
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   int b = buf[i * 3 + 0];
@@ -463,14 +530,23 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                }
             }
             else {
+               unsigned short *ptr;
                if (compressed)
-                  rle_tga_read16((unsigned short *)buf, image_width, f);
+                  ptr = rle_tga_read16((unsigned short *)buf, image_width, f);
                else
-                  raw_tga_read16((unsigned short *)buf, image_width, f);
+                  ptr = raw_tga_read16((unsigned short *)buf, image_width, f);
+               if (!ptr) {
+                  al_free(buf);
+                  al_unlock_bitmap(bmp);
+                  al_destroy_bitmap(bmp);
+                  ALLEGRO_ERROR("Invalid image data.\n");
+                  return NULL;
+               }
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   int pix = *((unsigned short *)(buf + i * 2));
-                  int r = _al_rgb_scale_5[(pix >> 10)];
+                  /* TODO - do something with the 1-bit A value (alpha?) */
+                  int r = _al_rgb_scale_5[(pix >> 10) & 0x1F];
                   int g = _al_rgb_scale_5[(pix >> 5) & 0x1F];
                   int b = _al_rgb_scale_5[(pix & 0x1F)];
 
@@ -597,7 +673,7 @@ bool _al_identify_tga(ALLEGRO_FILE *f)
    uint8_t x[4];
    al_fgetc(f); // skip id length
    al_fread(f, x, 4);
-   
+
    if (x[0] > 1) // TGA colormap must be 0 or 1
       return false;
    if ((x[1] & 0xf7) == 0) // type must be 1, 2, 3, 9, 10 or 11
