@@ -100,14 +100,13 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    ALLEGRO_SYSTEM *system = al_get_system_driver();
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
-   int64_t mul;
    bool result;
-
-   /* Reject bitmaps where a calculation pixel_size*w*h would overflow
+   /* Reject bitmaps with negative dimensions.
+    * Also reject bitmaps where a calculation pixel_size*w*h would overflow
     * int.  Supporting such bitmaps would require a lot more work.
+    * Overflow calc based on https://stackoverflow.com/a/1514309/231929
     */
-   mul = 4 * (int64_t) w * (int64_t) h;
-   if (mul > (int64_t) INT_MAX) {
+   if (w < 0 || h < 0 || (int64_t) w > (INT_MAX/4) / (int64_t) h) {
       ALLEGRO_WARN("Rejecting %dx%d bitmap\n", w, h);
       return NULL;
    }
