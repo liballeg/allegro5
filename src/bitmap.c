@@ -106,7 +106,7 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
     * int.  Supporting such bitmaps would require a lot more work.
     * Overflow calc based on https://stackoverflow.com/a/1514309/231929
     */
-   if (w < 0 || h < 0 || (int64_t) w > (INT_MAX/4) / (int64_t) h) {
+   if (w < 0 || h < 0 || (h > 0 && (int64_t) w > (INT_MAX/4) / (int64_t) h)) {
       ALLEGRO_WARN("Rejecting %dx%d bitmap\n", w, h);
       return NULL;
    }

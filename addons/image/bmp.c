@@ -802,11 +802,11 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
 
    height = infoheader->biHeight;
    width = infoheader->biWidth;
-
    // Includes enough space to read the padding for a line
    linesize = width * bytes_per_pixel + ((width * bytes_per_pixel) & 3);
 
-   linebuf = al_malloc(linesize);
+   // Overallocate by bytes_per_pixel so a 32-bit read can overlap the end
+   linebuf = al_malloc((width + 1) * bytes_per_pixel);
 
    if (!linebuf) {
       ALLEGRO_WARN("Failed to allocate pixel row buffer\n");
@@ -1000,16 +1000,16 @@ static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
 /* read_RLE8_compressed_image:
  *  For reading the 8 bit RLE compressed BMP image format.
  */
-static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
+static bool read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
                                        const BMPINFOHEADER *infoheader)
 {
    int count;
    unsigned char val;
-   unsigned char val0;
-   int j, pos, line, height, dir;
+   int j, pos, line, width, height, dir;
    int eolflag, eopicflag;
 
    eopicflag = 0;
+   width = (int)infoheader->biWidth;
    height = abs((int)infoheader->biHeight);
    line = (infoheader->biHeight < 0) ? 0 : height - 1;
    dir = (infoheader->biHeight < 0) ? 1 : -1;
@@ -1020,18 +1020,18 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 
       while ((eolflag == 0) && (eopicflag == 0)) {
          count = al_fgetc(f);
-         if (count == EOF)
-            return;
-         if (pos + count > (int)infoheader->biWidth) {
-            ALLEGRO_WARN("overlong compressed line\n");
-            count = infoheader->biWidth - pos;
+         if (count == EOF) {
+            return false;
          }
-
          val = al_fgetc(f);
 
          if (count > 0) {       /* repeat pixel count times */
+            if (count > width - pos) {
+               count = width - pos;
+            }
+
             for (j = 0; j < count; j++) {
-               buf[line * infoheader->biWidth + pos] = val;
+               buf[line * width + pos] = val;
                pos++;
             }
          }
@@ -1048,28 +1048,40 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 
                case 2:         /* displace picture */
                   count = al_fgetc(f);
-                  if (count == EOF)
-                     return;
-                  val = al_fgetc(f);
+                  if (count == EOF) {
+                     return false;
+                  }
                   pos += count;
-                  line += dir * val;
+                  count = al_fgetc(f);
+                  if (count == EOF) {
+                     return false;
+                  }
+                  line += dir * count;
+                  if (line < 0)
+                     line = 0;
+                  if (line >= height)
+                     line = height - 1;
                   break;
 
                default:                      /* read in absolute mode */
-                  for (j=0; j<val; j++) {
-                     val0 = al_fgetc(f);
-                     buf[line * infoheader->biWidth + pos] = val0;
+                  count = val;
+                  if (count > width - pos) {
+                     count = width - pos;
+                  }
+                  for (j = 0; j < count; j++) {
+                     val = al_fgetc(f);
+                     buf[line * width + pos] = val;
                      pos++;
                   }
 
                   if (j % 2 == 1)
-                     val0 = al_fgetc(f);    /* align on word boundary */
+                     val = al_fgetc(f);    /* align on word boundary */
 
                   break;
             }
          }
 
-         if (pos - 1 > (int)infoheader->biWidth)
+         if (pos > width + 1)
             eolflag = 1;
       }
 
@@ -1077,6 +1089,7 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
       if (line < 0 || line >= height)
          eopicflag = 1;
    }
+   return true;
 }
 
 
@@ -1084,16 +1097,17 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 /* read_RLE4_compressed_image:
  *  For reading the 4 bit RLE compressed BMP image format.
  */
-static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
+static bool read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
                                        const BMPINFOHEADER *infoheader)
 {
    unsigned char b[8];
    int count;
-   unsigned short val0, val;
-   int j, k, pos, line, height, dir;
+   unsigned short val;
+   int j, k, pos, line, width, height, dir;
    int eolflag, eopicflag;
 
    eopicflag = 0;               /* end of picture flag */
+   width = (int)infoheader->biWidth;
    height = abs((int)infoheader->biHeight);
    line = (infoheader->biHeight < 0) ? 0 : height - 1;
    dir = (infoheader->biHeight < 0) ? 1 : -1;
@@ -1105,19 +1119,18 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
       while ((eolflag == 0) && (eopicflag == 0)) {
          count = al_fgetc(f);
          if (count == EOF)
-            return;
-         if (pos + count > (int)infoheader->biWidth) {
-            ALLEGRO_WARN("overlong compressed line\n");
-            count = infoheader->biWidth - pos;
-         }
+            return false;
 
          val = al_fgetc(f);
 
          if (count > 0) {       /* repeat pixels count times */
+            if (count > width - pos) {
+               count = width - pos;
+            }
             b[1] = val & 15;
             b[0] = (val >> 4) & 15;
             for (j = 0; j < count; j++) {
-               buf[line * infoheader->biWidth + pos] = b[j % 2];
+               buf[line * width + pos] = b[j % 2];
                pos++;
             }
          }
@@ -1135,31 +1148,41 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
                case 2:         /* displace image */
                   count = al_fgetc(f);
                   if (count == EOF)
-                     return;
-                  val = al_fgetc(f);
+                     return false;
                   pos += count;
-                  line += dir * val;
+                  count = al_fgetc(f);
+                  if (count == EOF)
+                     return false;
+                  line += dir * count;
+                  if (line < 0)
+                     line = 0;
+                  if (line >= height)
+                     line = height - 1;
                   break;
 
                default:        /* read in absolute mode */
-                  for (j = 0; j < val; j++) {
+                  count = val;
+                  if (count > width - pos) {
+                     count = width - pos;
+                  }
+                  for (j = 0; j < count; j++) {
                      if ((j % 4) == 0) {
-                        val0 = (uint16_t)al_fread16le(f);
+                        val = (uint16_t)al_fread16le(f);
                         for (k = 0; k < 2; k++) {
-                           b[2 * k + 1] = val0 & 15;
-                           val0 = val0 >> 4;
-                           b[2 * k] = val0 & 15;
-                           val0 = val0 >> 4;
+                           b[2 * k + 1] = val & 15;
+                           val = val >> 4;
+                           b[2 * k] = val & 15;
+                           val = val >> 4;
                         }
                      }
-                     buf[line * infoheader->biWidth + pos] = b[j % 4];
+                     buf[line * width + pos] = b[j % 4];
                      pos++;
                   }
                   break;
             }
          }
 
-         if (pos - 1 > (int)infoheader->biWidth)
+         if (pos > width + 1)
             eolflag = 1;
       }
 
@@ -1167,6 +1190,7 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
       if (line < 0 || line >= height)
          eopicflag = 1;
    }
+   return true;
 }
 
 
@@ -1189,6 +1213,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
    bool keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
+   bool loaded_ok;
 
    ASSERT(f);
 
@@ -1238,7 +1263,13 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       ALLEGRO_WARN("negative width: %ld\n", infoheader.biWidth);
       return NULL;
    }
-
+   if (infoheader.biCompression != BIT_RGB
+       && infoheader.biCompression != BIT_RLE8
+       && infoheader.biCompression != BIT_RLE4
+       && infoheader.biCompression != BIT_BITFIELDS) {
+      ALLEGRO_ERROR("Unsupported compression: 0x%x\n", (int) infoheader.biCompression);
+      return NULL;
+   }
    if (infoheader.biBitCount != 1 && infoheader.biBitCount != 2 && infoheader.biBitCount != 4 &&
        infoheader.biBitCount != 8 && infoheader.biBitCount != 16 && infoheader.biBitCount != 24 &&
        infoheader.biBitCount != 32) {
@@ -1320,6 +1351,11 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       int extracolors = 0;
       int bytes_per_color = win_flag ? 4 : 3;
 
+      if (infoheader.biClrUsed >= INT_MAX) {
+         ALLEGRO_ERROR("Illegal palette size: %lu\n", infoheader.biClrUsed);
+         return NULL;
+      }
+
       if (win_flag) {
          if (ncolors == 0) {
             ncolors = (1 << infoheader.biBitCount);
@@ -1376,7 +1412,12 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       ALLEGRO_ERROR("Failed to create bitmap\n");
       return NULL;
    }
-
+   
+   if (infoheader.biWidth == 0 || infoheader.biHeight == 0) {
+      ALLEGRO_WARN("Creating zero-sized bitmap\n");
+      return bmp;
+   }
+   
    if (infoheader.biBitCount <= 8 && keep_index) {
       lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
          ALLEGRO_LOCK_WRITEONLY);
@@ -1402,7 +1443,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       /* RLE decoding may skip pixels so clear the buffer first. */
       buf = al_calloc(infoheader.biWidth, abs((int)infoheader.biHeight));
    }
-
+   loaded_ok = true;
    switch (infoheader.biCompression) {
       case BIT_RGB:
          if (infoheader.biBitCount == 32 && !infoheader.biHaveAlphaMask) {
@@ -1445,79 +1486,70 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          break;
 
       case BIT_RLE8:
-         read_RLE8_compressed_image(f, buf, &infoheader);
+         loaded_ok = read_RLE8_compressed_image(f, buf, &infoheader);
+         if (!loaded_ok)
+            ALLEGRO_ERROR("Error reading RLE8 data\n");
          break;
 
       case BIT_RLE4:
-         read_RLE4_compressed_image(f, buf, &infoheader);
+         loaded_ok = read_RLE4_compressed_image(f, buf, &infoheader);
+         if (!loaded_ok)
+            ALLEGRO_ERROR("Error reading RLE4 data\n");
          break;
 
       case BIT_BITFIELDS:
          if (infoheader.biBitCount == 16) {
             if (infoheader.biRedMask == 0x00007C00U && infoheader.biGreenMask == 0x000003E0U &&
                 infoheader.biBlueMask == 0x0000001FU && infoheader.biAlphaMask == 0x00000000U) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_16_rgb_555_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_16_rgb_555_line);
             }
             else if (infoheader.biRedMask == 0x00007C00U && infoheader.biGreenMask == 0x000003E0U &&
                      infoheader.biBlueMask == 0x0000001FU && infoheader.biAlphaMask == 0x00008000U) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_16_argb_1555_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_16_argb_1555_line);
             }
             else if (infoheader.biRedMask == 0x0000F800U && infoheader.biGreenMask == 0x000007E0U &&
                      infoheader.biBlueMask == 0x0000001FU && infoheader.biAlphaMask == 0x00000000U) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_16_rgb_565_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_16_rgb_565_line);
             }
             else {
-               if (!read_bitfields_image(f, flags, &infoheader, lr))
-                  return NULL;
+               loaded_ok = read_bitfields_image(f, flags, &infoheader, lr);
             }
          }
          else if (infoheader.biBitCount == 24) {
             if (infoheader.biRedMask == 0x00FF0000U && infoheader.biGreenMask == 0x0000FF00U &&
                 infoheader.biBlueMask == 0x000000FFU && infoheader.biAlphaMask == 0x00000000U) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_24_rgb_888_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_24_rgb_888_line);
             }
             else {
-               if (!read_bitfields_image(f, flags, &infoheader, lr))
-                  return NULL;
+               loaded_ok = read_bitfields_image(f, flags, &infoheader, lr);
             }
          }
          else if (infoheader.biBitCount == 32) {
             if (infoheader.biRedMask == 0x00FF0000U && infoheader.biGreenMask == 0x0000FF00U &&
                 infoheader.biBlueMask == 0x000000FFU && infoheader.biAlphaMask == 0x00000000U) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_xrgb_8888_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_32_xrgb_8888_line);
             }
             else if (infoheader.biRedMask == 0x00FF0000U && infoheader.biGreenMask == 0x0000FF00U &&
                 infoheader.biBlueMask == 0x000000FFU && infoheader.biAlphaMask == 0xFF000000U) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_argb_8888_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_32_argb_8888_line);
             }
             else if (infoheader.biRedMask == 0xFF000000U && infoheader.biGreenMask == 0x00FF0000U &&
                 infoheader.biBlueMask == 0x0000FF00U && infoheader.biAlphaMask == 0x00000000U) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_rgbx_8888_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_32_rgbx_8888_line);
             }
             else if (infoheader.biRedMask == 0xFF000000U && infoheader.biGreenMask == 0x00FF0000U &&
                 infoheader.biBlueMask == 0x0000FF00U && infoheader.biAlphaMask == 0x000000FFU) {
-               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_rgba_8888_line))
-                  return NULL;
+               loaded_ok = read_RGB_image(f, flags, &infoheader, lr, read_32_rgba_8888_line);
             }
             else {
-               if (!read_bitfields_image(f, flags, &infoheader, lr))
-                  return NULL;
+               loaded_ok = read_bitfields_image(f, flags, &infoheader, lr);
             }
          }
          break;
 
       default:
          ALLEGRO_WARN("Unknown compression: %ld\n", infoheader.biCompression);
-         al_unlock_bitmap(bmp);
-         al_destroy_bitmap(bmp);
-         bmp = NULL;
+         loaded_ok = false;
          break;
    }
 
@@ -1547,6 +1579,11 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
 
    if (bmp) {
       al_unlock_bitmap(bmp);
+   }
+   /* If something went wrong internally */
+   if (!loaded_ok) {
+      al_destroy_bitmap(bmp);
+      bmp = NULL;
    }
 
    return bmp;
