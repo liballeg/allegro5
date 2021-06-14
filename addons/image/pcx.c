@@ -54,6 +54,11 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    }
 
    bytes_per_line = al_fread16le(f);
+   /* It can only be this because we only support 8 bit planes */
+   if (bytes_per_line != width) {
+      ALLEGRO_ERROR("Invalid bytes per line %d\n", bytes_per_line);
+      return NULL;
+   }
 
    for (c = 0; c < 60; c++)                /* skip some more junk */
       al_fgetc(f);

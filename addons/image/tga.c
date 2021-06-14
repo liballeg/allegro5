@@ -271,6 +271,7 @@ static unsigned short *rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
    return b;
 }
 
+typedef unsigned char palette_entry[3];
 
 /* Like load_tga, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
@@ -280,10 +281,12 @@ static unsigned short *rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
  */
 ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 {
-   unsigned char image_id[256], image_palette[256][3];
+   unsigned char image_id[256];
+   palette_entry image_palette[256];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
    unsigned char bpp, descriptor_bits;
    short unsigned int palette_colors;
+   short unsigned int palette_start;
    short unsigned int image_width, image_height;
    bool left_to_right;
    bool top_to_bottom;
@@ -299,7 +302,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    id_length = al_fgetc(f);
    palette_type = al_fgetc(f);
    image_type = al_fgetc(f);
-   al_fread16le(f); /* first_color */
+   palette_start = al_fread16le(f); /* first_color */
    palette_colors  = al_fread16le(f);
    palette_entry_size = al_fgetc(f);
    al_fread16le(f); /* left */
@@ -313,35 +316,6 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    top_to_bottom = (descriptor_bits & (1 << 5));
 
    al_fread(f, image_id, id_length);
-
-   if (palette_type == 1) {
-
-      for (i = 0; i < palette_colors; i++) {
-
-         switch (palette_entry_size) {
-
-            case 16:
-               c = al_fread16le(f);
-               image_palette[i][0] = (c & 0x1F) << 3;
-               image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
-               image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
-               break;
-
-            case 24:
-            case 32:
-               image_palette[i][0] = al_fgetc(f);
-               image_palette[i][1] = al_fgetc(f);
-               image_palette[i][2] = al_fgetc(f);
-               if (palette_entry_size == 32)
-                  al_fgetc(f);
-               break;
-         }
-      }
-   }
-   else if (palette_type != 0) {
-      ALLEGRO_ERROR("Invalid palette type %d.\n", palette_type);
-      return NULL;
-   }
 
    /* Image type:
     *    0 = no image data
@@ -364,7 +338,9 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 
       case 1:
          /* paletted image */
-         if ((palette_type != 1) || (bpp != 8)) {
+         /* Only support 8 bit palettes (up to 256 entries) though in principle the file format could have more(?)*/
+         if ((palette_type != 1) || (bpp != 8) || (palette_start + palette_colors) > 256) {
+            ALLEGRO_ERROR("Invalid palette/image/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
 
@@ -401,6 +377,38 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          ALLEGRO_ERROR("Invalid image type %d.\n", image_type);
          return NULL;
    }
+
+   if (palette_type == 0) {
+      /* No-op */
+   } else if (palette_type == 1) {
+      for (i = 0; i < palette_colors; i++) {
+         palette_entry *entry = image_palette + palette_start + i;
+         switch (palette_entry_size) {
+            case 16:
+               c = al_fread16le(f);
+               (*entry)[0] = (c & 0x1F) << 3;
+               (*entry)[1] = ((c >> 5) & 0x1F) << 3;
+               (*entry)[2] = ((c >> 10) & 0x1F) << 3;
+               break;
+            case 24:
+               (*entry)[0] = al_fgetc(f);
+               (*entry)[1] = al_fgetc(f);
+               (*entry)[2] = al_fgetc(f);
+               break;
+            case 32:
+               (*entry)[0] = al_fgetc(f);
+               (*entry)[1] = al_fgetc(f);
+               (*entry)[2] = al_fgetc(f);
+               al_fgetc(f); /* Ignore 4th byte (alpha) */
+               break;
+         }
+      }
+   }
+   else  {
+      ALLEGRO_ERROR("Invalid palette type %d.\n", palette_type);
+      return NULL;
+   }
+
 
    bmp = al_create_bitmap(image_width, image_height);
    if (!bmp) {
@@ -452,9 +460,17 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 
                unsigned char *dest = (unsigned char *)lr->data +
                   lr->pitch*true_y + true_x*4;
-               dest[0] = image_palette[pix][2];
-               dest[1] = image_palette[pix][1];
-               dest[2] = image_palette[pix][0];
+               if (pix < palette_start || pix >= (palette_start + palette_colors)) {
+                  al_free(buf);
+                  al_unlock_bitmap(bmp);
+                  al_destroy_bitmap(bmp);
+                  ALLEGRO_ERROR("Invalid image data.\n");
+                  return NULL;
+               }
+               palette_entry* entry = image_palette + pix;
+               dest[0] = (*entry)[2];
+               dest[1] = (*entry)[1];
+               dest[2] = (*entry)[0];
                dest[3] = 255;
             }
 
