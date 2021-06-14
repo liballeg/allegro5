@@ -340,7 +340,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          /* paletted image */
          /* Only support 8 bit palettes (up to 256 entries) though in principle the file format could have more(?)*/
          if ((palette_type != 1) || (bpp != 8) || (palette_start + palette_colors) > 256) {
-            ALLEGRO_ERROR("Invalid palette/image/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
+            ALLEGRO_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
 
@@ -354,7 +354,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          else if ((palette_type == 0) && ((bpp == 24) || (bpp == 32))) {
          }
          else {
-            ALLEGRO_ERROR("Invalid palette/image/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
+            ALLEGRO_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
          break;
@@ -362,7 +362,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
       case 3:
          /* grayscale image */
          if ((palette_type != 0) || (bpp != 8)) {
-            ALLEGRO_ERROR("Invalid palette/image/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
+            ALLEGRO_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
 
