@@ -78,7 +78,7 @@ int               skipped_tests = 0;
 #define streq(a, b)  (0 == strcmp((a), (b)))
 
 /* Helper macros for scanning statements. */
-#define PAT       " %80[A-Za-z0-9_.$|#-] "
+#define PAT       " %79[A-Za-z0-9_.$|#-] "
 #define PAT1      PAT
 #define PAT2      PAT1 "," PAT1
 #define PAT3      PAT2 "," PAT1
@@ -113,7 +113,7 @@ int               skipped_tests = 0;
 #define C(a)      get_color(V(a))
 #define B(a)      get_bitmap(V(a), bmp_type, target)
 #define SCAN0(fn) \
-      (sscanf(stmt, fn " %80[(]" " )", ARGS1) == 1)
+      (sscanf(stmt, fn " %79[(]" " )", ARGS1) == 1)
 #define SCAN(fn, arity) \
       (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
 #define SCANLVAL(fn, arity) \
