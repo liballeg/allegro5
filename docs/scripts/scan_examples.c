@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
    /* Handle --protos flag */
    if (argc >=3 && strcmp(argv[1], "--protos") == 0) {
       strcpy(protos, argv[2]);
+      memmove(&argv[1], &argv[3], (&argv[argc] - &argv[3]) * sizeof(char*));
       argc -= 2;
-      memmove(&argv[1], &argv[3], argc * sizeof(char*));
    } else {
       strcpy(protos, "protos");
    }
