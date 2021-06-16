@@ -10,15 +10,6 @@
 #include "dawk.h"
 #include "aatree.h"
 
-static char *xstrdup(const char *s)
-{
-   size_t n = strlen(s);
-   char *p = malloc(n + 1);
-   memcpy(p, s, n);
-   p[n] = '\0';
-   return p;
-}
-
 static void print_link(const char *value)
 {
    d_printf("* [%s]\n", value);
@@ -52,8 +43,7 @@ int main(int argc, char *argv[])
    while ((d_getline(line))) {
       if (d_match(line, "^\\[([^\\]]*)")) {
          const char *ref = d_submatch(1);
-         char *s = xstrdup(ref);
-         root = aa_insert(root, s, s);
+         root = aa_insert(root, ref, ref);
       }
    }
 
