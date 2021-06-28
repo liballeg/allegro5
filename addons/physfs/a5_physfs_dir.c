@@ -101,7 +101,6 @@ static bool fs_phys_change_directory(const char *path)
 {
    ALLEGRO_USTR *us;
    bool ret;
-   PHYSFS_Stat stat;
 
    /* '/' root is guaranteed to exist but PHYSFS won't find it. */
    if (path[0] == '/' && path[1] == '\0') {
@@ -118,10 +117,7 @@ static bool fs_phys_change_directory(const char *path)
 
    ret = false;
 
-   if (!PHYSFS_stat(al_cstr(us), &stat))
-      return false;
-
-   if (stat.filetype == PHYSFS_FILETYPE_DIRECTORY ) {
+   if (PHYSFS_isDirectory(al_cstr(us))) {
       ensure_trailing_slash(us);
 
       /* Copy to static buffer. */
@@ -197,11 +193,7 @@ static uint32_t fs_phys_entry_mode(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    uint32_t mode = ALLEGRO_FILEMODE_READ;
-   PHYSFS_Stat stat;
-   if (!PHYSFS_stat(e->path_cstr, &stat))
-      return mode;
-
-   if (stat.filetype == PHYSFS_FILETYPE_DIRECTORY )
+   if (PHYSFS_isDirectory(e->path_cstr))
       mode |= ALLEGRO_FILEMODE_ISDIR | ALLEGRO_FILEMODE_EXECUTE;
    else
       mode |= ALLEGRO_FILEMODE_ISFILE;
@@ -211,10 +203,7 @@ static uint32_t fs_phys_entry_mode(ALLEGRO_FS_ENTRY *fse)
 static time_t fs_phys_entry_mtime(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
-   PHYSFS_Stat stat;
-   if (!PHYSFS_stat(e->path_cstr, &stat))
-      return -1;
-   return stat.modtime;
+   return PHYSFS_getLastModTime(e->path_cstr);
 }
 
 static bool fs_phys_entry_exists(ALLEGRO_FS_ENTRY *fse)
