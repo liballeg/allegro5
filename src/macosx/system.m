@@ -41,10 +41,6 @@ struct CPSProcessSerNum
 extern OSErr CPSGetCurrentProcess(struct CPSProcessSerNum *psn);
 extern OSErr CPSEnableForegroundOperation(struct CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
 extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
-typedef struct THREAD_AND_POOL {
-   ALLEGRO_THREAD *thread;
-} THREAD_AND_POOL;
-
 
 
 static ALLEGRO_SYSTEM* osx_sys_init(int flags);
@@ -56,7 +52,6 @@ static void osx_sys_exit(void);
 NSBundle *_al_osx_bundle = NULL;
 static _AL_VECTOR osx_display_modes;
 static ALLEGRO_SYSTEM osx_system;
-_AL_VECTOR _osx_threads = _AL_VECTOR_INITIALIZER(THREAD_AND_POOL *);
 
 /* osx_tell_dock:
  *  Tell the dock about us; promote us from a console app to a graphical app
@@ -496,26 +491,10 @@ static bool osx_get_cursor_position(int *x, int *y)
 
 static void osx_thread_init(ALLEGRO_THREAD *thread)
 {
-   THREAD_AND_POOL *tap = al_malloc(sizeof(THREAD_AND_POOL));
-
-   tap->thread = thread;
-   THREAD_AND_POOL **ptr = _al_vector_alloc_back(&_osx_threads);
-   *ptr = tap;
 }
 
 static void osx_thread_exit(ALLEGRO_THREAD *thread)
 {
-   unsigned int i;
-   THREAD_AND_POOL *tap;
-
-   for (i = 0; i < _osx_threads._size; i++) {
-      tap = _al_vector_ref(&_osx_threads, i);
-      if (tap->thread == thread) {
-         _al_vector_delete_at(&_osx_threads, i);
-         al_free(tap);
-	 return;
-      }
-   }
 }
 
 /* Internal function to get a reference to this driver. */
