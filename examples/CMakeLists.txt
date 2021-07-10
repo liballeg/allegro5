@@ -221,6 +221,7 @@ example(ex_ttf ${TTF} ${PRIM} ${IMAGE} DATA ${DATA_TTF} ex_ttf.ini)
 
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
 example(ex_acodec_multi CONSOLE ${AUDIO} ${ACODEC})
+example(ex_audio_devices ${AUDIO})
 example(ex_audio_chain ex_audio_chain.cpp ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${TTF} DATA ${DATA_TTF} ${DATA_HAIKU})
 example(ex_audio_props ex_audio_props.cpp ${NIHGUI} ${ACODEC} DATA ${DATA_AUDIO})
 example(ex_audio_simple CONSOLE ${AUDIO} ${ACODEC} ${FONT})
