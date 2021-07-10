@@ -40,6 +40,7 @@ ALLEGRO_DEBUG_CHANNEL("audio-dsound")
 
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_wunicode.h"
 
 /* This is used to stop MinGW from complaining about type-punning */
 #define MAKE_UNION(ptr, t) \
@@ -836,14 +837,11 @@ static BOOL CALLBACK DSEnumCallback(
    (void)lpContext;
 
    if (lpGuid != NULL) {
-      size_t desc_size = wcslen(lpcstrDescription) + 1;
-
       ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
       device->identifier = (void*)al_malloc(sizeof(GUID));
-      device->name = (char*)al_malloc(desc_size);
+      device->name = _twin_tchar_to_utf8(lpcstrDescription);
 
       memcpy(device->identifier, lpGuid, sizeof(GUID));
-      wcstombs(device->name, lpcstrDescription, desc_size);
 
       _al_list_push_back_ex(device_list, device, _device_list_dtor);
    }
