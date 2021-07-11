@@ -885,10 +885,12 @@ static void _output_device_list_dtor(void* value, void* userdata)
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
+   al_free(device);
 }
 
 static _AL_LIST* alsa_get_output_devices(void)
 {
+   int res;
    if (!output_device_list) {
       output_device_list = _al_list_create();
 
@@ -899,14 +901,18 @@ static _AL_LIST* alsa_get_output_devices(void)
          snd_ctl_t *handle;
          char str[64];
 
-         sprintf(str, "hw:%i", rcard);
-         if (snd_ctl_open(&handle, str, 0) < 0) {
-            return output_device_list;
+         snprintf(str, sizeof str, "hw:%i", rcard);
+         res = snd_ctl_open(&handle, str, 0);
+         if (res < 0) {
+            ALLEGRO_WARN("snd_ctl_open on '%s' failed with code %d.\n", str, res);
+            continue;
          }
 
          snd_ctl_card_info_t *card_info;
          snd_ctl_card_info_alloca(&card_info);
-         if (snd_ctl_card_info(handle, card_info) < 0) {
+         res = snd_ctl_card_info(handle, card_info);
+         if (res < 0) {
+            ALLEGRO_WARN("snd_ctl_card_info on '%s' failed with code %d.\n", str, res);
             continue;
          }
 
@@ -920,11 +926,18 @@ static _AL_LIST* alsa_get_output_devices(void)
                break;
             }
 
-            if (dev_num < 0) break;
+            if (dev_num < 0) {
+               ALLEGRO_WARN("Invalid device number for card %d.\n", rcard);
+               break;
+            }
 
             void **hints;
-            int success = snd_device_name_hint(dev_num, "pcm", &hints);
-            if (success < 0) continue;
+            res = snd_device_name_hint(dev_num, "pcm", &hints);
+            if (res < 0) {
+               ALLEGRO_WARN("snd_device_name_hint for card %d, device %d failed with error code %d\n",
+                  rcard, dev_num, res);
+               continue;
+            }
             char**n = (char**)hints;
                
             char* identifier = 0;
@@ -935,28 +948,42 @@ static _AL_LIST* alsa_get_output_devices(void)
                name = snd_device_name_get_hint(*n, "DESC");
                   
                char* ioid = snd_device_name_get_hint(*n, "IOID");
-               if (ioid == NULL || strcmp(ioid, "Output") == 0) break;
+               if (ioid == NULL || strcmp(ioid, "Output") == 0)
+               {
+                  free(ioid);
+                  break;
+               }
+               free(ioid);
                n++;
             }
 
-            if (!identifier || !name) continue;
+            if (!identifier || !name) {
+               snd_device_name_free_hint(hints);
+               free(identifier);
+               free(name);
+               ALLEGRO_WARN("Could not find identifier/name for card %d, device %d\n",
+                  rcard, dev_num);
+               continue;
+            }
 
             char* sep_at = strchr(name, '\n');
-            name = sep_at ? sep_at+1 : name;
+            char* actual_name = sep_at ? sep_at + 1 : name;
             
-            int len = strlen(name) + 1;
+            int len = strlen(actual_name) + 1;
             int identifier_len = strlen(identifier) + 1;
 
             ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
             device->identifier = (char*)al_malloc(identifier_len);
             device->name = (char*)al_malloc(len);
 
-            strcpy(device->name, name);
+            strcpy(device->name, actual_name);
             strcpy(device->identifier, identifier);
 
             snd_device_name_free_hint(hints);
+            free(identifier);
+            free(name);
+
             _al_list_push_back_ex(output_device_list, device, _output_device_list_dtor);
-    
          }
 
          snd_ctl_close(handle);

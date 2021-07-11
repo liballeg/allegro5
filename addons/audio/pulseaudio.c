@@ -82,6 +82,7 @@ static void _output_device_list_dtor(void* value, void* userdata)
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
+   al_free(device);
 }
 
 static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
