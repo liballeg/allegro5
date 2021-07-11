@@ -359,8 +359,8 @@ ALLEGRO_KCM_AUDIO_FUNC(size_t, al_get_audio_depth_size, (ALLEGRO_AUDIO_DEPTH con
 ALLEGRO_KCM_AUDIO_FUNC(void, al_fill_silence, (void *buf, unsigned int samples,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
 
-ALLEGRO_KCM_AUDIO_FUNC(int, al_get_num_audio_devices, (void));
-ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEVICE *, al_get_audio_device, (int index));
+ALLEGRO_KCM_AUDIO_FUNC(int, al_get_num_audio_output_devices, (void));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEVICE *, al_get_audio_output_device, (int index));
 ALLEGRO_KCM_AUDIO_FUNC(char *, al_get_audio_device_name, (ALLEGRO_AUDIO_DEVICE * device));
 
 /* Simple audio layer */

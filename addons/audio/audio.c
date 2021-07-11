@@ -196,13 +196,13 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 }
 
-/* Function: al_get_num_audio_devices
+/* Function: al_get_num_audio_output_devices
  */
-int al_get_num_audio_devices()
+int al_get_num_audio_output_devices()
 {
    if (_al_kcm_driver) {
-      if (_al_kcm_driver->get_devices) {
-         _AL_LIST* audio_devices = _al_kcm_driver->get_devices();
+      if (_al_kcm_driver->get_output_devices) {
+         _AL_LIST* audio_devices = _al_kcm_driver->get_output_devices();
          return _al_list_size(audio_devices);
       }
       else {
@@ -213,13 +213,13 @@ int al_get_num_audio_devices()
    return 0;
 }
 
-/* Function: al_get_audio_device
+/* Function: al_get_audio_output_device
  */
-ALLEGRO_AUDIO_DEVICE* al_get_audio_device(int index)
+ALLEGRO_AUDIO_DEVICE* al_get_audio_output_device(int index)
 {
    if (_al_kcm_driver) {
-      if (_al_kcm_driver->get_devices) {
-         _AL_LIST* audio_devices = _al_kcm_driver->get_devices();
+      if (_al_kcm_driver->get_output_devices) {
+         _AL_LIST* audio_devices = _al_kcm_driver->get_output_devices();
 
          if (index >= 0 && index < _al_list_size(audio_devices)) {
             return _al_list_item_data(_al_list_at(audio_devices, index));
