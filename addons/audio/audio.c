@@ -215,7 +215,7 @@ int al_get_num_audio_output_devices()
 
 /* Function: al_get_audio_output_device
  */
-ALLEGRO_AUDIO_DEVICE* al_get_audio_output_device(int index)
+const ALLEGRO_AUDIO_DEVICE* al_get_audio_output_device(int index)
 {
    if (_al_kcm_driver) {
       if (_al_kcm_driver->get_output_devices) {
@@ -226,18 +226,18 @@ ALLEGRO_AUDIO_DEVICE* al_get_audio_output_device(int index)
          }
       }
       else {
-         return 0;
+         return NULL;
       }
    }
 
-   return 0;
+   return NULL;
 }
 
 /* Function: al_get_audio_device_name
  */
-char* al_get_audio_device_name(ALLEGRO_AUDIO_DEVICE * device)
+const char* al_get_audio_device_name(const ALLEGRO_AUDIO_DEVICE * device)
 {
-   return device ? device->name : 0;
+   return device ? device->name : NULL;
 }
 
 static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
