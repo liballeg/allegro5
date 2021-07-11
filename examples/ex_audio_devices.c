@@ -23,14 +23,14 @@ int main(int argc, char **argv)
 
    open_log();
 
-   int count = al_get_num_audio_devices();
+   int count = al_get_num_audio_output_devices();
    if (count < 0) {
       log_printf("Platform not supported.\n");
       goto done;
    }
 
    for (int i = 0; i < count; i++) {
-      ALLEGRO_AUDIO_DEVICE* device = al_get_audio_device(i);
+      ALLEGRO_AUDIO_DEVICE* device = al_get_audio_output_device(i);
       log_printf("%s\n", al_get_audio_device_name(device));
    }
 

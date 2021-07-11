@@ -41,7 +41,7 @@ do {                                                                  \
 static snd_output_t *snd_output = NULL;
 static char *default_device = "default";
 static char *alsa_device = NULL;
-static _AL_LIST* device_list;
+static _AL_LIST* output_device_list;
 
 // TODO: Setting this to 256 causes (extreme, about than 10 seconds)
 // lag if the alsa device is really pulseaudio.
@@ -141,7 +141,7 @@ Error:
    other processes to use the device */
 static void alsa_close(void)
 {
-   _al_list_destroy(device_list);
+   _al_list_destroy(output_device_list);
 
    if (alsa_device != default_device)
       al_free(alsa_device);
@@ -878,7 +878,7 @@ static void alsa_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    snd_pcm_close(data->capture_handle);
 }
 
-static void _device_list_dtor(void* value, void* userdata)
+static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
@@ -887,21 +887,21 @@ static void _device_list_dtor(void* value, void* userdata)
    al_free(device->identifier);
 }
 
-static _AL_LIST* alsa_get_devices(void)
+static _AL_LIST* alsa_get_output_devices(void)
 {
-   if (!device_list) {
-      device_list = _al_list_create();
+   if (!output_device_list) {
+      output_device_list = _al_list_create();
 
       int rcard = -1;
       while(snd_card_next(&rcard) == 0) {
-         if (rcard < 0) return device_list;
+         if (rcard < 0) return output_device_list;
 
          snd_ctl_t *handle;
          char str[64];
 
          sprintf(str, "hw:%i", rcard);
          if (snd_ctl_open(&handle, str, 0) < 0) {
-            return device_list;
+            return output_device_list;
          }
 
          snd_ctl_card_info_t *card_info;
@@ -955,7 +955,7 @@ static _AL_LIST* alsa_get_devices(void)
             strcpy(device->identifier, identifier);
 
             snd_device_name_free_hint(hints);
-            _al_list_push_back_ex(device_list, device, _device_list_dtor);
+            _al_list_push_back_ex(output_device_list, device, _output_device_list_dtor);
     
          }
 
@@ -963,7 +963,7 @@ static _AL_LIST* alsa_get_devices(void)
       }
    }
 
-   return device_list;
+   return output_device_list;
 }
 
 ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
@@ -990,7 +990,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
    alsa_allocate_recorder,
    alsa_deallocate_recorder,
 
-   alsa_get_devices
+   alsa_get_output_devices
 };
 
 /* vim: set sts=3 sw=3 et: */

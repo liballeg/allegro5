@@ -55,7 +55,7 @@ static IDirectSound8 *device;
 static IDirectSoundCapture8 *capture_device; 
 static char ds_err_str[100];
 static int buffer_size; // in bytes
-static _AL_LIST* device_list;
+static _AL_LIST* output_device_list;
 
 #define MIN_BUFFER_SIZE    1024
 #define MIN_FILL           512
@@ -274,7 +274,7 @@ static int _dsound_open()
    HRESULT hr;
    ALLEGRO_INFO("Starting DirectSound...\n");
 
-   device_list = _al_list_create();
+   output_device_list = _al_list_create();
    DirectSoundEnumerate((LPDSENUMCALLBACK)DSEnumCallback, NULL);
 
    /* FIXME: Use default device until we have device enumeration */
@@ -303,7 +303,7 @@ static void _dsound_close()
 {
    ALLEGRO_DEBUG("Releasing device\n");
    
-   _al_list_destroy(device_list);
+   _al_list_destroy(output_device_list);
    device->Release();
    
    ALLEGRO_DEBUG("Released device\n");
@@ -556,7 +556,7 @@ static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
       ALLEGRO_DEBUG("Joining thread\n");
       ex_data->stop_voice = 1;
       while (ex_data->stop_voice == 1) {
-	  al_wait_cond(voice->cond, voice->mutex);
+         al_wait_cond(voice->cond, voice->mutex);
       }
       al_join_thread(ex_data->thread, NULL);
       ALLEGRO_DEBUG("Joined thread\n");
@@ -818,7 +818,7 @@ void _dsound_close_recorder(ALLEGRO_AUDIO_RECORDER *r) {
    capture_device = NULL;
 }
 
-static void _device_list_dtor(void* value, void* userdata)
+static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
@@ -843,15 +843,15 @@ static BOOL CALLBACK DSEnumCallback(
 
       memcpy(device->identifier, lpGuid, sizeof(GUID));
 
-      _al_list_push_back_ex(device_list, device, _device_list_dtor);
+      _al_list_push_back_ex(output_device_list, device, _output_device_list_dtor);
    }
 
    return TRUE;
 }
 
-static _AL_LIST* _dsound_get_devices(void)
+static _AL_LIST* _dsound_get_output_devices(void)
 {
-   return device_list;
+   return output_device_list;
 }
 
 ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
@@ -877,7 +877,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
    _dsound_open_recorder,
    _dsound_close_recorder,
 
-   _dsound_get_devices,
+   _dsound_get_output_devices,
 };
 
 } /* End extern "C" */

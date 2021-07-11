@@ -19,7 +19,7 @@ typedef struct SDL_RECORDER
    unsigned int fragment;
 } SDL_RECORDER;
 
-static _AL_LIST* device_list;
+static _AL_LIST* output_device_list;
 
 static void audio_callback(void *userdata, Uint8 *stream, int len)
 {
@@ -93,7 +93,7 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
 static void sdl_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    SDL_VOICE *sv = voice->extra;
-   _al_list_destroy(device_list);
+   _al_list_destroy(output_device_list);
    SDL_CloseAudioDevice(sv->device);
    al_free(sv);
 }
@@ -212,7 +212,7 @@ static void sdl_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    al_free(r->extra);
 }
 
-static void _device_list_dtor(void* value, void* userdata)
+static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
@@ -220,10 +220,10 @@ static void _device_list_dtor(void* value, void* userdata)
    al_free(device->name);
 }
 
-static _AL_LIST* sdl_get_devices(void)
+static _AL_LIST* sdl_get_output_devices(void)
 {
-   if (!device_list) {
-      device_list = _al_list_create();
+   if (!output_device_list) {
+      output_device_list = _al_list_create();
 
       int i, count = SDL_GetNumAudioDevices(0);
       for (i = 0; i < count; ++i) {
@@ -234,11 +234,11 @@ static _AL_LIST* sdl_get_devices(void)
          device->identifier = device->name; // Name returned by SDL2 is used to identify devices.
          strcpy(device->name, SDL_GetAudioDeviceName(i, 0));
 
-         _al_list_push_back_ex(device_list, device, _device_list_dtor);
+         _al_list_push_back_ex(output_device_list, device, _output_device_list_dtor);
       }
    }
 
-   return device_list;
+   return output_device_list;
 }
 
 ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
@@ -265,5 +265,5 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
    sdl_allocate_recorder,
    sdl_deallocate_recorder,
 
-   sdl_get_devices,
+   sdl_get_output_devices,
 };

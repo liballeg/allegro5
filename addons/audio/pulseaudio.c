@@ -54,7 +54,7 @@ typedef struct PULSEAUDIO_VOICE
    char *buffer_end;
 } PULSEAUDIO_VOICE;
 
-static _AL_LIST* device_list;
+static _AL_LIST* output_device_list;
 
 #define DEFAULT_BUFFER_SIZE   1024
 #define MIN_BUFFER_SIZE       128
@@ -75,7 +75,7 @@ static unsigned int get_buffer_size(const ALLEGRO_CONFIG *config)
    return DEFAULT_BUFFER_SIZE;
 }
 
-static void _device_list_dtor(void* value, void* userdata)
+static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
@@ -90,8 +90,8 @@ static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
    (void)c;
    (void)eol;
 
-   if (!device_list) {
-      device_list = _al_list_create();
+   if (!output_device_list) {
+      output_device_list = _al_list_create();
    }
 
    pa_sink_state_t *ret = userdata;
@@ -108,7 +108,7 @@ static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
    strcpy(device->name, i->description);
    strcpy(device->identifier, i->name);
 
-   _al_list_push_back_ex(device_list, device, _device_list_dtor);
+   _al_list_push_back_ex(output_device_list, device, _output_device_list_dtor);
 }
 
 static int pulseaudio_open(void)
@@ -180,7 +180,7 @@ static int pulseaudio_open(void)
 
 static void pulseaudio_close(void)
 {
-   _al_list_destroy(device_list);
+   _al_list_destroy(output_device_list);
 }
 
 static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
@@ -539,9 +539,9 @@ static void pulseaudio_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    al_free(r->extra);
 }
 
-static _AL_LIST* pulseaudio_get_devices(void)
+static _AL_LIST* pulseaudio_get_output_devices(void)
 {
-   return device_list;
+   return output_device_list;
 }
 
 ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
@@ -568,7 +568,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
    pulseaudio_allocate_recorder,
    pulseaudio_deallocate_recorder,
 
-   pulseaudio_get_devices
+   pulseaudio_get_output_devices
 };
 
 /* vim: set sts=3 sw=3 et: */
