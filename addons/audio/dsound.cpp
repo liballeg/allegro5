@@ -61,7 +61,7 @@ static _AL_LIST* output_device_list;
 #define MIN_FILL           512
 #define MAX_FILL           1024
 
-static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTSTR lpcstrModule, LPVOID lpContext);
+static BOOL CALLBACK _ds_enum_callback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTSTR lpcstrModule, LPVOID lpContext);
 
 static HWND get_window()
 {
@@ -275,7 +275,7 @@ static int _dsound_open()
    ALLEGRO_INFO("Starting DirectSound...\n");
 
    output_device_list = _al_list_create();
-   DirectSoundEnumerate((LPDSENUMCALLBACK)DSEnumCallback, NULL);
+   DirectSoundEnumerate((LPDSENUMCALLBACK)_ds_enum_callback, NULL);
 
    /* FIXME: Use default device until we have device enumeration */
 
@@ -302,10 +302,10 @@ static int _dsound_open()
 static void _dsound_close()
 {
    ALLEGRO_DEBUG("Releasing device\n");
-   
+
    _al_list_destroy(output_device_list);
    device->Release();
-   
+
    ALLEGRO_DEBUG("Released device\n");
    ALLEGRO_INFO("DirectSound closed\n");
 }
@@ -828,7 +828,7 @@ static void _output_device_list_dtor(void* value, void* userdata)
    al_free(device);
 }
 
-static BOOL CALLBACK DSEnumCallback(
+static BOOL CALLBACK _ds_enum_callback(
          LPGUID lpGuid,
          LPCTSTR lpcstrDescription,
          LPCTSTR lpcstrModule,

@@ -1759,7 +1759,7 @@ Since: 5.1.1
 
 ### API: ALLEGRO_AUDIO_DEVICE
 
-An opaque datatype that represents an audio device. 
+An opaque datatype that represents an audio device.
 
 ### API: al_get_num_audio_output_devices
 
