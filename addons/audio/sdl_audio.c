@@ -245,7 +245,7 @@ static _AL_LIST* sdl_get_output_devices(void)
 ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
 {
    "SDL",
-   
+
    sdl_open,
    sdl_close,
 

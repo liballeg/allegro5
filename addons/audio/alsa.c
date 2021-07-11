@@ -896,7 +896,11 @@ static _AL_LIST* alsa_get_output_devices(void)
 
       int rcard = -1;
       while(snd_card_next(&rcard) == 0) {
-         if (rcard < 0) return output_device_list;
+         if (rcard < 0) {
+            ALLEGRO_WARN("snd_card_next returned a bad card %d.\n", rcard);
+            /* Something is really messed up, so bail out. */
+            return output_device_list;
+         }
 
          snd_ctl_t *handle;
          char str[64];
@@ -916,8 +920,7 @@ static _AL_LIST* alsa_get_output_devices(void)
             continue;
          }
 
-         snd_ctl_card_info_get_name(card_info);
-         snd_ctl_card_info_get_id(card_info);
+         const char* card_name = snd_ctl_card_info_get_name(card_info);
 
          int dev_num = -1;
 
@@ -939,14 +942,14 @@ static _AL_LIST* alsa_get_output_devices(void)
                continue;
             }
             char**n = (char**)hints;
-               
+
             char* identifier = 0;
             char* name = 0;
             while(*n != NULL)
             {
                identifier = snd_device_name_get_hint(*n, "NAME");
                name = snd_device_name_get_hint(*n, "DESC");
-                  
+
                char* ioid = snd_device_name_get_hint(*n, "IOID");
                if (ioid == NULL || strcmp(ioid, "Output") == 0)
                {
@@ -969,14 +972,15 @@ static _AL_LIST* alsa_get_output_devices(void)
             char* sep_at = strchr(name, '\n');
             char* actual_name = sep_at ? sep_at + 1 : name;
             
-            int len = strlen(actual_name) + 1;
+            /* Two string lengths + space + nul terminator. */
+            int len = strlen(actual_name) + strlen(card_name) + 1 + 1;
             int identifier_len = strlen(identifier) + 1;
 
             ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
             device->identifier = (char*)al_malloc(identifier_len);
             device->name = (char*)al_malloc(len);
 
-            strcpy(device->name, actual_name);
+            snprintf(device->name, len, "%s %s", card_name, actual_name);
             strcpy(device->identifier, identifier);
 
             snd_device_name_free_hint(hints);

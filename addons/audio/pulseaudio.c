@@ -105,7 +105,7 @@ static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
    ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
    device->identifier = (void*)al_malloc(iden_len);
    device->name = (char*)al_malloc(name_len);
-   
+
    strcpy(device->name, i->description);
    strcpy(device->identifier, i->name);
 
