@@ -197,7 +197,7 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
    if (!ext) {
       ext = strrchr(filename, '.');
       if (!ext) {
-         ALLEGRO_ERROR("Could not identify bitmap %s!", filename);
+         ALLEGRO_ERROR("Could not identify bitmap %s!\n", filename);
          return NULL;
       }
    }
@@ -210,7 +210,7 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
             filename, ext);
    }
    else {
-      ALLEGRO_ERROR("No handler for bitmap %s!", filename);
+      ALLEGRO_ERROR("No handler for bitmap %s!\n", filename);
       ret = NULL;
    }
 
