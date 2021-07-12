@@ -1353,12 +1353,33 @@ static ALLEGRO_VIDEO_INTERFACE ogv_vtable = {
    ogv_start_video,
    ogv_set_video_playing,
    ogv_seek_video,
-   ogv_update_video
+   ogv_update_video,
 };
 
 ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void)
 {
    return &ogv_vtable;
+}
+
+bool _al_video_identify_ogv(const char* filename)
+{
+   ALLEGRO_FILE* fp = al_fopen(filename, "rb");
+   bool ret = false;
+   if (!fp) {
+      ALLEGRO_ERROR("Could not open %s", filename);
+      return false;
+   }
+   uint8_t x[4];
+   if (al_fread(fp, x, 4) == 4) {
+      /* TODO: This technically only verifies that this is an OGG container,
+       * saying nothing of the contents. Maybe refactor read_headers and make
+       * use of it here. */
+      if (memcmp(x, "OggS", 4) == 0) {
+         ret = true;
+      }
+   }
+   al_fclose(fp);
+   return ret;
 }
 
 /* vim: set sts=3 sw=3 et: */

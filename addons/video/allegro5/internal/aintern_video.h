@@ -36,5 +36,9 @@ struct ALLEGRO_VIDEO {
    void *data;
 };
 
-ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void);
+typedef bool (*ALLEGRO_VIDEO_IDENTIFIER_FUNCTION)(const char *filename);
+
 void _al_compute_scaled_dimensions(int frame_w, int frame_h, float aspect_ratio, float *scaled_w, float *scaled_h);
+
+ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void);
+bool _al_video_identify_ogv(const char* filename);

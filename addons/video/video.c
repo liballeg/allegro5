@@ -40,9 +40,11 @@
  
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_video.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_video.h"
 #include "allegro5/internal/aintern_video_cfg.h"
 #include "allegro5/internal/aintern_exitfunc.h"
+#include "allegro5/internal/aintern_vector.h"
 
 ALLEGRO_DEBUG_CHANNEL("video")
 
@@ -51,42 +53,44 @@ ALLEGRO_DEBUG_CHANNEL("video")
 static bool video_inited = false;
 
 typedef struct VideoHandler {
-   struct VideoHandler *next;
    const char *extension;
    ALLEGRO_VIDEO_INTERFACE *vtable;
+   ALLEGRO_VIDEO_IDENTIFIER_FUNCTION identifier;
 } VideoHandler;
 
-static VideoHandler *handlers;
+static _AL_VECTOR handlers = _AL_VECTOR_INITIALIZER(VideoHandler);
 
-static ALLEGRO_VIDEO_INTERFACE *find_handler(const char *extension)
+static const char* identify_video(const char* filename)
 {
-   VideoHandler *v = handlers;
-   while (v) {
-      if (!strcmp(extension, v->extension)) {
-         return v->vtable;
+   size_t i;
+   for (i = 0; i < _al_vector_size(&handlers); i++) {
+      VideoHandler *l = _al_vector_ref(&handlers, i);
+      if (l->identifier(filename)) {
+         return l->extension;
       }
-      v = v->next;
    }
    return NULL;
 }
 
-static void add_handler(const char *extension, ALLEGRO_VIDEO_INTERFACE *vtable)
+static ALLEGRO_VIDEO_INTERFACE *find_handler(const char *extension)
 {
-   VideoHandler *v;
-   if (handlers == NULL) {
-      handlers = al_calloc(1, sizeof(VideoHandler));
-      v = handlers;
-   }
-   else {
-      v = handlers;
-      while (v->next) {
-         v = v->next;
+   size_t i;
+   for (i = 0; i < _al_vector_size(&handlers); i++) {
+      VideoHandler *l = _al_vector_ref(&handlers, i);
+      if (0 == _al_stricmp(extension, l->extension)) {
+         return l->vtable;
       }
-      v->next = al_calloc(1, sizeof(VideoHandler));
-      v = v->next;
    }
+   return NULL;
+}
+
+static void add_handler(const char *extension, ALLEGRO_VIDEO_INTERFACE *vtable,
+                        ALLEGRO_VIDEO_IDENTIFIER_FUNCTION identifier)
+{
+   VideoHandler *v = _al_vector_alloc_back(&handlers);
    v->extension = extension;
    v->vtable = vtable;
+   v->identifier = identifier;
 }
 
 /* Function: al_open_video
@@ -94,21 +98,25 @@ static void add_handler(const char *extension, ALLEGRO_VIDEO_INTERFACE *vtable)
 ALLEGRO_VIDEO *al_open_video(char const *filename)
 {
    ALLEGRO_VIDEO *video;
-   const char *extension = filename + strlen(filename) - 1;
-
-   while ((extension >= filename) && (*extension != '.'))
-      extension--;
+   const char *ext;
    video = al_calloc(1, sizeof *video);
    
-   video->vtable = find_handler(extension);
+   ext = identify_video(filename);
+   if (!ext) {
+      ext = strrchr(filename, '.');
+      if (!ext) {
+         ALLEGRO_ERROR("Could not identify video %s!\n", filename);
+      }
+   }
 
+   video->vtable = find_handler(ext);
    if (video->vtable == NULL) {
       ALLEGRO_ERROR("No handler for video extension %s - "
-         "therefore not trying to load %s.\n", extension, filename);
+         "therefore not trying to load %s.\n", ext, filename);
       al_free(video);
       return NULL;
    }
-   
+
    video->filename = al_create_path(filename);
    video->playing = true;
 
@@ -262,10 +270,10 @@ bool al_init_video_addon(void)
       return true;
 
 #ifdef ALLEGRO_CFG_VIDEO_HAVE_OGV
-   add_handler(".ogv", _al_video_ogv_vtable());
+   add_handler(".ogv", _al_video_ogv_vtable(), _al_video_identify_ogv);
 #endif
 
-   if (handlers == NULL) {
+   if (_al_vector_size(&handlers) == 0) {
       ALLEGRO_WARN("No video handlers available!\n");
       return false;
    }
@@ -291,14 +299,9 @@ void al_shutdown_video_addon(void)
    if (!video_inited)
       return;
 
-   VideoHandler *v = handlers;
-   while (v) {
-      VideoHandler *next = v->next;
-      al_free(v);
-      v = next;
-   }
+   _al_vector_free(&handlers);
+
    video_inited = false;
-   handlers = NULL;
 }
 
 
