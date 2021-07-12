@@ -10,6 +10,8 @@
 
 #include "allegro_physfs_intern.h"
 
+ALLEGRO_DEBUG_CHANNEL("physfs")
+
 
 typedef struct ALLEGRO_FILE_PHYSFS ALLEGRO_FILE_PHYSFS;
 
@@ -46,11 +48,14 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
     */
    al_set_errno(-1);
 
+   PHYSFS_ErrorCode error = PHYSFS_getLastErrorCode();
+   const char* msg = PHYSFS_getErrorByCode(error);
+   if (error != PHYSFS_ERR_OK) {
+      ALLEGRO_ERROR("PhysFS error code: %s\n", msg);
+   }
    if (fp) {
-      PHYSFS_ErrorCode error = PHYSFS_getLastErrorCode();
       fp->error_indicator = true;
       if (error != PHYSFS_ERR_OK) {
-         const char* msg = PHYSFS_getErrorByCode(error);
          strncpy(fp->error_msg, msg, sizeof(fp->error_msg));
          fp->error_msg[sizeof(fp->error_msg) - 1] = '\0';
       }
