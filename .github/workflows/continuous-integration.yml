@@ -75,6 +75,10 @@ jobs:
                   mkdir -p test_outputs
                   mv *.png test_outputs
                   grep -q 'failed tests: 0' /tmp/test_out
+            - name: Run other tests
+              run: |
+                  cd build
+                  make run_standalone_tests
             - name: Upload artifacts
               if: failure()
               uses: actions/upload-artifact@v1
