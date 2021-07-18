@@ -30,25 +30,29 @@ if(MSVC)
 endif(MSVC)
 
 if(WANT_MONOLITH)
-   add_our_executable(
-       test_driver
-       LIBS
-       ${ALLEGRO_MONOLITH_LINK_WITH}
-       )
-else(WANT_MONOLITH)
-   add_our_executable(
-       test_driver
-       LIBS
-       ${ALLEGRO_LINK_WITH}
-       ${ALLEGRO_MAIN_LINK_WITH}
-       ${IMAGE_LINK_WITH}
-       ${COLOR_LINK_WITH}
-       ${FONT_LINK_WITH}
-       ${TTF_LINK_WITH}
-       ${PRIMITIVES_LINK_WITH}
-       ${SHADER_LINK_WITH}
-       )
-endif(WANT_MONOLITH)
+    set(LINK_WITH ${ALLEGRO_MONOLITH_LINK_WITH})
+else()
+    set(LINK_WITH ${ALLEGRO_LINK_WITH}
+        ${ALLEGRO_MAIN_LINK_WITH}
+        ${IMAGE_LINK_WITH}
+        ${COLOR_LINK_WITH}
+        ${FONT_LINK_WITH}
+        ${TTF_LINK_WITH}
+        ${PRIMITIVES_LINK_WITH}
+        ${SHADER_LINK_WITH})
+endif()
+
+#-----------------------------------------------------------------------------#
+#
+#   Main test driver
+#
+#-----------------------------------------------------------------------------#
+
+add_our_executable(
+    test_driver
+    LIBS
+    ${LINK_WITH}
+    )
 
 set(test_files
     ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
@@ -66,6 +70,29 @@ set(test_files
     )
 
 add_dependencies(test_driver copy_example_data)
+
+#-----------------------------------------------------------------------------#
+#
+#   Standalone tests
+#
+#-----------------------------------------------------------------------------#
+
+add_our_executable(
+    test_list
+    LIBS
+    ${LINK_WITH}
+    )
+
+#-----------------------------------------------------------------------------#
+#
+#   Commands
+#
+#-----------------------------------------------------------------------------#
+
+add_custom_target(run_standalone_tests
+    DEPENDS test_list
+    COMMAND test_list
+    )
 
 add_custom_target(run_tests
     DEPENDS test_driver
