@@ -595,7 +595,7 @@ _AL_LIST_ITEM* _al_list_at(_AL_LIST* list, size_t index)
 
       index = list->size - index - 1;
 
-      while (index--)
+      while (--index)
          item = item->prev;
 
       return item;
