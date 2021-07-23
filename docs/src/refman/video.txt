@@ -92,6 +92,29 @@ meta info so you can query e.g. the size or audio rate.
 
 Since: 5.1.0
 
+## API: al_identify_video
+
+This works exactly as [al_identify_video_f] but you specify the filename of the file for which to detect the type and not a file handle. The extension, if any, of the passed filename is not taken into account - only the file contents.
+
+Since: 5.2.8
+
+See also: [al_init_video_addon], [al_identify_video_f]
+
+## API: al_identify_video_f
+
+Tries to guess the video file type of the open ALLEGRO_FILE by
+reading the first few bytes. By default Allegro cannot recognize any
+file types, but calling [al_init_video_addon] will add detection of the
+types it can read.
+
+Returns a pointer to a static string with a file extension for the
+type, including the leading dot. For example ".ogv". Returns
+NULL if the video type cannot be determined.
+
+Since: 5.2.8
+
+See also: [al_init_video_addon], [al_identify_video]
+
 ## API: al_close_video
 
 Closes the video and frees all allocated resources. The video pointer

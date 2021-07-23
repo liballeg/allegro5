@@ -71,6 +71,9 @@ ALLEGRO_VIDEO_FUNC(bool, al_is_video_addon_initialized, (void));
 ALLEGRO_VIDEO_FUNC(void, al_shutdown_video_addon, (void));
 ALLEGRO_VIDEO_FUNC(uint32_t, al_get_allegro_video_version, (void));
 
+ALLEGRO_VIDEO_FUNC(char const *, al_identify_video_f, (ALLEGRO_FILE *fp));
+ALLEGRO_VIDEO_FUNC(char const *, al_identify_video, (char const *filename));
+
 #ifdef __cplusplus
    }
 #endif
