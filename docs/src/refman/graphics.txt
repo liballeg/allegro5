@@ -1675,8 +1675,8 @@ See also: [al_register_bitmap_saver]
 ### API: al_load_bitmap
 
 Loads an image file into a new [ALLEGRO_BITMAP].
-The file type is determined by the extension, except if the file has
-no extension in which case [al_identify_bitmap] is used instead.
+The file type is determined by [al_identify_bitmap], using the extension
+as a fallback in case identification is not possible.
 
 Returns NULL on error.
 
@@ -1693,8 +1693,8 @@ See also: [al_load_bitmap_flags], [al_load_bitmap_f],
 ### API: al_load_bitmap_flags
 
 Loads an image file into a new [ALLEGRO_BITMAP].
-The file type is determined by the extension, except if the file has
-no extension in which case [al_identify_bitmap] is used instead.
+The file type is determined by [al_identify_bitmap], using the extension
+as a fallback in case identification is not possible.
 
 Returns NULL on error.
 
@@ -1799,9 +1799,9 @@ See also: [al_load_bitmap]
 ### API: al_load_bitmap_f
 
 Loads an image from an [ALLEGRO_FILE] stream into a new [ALLEGRO_BITMAP].
-The file type is determined by the passed 'ident' parameter, which is a file
-name extension including the leading dot. If (and only if) 'ident' is
-NULL, the file type is determined with [al_identify_bitmap_f] instead.
+The file type is determined by [al_identify_bitmap_f]. If identification is
+not possible, the passed 'ident' parameter, which is a file name extension
+including the leading dot, is used as a fallback, if it is not NULL.
 
 This is the same as calling [al_load_bitmap_flags_f] with 0 for the flags
 parameter.
@@ -1819,9 +1819,9 @@ See also: [al_load_bitmap_flags_f], [al_load_bitmap],
 ### API: al_load_bitmap_flags_f
 
 Loads an image from an [ALLEGRO_FILE] stream into a new [ALLEGRO_BITMAP].
-The file type is determined by the passed 'ident' parameter, which is a file
-name extension including the leading dot. If (and only if) 'ident' is
-NULL, the file type is determined with [al_identify_bitmap_f] instead.
+The file type is determined by [al_identify_bitmap_f]. If identification is
+not possible, the passed 'ident' parameter, which is a file name extension
+including the leading dot, is used as a fallback, if it is not NULL.
 
 The flags parameter is the same as for [al_load_bitmap_flags].
 
