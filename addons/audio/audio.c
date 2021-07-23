@@ -221,7 +221,7 @@ const ALLEGRO_AUDIO_DEVICE* al_get_audio_output_device(int index)
       if (_al_kcm_driver->get_output_devices) {
          _AL_LIST* audio_devices = _al_kcm_driver->get_output_devices();
 
-         if (index >= 0 && index < _al_list_size(audio_devices)) {
+         if (index >= 0 && index < (int)_al_list_size(audio_devices)) {
             return _al_list_item_data(_al_list_at(audio_devices, index));
          }
       }
