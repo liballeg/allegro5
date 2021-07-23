@@ -60,12 +60,12 @@ typedef struct VideoHandler {
 
 static _AL_VECTOR handlers = _AL_VECTOR_INITIALIZER(VideoHandler);
 
-static const char* identify_video(const char* filename)
+static const char* identify_video(ALLEGRO_FILE *f)
 {
    size_t i;
    for (i = 0; i < _al_vector_size(&handlers); i++) {
       VideoHandler *l = _al_vector_ref(&handlers, i);
-      if (l->identifier(filename)) {
+      if (l->identifier(f)) {
          return l->extension;
       }
    }
@@ -100,8 +100,9 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    ALLEGRO_VIDEO *video;
    const char *ext;
    video = al_calloc(1, sizeof *video);
-   
-   ext = identify_video(filename);
+
+   ASSERT(filename);
+   ext = al_identify_video(filename);
    if (!ext) {
       ext = strrchr(filename, '.');
       if (!ext) {
@@ -310,6 +311,28 @@ void al_shutdown_video_addon(void)
 uint32_t al_get_allegro_video_version(void)
 {
    return ALLEGRO_VERSION_INT;
+}
+
+
+/* Function: al_identify_video_f
+ */
+char const *al_identify_video_f(ALLEGRO_FILE *fp)
+{
+   return identify_video(fp);
+}
+
+
+/* Function: al_identify_video
+ */
+char const *al_identify_video(char const *filename)
+{
+   char const *ext;
+   ALLEGRO_FILE *fp = al_fopen(filename, "rb");
+   if (!fp)
+      return NULL;
+   ext = identify_video(fp);
+   al_fclose(fp);
+   return ext;
 }
 
 /* The returned width and height are always greater than or equal to the frame
