@@ -140,10 +140,12 @@ void _al_sdl_touch_input_event(SDL_Event *e)
 
    int touchId = e->tfinger.fingerId;
 
-   // SDL2 only returns absolute positions of touches on the input device. This means we have to fake them
-   // in order to make them related to the display, which is what Allegro returns in its API.
-   // This is likely to break in lots of cases, but should work well with non-rotated fullscreen or Wayland windows.
-   // NOTE: SDL 2.0.10 is going to have SDL_GetTouchDeviceType API which may be somewhat helpful here.
+   // SDL2 touch events also handle indirect touch devices that aren't directly related to the display.
+   // Allegro doesn't really have an equivalent in its API, so filter them out.
+#if SDL_VERSION_ATLEAST(2,0,10)
+   if (SDL_GetTouchDeviceType(e->tfinger.touchId) != SDL_TOUCH_DEVICE_DIRECT)
+      return;
+#endif
 
    touch_input->state.touches[touchId].x = e->tfinger.x * al_get_display_width(d);
    touch_input->state.touches[touchId].y = e->tfinger.y * al_get_display_height(d);
