@@ -21,6 +21,8 @@ ALLEGRO_DEBUG_CHANNEL("SDL")
 
 static ALLEGRO_SYSTEM_INTERFACE *vt;
 
+#define ALLEGRO_SDL_EVENT_QUEUE_SIZE 8
+
 #ifdef DEBUGMODE
 #define _E(x) if (type == x) return #x;
 static char const *event_name(int type)
@@ -73,54 +75,58 @@ static char const *event_name(int type)
 
 static void sdl_heartbeat(void)
 {
+   SDL_Event events[ALLEGRO_SDL_EVENT_QUEUE_SIZE];
    ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
    al_lock_mutex(s->mutex);
-   SDL_Event event;
-   while (SDL_PollEvent(&event)) {
-      //printf("event %s\n", event_name(event.type));
-      switch (event.type) {
-         case SDL_KEYDOWN:
-         case SDL_KEYUP:
-         case SDL_TEXTINPUT:
-            _al_sdl_keyboard_event(&event);
-            break;
-         case SDL_MOUSEMOTION:
-         case SDL_MOUSEBUTTONDOWN:
-         case SDL_MOUSEBUTTONUP:
-         case SDL_MOUSEWHEEL:
-            _al_sdl_mouse_event(&event);
-            break;
-         case SDL_FINGERDOWN:
-         case SDL_FINGERMOTION:
-         case SDL_FINGERUP:
-             _al_sdl_touch_input_event(&event);
-             break;
-         case SDL_JOYAXISMOTION:
-         case SDL_JOYBUTTONDOWN:
-         case SDL_JOYBUTTONUP:
-         case SDL_JOYDEVICEADDED:
-         case SDL_JOYDEVICEREMOVED:
-            _al_sdl_joystick_event(&event);
-            break;
-         case SDL_QUIT:
-            _al_sdl_display_event(&event);
-            break;
-         case SDL_WINDOWEVENT:
-            switch (event.window.event) {
-               case SDL_WINDOWEVENT_ENTER:
-               case SDL_WINDOWEVENT_LEAVE:
-                  _al_sdl_mouse_event(&event);
-                  break;
-               case SDL_WINDOWEVENT_FOCUS_GAINED:
-               case SDL_WINDOWEVENT_FOCUS_LOST:
-                  _al_sdl_display_event(&event);
-                  _al_sdl_keyboard_event(&event);
-                  break;
-               case SDL_WINDOWEVENT_CLOSE:
-               case SDL_WINDOWEVENT_RESIZED:
-                  _al_sdl_display_event(&event);
-                  break;
-            }
+   SDL_PumpEvents();
+   int n, i;
+   while ((n = SDL_PeepEvents(events, ALLEGRO_SDL_EVENT_QUEUE_SIZE, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) > 0) {
+      for (i = 0; i < n; i++) {
+         //printf("event %s\n", event_name(events[i].type));
+         switch (events[i].type) {
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+            case SDL_TEXTINPUT:
+               _al_sdl_keyboard_event(&events[i]);
+               break;
+            case SDL_MOUSEMOTION:
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEWHEEL:
+               _al_sdl_mouse_event(&events[i]);
+               break;
+            case SDL_FINGERDOWN:
+            case SDL_FINGERMOTION:
+            case SDL_FINGERUP:
+                _al_sdl_touch_input_event(&events[i]);
+                break;
+            case SDL_JOYAXISMOTION:
+            case SDL_JOYBUTTONDOWN:
+            case SDL_JOYBUTTONUP:
+            case SDL_JOYDEVICEADDED:
+            case SDL_JOYDEVICEREMOVED:
+                _al_sdl_joystick_event(&events[i]);
+                break;
+            case SDL_QUIT:
+               _al_sdl_display_event(&events[i]);
+               break;
+            case SDL_WINDOWEVENT:
+               switch (events[i].window.event) {
+                  case SDL_WINDOWEVENT_ENTER:
+                  case SDL_WINDOWEVENT_LEAVE:
+                     _al_sdl_mouse_event(&events[i]);
+                     break;
+                  case SDL_WINDOWEVENT_FOCUS_GAINED:
+                  case SDL_WINDOWEVENT_FOCUS_LOST:
+                     _al_sdl_display_event(&events[i]);
+                     _al_sdl_keyboard_event(&events[i]);
+                     break;
+                  case SDL_WINDOWEVENT_CLOSE:
+                  case SDL_WINDOWEVENT_RESIZED:
+                     _al_sdl_display_event(&events[i]);
+                     break;
+               }
+         }
       }
    }
 #ifdef __EMSCRIPTEN__
