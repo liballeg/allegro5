@@ -344,3 +344,159 @@ failure:
    al_free(mp3file);
    return NULL;
 }
+
+
+/* --- Start of minimp3 code --- */
+
+/* The following code is copied from minimp3 to avoid depending on internals.
+ * `HDR_` and `hdr_` prefixes have been replaced with `IDMP3_` and `idmp3_`.
+ */
+
+#define IDMP3_HDR_SIZE           4
+#define IDMP3_IS_FREE_FORMAT(h)  ((((h)[2]) & 0xF0) == 0)
+#define IDMP3_TEST_PADDING(h)    (((h)[2]) & 0x2)
+#define IDMP3_TEST_MPEG1(h)      (((h)[1]) & 0x8)
+#define IDMP3_TEST_NOT_MPEG25(h) (((h)[1]) & 0x10)
+#define IDMP3_IS_FRAME_576(h)    (((h)[1] & 14) == 2)
+#define IDMP3_IS_LAYER_1(h)      (((h)[1] & 6) == 6)
+#define IDMP3_GET_LAYER(h)       ((((h)[1]) >> 1) & 3)
+#define IDMP3_GET_BITRATE(h)     (((h)[2]) >> 4)
+#define IDMP3_GET_SAMPLE_RATE(h) ((((h)[2]) >> 2) & 3)
+
+static int idmp3_frame_samples(const uint8_t* h)
+{
+   return IDMP3_IS_LAYER_1(h) ? 384 : (1152 >> (int)IDMP3_IS_FRAME_576(h));
+}
+
+static int idmp3_bitrate_kbps(const uint8_t* h)
+{
+   static const uint8_t halfrate[2][3][15] = {
+      { { 0,4,8,12,16,20,24,28,32,40,48,56,64,72,80 },
+         { 0,4,8,12,16,20,24,28,32,40,48,56,64,72,80 },
+         { 0,16,24,28,32,40,48,56,64,72,80,88,96,112,128 } },
+      { { 0,16,20,24,28,32,40,48,56,64,80,96,112,128,160 },
+         { 0,16,24,28,32,40,48,56,64,80,96,112,128,160,192 },
+         { 0,16,32,48,64,80,96,112,128,144,160,176,192,208,224 }
+      },
+   };
+   return 2 * halfrate[!!IDMP3_TEST_MPEG1(h)][IDMP3_GET_LAYER(h) - 1][IDMP3_GET_BITRATE(h)];
+}
+
+static int idmp3_sample_rate_hz(const uint8_t* h)
+{
+   static const int g_hz[3] = { 44100, 48000, 32000 };
+   return g_hz[IDMP3_GET_SAMPLE_RATE(h)] >> (int)!IDMP3_TEST_MPEG1(h) >> (int)!IDMP3_TEST_NOT_MPEG25(h);
+}
+
+static int idmp3_frame_bytes(const uint8_t* h, int free_format_size)
+{
+   int frame_bytes = idmp3_frame_samples(h) * idmp3_bitrate_kbps(h) * 125 / idmp3_sample_rate_hz(h);
+   if (IDMP3_IS_LAYER_1(h))
+      frame_bytes &= ~3; /* slot align */
+   return frame_bytes ? frame_bytes : free_format_size;
+}
+
+static int idmp3_padding(const uint8_t* h)
+{
+   return IDMP3_TEST_PADDING(h) ? (IDMP3_IS_LAYER_1(h) ? 4 : 1) : 0;
+}
+
+static int idmp3_valid(const uint8_t* h)
+{
+   return h[0] == 0xff &&
+      ((h[1] & 0xF0) == 0xf0 || (h[1] & 0xFE) == 0xe2) &&
+      (IDMP3_GET_LAYER(h) != 0) &&
+      (IDMP3_GET_BITRATE(h) != 15) &&
+      (IDMP3_GET_SAMPLE_RATE(h) != 3);
+}
+
+static int idmp3_compare(const uint8_t* h1, const uint8_t* h2)
+{
+   return idmp3_valid(h2) &&
+      ((h1[1] ^ h2[1]) & 0xFE) == 0 &&
+      ((h1[2] ^ h2[2]) & 0x0C) == 0 &&
+      !(IDMP3_IS_FREE_FORMAT(h1) ^ IDMP3_IS_FREE_FORMAT(h2));
+}
+
+/* --- End of minimp3 code --- */
+
+/* Attempts to identify an MP3 file by looking for contiguous MP3 frames.
+ * The tested buffer length should be 8KB for the best accuracy.
+ * Returns true for a match.
+ */
+static bool identify_mp3(const uint8_t* buf, size_t len)
+{
+   const uint8_t* end = buf + len - IDMP3_HDR_SIZE;
+   const uint8_t* quarter = buf + (len / 4) - IDMP3_HDR_SIZE;
+
+   /* Too short to possibly contain a valid header. */
+   if (len < IDMP3_HDR_SIZE)
+      return false;
+
+   /* A file with an ID3v2 tag is assumed to be an MP3 file. */
+   if (memcmp(buf, "ID3", 3) == 0)
+      return true;
+
+   /* Only scan the first quarter of the file (2KB out of 8KB) for the initial
+    * frame. This guarantees at least 2 frames in the worst case, but typically
+    * at least 5, can be synced to. */
+   for (const uint8_t* p = buf; p < quarter; ++p) {
+      if (idmp3_valid(p)) {
+         int frame_bytes = idmp3_frame_bytes(p, 0);
+         int num_frames = 0;
+         const uint8_t* p2 = p;
+
+         /* free-format -- scan for next frame to discover its length. */
+         if (frame_bytes == 0) {
+            for (p2 += IDMP3_HDR_SIZE; p2 < end; ++p2) {
+               if (idmp3_compare(p, p2)) {
+                  frame_bytes = (int)(p2 - p);
+                  ++num_frames;
+                  break;
+               }
+
+               /* Excessive distance between frames */
+               if ((p2 - p) >= 1152 * 2)
+                  goto continue_scan;
+            }
+
+            /* Reached end of buffer without finding a matching header */
+            if (p2 == end)
+               goto continue_scan;
+         }
+
+         p2 += frame_bytes + idmp3_padding(p2);
+
+         while (p2 < end) {
+            if (idmp3_compare(p, p2)) {
+               /* Bitrate can change per-frame (VBR) */
+               frame_bytes = idmp3_frame_bytes(p2, frame_bytes);
+               p2 += frame_bytes + idmp3_padding(p2);
+
+               /* 10 valid frames is enough to identify this as an MP3 file */
+               if (++num_frames >= 9)
+                  return true;
+            } else {
+               goto continue_scan;
+            }
+         }
+
+         /* Reached the end of the buffer. Everything prior was contiguous
+          * frames, so this is likely an MP3 file. */
+         return true;
+      }
+
+   continue_scan:
+      ;
+   }
+
+   return false;
+}
+
+
+bool _al_identify_mp3(ALLEGRO_FILE *f)
+{
+   uint8_t x[8192];
+   size_t len = al_fread(f, x, sizeof x);
+   return identify_mp3(x, len);
+}

@@ -355,3 +355,13 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
  * that this format will ever be used as such.
  */
 
+
+bool _al_identify_voc(ALLEGRO_FILE *f)
+{
+   uint8_t x[22];
+   if (al_fread(f, x, 22) < 22)
+      return false;
+   if (memcmp(x, "Creative Voice File\x1A\x1A\x00", 22) == 0)
+      return true;
+   return false;
+}

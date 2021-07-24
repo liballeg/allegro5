@@ -469,4 +469,20 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
 }
 
 
+bool _al_identify_ogg_opus(ALLEGRO_FILE *f)
+{
+   uint8_t x[10];
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   if (memcmp(x, "OggS", 4) != 0)
+      return false;
+   if (!al_fseek(f, 22, ALLEGRO_SEEK_CUR))
+      return false;
+   if (al_fread(f, x, 10) < 10)
+      return false;
+   if (memcmp(x, "\x01\x13OpusHead", 10) == 0)
+      return true;
+   return false;
+}
+
 /* vim: set sts=3 sw=3 et: */
