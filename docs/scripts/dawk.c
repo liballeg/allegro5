@@ -244,7 +244,8 @@ bool d_match(dstr line, const char *regex)
 
    for (i = 0; i < MAX_MATCH; i++) {
       if (trex_getsubexp(re->reg, i, &match)) {
-         strncpy(d_submatches[i], match.begin, match.len);
+         if (match.begin)
+            strncpy(d_submatches[i], match.begin, match.len);
          d_submatches[i][match.len] = '\0';
       }
       else {
