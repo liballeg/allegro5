@@ -1614,6 +1614,54 @@ See also: [al_save_sample], [al_register_sample_saver_f],
 [al_init_acodec_addon]
 
 
+### API: al_register_sample_identifier
+
+Register an identify handler for [al_identify_sample]. The given
+function will be used to detect files for the given extension. It will
+be called with a single argument of type [ALLEGRO_FILE] which is a
+file handle opened for reading and located at the first byte of the
+file. The handler should try to read as few bytes as possible to
+safely determine if the given file contents correspond to the type
+with the extension and return true in that case, false otherwise.
+The file handle must not be closed but there is no need to reset it
+to the beginning.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `identifier` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+Since: 5.2.8
+
+See also: [al_identify_bitmap]
+
+### API: al_identify_sample
+
+This works exactly as [al_identify_sample_f] but you specify the filename of the file for which to detect the type and not a file handle. The extension, if any, of the passed filename is not taken into account - only the file contents.
+
+Since: 5.2.8
+
+See also: [al_init_acodec_addon], [al_identify_sample_f], [al_register_sample_identifier]
+
+### API: al_identify_sample_f
+
+Tries to guess the audio file type of the open ALLEGRO_FILE by
+reading the first few bytes. By default Allegro cannot recognize any
+file types, but calling [al_init_acodec_addon] will add detection of the
+types it can read. You can also use [al_register_sample_identifier] to add
+identification for custom file types.
+
+Returns a pointer to a static string with a file extension for the
+type, including the leading dot. For example ".wav" or ".ogg". Returns
+NULL if the audio type cannot be determined.
+
+Since: 5.2.8
+
+See also: [al_init_acodec_addon], [al_identify_sample], [al_register_sample_identifier]
+
 ## Audio recording
 
 Allegro's audio recording routines give you real-time access to raw,

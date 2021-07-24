@@ -640,4 +640,14 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
 }
 
 
+bool _al_identify_flac(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   if (memcmp(x, "fLaC", 4) == 0)
+      return true;
+   return false;
+}
+
 /* vim: set sts=3 sw=3 et: */

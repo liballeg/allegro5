@@ -11,6 +11,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
    size_t buffer_count, unsigned int samples);
 bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl);
 bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl);
+bool _al_identify_wav(ALLEGRO_FILE *f);
 
 /*
  * Built-in Port of A4 Creative Voice file (.voc) Loader.
@@ -19,6 +20,7 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl);
  */
 ALLEGRO_SAMPLE *_al_load_voc(const char *filename);
 ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *fp);
+bool _al_identify_voc(ALLEGRO_FILE *f);
 
 
 #ifdef ALLEGRO_CFG_ACODEC_FLAC
@@ -28,6 +30,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples);
 ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
    size_t buffer_count, unsigned int samples);
+bool _al_identify_flac(ALLEGRO_FILE *f);
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_MODAUDIO
@@ -41,6 +44,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples);
 ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
    size_t buffer_count, unsigned int samples);
+bool _al_identify_ogg_vorbis(ALLEGRO_FILE *f);
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_OPUS
@@ -50,6 +54,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples);
 ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE* file,
    size_t buffer_count, unsigned int samples);
+bool _al_identify_ogg_opus(ALLEGRO_FILE *f);
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_MP3
@@ -59,6 +64,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples);
 ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f,
    size_t buffer_count, unsigned int samples);
+bool _al_identify_mp3(ALLEGRO_FILE *f);
 #endif
 
 #endif

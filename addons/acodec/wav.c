@@ -527,4 +527,21 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
    return true;
 }
 
+
+bool _al_identify_wav(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   if (memcmp(x, "RIFF", 4) != 0)
+      return false;
+   if (!al_fseek(f, 4, ALLEGRO_SEEK_CUR))
+      return false;
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   if (memcmp(x, "WAVE", 4) == 0)
+      return true;
+   return false;
+}
+
 /* vim: set sts=3 sw=3 et: */
