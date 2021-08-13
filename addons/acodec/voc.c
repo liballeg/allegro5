@@ -101,20 +101,20 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
 
    /* Begin checking the Header info */
    readcount = al_fread(fp, hdrbuf, 0x16);
-   if (readcount != 0x16                                     /*shorter header*/
-       || !memcmp(hdrbuf, "Creative Voice File\0x1A", 0x14)  /*wrong id */
-       || !memcmp(hdrbuf+0x15 , "\0x00\0x1A", 0x2)) {        /*wrong offset */
+   if (readcount != 0x16                                       /*short header*/
+       || memcmp(hdrbuf, "Creative Voice File\x1A", 0x14) != 0 /*wrong id */
+       || memcmp(hdrbuf+0x14, "\x1A\x00", 0x2) != 0) {         /*wrong offset */
       ALLEGRO_ERROR("voc_open: File does not appear to be a valid VOC file");
       return NULL;
    }
 
-   al_fread(fp, &vocversion, 2);
+   READNBYTES(fp, vocversion, 2, NULL);
    if (vocversion != 0x10A && vocversion != 0x114) {   // known ver 1.10 -1.20
       ALLEGRO_ERROR("voc_open: File is of unknown version");
       return NULL;
    }
    /* checksum version check */
-   al_fread(fp, &checkver, 2);
+   READNBYTES(fp, checkver, 2, NULL);
    if (checkver != ~vocversion + 0x1234) {
       ALLEGRO_ERROR("voc_open: Bad VOC Version Identification Number");
       return NULL;
