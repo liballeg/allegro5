@@ -21,6 +21,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/allegro_opengl.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_prim_opengl.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/platform/alplatf.h"
@@ -290,6 +291,9 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glBindTexture(GL_TEXTURE_2D, gl_texture);
       }
 
+      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
+
       if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
          GLint handle;
@@ -309,9 +313,12 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
             glUniform1i(display->ogl_extras->varlocs.tex_loc, 0); // 0th sampler
+
+            if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
          }
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 #endif
       }
       else {
@@ -319,10 +326,11 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glMatrixMode(GL_TEXTURE);
          glLoadMatrixf(mat[0]);
          glMatrixMode(GL_MODELVIEW);
-
          glEnable(GL_TEXTURE_2D);
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+         if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+         if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 #endif
       }
    } else {
@@ -339,6 +347,9 @@ static void revert_state(ALLEGRO_BITMAP* texture)
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
    if(texture) {
+      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
+
       if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
          float identity[16] = {
@@ -356,10 +367,22 @@ static void revert_state(ALLEGRO_BITMAP* texture)
             glUniform1i(handle, 0);
          if (display->ogl_extras->varlocs.use_tex_loc >= 0)
             glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 0);
+
+         if (display->ogl_extras->varlocs.tex_loc >= 0) {
+            if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+         }
 #endif
       }
       else {
 #ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+         if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+         if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
          glDisable(GL_TEXTURE_2D);
          glMatrixMode(GL_TEXTURE);
          glLoadIdentity();

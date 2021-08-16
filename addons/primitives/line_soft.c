@@ -17,6 +17,7 @@
  */
 
 
+#define ALLEGRO_INTERNAL_UNSTABLE
 #define _AL_NO_BLEND_INLINE_FUNC
 
 #include "allegro5/allegro.h"
@@ -152,23 +153,11 @@ static void shader_grad_any_step(uintptr_t state, int minor_step)
 
 /*===================== Texture Shaders =======================*/
 
-static int fix_var(float var, int max_var)
-{
-   const int ivar = (int)floorf(var);
-   const int ret = ivar % max_var;
-   if(ret >= 0)
-      return ret;
-   else
-      return ret + max_var;
-}
-
 #define SHADE_COLORS(A, B) \
    A.r = B.r * A.r;        \
    A.g = B.g * A.g;        \
    A.b = B.b * A.b;        \
    A.a = B.a * A.a;
-
-#define FIX_UV const int u = fix_var(s->u, s->w); const int v = fix_var(s->v, s->h);
 
 typedef struct {
    ALLEGRO_COLOR color;
@@ -181,10 +170,20 @@ typedef struct {
    float major_dv;
 } state_texture_solid_any_2d;
 
+static void get_texcoords(state_texture_solid_any_2d *s, int *u, int *v)
+{
+   ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+   _al_get_bitmap_wrap(s->texture, &wrap_u, &wrap_v);
+   *u = _al_fix_texcoord(s->u, s->w, wrap_u);
+   *v = _al_fix_texcoord(s->v, s->h, wrap_v);
+}
+
+#define GET_UV int u, v; get_texcoords((state_texture_solid_any_2d*)s, &u, &v);
+
 static void shader_texture_solid_any_draw_shade(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   FIX_UV
+   GET_UV
 
    ALLEGRO_COLOR color = al_get_pixel(s->texture, u, v);
    SHADE_COLORS(color, s->color)
@@ -194,7 +193,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x, int y)
 static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   FIX_UV
+   GET_UV
 
    al_put_blended_pixel(x, y, al_get_pixel(s->texture, u, v));
 }
@@ -202,7 +201,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x, in
 static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   FIX_UV
+   GET_UV
 
    ALLEGRO_COLOR color = al_get_pixel(s->texture, u, v);
    SHADE_COLORS(color, s->color)
@@ -212,7 +211,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x, int y)
 static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   FIX_UV
+   GET_UV
 
    al_put_pixel(x, y, al_get_pixel(s->texture, u, v));
 }
@@ -596,7 +595,7 @@ void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
    /*
    Lock the region we are drawing to. We are choosing the minimum and maximum
    possible pixels touched from the formula (easily verified by following the
-   above algorithm.
+   above algorithm).
    */
 
    if (vtx1.x >= vtx2.x) {

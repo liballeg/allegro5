@@ -390,6 +390,23 @@ static int pot(int x)
 
 
 
+static GLint ogl_bitmap_wrap(ALLEGRO_BITMAP_WRAP wrap)
+{
+   switch (wrap) {
+      default:
+      case ALLEGRO_BITMAP_WRAP_DEFAULT:
+         return GL_CLAMP_TO_EDGE;
+      case ALLEGRO_BITMAP_WRAP_REPEAT:
+         return GL_REPEAT;
+      case ALLEGRO_BITMAP_WRAP_CLAMP:
+         return GL_CLAMP_TO_EDGE;
+      case ALLEGRO_BITMAP_WRAP_MIRROR:
+         return GL_MIRRORED_REPEAT;
+   }
+}
+
+
+
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
 static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -429,8 +446,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
    /* Wrap, Min/Mag should always come before glTexImage2D so the texture is "complete" */
    // NOTE: on OGLES CLAMP_TO_EDGE is only one supported with NPOT textures
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+   ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+   _al_get_bitmap_wrap(bitmap, &wrap_u, &wrap_v);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ogl_bitmap_wrap(wrap_u));
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ogl_bitmap_wrap(wrap_v));
 
    filter = (bitmap_flags & ALLEGRO_MIPMAP) ? 2 : 0;
    if (bitmap_flags & ALLEGRO_MIN_LINEAR) {

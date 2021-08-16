@@ -368,11 +368,6 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
    _al_d3d_update_render_state((ALLEGRO_DISPLAY *)disp);
-
-   if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK)
-      ALLEGRO_ERROR("SetSamplerState failed\n");
-   if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK)
-      ALLEGRO_ERROR("SetSamplerState failed\n");
 }
 
 static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int format, int refresh_rate)
@@ -2691,6 +2686,62 @@ static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
          (disp->num_cache_vertices - num_new_vertices) * size;
 }
 
+static D3DTEXTUREADDRESS d3d_bitmap_wrap(ALLEGRO_BITMAP_WRAP wrap)
+{
+   switch (wrap) {
+      default:
+      case ALLEGRO_BITMAP_WRAP_DEFAULT:
+         return D3DTADDRESS_CLAMP;
+      case ALLEGRO_BITMAP_WRAP_REPEAT:
+         return D3DTADDRESS_WRAP;
+      case ALLEGRO_BITMAP_WRAP_CLAMP:
+         return D3DTADDRESS_CLAMP;
+      case ALLEGRO_BITMAP_WRAP_MIRROR:
+         return D3DTADDRESS_MIRROR;
+   }
+}
+
+void _al_set_d3d_sampler_state(IDirect3DDevice9* device, int sampler,
+   ALLEGRO_BITMAP* bitmap, bool prim_default)
+{
+   int bitmap_flags = al_get_bitmap_flags(bitmap);
+    ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+   _al_get_bitmap_wrap(bitmap, &wrap_u, &wrap_v);
+
+   if (prim_default && wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT) {
+      device->SetSamplerState(sampler, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+   }
+   else {
+      device->SetSamplerState(sampler, D3DSAMP_ADDRESSU, d3d_bitmap_wrap(wrap_u));
+   }
+
+   if (prim_default && wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT) {
+      device->SetSamplerState(sampler, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+   }
+   else {
+      device->SetSamplerState(sampler, D3DSAMP_ADDRESSV, d3d_bitmap_wrap(wrap_v));
+   }
+
+   if (bitmap_flags & ALLEGRO_MIN_LINEAR) {
+      device->SetSamplerState(sampler, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+   }
+   else {
+      device->SetSamplerState(sampler, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+   }
+   if (bitmap_flags & ALLEGRO_MAG_LINEAR) {
+      device->SetSamplerState(sampler, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+   }
+   else {
+      device->SetSamplerState(sampler, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+   }
+   if (bitmap_flags & ALLEGRO_MIPMAP) {
+      device->SetSamplerState(sampler, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+   }
+   else {
+      device->SetSamplerState(sampler, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+   }
+}
+
 static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
    if (!disp->vertex_cache)
@@ -2701,29 +2752,11 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    ALLEGRO_BITMAP* cache_bmp = (ALLEGRO_BITMAP*)disp->cache_texture;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(cache_bmp);
-   int bitmap_flags = al_get_bitmap_flags(cache_bmp);
 
    if (d3d_disp->device_lost)
       return;
 
-   if (bitmap_flags & ALLEGRO_MIN_LINEAR) {
-      d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-   }
-   else {
-      d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-   }
-   if (bitmap_flags & ALLEGRO_MAG_LINEAR) {
-      d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-   }
-   else {
-      d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-   }
-   if (bitmap_flags & ALLEGRO_MIPMAP) {
-      d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-   }
-   else {
-      d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
-   }
+   _al_set_d3d_sampler_state(d3d_disp->device, 0, cache_bmp, false);
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);

@@ -76,6 +76,7 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
    bitmap->memory = al_malloc(pitch * h);
    bitmap->use_bitmap_blender = false;
    bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
+   al_get_new_bitmap_wrap(&bitmap->_wrap_u, &bitmap->_wrap_v);
    
    _al_register_convert_bitmap(bitmap);
    return bitmap;
@@ -154,6 +155,7 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    bitmap->_samples = samples;
    bitmap->use_bitmap_blender = false;
    bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
+   al_get_new_bitmap_wrap(&bitmap->_wrap_u, &bitmap->_wrap_v);
 
    /* The display driver should have set the bitmap->memory field if
     * appropriate; video bitmaps may leave it NULL.
@@ -574,6 +576,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->_format = 0;
    bitmap->_flags = 0;
    bitmap->_display = (ALLEGRO_DISPLAY*)0x1;
+   bitmap->_wrap_u = 0;
+   bitmap->_wrap_v = 0;
 
    bitmap->w = w;
    bitmap->h = h;
@@ -801,12 +805,28 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    return clone;
 }
 
+
 /* Function: al_backup_dirty_bitmap
  */
 void al_backup_dirty_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    if (bitmap->vt && bitmap->vt->backup_dirty_bitmap)
       bitmap->vt->backup_dirty_bitmap(bitmap);
+}
+
+
+void _al_get_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP *wrap_u, ALLEGRO_BITMAP_WRAP *wrap_v)
+{
+   ASSERT(bitmap);
+   ASSERT(wrap_u);
+   ASSERT(wrap_v);
+
+   if (bitmap->parent) {
+      bitmap = bitmap->parent;
+   }
+
+   *wrap_u = bitmap->_wrap_u;
+   *wrap_v = bitmap->_wrap_v;
 }
 
 /* vim: set ts=8 sts=3 sw=3 et: */

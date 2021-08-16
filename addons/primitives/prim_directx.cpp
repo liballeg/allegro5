@@ -16,6 +16,8 @@
  *      See readme.txt for copyright information.
  */
 
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -402,32 +404,10 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
       }
    }
 
-   device->GetSamplerState(0, D3DSAMP_ADDRESSU, &state.old_wrap_state[0]);
-   device->GetSamplerState(0, D3DSAMP_ADDRESSV, &state.old_wrap_state[1]);
-
-   device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-   device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-
    if (texture) {
-      int texture_flags = al_get_bitmap_flags(texture);
-      if (texture_flags & ALLEGRO_MIN_LINEAR) {
-         device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-      }
-      else {
-         device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-      }
-      if (texture_flags & ALLEGRO_MAG_LINEAR) {
-         device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-      }
-      else {
-         device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-      }
-      if (texture_flags & ALLEGRO_MIPMAP) {
-         device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-      }
-      else {
-         device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
-      }
+      device->GetSamplerState(0, D3DSAMP_ADDRESSU, &state.old_wrap_state[0]);
+      device->GetSamplerState(0, D3DSAMP_ADDRESSV, &state.old_wrap_state[1]);
+      _al_set_d3d_sampler_state(device, 0, texture, true);
    }
 
    return state;
@@ -446,8 +426,10 @@ static void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITM
    }
 #endif
 
-   device->SetSamplerState(0, D3DSAMP_ADDRESSU, state.old_wrap_state[0]);
-   device->SetSamplerState(0, D3DSAMP_ADDRESSV, state.old_wrap_state[1]);
+   if (texture) {
+      device->SetSamplerState(0, D3DSAMP_ADDRESSU, state.old_wrap_state[0]);
+      device->SetSamplerState(0, D3DSAMP_ADDRESSV, state.old_wrap_state[1]);
+   }
 
    if(!state.old_vtx_shader && is_legacy_card() && texture) {
       device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, state.old_ttf_state);

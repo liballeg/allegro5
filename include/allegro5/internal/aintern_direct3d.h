@@ -82,6 +82,8 @@ typedef struct ALLEGRO_DISPLAY_D3D
 
 
 AL_FUNC(void, _al_d3d_set_blender, (ALLEGRO_DISPLAY_D3D *disp));
+AL_FUNC(void, _al_set_d3d_sampler_state, (IDirect3DDevice9* device,
+   int sampler, ALLEGRO_BITMAP* bitmap, bool prim_default));
 
 void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display);

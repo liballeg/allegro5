@@ -11,6 +11,16 @@
  */
 typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
 
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+/* Enum: ALLEGRO_BITMAP_WRAP
+ */
+typedef enum ALLEGRO_BITMAP_WRAP {
+   ALLEGRO_BITMAP_WRAP_DEFAULT = 0,
+   ALLEGRO_BITMAP_WRAP_REPEAT = 1,
+   ALLEGRO_BITMAP_WRAP_CLAMP = 2,
+   ALLEGRO_BITMAP_WRAP_MIRROR = 3,
+} ALLEGRO_BITMAP_WRAP;
+#endif
 
 /*
  * Bitmap flags
@@ -42,6 +52,8 @@ AL_FUNC(int, al_get_new_bitmap_depth, (void));
 AL_FUNC(void, al_set_new_bitmap_depth, (int depth));
 AL_FUNC(int, al_get_new_bitmap_samples, (void));
 AL_FUNC(void, al_set_new_bitmap_samples, (int samples));
+AL_FUNC(void, al_get_new_bitmap_wrap, (ALLEGRO_BITMAP_WRAP *u, ALLEGRO_BITMAP_WRAP *v));
+AL_FUNC(void, al_set_new_bitmap_wrap, (ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v));
 #endif
 
 AL_FUNC(int, al_get_bitmap_width, (ALLEGRO_BITMAP *bitmap));

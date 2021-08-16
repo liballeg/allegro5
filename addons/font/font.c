@@ -12,6 +12,8 @@
  *      See readme.txt for copyright information.
  */
 
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include <string.h>
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_font.h"

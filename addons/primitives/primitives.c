@@ -16,6 +16,8 @@
  *      See readme.txt for copyright information.
  */
 
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/platform/alplatf.h"

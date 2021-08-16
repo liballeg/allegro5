@@ -17,6 +17,8 @@
  *      See readme.txt for copyright information.
  */
 
+#define ALLEGRO_UNSTABLE
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
@@ -685,6 +687,7 @@ int main(int argc, char **argv)
    
    bkg = al_load_bitmap("data/bkg.png");
 
+   al_set_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP_CLAMP, ALLEGRO_BITMAP_WRAP_MIRROR);
    Texture = al_load_bitmap("data/texture.tga");
    
    // Make and set some color to draw with
