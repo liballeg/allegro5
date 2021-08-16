@@ -222,6 +222,7 @@ typedef struct {
    float off_y;
 
    ALLEGRO_BITMAP* texture;
+   ALLEGRO_BITMAP_WRAP default_wrap;
    int w, h;
 } state_texture_solid_any_2d;
 
@@ -712,6 +713,16 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    }
 
    if (texture) {
+      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
+
+      /*
+      XXX: Why are we using repeat for regular bitmaps by default? For some
+      reason the scanline drawers were always designed to repeat even for
+      regular bitmaps. This does not match what we do with OpenGL/Direct3D.
+      */
+      bool repeat = (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT || wrap_u == ALLEGRO_BITMAP_WRAP_REPEAT) &&
+         (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT || wrap_v == ALLEGRO_BITMAP_WRAP_REPEAT);
       if (grad) {
          state_texture_grad_any_2d state;
          state.solid.texture = texture;
@@ -731,9 +742,17 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
          state.texture = texture;
          if (shade) {
             if (white) {
-               _al_draw_soft_triangle(v1, v2, v3, (uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white);
+               if (repeat) {
+                  _al_draw_soft_triangle(v1, v2, v3, (uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white_repeat);
+               } else {
+                  _al_draw_soft_triangle(v1, v2, v3, (uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white);
+               }
             } else {
-               _al_draw_soft_triangle(v1, v2, v3, (uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade);
+               if (repeat) {
+                  _al_draw_soft_triangle(v1, v2, v3, (uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_repeat);
+               } else {
+                  _al_draw_soft_triangle(v1, v2, v3, (uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade);
+               }
             }
          } else {
             if (white) {

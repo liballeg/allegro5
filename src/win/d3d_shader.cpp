@@ -347,15 +347,14 @@ static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
 
-   (void)unit;
-
    if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)
       return false;
 
    LPDIRECT3DTEXTURE9 vid_texture = al_get_d3d_video_texture(bitmap);
    result = hlsl_shader->hlsl_shader->SetTexture(name, vid_texture);
-   ((ALLEGRO_DISPLAY_D3D *)_al_get_bitmap_display(bitmap))
-      ->device->SetTexture(0, vid_texture);
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)_al_get_bitmap_display(bitmap);
+   d3d_disp->device->SetTexture(unit, vid_texture);
+   _al_set_d3d_sampler_state(d3d_disp->device, unit, bitmap, false);
 
    return result == D3D_OK;
 }

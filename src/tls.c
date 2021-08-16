@@ -88,6 +88,8 @@ typedef struct thread_local_state {
    /* Bitmap parameters */
    int new_bitmap_format;
    int new_bitmap_flags;
+   int new_bitmap_wrap_u;
+   int new_bitmap_wrap_v;
 
    /* Files */
    const ALLEGRO_FILE_INTERFACE *new_file_interface;
@@ -144,6 +146,8 @@ static void initialize_tls_values(thread_local_state *tls)
    initialize_blender(&tls->current_blender);
    tls->new_bitmap_flags = ALLEGRO_CONVERT_BITMAP;
    tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
+   tls->new_bitmap_wrap_u = ALLEGRO_BITMAP_WRAP_DEFAULT;
+   tls->new_bitmap_wrap_v = ALLEGRO_BITMAP_WRAP_DEFAULT;
    tls->new_file_interface = &_al_file_interface_stdio;
    tls->fs_interface = &_al_fs_interface_stdio;
    memset(tls->new_window_title, 0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE + 1);
@@ -720,6 +724,8 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
       _STORE(new_bitmap_format);
       _STORE(new_bitmap_flags);
+      _STORE(new_bitmap_wrap_u);
+      _STORE(new_bitmap_wrap_v);
    }
 
    if (flags & ALLEGRO_STATE_DISPLAY) {
@@ -789,6 +795,8 @@ void al_restore_state(ALLEGRO_STATE const *state)
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
       _RESTORE(new_bitmap_format);
       _RESTORE(new_bitmap_flags);
+      _RESTORE(new_bitmap_wrap_u);
+      _RESTORE(new_bitmap_wrap_v);
    }
 
    if (flags & ALLEGRO_STATE_DISPLAY) {
@@ -953,7 +961,31 @@ GETTER(new_bitmap_samples, 0)
 void al_set_new_bitmap_samples(int samples)
 SETTER(new_bitmap_samples, samples)
 
+/* Function: al_get_bitmap_wrap
+ */
+void al_get_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP *u, ALLEGRO_BITMAP_WRAP *v)
+{
+   ASSERT(u);
+   ASSERT(v);
 
+   thread_local_state *tls;
+   if ((tls = tls_get()) == NULL)
+      return;
+
+   *u = tls->new_bitmap_wrap_u;
+   *v = tls->new_bitmap_wrap_v;
+}
+
+/* Function: al_set_new_bitmap_wrap
+ */
+void al_set_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v)
+{
+   thread_local_state *tls;
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->new_bitmap_wrap_u = u;
+   tls->new_bitmap_wrap_v = v;
+}
 
 #ifdef ALLEGRO_ANDROID
 JNIEnv *_al_android_get_jnienv(void)

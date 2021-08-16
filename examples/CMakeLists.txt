@@ -63,6 +63,7 @@ set(DATA_IMAGES
     mysha256x256.png
     obp.jpg
     texture.tga
+    texture2.tga
     )
 
 set(DATA_TTF
@@ -82,6 +83,8 @@ set(DATA_SHADERS
     ex_prim_shader_vertex.hlsl
     ex_shader_multitex_pixel.glsl
     ex_shader_multitex_pixel.hlsl
+    ex_prim_wrap_pixel.glsl
+    ex_prim_wrap_pixel.hlsl
     ex_shader_pixel.glsl
     ex_shader_pixel.hlsl
     ex_shader_vertex.glsl
@@ -172,6 +175,7 @@ example(ex_polygon ${FONT} ${PRIM})
 example(ex_premulalpha ${FONT})
 example(ex_prim ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_prim_shader ${PRIM} DATA ${DATA_SHADERS})
+example(ex_prim_wrap ${IMAGE} ${FONT} ${PRIM} ${DATA_IMAGES} ${DATA_SHADERS})
 example(ex_reparent ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_resize ${PRIM})
 example(ex_resize2 ${IMAGE} ${FONT})

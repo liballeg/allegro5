@@ -37,6 +37,7 @@
  */
 
 
+#define ALLEGRO_INTERNAL_UNSTABLE
 #include "allegro5/allegro_primitives.h"
 #ifdef ALLEGRO_CFG_OPENGL
 #include "allegro5/allegro_opengl.h"

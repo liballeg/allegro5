@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include <gtk/gtkx.h>
 
+#define ALLEGRO_INTERNAL_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
 #include "allegro5/internal/aintern.h"

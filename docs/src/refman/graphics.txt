@@ -766,6 +766,53 @@ Since: 5.2.1
 > *[Unstable API]:* This is an experimental feature and currently only works for
 the OpenGL backend.
 
+### API: al_set_new_bitmap_wrap
+
+Sets the texture wrapping settings for newly created bitmaps (on the current
+thread). Typically you take advantage of this feature either via the primitives
+addon (see [al_draw_prim] and others) or via custom shaders (see
+[ALLEGRO_SHADER]).
+
+> *Note:* In the context of custom shaders, Direct3D and OpenGL have different
+granularities for controlling this setting. Direct3D sets wrapping setting for
+each sampler separately, while OpenGL sets it per-texture. This interacts
+particularly poorly with the primitives addon which (for backwards
+compatibility) alters the wrapping setting. To minimize this issue, use a
+wrapping setting that's not ALLEGRO_BITMAP_WRAP_DEFAULT.
+
+Since: 5.2.8
+
+> *[Unstable API]:* This is an experimental feature.
+
+See also: [ALLEGRO_BITMAP_WRAP]
+
+### API: al_get_new_bitmap_wrap
+
+Returns the value currently set with [al_set_new_bitmap_wrap] on
+the current thread.
+
+Since: 5.2.8
+
+> *[Unstable API]:* This is an experimental feature.
+
+See also: [ALLEGRO_BITMAP_WRAP]
+
+### API: ALLEGRO_BITMAP_WRAP
+
+Controls the how the pixel color is determined from a texture querying the
+texture coordinates are outside the usual bounds.
+
+* ALLEGRO_BITMAP_WRAP_DEFAULT - The default behavior. This corresponds to
+  ALLEGRO_BITMAP_WRAP_REPEAT when using the primitives addon and
+  ALLEGRO_BITMAP_WRAP_CLAMP otherwise.
+
+* ALLEGRO_BITMAP_WRAP_REPEAT - The texture coordinates get shifted to the
+  opposite edge that they go past.
+* ALLEGRO_BITMAP_WRAP_CLAMP - The texture coordinates get clamped to the edges
+  that they go past.
+* ALLEGRO_BITMAP_WRAP_MIRROR - The texture coordinates get mirrored across the
+  edges that they go past.
+
 ## Bitmap properties
 
 ### API: al_get_bitmap_flags

@@ -30,6 +30,8 @@ struct ALLEGRO_BITMAP
    int _depth;
    int _samples;
    ALLEGRO_DISPLAY *_display;
+   ALLEGRO_BITMAP_WRAP _wrap_u;
+   ALLEGRO_BITMAP_WRAP _wrap_v;
    /* What format is used for the backing memory
     * (can be different from _format, for e.g. compressed bitmaps) */
    int _memory_format;
@@ -148,6 +150,8 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    int w, int h, int format, int flags, int depth, int samples);
 
 AL_FUNC(ALLEGRO_DISPLAY*, _al_get_bitmap_display, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(void, _al_get_bitmap_wrap, (ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_BITMAP_WRAP *wrap_u, ALLEGRO_BITMAP_WRAP *wrap_v));
 
 extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
    [ALLEGRO_NUM_PIXEL_FORMATS])(const void *, int, void *, int,

@@ -22,6 +22,7 @@ def make_drawer(name):
    shade = "_shade" in name
    opaque = "_opaque" in name
    white = "_white" in name
+   repeat = "_repeat" in name
 
    if grad and solid:
       raise Exception("grad and solid")
@@ -124,6 +125,10 @@ def make_drawer(name):
       ALLEGRO_BITMAP* texture = s->texture->parent ? s->texture->parent : s->texture;
       const int src_format = texture->locked_region.format;
       const int src_size = texture->locked_region.pixel_size;
+      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
+      int tile_u = (int)(floorf(u / s->w));
+      int tile_v = (int)(floorf(v / s->h));
 
       /* Ensure u in [0, s->w) and v in [0, s->h). */
       while (u < 0) u += s->w;
@@ -152,7 +157,8 @@ def make_drawer(name):
             dst_alpha='ALLEGRO_INVERSE_ALPHA',
             const_color='NULL',
             if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
-            alpha_only=True
+            alpha_only=True,
+            repeat=repeat,
             )
       print("else")
       make_if_blender_loop(
@@ -164,7 +170,8 @@ def make_drawer(name):
             dst_alpha='ALLEGRO_INVERSE_ALPHA',
             const_color='NULL',
             if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
-            alpha_only=True
+            alpha_only=True,
+            repeat=repeat,
             )
       print("else")
       make_if_blender_loop(
@@ -176,7 +183,8 @@ def make_drawer(name):
             dst_alpha='ALLEGRO_ONE',
             const_color='NULL',
             if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
-            alpha_only=True
+            alpha_only=True,
+            repeat=repeat,
             )
       print("else")
 
@@ -213,7 +221,8 @@ def make_if_blender_loop(
       dst_format='dst_format',
       const_color='NULL',
       if_format=None,
-      alpha_only=False
+      alpha_only=False,
+      repeat=False,
       ):
    print(interp("""\
       if (op == #{op} &&
@@ -234,7 +243,8 @@ def make_if_blender_loop(
             dst_alpha=dst_alpha,
             const_color=const_color,
             if_format=if_format,
-            alpha_only=alpha_only
+            alpha_only=alpha_only,
+            repeat=repeat,
             )
       print("else")
 
@@ -246,7 +256,9 @@ def make_if_blender_loop(
       dst_mode=dst_mode,
       dst_alpha=dst_alpha,
       const_color=const_color,
-      alpha_only=alpha_only)
+      alpha_only=alpha_only,
+      repeat=repeat,
+      )
 
    print("}")
 
@@ -263,7 +275,8 @@ def make_loop(
       const_color='&const_color',
       if_format=None,
       copy_format=False,
-      alpha_only=False
+      alpha_only=False,
+      repeat=False,
       ):
 
    if if_format:
@@ -310,7 +323,8 @@ def make_loop(
             src_size=src_size,
             copy_format=copy_format,
             tiling=False,
-            alpha_only=alpha_only
+            alpha_only=alpha_only,
+            repeat=repeat,
             )
          print("} else")
 
@@ -326,7 +340,8 @@ def make_loop(
       const_color=const_color,
       src_size=src_size,
       copy_format=copy_format,
-      alpha_only=alpha_only
+      alpha_only=alpha_only,
+      repeat=repeat,
       )
 
    print("}")
@@ -344,7 +359,8 @@ def make_innermost_loop(
       src_size='src_size',
       copy_format=False,
       tiling=True,
-      alpha_only=True
+      alpha_only=True,
+      repeat=False,
       ):
 
    print("{")
@@ -377,11 +393,47 @@ def make_innermost_loop(
          """)
    else:
       print(interp("""\
-         const int src_x = (uu >> 16) + #{uu_ofs};
-         const int src_y = (vv >> 16) + #{vv_ofs};
+         int src_x = (uu >> 16) + #{uu_ofs};
+         int src_y = (vv >> 16) + #{vv_ofs};
+         """));
+
+      if not repeat:
+         print("""\
+         switch (wrap_u) {
+            case ALLEGRO_BITMAP_WRAP_CLAMP:
+               if (tile_u < 0)
+                  src_x = 0;
+               if (tile_u > 0)
+                  src_x = s->w - 1;
+               break;
+            case ALLEGRO_BITMAP_WRAP_MIRROR:
+               if (tile_u % 2)
+                  src_x = s->w - 1 - src_x;
+            // REPEAT and DEFAULT.
+            default:
+               break;
+         }
+
+         switch (wrap_v) {
+            case ALLEGRO_BITMAP_WRAP_CLAMP:
+               if (tile_v < 0)
+                  src_y = 0;
+               if (tile_v > 0)
+                  src_y = s->h - 1;
+               break;
+            case ALLEGRO_BITMAP_WRAP_MIRROR:
+               if (tile_v % 2)
+                  src_y = s->h - 1 - src_y;
+            // REPEAT and DEFAULT.
+            default:
+               break;
+         }
+         """)
+
+      print(interp("""\
          uint8_t *src_data = lock_data
-            + src_y * src_pitch
-            + src_x * #{src_size};
+               + src_y * src_pitch
+               + src_x * #{src_size};
          """))
 
       if copy_format:
@@ -449,15 +501,23 @@ def make_innermost_loop(
 
       if tiling:
          print("""\
-         if (_AL_EXPECT_FAIL(uu < 0))
+         if (_AL_EXPECT_FAIL(uu < 0)) {
             uu += w;
-         else if (_AL_EXPECT_FAIL(uu >= w))
+            tile_u--;
+         }
+         else if (_AL_EXPECT_FAIL(uu >= w)) {
             uu -= w;
+            tile_u++;
+         }
 
-         if (_AL_EXPECT_FAIL(vv < 0))
+         if (_AL_EXPECT_FAIL(vv < 0)) {
             vv += h;
-         else if (_AL_EXPECT_FAIL(vv >= h))
+            tile_v--;
+         }
+         else if (_AL_EXPECT_FAIL(vv >= h)) {
             vv -= h;
+            tile_v++;
+         }
          """)
 
    if grad:
@@ -475,7 +535,6 @@ def make_innermost_loop(
 if __name__ == "__main__":
    print("""\
 // Warning: This file was created by make_scanline_drawers.py - do not edit.
-
 #if __GNUC__
 #define _AL_EXPECT_FAIL(expr) __builtin_expect((expr), 0)
 #else
@@ -490,7 +549,9 @@ if __name__ == "__main__":
    make_drawer("shader_grad_any_draw_opaque")
 
    make_drawer("shader_texture_solid_any_draw_shade")
+   make_drawer("shader_texture_solid_any_draw_shade_repeat")
    make_drawer("shader_texture_solid_any_draw_shade_white")
+   make_drawer("shader_texture_solid_any_draw_shade_white_repeat")
    make_drawer("shader_texture_solid_any_draw_opaque")
    make_drawer("shader_texture_solid_any_draw_opaque_white")
 
