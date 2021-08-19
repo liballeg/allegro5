@@ -387,9 +387,14 @@ static gboolean do_show_popup_menu(gpointer data)
 
    bool position_called = false;
    if (menu)
+      /* gtk_menu_popup_at_widget only exists in gtk newer than 3.22 */
+#if GTK_CHECK_VERSION(3, 22, 0)
       gtk_menu_popup_at_widget(args->menu->extra1, menu,  GDK_GRAVITY_SOUTH_WEST,
                               GDK_GRAVITY_NORTH_WEST,
                               NULL);
+#else
+      gtk_menu_popup(args->menu->extra1, menu, NULL, NULL, NULL, 1, 0);
+#endif
 
    if (!position_called) {
       ALLEGRO_DEBUG("Position canary not called, most likely the menu didn't show "
