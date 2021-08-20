@@ -393,7 +393,7 @@ static gboolean do_show_popup_menu(gpointer data)
                               GDK_GRAVITY_NORTH_WEST,
                               NULL);
 #else
-      gtk_menu_popup(args->menu->extra1, menu, NULL, NULL, NULL, 1, 0);
+      gtk_menu_popup(args->menu->extra1, NULL, NULL, NULL, NULL, 1, 0);
 #endif
 
    if (!position_called) {
