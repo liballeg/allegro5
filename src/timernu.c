@@ -79,22 +79,6 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
    }
 #endif
 
-#ifdef ALLEGRO_QNX
-   /* thread priority adjustment for QNX:
-    *  The timer thread is set to the highest relative priority.
-    *  (see the comment in src/qnx/qsystem.c about the scheduling policy)
-    */
-   {
-      struct sched_param sparam;
-      int spolicy;
-
-      if (pthread_getschedparam(pthread_self(), &spolicy, &sparam) == EOK) {
-         sparam.sched_priority += 4;
-         pthread_setschedparam(pthread_self(), spolicy, &sparam);
-      }
-   }
-#endif
-
    double old_time = al_get_time();
    double new_time;
    double interval = 0.032768;
