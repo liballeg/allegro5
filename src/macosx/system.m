@@ -357,20 +357,74 @@ static int osx_get_num_video_adapters(void)
    return num;
 }
 
+int _al_osx_get_primary_screen_y(void)
+{
+   int count = osx_get_num_video_adapters();
+   if (count == 0) {
+      return 0;
+   }
+   NSArray *screen_list = [NSScreen screens];
+   NSScreen *primary_screen = [screen_list objectAtIndex: 0];
+   NSRect primary_rc = [primary_screen frame];
+   return (int) (primary_rc.origin.y + primary_rc.size.height);
+}
+
+float _al_osx_get_global_scale_factor(void)
+{
+   int count = osx_get_num_video_adapters();
+   if (count == 0) {
+      return 1.;
+   }
+   float global_scale_factor = 1.;
+   NSArray *screen_list = [NSScreen screens];
+   for (int i = 0; i < count; i++) {
+      NSScreen *screen = [screen_list objectAtIndex: i];
+      float scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+      if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
+        scale_factor = [screen backingScaleFactor];
+      }
+#endif
+      if (scale_factor > global_scale_factor) {
+         global_scale_factor = scale_factor;
+      }
+   }
+   return global_scale_factor;
+}
+
 /* osx_get_monitor_info:
  * Return the details of one monitor
  */
 static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
 {
    int count = osx_get_num_video_adapters();
+   int primary_y = _al_osx_get_primary_screen_y();
+   float global_scale_factor = _al_osx_get_global_scale_factor();
    if (adapter < count) {
       NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
       NSRect rc = [screen frame];
-      rc = [screen convertRectToBacking: rc];
-      info->x1 = (int) rc.origin.x;
-      info->x2 = (int) (rc.origin.x + rc.size.width);
-      info->y1 = (int) rc.origin.y;
-      info->y2 = (int) (rc.origin.y + rc.size.height);
+      float scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+      if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
+        scale_factor = [screen backingScaleFactor];
+      }
+#endif
+      /*
+       * The goal is to use top-left origin, y-down coordinate system
+       * where units are individual pixels. We need to make sure the monitors
+       * do not overlap, as otherwise we can't implement `al_set_window_position`.
+       * We do this by creating an extended 2D plane which uses a global scale
+       * factor with slots for the monitors. The slots are big enough
+       * to fit monitors with the largest scale factor, but otherwise contain
+       * empty space. When calling `al_get/set_window_position` we
+       * transform from this extended plane to the visual coordinates used by the OS.
+       *
+       * OSX uses bottom-left, y-up coordinate system, so we need to flip things around.
+       */
+      info->x1 = (int) rc.origin.x * global_scale_factor;
+      info->x2 = (int) (rc.origin.x * global_scale_factor + rc.size.width * scale_factor);
+      info->y1 = (int) (global_scale_factor * (primary_y - (rc.size.height + rc.origin.y)));
+      info->y2 = (int) (info->y1 + scale_factor * rc.size.height);
       ALLEGRO_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
                    adapter, info->x1, info->y1, info->x2, info->y2);
       return true;

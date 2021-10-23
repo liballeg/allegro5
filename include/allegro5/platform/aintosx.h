@@ -151,6 +151,10 @@ void _al_osx_post_quit(void);
 NSView* _al_osx_view_from_display(ALLEGRO_DISPLAY*);
 // Create an image from an allegro bitmap
 NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
+// Get the y coordinate of the upper-left corner of the primary display.
+int _al_osx_get_primary_screen_y(void);
+// Get the global scale factor.
+float _al_osx_get_global_scale_factor(void);
 // Drivers
 AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, _al_osx_get_keyboard_driver, (void));
 AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, _al_osx_get_display_driver, (void));
