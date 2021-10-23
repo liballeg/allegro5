@@ -42,10 +42,12 @@ two lines to the Info.plist using a text editor:
 
 If you are making an unbundled app this feature appears to be enabled by
 default, but it is not recommended to rely on this working: make a bundled
-app for the most predictable performance.
+app for the most predictable behavior.
 
-When changing the display DPI or moving the window between two displays with
-different DPIs, Allegro displays behave in the following way:
+Allegro uses a pixel-based coordinate system, meaning that high-DPI displays
+will be larger than is reported by the OS. When changing the display DPI or
+moving the window between two displays with different DPIs, Allegro displays
+behave in the following way:
 
 - If the ALLEGRO_DISPLAY was created with the ALLEGRO_RESIZABLE flag it will
   send an ALLEGRO_DISPLAY_RESIZE event. This will have the effect of your app's

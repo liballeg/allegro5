@@ -1614,12 +1614,12 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
       if ((x != INT_MAX) && (y != INT_MAX)) {
          /* The user gave us window coordinates */
          NSRect rc = [win frame];
-         NSRect sc = [[win screen] frame];
          NSPoint origin;
-         
+         int primary_y = _al_osx_get_primary_screen_y();
+
          /* We need to modify the y coordinate, cf. set_window_position */
-         origin.x = sc.origin.x + x / screen_scale_factor;
-         origin.y = sc.origin.y + sc.size.height - rc.size.height - y / screen_scale_factor;
+         origin.x = x / screen_scale_factor;
+         origin.y = primary_y / screen_scale_factor - rc.size.height - y / screen_scale_factor;
          [win setFrameOrigin: origin];
       }
       else {
@@ -2203,15 +2203,45 @@ static void set_window_position(ALLEGRO_DISPLAY* display, int x, int y)
    ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    NSWindow* window = d->win;
 
+   int primary_y = _al_osx_get_primary_screen_y();
+   float global_scale_factor = _al_osx_get_global_scale_factor();
+
+   /* Because the extended plane (see get_monitor_info) has holes in it, we need to
+    * search which destination monitor to actually use.
+    */
+   NSArray *screen_list = [NSScreen screens];
+   int found_screen = -1;
+   for (int i = 0; al_get_num_video_adapters(); i++) {
+      ALLEGRO_MONITOR_INFO info;
+      al_get_monitor_info(i, &info);
+      if (x > info.x1 && x < info.x2 && y > info.y1 && y < info.y2) {
+         found_screen = i;
+         break;
+      }
+   }
+   if (found_screen < 0)
+      return;
+   NSScreen *screen = [screen_list objectAtIndex:found_screen];
+   NSRect screen_rc = [screen frame];
+
    /* Set the frame on the main thread. Because this is where
     * the window's frame was initially set, this is where it should be
     * modified too.
     */
    dispatch_sync(dispatch_get_main_queue(), ^{
       NSRect rc = [window frame];
-      NSRect sc = [[window screen] frame];
-      rc.origin.x = (float) x;
-      rc.origin.y = sc.size.height - rc.size.height - ((float) y);
+      float scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+      if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
+        scale_factor = [screen backingScaleFactor];
+      }
+#endif
+      /* These two expressions are the inverses of get_window_position formulas. */
+      rc.origin.x = (x + screen_rc.origin.x * scale_factor - screen_rc.origin.x * global_scale_factor) / scale_factor;
+
+      /* XXX: Handle non-resizeable displays! */
+      rc.origin.y = (y + scale_factor * rc.size.height - scale_factor * (screen_rc.origin.y + screen_rc.size.height) - ((primary_y - screen_rc.origin.y - screen_rc.size.height) * global_scale_factor)) / (-scale_factor);
+
       [window setFrame: rc display: YES animate: NO];
    });
 }
@@ -2226,11 +2256,23 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
    ASSERT_USER_THREAD();
    ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    NSWindow* window = d->win;
+	
+   int primary_y = _al_osx_get_primary_screen_y();
+   float global_scale_factor = _al_osx_get_global_scale_factor();
    dispatch_sync(dispatch_get_main_queue(), ^{
       NSRect rc = [window frame];
-      NSRect sc = [[window screen] frame];
-      *px = (int) rc.origin.x;
-      *py = (int) (sc.size.height - rc.origin.y - rc.size.height);
+      float scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+      if ([window respondsToSelector:@selector(backingScaleFactor)]) {
+        scale_factor = [window backingScaleFactor];
+      }
+#endif
+      NSRect screen_rc = [[window screen] frame];
+      /* Use global scale to find the origin of the screen and then use the
+       * local scale to handle the relative coordinates.
+       */
+      *px = (int) (screen_rc.origin.x * global_scale_factor + (rc.origin.x - screen_rc.origin.x) * scale_factor);
+      *py = (int)((primary_y - screen_rc.origin.y - screen_rc.size.height) * global_scale_factor) - (int)(scale_factor * (rc.size.height + rc.origin.y - screen_rc.origin.y - screen_rc.size.height));
    });
 }
 
@@ -2425,7 +2467,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
                sc = [win convertRectToBacking: sc];
 #endif
                display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
-               resize_display_win(display, sc.size.width, sc.size.height);
+               resize_display_win_main_thread(display, sc.size.width, sc.size.height);
                [view finishExitingFullScreenWindowMode];
             }
             break;
