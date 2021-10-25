@@ -280,7 +280,7 @@ bool al_init_video_addon(void)
    }
 
    _al_add_exit_func(al_shutdown_video_addon, "al_shutdown_video_addon");
-
+   video_inited = true;
    return true;
 }
 
