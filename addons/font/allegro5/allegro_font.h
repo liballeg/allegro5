@@ -121,7 +121,7 @@ ALLEGRO_FONT_FUNC(bool, al_get_glyph, (const ALLEGRO_FONT *f, int prev_codepoint
 #endif
 
 ALLEGRO_FONT_FUNC(void, al_draw_multiline_text, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float max_width, float line_height, int flags, const char *text));
-ALLEGRO_FONT_FUNC(void, al_draw_multiline_textf, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float max_width, float line_height, int flags, const char *format, ...));
+ALLEGRO_FONT_PRINTFUNC(void, al_draw_multiline_textf, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float max_width, float line_height, int flags, const char *format, ...), 8, 9);
 ALLEGRO_FONT_FUNC(void, al_draw_multiline_ustr, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float max_width, float line_height, int flags, const ALLEGRO_USTR *text));
 
 ALLEGRO_FONT_FUNC(void, al_do_multiline_text, (const ALLEGRO_FONT *font,
