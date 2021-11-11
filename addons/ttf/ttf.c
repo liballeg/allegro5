@@ -301,13 +301,32 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
          return NULL;
       }
 
-      /* Clear the data so we don't get garbage when using filtering
-       * FIXME We could clear just the border but I'm not convinced that
-       * would be faster (yet)
-       */
-      for (i = 0; i < lock_rect.h; i++) {
-          ptr = (char *)(data->page_lr->data) + (i * data->page_lr->pitch);
-          memset(ptr, 0, lock_rect.w * 4);
+      if (data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+         /* Fill in border with "transparent white"
+          * to make anti-aliasing work well when rotation
+          * and/or scaling transforms are in effect
+          * FIXME We could clear just the border
+          */ 
+         for (i = 0; i < lock_rect.h; i++) {
+            ptr = (char *)(data->page_lr->data) + (i * data->page_lr->pitch);
+            int j;
+            for (j = 0; j < lock_rect.w; ++j) {
+               *ptr++ = 255;
+               *ptr++ = 255;
+               *ptr++ = 255;
+               *ptr++ = 0;
+            }
+         }
+      }
+      else {
+         /* Clear the data so we don't get garbage when using filtering
+          * FIXME We could clear just the border but I'm not convinced that
+          * would be faster (yet)
+          */
+         for (i = 0; i < lock_rect.h; i++) {
+            ptr = (char *)(data->page_lr->data) + (i * data->page_lr->pitch);
+            memset(ptr, 0, lock_rect.w * 4);
+         }
       }
    }
 
@@ -332,6 +351,9 @@ static void copy_glyph_mono(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
       int bit = 0;
 
       if (font_data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+         /* FIXME We could just set the alpha byte since the
+          * region was cleared above when allocated
+          */
          for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
             unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
             *dptr++ = 255;
@@ -372,6 +394,9 @@ static void copy_glyph_color(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
       unsigned char *dptr = glyph_data + pitch * y;
 
       if (font_data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+         /* FIXME We could just set the alpha byte since the
+          * region was cleared above when allocated
+          */
          for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
             unsigned char c = *ptr;
             *dptr++ = 255;
@@ -526,6 +551,7 @@ static bool ttf_get_glyph_worker(ALLEGRO_FONT const *f, int prev_ft_index, int f
 
    if (glyph->page_bitmap) {
       info->bitmap = glyph->page_bitmap;
+	   /* the adjustments below remove the 1-pixel border from the glyph */
       info->x = glyph->region.x + 1;
       info->y = glyph->region.y + 1;
       info->w = glyph->region.w - 2;
@@ -569,11 +595,15 @@ static int render_glyph(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
       return 0;
 
    if (glyph.bitmap != NULL) {
+      /*
+       * Include the 1-pixel border when drawing glyph.
+       * This improves render results when rotating and scaling.
+       */
       al_draw_tinted_bitmap_region(
          glyph.bitmap, color,
-         glyph.x, glyph.y, glyph.w, glyph.h,
-         xpos + glyph.offset_x + glyph.kerning,
-         ypos + glyph.offset_y,
+         glyph.x - 1, glyph.y - 1, glyph.w + 2, glyph.h + 2,
+         xpos + glyph.offset_x + glyph.kerning - 1,
+         ypos + glyph.offset_y - 1,
          0
       );
    }
