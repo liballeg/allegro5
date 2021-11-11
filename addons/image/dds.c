@@ -143,8 +143,8 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
 
    bitmap_data = lr->data;
 
-   for (ii = 0; ii < h / block_height; ii++) {
-      size_t pitch = (size_t)(w / block_width * block_size);
+   for (ii = 0; ii < (h + block_height - 1) / block_height; ii++) {
+      size_t pitch = (size_t)((w + block_width - 1) / block_width * block_size);
       num_read = al_fread(f, bitmap_data, pitch);
       if (num_read != pitch) {
          ALLEGRO_ERROR("DDS file too short.\n");
