@@ -464,3 +464,85 @@ than can be represented in sRGB and when converted to RGB will result
 in invalid color components outside the 0..1 range.
 
 Since: 5.2.3
+
+## API: al_color_rgb_to_oklab
+
+Convert RGB values to the Oklab color space.
+
+Since: 5.2.8
+
+See also: [al_color_oklab], [al_color_oklab_to_rgb]
+
+
+## API: al_color_oklab
+
+Return an [ALLEGRO_COLOR] structure from Oklab values. The L component
+corresponds to luminance from 0..1. The a and b components
+are in the range -1..+1.
+
+> *Note:*
+>
+> The Oklab color space can represent more colors than are
+> visible in sRGB and therefore conversion may result in RGB values
+> outside of the 0..1 range. You can check for that case with
+> [al_is_color_valid].
+
+Since: 5.2.8
+
+See also: [al_color_oklab_to_rgb], [al_color_rgb_to_oklab]
+
+
+## API: al_color_oklab_to_rgb
+
+Convert Oklab color values to RGB.
+
+Since: 5.2.8
+
+See also: [al_color_oklab], [al_color_rgb_to_oklab]
+
+
+## API: al_color_rgb_to_linear
+
+Convert gamma corrected sRGB values (i.e. normal RGB) to linear sRGB space.
+
+Since: 5.2.8
+
+See also: [al_color_linear], [al_color_linear_to_rgb]
+
+
+## API: al_color_linear
+
+Return an [ALLEGRO_COLOR] structure from linear sRGB values. Allegro
+RGB values are assumed to be sRGB. The sRGB standard is in wide use by
+various display devices. It accounts for a standard gamma correction
+applied to RGB colors before they get displayed.
+
+Gamma correction means if for example we have a medium gray color
+specified with al_map_rgb_f(0.5,0.5,0.5) then we do not want the monitor
+to set the pixel to exactly half the physical maximum intensity, but
+instead to an intensity that appears to be half as bright as the maximum
+to the person looking at it. In this case that would be closer to 21% of
+maximum intensity rather than to 50% intensity.
+
+For some applications it may be useful to specify a color in linear sRGB
+components, in which case you can use this function. For example:
+
+~~~~c
+ALLEGRO_COLOR gray = al_color_linear(0.216, 0.216, 0.216);
+char html[8];
+al_color_rgb_to_html(gray.r, gray.g, gray.b, html); // "#808080"
+~~~~
+
+Since: 5.2.8
+
+See also: [al_color_linear_to_rgb], [al_color_rgb_to_linear]
+
+
+## API: al_color_linear_to_rgb
+
+Convert linear sRGB color values to gamma corrected (i.e. normal) RGB
+values.
+
+Since: 5.2.8
+
+See also: [al_color_linera], [al_color_rgb_to_linear]

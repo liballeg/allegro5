@@ -82,6 +82,16 @@ ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_lch, (float red, float green, float blu
    float *l, float *c, float *h));
 ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_lch, (float l, float c, float h));
 ALLEGRO_COLOR_FUNC(bool, al_is_color_valid, (ALLEGRO_COLOR color));
+ALLEGRO_COLOR_FUNC(void, al_color_oklab_to_rgb, (float l, float a, float b,
+    float *red, float *green, float *blue));
+ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_oklab, (float red, float green, float blue,
+   float *l, float *a, float *b));
+ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_oklab, (float l, float a, float b));
+void al_color_linear_to_rgb(float x, float y, float z,
+    float *red, float *green, float *blue);
+void al_color_rgb_to_linear(float red, float green, float blue,
+   float *x, float *y, float *z);
+ALLEGRO_COLOR al_color_linear(float r, float g, float b);
 
 #ifdef __cplusplus
    }

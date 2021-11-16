@@ -602,6 +602,38 @@ static double srgba_linear_to_gamma(double x) {
 }
 
 
+/* Function: al_color_linear_to_rgb
+ */
+void al_color_linear_to_rgb(float x, float y, float z,
+    float *red, float *green, float *blue)
+{
+   *red = srgba_linear_to_gamma(r);
+   *green = srgba_linear_to_gamma(g);
+   *blue = srgba_linear_to_gamma(b);
+}
+
+
+/* Function: al_color_rgb_to_linear
+ */
+void al_color_rgb_to_linear(float red, float green, float blue,
+   float *x, float *y, float *z)
+{
+   *r = srgba_gamma_to_linear(red);
+   *g = srgba_gamma_to_linear(green);
+   *b = srgba_gamma_to_linear(blue);
+}
+
+
+/* Function: al_color_linear
+ */
+ALLEGRO_COLOR al_color_linear(float r, float g, float b)
+{
+   float r2, g2, b2;
+   al_color_linear_to_rgb(x, y, z, &r2, &g2, &b2);
+   return al_map_rgb_f(r2, g2, b2);
+}
+
+
 /* Function: al_color_xyz_to_rgb
  */
 void al_color_xyz_to_rgb(float x, float y, float z,
@@ -813,5 +845,59 @@ bool al_is_color_valid(ALLEGRO_COLOR color)
    return color.r >= 0 && color.g >= 0 && color.b >= 0 &&
       color.r <= 1 && color.g <= 1 && color.b <= 1;
 }
+
+
+/* Function: al_color_oklab_to_rgb
+ * Note: Oklab code from https://bottosson.github.io/posts/oklab/
+ */
+void al_color_oklab_to_rgb(float ol, float oa, float ob,
+    float *red, float *green, float *blue)
+{
+   float l_ = ol + 0.3963377774f * oa + 0.2158037573f * ob;
+   float m_ = ol - 0.1055613458f * oa - 0.0638541728f * ob;
+   float s_ = ol - 0.0894841775f * oa - 1.2914855480f * ob;
+   float l = l_*l_*l_;
+   float m = m_*m_*m_;
+   float s = s_*s_*s_;
+   float r = +4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s;
+   float g = -1.2684380046f * l + 2.6097574011f * m - 0.3413193965f * s;
+   float b = -0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s;
+   *red = srgba_linear_to_gamma(r);
+   *green = srgba_linear_to_gamma(g);
+   *blue = srgba_linear_to_gamma(b);
+}
+
+
+/* Function: al_color_rgb_to_oklab
+ * Note: Oklab code from https://bottosson.github.io/posts/oklab/
+ */
+void al_color_rgb_to_oklab(float red, float green, float blue,
+   float *ol, float *oa, float *ob)
+{
+   double r = srgba_gamma_to_linear(red);
+   double g = srgba_gamma_to_linear(green);
+   double b = srgba_gamma_to_linear(blue);
+   float l = 0.4122214708f * r + 0.5363325363f * g + 0.0514459929f * b;
+   float m = 0.2119034982f * r + 0.6806995451f * g + 0.1073969566f * b;
+   float s = 0.0883024619f * r + 0.2817188376f * g + 0.6299787005f * b;
+   float l_ = cbrtf(l);
+   float m_ = cbrtf(m);
+   float s_ = cbrtf(s);
+   *ol = 0.2104542553f*l_ + 0.7936177850f*m_ - 0.0040720468f*s_;
+   *oa = 1.9779984951f*l_ - 2.4285922050f*m_ + 0.4505937099f*s_;
+   *ob = 0.0259040371f*l_ + 0.7827717662f*m_ - 0.8086757660f*s_;
+}
+
+
+/* Function: al_color_oklab
+ */
+ALLEGRO_COLOR al_color_oklab(float l, float a, float b)
+{
+   float r2, g2, b2;
+   al_color_oklab_to_rgb(l, a, b, &r2, &g2, &b2);
+   return al_map_rgb_f(r2, g2, b2);
+}
+
+
 
 /* vim: set sts=3 sw=3 et: */
