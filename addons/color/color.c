@@ -604,7 +604,7 @@ static double srgba_linear_to_gamma(double x) {
 
 /* Function: al_color_linear_to_rgb
  */
-void al_color_linear_to_rgb(float x, float y, float z,
+void al_color_linear_to_rgb(float r, float g, float b,
     float *red, float *green, float *blue)
 {
    *red = srgba_linear_to_gamma(r);
@@ -616,7 +616,7 @@ void al_color_linear_to_rgb(float x, float y, float z,
 /* Function: al_color_rgb_to_linear
  */
 void al_color_rgb_to_linear(float red, float green, float blue,
-   float *x, float *y, float *z)
+   float *r, float *g, float *b)
 {
    *r = srgba_gamma_to_linear(red);
    *g = srgba_gamma_to_linear(green);
@@ -629,7 +629,7 @@ void al_color_rgb_to_linear(float red, float green, float blue,
 ALLEGRO_COLOR al_color_linear(float r, float g, float b)
 {
    float r2, g2, b2;
-   al_color_linear_to_rgb(x, y, z, &r2, &g2, &b2);
+   al_color_linear_to_rgb(r, g, b, &r2, &g2, &b2);
    return al_map_rgb_f(r2, g2, b2);
 }
 
