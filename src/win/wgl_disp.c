@@ -1273,9 +1273,11 @@ static void display_thread_proc(void *arg)
        * absolutely need this to succeed, else we trap the user in a
        * fullscreen window without input.
        */
-      while (GetForegroundWindow() != wnd) {
-         al_rest(0.01);
-         SetForegroundWindow(wnd);
+      if (disp->flags & ALLEGRO_FULLSCREEN) {
+         while (GetForegroundWindow() != wnd) {
+            al_rest(0.01);
+            SetForegroundWindow(wnd);
+         }
       }
       UpdateWindow(wnd);
 
