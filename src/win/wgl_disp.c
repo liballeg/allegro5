@@ -1236,57 +1236,58 @@ static void display_thread_proc(void *arg)
              rect.right - rect.left, rect.bottom - rect.top,
              SWP_NOZORDER | SWP_FRAMECHANGED);
    }
-
-   if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-      bool frameless = true;
-      _al_win_set_window_frameless(disp, win_disp->window, frameless);
-   }
-
-   /* Yep, the following is really needed sometimes. */
-   /* ... Or is it now that we have dumped DInput? */
-   /* <rohannessian> Win98/2k/XP's window forground rules don't let us
-    * make our window the topmost window on launch. This causes issues on
-    * full-screen apps, as DInput loses input focus on them.
-    * We use this trick to force the window to be topmost, when switching
-    * to full-screen only. Note that this only works for Win98 and greater.
-    * Win95 will ignore our SystemParametersInfo() calls.
-    *
-    * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
-    * for details.
-    */
+   
    {
       DWORD lock_time;
       HWND wnd = win_disp->window;
 
+      if (disp->flags & ALLEGRO_FULLSCREEN == 0) { // Not fullscreen mode
+         ShowWindow(wnd, SW_SHOWNORMAL);
+         SetForegroundWindow(wnd);
+         UpdateWindow(wnd);
+      }
+      else {         // Fullscreen mode
+         
+         bool frameless = true;
+         _al_win_set_window_frameless(disp, win_disp->window, frameless);
+
+         /* Yep, the following is really needed sometimes. */
+         /* ... Or is it now that we have dumped DInput? */
+         /* <rohannessian> Win98/2k/XP's window foreground rules don't let us
+          * make our window the topmost window on launch. This causes issues on
+          * full-screen apps, as DInput loses input focus on them.
+          * We use this trick to force the window to be topmost, when switching
+          * to full-screen only. Note that this only works for Win98 and greater.
+          * Win95 will ignore our SystemParametersInfo() calls.
+          *
+          * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
+          * for details.
+          */
+         
 #define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
 #define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
-      if (disp->flags & ALLEGRO_FULLSCREEN) {
          SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
                0, (LPVOID)&lock_time, 0);
          SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
                0, (LPVOID)0, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-      }
-
-      ShowWindow(wnd, SW_SHOWNORMAL);
-      SetForegroundWindow(wnd);
-      /* In some rare cases, it doesn't seem to work without the loop. And we
-       * absolutely need this to succeed, else we trap the user in a
-       * fullscreen window without input.
-       */
-      if (disp->flags & ALLEGRO_FULLSCREEN) {
+      
+         ShowWindow(wnd, SW_SHOWNORMAL);
+         SetForegroundWindow(wnd);
+         /* In some rare cases, it doesn't seem to work without the loop. And we
+          * absolutely need this to succeed, else we trap the user in a
+          * fullscreen window without input.
+          */
          while (GetForegroundWindow() != wnd) {
             al_rest(0.01);
             SetForegroundWindow(wnd);
          }
-      }
-      UpdateWindow(wnd);
+         UpdateWindow(wnd);
 
-      if (disp->flags & ALLEGRO_FULLSCREEN) {
          SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
               0, (LPVOID)&lock_time, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-      }
 #undef SPI_GETFOREGROUNDLOCKTIMEOUT
 #undef SPI_SETFOREGROUNDLOCKTIMEOUT
+      }
    }
 
 #if 0
