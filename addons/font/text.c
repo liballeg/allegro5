@@ -234,7 +234,7 @@ void al_draw_textf(const ALLEGRO_FONT *font, ALLEGRO_COLOR color,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_draw_text(font, color, x, y, flags, al_cstr(buf));
+   al_draw_ustr(font, color, x, y, flags, buf);
 
    al_ustr_free(buf);
 }
@@ -257,8 +257,7 @@ void al_draw_justified_textf(const ALLEGRO_FONT *f,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_draw_justified_text(f, color, x1, x2, y, diff, flags,
-      al_cstr(buf));
+   al_draw_justified_ustr(f, color, x1, x2, y, diff, flags, buf);
 
    al_ustr_free(buf);
 }
