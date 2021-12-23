@@ -1241,7 +1241,7 @@ static void display_thread_proc(void *arg)
       DWORD lock_time;
       HWND wnd = win_disp->window;
 
-      if (disp->flags & ALLEGRO_FULLSCREEN == 0) { // Not fullscreen mode
+      if ((disp->flags & ALLEGRO_FULLSCREEN) == 0) { // Not fullscreen mode
          ShowWindow(wnd, SW_SHOWNORMAL);
          SetForegroundWindow(wnd);
          UpdateWindow(wnd);
@@ -1278,7 +1278,7 @@ static void display_thread_proc(void *arg)
           * fullscreen window without input.
           */
          while (GetForegroundWindow() != wnd) {
-            al_rest(0.01);
+            al_rest(0.1);
             SetForegroundWindow(wnd);
          }
          UpdateWindow(wnd);
