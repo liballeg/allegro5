@@ -15,7 +15,7 @@ const char *font_file = "data/DejaVuSans.ttf";
 struct Example
 {
     double fps;
-    ALLEGRO_FONT *f1, *f2, *f3, *f4, *f5;
+    ALLEGRO_FONT *f1, *f2, *f3, *f4, *f5, *f6;
     ALLEGRO_FONT *f_alex;
     ALLEGRO_CONFIG *config;
     int ranges_count;
@@ -124,6 +124,16 @@ static void render(void)
     al_draw_ustr(ex.f3, green, 50, 380, 0, SUB(0, 11));
 
     al_draw_textf(ex.f5, black, 50, 395, 0, "forced monochrome");
+
+    ALLEGRO_TRANSFORM t;
+    al_identity_transform(&t);
+    al_rotate_transform(&t, al_get_time());
+    al_translate_transform(&t, 550, 300);
+    al_use_transform(&t);
+    al_draw_textf(ex.f6, black, 0, -al_get_font_line_height(ex.f6) / 2,
+            ALLEGRO_ALIGN_CENTRE, "T");
+    al_identity_transform(&t);
+    al_use_transform(&t);
 
     /* Glyph rendering tests. */
     al_draw_textf(ex.f3, red, 50, 410, 0, "Glyph adv Tu: %d, draw: ",
@@ -266,6 +276,10 @@ int main(int argc, char **argv)
      */
     ex.f4 = al_load_font(font_file, -140, 0);
     ex.f5 = al_load_font(font_file, 12, ALLEGRO_TTF_MONOCHROME);
+
+    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+    ex.f6 = al_load_font(font_file, -140, 0);
+    al_set_new_bitmap_flags(0);
 
     {
         int ranges[] = {0x1F40A, 0x1F40A};
