@@ -18,6 +18,7 @@ find_library(OPENGLES2_egl_LIBRARY NAMES EGL)
 # Handle the QUIETLY and REQUIRED arguments and set OPENGLES2_FOUND
 # to TRUE if all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(OPENGLES2 DEFAULT_MSG
     OPENGLES2_INCLUDE_DIR OPENGLES2_gl_LIBRARY OPENGLES2_egl_LIBRARY)
 

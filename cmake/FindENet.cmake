@@ -17,6 +17,7 @@ find_library(ENET_LIBRARY NAMES enet enet_static libenet libenet_static)
 # Handle the QUIETLY and REQUIRED arguments and set ENET_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(ENET DEFAULT_MSG
     ENET_INCLUDE_DIR ENET_LIBRARY)
 

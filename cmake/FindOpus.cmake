@@ -22,6 +22,7 @@ if(OGG_FOUND)
         # Handle the QUIETLY and REQUIRED arguments and set OPUS_FOUND
 	# to TRUE if all listed variables are TRUE.
 	include(FindPackageHandleStandardArgs)
+        set(FPHSA_NAME_MISMATCHED TRUE)
         find_package_handle_standard_args(OPUS DEFAULT_MSG
             OPUS_INCLUDE_DIR
             OPUS_LIBRARY OPUSFILE_LIBRARY)

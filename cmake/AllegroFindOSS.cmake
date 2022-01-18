@@ -67,6 +67,7 @@ endif(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR
 # Handle the QUIETLY and REQUIRED arguments and set OSS_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(OSS DEFAULT_MSG
     OSS_COMPILES)
 

@@ -22,6 +22,7 @@ if(OGG_FOUND)
 	# Handle the QUIETLY and REQUIRED arguments and set VORBIS_FOUND
 	# to TRUE if all listed variables are TRUE.
 	include(FindPackageHandleStandardArgs)
+	set(FPHSA_NAME_MISMATCHED TRUE)
 	find_package_handle_standard_args(VORBIS DEFAULT_MSG
 	    VORBIS_INCLUDE_DIR
 	    VORBIS_LIBRARY VORBISFILE_LIBRARY)

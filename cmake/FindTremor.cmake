@@ -15,6 +15,7 @@ find_library(TREMOR_LIBRARY NAMES vorbisidec)
 # Handle the QUIETLY and REQUIRED arguments and set TREMOR_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(TREMOR DEFAULT_MSG
     TREMOR_INCLUDE_DIR TREMOR_LIBRARY)
 

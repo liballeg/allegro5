@@ -17,6 +17,7 @@ find_library(OPENSL_LIBRARY NAMES OpenSLES)
 # Handle the QUIETLY and REQUIRED arguments and set OPENSL_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(OPENSL DEFAULT_MSG
     OPENSL_INCLUDE_DIR OPENSL_LIBRARY)
 

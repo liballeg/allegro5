@@ -16,6 +16,7 @@ find_library(OGG_LIBRARY NAMES ogg ogg_static libogg libogg_static)
 # Handle the QUIETLY and REQUIRED arguments and set OGG_FOUND
 # to TRUE if all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(OGG DEFAULT_MSG OGG_INCLUDE_DIR OGG_LIBRARY)
 
 set(OGG_LIBRARIES ${OGG_LIBRARY})

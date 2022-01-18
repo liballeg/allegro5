@@ -65,7 +65,7 @@ unset(HARFBUZZ_FIND_ARGS)
 set(HARFBUZZ_LIBRARIES "${HARFBUZZ_LIBRARY}")
 
 include(FindPackageHandleStandardArgs)
-
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(
   HarfBuzz
   REQUIRED_VARS

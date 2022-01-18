@@ -11,5 +11,6 @@ find_path(MINIMP3_INCLUDE_DIRS
 mark_as_advanced(MINIMP3_INCLUDE_DIRS)
 
 include(FindPackageHandleStandardArgs)
+set(FPHSA_NAME_MISMATCHED TRUE)
 find_package_handle_standard_args(MiniMP3 REQUIRED_VARS MINIMP3_INCLUDE_DIRS
                                   FOUND_VAR MINIMP3_FOUND)

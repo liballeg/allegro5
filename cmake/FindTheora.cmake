@@ -24,6 +24,7 @@ if(OGG_FOUND)
     # Handle the QUIETLY and REQUIRED arguments and set THEORA_FOUND
     # to TRUE if all listed variables are TRUE.
     include(FindPackageHandleStandardArgs)
+    set(FPHSA_NAME_MISMATCHED TRUE)
     find_package_handle_standard_args(THEORA DEFAULT_MSG
           THEORA_INCLUDE_DIR THEORA_LIBRARY)
 endif(OGG_FOUND)
