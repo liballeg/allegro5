@@ -19,7 +19,7 @@ set(ALLEGRO_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
 
 project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX} C CXX)
 
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
     if(POLICY CMP0026)
