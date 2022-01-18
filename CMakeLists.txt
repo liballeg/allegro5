@@ -414,10 +414,6 @@ if(COMPILER_GCC_OR_CLANG)
         # the mangled_main won't have a forward declaration.
         set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wmissing-prototypes")
     endif(ALLEGRO_UNIX)
-    if(WIN32)
-        # Helps to ensure the Windows port remains compatible with MSVC.
-        set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wdeclaration-after-statement")
-    endif(WIN32)
     if(STRICT_WARN)
         set(WFLAGS "${WFLAGS} -Werror")
     endif()
