@@ -1236,19 +1236,20 @@ static void display_thread_proc(void *arg)
              SWP_NOZORDER | SWP_FRAMECHANGED);
    }
 
+   if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      _al_win_set_window_frameless(disp, win_disp->window, true);
+   }
+
    {
       DWORD lock_time;
       HWND wnd = win_disp->window;
 
-      if ((disp->flags & ALLEGRO_FULLSCREEN) == 0) { // Not fullscreen mode
+      if ((disp->flags & ALLEGRO_FULLSCREEN) == 0) {
          ShowWindow(wnd, SW_SHOWNORMAL);
          SetForegroundWindow(wnd);
          UpdateWindow(wnd);
       }
-      else {         // Fullscreen mode
-
-         bool frameless = true;
-         _al_win_set_window_frameless(disp, win_disp->window, frameless);
+      else {
 
          /* Yep, the following is really needed sometimes. */
          /* ... Or is it now that we have dumped DInput? */
