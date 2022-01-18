@@ -141,7 +141,7 @@ void _al_d3d_generate_display_format_list(void)
       }
       
    }
-   ALLEGRO_INFO("found %d format combinations\n", _al_vector_size(&eds_list));
+   ALLEGRO_INFO("found %d format combinations\n", (int)_al_vector_size(&eds_list));
 }
 
 void _al_d3d_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)

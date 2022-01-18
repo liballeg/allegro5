@@ -35,6 +35,7 @@ static ALLEGRO_SAMPLE_ID engine;
 /* handles fade effects and timing for the ready, steady, go messages */
 static int fade_intro_item(int music_pos, int fade_speed)
 {
+   (void)music_pos;
    set_palette(data[GAME_PAL].dat);
    fade_out(fade_speed);
    return keypressed();

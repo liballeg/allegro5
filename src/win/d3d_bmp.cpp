@@ -700,8 +700,8 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       }
 
       // Some cards/drivers don't like small textures
-      if (d3d_bmp->texture_w < system->min_bitmap_size) d3d_bmp->texture_w = system->min_bitmap_size;
-      if (d3d_bmp->texture_h < system->min_bitmap_size) d3d_bmp->texture_h = system->min_bitmap_size;
+      if ((int)d3d_bmp->texture_w < system->min_bitmap_size) d3d_bmp->texture_w = system->min_bitmap_size;
+      if ((int)d3d_bmp->texture_h < system->min_bitmap_size) d3d_bmp->texture_h = system->min_bitmap_size;
 
       ASSERT(d3d_bmp->texture_w % block_width == 0);
       ASSERT(d3d_bmp->texture_h % block_height == 0);

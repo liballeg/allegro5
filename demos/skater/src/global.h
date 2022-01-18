@@ -53,10 +53,10 @@ extern int shadow_offset;
 extern VCONTROLLER *controller[2];
 
 /* Absolute path of the config file. */
-extern char config_path[DEMO_PATH_LENGTH];
+extern char config_path[DEMO_PATH_LENGTH + 1];
 
 /* Absolute path of the datafile. */
-extern char data_path[DEMO_PATH_LENGTH];
+extern char data_path[DEMO_PATH_LENGTH + 1];
 
 /* The main menu font (monochrome). */
 #define demo_font ((ALLEGRO_FONT *)demo_data[DEMO_FONT].dat)

@@ -1330,8 +1330,11 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
 
 void _al_win_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
 {
-   if (!(display->flags & ALLEGRO_MAXIMIZED))
-      al_resize_display(display, display->w, display->h);
+   if (onoff) {
+      if (!(display->flags & ALLEGRO_MAXIMIZED)) {
+         al_resize_display(display, display->w, display->h);
+      }
+   }
 }
 
 void _al_win_post_create_window(ALLEGRO_DISPLAY *display)

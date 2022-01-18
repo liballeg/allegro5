@@ -36,8 +36,8 @@ int shadow_offset = 2;
 
 VCONTROLLER *controller[2];
 
-char config_path[DEMO_PATH_LENGTH];
-char data_path[DEMO_PATH_LENGTH];
+char config_path[DEMO_PATH_LENGTH + 1];
+char data_path[DEMO_PATH_LENGTH + 1];
 DATA_ENTRY *demo_data;
 
 ALLEGRO_DISPLAY *screen;

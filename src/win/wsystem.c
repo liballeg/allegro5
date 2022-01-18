@@ -120,7 +120,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
          while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!isspace(argbuf[i]))))
             i++;
 
-            if (argbuf[i]) {
+         if (argbuf[i]) {
             argbuf[i] = 0;
             i++;
          }
@@ -558,9 +558,11 @@ static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    return true;
 }
 
-BOOL CALLBACK monitor_enum_proc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
+static BOOL CALLBACK monitor_enum_proc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
 {
    HMONITOR *h_monitor = (HMONITOR *) dwData;
+   (void)hdcMonitor;
+   (void)lprcMonitor;
 
    if (hMonitor) {
       *h_monitor = hMonitor;
@@ -589,8 +591,8 @@ static int win_get_monitor_dpi(int adapter)
 {
    ALLEGRO_MONITOR_INFO info;
    HMODULE shcore_dll = _al_win_safe_load_library("shcore.dll");
-   int dpi_hori;
-   int dpi_vert;
+   UINT dpi_hori;
+   UINT dpi_vert;
 
    typedef enum _AL_MONITOR_DPI_TYPE {
        AL_MDT_EFFECTIVE_DPI  = 0,
