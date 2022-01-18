@@ -980,7 +980,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    /* Fill in the display settings for opengl major and minor versions...*/
    const int v = disp->ogl_extras->ogl_info.version;
    disp->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
-   disp->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;   
+   disp->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
 
    /* Try to enable or disable vsync as requested */
    /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
@@ -1168,7 +1168,6 @@ static void wgl_unset_current_display(ALLEGRO_DISPLAY *d)
    }
 }
 
-
 /*
  * The window must be created in the same thread that
  * runs the message loop.
@@ -1236,7 +1235,7 @@ static void display_thread_proc(void *arg)
              rect.right - rect.left, rect.bottom - rect.top,
              SWP_NOZORDER | SWP_FRAMECHANGED);
    }
-   
+
    {
       DWORD lock_time;
       HWND wnd = win_disp->window;
@@ -1247,7 +1246,7 @@ static void display_thread_proc(void *arg)
          UpdateWindow(wnd);
       }
       else {         // Fullscreen mode
-         
+
          bool frameless = true;
          _al_win_set_window_frameless(disp, win_disp->window, frameless);
 
@@ -1263,14 +1262,14 @@ static void display_thread_proc(void *arg)
           * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
           * for details.
           */
-         
+
 #define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
 #define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
          SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
                0, (LPVOID)&lock_time, 0);
          SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
                0, (LPVOID)0, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-      
+
          ShowWindow(wnd, SW_SHOWNORMAL);
          SetForegroundWindow(wnd);
          /* In some rare cases, it doesn't seem to work without the loop. And we
