@@ -106,19 +106,19 @@ if(SUPPORT_FONT AND WANT_TTF)
         if(TTF_COMPILES)
             set(TTF_LIBRARIES ${FREETYPE_LIBRARIES})
         else()
-            if(FREETYPE_ZLIB)
+            if(FREETYPE_ZLIB AND NOT DEFINED ZLIB_FOUND)
                 find_package(ZLIB)
             endif()
 
-            if(FREETYPE_BZIP2)
+            if(FREETYPE_BZIP2 AND NOT DEFINED BZIP2_FOUND)
                 find_package(BZip2)
             endif()
 
-            if(FREETYPE_PNG)
+            if(FREETYPE_PNG AND NOT DEFINED PNG_FOUND)
                 find_package(PNG)
             endif()
 			
-            if (FREETYPE_HARFBUZZ)
+            if (FREETYPE_HARFBUZZ AND NOT DEFINED HARFBUZZ_FOUND)
                 find_package(HarfBuzz)
             endif()
 
