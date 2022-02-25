@@ -21,7 +21,8 @@ typedef struct SLICE_DATA SLICE_DATA;
 enum {
    SLICE_READ = 1,
    SLICE_WRITE = 2,
-   SLICE_EXPANDABLE = 4
+   SLICE_EXPANDABLE = 4,
+   SLICE_SEEK_END = 8
 };
 
 struct SLICE_DATA
@@ -39,7 +40,10 @@ static bool slice_fclose(ALLEGRO_FILE *f)
    bool ret;
 
    /* seek to end of slice */
-   ret = al_fseek(slice->fp, slice->anchor + slice->size, ALLEGRO_SEEK_SET);
+   if (slice->mode & SLICE_SEEK_END)
+       ret = al_fseek(slice->fp, slice->anchor + slice->size, ALLEGRO_SEEK_SET);
+   else
+       ret = true;
 
    al_free(slice);
 
@@ -205,23 +209,32 @@ static const ALLEGRO_FILE_INTERFACE fi =
 ALLEGRO_FILE *al_fopen_slice(ALLEGRO_FILE *fp, size_t initial_size, const char *mode)
 {
    SLICE_DATA *userdata = al_calloc(1, sizeof(*userdata));
+   int ch;
    
    if (!userdata) {
       return NULL;
    }
    
-   if (strstr(mode, "r") || strstr(mode, "R")) {
-      userdata->mode |= SLICE_READ;
+   // OBSOLETE_V5 code should go away when the API can be changed.
+#ifndef OBSOLETE_V5
+   userdata->mode |= SLICE_SEEK_END;
+#endif
+
+   for ( ; (ch = *mode); ++mode) {
+       if (ch == 'r' || ch == 'R')
+          userdata->mode |= SLICE_READ;
+       else if (ch == 'w' || ch == 'W')
+          userdata->mode |= SLICE_WRITE;
+       else if (ch == 'e' || ch == 'E')
+          userdata->mode |= SLICE_EXPANDABLE;
+       else if (ch == 's' || ch == 'S')
+          userdata->mode |= SLICE_SEEK_END;
+#ifndef OBSOLETE_V5
+       else if (ch == 'n' || ch == 'N')
+          userdata->mode &= ~SLICE_SEEK_END;
+#endif
    }
-   
-   if (strstr(mode, "w") || strstr(mode, "W")) {
-      userdata->mode |= SLICE_WRITE;
-   }
-   
-   if (strstr(mode, "e") || strstr(mode, "E")) {
-      userdata->mode |= SLICE_EXPANDABLE;
-   }
-   
+
    userdata->fp = fp;
    userdata->anchor = al_ftell(fp);
    userdata->size = initial_size;
