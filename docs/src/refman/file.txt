@@ -105,6 +105,8 @@ The mode can be any combination of:
 * r: read access
 * w: write access
 * e: expandable
+* s: seek to the end of the slice upon [al_close] (this is the default behavior)
+* n: disable the seeking behavior of "s".
 
 For example, a mode of "rw" indicates the file can be read and written. 
 (Note that this is slightly different from the stdio modes.) Keep in mind
@@ -116,7 +118,8 @@ after the initial end point, and the slice will grow accordingly. Otherwise,
 all activity is restricted to the initial size of the slice.
 
 A slice must be closed with [al_fclose]. The parent file will then be
-positioned immediately after the end of the slice.
+positioned immediately after the end of the slice. This behavior can be
+disabled by setting the "n" mode.
 
 Since: 5.0.6, 5.1.0
 
