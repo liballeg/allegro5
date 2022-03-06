@@ -50,11 +50,12 @@ cd build_emscripten
 with each binary, so we make sure each example and demo has such a
 folder:
 
-mkdir -p demos/speed/data
-demos/speed/data/nothing.txt
+mkdir examples
+cp -r ../examples/data examples/data
 
 4. Configure CMake, using emcmake.
 
+```
 USE_FLAGS=(
     -s USE_FREETYPE=1
     -s USE_VORBIS=1
@@ -68,36 +69,25 @@ USE_FLAGS=(
     -O3
     )
 
-emcmake cmake {path-to-allegro-source-folder}
-    -D CMAKE_BUILD_TYPE=Release
-    -D ALLEGRO_SDL=ON
-    -D SHARED=OFF
-    -D WANT_MONOLITH=ON
-    -D WANT_ALLOW_SSE=OFF
-    -D WANT_DOCS=OFF
-    -D WANT_TESTS=OFF
-    -D WANT_OPENAL=OFF
-    -D ALLEGRO_WAIT_EVENT_SLEEP=ON
-     # not sure why these are not found automatically with emcmake, so
-     # we use a  hack - we manually specify the cache path, so cmake
-     # will fail on first run in the compile test but populate the cache
-     # (from the -s options) and on second run it all works
-    -D SDL2_INCLUDE_DIR=$EM_CACHE/sysroot/include
-    -D PNG_PNG_INCLUDE_DIR=$EM_CACHE/sysroot/include
-    -D PNG_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libpng.a
-    -D JPEG_INCLUDE_DIR=$EM_CACHE/sysroot/include
-    -D JPEG_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libjpeg.a
-    -D FREETYPE_INCLUDE_DIRS=$EM_CACHE/sysroot/include
-    -D FREETYPE_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libfreetype.a
-    -D VORBIS_INCLUDE_DIR=$EM_CACHE/sysroot/include/vorbis
-    -D VORBIS_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libvorbis.a
-    -D VORBISFILE_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libvorbis.a
-    -D OGG_INCLUDE_DIR=$EM_CACHE/sysroot/include
-    -D OGG_LIBRARY=$EM_CACHE/sysroot/lib/wasm32-emscripten/libogg.a
-    -D CMAKE_C_FLAGS="${USE_FLAGS}"
-    -D CMAKE_CXX_FLAGS="${USE_FLAGS}"
-    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS} --preload-file data"
+# You may need to set this yourself.
+EM_CACHE=path-to-emsdk/upstream/emscripten/cache
+
+emcmake cmake .. \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D ALLEGRO_SDL=ON \
+    -D SHARED=OFF \
+    -D WANT_MONOLITH=ON \
+    -D WANT_ALLOW_SSE=OFF \
+    -D WANT_DOCS=OFF \
+    -D WANT_TESTS=OFF \
+    -D WANT_OPENAL=OFF \
+    -D ALLEGRO_WAIT_EVENT_SLEEP=ON \
+    -D SDL2_INCLUDE_DIR=$EM_CACHE/sysroot/include \
+    -D CMAKE_C_FLAGS="${USE_FLAGS}" \
+    -D CMAKE_CXX_FLAGS="${USE_FLAGS}" \
+    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS} --preload-file data" \
     -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
+```
 
 Emscripten will take care of downloading the dependencies mentioned above via
 its ports system.
@@ -119,4 +109,5 @@ easiest to start a local webserver, and then navigate to the examples using a
 web browser. E.g. you could use the Python's web server module which prints out
 a URL you can open:
 
+cd examples
 python3 -m http.server
