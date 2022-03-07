@@ -18,7 +18,6 @@ int pal_hex[256];
 typedef struct {
    float x, y, angle, t;
    int flags, i, j;
-   float pal[256];
 } Sprite;
 
 static void interpolate_palette(float *pal, float *pal1, float *pal2, float t)
@@ -31,10 +30,23 @@ static void interpolate_palette(float *pal, float *pal1, float *pal2, float t)
    }
 }
 
+static void set_pal(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *pal_bitmap, float *pal)
+{
+   al_set_target_bitmap(pal_bitmap);
+   for (int x = 0; x < 256; x++) {
+      float r = pal[x * 3 + 0];
+      float g = pal[x * 3 + 1];
+      float b = pal[x * 3 + 2];
+      al_put_pixel(x, 0, al_map_rgb(r,g,b));
+   }
+   al_set_target_backbuffer(display);
+   al_set_shader_sampler("pal_tex", pal_bitmap, 1);
+}
+
 int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bitmap, *background;
+   ALLEGRO_BITMAP *bitmap, *background, *pal_bitmap;
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    bool redraw = true;
@@ -84,13 +96,23 @@ int main(int argc, char **argv)
    background = al_load_bitmap("data/bkg.png");
    /* Continue even if fail to load. */
 
+   // al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   // al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY);
+   pal_bitmap = al_create_bitmap(255, 1);
+   al_set_target_bitmap(pal_bitmap);
+
+   al_set_target_backbuffer(display);
+
    /* Create 7 palettes with changed hue. */
    for (j = 0; j < 7; j++) {
       for (i = 0; i < 256; i++) {
          float r, g, b, h, s, l;
-         r = (pal_hex[i] >> 16) / 255.0;
-         g = ((pal_hex[i] >> 8) & 255) / 255.0;
-         b = (pal_hex[i] & 255) / 255.0;
+         r = pal_hex[i] >> 16;
+         g = (pal_hex[i] >> 8) & 255;
+         b = pal_hex[i] & 255;
          
          al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
          if (j == 6) {
@@ -116,44 +138,32 @@ int main(int argc, char **argv)
    }
 
    shader = al_create_shader(ALLEGRO_SHADER_GLSL);
-   
-   al_attach_shader_source(
-      shader,
-      ALLEGRO_VERTEX_SHADER,
-      "attribute vec4 al_pos;\n"
-      "attribute vec4 al_color;\n"
-      "attribute vec2 al_texcoord;\n"
-      "uniform mat4 al_projview_matrix;\n"
-      "varying vec4 varying_color;\n"
-      "varying vec2 varying_texcoord;\n"
-      "void main()\n"
-      "{\n"
-      "  varying_color = al_color;\n"
-      "  varying_texcoord = al_texcoord;\n"
-      "  gl_Position = al_projview_matrix * al_pos;\n"
-      "}\n"
-   );
-   al_attach_shader_source(
+   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+         al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
+      abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
+   }
+   if (!al_attach_shader_source(
       shader,
       ALLEGRO_PIXEL_SHADER,
+      "precision mediump float;\n"
       "uniform sampler2D al_tex;\n"
-      "uniform vec3 pal[256];\n"
+      "uniform sampler2D pal_tex;\n"
+      "uniform float pal_set_1;\n"
+      "uniform float pal_set_2;\n"
       "varying vec4 varying_color;\n"
       "varying vec2 varying_texcoord;\n"
       "void main()\n"
       "{\n"
-      "  vec4 c = texture2D(al_tex, varying_texcoord);\n"
-      "  int index = int(c.r * 255.0);\n"
-      "  if (index != 0) {;\n"
-      "    gl_FragColor = vec4(pal[index], 1);\n"
-      "  }\n"
-      "  else {;\n"
-      "    gl_FragColor = vec4(0, 0, 0, 0);\n"
-      "  };\n"
+      "  float index = texture2D(al_tex, varying_texcoord).r;\n"
+      "  if (index == 0.0) discard;\n"
+      "  gl_FragColor = texture2D(pal_tex, vec2(index, 0));\n"
       "}\n"
-   );
-   
-   al_build_shader(shader);
+   )) {
+      abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
+   }
+   if (!al_build_shader(shader))
+      abort_example("al_build_shader failed: %s\n", al_get_shader_log(shader));
+
    al_use_shader(shader);
 
    timer = al_create_timer(1.0 / 60);
@@ -162,6 +172,8 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_start_timer(timer);
+
+   bool once = false;
 
    while (1) {
       ALLEGRO_EVENT event;
@@ -193,25 +205,30 @@ int main(int argc, char **argv)
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
-         interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
+         // al_set_shader_float("pal_set_1", p1 * 2);
+         // al_set_shader_float("pal_set_2", p2 * 2);
+         if (!once) {
+            interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
+            set_pal(display, pal_bitmap, pal);
+            once = true;
+         }
 
-         al_set_shader_float_vector("pal", 3, pal, 256);
          if (background)
             al_draw_bitmap(background, 0, 0, 0);
 
          for (i = 0; i < 8; i++) {
             Sprite *s = sprite + 7 - i;
-            float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
-            interpolate_palette(pal, pals[s->i], pals[s->j], pos);
-            al_set_shader_float_vector("pal", 3, pal, 256);
+            // float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
+            // interpolate_palette(pal, pals[s->i], pals[s->j], pos);
+            // set_pal(display, pal_bitmap, pal);
             al_draw_rotated_bitmap(bitmap,
                64, 64, s->x, s->y, s->angle, s->flags);
          }
          
          {
             float sc = 0.5;
-            al_set_shader_float_vector("pal", 3,
-               pals[(int)t % 20 > 15 ? 6 : 0], 256);
+            // set_pal(display, pal_bitmap, pals[(int)t % 20 > 15 ? 6 : 0]);
+
             #define D al_draw_scaled_rotated_bitmap
             D(bitmap, 0, 0,   0,   0,  sc,  sc, 0, 0);
             D(bitmap, 0, 0, 640,   0, -sc,  sc, 0, 0);
