@@ -20,29 +20,6 @@ typedef struct {
    int flags, i, j;
 } Sprite;
 
-static void interpolate_palette(float *pal, float *pal1, float *pal2, float t)
-{
-   int i;
-   for (i = 0; i < 256; i++) {
-      pal[i * 3 + 0] = pal1[i * 3 + 0] * (1 - t) + (pal2[i * 3 + 0]) * t;
-      pal[i * 3 + 1] = pal1[i * 3 + 1] * (1 - t) + (pal2[i * 3 + 1]) * t;
-      pal[i * 3 + 2] = pal1[i * 3 + 2] * (1 - t) + (pal2[i * 3 + 2]) * t;
-   }
-}
-
-static void set_pal(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *pal_bitmap, float *pal)
-{
-   al_set_target_bitmap(pal_bitmap);
-   for (int x = 0; x < 256; x++) {
-      float r = pal[x * 3 + 0];
-      float g = pal[x * 3 + 1];
-      float b = pal[x * 3 + 2];
-      al_put_pixel(x, 0, al_map_rgb(r,g,b));
-   }
-   al_set_target_backbuffer(display);
-   al_set_shader_sampler("pal_tex", pal_bitmap, 1);
-}
-
 int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
@@ -50,8 +27,9 @@ int main(int argc, char **argv)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    bool redraw = true;
+   bool show_pal = false;
    ALLEGRO_SHADER *shader;
-   float pal[3 * 256], pals[7][3 * 256];
+   float pals[7][3 * 256];
    int i, j;
    float t = 0;
    Sprite sprite[8];
@@ -94,7 +72,9 @@ int main(int argc, char **argv)
    }
 
    background = al_load_bitmap("data/bkg.png");
-   /* Continue even if fail to load. */
+   if (!bitmap) {
+      abort_example("background not found or failed to load\n");
+   }
 
    /* Create 7 palettes with changed hue. */
    for (j = 0; j < 7; j++) {
@@ -105,20 +85,7 @@ int main(int argc, char **argv)
          b = pal_hex[i] & 255;
          
          al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
-         if (j == 6) {
-            if (l < 0.3 || l > 0.7) {
-               h = 0;
-               s = 1;
-               l = 0.5;
-            }
-         }
-         else {
          h += j * 60;
-            if (l < 0.3 || l > 0.7) {
-               if (j & 1)
-                  l = 1 - l;
-            }
-         }
          al_color_hsl_to_rgb(h, s, l, &r, &g, &b);
 
          pals[j][i * 3 + 0] = r;
@@ -127,19 +94,14 @@ int main(int argc, char **argv)
       }
    }
 
-   // al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   // al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY);
    pal_bitmap = al_create_bitmap(255, 7);
    al_set_target_bitmap(pal_bitmap);
    for (int y = 0; y < 7; y++) {
-      float *pal = pals[y];
       for (int x = 0; x < 256; x++) {
-         float r = pal[x * 3 + 0];
-         float g = pal[x * 3 + 1];
-         float b = pal[x * 3 + 2];
+         float r = pals[y][x * 3 + 0];
+         float g = pals[y][x * 3 + 1];
+         float b = pals[y][x * 3 + 2];
          al_put_pixel(x, y, al_map_rgb(r,g,b));
       }
    }
@@ -165,9 +127,9 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_start_timer(timer);
 
-   bool once = false;
-
    al_set_shader_sampler("pal_tex", pal_bitmap, 1);
+
+   log_printf("%s\n", "Press P to toggle displaying the palette");
 
    while (1) {
       ALLEGRO_EVENT event;
@@ -177,6 +139,8 @@ int main(int argc, char **argv)
       if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             break;
+         if (event.keyboard.keycode == ALLEGRO_KEY_P)
+            show_pal = !show_pal;
          
       }
       if (event.type == ALLEGRO_EVENT_TIMER) {
@@ -201,13 +165,7 @@ int main(int argc, char **argv)
 
          al_set_shader_float("pal_set_1", p1 * 2);
          al_set_shader_float("pal_set_2", p2 * 2);
-         al_set_shader_float("pal_set_interp", pos);
-         al_set_shader_sampler("pal_tex", pal_bitmap, 1);
-         // if (!once) {
-         //    interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
-         //    set_pal(display, pal_bitmap, pal);
-         //    once = true;
-         // }
+         al_set_shader_float("pal_interp", pos);
 
          if (background)
             al_draw_bitmap(background, 0, 0, 0);
@@ -217,17 +175,15 @@ int main(int argc, char **argv)
             float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
             al_set_shader_float("pal_set_1", s->i);
             al_set_shader_float("pal_set_2", s->j);
-            al_set_shader_float("pal_set_interp", pos);
-            al_set_shader_sampler("pal_tex", pal_bitmap, 1);
-            // interpolate_palette(pal, pals[s->i], pals[s->j], pos);
-            // set_pal(display, pal_bitmap, pal);
+            al_set_shader_float("pal_interp", pos);
             al_draw_rotated_bitmap(bitmap,
                64, 64, s->x, s->y, s->angle, s->flags);
          }
          
          {
             float sc = 0.5;
-            // set_pal(display, pal_bitmap, pals[(int)t % 20 > 15 ? 6 : 0]);
+            al_set_shader_float("pal_set_1", (int)t % 20 > 15 ? 6 : 0);
+            al_set_shader_float("pal_interp", 0);
 
             #define D al_draw_scaled_rotated_bitmap
             D(bitmap, 0, 0,   0,   0,  sc,  sc, 0, 0);
@@ -235,6 +191,14 @@ int main(int argc, char **argv)
             D(bitmap, 0, 0,   0, 480,  sc, -sc, 0, 0);
             D(bitmap, 0, 0, 640, 480, -sc, -sc, 0, 0);
          }
+
+         if (show_pal) {
+            al_use_shader(NULL);
+            al_draw_scaled_bitmap(pal_bitmap, 0, 0, 255, 7,
+               0, 0, 255, 7*12, 0);
+            al_use_shader(shader);
+         }
+         
          al_flip_display();
       }
    }
