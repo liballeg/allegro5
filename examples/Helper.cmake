@@ -90,6 +90,7 @@ function(example name)
     else()
         add_our_executable("${name}" SRCS "${sources}" LIBS "${libs}")
     endif()
+    add_dependencies("${name}" copy_example_data)
 endfunction(example)
 
 #-----------------------------------------------------------------------------#
