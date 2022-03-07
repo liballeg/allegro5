@@ -81,10 +81,11 @@ set(DATA_SHADERS
     ex_prim_shader_pixel.hlsl
     ex_prim_shader_vertex.glsl
     ex_prim_shader_vertex.hlsl
-    ex_shader_multitex_pixel.glsl
-    ex_shader_multitex_pixel.hlsl
     ex_prim_wrap_pixel.glsl
     ex_prim_wrap_pixel.hlsl
+    ex_shader_multitex_pixel.glsl
+    ex_shader_multitex_pixel.hlsl
+    ex_shader_palette_pixel.glsl
     ex_shader_pixel.glsl
     ex_shader_pixel.hlsl
     ex_shader_vertex.glsl
@@ -212,7 +213,7 @@ if(SUPPORT_OPENGL AND NOT SUPPORT_OPENGLES)
     example(ex_opengl_pixel_shader ${IMAGE})
 endif()
 if(SUPPORT_OPENGL AND NOT IPHONE AND NOT ALLEGRO_RASPBERRYPI)
-    example(ex_palette ${IMAGE} ${COLOR} ${DATA_IMAGES})
+    example(ex_palette ${IMAGE} ${COLOR} ${DATA_IMAGES} ${DATA_SHADERS})
 endif()
 
 example(ex_font ${FONT} ${IMAGE} ${DATA_IMAGES})

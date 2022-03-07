@@ -96,16 +96,6 @@ int main(int argc, char **argv)
    background = al_load_bitmap("data/bkg.png");
    /* Continue even if fail to load. */
 
-   // al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   // al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY);
-   pal_bitmap = al_create_bitmap(255, 1);
-   al_set_target_bitmap(pal_bitmap);
-
-   al_set_target_backbuffer(display);
-
    /* Create 7 palettes with changed hue. */
    for (j = 0; j < 7; j++) {
       for (i = 0; i < 256; i++) {
@@ -137,28 +127,30 @@ int main(int argc, char **argv)
       }
    }
 
+   // al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   // al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY);
+   pal_bitmap = al_create_bitmap(255, 7);
+   al_set_target_bitmap(pal_bitmap);
+   for (int y = 0; y < 7; y++) {
+      float *pal = pals[y];
+      for (int x = 0; x < 256; x++) {
+         float r = pal[x * 3 + 0];
+         float g = pal[x * 3 + 1];
+         float b = pal[x * 3 + 2];
+         al_put_pixel(x, y, al_map_rgb(r,g,b));
+      }
+   }
+   al_set_target_backbuffer(display);
+
    shader = al_create_shader(ALLEGRO_SHADER_GLSL);
    if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
          al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
       abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
    }
-   if (!al_attach_shader_source(
-      shader,
-      ALLEGRO_PIXEL_SHADER,
-      "precision mediump float;\n"
-      "uniform sampler2D al_tex;\n"
-      "uniform sampler2D pal_tex;\n"
-      "uniform float pal_set_1;\n"
-      "uniform float pal_set_2;\n"
-      "varying vec4 varying_color;\n"
-      "varying vec2 varying_texcoord;\n"
-      "void main()\n"
-      "{\n"
-      "  float index = texture2D(al_tex, varying_texcoord).r;\n"
-      "  if (index == 0.0) discard;\n"
-      "  gl_FragColor = texture2D(pal_tex, vec2(index, 0));\n"
-      "}\n"
-   )) {
+   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "data/ex_shader_palette_pixel.glsl")) {
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
    }
    if (!al_build_shader(shader))
@@ -174,6 +166,8 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    bool once = false;
+
+   al_set_shader_sampler("pal_tex", pal_bitmap, 1);
 
    while (1) {
       ALLEGRO_EVENT event;
@@ -205,20 +199,26 @@ int main(int argc, char **argv)
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
-         // al_set_shader_float("pal_set_1", p1 * 2);
-         // al_set_shader_float("pal_set_2", p2 * 2);
-         if (!once) {
-            interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
-            set_pal(display, pal_bitmap, pal);
-            once = true;
-         }
+         al_set_shader_float("pal_set_1", p1 * 2);
+         al_set_shader_float("pal_set_2", p2 * 2);
+         al_set_shader_float("pal_set_interp", pos);
+         al_set_shader_sampler("pal_tex", pal_bitmap, 1);
+         // if (!once) {
+         //    interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
+         //    set_pal(display, pal_bitmap, pal);
+         //    once = true;
+         // }
 
          if (background)
             al_draw_bitmap(background, 0, 0, 0);
 
          for (i = 0; i < 8; i++) {
             Sprite *s = sprite + 7 - i;
-            // float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
+            float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
+            al_set_shader_float("pal_set_1", s->i);
+            al_set_shader_float("pal_set_2", s->j);
+            al_set_shader_float("pal_set_interp", pos);
+            al_set_shader_sampler("pal_tex", pal_bitmap, 1);
             // interpolate_palette(pal, pals[s->i], pals[s->j], pos);
             // set_pal(display, pal_bitmap, pal);
             al_draw_rotated_bitmap(bitmap,

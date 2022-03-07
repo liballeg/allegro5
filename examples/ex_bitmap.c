@@ -73,7 +73,9 @@ int main(int argc, char **argv)
     
     // Load the image and time how long it took for the log.
     t0 = al_get_time();
-    bitmap = al_load_bitmap(filename);
+    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+    // bitmap = al_load_bitmap(filename);
+    bitmap = al_create_bitmap(100, 100);
     t1 = al_get_time();
     if (!bitmap) {
        abort_example("%s not found or failed to load\n", filename);
@@ -143,6 +145,12 @@ int main(int argc, char **argv)
         // Redraw, but only if the event queue is empty
         if (redraw && al_is_event_queue_empty(queue)) {
             redraw = false;
+
+            al_set_target_bitmap(bitmap);
+            al_clear_to_color(al_map_rgba(255,0,255,255));
+            al_set_target_backbuffer(display);
+
+
             // Clear so we don't get trippy artifacts left after zoom.
             al_clear_to_color(al_map_rgb_f(0, 0, 0));
             if (zoom == 1)
