@@ -68,44 +68,44 @@ static int play_game()
 
       /* move everyone */
       while ((al_get_timer_count(inc_counter) > 0) && (!gameover)) {
-	 update_view();
-	 update_bullets();
-	 update_explode();
-	 update_message();
+         update_view();
+         update_bullets();
+         update_explode();
+         update_message();
 
-	 if (update_badguys()) {
-	    if (advance_view()) {
-	       cyclenum++;
-	       al_set_timer_count(inc_counter, 0);
-	       lay_attack_wave(TRUE);
-	       advance_player(TRUE);
-	    }
-	    else {
-	       lay_attack_wave(FALSE);
-	       advance_player(FALSE);
-	    }
-	 }
+         if (update_badguys()) {
+            if (advance_view()) {
+               cyclenum++;
+               al_set_timer_count(inc_counter, 0);
+               lay_attack_wave(TRUE);
+               advance_player(TRUE);
+            }
+            else {
+               lay_attack_wave(FALSE);
+               advance_player(FALSE);
+            }
+         }
 
-	 gameover = update_player();
+         gameover = update_player();
 
-	 al_set_timer_count(inc_counter, al_get_timer_count(inc_counter)-1);
-	 redraw = 1;
+         al_set_timer_count(inc_counter, al_get_timer_count(inc_counter)-1);
+         redraw = 1;
       }
 
       /* take a screenshot? */
       if (key[ALLEGRO_KEY_PRINTSCREEN]) {
-	 static int ss_count = 0;
+         static int ss_count = 0;
 
-	 char fname[80];
+         char fname[80];
 
-	 sprintf(fname, "speed%03d.tga", ++ss_count);
+         sprintf(fname, "speed%03d.tga", ++ss_count);
 
-	 al_save_bitmap(fname, al_get_backbuffer(screen));
+         al_save_bitmap(fname, al_get_backbuffer(screen));
 
-	 while (key[ALLEGRO_KEY_PRINTSCREEN])
-	    poll_input_wait();
+         while (key[ALLEGRO_KEY_PRINTSCREEN])
+            poll_input_wait();
 
-	 al_set_timer_count(inc_counter, 0);
+         al_set_timer_count(inc_counter, 0);
       }
 
       /* toggle fullscreen window */
@@ -247,18 +247,18 @@ int main(int argc, char *argv[])
    /* it's a real shame that I had to take this out! */
    if (www) {
       printf(
-	 "\n"
-	 "Unfortunately the built-in web browser feature had to be removed.\n"
-	 "\n"
-	 "I did get it more or less working as of Saturday evening (forms and\n"
-	 "Java were unsupported, but tables and images were mostly rendering ok),\n"
-	 "but the US Department of Justice felt that this was an unacceptable\n"
-	 "monopolistic attempt to tie in web browsing functionality to an\n"
-	 "unrelated product, so they threatened me with being sniped at from\n"
-	 "the top of tall buildings by guys with high powered rifles unless I\n"
-	 "agreed to disable this code.\n"
-	 "\n"
-	 "We apologise for any inconvenience that this may cause you.\n"
+         "\n"
+         "Unfortunately the built-in web browser feature had to be removed.\n"
+         "\n"
+         "I did get it more or less working as of Saturday evening (forms and\n"
+         "Java were unsupported, but tables and images were mostly rendering ok),\n"
+         "but the US Department of Justice felt that this was an unacceptable\n"
+         "monopolistic attempt to tie in web browsing functionality to an\n"
+         "unrelated product, so they threatened me with being sniped at from\n"
+         "the top of tall buildings by guys with high powered rifles unless I\n"
+         "agreed to disable this code.\n"
+         "\n"
+         "We apologise for any inconvenience that this may cause you.\n"
       );
 
       return 1;
@@ -321,8 +321,8 @@ int main(int argc, char *argv[])
    /* the main program body */
    while (title_screen()) {
       if (play_game()) {
-	 show_results();
-	 score_table();
+         show_results();
+         score_table();
       }
    }
 
