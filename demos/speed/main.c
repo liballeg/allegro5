@@ -124,6 +124,8 @@ static int play_game()
          redraw = 0;
       }
       else {
+         /* XXX: This is for emscripten to advance the heartbeat manually. */
+         poll_input();
          rest(1);
       }
    }
