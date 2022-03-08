@@ -80,12 +80,12 @@ int main(int argc, char **argv)
    for (j = 0; j < 7; j++) {
       for (i = 0; i < 256; i++) {
          float r, g, b, h, s, l;
-         r = pal_hex[i] >> 16;
-         g = (pal_hex[i] >> 8) & 255;
-         b = pal_hex[i] & 255;
+         r = (pal_hex[i] >> 16) / 255.0;
+         g = ((pal_hex[i] >> 8) & 255) / 255.0;
+         b = (pal_hex[i] & 255) / 255.0;
          
          al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
-         h += j * 60;
+         h += j * 50;
          al_color_hsl_to_rgb(h, s, l, &r, &g, &b);
 
          pals[j][i * 3 + 0] = r;
@@ -99,9 +99,9 @@ int main(int argc, char **argv)
    al_set_target_bitmap(pal_bitmap);
    for (int y = 0; y < 7; y++) {
       for (int x = 0; x < 256; x++) {
-         float r = pals[y][x * 3 + 0];
-         float g = pals[y][x * 3 + 1];
-         float b = pals[y][x * 3 + 2];
+         float r = pals[y][x * 3 + 0] * 255.0;
+         float g = pals[y][x * 3 + 1] * 255.0;
+         float b = pals[y][x * 3 + 2] * 255.0;
          al_put_pixel(x, y, al_map_rgb(r,g,b));
       }
    }
