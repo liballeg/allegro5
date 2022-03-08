@@ -46,14 +46,12 @@ or equivalent as provided by emscripten.
 mkdir build_emscripten
 cd build_emscripten
 
-3. The "--preload-file data" option below includes a folder named "data"
-with each binary, so we make sure each example and demo has such a
-folder:
+If you're going to build a demo, you will need to manually create a file:
 
-mkdir examples
-cp -r ../examples/data examples/data
+mkdir -p demos/speed/data
+touch demos/speed/data/nothing.txt
 
-4. Configure CMake, using emcmake.
+3. Configure CMake, using emcmake.
 
 ```
 USE_FLAGS=(
@@ -95,7 +93,7 @@ its ports system.
 To compile your own game adjust as necessary. You can use the
 lib/liballegro_monolith-static.a library.
 
-5. Compile the library and examples.
+4. Compile the library and examples.
 
 make
 
@@ -104,10 +102,12 @@ may want to compile individual examples, e.g.
 
 make ex_draw_bitmap
 
-6. To run the examples, navigate to the examples folder. At this point it is
+Note: If you make any changes to any data/ files, you will need to manually delete the generated .html
+file in <build dir>/examples to force emscripten to regenerate the .data file.
+
+5. To run the examples, navigate to the examples folder. At this point it is
 easiest to start a local webserver, and then navigate to the examples using a
 web browser. E.g. you could use the Python's web server module which prints out
 a URL you can open:
 
-cd examples
 python3 -m http.server
