@@ -81,9 +81,9 @@ emcmake cmake .. \
     -D WANT_OPENAL=OFF \
     -D ALLEGRO_WAIT_EVENT_SLEEP=ON \
     -D SDL2_INCLUDE_DIR=$EM_CACHE/sysroot/include \
-    -D CMAKE_C_FLAGS="${USE_FLAGS}" \
-    -D CMAKE_CXX_FLAGS="${USE_FLAGS}" \
-    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS} --preload-file data" \
+    -D CMAKE_C_FLAGS="${USE_FLAGS[*]}" \
+    -D CMAKE_CXX_FLAGS="${USE_FLAGS[*]}" \
+    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS[*]} --preload-file data" \
     -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
 ```
 
