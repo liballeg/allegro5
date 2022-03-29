@@ -148,7 +148,7 @@ static ALLEGRO_SYSTEM *sdl_initialize(int flags)
    unsigned int sdl_flags = SDL_INIT_EVERYTHING;
 #ifdef __EMSCRIPTEN__
    // SDL currently does not support haptic feedback for emscripten.
-   sdl_flags -= SDL_INIT_HAPTIC;
+   sdl_flags &= ~SDL_INIT_HAPTIC;
 #endif
    if (SDL_Init(sdl_flags) < 0) {
       ALLEGRO_ERROR("SDL_Init failed: %s", SDL_GetError());
