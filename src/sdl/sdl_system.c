@@ -144,7 +144,16 @@ static ALLEGRO_SYSTEM *sdl_initialize(int flags)
    ALLEGRO_SYSTEM_SDL *s = al_calloc(1, sizeof *s);
    s->system.vt = vt;
 
-   SDL_Init(SDL_INIT_EVERYTHING);
+   // TODO: map allegro flags to sdl flags.
+   unsigned int sdl_flags = SDL_INIT_EVERYTHING;
+#ifdef __EMSCRIPTEN__
+   // SDL currently does not support haptic feedback for emscripten.
+   sdl_flags &= ~SDL_INIT_HAPTIC;
+#endif
+   if (SDL_Init(sdl_flags) < 0) {
+      ALLEGRO_ERROR("SDL_Init failed: %s", SDL_GetError());
+      return NULL;
+   }
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_SDL *));
 
