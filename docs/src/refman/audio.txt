@@ -214,6 +214,8 @@ Sample and stream playback mode.
 * ALLEGRO_PLAYMODE_LOOP - the sample/stream is played from start to finish (or
     between the two loop points). When it reaches the end, it restarts from the
     beginning.
+* ALLEGRO_PLAYMODE_LOOP_ONCE - just like ALLEGRO_PLAYMODE_ONCE, but
+    respects the loop end point.
 * ALLEGRO_PLAYMODE_BIDIR - the sample is played from start to finish (or
     between the two loop points). When it reaches the end, it reverses the
     playback direction and plays until it reaches the beginning when it

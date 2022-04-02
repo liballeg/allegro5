@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Run:
-#  misc/make_resamplers.py | indent -kr -i3 -l0
+#  misc/make_mixer_helpers.py | indent -kr -i3 -l0
 
 import sys, re
 
@@ -134,6 +134,7 @@ def make_linear_interpolator(name, fmt):
             if (p1 >= spl->spl_data.len)
                p1 = p0;
             break;
+         case ALLEGRO_PLAYMODE_LOOP_ONCE:
          case ALLEGRO_PLAYMODE_LOOP:
             if (p1 >= spl->loop_end)
                p1 = spl->loop_start;
@@ -146,6 +147,7 @@ def make_linear_interpolator(name, fmt):
             }
             break;
          case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+         case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
          case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:""" +
             # For audio streams, sample i+1 may be in the next buffer fragment,
             # which may not even be generated yet.  So we lag by one sample and
@@ -228,6 +230,7 @@ def make_cubic_interpolator(name, fmt):
             if (p3 >= spl->spl_data.len)
                p3 = spl->spl_data.len - 1;
             break;
+         case ALLEGRO_PLAYMODE_LOOP_ONCE:
          case ALLEGRO_PLAYMODE_LOOP:
          case ALLEGRO_PLAYMODE_BIDIR:
             /* These positions should really wrap/bounce instead of clamping
@@ -241,6 +244,7 @@ def make_cubic_interpolator(name, fmt):
                p3 = spl->loop_start;
             break;
          case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+         case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
          case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
             /* Lag by three samples in total. */
             p0 -= 2;

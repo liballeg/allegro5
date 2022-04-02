@@ -214,6 +214,17 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          }
          return true;
 
+      case ALLEGRO_PLAYMODE_LOOP_ONCE:
+         if (spl->pos < spl->loop_end && spl->pos >= 0) {
+            return true;
+         }
+         if (spl->step >= 0)
+            spl->pos = 0;
+         else
+            spl->pos = spl->loop_end - 1;
+         spl->is_playing = false;
+         return false;
+
       case ALLEGRO_PLAYMODE_ONCE:
          if (spl->pos < spl->spl_data.len && spl->pos >= 0) {
             return true;
@@ -226,6 +237,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          return false;
 
       case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
       case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
          stream = (ALLEGRO_AUDIO_STREAM *)spl;
          is_empty = false;

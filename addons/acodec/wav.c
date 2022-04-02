@@ -264,7 +264,7 @@ static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    ctime = wav_stream_get_position(stream);
    btime = ((double)buf_size / (double)bytes_per_sample) / (double)(wavfile->freq);
    
-   if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > wavfile->loop_end) {
+   if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > wavfile->loop_end) {
       samples = ((wavfile->loop_end - ctime) * (double)(wavfile->freq));
    }
    else {

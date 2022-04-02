@@ -124,7 +124,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream(const char *filename, size_t buf
 
    return stream;
 }
-#include <stdio.h>
+
 
 static bool mp3_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
 {
@@ -201,7 +201,7 @@ static size_t mp3_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    double ctime = mp3_stream_get_position(stream);
    double btime = (double)samples_needed / mp3file->freq;
 
-   if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > mp3file->loop_end) {
+   if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > mp3file->loop_end) {
       samples_needed = (mp3file->loop_end - ctime) * mp3file->freq;
    }
    if (samples_needed < 0)

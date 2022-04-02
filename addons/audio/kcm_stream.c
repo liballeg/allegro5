@@ -468,6 +468,9 @@ bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
       stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONCE;
       return true;
    }
+   if (val == ALLEGRO_PLAYMODE_LOOP_ONCE) {
+      stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE;
+   }
    else if (val == ALLEGRO_PLAYMODE_LOOP) {
       /* Only streams creating by al_load_audio_stream() support
        * looping. */
@@ -747,7 +750,8 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
           * Don't quit in case the user decides to seek and then restart the
           * stream. */
          if (bytes_written != bytes &&
-            stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
+             (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE ||
+              stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE)) {
             al_drain_audio_stream(stream);
 
             if (!finished_event_sent) {

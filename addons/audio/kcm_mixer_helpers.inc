@@ -113,6 +113,7 @@ static INLINE const void *linear_spl32(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE
       if (p1 >= spl->spl_data.len)
 	 p1 = p0;
       break;
+   case ALLEGRO_PLAYMODE_LOOP_ONCE:
    case ALLEGRO_PLAYMODE_LOOP:
       if (p1 >= spl->loop_end)
 	 p1 = spl->loop_start;
@@ -125,6 +126,7 @@ static INLINE const void *linear_spl32(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE
       }
       break;
    case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+   case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
    case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
       p0--;
       p1--;
@@ -240,6 +242,7 @@ static INLINE const void *linear_spl16(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE
       if (p1 >= spl->spl_data.len)
 	 p1 = p0;
       break;
+   case ALLEGRO_PLAYMODE_LOOP_ONCE:
    case ALLEGRO_PLAYMODE_LOOP:
       if (p1 >= spl->loop_end)
 	 p1 = spl->loop_start;
@@ -252,6 +255,7 @@ static INLINE const void *linear_spl16(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE
       }
       break;
    case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+   case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
    case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
       p0--;
       p1--;
@@ -373,6 +377,7 @@ static INLINE const void *cubic_spl32(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE_
       if (p3 >= spl->spl_data.len)
 	 p3 = spl->spl_data.len - 1;
       break;
+   case ALLEGRO_PLAYMODE_LOOP_ONCE:
    case ALLEGRO_PLAYMODE_LOOP:
    case ALLEGRO_PLAYMODE_BIDIR:
       /* These positions should really wrap/bounce instead of clamping
@@ -386,6 +391,7 @@ static INLINE const void *cubic_spl32(SAMP_BUF * samp_buf, const ALLEGRO_SAMPLE_
 	 p3 = spl->loop_start;
       break;
    case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+   case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
    case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
       /* Lag by three samples in total. */
       p0 -= 2;
