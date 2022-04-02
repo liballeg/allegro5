@@ -346,13 +346,11 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    double btime = ((double)buf_size / (word_size * channels)) / rate;
    long read;
 
-   if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
-      if (ctime + btime > extra->loop_end) {
-         read_length = (extra->loop_end - ctime) * rate * word_size * channels;
-         if (read_length < 0)
-            return 0;
-         read_length += read_length % word_size;
-      }
+   if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > extra->loop_end) {
+      read_length = (extra->loop_end - ctime) * rate * word_size * channels;
+      if (read_length < 0)
+         return 0;
+      read_length += read_length % word_size;
    }
 
    buf_in_word= read_length/word_size;
