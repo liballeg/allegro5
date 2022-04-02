@@ -177,10 +177,20 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    }
 
    while (written < buf_size) {
+      long size_to_read = (buf_size - written) / sample_size;
+      long position = lib.duh_sigrenderer_get_position(df->sig);
+      bool loop = false;
+      if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && df->loop_end != -1 &&
+          position + 65536 * size_to_read / 44100 >= df->loop_end) {
+         size_to_read = (df->loop_end - position) * 44100 / 65536;
+         if (size_to_read < 0)
+            size_to_read = 0;
+         loop = true;
+      }
       written += lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
-         (buf_size - written) / sample_size, &(((char *)data)[written])) * sample_size;
-      if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
-            break;
+         size_to_read, &(((char *)data)[written])) * sample_size;
+      if (loop || (long)written < size_to_read * sample_size) {
+         break;
       }
    }
 
@@ -213,6 +223,10 @@ static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    MOD_FILE *const df = stream->extra;
+
+   if (df->loop_end != -1 && (long)(time * 65336) > df->loop_end) {
+      return false;
+   }
 
    lib.duh_end_sigrenderer(df->sig);
    df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, time * 65536);
@@ -307,10 +321,15 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
       mf->sig = sig;
       mf->fh = NULL;
       mf->length = lib.duh_get_length(duh) / 65536.0;
-      if (mf->length < 0)
+      if (mf->length < 0) {
          mf->length = 0;
-      mf->loop_start = -1;
-      mf->loop_end = -1;
+         mf->loop_start = -1;
+         mf->loop_end = -1;
+      }
+      else {
+         mf->loop_start = 0;
+         mf->loop_end = (int)(mf->length * 65536.0);
+      }
 
       stream->extra = mf;
       stream->feeder = modaudio_stream_update;
