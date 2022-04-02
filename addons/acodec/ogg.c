@@ -54,7 +54,7 @@ static struct
 #ifndef TREMOR
    int (*ov_open_callbacks)(void *, OggVorbis_File *, const char *, long, ov_callbacks);
    double (*ov_time_total)(OggVorbis_File *, int);
-   int (*ov_time_seek_lap)(OggVorbis_File *, double);
+   int (*ov_time_seek)(OggVorbis_File *, double);
    double (*ov_time_tell)(OggVorbis_File *);
    long (*ov_read)(OggVorbis_File *, char *, int, int, int, int, int *);
 #else
@@ -119,17 +119,10 @@ static bool init_dynlib(void)
    INITSYM(ov_open_callbacks);
    INITSYM(ov_pcm_total);
    INITSYM(ov_info);
-#ifndef TREMOR
-   INITSYM(ov_time_total);
-   INITSYM(ov_time_seek_lap);
-   INITSYM(ov_time_tell);
-   INITSYM(ov_read);
-#else
    INITSYM(ov_time_total);
    INITSYM(ov_time_seek);
    INITSYM(ov_time_tell);
    INITSYM(ov_read);
-#endif
 
    return true;
 
@@ -312,7 +305,7 @@ static bool ogg_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
    if (time >= extra->loop_end)
       return false;
 #ifndef TREMOR
-   return (lib.ov_time_seek_lap(extra->vf, time) != -1);
+   return (lib.ov_time_seek(extra->vf, time) != -1);
 #else
    return lib.ov_time_seek(extra->vf, time*1000) != -1;
 #endif
