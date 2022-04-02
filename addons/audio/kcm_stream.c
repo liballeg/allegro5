@@ -176,7 +176,6 @@ void al_drain_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
       al_rest(0.01);
       playing = al_get_audio_stream_playing(stream);
    } while (playing);
-   stream->is_draining = false;
 }
 
 
@@ -463,22 +462,27 @@ bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
    ALLEGRO_PLAYMODE val)
 {
    ASSERT(stream);
+   bool ret = false;
 
    if (val == ALLEGRO_PLAYMODE_ONCE) {
       stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONCE;
-      return true;
+      ret = true;
    }
    if (val == ALLEGRO_PLAYMODE_LOOP_ONCE) {
       stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE;
+      ret = true;
    }
    else if (val == ALLEGRO_PLAYMODE_LOOP) {
       /* Only streams creating by al_load_audio_stream() support
        * looping. */
       if (!stream->feeder)
-         return false;
+         ret = false;
 
       stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONEDIR;
-      return true;
+      ret = true;
+   }
+   if (ret) {
+      stream->is_draining = false;
    }
 
    // XXX _al_set_error
@@ -746,13 +750,16 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             continue;
          }
 
-         /* The streaming source doesn't feed any more, so drain buffers.
+         /* The streaming source doesn't feed any more, so drain the stream.
           * Don't quit in case the user decides to seek and then restart the
           * stream. */
          if (bytes_written != bytes &&
              (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE ||
               stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE)) {
-            al_drain_audio_stream(stream);
+            /* Why not al_drain_audio_stream? We don't want to block on draining
+             * because the user might adjust the stream loop points and restart
+             * the stream. */
+            stream->is_draining = true;
 
             if (!finished_event_sent) {
                ALLEGRO_EVENT fin_event;
@@ -816,6 +823,7 @@ bool al_rewind_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
    if (stream->rewind_feeder) {
       ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->rewind_feeder(stream);
+      stream->is_draining = false;
       maybe_unlock_mutex(stream_mutex);
       return ret;
    }
@@ -833,6 +841,7 @@ bool al_seek_audio_stream_secs(ALLEGRO_AUDIO_STREAM *stream, double time)
    if (stream->seek_feeder) {
       ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->seek_feeder(stream, time);
+      stream->is_draining = false;
       maybe_unlock_mutex(stream_mutex);
       return ret;
    }
@@ -888,6 +897,7 @@ bool al_set_audio_stream_loop_secs(ALLEGRO_AUDIO_STREAM *stream,
    if (stream->set_feeder_loop) {
       ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->set_feeder_loop(stream, start, end);
+      stream->is_draining = false;
       maybe_unlock_mutex(stream_mutex);
       return ret;
    }
