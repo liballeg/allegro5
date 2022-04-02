@@ -56,7 +56,7 @@ static void initialize(void)
 
    init_platform_specific();
 
-   display = al_create_display(640, 228);
+   display = al_create_display(640, 252);
    if (!display) {
       abort_example("Could not create display!\n");
    }
@@ -127,6 +127,7 @@ static void render(void)
    al_draw_textf(basic_font, c, 0, 144, 0, "Right-click to set loop end.");
    al_draw_textf(basic_font, c, 0, 168, 0, "Left/right arrows to seek.");
    al_draw_textf(basic_font, c, 0, 192, 0, "Space to pause.");
+   al_draw_textf(basic_font, c, 0, 216, 0, "R to rewind.");
    
    al_flip_display();
 }
@@ -154,12 +155,14 @@ static void maybe_fiddle_sliders(int mx, int my)
       al_seek_audio_stream_secs(music_stream, seek_pos);
    }
    else if (mouse_button[2]) {
-      loop_end = seek_pos;
-      al_set_audio_stream_loop_secs(music_stream, loop_start, loop_end);
+      if (al_set_audio_stream_loop_secs(music_stream, loop_start, seek_pos)) {
+         loop_end = seek_pos;
+      }
    }
    else if (mouse_button[3]) {
-      loop_start = seek_pos;
-      al_set_audio_stream_loop_secs(music_stream, loop_start, loop_end);
+      if (al_set_audio_stream_loop_secs(music_stream, seek_pos, loop_end)) {
+         loop_start = seek_pos;
+      }
    }
 }
 
@@ -187,6 +190,11 @@ static void event_handler(const ALLEGRO_EVENT * event)
             pos += 5.0;
             if (!al_seek_audio_stream_secs(music_stream, pos))
                log_printf("seek error!\n");
+         }
+         else if (event->keyboard.keycode == ALLEGRO_KEY_R) {
+            if (!al_rewind_audio_stream(music_stream)) {
+               log_printf("rewind error!\n");
+            }
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_SPACE) {
             bool playing;
@@ -257,6 +265,9 @@ int main(int argc, char *argv[])
          }
          else if (!strcmp(s, "once")) {
             playmode = ALLEGRO_PLAYMODE_ONCE;
+         }
+         else if (!strcmp(s, "loop_once")) {
+            playmode = ALLEGRO_PLAYMODE_LOOP_ONCE;
          }
       }
       al_destroy_config(config);
