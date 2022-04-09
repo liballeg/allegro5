@@ -49,9 +49,6 @@ static SDL_Joystick *get_sdl(ALLEGRO_JOYSTICK *allegro)
 
 void _al_sdl_joystick_event(SDL_Event *e)
 {
-   if (count <= 0)
-      return;
-
    ALLEGRO_EVENT event;
    memset(&event, 0, sizeof event);
 
@@ -97,7 +94,7 @@ void _al_sdl_joystick_event(SDL_Event *e)
 static bool sdl_init_joystick(void)
 {
    count = SDL_NumJoysticks();
-   joysticks = calloc(count, sizeof * joysticks);
+   joysticks = count > 0 ? calloc(count, sizeof * joysticks) : NULL;
    int i;
    for (i = 0; i < count; i++) {
       joysticks[i].sdl = SDL_JoystickOpen(i);
@@ -131,6 +128,7 @@ static void sdl_exit_joystick(void)
    }
    count = 0;
    free(joysticks);
+   joysticks = NULL;
 }
 
 static bool sdl_reconfigure_joysticks(void)
