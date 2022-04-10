@@ -116,7 +116,8 @@ static bool sdl_init_joystick(void)
       info->num_buttons = bn;
       int b;
       for (b = 0; b < bn; b++) {
-         info->button[b].name = "button";
+         info->button[b].name = SDL_IsGameController(i) ?
+            SDL_GameControllerGetStringForButton(b) : "button";
       }
    }
    SDL_JoystickEventState(SDL_ENABLE);
