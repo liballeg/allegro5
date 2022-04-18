@@ -60,6 +60,7 @@ which dictates the language used to program the shader.
   more minimal implementation that supports only basic alpha blending.
 * ALLEGRO_SHADER_GLSL_MINIMAL - Minimal GLSL shader.
 * ALLEGRO_SHADER_HLSL_MINIMAL - Minimal HLSL shader.
+* ALLEGRO_SHADER_HLSL_SM_3_0 - HLSL shader using shader model 3_0.
 
 Since: 5.1.0
 

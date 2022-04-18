@@ -38,11 +38,12 @@ struct ALLEGRO_SHADER_HLSL_S
 {
    ALLEGRO_SHADER shader;
    LPD3DXEFFECT hlsl_shader;
+   int shader_model;
 };
 
 static const char *null_source = "";
 
-static const char *technique_source_vertex =
+static const char *technique_source_vertex_v2 =
    "technique TECH\n"
    "{\n"
    "   pass p1\n"
@@ -52,7 +53,7 @@ static const char *technique_source_vertex =
    "   }\n"
    "}\n";
 
-static const char *technique_source_pixel =
+static const char *technique_source_pixel_v2 =
    "technique TECH\n"
    "{\n"
    "   pass p1\n"
@@ -62,13 +63,43 @@ static const char *technique_source_pixel =
    "   }\n"
    "}\n\n";
 
-static const char *technique_source_both =
+static const char *technique_source_both_v2 =
    "technique TECH\n"
    "{\n"
    "   pass p1\n"
    "   {\n"
    "      VertexShader = compile vs_2_0 vs_main();\n"
    "      PixelShader = compile ps_2_0 ps_main();\n"
+   "   }\n"
+   "}\n";
+
+static const char *technique_source_vertex_v3 =
+   "technique TECH\n"
+   "{\n"
+   "   pass p1\n"
+   "   {\n"
+   "      VertexShader = compile vs_3_0 vs_main();\n"
+   "      PixelShader = null;\n"
+   "   }\n"
+   "}\n";
+
+static const char *technique_source_pixel_v3 =
+   "technique TECH\n"
+   "{\n"
+   "   pass p1\n"
+   "   {\n"
+   "      VertexShader = null;\n"
+   "      PixelShader = compile ps_3_0 ps_main();\n"
+   "   }\n"
+   "}\n\n";
+
+static const char *technique_source_both_v3 =
+   "technique TECH\n"
+   "{\n"
+   "   pass p1\n"
+   "   {\n"
+   "      VertexShader = compile vs_3_0 vs_main();\n"
+   "      PixelShader = compile ps_3_0 ps_main();\n"
    "   }\n"
    "}\n";
 
@@ -137,7 +168,7 @@ void _al_d3d_on_reset_shaders(ALLEGRO_DISPLAY *display)
    }
 }
 
-ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
+ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform, int shader_model)
 {
    ALLEGRO_SHADER_HLSL_S *shader;
 
@@ -151,6 +182,7 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
       return NULL;
    shader->shader.platform = platform;
    shader->shader.vt = &shader_hlsl_vt;
+   shader->shader_model = shader_model;
    _al_vector_init(&shader->shader.bitmaps, sizeof(ALLEGRO_BITMAP *));
 
    // For simplicity, these fields are never NULL in this backend.
@@ -220,19 +252,37 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    else
       add_technique = true;
 
-   if (add_technique) {
-      if (vertex_source[0] == 0) {
-         technique_source = technique_source_pixel;
-      }
-      else if (pixel_source[0] == 0) {
-         technique_source = technique_source_vertex;
+   if (hlsl_shader->shader_model == 3) {
+      if (add_technique) {
+         if (vertex_source[0] == 0) {
+            technique_source = technique_source_pixel_v3;
+         }
+         else if (pixel_source[0] == 0) {
+            technique_source = technique_source_vertex_v3;
+         }
+         else {
+            technique_source = technique_source_both_v3;
+         }
       }
       else {
-         technique_source = technique_source_both;
+         technique_source = null_source;
       }
    }
    else {
-      technique_source = null_source;
+      if (add_technique) {
+         if (vertex_source[0] == 0) {
+            technique_source = technique_source_pixel_v2;
+         }
+         else if (pixel_source[0] == 0) {
+            technique_source = technique_source_vertex_v2;
+         }
+         else {
+            technique_source = technique_source_both_v2;
+         }
+      }
+      else {
+         technique_source = null_source;
+      }
    }
 
    // HLSL likes the source in one buffer
