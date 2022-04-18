@@ -71,7 +71,10 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
 #ifdef ALLEGRO_CFG_SHADER_HLSL
       case ALLEGRO_SHADER_HLSL:
       case ALLEGRO_SHADER_HLSL_MINIMAL:
-         shader = _al_create_shader_hlsl(platform);
+         shader = _al_create_shader_hlsl(platform, 2);
+         break;
+      case ALLEGRO_SHADER_HLSL_SM_3_0:
+         shader = _al_create_shader_hlsl(platform, 3);
          break;
 #endif
       case ALLEGRO_SHADER_AUTO:
@@ -419,6 +422,7 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
          break;
       case ALLEGRO_SHADER_HLSL:
       case ALLEGRO_SHADER_HLSL_MINIMAL:
+      case ALLEGRO_SHADER_HLSL_SM_3_0:
 #ifdef ALLEGRO_CFG_SHADER_HLSL
          switch (type) {
             case ALLEGRO_VERTEX_SHADER:
