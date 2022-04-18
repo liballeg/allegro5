@@ -79,6 +79,25 @@ static const char *default_glsl_pixel_source =
    "  return false;\n"
    "}\n";
 
+static const char *default_glsl_minimal_pixel_source =
+   "#ifdef GL_ES\n"
+   "precision lowp float;\n"
+   "#endif\n"
+   "uniform sampler2D " ALLEGRO_SHADER_VAR_TEX ";\n"
+   "uniform bool " ALLEGRO_SHADER_VAR_USE_TEX ";\n"
+   "varying vec4 varying_color;\n"
+   "varying vec2 varying_texcoord;\n"
+   "\n"
+   "void main()\n"
+   "{\n"
+   "  vec4 c;\n"
+   "  if (" ALLEGRO_SHADER_VAR_USE_TEX ")\n"
+   "    c = varying_color * texture2D(" ALLEGRO_SHADER_VAR_TEX ", varying_texcoord);\n"
+   "  else\n"
+   "    c = varying_color;\n"
+   "  gl_FragColor = c;\n"
+   "}\n";
+
 #endif /* ALLEGRO_CFG_SHADER_GLSL */
 
 

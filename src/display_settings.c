@@ -205,6 +205,8 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
    if (!((req | sug) & (1<<ALLEGRO_COMPATIBLE_DISPLAY))) {
       al_set_new_display_option(ALLEGRO_COMPATIBLE_DISPLAY, 1, ALLEGRO_REQUIRE);
    }
+
+   al_set_new_display_option(ALLEGRO_DEFAULT_SHADER_PLATFORM, ALLEGRO_SHADER_AUTO, ALLEGRO_REQUIRE);
 }
 
 static void debug_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)

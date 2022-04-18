@@ -28,17 +28,25 @@ ALLEGRO_DEBUG_CHANNEL("shader")
 
 #include "shader_source.inc"
 
-
-static ALLEGRO_SHADER_PLATFORM resolve_platform(ALLEGRO_SHADER_PLATFORM platform)
+static ALLEGRO_SHADER_PLATFORM resolve_platform(ALLEGRO_DISPLAY *display,
+                                                ALLEGRO_SHADER_PLATFORM platform)
 {
    if (platform == ALLEGRO_SHADER_AUTO) {
-      ALLEGRO_DISPLAY *display = al_get_current_display();
       ASSERT(display);
-      if (al_get_display_flags(display) & ALLEGRO_OPENGL) {
+      if (display->flags & ALLEGRO_OPENGL) {
          platform = ALLEGRO_SHADER_GLSL;
       }
       else {
          platform = ALLEGRO_SHADER_HLSL;
+      }
+   }
+   if (platform == ALLEGRO_SHADER_AUTO_MINIMAL) {
+      ASSERT(display);
+      if (display->flags & ALLEGRO_OPENGL) {
+         platform = ALLEGRO_SHADER_GLSL_MINIMAL;
+      }
+      else {
+         platform = ALLEGRO_SHADER_HLSL_MINIMAL;
       }
    }
 
@@ -51,20 +59,26 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER *shader = NULL;
 
-   platform = resolve_platform(platform);
+   platform = resolve_platform(al_get_current_display(), platform);
 
-   if (false) {
-   }
+   switch (platform) {
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-   else if (platform == ALLEGRO_SHADER_GLSL) {
-      shader = _al_create_shader_glsl(platform);
-   }
+      case ALLEGRO_SHADER_GLSL:
+      case ALLEGRO_SHADER_GLSL_MINIMAL:
+         shader = _al_create_shader_glsl(platform);
+         break;
 #endif
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   else if (platform == ALLEGRO_SHADER_HLSL) {
-      shader = _al_create_shader_hlsl(platform);
-   }
+      case ALLEGRO_SHADER_HLSL:
+      case ALLEGRO_SHADER_HLSL_MINIMAL:
+         shader = _al_create_shader_hlsl(platform);
+         break;
 #endif
+      case ALLEGRO_SHADER_AUTO:
+      case ALLEGRO_SHADER_AUTO_MINIMAL:
+         ASSERT(0);
+         break;
+   }
 
    if (shader) {
       ASSERT(shader->platform);
@@ -382,7 +396,7 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
    ALLEGRO_SHADER_TYPE type)
 {
    (void)type;
-   switch (resolve_platform(platform)) {
+   switch (resolve_platform(al_get_current_display(), platform)) {
       case ALLEGRO_SHADER_GLSL:
 #ifdef ALLEGRO_CFG_SHADER_GLSL
          switch (type) {
@@ -393,8 +407,18 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
          }
 #endif
          break;
-
+      case ALLEGRO_SHADER_GLSL_MINIMAL:
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+         switch (type) {
+            case ALLEGRO_VERTEX_SHADER:
+               return default_glsl_vertex_source;
+            case ALLEGRO_PIXEL_SHADER:
+               return default_glsl_minimal_pixel_source;
+         }
+#endif
+         break;
       case ALLEGRO_SHADER_HLSL:
+      case ALLEGRO_SHADER_HLSL_MINIMAL:
 #ifdef ALLEGRO_CFG_SHADER_HLSL
          switch (type) {
             case ALLEGRO_VERTEX_SHADER:
@@ -404,8 +428,8 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
          }
 #endif
          break;
-
       case ALLEGRO_SHADER_AUTO:
+      case ALLEGRO_SHADER_AUTO_MINIMAL:
          ASSERT(0);
    }
    return NULL;
@@ -446,29 +470,13 @@ void _al_unregister_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
    ASSERT(deleted);
 }
 
-ALLEGRO_SHADER *_al_create_default_shader(int display_flags)
+ALLEGRO_SHADER *_al_create_default_shader(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_SHADER_PLATFORM platform = ALLEGRO_SHADER_AUTO;
    ALLEGRO_SHADER *shader;
-   (void)display_flags;
-
-   if (false) {
-   }
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-   else if (display_flags & ALLEGRO_OPENGL) {
-      platform = ALLEGRO_SHADER_GLSL;
-   }
-#endif
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-   else if (display_flags & ALLEGRO_DIRECT3D_INTERNAL) {
-      platform = ALLEGRO_SHADER_HLSL;
-   }
-#endif
-
-   if (platform == ALLEGRO_SHADER_AUTO) {
-      ALLEGRO_ERROR("No suitable shader platform found for creating the default shader.\n");
-      return false;
-   }
+   ALLEGRO_SHADER_PLATFORM platform = resolve_platform(
+      display,
+      display->extra_settings.settings[ALLEGRO_DEFAULT_SHADER_PLATFORM]
+   );
 
    _al_push_destructor_owner();
    shader = al_create_shader(platform);
