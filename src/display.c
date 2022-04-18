@@ -63,6 +63,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    if (!(flags & (1 << ALLEGRO_AUTO_CONVERT_BITMAPS))) {
       settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS] = 1;
    }
+   settings->settings[ALLEGRO_DEFAULT_SHADER_PLATFORM] =
+      _al_get_new_display_settings()->settings[ALLEGRO_DEFAULT_SHADER_PLATFORM];
 
    display->min_w = 0;
    display->min_h = 0;
@@ -101,7 +103,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    }
 
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      display->default_shader = _al_create_default_shader(display->flags);
+      display->default_shader = _al_create_default_shader(display);
       if (!display->default_shader) {
          al_destroy_display(display);
          return NULL;

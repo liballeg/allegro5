@@ -364,6 +364,11 @@ ALLEGRO_OPENGL_MINOR_VERSION
 
     Since: 5.1.13
 
+ALLEGRO_DEFAULT_SHADER_PLATFORM
+:   Specify the shader platform to use for the default shader. See
+    [ALLEGRO_SHADER_PLATFORM]. The default is ALLEGRO_SHADER_AUTO.
+
+    Since: 5.2.8
 
 
 See also: [al_set_new_display_flags], [al_get_display_option]

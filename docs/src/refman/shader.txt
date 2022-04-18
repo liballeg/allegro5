@@ -52,9 +52,14 @@ Since: 5.1.0
 The underlying platform which the [ALLEGRO_SHADER] is built on top of,
 which dictates the language used to program the shader.
 
-* ALLEGRO_SHADER_AUTO
+* ALLEGRO_SHADER_AUTO - Pick a platform automatically given the
+  current display flags.
 * ALLEGRO_SHADER_GLSL - OpenGL Shading Language
 * ALLEGRO_SHADER_HLSL - High Level Shader Language (for Direct3D)
+* ALLEGRO_SHADER_AUTO_MINIMAL - Like ALLEGRO_SHADER_AUTO, but pick a
+  more minimal implementation that supports only basic alpha blending.
+* ALLEGRO_SHADER_GLSL_MINIMAL - Minimal GLSL shader.
+* ALLEGRO_SHADER_HLSL_MINIMAL - Minimal HLSL shader.
 
 Since: 5.1.0
 
