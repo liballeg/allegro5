@@ -187,10 +187,9 @@ static bool sdl_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 
 static bool sdl_set_mouse_axis(int which, int value)
 {
-   if (which == 1) mouse->state.z = value;
-   else if (which == 2) mouse->state.w = value;
-   else return false;
-   return true;
+   if (which == 2) mouse->state.z = value;
+   else if (which == 3) mouse->state.w = value;
+   return false;
 }
 
 static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
