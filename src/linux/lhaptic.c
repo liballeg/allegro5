@@ -36,6 +36,13 @@
 ALLEGRO_DEBUG_CHANNEL("lhaptic")
 
 
+/* For compatibility with older kernels. */
+#ifndef input_event_sec
+#define input_event_sec time.tv_sec
+#define input_event_usec time.tv_usec
+#endif
+
+
 /* Support at most 32 haptic devices. */
 #define HAPTICS_MAX             32
 
