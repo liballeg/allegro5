@@ -35,6 +35,7 @@ struct ACODEC_TABLE
 /* globals */
 static bool acodec_inited = false;
 static _AL_VECTOR acodec_table = _AL_VECTOR_INITIALIZER(ACODEC_TABLE);
+static ALLEGRO_AUDIO_STREAM *global_stream;
 
 
 static void acodec_shutdown(void)
@@ -43,6 +44,7 @@ static void acodec_shutdown(void)
       _al_vector_free(&acodec_table);
       acodec_inited = false;
    }
+   al_destroy_audio_stream(global_stream);
 }
 
 
@@ -400,6 +402,53 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident
    }
 
    return NULL;
+}
+
+
+/* Function: al_play_audio_stream
+ */
+ALLEGRO_AUDIO_STREAM *al_play_audio_stream(const char *filename)
+{
+   ASSERT(filename);
+   if (!al_get_default_mixer()) {
+      ALLEGRO_ERROR("No default mixer\n!");
+      return NULL;
+   }
+   al_destroy_audio_stream(global_stream);
+   global_stream = al_load_audio_stream(filename, 4, 2048);
+   if (!global_stream) {
+      ALLEGRO_ERROR("Could not play audio stream: %s.\n", filename);
+      return NULL;
+   }
+   if (!al_attach_audio_stream_to_mixer(global_stream, al_get_default_mixer())) {
+      ALLEGRO_ERROR("Could not attach stream to mixer\n");
+      return NULL;
+   }
+   return global_stream;
+}
+
+
+/* Function: al_play_audio_stream_f
+ */
+ALLEGRO_AUDIO_STREAM *al_play_audio_stream_f(ALLEGRO_FILE *fp, const char *ident)
+{
+   ASSERT(fp);
+   ASSERT(ident);
+   if (!al_get_default_mixer()) {
+      ALLEGRO_ERROR("No default mixer\n!");
+      return NULL;
+   }
+   al_destroy_audio_stream(global_stream);
+   global_stream = al_load_audio_stream_f(fp, ident, 4, 2048);
+   if (!global_stream) {
+      ALLEGRO_ERROR("Could not play audio stream.\n");
+      return NULL;
+   }
+   if (!al_attach_audio_stream_to_mixer(global_stream, al_get_default_mixer())) {
+      ALLEGRO_ERROR("Could not attach stream to mixer\n");
+      return NULL;
+   }
+   return global_stream;
 }
 
 
