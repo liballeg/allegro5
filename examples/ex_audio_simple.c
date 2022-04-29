@@ -34,6 +34,7 @@ int main(int argc, const char *argv[])
    bool sample_id_valid = false;
    ALLEGRO_TIMER* timer;
    ALLEGRO_FONT* font;
+   ALLEGRO_AUDIO_STREAM *music = NULL;
    int i;
    bool panning = false;
 
@@ -109,6 +110,9 @@ Restart:
          if (event.keyboard.unichar == ' ') {
             log_printf("Stopping all sounds\n");
             al_stop_samples();
+            if (music) {
+               al_set_audio_stream_playing(music, false);
+            }
          }
 
          if (event.keyboard.keycode >= ALLEGRO_KEY_0 && event.keyboard.keycode <= ALLEGRO_KEY_9) {
@@ -168,6 +172,10 @@ Restart:
             }
          }
 
+         if (event.keyboard.unichar == 'm') {
+            music = al_play_audio_stream("../demos/cosmic_protector/data/sfx/title_music.ogg");
+         }
+
          /* Hidden feature: restart audio subsystem.
           * For debugging race conditions on shutting down the audio.
           */
@@ -214,6 +222,9 @@ Restart:
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
             ALLEGRO_ALIGN_LEFT, "p - pan the last played sound");
+         y += dy;
+         al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
+            ALLEGRO_ALIGN_LEFT, "m - play music");
          y += 2 * dy;
          al_draw_text(font, al_map_rgb_f(0.5, 1., 0.5), 12, y,
             ALLEGRO_ALIGN_LEFT, "SOUNDS");
