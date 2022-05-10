@@ -334,8 +334,8 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
 
    /* Copy a displaced pointer for the glyph. */
    return (unsigned char *)data->page_lr->data
-      + ((glyph->region.y + 1) - lock_rect.y) * data->page_lr->pitch
-      + ((glyph->region.x + 1) - lock_rect.x) * sizeof(int32_t);
+      + ((glyph->region.y + 2) - lock_rect.y) * data->page_lr->pitch
+      + ((glyph->region.x + 2) - lock_rect.x) * sizeof(int32_t);
 }
 
 
@@ -472,11 +472,11 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
        return;
     }
 
-    /* Each glyph has a 1-pixel border all around. Note: The border is kept
+    /* Each glyph has a 2-pixel border all around. Note: The border is kept
      * even against the outer bitmap edge, to ensure consistent rendering.
      */
     glyph_data = alloc_glyph_region(font_data, ft_index,
-       w + 2, h + 2, false, glyph, lock_whole_page);
+       w + 4, h + 4, false, glyph, lock_whole_page);
 
     if (glyph_data == NULL) {
        return;
@@ -551,11 +551,11 @@ static bool ttf_get_glyph_worker(ALLEGRO_FONT const *f, int prev_ft_index, int f
 
    if (glyph->page_bitmap) {
       info->bitmap = glyph->page_bitmap;
-	   /* the adjustments below remove the 1-pixel border from the glyph */
-      info->x = glyph->region.x + 1;
-      info->y = glyph->region.y + 1;
-      info->w = glyph->region.w - 2;
-      info->h = glyph->region.h - 2;
+	   /* the adjustments below remove the 2-pixel border from the glyph */
+      info->x = glyph->region.x + 2;
+      info->y = glyph->region.y + 2;
+      info->w = glyph->region.w - 4;
+      info->h = glyph->region.h - 4;
       info->kerning = advance;
       info->offset_x = glyph->offset_x;
       info->offset_y = glyph->offset_y;
@@ -596,7 +596,7 @@ static int render_glyph(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
 
    if (glyph.bitmap != NULL) {
       /*
-       * Include the 1-pixel border when drawing glyph.
+       * Include 1 pixel of the 2-pixel border when drawing glyph.
        * This improves render results when rotating and scaling.
        */
       al_draw_tinted_bitmap_region(
@@ -1086,8 +1086,8 @@ static bool ttf_get_glyph_dimensions(ALLEGRO_FONT const *f,
    }
    cache_glyph(data, face, ft_index, glyph, false);
    *bbx = glyph->offset_x;
-   *bbw = glyph->region.w - 2;
-   *bbh = glyph->region.h - 2;
+   *bbw = glyph->region.w - 4;
+   *bbh = glyph->region.h - 4;
    *bby = glyph->offset_y;
 
    return true;
