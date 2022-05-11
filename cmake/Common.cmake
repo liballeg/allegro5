@@ -158,7 +158,7 @@ function(add_our_library target framework_name sources extra_flags link_with)
     if(MACOSX)
         set_target_properties(${target}
             PROPERTIES
-            LINK_FLAGS "-flat_namespace -undefined suppress"
+            LINK_FLAGS "-undefined dynamic_lookup"
             )
     endif(MACOSX)
 
