@@ -62,7 +62,7 @@
 
 #endif
 
-#elif defined(ALLEGRO_MACOSX)
+#elif defined(ALLEGRO_MACOSX) || defined(__APPLE__)
 
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>

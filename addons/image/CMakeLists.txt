@@ -72,11 +72,11 @@ if(WANT_NATIVE_IMAGE_LOADER)
         endif(SUPPORT_GDIPLUS)
     endif(WIN32)
 
-    if (MACOSX)
+    if (ALLEGRO_MACOSX)
         set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
         list(APPEND IMAGE_SOURCES macosx.m)
-    endif(MACOSX)
+    endif(ALLEGRO_MACOSX)
 
     if(ANDROID)
         set(ALLEGRO_CFG_IIO_HAVE_ANDROID 1)
