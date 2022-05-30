@@ -281,8 +281,12 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
     NSWindow *win = (NSWindow *)textlog->window;
-    if ([win isVisible]) {
-        [win performSelectorOnMainThread:@selector(close) withObject:nil waitUntilDone:YES];
+    __block bool is_visible = false;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+       is_visible = [win isVisible];
+    });
+    if (is_visible) {
+       [win performSelectorOnMainThread:@selector(close) withObject:nil waitUntilDone:YES];
     }
     [win performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
     textlog->window = NULL;
