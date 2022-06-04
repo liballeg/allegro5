@@ -94,7 +94,10 @@ Since: 5.1.0
 
 ## API: al_identify_video
 
-This works exactly as [al_identify_video_f] but you specify the filename of the file for which to detect the type and not a file handle. The extension, if any, of the passed filename is not taken into account - only the file contents.
+This works exactly as [al_identify_video_f] but you specify the filename
+of the file for which to detect the type and not a file handle. The
+extension, if any, of the passed filename is not taken into account -
+only the file contents.
 
 Since: 5.2.8
 

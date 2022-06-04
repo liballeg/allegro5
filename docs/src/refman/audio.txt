@@ -26,7 +26,7 @@ that the basic API only supports on such audio stream playing at once.
 ### API: ALLEGRO_SAMPLE_ID
 
 An ALLEGRO_SAMPLE_ID represents a sample being played via [al_play_sample].
-It can be used to later stop the sample with [al_stop_sample]. The underlying
+It can be used to later sALLEGRO_BITMAP_WRAPtop the sample with [al_stop_sample]. The underlying
 ALLEGRO_SAMPLE_INSTANCE can be extracted using [al_lock_sample_id].
 
 ### API: al_install_audio
@@ -1377,15 +1377,21 @@ An opaque datatype that represents an audio device.
 
 Get the number of available audio output devices on the system.
 
+Since: 5.2.8
+
 return -1 for unsupported drivers.
 
 ### API: al_get_audio_output_device
 
 Get the output audio device of the specified index.
 
+Since: 5.2.8
+
 ### API: al_get_audio_device_name
 
 Get the user friendly display name of the device.
+
+Since: 5.2.8
 
 
 
