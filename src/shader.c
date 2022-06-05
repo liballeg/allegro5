@@ -81,6 +81,8 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
       case ALLEGRO_SHADER_AUTO_MINIMAL:
          ASSERT(0);
          break;
+      default:
+         break;
    }
 
    if (shader) {

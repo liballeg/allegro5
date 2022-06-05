@@ -491,6 +491,118 @@ static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream(const char *filename,
    return stream;
 }
 
+static bool _al_identify_669(ALLEGRO_FILE *f)
+{
+   uint8_t x[2];
+   if (al_fread(f, x, 2) < 2)
+      return false;
+   if (memcmp(x, "if", 2) == 0 || memcmp(x, "JN", 2) == 0)
+      return true;
+   return false;
+}
+
+static bool _al_identify_amf(ALLEGRO_FILE *f)
+{
+   uint8_t x[3];
+   if (al_fread(f, x, 3) < 3)
+      return false;
+   if (memcmp(x, "AMF", 3) == 0)
+      return true;
+   return false;
+}
+
+static bool _al_identify_asy(ALLEGRO_FILE *f)
+{
+   uint8_t x[24];
+   if (al_fread(f, x, 24) < 24)
+      return false;
+   if (memcmp(x, "ASYLUM Music Format V1.0", 24) == 0)
+      return true;
+   return false;
+}
+
+static bool _al_identify_mtm(ALLEGRO_FILE *f)
+{
+   uint8_t x[3];
+   if (al_fread(f, x, 3) < 3)
+      return false;
+   if (memcmp(x, "MTM", 3) == 0)
+      return true;
+   return false;
+}
+
+static bool _al_identify_okt(ALLEGRO_FILE *f)
+{
+   uint8_t x[8];
+   if (al_fread(f, x, 8) < 8)
+      return false;
+   if (memcmp(x, "OKTASONG", 8) == 0)
+      return true;
+   return false;
+}
+
+static bool _al_identify_psm(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   if (memcmp(x, "PSM\x00", 4) == 0 || memcmp(x, "PSM\xFE", 4) == 0)
+      return true;
+   return false;
+}
+
+static bool _al_identify_ptm(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   if (!al_fseek(f, 0x2C, ALLEGRO_SEEK_CUR))
+      return false;
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   if (memcmp(x, "DSMF", 4) == 0)
+      return true;
+   return false;
+}
+
+static bool _al_identify_riff(ALLEGRO_FILE *f)
+{
+   static const char riff_fmts[][4] = {
+      "AM  ", "AMFF", "DSMF"
+   };
+   uint8_t x[4];
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   if (memcmp(x, "RIFF", 4) != 0)
+      return false;
+   if (!al_fseek(f, 4, ALLEGRO_SEEK_CUR))
+      return false;
+   if (al_fread(f, x, 4) < 4)
+      return false;
+   for (size_t i = 0; i < sizeof(riff_fmts) / 4; ++i) {
+      if (memcmp(x, riff_fmts[i], 4) == 0)
+         return true;
+   }
+   return false;
+}
+
+static bool _al_identify_stm(ALLEGRO_FILE *f)
+{
+   static const char stm_fmts[][8] = {
+      "!Scream!", "BMOD2STM", "WUZAMOD!"
+   };
+   uint8_t x[10];
+   if (!al_fseek(f, 20, ALLEGRO_SEEK_CUR))
+      return false;
+   if (al_fread(f, x, 10) < 8)
+      return false;
+   if (x[9] != 2)
+      return false;
+   for (size_t i = 0; i < sizeof(stm_fmts) / 8; ++i) {
+      if (memcmp(x, stm_fmts[i], 8) == 0)
+         return true;
+   }
+   return false;
+}
+
 #else
 /*
  * For DUMB 0.9.3:
@@ -634,36 +746,6 @@ static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream(const char *filename,
 
 #endif // DUMB_MAJOR_VERSION
 
-static bool _al_identify_669(ALLEGRO_FILE *f)
-{
-   uint8_t x[2];
-   if (al_fread(f, x, 2) < 2)
-      return false;
-   if (memcmp(x, "if", 2) == 0 || memcmp(x, "JN", 2) == 0)
-      return true;
-   return false;
-}
-
-static bool _al_identify_amf(ALLEGRO_FILE *f)
-{
-   uint8_t x[3];
-   if (al_fread(f, x, 3) < 3)
-      return false;
-   if (memcmp(x, "AMF", 3) == 0)
-      return true;
-   return false;
-}
-
-static bool _al_identify_asy(ALLEGRO_FILE *f)
-{
-   uint8_t x[24];
-   if (al_fread(f, x, 24) < 24)
-      return false;
-   if (memcmp(x, "ASYLUM Music Format V1.0", 24) == 0)
-      return true;
-   return false;
-}
-
 static bool _al_identify_it(ALLEGRO_FILE *f)
 {
    uint8_t x[4];
@@ -700,69 +782,6 @@ static bool _al_identify_mod(ALLEGRO_FILE *f)
    return false;
 }
 
-static bool _al_identify_mtm(ALLEGRO_FILE *f)
-{
-   uint8_t x[3];
-   if (al_fread(f, x, 3) < 3)
-      return false;
-   if (memcmp(x, "MTM", 3) == 0)
-      return true;
-   return false;
-}
-
-static bool _al_identify_okt(ALLEGRO_FILE *f)
-{
-   uint8_t x[8];
-   if (al_fread(f, x, 8) < 8)
-      return false;
-   if (memcmp(x, "OKTASONG", 8) == 0)
-      return true;
-   return false;
-}
-
-static bool _al_identify_psm(ALLEGRO_FILE *f)
-{
-   uint8_t x[4];
-   if (al_fread(f, x, 4) < 4)
-      return false;
-   if (memcmp(x, "PSM\x00", 4) == 0 || memcmp(x, "PSM\xFE", 4) == 0)
-      return true;
-   return false;
-}
-
-static bool _al_identify_ptm(ALLEGRO_FILE *f)
-{
-   uint8_t x[4];
-   if (!al_fseek(f, 0x2C, ALLEGRO_SEEK_CUR))
-      return false;
-   if (al_fread(f, x, 4) < 4)
-      return false;
-   if (memcmp(x, "DSMF", 4) == 0)
-      return true;
-   return false;
-}
-
-static bool _al_identify_riff(ALLEGRO_FILE *f)
-{
-   static const char riff_fmts[][4] = {
-      "AM  ", "AMFF", "DSMF"
-   };
-   uint8_t x[4];
-   if (al_fread(f, x, 4) < 4)
-      return false;
-   if (memcmp(x, "RIFF", 4) != 0)
-      return false;
-   if (!al_fseek(f, 4, ALLEGRO_SEEK_CUR))
-      return false;
-   if (al_fread(f, x, 4) < 4)
-      return false;
-   for (size_t i = 0; i < sizeof(riff_fmts) / 4; ++i) {
-      if (memcmp(x, riff_fmts[i], 4) == 0)
-         return true;
-   }
-   return false;
-}
-
 static bool _al_identify_s3m(ALLEGRO_FILE *f)
 {
    uint8_t x[4];
@@ -772,25 +791,6 @@ static bool _al_identify_s3m(ALLEGRO_FILE *f)
       return false;
    if (memcmp(x, "SCRM", 4) == 0)
       return true;
-   return false;
-}
-
-static bool _al_identify_stm(ALLEGRO_FILE *f)
-{
-   static const char stm_fmts[][8] = {
-      "!Scream!", "BMOD2STM", "WUZAMOD!"
-   };
-   uint8_t x[10];
-   if (!al_fseek(f, 20, ALLEGRO_SEEK_CUR))
-      return false;
-   if (al_fread(f, x, 10) < 8)
-      return false;
-   if (x[9] != 2)
-      return false;
-   for (size_t i = 0; i < sizeof(stm_fmts) / 8; ++i) {
-      if (memcmp(x, stm_fmts[i], 8) == 0)
-         return true;
-   }
    return false;
 }
 
