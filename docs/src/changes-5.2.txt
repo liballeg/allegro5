@@ -2,6 +2,170 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.7 to 5.2.8 (June 2022)
+========================================
+
+The main developers this time were: SiegeLord, Elias Pschernig,
+Sebastian Krzyszkowiak, Julian Smythe.
+
+Build system:
+
+- Add a configuration summary. Currently this mostly reports the addon features.
+
+- Fix build failure with sanitizers enabled.
+
+- Remove `-Wdeclaration-after-statement`, MSVC had support for this for a while
+  now.
+
+- Bump minimum CMake version to 3.0.
+
+Core:
+
+- Add `al_fopen_slice` mode to prevent seek on close (Karl Robillard).
+
+- Allow configuring bitmap wrapping via `al_set_new_bitmap_wrap`.
+
+Graphics:
+
+- Reject creating bitmaps with negative width or height (Peter Hull).
+
+- Add a minimal shader implementation for GLSL. Minimal shader supports fewer
+  features, but is faster (Issue #1120). Select it via the `_MINIMAL` suffix to
+  the shader platforms.
+
+Emscripten:
+
+- Improve emscripten instructions for building demos (Connor Clark).
+
+- Fix usage of SDL_Init for emscripten (Issue #1322) (Connor Clark).
+
+OSX:
+
+- Fix a few thread-related crashes.
+
+- Don't use `-flat_namespace` in `LINK_FLAGS` (danielnachun).
+
+- Make `al_get/set_window_position` work on Retina displays
+
+Windows:
+
+- Fix flickering when creating multisampling displays under DirectX.
+
+- Fix multisampling selection on Windows with OpenGL.
+
+- Fixed a bug which freezes and crashes the window in Windows OpenGL
+  (HerrNamenlos123).
+
+- Allow specifying shader model 3_0 for HLSL shaders (Issue #1154).
+
+SDL:
+
+- Ignore touch events from indirect touch devices.
+
+- Use `SDL_PeepEvents` for event handling, to improve performance.
+
+- Improve joysticks support (Issue #1326) (Connor Clark).
+
+- Fix mouse axis setter (Connor Clark).
+
+Linux:
+
+- Use `clock_gettime` with `CLOCK_MONOTONIC` instead of `gettimeofday`
+  (check-switch-26).
+
+Android:
+
+- Update Gradle to 5.0.
+
+Audio addon:
+
+- Add `ALLEGRO_PLAYMODE_LOOP_ONCE` (Issue #1309).
+
+- Add `al_play_audio_stream`, a 'simple' API endpoint for audio stream playback.
+
+Acodec addon:
+
+- Fix Vorbis/Opus support under MSVC + Clang.
+
+- Add audio identification / `al_identify_sample`.
+
+- Use regular seeking for Ogg streams. The old one did cross-fades, causing
+  unexpected behavior in certain cases (Issue #1310).
+
+- Enable looping for modules.
+
+Audio addon:
+
+- Allow identifying and listing audio devices via new API:
+  `al_get_num_audio_output_devices`, `al_get_audio_output_device`,
+  `al_get_audio_device_name` (Aldrik Ramaekers).
+
+Color addon:
+
+- Add linear and oklab color spaces to the color addon.
+
+Font addon:
+
+- Fix declaration of al_draw_multiline_textf() as a PRINTFUNC (check-switch-26).
+
+Image addon:
+
+- Prevent RLE data in corrupt `.tga` from overflowing the buffer (Peter Hull).
+
+- PCX loader validation (Peter Hull).
+
+- Windows BMP - Make more robust to crashing (Peter Hull).
+
+- Fix DDS compressed image loading when image dimensions are not multiple of
+  block size (check-switch-26).
+
+Native Dialog addon:
+
+- Fix native dialogs addon compatibility with older GTK+ versions
+  (Andrew Kravchuk).
+
+TTF addon:
+
+- Fixed TTF rendering when using transforms (check-switch-26).
+
+PhysFS addon:
+
+- Fix incorrect error handling in `PHYSFS_close` (j-w-c-b).
+
+Video addon:
+
+- Allow identifying video files via a magic number, exposed via
+  `al_identify_video` (Issue #1262).
+
+- Fix `al_is_video_addon_initalized` (Jayson).
+
+Documentation:
+
+- Document some reasonable defaults for `al_create_mixer`/`al_create_voice`.
+
+- Refactor the audio docs to highlight the simple API better.
+
+Misc:
+
+- Fix a few data race issues, in an effort to fix ex_threads crashes on Linux.
+
+Examples:
+
+- Allow exiting from `ex_audio_timer` (BillKek)
+
+- Add the Allegro 4 "shooter" demo.
+
+- Fix `ex_threads` crash under D3D.
+
+- Add `ex_audio_devices`.
+
+- Update `ex_palette` to build with Emscripten (Issue #1318).
+
+- Improve `ex_stream_seek`.
+
+- Improve `ex_windows`.
+
+
 Changes from 5.2.6 to 5.2.7 (March 2021)
 ========================================
 
