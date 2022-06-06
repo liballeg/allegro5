@@ -427,7 +427,7 @@ if(MAKE_PDF)
                 make_doc
         COMMAND ${MAKE_DOC}
                 --to latex
-                --chapters
+                --top-level-division=chapter
                 --template ${SRC_REFMAN_DIR}/latex.template
                 --standalone
                 --toc
