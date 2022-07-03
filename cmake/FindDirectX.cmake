@@ -26,6 +26,27 @@ check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Microsoft
 check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows Kits\\\\Installed Roots;KitsRoot]")
 check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows Kits\\\\Installed Roots;KitsRoot81]")
 
+
+# The Win10 SDK doesn't have many DX libraries (such as D3DX9), but it has some.
+# Find the Win10 SDK path.
+# https://github.com/microsoft/DirectXShaderCompiler/blob/main/cmake/modules/FindD3D12.cmake
+if ("$ENV{WIN10_SDK_PATH}$ENV{WIN10_SDK_VERSION}" STREQUAL "" )
+    get_filename_component(WIN10_SDK_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]" ABSOLUTE CACHE)
+    set (WIN10_SDK_VERSION ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
+elseif(TRUE)
+    set (WIN10_SDK_PATH $ENV{WIN10_SDK_PATH})
+    set (WIN10_SDK_VERSION $ENV{WIN10_SDK_VERSION})
+endif ("$ENV{WIN10_SDK_PATH}$ENV{WIN10_SDK_VERSION}" STREQUAL "" )
+
+# WIN10_SDK_PATH will be something like C:\Program Files (x86)\Windows Kits\10
+# WIN10_SDK_VERSION will be something like 10.0.14393 or 10.0.14393.0; we need the
+# one that matches the directory name.
+
+if (IS_DIRECTORY "${WIN10_SDK_PATH}/Include/${WIN10_SDK_VERSION}.0")
+    set(WIN10_SDK_VERSION  "${WIN10_SDK_VERSION}.0")
+endif (IS_DIRECTORY "${WIN10_SDK_PATH}/Include/${WIN10_SDK_VERSION}.0")
+
+
 if(CMAKE_CL_64 OR CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(MINGW_W64_HINT "x86_64-w64-mingw32")
     set(PROCESSOR_SUFFIX "x64")
@@ -46,9 +67,12 @@ macro(find_component name header library)
                 Include
                 Include/um
                 Include/shared
+                um
+                shared
             PATHS
                 "$ENV{DXSDK_DIR}"
                 ${WINSDK_ROOT_DIR}
+                ${WIN10_SDK_PATH}/Include/${WIN10_SDK_VERSION}
             )
 
         find_library(${name}_LIBRARY
@@ -58,9 +82,11 @@ macro(find_component name header library)
                 Lib/${PROCESSOR_SUFFIX}
                 Lib/winv6.3/um/${PROCESSOR_SUFFIX}
                 Lib/Win8/um/${PROCESSOR_SUFFIX}
+                um/${PROCESSOR_SUFFIX}
             PATHS
                 "$ENV{DXSDK_DIR}"
                 ${WINSDK_ROOT_DIR}
+                ${WIN10_SDK_PATH}/Lib/${WIN10_SDK_VERSION}
             )
     else()
         find_path(${name}_INCLUDE_DIR ${header}
