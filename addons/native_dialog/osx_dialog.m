@@ -559,6 +559,7 @@ int _al_get_menu_display_height(void)
     if (aitem->popup) {
         ALLEGMenuTarget* sub = [ALLEGMenuTarget targetForMenu:aitem->popup];
         [[sub menu] setTitle:[item title]];
+        [item setAction:nil];
         [item setSubmenu:[sub menu]];
     }
     [pool release];
