@@ -207,9 +207,11 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
 - (void)appendText: (NSString*)text
 {
+   NSDictionary *attributes = [NSDictionary dictionaryWithObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
+   NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:text attributes:attributes] autorelease];
    NSTextStorage* store = [self textStorage];
    [store beginEditing];
-   [[store mutableString] appendString:text];
+   [store appendAttributedString:attributedString];
    [store endEditing];
 }
 @end
