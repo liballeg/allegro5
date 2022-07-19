@@ -120,6 +120,28 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
    }
 }
 
+static int find_free_touch_state_index(void)
+{
+   int i;
+
+   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; i++)
+      if (touch_input->state.touches[i].id < 0)
+         return i;
+
+   return -1;
+}
+
+static int find_touch_state_index_with_id(int id)
+{
+   int i;
+
+   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; i++)
+      if (touch_input->state.touches[i].id == id)
+         return i;
+
+   return -1;
+}
+
 void _al_sdl_touch_input_event(SDL_Event *e)
 {
    if (!touch_input)
@@ -138,7 +160,12 @@ void _al_sdl_touch_input_event(SDL_Event *e)
       return;
    }
 
-   int touchId = e->tfinger.fingerId;
+   int touch_idx = find_touch_state_index_with_id(e->tfinger.fingerId);
+
+   if (touch_idx < 0)
+      touch_idx = find_free_touch_state_index();
+   if (touch_idx < 0)
+      return;
 
    // SDL2 touch events also handle indirect touch devices that aren't directly related to the display.
    // Allegro doesn't really have an equivalent in its API, so filter them out.
@@ -147,15 +174,15 @@ void _al_sdl_touch_input_event(SDL_Event *e)
       return;
 #endif
 
-   touch_input->state.touches[touchId].x = e->tfinger.x * al_get_display_width(d);
-   touch_input->state.touches[touchId].y = e->tfinger.y * al_get_display_height(d);
-   touch_input->state.touches[touchId].dx = e->tfinger.dx * al_get_display_width(d);
-   touch_input->state.touches[touchId].dy = e->tfinger.dy * al_get_display_height(d);
+   touch_input->state.touches[touch_idx].x = e->tfinger.x * al_get_display_width(d);
+   touch_input->state.touches[touch_idx].y = e->tfinger.y * al_get_display_height(d);
+   touch_input->state.touches[touch_idx].dx = e->tfinger.dx * al_get_display_width(d);
+   touch_input->state.touches[touch_idx].dy = e->tfinger.dy * al_get_display_height(d);
 
    if (e->type == SDL_FINGERDOWN) {
       type = ALLEGRO_EVENT_TOUCH_BEGIN;
-      touch_input->state.touches[touchId].id = touchId;
-      touch_input->state.touches[touchId].primary = (touch_input->touches == 0);
+      touch_input->state.touches[touch_idx].id = e->tfinger.fingerId;
+      touch_input->state.touches[touch_idx].primary = (touch_input->touches == 0);
       touch_input->touches++;
    }
    else if (e->type == SDL_FINGERMOTION) {
@@ -164,17 +191,17 @@ void _al_sdl_touch_input_event(SDL_Event *e)
    else if (e->type == SDL_FINGERUP) {
       type = ALLEGRO_EVENT_TOUCH_END;
       touch_input->touches--;
-      touch_input->state.touches[touchId].id = -1;
+      touch_input->state.touches[touch_idx].id = -1;
    } else {
       return;
    }
 
-   generate_touch_input_event(type, e->tfinger.timestamp / 1000.0, touchId,
-                              touch_input->state.touches[touchId].x,
-                              touch_input->state.touches[touchId].y,
-                              touch_input->state.touches[touchId].dx,
-                              touch_input->state.touches[touchId].dy,
-                              touch_input->state.touches[touchId].primary,
+   generate_touch_input_event(type, e->tfinger.timestamp / 1000.0, touch_idx,
+                              touch_input->state.touches[touch_idx].x,
+                              touch_input->state.touches[touch_idx].y,
+                              touch_input->state.touches[touch_idx].dx,
+                              touch_input->state.touches[touch_idx].dy,
+                              touch_input->state.touches[touch_idx].primary,
                               d);
 }
 
