@@ -38,7 +38,7 @@ struct timespec _al_unix_initial_time;
  */
 void _al_unix_init_time(void)
 {
-   clock_gettime(CLOCK_MONOTONIC, &_al_unix_initial_time);
+   clock_gettime(CLOCK_REALTIME, &_al_unix_initial_time);
 }
 
 
@@ -48,7 +48,7 @@ double _al_unix_get_time(void)
    struct timespec now;
    double time;
 
-   clock_gettime(CLOCK_MONOTONIC, &now);
+   clock_gettime(CLOCK_REALTIME, &now);
    time = (double) (now.tv_sec - _al_unix_initial_time.tv_sec)
       + (double) (now.tv_nsec - _al_unix_initial_time.tv_nsec) * 1.0e-9;
    return time;
@@ -79,7 +79,7 @@ void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 
    ASSERT(ut);
 
-   clock_gettime(CLOCK_MONOTONIC, &now);
+   clock_gettime(CLOCK_REALTIME, &now);
 
    if (seconds <= 0.0) {
       ut->abstime.tv_sec = now.tv_sec;
