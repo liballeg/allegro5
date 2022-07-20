@@ -576,6 +576,9 @@ int _al_get_menu_display_height(void)
     NSString* key = extract_accelerator(caption);
     [item setTitle:caption];
     [item setKeyEquivalent:key];
+    if (aitem->popup) {
+        [item setEnabled:(aitem->flags & ALLEGRO_MENU_ITEM_DISABLED) ? NO : YES];
+    }
     [pool release];
 }
 // Remove an item, keep the NSMenu in sync
