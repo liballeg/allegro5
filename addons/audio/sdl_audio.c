@@ -1,3 +1,5 @@
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
