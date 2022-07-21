@@ -30,7 +30,8 @@ Convert beats per minute to seconds.
 
 Allocates and initializes a timer. If successful, a pointer to a new timer
 object is returned, otherwise NULL is returned.  *speed_secs* is in seconds per
-"tick", and must be positive. The new timer is initially stopped.
+"tick", and must be positive. The new timer is initially stopped and needs to
+be started with [al_start_timer] before [ALLEGRO_EVENT_TIMER] events are sent.
 
 Usage note: typical granularity is on the order of microseconds, but with
 some drivers might only be milliseconds.
@@ -52,7 +53,7 @@ See also: [al_stop_timer], [al_get_timer_started], [al_resume_timer]
 Resume the timer specified.  From then, the timer's counter will increment
 at a constant rate, and it will begin generating events. Resuming a
 timer that is already started does nothing. Resuming a stopped timer will not
-reset the timer's counter (unlike al_start_timer).
+reset the timer's counter (unlike [al_start_timer]).
 
 See also: [al_start_timer], [al_stop_timer], [al_get_timer_started]
 
