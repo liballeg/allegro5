@@ -17,6 +17,39 @@ void _al_shutdown_native_dialog_addon(void)
 }
 #pragma mark File Dialog
 
+static NSArray * remove_mime_types(NSArray * array)
+{
+   NSMutableArray * work_array = [array mutableCopy];
+
+   for(NSInteger i = work_array.count - 1; i >= 0; i--){
+      if([work_array[i] rangeOfString:@"/"].location != NSNotFound){
+         [work_array removeObjectAtIndex: i];
+      }
+   }
+   return [work_array copy];
+}
+
+static NSArray * get_filter_array(ALLEGRO_USTR * patterns)
+{
+   NSMutableString *filter_text;
+   NSArray *filter_array = nil;
+
+   filter_text = [NSMutableString stringWithUTF8String: al_cstr(patterns)];
+   [filter_text replaceOccurrencesOfString:@"*"
+                                withString:@""
+                                   options:0
+                                     range:NSMakeRange(0, filter_text.length)];
+   [filter_text replaceOccurrencesOfString:@"."
+                                withString:@""
+                                   options:0
+                                     range:NSMakeRange(0, filter_text.length)];
+   if (filter_text.length > 0) {
+      filter_array = [filter_text componentsSeparatedByString: @";"];
+      filter_array = remove_mime_types(filter_array);
+   }
+   return filter_array;
+}
+
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
                                  ALLEGRO_NATIVE_DIALOG *fd)
 {
@@ -47,6 +80,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
        */
       if (mode & ALLEGRO_FILECHOOSER_SAVE) {    // Save dialog
          NSSavePanel *panel = [NSSavePanel savePanel];
+         NSArray *filter_array;
          
          /* Set file save dialog box options */
          [panel setCanCreateDirectories: YES];
@@ -54,6 +88,12 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          [panel setAllowsOtherFileTypes: YES];
          if (filename) {
             [panel setNameFieldStringValue:filename];
+         }
+         if (fd->fc_patterns) {
+            filter_array = get_filter_array(fd->fc_patterns);
+            if (filter_array && [filter_array count] > 0) {
+               [panel setAllowedFileTypes:filter_array];
+            }
          }
          [panel setDirectoryURL: directory];
          /* Open dialog box */
@@ -70,6 +110,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          }
       } else {                                  // Open dialog
          NSOpenPanel *panel = [NSOpenPanel openPanel];
+         NSArray *filter_array;
          
          /* Set file selection box options */
          if (mode & ALLEGRO_FILECHOOSER_FOLDER) {
@@ -88,6 +129,12 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          [panel setDirectoryURL:directory];
          if (filename) {
             [panel setNameFieldStringValue:filename];
+         }
+         if (fd->fc_patterns) {
+            filter_array = get_filter_array(fd->fc_patterns);
+            if (filter_array && [filter_array count] > 0) {
+               [panel setAllowedFileTypes:filter_array];
+            }
          }
          /* Open dialog box */
          if ([panel runModal] == NSOKButton) {
