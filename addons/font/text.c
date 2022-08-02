@@ -109,6 +109,42 @@ void al_draw_text(const ALLEGRO_FONT *font,
 }
 
 
+/* Function: al_draw_ustr_scaled
+ */
+void al_draw_ustr_scaled(const ALLEGRO_FONT *font,
+	ALLEGRO_COLOR color, float x, float y, float scaleX, float scaleY, int flags,
+	const ALLEGRO_USTR *ustr)
+{
+	ASSERT(font);
+	ASSERT(ustr);
+
+	if (flags & ALLEGRO_ALIGN_CENTRE) {
+		/* Use integer division to avoid introducing a fractional
+		 * component to an integer x value.
+		 */
+		x -= font->vtable->text_length(font, ustr) / 2;
+	}
+	else if (flags & ALLEGRO_ALIGN_RIGHT) {
+		x -= font->vtable->text_length(font, ustr);
+	}
+
+	if (flags & ALLEGRO_ALIGN_INTEGER)
+		align_to_integer_pixel(&x, &y);
+
+	font->vtable->render_scaled(font, color, ustr, x, y, scaleX, scaleY);
+}
+
+/* Function: al_draw_text
+ */
+void al_draw_text_scaled(const ALLEGRO_FONT *font,
+   ALLEGRO_COLOR color, float x, float y, int flags,
+   char const *text) 
+{
+   ALLEGRO_USTR_INFO info;
+   ASSERT(text);
+   al_draw_ustr_scaled(font, color, x, y, scaleX, scaleY, flags, al_ref_cstr(&info, text));
+}
+
 
 /* Function: al_draw_justified_ustr
  */
