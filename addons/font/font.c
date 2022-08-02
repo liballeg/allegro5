@@ -189,6 +189,7 @@ static int color_render_char(const ALLEGRO_FONT* f,
    return w;
 }
 
+
 /* color_render_char_scaled:
  *  (color vtable entry)
  *  Renders a color character onto a bitmap, at the specified location,
@@ -239,6 +240,7 @@ static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
     al_hold_bitmap_drawing(held);
     return advance;
 }
+
 
 /* color_render_scaled:
  *  (color vtable entry)
