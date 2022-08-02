@@ -23,7 +23,9 @@ struct ALLEGRO_FONT_VTABLE
    ALLEGRO_FONT_METHOD(int, char_length, (const ALLEGRO_FONT *f, int ch));
    ALLEGRO_FONT_METHOD(int, text_length, (const ALLEGRO_FONT *f, const ALLEGRO_USTR *text));
    ALLEGRO_FONT_METHOD(int, render_char, (const ALLEGRO_FONT *f, ALLEGRO_COLOR color, int ch, float x, float y));
+   ALLEGRO_FONT_METHOD(int, render_char_scaled, (const ALLEGRO_FONT *f, ALLEGRO_COLOR color, int ch, float x, float y, float scaleX, float scaleY));
    ALLEGRO_FONT_METHOD(int, render, (const ALLEGRO_FONT *f, ALLEGRO_COLOR color, const ALLEGRO_USTR *text, float x, float y));
+   ALLEGRO_FONT_METHOD(int, render_scaled, (const ALLEGRO_FONT *f, ALLEGRO_COLOR color, const ALLEGRO_USTR *text, float x, float y, float scaleX, float scaleY));
    ALLEGRO_FONT_METHOD(void, destroy, (ALLEGRO_FONT *f));
    ALLEGRO_FONT_METHOD(void, get_text_dimensions, (const ALLEGRO_FONT *f,
       const ALLEGRO_USTR *text, int *bbx, int *bby, int *bbw, int *bbh));
