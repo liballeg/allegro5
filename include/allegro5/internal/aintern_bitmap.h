@@ -14,6 +14,11 @@ extern "C" {
 #endif
 
 typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
+   
+enum ALLEGRO_BITMAP_INTERNAL_FLAGS
+{
+   _ALLEGRO_WRAP_CHANGED           = 0x8000
+};
 
 struct ALLEGRO_BITMAP
 {
