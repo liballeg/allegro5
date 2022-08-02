@@ -112,6 +112,8 @@ ALLEGRO_FONT_FUNC(int, al_get_font_ranges, (ALLEGRO_FONT *font,
 
 ALLEGRO_FONT_FUNC(void, al_draw_glyph, (const ALLEGRO_FONT *font,
    ALLEGRO_COLOR color, float x, float y, int codepoint));
+ALLEGRO_FONT_FUNC(void, al_draw_glyph_scaled, (const ALLEGRO_FONT *font,
+   ALLEGRO_COLOR color, float x, float y, float scaleX, float scaleY, int codepoint));
 ALLEGRO_FONT_FUNC(int, al_get_glyph_width, (const ALLEGRO_FONT *f,
    int codepoint));
 ALLEGRO_FONT_FUNC(bool, al_get_glyph_dimensions, (const ALLEGRO_FONT *f,
