@@ -366,6 +366,26 @@ int al_get_bitmap_samples(ALLEGRO_BITMAP *bitmap)
       return bitmap->_samples;
 }
 
+/* Function: al_set_bitmap_wrap
+ */
+void, al_set_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v)
+{
+   bool changed;
+   if (bitmap->parent)
+   {
+      changed = u != bitmap->parent->_wrap_u || v != bitmap->parent->_wrap_v;
+      bitmap->parent->_wrap_u = u;
+      bitmap->parent->_wrap_v = v;
+   } else
+   {
+      changed = u != bitmap->_wrap_u || v != bitmap->_wrap_v;
+      bitmap->_wrap_u = u;
+      bitmap->_wrap_v = v;
+   }
+   if (changed)
+      bitmap->_flags |= _ALLEGRO_WRAP_CHANGED;
+}
+
 /* Function: al_get_bitmap_blend_color
  */
 ALLEGRO_COLOR al_get_bitmap_blend_color(void)
@@ -827,6 +847,13 @@ void _al_get_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP *wrap_u, AL
 
    *wrap_u = bitmap->_wrap_u;
    *wrap_v = bitmap->_wrap_v;
+}
+
+bool _al_bitmap_wrap_changed(ALLEGRO_BITMAP *bitmap)
+{
+   bool changed = bitmap->_flags & _ALLEGRO_WRAP_CHANGED;
+   bitmap->_flags &= ~_ALLEGRO_WRAP_CHANGED;
+   return changed;
 }
 
 /* vim: set ts=8 sts=3 sw=3 et: */
