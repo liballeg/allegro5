@@ -259,6 +259,9 @@ static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
    al_free(shader);
 }
 
+extern void _ogl_update_wrap(ALLEGRO_BITMAP *bitmap);
+extern bool _al_bitmap_wrap_changed(ALLEGRO_BITMAP *bitmap);
+
 static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
    const char *name, ALLEGRO_BITMAP *bitmap, int unit)
 {
@@ -282,6 +285,9 @@ static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
 
    texture = bitmap ? al_get_opengl_texture(bitmap) : 0;
    glBindTexture(GL_TEXTURE_2D, texture);
+   
+   if (_al_bitmap_wrap_changed(bitmap))
+      _ogl_update_wrap(bitmap);
 
    glUniform1i(handle, unit);
 
