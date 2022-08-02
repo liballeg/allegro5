@@ -486,7 +486,7 @@ bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
    }
 
    // XXX _al_set_error
-   return false;
+   return ret;
 }
 
 
