@@ -189,6 +189,35 @@ static int color_render_char(const ALLEGRO_FONT* f,
    return w;
 }
 
+/* color_render_char_scaled:
+ *  (color vtable entry)
+ *  Renders a color character onto a bitmap, at the specified location,
+ *  using the specified color, scaled.
+ *  Returns the character width, in pixels.
+ */
+static int color_render_char_scaled(const ALLEGRO_FONT* f,
+	ALLEGRO_COLOR color, int ch, float x, float y, float scaleX, float scaleY)
+{
+	int w = 0;
+	int h = f->vtable->font_height(f);
+	ALLEGRO_BITMAP *g;
+
+	g = _al_font_color_find_glyph(f, ch);
+	if (g) {
+		int width = al_get_bitmap_width(g);
+		int height = al_get_bitmap_height(g);
+		w = width * scaleX;
+		al_draw_tinted_scaled_bitmap(g, color, 0, 0, width, height,
+			x, y + ((float)h - height) / 2.0f, w, height * scaleY, 0);
+	}
+	else if (f->fallback) {
+		al_draw_glyph_scaled(f->fallback, color, x, y, scaleX, scaleY, ch);
+		w = al_get_glyph_width(f->fallback, ch) * scaleX;
+	}
+
+	return w;
+}
+
 /* color_render:
  *  (color vtable entry)
  *  Renders a color font onto a bitmap, at the specified location, using
@@ -209,6 +238,27 @@ static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
     }
     al_hold_bitmap_drawing(held);
     return advance;
+}
+
+/* color_render_scaled:
+ *  (color vtable entry)
+ *  Renders a color font onto a bitmap, at the specified location, using
+ *  the specified color, scaled.
+ */
+static int color_render_scaled(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
+	const ALLEGRO_USTR *text, float x, float y, float scaleX, float scaleY)
+{
+	int pos = 0;
+	int advance = 0;
+	int32_t ch;
+	bool held = al_is_bitmap_drawing_held();
+
+	al_hold_bitmap_drawing(true);
+	while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
+		advance += f->vtable->render_char_scaled(f, color, ch, x + advance, y, scaleX, scaleY);
+	}
+	al_hold_bitmap_drawing(held);
+	return advance;
 }
 
 
