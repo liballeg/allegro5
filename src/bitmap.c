@@ -368,7 +368,7 @@ int al_get_bitmap_samples(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_set_bitmap_wrap
  */
-void, al_set_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v)
+void al_set_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v)
 {
    bool changed;
    if (bitmap->parent)
