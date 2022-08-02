@@ -64,6 +64,7 @@ AL_FUNC(int, al_get_bitmap_flags, (ALLEGRO_BITMAP *bitmap));
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 AL_FUNC(int, al_get_bitmap_depth, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_samples, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(void, al_set_bitmap_wrap, (ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v));
 #endif
 
 AL_FUNC(ALLEGRO_BITMAP*, al_create_bitmap, (int w, int h));
