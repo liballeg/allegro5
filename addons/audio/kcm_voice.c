@@ -464,6 +464,14 @@ bool al_get_voice_playing(const ALLEGRO_VOICE *voice)
    return voice->attached_stream ? true : false;
 }
 
+/* Function: al_get_voice_has_attached
+ */
+bool al_get_voice_has_attached(const ALLEGRO_VOICE* voice)
+{
+   ASSERT(voice);
+
+   return voice->attached_stream;
+}
 
 /* Function: al_set_voice_position
  */

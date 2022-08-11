@@ -931,6 +931,15 @@ bool al_get_mixer_attached(const ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
 
+   return mixer->ss.parent.u.ptr;
+}
+
+/* Function: al_get_mixer_has_attached
+ */
+bool al_get_mixer_has_attached(const ALLEGRO_MIXER* mixer)
+{
+   ASSERT(mixer);
+
    return _al_vector_is_nonempty(&mixer->streams);
 }
 
