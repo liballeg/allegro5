@@ -1537,6 +1537,7 @@ Return true if the voice has something attached to it.
 See also: [al_attach_mixer_to_voice], [al_attach_sample_instance_to_voice],
 [al_attach_audio_stream_to_voice]
 
+Since: 5.2.9
 
 ## Mixers
 
@@ -1755,6 +1756,8 @@ Return true if the mixer has something attached to it.
 
 See also: [al_get_mixer_attached], [al_attach_sample_instance_to_mixer], [al_attach_audio_stream_to_mixer],
 [al_attach_mixer_to_mixer], [al_detach_mixer]
+
+Since: 5.2.9
 
 ### API: al_detach_mixer
 
