@@ -934,9 +934,9 @@ bool al_get_mixer_attached(const ALLEGRO_MIXER *mixer)
    return mixer->ss.parent.u.ptr;
 }
 
-/* Function: al_get_mixer_has_attached
+/* Function: al_mixer_has_attachments
  */
-bool al_get_mixer_has_attached(const ALLEGRO_MIXER* mixer)
+bool al_mixer_has_attachments(const ALLEGRO_MIXER* mixer)
 {
    ASSERT(mixer);
 

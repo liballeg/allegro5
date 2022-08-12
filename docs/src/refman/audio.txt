@@ -1455,7 +1455,7 @@ attaching audio streams directly to voices. Use a mixer inbetween.
 
 Returns true on success, false on failure.
 
-See also: [al_detach_voice], [al_get_voice_has_attached]
+See also: [al_detach_voice], [al_voice_has_attachments]
 
 ### API: al_attach_mixer_to_voice
 
@@ -1464,7 +1464,7 @@ but the depth may be different.
 
 Returns true on success, false on failure.
 
-See also: [al_detach_voice], [al_get_voice_has_attached]
+See also: [al_detach_voice], [al_voice_has_attachments]
 
 ### API: al_attach_sample_instance_to_voice
 
@@ -1478,7 +1478,7 @@ Use a mixer inbetween.
 
 Returns true on success, false on failure.
 
-See also: [al_detach_voice], [al_get_voice_has_attached]
+See also: [al_detach_voice], [al_voice_has_attachments]
 
 ### API: al_get_voice_frequency
 
@@ -1530,9 +1530,9 @@ Returns true on success, false on failure.
 
 See also: [al_get_voice_position].
 
-### API: al_get_voice_has_attached
+### API: al_voice_has_attachments
 
-Return true if the voice has something attached to it.
+Returns true if the voice has something attached to it.
 
 See also: [al_attach_mixer_to_voice], [al_attach_sample_instance_to_voice],
 [al_attach_audio_stream_to_voice]
@@ -1747,12 +1747,12 @@ See also: [al_get_mixer_playing].
 
 Return true if the mixer is attached to something.
 
-See also: [al_get_mixer_has_attached], [al_attach_sample_instance_to_mixer], [al_attach_audio_stream_to_mixer],
+See also: [al_mixer_has_attachments], [al_attach_sample_instance_to_mixer], [al_attach_audio_stream_to_mixer],
 [al_attach_mixer_to_mixer], [al_detach_mixer]
 
-### API: al_get_mixer_has_attached
+### API: al_mixer_has_attachments
 
-Return true if the mixer has something attached to it.
+Returns true if the mixer has something attached to it.
 
 See also: [al_get_mixer_attached], [al_attach_sample_instance_to_mixer], [al_attach_audio_stream_to_mixer],
 [al_attach_mixer_to_mixer], [al_detach_mixer]
