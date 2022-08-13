@@ -662,6 +662,8 @@ Destroy the event queue specified.  All event sources currently
 registered with the queue will be automatically unregistered before
 the queue is destroyed.
 
+This function does nothing if `queue` is NULL. (since 5.2.9)
+
 See also: [al_create_event_queue], [ALLEGRO_EVENT_QUEUE]
 
 ## API: al_register_event_source
