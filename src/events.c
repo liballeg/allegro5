@@ -119,26 +119,26 @@ ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
  */
 void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
-   ASSERT(queue);
+   if (queue) {
+      _al_unregister_destructor(_al_dtor_list, queue->dtor_item);
 
-   _al_unregister_destructor(_al_dtor_list, queue->dtor_item);
+      /* Unregister any event sources registered with this queue.  */
+      while (_al_vector_is_nonempty(&queue->sources)) {
+         ALLEGRO_EVENT_SOURCE** slot = _al_vector_ref_back(&queue->sources);
+         al_unregister_event_source(queue, *slot);
+      }
 
-   /* Unregister any event sources registered with this queue.  */
-   while (_al_vector_is_nonempty(&queue->sources)) {
-      ALLEGRO_EVENT_SOURCE **slot = _al_vector_ref_back(&queue->sources);
-      al_unregister_event_source(queue, *slot);
+      ASSERT(_al_vector_is_empty(&queue->sources));
+      _al_vector_free(&queue->sources);
+
+      ASSERT(queue->events_head == queue->events_tail);
+      _al_vector_free(&queue->events);
+
+      _al_cond_destroy(&queue->cond);
+      _al_mutex_destroy(&queue->mutex);
+
+      al_free(queue);
    }
-
-   ASSERT(_al_vector_is_empty(&queue->sources));
-   _al_vector_free(&queue->sources);
-
-   ASSERT(queue->events_head == queue->events_tail);
-   _al_vector_free(&queue->events);
-
-   _al_cond_destroy(&queue->cond);
-   _al_mutex_destroy(&queue->mutex);
-
-   al_free(queue);
 }
 
 
