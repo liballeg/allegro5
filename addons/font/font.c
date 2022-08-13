@@ -197,7 +197,7 @@ static int color_render_char(const ALLEGRO_FONT* f,
  *  Returns the character width, in pixels.
  */
 static int color_render_char_scaled(const ALLEGRO_FONT* f,
-	ALLEGRO_COLOR color, int ch, float x, float y, float scaleX, float scaleY)
+	ALLEGRO_COLOR color, int ch, float x, float y, float sw, float sh)
 {
 	int w = 0;
 	int h = f->vtable->font_height(f);
@@ -207,13 +207,13 @@ static int color_render_char_scaled(const ALLEGRO_FONT* f,
 	if (g) {
 		int width = al_get_bitmap_width(g);
 		int height = al_get_bitmap_height(g);
-		w = width * scaleX;
+		w = width * sw;
 		al_draw_tinted_scaled_bitmap(g, color, 0, 0, width, height,
-			x, y + ((float)h - height) / 2.0f, w, height * scaleY, 0);
+			x, y + ((float)h - height) / 2.0f, w, height * sh, 0);
 	}
 	else if (f->fallback) {
-		al_draw_glyph_scaled(f->fallback, color, x, y, scaleX, scaleY, ch);
-		w = al_get_glyph_width(f->fallback, ch) * scaleX;
+		al_draw_glyph_scaled(f->fallback, color, x, y, sw, sh, ch);
+		w = al_get_glyph_width(f->fallback, ch) * sw;
 	}
 
 	return w;
@@ -248,7 +248,7 @@ static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
  *  the specified color, scaled.
  */
 static int color_render_scaled(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
-	const ALLEGRO_USTR *text, float x, float y, float scaleX, float scaleY)
+	const ALLEGRO_USTR *text, float x, float y, float sw, float sh)
 {
 	int pos = 0;
 	int advance = 0;
@@ -257,7 +257,7 @@ static int color_render_scaled(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
 
 	al_hold_bitmap_drawing(true);
 	while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
-		advance += f->vtable->render_char_scaled(f, color, ch, x + advance, y, scaleX, scaleY);
+		advance += f->vtable->render_char_scaled(f, color, ch, x + advance, y, sw, sh);
 	}
 	al_hold_bitmap_drawing(held);
 	return advance;
