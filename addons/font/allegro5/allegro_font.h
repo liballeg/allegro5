@@ -85,8 +85,8 @@ ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_create_builtin_font, (void));
 
 ALLEGRO_FONT_FUNC(void, al_draw_ustr, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, ALLEGRO_USTR const *ustr));
 ALLEGRO_FONT_FUNC(void, al_draw_text, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, char const *text));
-ALLEGRO_FONT_FUNC(void, al_draw_ustr_scaled, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float scaleX, float scaleY, int flags, ALLEGRO_USTR const *ustr));
-ALLEGRO_FONT_FUNC(void, al_draw_text_scaled, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float scaleX, float scaleY, int flags, char const *text));
+ALLEGRO_FONT_FUNC(void, al_draw_ustr_scaled, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float sw, float sh, int flags, ALLEGRO_USTR const *ustr));
+ALLEGRO_FONT_FUNC(void, al_draw_text_scaled, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float sw, float sh, int flags, char const *text));
 ALLEGRO_FONT_FUNC(void, al_draw_justified_text, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x1, float x2, float y, float diff, int flags, char const *text));
 ALLEGRO_FONT_FUNC(void, al_draw_justified_ustr, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x1, float x2, float y, float diff, int flags, ALLEGRO_USTR const *text));
 ALLEGRO_FONT_PRINTFUNC(void, al_draw_textf, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, char const *format, ...), 6, 7);
@@ -113,7 +113,7 @@ ALLEGRO_FONT_FUNC(int, al_get_font_ranges, (ALLEGRO_FONT *font,
 ALLEGRO_FONT_FUNC(void, al_draw_glyph, (const ALLEGRO_FONT *font,
    ALLEGRO_COLOR color, float x, float y, int codepoint));
 ALLEGRO_FONT_FUNC(void, al_draw_glyph_scaled, (const ALLEGRO_FONT *font,
-   ALLEGRO_COLOR color, float x, float y, float scaleX, float scaleY, int codepoint));
+   ALLEGRO_COLOR color, float x, float y, float sw, float sh, int codepoint));
 ALLEGRO_FONT_FUNC(int, al_get_glyph_width, (const ALLEGRO_FONT *f,
    int codepoint));
 ALLEGRO_FONT_FUNC(bool, al_get_glyph_dimensions, (const ALLEGRO_FONT *f,
