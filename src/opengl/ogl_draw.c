@@ -314,6 +314,9 @@ static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
          (disp->num_cache_vertices - num_new_vertices);
 }
 
+extern void _ogl_update_wrap(ALLEGRO_BITMAP *bitmap);
+extern bool _al_bitmap_wrap_changed(ALLEGRO_BITMAP *bitmap);
+
 static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 {
    GLuint current_texture;
@@ -355,6 +358,9 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 #endif
       }
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
+      
+      if (_al_bitmap_wrap_changed(bitmap))
+         _ogl_update_wrap(bitmap);
    }
 
 #if !defined(ALLEGRO_CFG_OPENGLES) && !defined(ALLEGRO_MACOSX)
