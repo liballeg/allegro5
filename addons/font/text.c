@@ -112,7 +112,7 @@ void al_draw_text(const ALLEGRO_FONT *font,
 /* Function: al_draw_ustr_scaled
  */
 void al_draw_ustr_scaled(const ALLEGRO_FONT *font,
-	ALLEGRO_COLOR color, float x, float y, float scaleX, float scaleY, int flags,
+	ALLEGRO_COLOR color, float x, float y, float sw, float sh, int flags,
 	const ALLEGRO_USTR *ustr)
 {
 	ASSERT(font);
@@ -131,18 +131,18 @@ void al_draw_ustr_scaled(const ALLEGRO_FONT *font,
 	if (flags & ALLEGRO_ALIGN_INTEGER)
 		align_to_integer_pixel(&x, &y);
 
-	font->vtable->render_scaled(font, color, ustr, x, y, scaleX, scaleY);
+	font->vtable->render_scaled(font, color, ustr, x, y, sw, sh);
 }
 
 /* Function: al_draw_text
  */
 void al_draw_text_scaled(const ALLEGRO_FONT *font,
-   ALLEGRO_COLOR color, float x, float y, float scaleX, float scaleY, int flags,
+   ALLEGRO_COLOR color, float x, float y, float sw, float sh, int flags,
    char const *text) 
 {
    ALLEGRO_USTR_INFO info;
    ASSERT(text);
-   al_draw_ustr_scaled(font, color, x, y, scaleX, scaleY, flags, al_ref_cstr(&info, text));
+   al_draw_ustr_scaled(font, color, x, y, sw, sh, flags, al_ref_cstr(&info, text));
 }
 
 
@@ -419,9 +419,9 @@ void al_draw_glyph(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, float x, float y,
 /* Function: al_draw_glyph_scaled
  */
 void al_draw_glyph_scaled(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, float x, float y,
-   float scaleX, float scaleY, int codepoint)
+   float sw, float sh, int codepoint)
 {
-   f->vtable->render_char_scaled(f, color, codepoint, x, y, scaleX, scaleY);
+   f->vtable->render_char_scaled(f, color, codepoint, x, y, sw, sh);
 };
 
 /* Function: al_get_glyph_width
