@@ -44,6 +44,7 @@ AL_FUNC(bool,         al_is_keyboard_installed,   (void));
 AL_FUNC(bool,         al_install_keyboard,   (void));
 AL_FUNC(void,         al_uninstall_keyboard, (void));
 
+AL_FUNC(bool,         al_can_set_keyboard_leds,  (void));
 AL_FUNC(bool,         al_set_keyboard_leds,  (int leds));
 
 AL_FUNC(const char *, al_keycode_to_name, (int keycode));
