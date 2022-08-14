@@ -198,6 +198,17 @@ static ALLEGRO_KEYBOARD *al_get_keyboard(void)
 
 
 
+/* Function: al_can_set_keyboard_leds
+ */
+bool al_can_set_keyboard_leds(void)
+{
+   ASSERT(new_keyboard_driver);
+
+   return new_keyboard_driver->set_keyboard_leds;
+}
+
+
+
 /* Function: al_set_keyboard_leds
  */
 bool al_set_keyboard_leds(int leds)

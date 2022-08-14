@@ -251,6 +251,15 @@ bool al_mouse_button_down(const ALLEGRO_MOUSE_STATE *state, int button)
 }
 
 
+/* Function: al_can_get_mouse_cursor_position
+ */
+bool al_can_get_mouse_cursor_position(void)
+{
+   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+
+   return alsys->vt->get_cursor_position;
+}
+
 
 /* Function: al_get_mouse_cursor_position
  */

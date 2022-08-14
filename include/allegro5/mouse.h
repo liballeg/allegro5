@@ -65,6 +65,7 @@ AL_FUNC(bool,           al_set_mouse_axis,      (int axis, int value));
 AL_FUNC(void,           al_get_mouse_state,     (ALLEGRO_MOUSE_STATE *ret_state));
 AL_FUNC(bool,           al_mouse_button_down,   (const ALLEGRO_MOUSE_STATE *state, int button));
 AL_FUNC(int,            al_get_mouse_state_axis, (const ALLEGRO_MOUSE_STATE *state, int axis));
+AL_FUNC(bool, al_can_get_mouse_cursor_position, (void));
 AL_FUNC(bool, al_get_mouse_cursor_position, (int *ret_x, int *ret_y));
 AL_FUNC(bool, al_grab_mouse, (struct ALLEGRO_DISPLAY *display));
 AL_FUNC(bool, al_ungrab_mouse, (void));
