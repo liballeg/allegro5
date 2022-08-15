@@ -248,6 +248,12 @@ Returns true on success, false on failure.
 
 See also: [al_set_mouse_cursor], [al_show_mouse_cursor], [al_hide_mouse_cursor]
 
+### API: al_can_get_mouse_cursor_position
+
+Returns true if getting the global mouse cursor position is available.
+
+See also: [al_get_mouse_cursor_position]
+
 ### API: al_get_mouse_cursor_position
 
 On platforms where this information is available, this function returns the
@@ -256,6 +262,8 @@ not normally use this function, as the information is not useful except
 for special scenarios as moving a window.
 
 Returns true on success, false on failure.
+
+See also: [al_can_get_mouse_cursor_position]
 
 ### API: al_hide_mouse_cursor
 

@@ -205,6 +205,12 @@ See also: [ALLEGRO_KEYBOARD_STATE]
 
 Converts the given keycode to a description of the key.
 
+## API: al_can_set_keyboard_leds
+
+Returns true if setting the keyboard LED indicators is available.
+
+See also: [al_set_keyboard_leds]
+
 ## API: al_set_keyboard_leds
 
 Overrides the state of the keyboard LED indicators. Set `leds` to a
@@ -213,6 +219,8 @@ indicators (`ALLEGRO_KEYMOD_NUMLOCK`, `ALLEGRO_KEYMOD_CAPSLOCK` and
 `ALLEGRO_KEYMOD_SCROLLLOCK` are supported) or to -1 to return to default
 behavior. False is returned if the current keyboard driver cannot set LED
 indicators.
+
+See also: [al_can_set_keyboard_leds]
 
 ## API: al_get_keyboard_event_source
 
