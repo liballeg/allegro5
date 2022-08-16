@@ -255,6 +255,7 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
    size_t pos = 0; /* where to write in the buffer */
    size_t read = 0; /*bytes read during last operation */
    char* buffer;
+   size_t buffer_size = 0;
 
    size_t bytestoread = 0;
    bool endofvoc = false;
@@ -276,7 +277,8 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
    /*
     * Let's allocate at least the first block's bytes;
     */
-   buffer = al_malloc(vocdata->samples * vocdata->sample_size);
+   buffer_size = vocdata->samples * vocdata->sample_size;
+   buffer = al_malloc(buffer_size);
    if (!buffer) {
       return NULL;
    }
@@ -284,7 +286,7 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
     * We now need to iterate over data blocks till either we hit end of file
     * or we find a terminator block.
     */
-   bytestoread = vocdata->samples * vocdata->sample_size;
+   bytestoread = buffer_size;
    while(!endofvoc && !al_feof(vocdata->file)) {
       uint32_t blocktype = 0;
       uint32_t x = 0, len = 0;
@@ -304,7 +306,8 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
             READNBYTES(vocdata->file, x, 1, NULL);
             bytestoread += x<<16;
             /* increase subsequently storage */
-            buffer = al_realloc(buffer, sizeof(buffer) + bytestoread);
+            buffer_size += bytestoread;
+            buffer = al_realloc(buffer, buffer_size);
             break;
             }
          case 1:   // we found a NEW data block starter, I assume this is wrong
