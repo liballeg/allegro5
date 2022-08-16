@@ -259,8 +259,6 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
    size_t bytestoread = 0;
    bool endofvoc = false;
 
-   vocdata = al_malloc(sizeof(AL_VOC_DATA));
-   memset(vocdata, 0, sizeof(*vocdata));
    /*
     * Open file and populate VOC DATA, then create a buffer for the number of
     * samples of the frst block.
