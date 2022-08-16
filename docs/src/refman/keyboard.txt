@@ -209,6 +209,8 @@ Converts the given keycode to a description of the key.
 
 Returns true if setting the keyboard LED indicators is available.
 
+Since: 5.2.9
+
 See also: [al_set_keyboard_leds]
 
 ## API: al_set_keyboard_leds
