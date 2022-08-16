@@ -252,6 +252,8 @@ See also: [al_set_mouse_cursor], [al_show_mouse_cursor], [al_hide_mouse_cursor]
 
 Returns true if getting the global mouse cursor position is available.
 
+Since: 5.2.9
+
 See also: [al_get_mouse_cursor_position]
 
 ### API: al_get_mouse_cursor_position
