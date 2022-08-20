@@ -277,7 +277,7 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
    /*
     * Let's allocate at least the first block's bytes;
     */
-   buffer_size = vocdata->samples * vocdata->sample_size;
+   buffer_size = (size_t)vocdata->samples * vocdata->sample_size;
    buffer = al_malloc(buffer_size);
    if (!buffer) {
       return NULL;
@@ -304,7 +304,7 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
             bytestoread = 0;
             READNBYTES(vocdata->file, bytestoread, 2, NULL);
             READNBYTES(vocdata->file, x, 1, NULL);
-            bytestoread += x<<16;
+            bytestoread += (size_t)x << 16;
             /* increase subsequently storage */
             buffer_size += bytestoread;
             buffer = al_realloc(buffer, buffer_size);

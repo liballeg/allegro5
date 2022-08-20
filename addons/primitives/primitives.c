@@ -313,11 +313,11 @@ fail:
  */
 void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 {
-   int flags = al_get_display_flags(al_get_current_display());
-   ASSERT(addon_initialized);
-
    if (buffer == 0)
       return;
+
+   int flags = al_get_display_flags(al_get_current_display());
+   ASSERT(addon_initialized);
 
    al_unlock_vertex_buffer(buffer);
 
@@ -335,11 +335,11 @@ void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
  */
 void al_destroy_index_buffer(ALLEGRO_INDEX_BUFFER* buffer)
 {
-   int flags = al_get_display_flags(al_get_current_display());
-   ASSERT(addon_initialized);
-
    if (buffer == 0)
       return;
+
+   int flags = al_get_display_flags(al_get_current_display());
+   ASSERT(addon_initialized);
 
    al_unlock_index_buffer(buffer);
 
