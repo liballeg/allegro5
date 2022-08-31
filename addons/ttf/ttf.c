@@ -468,6 +468,10 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
        /* Mark this glyph so we won't try to cache it next time. */
        glyph->region.x = -1;
        glyph->region.y = -1;
+       glyph->page_bitmap = NULL;
+       /* Even though this glyph has no "region", include the 2-pixel border in the size */
+       glyph->region.w = w + 4;
+       glyph->region.h = h + 4;
        ALLEGRO_DEBUG("Glyph %d has zero size.\n", ft_index);
        return;
     }
@@ -549,30 +553,24 @@ static bool ttf_get_glyph_worker(ALLEGRO_FONT const *f, int prev_ft_index, int f
 
    advance += get_kerning(data, face, prev_ft_index, ft_index);
 
-   if (glyph->page_bitmap) {
-      info->bitmap = glyph->page_bitmap;
-	   /* the adjustments below remove the 2-pixel border from the glyph */
+   info->bitmap = glyph->page_bitmap;
+   /* the adjustments below remove the 2-pixel border from the glyph */
+   if (info->bitmap) {
       info->x = glyph->region.x + 2;
       info->y = glyph->region.y + 2;
-      info->w = glyph->region.w - 4;
-      info->h = glyph->region.h - 4;
-      info->kerning = advance;
-      info->offset_x = glyph->offset_x;
-      info->offset_y = glyph->offset_y;
-   }
-   else if (glyph->region.x > 0) {
-      ALLEGRO_ERROR("Glyph %d not on any page.\n", ft_index);
-      return false;
    }
    else {
-      info->bitmap = 0;
+      info->x = -1;
+      info->y = -1;
    }
+   info->w = glyph->region.w - 4;
+   info->h = glyph->region.h - 4;
+   info->kerning = advance;
+   info->offset_x = glyph->offset_x;
+   info->offset_y = glyph->offset_y;
+   info->advance = glyph->advance + advance;
 
-   advance += glyph->advance;
-
-   info->advance = advance;
-
-   return true;
+   return ft_index != 0;
 }
 
 
@@ -671,7 +669,7 @@ static int ttf_char_length(ALLEGRO_FONT const *f, int ch)
    int ft_index = FT_Get_Char_Index(face, ch);
    if (!get_glyph(data, ft_index, &glyph)) {
       if (f->fallback) {
-         return al_get_glyph_width(f, ch);
+         return al_get_glyph_width(f->fallback, ch);
       }
       else {
          get_glyph(data, 0, &glyph);
@@ -679,7 +677,7 @@ static int ttf_char_length(ALLEGRO_FONT const *f, int ch)
       }
    }
    cache_glyph(data, face, ft_index, glyph, false);
-   result = glyph->region.w - 2;
+   result = glyph->region.w - 4;    /* Remove 2-pixel border from width */
 
    return result;
 }
