@@ -1197,19 +1197,17 @@ static void install_palette(ALLEGRO_BITMAP *bitmap, PalEntry* ppal, int count)
 {
    int i;
    extern void _al_set_bitmap_palette_raw(ALLEGRO_BITMAP *bitmap, void *data, int count);
-   if (ppal && count > 0) {
-      unsigned char *data = al_calloc(count, 4);
-      _al_set_bitmap_palette_raw(bitmap, data, count);
-      for (i=0; i<count; ++i) {
-         data[0] = ppal->r;
-         data[1] = ppal->g;
-         data[2] = ppal->b;
-         data[3] = ppal->a;
-         data += 4;
-         ++ppal;
-      }
-      /* note _al_set_bitmap_palette_raw has taken ownership of 'data' so do not free it here. */
+   unsigned char *data = al_calloc(count, 4);
+   _al_set_bitmap_palette_raw(bitmap, data, count);
+   for (i=0; i<count; ++i) {
+      data[0] = ppal->r;
+      data[1] = ppal->g;
+      data[2] = ppal->b;
+      data[3] = ppal->a;
+      data += 4;
+      ++ppal;
    }
+   /* note _al_set_bitmap_palette_raw has taken ownership of 'data' so do not free it here. */
 }
 
 /*  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
@@ -1231,6 +1229,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
    bool keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
+   bool keep_palette = INT_TO_BOOL(flags & ALLEGRO_KEEP_PALETTE);
    bool loaded_ok;
 
    ASSERT(f);
@@ -1432,7 +1431,8 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
-   install_palette(bmp, pal, ncolors);
+   if (keep_palette && (ncolors > 0))
+      install_palette(bmp, pal, ncolors);
 
    if (infoheader.biWidth == 0 || infoheader.biHeight == 0) {
       ALLEGRO_WARN("Creating zero-sized bitmap\n");

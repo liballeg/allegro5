@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
    for (i = 1; i < argc; i++) {
       filename = argv[i];
-      bitmap = al_load_bitmap(filename);
+      bitmap = al_load_bitmap_flags(filename, ALLEGRO_KEEP_PALETTE);
       if (bitmap) {
          count = al_get_bitmap_palette(bitmap, NULL);
          if (count) {
