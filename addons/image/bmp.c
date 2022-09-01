@@ -19,7 +19,7 @@
 
 
 #include <string.h>
-
+#define ALLEGRO_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/internal/aintern_convert.h"
@@ -1193,7 +1193,24 @@ static bool read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
    return true;
 }
 
-
+static void install_palette(ALLEGRO_BITMAP *bitmap, PalEntry* ppal, int count)
+{
+   int i;
+   extern void _al_set_bitmap_palette_raw(ALLEGRO_BITMAP *bitmap, void *data, int count);
+   if (ppal && count > 0) {
+      unsigned char *data = al_calloc(count, 4);
+      _al_set_bitmap_palette_raw(bitmap, data, count);
+      for (i=0; i<count; ++i) {
+         data[0] = ppal->r;
+         data[1] = ppal->g;
+         data[2] = ppal->b;
+         data[3] = ppal->a;
+         data += 4;
+         ++ppal;
+      }
+      /* note _al_set_bitmap_palette_raw has taken ownership of 'data' so do not free it here. */
+   }
+}
 
 /*  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
@@ -1207,6 +1224,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    BMPINFOHEADER infoheader;
    ALLEGRO_BITMAP *bmp;
    PalEntry pal[256];
+   int ncolors = 0;
    int64_t file_start;
    int64_t header_start;
    unsigned long biSize;
@@ -1347,7 +1365,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    if (infoheader.biCompression != BIT_BITFIELDS
       && infoheader.biBitCount <= 8) {
       int win_flag = (biSize != OS2INFOHEADERSIZE);
-      int ncolors = infoheader.biClrUsed;
+
       int extracolors = 0;
       int bytes_per_color = win_flag ? 4 : 3;
 
@@ -1356,6 +1374,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          return NULL;
       }
 
+      ncolors = infoheader.biClrUsed;
       if (win_flag) {
          if (ncolors == 0) {
             ncolors = (1 << infoheader.biBitCount);
@@ -1412,6 +1431,8 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       ALLEGRO_ERROR("Failed to create bitmap\n");
       return NULL;
    }
+
+   install_palette(bmp, pal, ncolors);
 
    if (infoheader.biWidth == 0 || infoheader.biHeight == 0) {
       ALLEGRO_WARN("Creating zero-sized bitmap\n");

@@ -119,6 +119,12 @@ struct ALLEGRO_BITMAP
 
    /* set_target_bitmap and lock_bitmap mark bitmaps as dirty for preservation */
    bool dirty;
+
+   /* Palette of an indexed image (see al_get_bitmap_palette): palette_count
+    * entries of 4 bytes, RGBA, owned by the bitmap. NULL if there is none.
+    */
+   int palette_count;
+   unsigned char *palette_data;
 };
 
 struct ALLEGRO_BITMAP_INTERFACE
