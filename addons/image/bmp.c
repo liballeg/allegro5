@@ -24,6 +24,7 @@
 #include "allegro5/allegro_image.h"
 #include "allegro5/internal/aintern_convert.h"
 #include "allegro5/internal/aintern_image.h"
+#include "allegro5/internal/aintern_bitmap.h"
 
 #include "iio.h"
 
@@ -1196,7 +1197,6 @@ static bool read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 static void install_palette(ALLEGRO_BITMAP *bitmap, PalEntry* ppal, int count)
 {
    int i;
-   extern void _al_set_bitmap_palette_raw(ALLEGRO_BITMAP *bitmap, void *data, int count);
    unsigned char *data = al_calloc(count, 4);
    _al_set_bitmap_palette_raw(bitmap, data, count);
    for (i=0; i<count; ++i) {
