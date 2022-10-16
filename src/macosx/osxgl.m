@@ -323,14 +323,12 @@ void _al_osx_mouse_was_installed(BOOL install) {
 - (void) reshape
 {
    [super reshape];
-   if ([NSOpenGLContext currentContext] != nil) {
-      ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
 
-      if (dpy->tracking) {
-         [self removeTrackingArea: dpy->tracking];
-         dpy->tracking = create_tracking_area(self);
-         [self addTrackingArea: dpy->tracking];
-      }
+   ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   if (dpy->tracking) {
+      [self removeTrackingArea: dpy->tracking];
+      dpy->tracking = create_tracking_area(self);
+      [self addTrackingArea: dpy->tracking];
    }
 }
 

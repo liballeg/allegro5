@@ -75,6 +75,11 @@ int main(int argc, char **argv)
       abort_example("Error creating display\n");
    }
 
+   // Resize the display - this is to excercise the resizing code wrt.
+   // the cursor display boundary, which requires some special care on some
+   // platforms (such as OSX).
+   al_resize_display(display, 640*1.5, 480*1.5);
+
    al_hide_mouse_cursor(display);
 
    cursor = al_load_bitmap("data/cursor.tga");
