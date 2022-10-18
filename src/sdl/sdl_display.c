@@ -409,7 +409,7 @@ static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
    _al_ogl_setup_gl(display);
 
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      display->default_shader = _al_create_default_shader(display->flags);
+      display->default_shader = _al_create_default_shader(display);
       al_use_shader(display->default_shader);
    }
 
