@@ -867,7 +867,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("made current");
 
    if (dpy->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      dpy->default_shader = _al_create_default_shader(dpy->flags);
+      dpy->default_shader = _al_create_default_shader(dpy);
    }
 
    // Bitmaps can still have stale shaders attached.
