@@ -227,8 +227,8 @@ ALLEGRO_PRIM_FUNC(void, al_draw_arc, (float cx, float cy, float r, float start_t
 ALLEGRO_PRIM_FUNC(void, al_draw_elliptical_arc, (float cx, float cy, float rx, float ry, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
 ALLEGRO_PRIM_FUNC(void, al_draw_pieslice, (float cx, float cy, float r, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
 
-ALLEGRO_PRIM_FUNC(void, al_calculate_spline, (float* dest, int stride, float points[8], float thickness, int num_segments));
-ALLEGRO_PRIM_FUNC(void, al_draw_spline, (float points[8], ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_calculate_spline, (float* dest, int stride, const float points[8], float thickness, int num_segments));
+ALLEGRO_PRIM_FUNC(void, al_draw_spline, (const float points[8], ALLEGRO_COLOR color, float thickness));
 
 ALLEGRO_PRIM_FUNC(void, al_calculate_ribbon, (float* dest, int dest_stride, const float *points, int points_stride, float thickness, int num_segments));
 ALLEGRO_PRIM_FUNC(void, al_draw_ribbon, (const float *points, int points_stride, ALLEGRO_COLOR color, float thickness, int num_segments));
