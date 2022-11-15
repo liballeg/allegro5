@@ -1001,7 +1001,7 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
 
 /* Function: al_calculate_spline
  */
-void al_calculate_spline(float* dest, int stride, float points[8],
+void al_calculate_spline(float* dest, int stride, const float points[8],
    float thickness, int num_segments)
 {
    /* Derivatives of x(t) and y(t). */
@@ -1080,7 +1080,7 @@ void al_calculate_spline(float* dest, int stride, float points[8],
 
 /* Function: al_draw_spline
  */
-void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
+void al_draw_spline(const float points[8], ALLEGRO_COLOR color, float thickness)
 {
    int ii;
    float scale = get_scale();
