@@ -1,0 +1,43 @@
+name: Update docs
+on:
+  push:
+    branches: [master]
+permissions:
+  contents: write
+jobs:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: 1
+
+      - name: Download pandoc
+        uses: dsaltares/fetch-gh-release-asset@1.1.0
+        with:
+            repo: jgm/pandoc
+            version: tags/2.19.2
+            file: pandoc-2.19.2-1-amd64.deb
+            target: pandoc-2.19.2-1-amd64.deb
+
+      - name: Install and Build
+        run: |
+            sudo apt-get install -y libgl1-mesa-dev libglu-dev libxcursor-dev
+            sudo dpkg -i pandoc-2.19.2-1-amd64.deb
+            mkdir build
+            cd build
+            cmake ..
+            make html
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+            folder: build/docs/html/refman
+            target-folder: a5docs/trunk
+            token: ${{ secrets.LIBALLEG_PAT }}
+            branch: master
+            repository-name: liballeg/liballeg.github.io
+            commit-message: Automatic update from allegro5
+            clean: true
