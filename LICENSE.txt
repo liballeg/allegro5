@@ -90,5 +90,7 @@ be found here:
 -------------------------------------------------------------------------------
 
 The Cosmic Protector demo game graphics were made by Tony Huisman, and are
-included under a Creative Commons BY Attribution license.
+included under a Creative Commons BY Attribution license. The music in Cosmic
+Protector was purchased from a royalty free website and should not be used
+outside the game.
 
