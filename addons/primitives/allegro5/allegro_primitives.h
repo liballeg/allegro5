@@ -182,7 +182,7 @@ ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_BUFFER*, al_create_vertex_buffer, (ALLEGRO_VERT
 ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
 ALLEGRO_PRIM_FUNC(void*, al_lock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer, int offset, int length, int flags));
 ALLEGRO_PRIM_FUNC(void, al_unlock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
-ALLEGRO_PRIM_FUNC(int, al_get_vertex_buffer_size, (ALLEGRO_VERTEX_BUFFER* buffer));
+ALLEGRO_PRIM_FUNC(int, al_get_vertex_buffer_size, (const ALLEGRO_VERTEX_BUFFER* buffer));
 
 /*
  * Index buffers
@@ -191,7 +191,7 @@ ALLEGRO_PRIM_FUNC(ALLEGRO_INDEX_BUFFER*, al_create_index_buffer, (int index_size
 ALLEGRO_PRIM_FUNC(void, al_destroy_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer));
 ALLEGRO_PRIM_FUNC(void*, al_lock_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer, int offset, int length, int flags));
 ALLEGRO_PRIM_FUNC(void, al_unlock_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer));
-ALLEGRO_PRIM_FUNC(int, al_get_index_buffer_size, (ALLEGRO_INDEX_BUFFER* buffer));
+ALLEGRO_PRIM_FUNC(int, al_get_index_buffer_size, (const ALLEGRO_INDEX_BUFFER* buffer));
 
 /*
 * Utilities for high level primitives.
