@@ -802,9 +802,9 @@ void _al_draw_soft_triangle(
    /*
    ALLEGRO_VERTEX copy_v1, copy_v2; <- may be needed for clipping later on
    */
-   ALLEGRO_VERTEX* vtx1 = v1;
-   ALLEGRO_VERTEX* vtx2 = v2;
-   ALLEGRO_VERTEX* vtx3 = v3;
+   const ALLEGRO_VERTEX* vtx1 = v1;
+   const ALLEGRO_VERTEX* vtx2 = v2;
+   const ALLEGRO_VERTEX* vtx3 = v3;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    int need_unlock = 0;
    ALLEGRO_LOCKED_REGION *lr;
