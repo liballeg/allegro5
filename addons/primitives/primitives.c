@@ -144,7 +144,7 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    return ret;
 }
 
-int _al_bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int w, int h)
+int _al_bitmap_region_is_locked(const ALLEGRO_BITMAP* bmp, int x1, int y1, int w, int h)
 {
    ASSERT(bmp);
    
@@ -582,7 +582,7 @@ int al_draw_indexed_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
 
 /* Function: al_get_vertex_buffer_size
  */
-int al_get_vertex_buffer_size(ALLEGRO_VERTEX_BUFFER* buffer)
+int al_get_vertex_buffer_size(const ALLEGRO_VERTEX_BUFFER* buffer)
 {
    ASSERT(buffer);
    return buffer->common.size;
@@ -590,7 +590,7 @@ int al_get_vertex_buffer_size(ALLEGRO_VERTEX_BUFFER* buffer)
 
 /* Function: al_get_index_buffer_size
  */
-int al_get_index_buffer_size(ALLEGRO_INDEX_BUFFER* buffer)
+int al_get_index_buffer_size(const ALLEGRO_INDEX_BUFFER* buffer)
 {
    ASSERT(buffer);
    return buffer->common.size;
