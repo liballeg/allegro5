@@ -56,10 +56,10 @@ AL_FUNC(void, al_get_new_bitmap_wrap, (ALLEGRO_BITMAP_WRAP *u, ALLEGRO_BITMAP_WR
 AL_FUNC(void, al_set_new_bitmap_wrap, (ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v));
 #endif
 
-AL_FUNC(int, al_get_bitmap_width, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(int, al_get_bitmap_height, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(int, al_get_bitmap_format, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(int, al_get_bitmap_flags, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_width, (const ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_height, (const ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_format, (const ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_flags, (const ALLEGRO_BITMAP *bitmap));
 
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 AL_FUNC(int, al_get_bitmap_depth, (ALLEGRO_BITMAP *bitmap));
@@ -94,10 +94,10 @@ AL_FUNC(void, al_get_clipping_rectangle, (int *x, int *y, int *w, int *h));
 
 /* Sub bitmaps */
 AL_FUNC(ALLEGRO_BITMAP *, al_create_sub_bitmap, (ALLEGRO_BITMAP *parent, int x, int y, int w, int h));
-AL_FUNC(bool, al_is_sub_bitmap, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(bool, al_is_sub_bitmap, (const ALLEGRO_BITMAP *bitmap));
 AL_FUNC(ALLEGRO_BITMAP *, al_get_parent_bitmap, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(int, al_get_bitmap_x, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(int, al_get_bitmap_y, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_x, (const ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_y, (const ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void, al_reparent_bitmap, (ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *parent, int x, int y, int w, int h));
 
