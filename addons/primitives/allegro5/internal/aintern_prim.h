@@ -69,7 +69,7 @@ bool      _al_prim_is_point_in_triangle(const float* point, const float* v0, con
 bool      _al_prim_intersect_segment(const float* v0, const float* v1, const float* p0, const float* p1, float* point, float* t0, float* t1);
 bool      _al_prim_are_points_equal(const float* point_a, const float* point_b);
 
-int _al_bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int x2, int y2);
+int _al_bitmap_region_is_locked(const ALLEGRO_BITMAP* bmp, int x1, int y1, int x2, int y2);
 int _al_draw_buffer_common_soft(ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type);
 
 #ifdef __cplusplus
