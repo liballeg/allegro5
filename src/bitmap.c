@@ -288,7 +288,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
 
 /* Function: al_get_bitmap_width
  */
-int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_width(const ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->w;
 }
@@ -297,7 +297,7 @@ int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_height
  */
-int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_height(const ALLEGRO_BITMAP *bitmap)
 {
    return bitmap->h;
 }
@@ -306,7 +306,7 @@ int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_format
  */
-int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_format(const ALLEGRO_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_format;
@@ -327,7 +327,7 @@ int _al_get_bitmap_memory_format(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_flags
  */
-int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_flags(const ALLEGRO_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_flags;
@@ -630,7 +630,7 @@ void al_reparent_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *parent,
 
 /* Function: al_is_sub_bitmap
  */
-bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
+bool al_is_sub_bitmap(const ALLEGRO_BITMAP *bitmap)
 {
    return (bitmap->parent != NULL);
 }
@@ -647,7 +647,7 @@ ALLEGRO_BITMAP *al_get_parent_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_x
  */
-int al_get_bitmap_x(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_x(const ALLEGRO_BITMAP *bitmap)
 {
    ASSERT(bitmap);
    return bitmap->xofs;
@@ -656,7 +656,7 @@ int al_get_bitmap_x(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_y
  */
-int al_get_bitmap_y(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_y(const ALLEGRO_BITMAP *bitmap)
 {
    ASSERT(bitmap);
    return bitmap->yofs;
