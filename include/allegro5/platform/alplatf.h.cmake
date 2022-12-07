@@ -109,8 +109,6 @@
 /* Define if XInput 2.2 X11 extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XINPUT2
 
-/* Define if Xpm is found. Useful on Ubuntu Unity to set icon. */
-#cmakedefine ALLEGRO_XWINDOWS_WITH_XPM
 
 /*---------------------------------------------------------------------------*/
 

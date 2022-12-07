@@ -752,13 +752,6 @@ if(SUPPORT_X11)
         message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
 
-    check_library_exists(Xpm XpmCreatePixmapFromData "" CAN_XPM)
-    if(CAN_XPM)
-        set(ALLEGRO_XWINDOWS_WITH_XPM 1)
-        find_library(XPM_LIB "Xpm")
-        list(APPEND X11_LIBRARIES "${XPM_LIB}")
-    endif(CAN_XPM)
-
     check_include_file("X11/extensions/XInput2.h" CAN_XINPUT2)
     run_c_compile_test("
         #include <X11/extensions/XInput2.h>

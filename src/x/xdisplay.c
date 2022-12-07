@@ -18,11 +18,8 @@
 #include <X11/extensions/XInput2.h>
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XPM
-#include <X11/xpm.h>
-#endif
-
 #include "xicon.h"
+#include "icon.inc"
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
@@ -529,27 +526,6 @@ LateError:
    return NULL;
 }
 
-static void set_initial_icon(Display *x11display, Window window)
-{
-#ifdef ALLEGRO_XWINDOWS_WITH_XPM
-   XWMHints *wm_hints;
-
-   if (x11_xpm == NULL)
-      return;
-
-   wm_hints = XAllocWMHints();
-
-   wm_hints->flags |= IconPixmapHint | IconMaskHint;
-   XpmCreatePixmapFromData(x11display, window, x11_xpm,
-      &wm_hints->icon_pixmap, &wm_hints->icon_mask, NULL);
-
-   XSetWMHints(x11display, window, wm_hints);
-   XFree(wm_hints);
-#else
-   (void)x11display;
-   (void)window;
-#endif
-}
 
 static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
    int w, int h)
@@ -559,7 +535,24 @@ static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
    (void)w;
    (void)h;
 
-   set_initial_icon(system->x11display, d->window);
+   if (_al_xwin_initial_icon) {
+      ALLEGRO_BITMAP *bitmaps[] = {_al_xwin_initial_icon};
+      _al_xwin_set_icons(display, 1, bitmaps);
+   } else {
+      ALLEGRO_STATE state;
+      al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+      ALLEGRO_BITMAP *bitmap = al_create_bitmap(ICON_WIDTH, ICON_HEIGHT);
+
+      ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_RGBA_8888, ALLEGRO_LOCK_WRITEONLY);
+      for (int y = 0; y < ICON_HEIGHT; y++) {
+         memcpy((char*)lr->data + lr->pitch * y, &icon_data[ICON_WIDTH * y], ICON_WIDTH * 4);
+      }
+      al_unlock_bitmap(bitmap);
+
+      ALLEGRO_BITMAP *bitmaps[] = {bitmap};
+      _al_xwin_set_icons(display, 1, bitmaps);
+      al_destroy_bitmap(bitmap);
+   }
 
    XLockDisplay(system->x11display);
 
