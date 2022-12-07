@@ -27,144 +27,22 @@ ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
-char **x11_xpm = NULL;
+ALLEGRO_BITMAP *_al_xwin_initial_icon = NULL;
 
 static bool xglx_inhibit_screensaver(bool inhibit);
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XPM
-#include <stdio.h>
-#include "icon.xpm"
-
-static bool x11_xpm_set;
-static int x11_xpm_rows;
-
-static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
-{
-   _AL_VECTOR v;
-   int w, h, x, y;
-   int ncolors, nrows;
-   char **xpm;
-   char buf[100];
-   int i;
-
-   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_READONLY);
-   if (lr == NULL)
-      return NULL;
-
-   _al_vector_init(&v, sizeof(uint32_t));
-
-   w = al_get_bitmap_width(bitmap);
-   h = al_get_bitmap_height(bitmap);
-
-   for (y = 0; y < h; y++) {
-      for (x = 0; x < w; x++) {
-         uint32_t c = *(uint32_t *)((((char *)lr->data) + lr->pitch * y + x * 4));
-         int alpha = (c >> 24) & 0xff;
-         if (alpha != 255) {
-                 c = 0;
-         }
-         int sz = _al_vector_size(&v);
-         bool found = false;
-         for (i = 0; i < sz; i++) {
-            if (*((uint32_t *)_al_vector_ref(&v, i)) == c) {
-               found = true;
-               break;
-            }
-         }
-         if (found == false) {
-            uint32_t *p = _al_vector_alloc_back(&v);
-            *p = c;
-         }
-      }
-   }
-
-   ncolors = _al_vector_size(&v);
-   nrows = 2 + ncolors + h;
-
-   xpm = malloc(nrows * sizeof(char *));
-   if (xpm == NULL)
-      return NULL;
-
-   snprintf(buf, 100, "%d %d %d 8", w, h, ncolors + 1);
-
-   xpm[0] = strdup(buf);
-
-   xpm[1] = strdup("00000000\tc None");
-
-   for (i = 0; i < ncolors; i++) {
-        uint32_t c = *((uint32_t *)_al_vector_ref(&v, i));
-        int r = c & 0xff;
-        int g = (c >> 8) & 0xff;
-        int b = (c >> 16) & 0xff;
-        snprintf(buf, 100, "%08x\tc #%02x%02x%02x", i+1, r, g, b);
-        xpm[i+2] = strdup(buf);
-   }
-
-   for (y = 0; y < h; y++) {
-        int row = y + 2 + ncolors;
-        xpm[row] = malloc(8 * w + 1);
-        xpm[row][8 * w] = 0;
-        uint32_t *p = (uint32_t *)(((char *)lr->data) + lr->pitch * y);
-        for (x = 0; x < w; x++) {
-                uint32_t pixel = *p;
-                int alpha = (pixel >> 24) & 0xff;
-                if (alpha != 255) {
-                   snprintf(buf, 100, "%s", "00000000");
-                }
-                else {
-                   for (i = 0; i < (int)_al_vector_size(&v); i++) {
-                      uint32_t pixel2 = *((uint32_t *)_al_vector_ref(&v, i));
-                      if (pixel == pixel2)
-                         break;
-                   }
-                   snprintf(buf, 100, "%08x", i+1);
-                }
-                for (i = 0; i < 8; i++) {
-                        xpm[row][8*x+i] = buf[i];
-                }
-                p++;
-        }
-   }
-
-   _al_vector_free(&v);
-
-   *nrows_ret = nrows;
-
-   al_unlock_bitmap(bitmap);
-
-   // debug
-   /*
-   for (i = 0; i < nrows; i++) {
-      printf("%s\n", xpm[i]);
-   }
-   */
-
-   return xpm;
-}
-#endif
 
 /* Function: al_x_set_initial_icon
  */
 bool al_x_set_initial_icon(ALLEGRO_BITMAP *bitmap)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XPM
-   if (x11_xpm_set) {
-      int i;
-      for (i = 0; i < x11_xpm_rows; i++) {
-         free(x11_xpm[i]);
-      }
-      free(x11_xpm);
-      x11_xpm_set = false;
-   }
-   x11_xpm = bitmap_to_xpm(bitmap, &x11_xpm_rows);
-   if (x11_xpm == NULL)
-      return false;
-   x11_xpm_set = true;
+   ALLEGRO_STATE state;
+   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_destroy_bitmap(_al_xwin_initial_icon);
+   _al_xwin_initial_icon = al_clone_bitmap(bitmap);
+   al_restore_state(&state);
    return true;
-#else
-   (void)bitmap;
-   return false;
-#endif
 }
 
 static ALLEGRO_SYSTEM *xglx_initialize(int flags)
@@ -245,10 +123,6 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
          ALLEGRO_WARN("Cannot parse key binding '%s'\n", binding);
       }
    }
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XPM
-   x11_xpm = icon_xpm;
-#endif
 
    return &s->system;
 }
