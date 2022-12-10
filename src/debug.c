@@ -36,6 +36,7 @@ typedef struct TRACE_INFO
 {
    bool trace_virgin;
    FILE *trace_file;
+   bool need_close;
    _AL_MUTEX trace_mutex;
 
    /* 0: debug, 1: info, 2: warn, 3: error */
@@ -54,6 +55,7 @@ static TRACE_INFO trace_info =
 {
    true,
    NULL,
+   true,
    _AL_MUTEX_UNINITED,
    0,
    7,
@@ -173,8 +175,15 @@ static void open_trace_file(void)
    if (trace_info.trace_virgin) {
       const char *s = getenv("ALLEGRO_TRACE");
 
-      if (s)
-         trace_info.trace_file = fopen(s, "w");
+      if (s) {
+         if (!strcmp(s, "-")) {
+            trace_info.trace_file = stdout;
+            trace_info.need_close = false;
+         }
+         else {
+            trace_info.trace_file = fopen(s, "w");
+         }
+      }
       else
 #if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID) || defined(__EMSCRIPTEN__)
          /* iPhone and Android don't like us writing files, so we'll be doing
@@ -342,7 +351,7 @@ void _al_shutdown_logging(void)
       trace_info.configured = false;
    }
 
-   if (trace_info.trace_file) {
+   if (trace_info.trace_file && trace_info.need_close) {
       fclose(trace_info.trace_file);
    }
 
