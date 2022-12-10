@@ -181,12 +181,16 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
       StructureNotifyMask |
       EnterWindowMask |
       LeaveWindowMask |
-      FocusChangeMask |
       ExposureMask |
       PropertyChangeMask |
       ButtonPressMask |
       ButtonReleaseMask |
       PointerMotionMask;
+
+   /* We handle these events via GTK-sent XEmbed events. */
+   if (!(display->flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL)) {
+      swa.event_mask |= FocusChangeMask;
+   }
 
    /* For a non-compositing window manager, a black background can look
     * less broken if the application doesn't react to expose events fast
@@ -1105,13 +1109,13 @@ void _al_xglx_display_configure_event(ALLEGRO_DISPLAY *d, XEvent *xevent)
 void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
    XFocusChangeEvent *xevent)
 {
-   /* Anything but NotifyNormal seem to indicate the switch is not "real".
-    * TODO: Find out details?
+   /* Mouse click in/out tend to set NotifyNormal events. For Alt-Tab,
+    * there are also accompanying NotifyGrab/NotifyUngrab events which we don't
+    * care about. At this point, some WMs either send NotifyNormal (KDE) or
+    * NotifyWhileGrabbed (GNOME).
     */
-   if (xevent->mode != NotifyNormal)
-      return;
-
-   _al_xwin_display_switch_handler_inner(display, (xevent->type == FocusIn));
+   if (xevent->mode == NotifyNormal || xevent->mode == NotifyWhileGrabbed)
+      _al_xwin_display_switch_handler_inner(display, (xevent->type == FocusIn));
 }
 
 
