@@ -26,6 +26,7 @@ bool _al_init_fi(void)
    FreeImage_Initialise(FALSE);
    _al_add_exit_func(_al_shutdown_fi, "_al_shutdown_fi");
    FreeImage_SetOutputMessage(_fiio_al_error_handler);
+   freeimage_initialized = true;
    return true;
 }
 
