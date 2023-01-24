@@ -59,6 +59,7 @@ AL_FUNC(bool, al_build_shader, (ALLEGRO_SHADER *shader));
 AL_FUNC(const char *, al_get_shader_log, (ALLEGRO_SHADER *shader));
 AL_FUNC(ALLEGRO_SHADER_PLATFORM, al_get_shader_platform, (ALLEGRO_SHADER *shader));
 AL_FUNC(bool, al_use_shader, (ALLEGRO_SHADER *shader));
+AL_FUNC(ALLEGRO_SHADER *, al_get_current_shader, (void));
 AL_FUNC(void, al_destroy_shader, (ALLEGRO_SHADER *shader));
 
 AL_FUNC(bool, al_set_shader_sampler, (const char *name, ALLEGRO_BITMAP *bitmap,
