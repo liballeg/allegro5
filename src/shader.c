@@ -211,6 +211,20 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
    }
 }
 
+/* Function: al_get_current_shader
+*/
+ALLEGRO_SHADER *al_get_current_shader()
+{
+   ALLEGRO_BITMAP* bmp = al_get_target_bitmap();
+
+   if (bmp != NULL) {
+      return bmp->shader;
+   }
+   else {
+      return NULL;
+   }
+}
+
 /* Function: al_destroy_shader
  */
 void al_destroy_shader(ALLEGRO_SHADER *shader)

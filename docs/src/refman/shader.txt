@@ -264,7 +264,15 @@ Since: 5.1.6
 
 See also: [al_destroy_shader], [al_set_shader_sampler], [al_set_shader_matrix],
 [al_set_shader_int], [al_set_shader_float], [al_set_shader_bool],
-[al_set_shader_int_vector], [al_set_shader_float_vector]
+[al_set_shader_int_vector], [al_set_shader_float_vector], [al_get_current_shader]
+
+## API: al_get_current_shader
+
+Return the shader of the target bitmap, or NULL if one isn't being used.
+
+Since: 5.2.9
+
+See also: [al_use_shader]
 
 ## API: al_destroy_shader
 
