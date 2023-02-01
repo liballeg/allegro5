@@ -65,6 +65,16 @@ struct ALLEGRO_DISPLAY_WIN
    HWND window;
    HCURSOR mouse_selected_hcursor;
    bool mouse_cursor_shown;
+   /*
+    * We want to show the cursor when the user moves the mouse to the
+    * title-bar (to, e.g. close the window). This variable tracks
+    * whether or not we should re-hide the cursor when we enter the
+    * drawable area.
+    *
+    * This is almost always false, unless we actually programmatically
+    * hid the cursor inside wwindow.c.
+    */
+   bool hide_mouse_on_move;
 
    UINT adapter;
 

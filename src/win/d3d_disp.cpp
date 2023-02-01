@@ -1817,6 +1817,7 @@ static ALLEGRO_DISPLAY *d3d_create_display_locked(int w, int h)
 
    win_display->mouse_selected_hcursor = 0;
    win_display->mouse_cursor_shown = false;
+   win_display->hide_mouse_on_move = false;
    win_display->can_acknowledge = false;
 
    SetForegroundWindow(win_display->window);
