@@ -711,9 +711,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_SYSKEYDOWN: {
          int vcode = wParam;
+         int scode = (lParam >> 16) & 0xff;
          bool extended = (lParam >> 24) & 0x1;
          bool repeated  = (lParam >> 30) & 0x1;
-         _al_win_kbd_handle_key_press(0, vcode, extended, repeated, win_display);
+         _al_win_kbd_handle_key_press(scode, vcode, extended, repeated, win_display);
          break;
       }
       case WM_KEYDOWN: {
@@ -731,7 +732,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          int vcode = wParam;
          int scode = (lParam >> 16) & 0xff;
          bool extended = (lParam >> 24) & 0x1;
-         _al_win_kbd_handle_key_release(scode, vcode, extended, win_display);
+         bool previous = (lParam >> 30) & 0x1;
+
+         /* The docs say that previous should always be 1, but it's not in practice.
+          * The events with previous = 0 seem malformed? I can get them reliably by
+          * pressing + holding Shift and then tapping Alt. */
+         if (previous)
+            _al_win_kbd_handle_key_release(scode, vcode, extended, win_display);
          break;
       }
       case WM_SYSCOMMAND: {
