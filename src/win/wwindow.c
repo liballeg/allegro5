@@ -50,7 +50,6 @@ ALLEGRO_DEBUG_CHANNEL("wwindow")
 static WNDCLASS window_class;
 
 static bool resize_postponed = false;
-static bool we_hid_the_mouse = false;
 
 
 UINT _al_win_msg_call_proc = 0;
@@ -610,8 +609,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             int mx = GET_X_LPARAM(lParam);
             int my = GET_Y_LPARAM(lParam);
 
-            if (win_display->mouse_cursor_shown && we_hid_the_mouse) {
-               we_hid_the_mouse = false;
+            if (win_display->mouse_cursor_shown && win_display->hide_mouse_on_move) {
+               win_display->hide_mouse_on_move = false;
                win_display->display.vt->hide_mouse_cursor((void*)win_display);
             }
 
@@ -705,8 +704,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_NCMOUSEMOVE: {
          if (!win_display->mouse_cursor_shown) {
-            we_hid_the_mouse = true;
             win_display->display.vt->show_mouse_cursor((void*)win_display);
+            win_display->hide_mouse_on_move = true;
          }
          break;
       }

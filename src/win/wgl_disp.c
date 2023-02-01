@@ -998,6 +998,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    win_disp->mouse_selected_hcursor = 0;
    win_disp->mouse_cursor_shown = false;
+   win_disp->hide_mouse_on_move = false;
    win_disp->can_acknowledge = false;
 
    _al_win_grab_input(win_disp);

@@ -261,6 +261,7 @@ bool _al_win_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 
    tmp_cursor.hcursor = win_display->mouse_selected_hcursor;
    win_display->mouse_cursor_shown = true;
+   win_display->hide_mouse_on_move = false;
    _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR *)tmp_cursor_ptr);
 
    return true;
