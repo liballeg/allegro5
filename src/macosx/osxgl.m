@@ -229,6 +229,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) otherMouseUp: (NSEvent*) evt;
 -(void) otherMouseDragged: (NSEvent*) evt;
 -(void) mouseMoved: (NSEvent*) evt;
+-(void) cursorUpdate: (NSEvent*) evt;
 -(void) scrollWheel: (NSEvent*) evt;
 -(void) viewDidMoveToWindow;
 -(void) viewWillMoveToWindow: (NSWindow*) newWindow;
@@ -412,6 +413,13 @@ void _al_osx_mouse_was_installed(BOOL install) {
 {
    if (_osx_mouse_installed)
       _al_osx_mouse_generate_event(evt, dpy_ptr);
+}
+-(void) cursorUpdate: (NSEvent*) evt
+{
+   if (_osx_mouse_installed) {
+      ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+      _al_osx_change_cursor(dpy, dpy->cursor);
+   }
 }
 -(void) scrollWheel: (NSEvent*) evt
 {
