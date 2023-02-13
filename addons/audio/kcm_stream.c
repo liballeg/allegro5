@@ -475,18 +475,19 @@ bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
    else if (val == ALLEGRO_PLAYMODE_LOOP) {
       /* Only streams creating by al_load_audio_stream() support
        * looping. */
-      if (!stream->feeder)
+      if (!stream->feeder) {
          ret = false;
-
-      stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONEDIR;
-      ret = true;
+      } else {
+         stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONEDIR;
+         ret = true;
+      }
    }
    if (ret) {
       stream->is_draining = false;
    }
 
    // XXX _al_set_error
-   return false;
+   return ret;
 }
 
 
