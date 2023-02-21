@@ -154,8 +154,8 @@ void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 
    xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_FULLSCREEN);
    xev.xclient.data.l[2] = 0;
-   xev.xclient.data.l[3] = 0;
-   xev.xclient.data.l[4] = 1;
+   xev.xclient.data.l[3] = 1;  /* 1 = normal application source */
+   xev.xclient.data.l[4] = 0;
 
    XSendEvent(
       x11,
