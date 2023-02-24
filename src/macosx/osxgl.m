@@ -504,7 +504,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
          event.display.width = NSWidth(content);
          event.display.height = NSHeight(content);
          _al_event_source_emit_event(es, &event);
-         ALLEGRO_INFO("Window finished resizing");
+         ALLEGRO_INFO("Window finished resizing %d x %d\n", event.display.width, event.display.height);
       }
       _al_event_source_unlock(es);
    }
@@ -532,7 +532,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
       event.display.width = NSWidth(content);
       event.display.height = NSHeight(content);
       _al_event_source_emit_event(es, &event);
-      ALLEGRO_INFO("Window finished resizing");
+      ALLEGRO_INFO("Window finished resizing %d x %d\n", event.display.width, event.display.height);
    }
    _al_event_source_unlock(es);
 }
@@ -585,7 +585,6 @@ void _al_osx_mouse_was_installed(BOOL install) {
          scale_factor = [window backingScaleFactor];
       }
 #endif
-
       NSSize max_size;
       max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w / scale_factor : FLT_MAX;
       max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h / scale_factor : FLT_MAX;
@@ -600,7 +599,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
       event.display.width = NSWidth(content);
       event.display.height = NSHeight(content);
       _al_event_source_emit_event(es, &event);
-      ALLEGRO_INFO("Window was resized\n");
+      ALLEGRO_INFO("Window was resized %d x %d\n", event.display.width, event.display.height);
    }
    _al_event_source_unlock(es);
 }
@@ -720,10 +719,9 @@ static bool set_current_display(ALLEGRO_DISPLAY* d) {
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
-   _al_ogl_setup_gl(d);
-
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    [dpy->ctx performSelectorOnMainThread:@selector(update) withObject:nil waitUntilDone:YES];
+   _al_ogl_setup_gl(d);
 }
 
 
@@ -2031,19 +2029,17 @@ static bool acknowledge_resize_display_win_main_thread(ALLEGRO_DISPLAY *d)
    d->w = NSWidth(content);
    d->h = NSHeight(content);
 
-   if (d->ogl_extras->backbuffer) {
-      _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
-   }
-   setup_gl(d);
-
    return true;
 }
+
 /* Call from user thread */
 static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d) {
    ASSERT_USER_THREAD();
    dispatch_sync(dispatch_get_main_queue(), ^{
       acknowledge_resize_display_win_main_thread(d);
    });
+   // must be done on the thread the user calls it from, not the main thread
+   setup_gl(d);
    return true;
 }
 
@@ -2062,6 +2058,8 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    dispatch_sync(dispatch_get_main_queue(), ^{
       rc = resize_display_win_main_thread(d, w, h);
    });
+   // must be done on the thread the user calls it from, not the main thread
+   setup_gl(d);
    return rc;
 }
 
