@@ -41,7 +41,7 @@ Requirements
 We assume you have C and C++ compilers installed and functioning.
 We support gcc, clang and MSVC.
 
-Allegro also requires CMake 2.8.5 or later to build.
+Allegro also requires CMake 3.0 or later to build.
 You may download it from <http://www.cmake.org/>
 
 
@@ -165,6 +165,16 @@ cmake will detect your compiler setup and find the libraries which are
 installed on your system.  At the same time, you may select options to
 customise your build.  If you are unsure of what you are doing, leave all the
 options at the defaults.
+
+You must configure Allegro with a separate build directory. For example,
+
+    mkdir build
+    cd build
+    cmake ..
+
+If you configure Allegro to build in the source directory (i.e. `cmake .`)
+you will get an error message. Delete `CMakeCache.txt` and the `CMakeFiles`
+directory and re-configure as described above.
 
 Once the configuration step is successful, you will invoke another tool to
 build Allegro.  The tool depends on your compiler, but is usually either
