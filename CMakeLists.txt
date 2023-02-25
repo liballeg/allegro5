@@ -59,6 +59,9 @@ string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+# Reject in-source builds
+include(PreventInSourceBuilds)
+
 # Search in `deps' directories for dependency files.
 file(GLOB deps_subdirs
     "${PROJECT_SOURCE_DIR}/deps"
