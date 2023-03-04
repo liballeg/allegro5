@@ -2473,10 +2473,10 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             retcode = false;
             break;
       }
-      if (need_setup_gl) {
-         setup_gl(display);
-      }
    });
+   if (need_setup_gl) {
+      setup_gl(display);
+   }
    return retcode;
 #endif
 }
