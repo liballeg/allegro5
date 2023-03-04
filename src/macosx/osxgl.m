@@ -2401,6 +2401,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
    if (!win)
       return false;
+   bool __block need_setup_gl = false;
    bool __block retcode = true;
    dispatch_sync(dispatch_get_main_queue(), ^{
       NSWindowStyleMask mask = [win styleMask];
@@ -2466,10 +2467,14 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
                resize_display_win_main_thread(display, sc.size.width, sc.size.height);
                [view finishExitingFullScreenWindowMode];
             }
+            need_setup_gl = true;
             break;
          default:
             retcode = false;
             break;
+      }
+      if (need_setup_gl) {
+         setup_gl(display);
       }
    });
    return retcode;
