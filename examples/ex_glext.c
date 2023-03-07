@@ -12,7 +12,7 @@
 
 #include "common.c"
 
-#ifdef ALLEGRO_MACOSX
+#ifdef __APPLE_CC__
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
