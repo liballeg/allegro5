@@ -211,6 +211,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 {
    /* This is passed onto the event functions so we know where the event came from */
    ALLEGRO_DISPLAY* dpy_ptr;
+   NSSize frame_size;
 }
 -(void)setAllegroDisplay: (ALLEGRO_DISPLAY*) ptr;
 -(ALLEGRO_DISPLAY*) allegroDisplay;
@@ -243,6 +244,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) exitFullScreenWindowMode;
 -(void) finishExitingFullScreenWindowMode;
 -(void) maximize;
+-(void) setFrameSize: (NSSize) newSize;
 -(NSRect) windowWillUseStandardFrame:
    (NSWindow *) window
    defaultFrame: (NSRect) newFrame;
@@ -639,6 +641,17 @@ void _al_osx_mouse_was_installed(BOOL install) {
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    [dpy->win performZoom: nil];
 }
+
+-(void) setFrameSize: (NSSize) newSize;
+{
+    frame_size = newSize;
+}
+
+-(void) setRealFrameSize;
+{
+    [super setFrameSize:frame_size];
+}
+
 
 /* Called by NSWindow's zoom: method while determining the frame
  * a window may be zoomed to.
@@ -2028,6 +2041,8 @@ static bool acknowledge_resize_display_win_main_thread(ALLEGRO_DISPLAY *d)
 
    d->w = NSWidth(content);
    d->h = NSHeight(content);
+   ALOpenGLView *view = window.contentView;
+   [view setRealFrameSize];
 
    return true;
 }
