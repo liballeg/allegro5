@@ -655,7 +655,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    // This is called by MacOS to resize the window - and it will call
    // glViewport as part of the resize, which will mess up any client
    // drawing that is going on in the user thread at the same time.
-   // So if this was the result of a redraw we defer the call to when
+   // So if this was the result of a resize we defer the call to when
    // al_acknowledge_resize is called.
    frame_size = newSize;
    if (will_resize) {
