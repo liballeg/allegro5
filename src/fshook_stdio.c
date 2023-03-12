@@ -35,7 +35,6 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
 /* Enable large file support in gcc/glibc. */
 #if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO
    #define _LARGEFILE_SOURCE
-   #define _LARGEFILE_SOURCE64
    #define _FILE_OFFSET_BITS 64
 #endif
 
