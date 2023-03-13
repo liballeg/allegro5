@@ -3,12 +3,13 @@
       package="org.liballeg.app"
       android:versionCode="1"
       android:versionName="1.0">
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application android:label="${APP_ID}">
         <activity android:name=".MainActivity"
                   android:launchMode="singleTask"
                   android:screenOrientation="unspecified"
-                  android:configChanges="screenLayout|uiMode|orientation|screenSize">
+                  android:configChanges="screenLayout|uiMode|orientation|screenSize"
+                  android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
