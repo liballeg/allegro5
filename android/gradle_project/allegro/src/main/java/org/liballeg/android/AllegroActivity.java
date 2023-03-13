@@ -25,6 +25,9 @@ import android.view.InputDevice;
 import java.util.Vector;
 import android.os.Build;
 import android.view.View;
+import android.view.KeyEvent;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 public class AllegroActivity extends Activity
 {
@@ -338,6 +341,22 @@ public class AllegroActivity extends Activity
 
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+      if(Build.VERSION.SDK_INT >= 33) {
+         // handle the back button / gesture on API level 33+
+         getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+            OnBackInvokedDispatcher.PRIORITY_DEFAULT, new OnBackInvokedCallback() {
+               @Override
+               public void onBackInvoked() {
+                  // these will be mapped to ALLEGRO_KEY_BACK
+                  KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK);
+                  KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK);
+                  dispatchKeyEvent(keyDown);
+                  dispatchKeyEvent(keyUp);
+               }
+            }
+         );
+      }
 
       Log.d("AllegroActivity", "onCreate end");
    }
