@@ -298,16 +298,8 @@ static void osx_joy_generate_configure_event(void)
    _al_generate_joystick_event(&event);
 }
 
-static void device_add_callback(
-   void *context,
-   IOReturn result,
-   void *sender,
-   IOHIDDeviceRef ref
-) {
-   (void)context;
-   (void)result;
-   (void)sender;
-
+static void add_joystick_device(IOHIDDeviceRef ref, bool emit_reconfigure_event)
+{
    al_lock_mutex(add_mutex);
 
    ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
@@ -329,13 +321,25 @@ static void device_add_callback(
 
    CFRelease(elements);
 
-
    al_unlock_mutex(add_mutex);
 
-   osx_joy_generate_configure_event();
+   if (emit_reconfigure_event) osx_joy_generate_configure_event();
 
    ALLEGRO_INFO("Found joystick (%d buttons, %d sticks)\n",
       joy->parent.info.num_buttons, joy->parent.info.num_sticks);
+}
+
+static void device_add_callback(
+   void *context,
+   IOReturn result,
+   void *sender,
+   IOHIDDeviceRef ref
+) {
+   (void)context;
+   (void)result;
+   (void)sender;
+
+   add_joystick_device(ref, true);
 }
 
 static void device_remove_callback(
