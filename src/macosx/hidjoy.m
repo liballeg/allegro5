@@ -303,12 +303,20 @@ static void add_joystick_device(IOHIDDeviceRef ref, bool emit_reconfigure_event)
    al_lock_mutex(add_mutex);
 
    ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
+
+   if (joy && (joy->cfg_state == JOY_STATE_BORN || joy->cfg_state == JOY_STATE_ALIVE))
+   {
+     al_unlock_mutex(add_mutex);
+     return;
+   }
+
    if (joy == NULL) {
       joy = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_OSX));
       joy->ident = ref;
       ALLEGRO_JOYSTICK_OSX **back = _al_vector_alloc_back(&joysticks);
       *back = joy;
    }
+
    joy->cfg_state = new_joystick_state;
 
    CFArrayRef elements = IOHIDDeviceCopyMatchingElements(
@@ -327,6 +335,34 @@ static void add_joystick_device(IOHIDDeviceRef ref, bool emit_reconfigure_event)
 
    ALLEGRO_INFO("Found joystick (%d buttons, %d sticks)\n",
       joy->parent.info.num_buttons, joy->parent.info.num_sticks);
+}
+
+static int enumerate_and_create_initial_joystick_devices(IOHIDManagerRef manager)
+{
+   int i;
+   int num_joysticks_enumerated = 0;
+
+   CFSetRef devices = IOHIDManagerCopyDevices(manager);
+   if (devices == NULL)
+   {
+      // There are no devices to enumerate
+   }
+   else
+   {
+      CFIndex num_devices = CFSetGetCount(devices);
+      IOHIDDeviceRef *device_arr = calloc(num_devices, sizeof(IOHIDDeviceRef));
+      CFSetGetValues(devices, (const void **) device_arr);
+
+      for (i = 0; i < num_devices; i++) {
+         IOHIDDeviceRef dev = device_arr[i];
+         add_joystick_device(dev, false);
+         num_joysticks_enumerated++;
+      }
+   }
+
+   CFRelease(devices);
+
+   return num_joysticks_enumerated;
 }
 
 static void device_add_callback(
@@ -586,21 +622,8 @@ static bool init_joystick(void)
       return false;
    }
 
-   // Wait for the devices to be enumerated
-   int count;
-   int size;
-   do {
-      al_rest(0.001);
-      CFSetRef devices = IOHIDManagerCopyDevices(hidManagerRef);
-      if (devices == nil) {
-         break;
-      }
-      count = CFSetGetCount(devices);
-      CFRelease(devices);
-      al_lock_mutex(add_mutex);
-      size = _al_vector_size(&joysticks);
-      al_unlock_mutex(add_mutex);
-   } while (size < count);
+   int num_joysticks_created = enumerate_and_create_initial_joystick_devices(hidManagerRef);
+   if (num_joysticks_created > 0) osx_joy_generate_configure_event();
 
    new_joystick_state = JOY_STATE_BORN;
 
