@@ -195,7 +195,9 @@ static bool sdl_set_mouse_axis(int which, int value)
 static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    int x, y, i;
-   float ratio = _al_sdl_get_display_pixel_ratio(mouse->display);
+   float ratio = 1.0f;
+   if (mouse->display)
+      ratio = _al_sdl_get_display_pixel_ratio(mouse->display);
    ALLEGRO_SYSTEM_INTERFACE *sdl = _al_sdl_system_driver();
    sdl->heartbeat();
    SDL_GetMouseState(&x, &y);
