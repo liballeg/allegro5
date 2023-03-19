@@ -358,9 +358,9 @@ static int enumerate_and_create_initial_joystick_devices(IOHIDManagerRef manager
          add_joystick_device(dev, false);
          num_joysticks_enumerated++;
       }
-   }
 
-   CFRelease(devices);
+      CFRelease(devices);
+   }
 
    return num_joysticks_enumerated;
 }
