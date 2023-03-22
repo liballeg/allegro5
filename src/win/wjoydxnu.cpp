@@ -110,6 +110,7 @@ static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy);
 static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
 static const char *joydx_get_name(ALLEGRO_JOYSTICK *joy);
 static bool joydx_get_active(ALLEGRO_JOYSTICK *joy);
+static int joydx_get_device_id(ALLEGRO_JOYSTICK *joy);
 
 static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy);
 
@@ -138,7 +139,8 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
    joydx_release_joystick,
    joydx_get_joystick_state,
    joydx_get_name,
-   joydx_get_active
+   joydx_get_active,
+   joydx_get_device_id
 };
 
 
@@ -1388,6 +1390,16 @@ static bool joydx_get_active(ALLEGRO_JOYSTICK *joy)
 
    return ACTIVE_STATE(joydx->config_state);
 }
+
+
+static int joydx_get_device_id(ALLEGRO_JOYSTICK *joy)
+{
+   (void)joy;
+   // TODO: Add implementation here
+   ALLEGRO_INFO("joydx_get_device_id: not implemented");
+   return 0;
+}
+
 
 
 /* joydx_thread_proc: [joystick thread]

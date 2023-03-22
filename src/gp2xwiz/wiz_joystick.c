@@ -228,6 +228,16 @@ static void joywiz_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_ST
 }
 
 
+static int joywiz_get_joystick_device_id(ALLEGRO_JOYSTICK *joy)
+{
+   (void)joy;
+   // TODO: Add implementation here
+   ALLEGRO_INFO("joywiz_get_joystick_device_id: not implemented");
+   return 0;
+}
+
+
+
 
 /* the driver vtable */
 ALLEGRO_JOYSTICK_DRIVER _al_joydrv_gp2xwiz =
@@ -241,7 +251,8 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_gp2xwiz =
    joywiz_get_num_joysticks,
    joywiz_get_joystick,
    joywiz_release_joystick,
-   joywiz_get_joystick_state
+   joywiz_get_joystick_state,
+   joywiz_get_joystick_device_id
 };
 
 

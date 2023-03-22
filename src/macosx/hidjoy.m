@@ -743,6 +743,15 @@ static bool get_joystick_active(ALLEGRO_JOYSTICK *joy_)
    return joy->cfg_state == JOY_STATE_ALIVE || joy->cfg_state == JOY_STATE_DYING;
 }
 
+static int get_joystick_device_id(ALLEGRO_JOYSTICK *joy_)
+{
+   (void)joy_;
+   // TODO: Add implementation here
+   ALLEGRO_INFO("get_joystick_device_id: not implemented");
+   return 0;
+}
+
+
 ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
 {
    static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
@@ -759,6 +768,7 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
       vt->get_joystick_state = get_joystick_state;
       vt->get_name = get_joystick_name;
       vt->get_active = get_joystick_active;
+      vt->get_device_id = get_joystick_device_id;
    }
    return vt;
 }
