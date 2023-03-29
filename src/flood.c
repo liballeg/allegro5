@@ -53,7 +53,7 @@ static int flooder(BITMAP *bmp, int x, int y, int src_color, int dest_color)
 {
    FLOODED_LINE *p;
    int left = 0, right = 0;
-   unsigned long addr;
+   uintptr_t addr;
    int c;
 
    /* helper for doing checks in each color depth */
