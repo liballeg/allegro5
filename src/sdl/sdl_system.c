@@ -292,6 +292,71 @@ static bool sdl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    return true;
 }
 
+static ALLEGRO_MOUSE_CURSOR* sdl_create_mouse_cursor(ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
+{
+   SDL_Cursor *cursor;
+   ALLEGRO_MOUSE_CURSOR_SDL *sdl_cursor;
+
+   int w = al_get_bitmap_width(sprite);
+   int h = al_get_bitmap_height(sprite);
+   int data_size = w * h * 4;
+
+   unsigned char* data = al_malloc(data_size * sizeof(data[0]));
+
+   Uint32 rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+   rmask = 0xff000000;
+   gmask = 0x00ff0000;
+   bmask = 0x0000ff00;
+   amask = 0x000000ff;
+#else // little endian, like x86
+   rmask = 0x000000ff;
+   gmask = 0x0000ff00;
+   bmask = 0x00ff0000;
+   amask = 0xff000000;
+#endif
+
+   ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(sprite, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_READONLY);
+   if (lock) {
+      int i = 0, y = 0;
+      for (y = 0; y < h; y++) {
+         int x = 0;
+         for (x = 0; x < w; x++) {
+            ALLEGRO_COLOR c = al_get_pixel(sprite, x, y);
+            al_unmap_rgba(c, data+i, data+i+1, data+i+2, data+i+3);
+            i += 4;
+         }
+      }
+      al_unlock_bitmap(sprite);
+
+      SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(data, w, h, 4 * 8, w * 4, rmask, gmask, bmask, amask);
+      cursor = SDL_CreateColorCursor(icon, xfocus, yfocus);
+      SDL_FreeSurface(icon);
+   }
+
+   al_free(data);
+   if (!cursor) {
+      return NULL;
+   }
+
+   sdl_cursor = al_malloc(sizeof *sdl_cursor);
+   if (!sdl_cursor) {
+      SDL_FreeCursor(cursor);
+      return NULL;
+   }
+
+   sdl_cursor->cursor = cursor;
+   return (ALLEGRO_MOUSE_CURSOR *)sdl_cursor;
+}
+
+static void sdl_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
+{
+   ALLEGRO_MOUSE_CURSOR_SDL *sdl_cursor = (ALLEGRO_MOUSE_CURSOR_SDL *) cursor;
+   ASSERT(sdl_cursor);
+   SDL_FreeCursor(sdl_cursor->cursor);
+   al_free(sdl_cursor);
+}
+
 static int sdl_get_num_display_modes(void)
 {
    int i = al_get_new_display_adapter();
@@ -345,9 +410,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->shutdown_system = sdl_shutdown_system;
    vt->get_num_video_adapters = sdl_get_num_video_adapters;
    vt->get_monitor_info = sdl_get_monitor_info;
-   /*vt->create_mouse_cursor = sdl_create_mouse_cursor;
+   vt->create_mouse_cursor = sdl_create_mouse_cursor;
    vt->destroy_mouse_cursor = sdl_destroy_mouse_cursor;
-   vt->get_cursor_position = sdl_get_cursor_position;
+   /*vt->get_cursor_position = sdl_get_cursor_position;
    vt->grab_mouse = sdl_grab_mouse;
    vt->ungrab_mouse = sdl_ungrab_mouse;*/
    vt->get_path = sdl_get_path;

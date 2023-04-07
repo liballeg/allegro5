@@ -346,9 +346,10 @@ static bool sdl_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
 static bool sdl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
       ALLEGRO_MOUSE_CURSOR *cursor)
 {
+   ALLEGRO_MOUSE_CURSOR_SDL *sdl_cursor = (ALLEGRO_MOUSE_CURSOR_SDL *) cursor;
    (void)display;
-   (void)cursor;
-   return false;
+   SDL_SetCursor(sdl_cursor->cursor);
+   return true;
 }
 
 static bool sdl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
