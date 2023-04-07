@@ -50,3 +50,9 @@ void _al_sdl_event_hack(void);
 double _al_sdl_get_time(void);
 void _al_sdl_rest(double seconds);
 void _al_sdl_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
+
+typedef struct ALLEGRO_MOUSE_CURSOR_SDL ALLEGRO_MOUSE_CURSOR_SDL;
+struct ALLEGRO_MOUSE_CURSOR_SDL
+{
+   SDL_Cursor *cursor;
+};
