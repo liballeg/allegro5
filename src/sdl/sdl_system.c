@@ -292,6 +292,14 @@ static bool sdl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    return true;
 }
 
+static int sdl_get_monitor_dpi(int adapter)
+{
+   float ddpi, hdpi, vdpi;
+   if (SDL_GetDisplayDPI(adapter, &ddpi, &hdpi, &vdpi) < 0)
+      return 72; // we can't indicate "unknown" so return something reasonable
+   return hdpi;
+}
+
 static int sdl_get_num_display_modes(void)
 {
    int i = al_get_new_display_adapter();
@@ -345,6 +353,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->shutdown_system = sdl_shutdown_system;
    vt->get_num_video_adapters = sdl_get_num_video_adapters;
    vt->get_monitor_info = sdl_get_monitor_info;
+   vt->get_monitor_dpi = sdl_get_monitor_dpi;
    /*vt->create_mouse_cursor = sdl_create_mouse_cursor;
    vt->destroy_mouse_cursor = sdl_destroy_mouse_cursor;
    vt->get_cursor_position = sdl_get_cursor_position;
