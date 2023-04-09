@@ -156,7 +156,7 @@ static bool sdl_init_mouse(void)
 {
    mouse = al_calloc(1, sizeof *mouse);
    _al_event_source_init(&mouse->mouse.es);
-   mouse.ratio = 1.0f;
+   mouse->ratio = 1.0f;
    return true;
 }
 
