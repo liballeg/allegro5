@@ -71,7 +71,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->max_w = 0;
    display->max_h = 0;
    display->use_constraints = false;
-   display->extra_resize_height = 0;
 
    display->vertex_cache = 0;
    display->num_cache_vertices = 0;
@@ -237,10 +236,10 @@ bool al_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
    ASSERT(display);
    ASSERT(display->vt);
 
-   ALLEGRO_INFO("Requested display resize %dx%d+%d\n", width, height, display->extra_resize_height);
+   ALLEGRO_INFO("Requested display resize %dx%d\n", width, height);
 
    if (display->vt->resize_display) {
-      return display->vt->resize_display(display, width, height + display->extra_resize_height);
+      return display->vt->resize_display(display, width, height);
    }
    return false;
 }

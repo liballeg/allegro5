@@ -158,11 +158,6 @@ struct ALLEGRO_DISPLAY
 
    /* Issue #725 */
    bool use_constraints;
-
-   /* On Windows, menus take up the display's height so whenever doing a
-    * manual resize we need to add this number to the height for things
-    * to work correctly. See issue #860. */
-   int extra_resize_height;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
