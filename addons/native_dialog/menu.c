@@ -792,7 +792,6 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
       _al_vector_delete_at(&display_menus, i);
 
       if (automatic_menu_display_resize && menu_height > 0) {
-         display->extra_resize_height = 0;
          al_resize_display(display, al_get_display_width(display), al_get_display_height(display));
       }
    }
@@ -826,7 +825,6 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
          /* Temporarily disable the constraints so we don't send a RESIZE_EVENT. */
          bool old_constraints = display->use_constraints;
          display->use_constraints = false;
-         display->extra_resize_height = menu_height;
          al_resize_display(display, al_get_display_width(display), al_get_display_height(display));
          display->use_constraints = old_constraints;
       }
