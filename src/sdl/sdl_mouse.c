@@ -23,6 +23,7 @@ typedef struct ALLEGRO_MOUSE_SDL
    ALLEGRO_MOUSE mouse;
    ALLEGRO_MOUSE_STATE state;
    ALLEGRO_DISPLAY *display;
+   float ratio;
 } ALLEGRO_MOUSE_SDL;
 
 static ALLEGRO_MOUSE_DRIVER *vt;
@@ -63,12 +64,12 @@ void _al_sdl_mouse_event(SDL_Event *e)
 
    if (e->type == SDL_WINDOWEVENT) {
       d = find_display(e->window.windowID);
-      float ratio = _al_sdl_get_display_pixel_ratio(d);
+      mouse->ratio = _al_sdl_get_display_pixel_ratio(d);
       if (e->window.event == SDL_WINDOWEVENT_ENTER) {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
          SDL_GetMouseState(&event.mouse.x, &event.mouse.y);
-         event.mouse.x *= ratio;
-         event.mouse.y *= ratio;
+         event.mouse.x *= mouse->ratio;
+         event.mouse.y *= mouse->ratio;
       }
       else {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
@@ -155,6 +156,7 @@ static bool sdl_init_mouse(void)
 {
    mouse = al_calloc(1, sizeof *mouse);
    _al_event_source_init(&mouse->mouse.es);
+   mouse->ratio = 1.0f;
    return true;
 }
 
@@ -195,12 +197,11 @@ static bool sdl_set_mouse_axis(int which, int value)
 static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    int x, y, i;
-   float ratio = _al_sdl_get_display_pixel_ratio(mouse->display);
    ALLEGRO_SYSTEM_INTERFACE *sdl = _al_sdl_system_driver();
    sdl->heartbeat();
    SDL_GetMouseState(&x, &y);
-   ret_state->x = x * ratio;
-   ret_state->y = y * ratio;
+   ret_state->x = x * mouse->ratio;
+   ret_state->y = y * mouse->ratio;
    ret_state->z = 0;
    ret_state->w = 0;
    for (i = 0; i < ALLEGRO_MOUSE_MAX_EXTRA_AXES; i++)
