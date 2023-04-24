@@ -227,7 +227,7 @@ pointed to by the `info` parameter.  The string will not have any other
 storage allocated of its own, so if you allocate the `info` structure on the
 stack then no explicit "free" operation is required.
 
-The string is valid until the underlying C string disappears.
+The result of string and info is valid until the underlying C string disappears.
 
 Example:
 
@@ -245,7 +245,7 @@ Create a string that references the storage of an underlying buffer.
 The size of the buffer is given in bytes.  You can use it to reference only
 part of a string or an arbitrary region of memory.
 
-The string is valid while the underlying memory buffer is valid.
+The result of string and info is valid while the underlying memory buffer is valid.
 
 See also: [al_ref_cstr], [al_ref_ustr]
 
@@ -261,7 +261,7 @@ stack then no explicit "free" operation is required.
 
 The referenced interval is \[`start_pos`, `end_pos`).  Both are byte offsets.
 
-The string is valid until the underlying string is modified or destroyed.
+The result of string and info is valid until the underlying string is modified or destroyed.
 
 If you need a range of code-points instead of bytes, use [al_ustr_offset]
 to find the byte offsets.
