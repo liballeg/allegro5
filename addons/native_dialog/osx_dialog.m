@@ -22,7 +22,7 @@ static NSArray * remove_mime_types(NSArray * array)
    NSMutableArray * work_array = [array mutableCopy];
 
    for(NSInteger i = work_array.count - 1; i >= 0; i--){
-      if([work_array[i] rangeOfString:@"/"].location != NSNotFound){
+      if([[work_array objectAtIndex: i] rangeOfString:@"/"].location != NSNotFound){
          [work_array removeObjectAtIndex: i];
       }
    }
