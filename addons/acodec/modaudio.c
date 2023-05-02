@@ -159,6 +159,13 @@ static dumb_off_t dfs_get_size(void *f)
 
 /* Stream Functions */
 
+static int loop_callback(void *data)
+{
+   bool *internal_loop = (bool *)data;
+   *internal_loop = true;
+   return 0;
+}
+
 static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
@@ -168,28 +175,34 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    const int sample_size = 4;
    size_t written = 0;
    size_t i;
+   bool internal_loop = false;
 
    DUMB_IT_SIGRENDERER *it_sig = lib.duh_get_it_sigrenderer(df->sig);
    if (it_sig) {
       lib.dumb_it_set_loop_callback(it_sig,
          stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
-         ? lib.dumb_it_callback_terminate : NULL, NULL);
+         ? lib.dumb_it_callback_terminate : loop_callback, &internal_loop);
    }
 
    while (written < buf_size) {
       long size_to_read = (buf_size - written) / sample_size;
       long position = lib.duh_sigrenderer_get_position(df->sig);
-      bool loop = false;
+      bool manual_loop = false;
+      internal_loop = false;
+      /* If manual looping is not enabled, then we need to implement
+       * short-stopping manually. */
       if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && df->loop_end != -1 &&
           position + 65536 * size_to_read / 44100 >= df->loop_end) {
          size_to_read = (df->loop_end - position) * 44100 / 65536;
          if (size_to_read < 0)
             size_to_read = 0;
-         loop = true;
+         manual_loop = true;
       }
       written += lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
          size_to_read, &(((char *)data)[written])) * sample_size;
-      if (loop || (long)written < size_to_read * sample_size) {
+      /* For internal loops, we don't rewind. */
+      if (!internal_loop &&
+          ((long)written < size_to_read * sample_size || manual_loop)) {
          break;
       }
    }
@@ -323,13 +336,13 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
       mf->length = lib.duh_get_length(duh) / 65536.0;
       if (mf->length < 0) {
          mf->length = 0;
-         mf->loop_start = -1;
-         mf->loop_end = -1;
       }
-      else {
-         mf->loop_start = 0;
-         mf->loop_end = (int)(mf->length * 65536.0);
-      }
+      /*
+       * Set these to -1, so that we can default to the internal loop
+       * points.
+       */
+      mf->loop_start = -1;
+      mf->loop_end = -1;
 
       stream->extra = mf;
       stream->feeder = modaudio_stream_update;
