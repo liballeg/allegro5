@@ -474,6 +474,7 @@ int main(int argc, char **argv)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    int redraw = 0;
+   bool halt_drawing = false;
    char const *skybox_name = NULL;
 
    if (argc > 1) {
@@ -489,6 +490,7 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_install_mouse();
 
+   al_set_config_value(al_get_system_config(), "osx", "allow_live_resize", "false");
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
    al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
    al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
@@ -566,12 +568,20 @@ int main(int argc, char **argv)
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
          ex.button[event.mouse.button] = 0;
       }
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
+         halt_drawing = true;
+         al_acknowledge_drawing_halt(display);
+      }
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING) {
+         halt_drawing = false;
+         al_acknowledge_drawing_resume(display);
+      }
       else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
          ex.mouse_dx += event.mouse.dx;
          ex.mouse_dy += event.mouse.dy;
       }
 
-      if (redraw  && al_is_event_queue_empty(queue)) {
+      if (!halt_drawing && redraw && al_is_event_queue_empty(queue)) {
          draw_scene();
 
          al_flip_display();

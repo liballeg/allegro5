@@ -336,6 +336,7 @@ void run_framework(void)
          
          case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
             background_mode = false;
+            al_acknowledge_drawing_resume(screen);
             break;
             
          case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:

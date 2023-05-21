@@ -34,6 +34,10 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    BOOL in_fullscreen;
    BOOL single_buffer;
    CGDisplayModeRef original_mode;
+   BOOL send_halt_events;
+   ALLEGRO_MUTEX *halt_mutex;
+   ALLEGRO_COND *halt_cond;
+   BOOL halt_event_acknowledged;
    /* For new (10.14+) vsyncing. */
    CVDisplayLinkRef display_link;
    ALLEGRO_MUTEX *flip_mutex;

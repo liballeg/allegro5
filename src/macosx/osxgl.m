@@ -235,6 +235,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) viewWillMoveToWindow: (NSWindow*) newWindow;
 -(void) mouseEntered: (NSEvent*) evt;
 -(void) mouseExited: (NSEvent*) evt;
+-(void) viewWillStartLiveResize;
 -(void) viewDidEndLiveResize;
 /* Window delegate methods */
 -(void) windowDidBecomeMain:(NSNotification*) notification;
@@ -519,6 +520,33 @@ void _al_osx_mouse_was_installed(BOOL install) {
 }
 #endif
 
+-(void) viewWillStartLiveResize
+{
+   ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
+
+   if (dpy->send_halt_events) {
+      al_lock_mutex(dpy->halt_mutex);
+      dpy->halt_event_acknowledged = false;
+      al_unlock_mutex(dpy->halt_mutex);
+
+      _al_event_source_lock(es);
+      if (_al_event_source_needs_to_generate_event(es)) {
+         ALLEGRO_EVENT event;
+         event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
+         event.display.timestamp = al_get_time();
+         _al_event_source_emit_event(es, &event);
+      }
+      _al_event_source_unlock(es);
+
+      al_lock_mutex(dpy->halt_mutex);
+      while (!dpy->halt_event_acknowledged) {
+         al_wait_cond(dpy->halt_cond, dpy->halt_mutex);
+      }
+      al_unlock_mutex(dpy->halt_mutex);
+   }
+}
+
 -(void) viewDidEndLiveResize
 {
    [super viewDidEndLiveResize];
@@ -541,6 +569,11 @@ void _al_osx_mouse_was_installed(BOOL install) {
       event.display.height = NSHeight(content);
       _al_event_source_emit_event(es, &event);
       ALLEGRO_INFO("Window finished resizing %d x %d\n", event.display.width, event.display.height);
+
+      if (dpy->send_halt_events) {
+         event.display.type = ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING;
+         _al_event_source_emit_event(es, &event);
+      }
    }
    _al_event_source_unlock(es);
 }
@@ -1102,6 +1135,19 @@ static void init_new_vsync(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    CVDisplayLinkStart(dpy->display_link);
 }
 
+static void init_halt_events(ALLEGRO_DISPLAY_OSX_WIN *dpy)
+{
+   const char* value = al_get_config_value(al_get_system_config(), "osx", "allow_live_resize");
+   if (value && strcmp(value, "false") == 0) {
+      dpy->send_halt_events = true;
+   }
+   else {
+      dpy->send_halt_events = false;
+   }
+   dpy->halt_mutex = al_create_mutex();
+   dpy->halt_cond = al_create_cond();
+}
+
 /* create_display_fs:
  * Create a fullscreen display - capture the display
  */
@@ -1139,6 +1185,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    _al_event_source_init(&display->es);
    dpy->cursor = [[NSCursor arrowCursor] retain];
    dpy->display_id = CGMainDisplayID();
+   init_halt_events(dpy);
 
    /* Get display ID for the requested display */
    if (al_get_new_display_adapter() > 0) {
@@ -1334,6 +1381,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    _al_event_source_init(&dpy->parent.es);
    osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
+   init_halt_events(dpy);
 
    // Set up a pixel format to describe the mode we want.
    osx_set_opengl_pixelformat_attributes(dpy);
@@ -1513,6 +1561,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    _al_event_source_init(&display->es);
    _al_osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
+   init_halt_events(dpy);
 
    // Set up a pixel format to describe the mode we want.
    osx_set_opengl_pixelformat_attributes(dpy);
@@ -1799,6 +1848,8 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
       _al_set_current_display_only(NULL);
    }
    
+   al_destroy_cond(dpy->halt_cond);
+   al_destroy_mutex(dpy->halt_mutex);
    if (dpy->flip_mutex) {
       al_destroy_mutex(dpy->flip_mutex);
       al_destroy_cond(dpy->flip_cond);
@@ -2489,6 +2540,15 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 #endif
 }
 
+static void acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
+   al_lock_mutex(dpy->halt_mutex);
+   dpy->halt_event_acknowledged = true;
+   al_signal_cond(dpy->halt_cond);
+   al_unlock_mutex(dpy->halt_mutex);
+}
+
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
 {
    static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
@@ -2519,6 +2579,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_display_flag = set_display_flag;
       vt->set_icons = set_icons;
       vt->update_render_state = _al_ogl_update_render_state;
+      vt->acknowledge_drawing_halt = acknowledge_drawing_halt;
       _al_ogl_add_drawing_functions(vt);
       _al_osx_add_clipboard_functions(vt);
    }

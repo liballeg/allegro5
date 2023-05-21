@@ -20,6 +20,7 @@ int main(int argc, char **argv)
    ALLEGRO_EVENT event;
    ALLEGRO_FONT *font;
    bool redraw;
+   bool halt_drawing;
 
    (void)argc;
    (void)argv;
@@ -31,6 +32,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    al_init_font_addon();
 
+   al_set_config_value(al_get_system_config(), "osx", "allow_live_resize", "false");
    al_set_new_display_flags(ALLEGRO_RESIZABLE |
       ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
@@ -51,8 +53,9 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
 
    redraw = true;
+   halt_drawing = false;
    while (true) {
-      if (redraw && al_is_event_queue_empty(queue)) {
+      if (!halt_drawing && redraw && al_is_event_queue_empty(queue)) {
          al_clear_to_color(al_map_rgb(255, 0, 0));
          al_draw_scaled_bitmap(bmp,
             0, 0, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
@@ -80,6 +83,14 @@ int main(int argc, char **argv)
       }
       if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
          redraw = true;
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
+         halt_drawing = true;
+         al_acknowledge_drawing_halt(display);
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING) {
+         halt_drawing = false;
+         al_acknowledge_drawing_resume(display);
       }
       if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
             event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
