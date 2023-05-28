@@ -415,14 +415,26 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
    ALLEGRO_SHADER_TYPE type)
 {
    (void)type;
+   bool use_gl3_shader = false;
+#ifdef ALLEGRO_MACOSX
+   {
+      /* Apple's glsl implementation supports either 1.20 shaders, or strictly
+       * versioned 3.2+ shaders which do not use deprecated features.
+       */
+      const char * shader_language = glGetString(GL_SHADING_LANGUAGE_VERSION);
+      if (strcmp(shader_language, "1.20") != 0) {
+         use_gl3_shader = true;
+      }
+   }
+#endif
    switch (resolve_platform(al_get_current_display(), platform)) {
       case ALLEGRO_SHADER_GLSL:
 #ifdef ALLEGRO_CFG_SHADER_GLSL
          switch (type) {
             case ALLEGRO_VERTEX_SHADER:
-               return default_glsl_vertex_source;
+               return use_gl3_shader ? default_glsl_vertex_source_gl3 : default_glsl_vertex_source;
             case ALLEGRO_PIXEL_SHADER:
-               return default_glsl_pixel_source;
+               return use_gl3_shader ? default_glsl_pixel_source_gl3 : default_glsl_pixel_source;
          }
 #endif
          break;
@@ -430,9 +442,9 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
 #ifdef ALLEGRO_CFG_SHADER_GLSL
          switch (type) {
             case ALLEGRO_VERTEX_SHADER:
-               return default_glsl_vertex_source;
+               return use_gl3_shader ? default_glsl_vertex_source_gl3 : default_glsl_vertex_source;
             case ALLEGRO_PIXEL_SHADER:
-               return default_glsl_minimal_pixel_source;
+               return use_gl3_shader ? default_glsl_minimal_pixel_source_gl3 : default_glsl_minimal_pixel_source;
          }
 #endif
          break;

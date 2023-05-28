@@ -767,8 +767,6 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       // Take over the screen.
        *a = NSOpenGLPFAScreenMask; a++;
        *a = CGDisplayIDToOpenGLDisplayMask(dpy->display_id); a++;
-   } else {
-      *a = NSOpenGLPFAWindow; a++;
    }
 
    /* Find the requested colour depth */
@@ -846,8 +844,20 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    /* Accelerated is always preferred, so we only set this for required not
     * for suggested.
     */
-   if (extras->required & ALLEGRO_RENDER_METHOD) {
+   if (extras->required & (1UL << ALLEGRO_RENDER_METHOD)) {
       *a++ = NSOpenGLPFAAccelerated;
+   }
+   /*
+    * OpenGL 3+ support
+    * Newer versions of macos support modern OpenGL, but won't create a view
+    * that supports it unless explicitly requested to. Note that even though
+    * this looks like 3.2 core, it is really >= 3.2, and it is quite strict
+    * about removing support for legacy OpenGL features, and requires versioned
+    * shaders.
+    */
+   if (dpy->parent.flags & ALLEGRO_OPENGL_3_0) {
+      *a++ = NSOpenGLPFAOpenGLProfile;
+      *a++ = (NSOpenGLPixelFormatAttribute) NSOpenGLProfileVersion3_2Core;
    }
 }
 
@@ -1244,7 +1254,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       [dpy->win setTitle: title];
       [dpy->win setAcceptsMouseMovedEvents:YES];
       [dpy->win setViewsNeedDisplay:NO];
-      
+
       NSView *window_view = [[NSView alloc] initWithFrame:rect];
       [window_view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
       [[dpy->win contentView] addSubview:window_view];
@@ -1543,7 +1553,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
          mask |= NSWindowStyleMaskResizable;
       if (display->flags & ALLEGRO_FULLSCREEN)
          mask |= NSWindowStyleMaskResizable;
-      
+
       if ((adapter >= 0) &&
           (adapter < al_get_num_video_adapters())) {
          screen = [[NSScreen screens] objectAtIndex: adapter];
@@ -1578,7 +1588,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
          ALLEGRO_DEBUG("Could not create rendering context\n");
          [view release];
          [fmt release];
-         
+
          return;
       }
       /* Hook up the view to its display */
@@ -1596,7 +1606,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
        */
       [win setMinSize: NSMakeSize(MINIMUM_WIDTH / screen_scale_factor,
                                   MINIMUM_HEIGHT / screen_scale_factor)];
-      
+
       /* Maximize the window and update its width & height information */
       if (display->flags & ALLEGRO_MAXIMIZED) {
          [win setFrame: [screen visibleFrame] display: true animate: false];
@@ -1604,7 +1614,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
          display->w = content.size.width;
          display->h = content.size.height;
       }
-      
+
       /* Place the window, respecting the location set by the user with
        * al_set_new_window_position().
        * If the user never called al_set_new_window_position, we simply let
@@ -1614,7 +1624,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
        * the range -16000 ... 16000 (approximately, probably the range of a
        * signed 16 bit integer). Should we check for this?
        */
-      
+
       if ((x != INT_MAX) && (y != INT_MAX)) {
          /* The user gave us window coordinates */
          NSRect rc = [win frame];
@@ -1711,13 +1721,13 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    ALLEGRO_DISPLAY_OSX_WIN* other = NULL;
    unsigned int i;
-   
+
    // Set the display as the current display; needed because we need to
    // make the context current.
    if (old_dpy != d) {
       _al_set_current_display_only(d);
    }
-   
+
    /* First of all, save video bitmaps attached to this display. */
    // Check for other displays in this display group
    _AL_VECTOR* dpys = &al_get_system_driver()->displays;
@@ -1788,7 +1798,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    [dpy->cursor release];
    _al_event_source_free(&d->es);
    al_free(d->ogl_extras);
-   
+
    // Restore original display from before this function was called.
    // If the display we just destroyed is actually current, set the current
    // display to NULL.
@@ -1798,7 +1808,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
       // Is this redundant? --pw
       _al_set_current_display_only(NULL);
    }
-   
+
    if (dpy->flip_mutex) {
       al_destroy_mutex(dpy->flip_mutex);
       al_destroy_cond(dpy->flip_cond);
@@ -2260,7 +2270,7 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
    ASSERT_USER_THREAD();
    ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    NSWindow* window = d->win;
-	
+
    int primary_y = _al_osx_get_primary_screen_y();
    float global_scale_factor = _al_osx_get_global_scale_factor();
    dispatch_sync(dispatch_get_main_queue(), ^{
