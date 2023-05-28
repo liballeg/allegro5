@@ -802,8 +802,6 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       // Take over the screen.
        *a = NSOpenGLPFAScreenMask; a++;
        *a = CGDisplayIDToOpenGLDisplayMask(dpy->display_id); a++;
-   } else {
-      *a = NSOpenGLPFAWindow; a++;
    }
 
    /* Find the requested colour depth */
@@ -881,8 +879,20 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    /* Accelerated is always preferred, so we only set this for required not
     * for suggested.
     */
-   if (extras->required & ALLEGRO_RENDER_METHOD) {
+   if (extras->required & (1UL << ALLEGRO_RENDER_METHOD)) {
       *a++ = NSOpenGLPFAAccelerated;
+   }
+   /*
+    * OpenGL 3+ support
+    * Newer versions of macos support modern OpenGL, but won't create a view
+    * that supports it unless explicitly requested to. Note that even though
+    * this looks like 3.2 core, it is really >= 3.2, and it is quite strict
+    * about removing support for legacy OpenGL features, and requires versioned
+    * shaders.
+    */
+   if (dpy->parent.flags & ALLEGRO_OPENGL_3_0) {
+      *a++ = NSOpenGLPFAOpenGLProfile;
+      *a++ = (NSOpenGLPixelFormatAttribute) NSOpenGLProfileVersion3_2Core;
    }
 }
 
