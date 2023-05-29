@@ -418,11 +418,13 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
    bool use_gl3_shader = false;
 #ifdef ALLEGRO_MACOSX
    {
+      ALLEGRO_DISPLAY *display = al_get_current_display();
+
+
       /* Apple's glsl implementation supports either 1.20 shaders, or strictly
        * versioned 3.2+ shaders which do not use deprecated features.
        */
-      const char * shader_language = glGetString(GL_SHADING_LANGUAGE_VERSION);
-      if (strcmp(shader_language, "1.20") != 0) {
+      if (display && (display->flags & ALLEGRO_OPENGL_3_0)) {
          use_gl3_shader = true;
       }
    }
