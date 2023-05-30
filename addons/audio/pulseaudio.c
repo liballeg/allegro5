@@ -190,6 +190,9 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
    PULSEAUDIO_VOICE *pv = voice->extra;
    (void)self;
 
+   void* silence = al_malloc(pv->buffer_size_in_frames * pv->frame_size_in_bytes);
+   al_fill_silence(silence, pv->buffer_size_in_frames, voice->depth, voice->chan_conf);
+
    for (;;) {
       enum PULSEAUDIO_VOICE_STATUS status;
 
@@ -208,10 +211,12 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
          if (voice->is_streaming) { 
             // streaming audio           
             const void *data = _al_voice_update(voice, voice->mutex, &frames);
-            if (data) {
-               pa_simple_write(pv->s, data,
-                  frames * pv->frame_size_in_bytes, NULL);
+            if (!data) {
+              data = silence;
+              frames = pv->buffer_size_in_frames;
             }
+            pa_simple_write(pv->s, data,
+               frames * pv->frame_size_in_bytes, NULL);
          }
          else {
             // direct buffer audio
@@ -246,6 +251,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
          al_unlock_mutex(voice->mutex);
       }
    }
+   al_free(silence);
 
    return NULL;
 }
