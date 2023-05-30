@@ -355,8 +355,9 @@ static void sdl_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
    ASSERT(sdl_cursor);
    SDL_FreeCursor(sdl_cursor->cursor);
    al_free(sdl_cursor);
+}
 
-   static int sdl_get_monitor_dpi(int adapter)
+static int sdl_get_monitor_dpi(int adapter)
 {
    float ddpi, hdpi, vdpi;
    if (SDL_GetDisplayDPI(adapter, &ddpi, &hdpi, &vdpi) < 0)
@@ -419,6 +420,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->get_monitor_info = sdl_get_monitor_info;
    vt->create_mouse_cursor = sdl_create_mouse_cursor;
    vt->get_monitor_dpi = sdl_get_monitor_dpi;
+   vt->destroy_mouse_cursor = sdl_destroy_mouse_cursor;
    /*vt->get_cursor_position = sdl_get_cursor_position;
    vt->grab_mouse = sdl_grab_mouse;
    vt->ungrab_mouse = sdl_ungrab_mouse;*/
