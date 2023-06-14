@@ -63,6 +63,7 @@ typedef struct {
    CONFIG_STATE cfg_state;
    ALLEGRO_JOYSTICK_STATE state;
    IOHIDDeviceRef ident;
+   char * name;
 } ALLEGRO_JOYSTICK_OSX;
 
 static IOHIDManagerRef hidManagerRef;
@@ -757,10 +758,25 @@ static bool reconfigure_joysticks(void)
    return ret;
 }
 
-// FIXME!
 static const char *get_joystick_name(ALLEGRO_JOYSTICK *joy_)
 {
-   (void)joy_;
+   ALLEGRO_JOYSTICK_OSX *joy = (ALLEGRO_JOYSTICK_OSX *)joy_;
+   CFStringRef str;
+
+   str = IOHIDDeviceGetProperty(joy->ident, CFSTR(kIOHIDProductKey));
+   if (str) {
+      CFIndex length = CFStringGetLength(str);
+      CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+      if (joy->name) {
+         free(joy->name);
+      }
+      joy->name = (char *)malloc(maxSize);
+      if (joy->name) {
+         if (CFStringGetCString(str, joy->name, maxSize, kCFStringEncodingUTF8)) {
+            return joy->name;
+         }
+      }
+   }
    return "Joystick";
 }
 
