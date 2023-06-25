@@ -85,10 +85,6 @@ echo "Patching include/allegro5/base.h..."
 cp include/allegro5/base.h fixver.tmp
 sed -f fixver.sed fixver.tmp > include/allegro5/base.h
 
-# patch the OSX package readme
-echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
-echo "s/By Shawn Hargreaves, .*\./By Shawn Hargreaves, $datestr\./" >> fixver.sed
-
 # patch CMakeLists.txt
 echo "Patching CMakeLists.txt..."
 cp CMakeLists.txt fixver.tmp
