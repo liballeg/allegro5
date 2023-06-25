@@ -18,8 +18,7 @@ on Linux.
         git cherry-pick -x badf00d
 
 2.  On the master branch, bump the version to the next release and update the
-    dates. This is done in `include/allegro5/base.h`. Also, change
-    ALLEGRO_VERSION in `CMakeLists.txt`. Commit this change.
+    dates by using the `misc/fixver.sh` script. Commit this change.
 
 3.  Write a changelog file. This is located in docs/src/changes-5.2.txt.
 

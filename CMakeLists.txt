@@ -22,18 +22,31 @@ if(COMMAND cmake_policy)
     endif()
 endif(COMMAND cmake_policy)
 
-#-----------------------------------------------------------------------------#
-#
-#   Build system setup
-#
-#-----------------------------------------------------------------------------#
 
-# Set the project name.
-# We use C++ in a few cases.
-set(ALLEGRO_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
+##################################################################################################################
+# VERSION
+##################################################################################################################
+
+set(ALLEGRO_VERSION_REGEX_PATTERN "#define ALLEGRO_VERSION_STR[ ]+\"([0-9]+\\.[0-9]+\\.[0-9]+).*\"")
+file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/include/allegro5/base.h" ALLEGRO_VERSION_MATCH
+    REGEX ${ALLEGRO_VERSION_REGEX_PATTERN}
+    LIMIT_COUNT 1
+)
+string(REGEX REPLACE ${ALLEGRO_VERSION_REGEX_PATTERN} "\\1" ALLEGRO_VERSION "${ALLEGRO_VERSION_MATCH}")
+if("${ALLEGRO_VERSION}" VERSION_GREATER_EQUAL 5.0.0)
+    message(STATUS "[Allegro] Allegro Version: [${ALLEGRO_VERSION}]")
+else()
+    message(FATAL_ERROR "[Allegro] Invalid Allegro Version: [${ALLEGRO_VERSION}]")
+endif()
+
+
+##################################################################################################################
+# PROJECT
+##################################################################################################################
+
+# Allow generating custom project name via command-line arguments (#1174)
 set(ALLEGRO_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
-
-set(ALLEGRO_VERSION 5.2.9)
+set(ALLEGRO_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
 
 project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX}
     VERSION ${ALLEGRO_VERSION}
