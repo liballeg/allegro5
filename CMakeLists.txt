@@ -1208,6 +1208,44 @@ if(INSTALL_PKG_CONFIG_FILES)
     endforeach(versuffix)
 endif(INSTALL_PKG_CONFIG_FILES)
 
+# Generate CMake package-config files
+include(CMakePackageConfigHelpers)
+
+set(PKG_NAME "Allegro")
+string(TOLOWER ${PKG_NAME} PKG_NAME_LOWER)
+
+set(PKG_CONFIG_INSTALL_DIR "lib/cmake/${PKG_NAME_LOWER}")
+set(PKG_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(PKG_TARGETS_NAME "${PKG_NAME}Targets")
+set(PKG_CONFIG_FILE "${PKG_GENERATED_DIR}/${PKG_NAME}Config.cmake")
+set(PKG_VERSION_FILE "${PKG_GENERATED_DIR}/${PKG_NAME}ConfigVersion.cmake")
+
+configure_package_config_file(
+  "${CMAKE_CURRENT_LIST_DIR}/cmake/${PKG_NAME}Config.cmake.in"
+  ${PKG_CONFIG_FILE}
+  INSTALL_DESTINATION ${PKG_CONFIG_INSTALL_DIR}
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+write_basic_package_version_file(${PKG_VERSION_FILE}
+  VERSION ${ALLEGRO_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+install(
+  TARGETS ${ALLEGRO_TARGETS}
+  EXPORT ${PKG_TARGETS_NAME}
+)
+install(
+  EXPORT ${PKG_TARGETS_NAME}
+  NAMESPACE ${PKG_NAME}::
+  DESTINATION ${PKG_CONFIG_INSTALL_DIR}
+)
+install(
+  FILES ${PKG_CONFIG_FILE} ${PKG_VERSION_FILE}
+  DESTINATION ${PKG_CONFIG_INSTALL_DIR}
+)
+
+
 #-----------------------------------------------------------------------------#
 #
 #   Documentation

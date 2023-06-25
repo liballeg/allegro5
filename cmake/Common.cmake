@@ -85,6 +85,10 @@ endfunction(sanitize_cmake_link_flags)
 function(add_our_library target framework_name sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
     add_library(${target} ${sources})
+    target_include_directories(${target} INTERFACE $<INSTALL_INTERFACE:include>)
+    list(APPEND ALLEGRO_TARGETS "${target}")
+    list(REMOVE_DUPLICATES ALLEGRO_TARGETS)
+    set(ALLEGRO_TARGETS "${ALLEGRO_TARGETS}" CACHE STRING "Available allegro libraries" FORCE)
 
     if(MSVC)
         # Compile with multiple processors
