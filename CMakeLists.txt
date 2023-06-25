@@ -33,7 +33,16 @@ endif(COMMAND cmake_policy)
 set(ALLEGRO_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
 set(ALLEGRO_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
 
-project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX} C CXX)
+set(ALLEGRO_VERSION 5.2.9)
+
+project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX}
+    VERSION ${ALLEGRO_VERSION}
+    LANGUAGES C CXX
+    DESCRIPTION "Allegro project"
+    HOMEPAGE_URL "https://github.com/liballeg/allegro5"
+)
+
+set(ALLEGRO_SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -50,9 +59,6 @@ if(ANDROID)
 endif(ANDROID)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented on Windows)" OFF)
-
-set(ALLEGRO_VERSION 5.2.9)
-string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
