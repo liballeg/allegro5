@@ -5,20 +5,6 @@
 # - some documentation targets still missing
 # - installing documentation
 #
-
-#-----------------------------------------------------------------------------#
-#
-#   Build system setup
-#
-#-----------------------------------------------------------------------------#
-
-# Set the project name.
-# We use C++ in a few cases.
-set(ALLEGRO_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
-set(ALLEGRO_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
-
-project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX} C CXX)
-
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
@@ -35,6 +21,19 @@ if(COMMAND cmake_policy)
         cmake_policy(SET CMP0075 NEW)
     endif()
 endif(COMMAND cmake_policy)
+
+#-----------------------------------------------------------------------------#
+#
+#   Build system setup
+#
+#-----------------------------------------------------------------------------#
+
+# Set the project name.
+# We use C++ in a few cases.
+set(ALLEGRO_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
+set(ALLEGRO_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
+
+project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX} C CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
