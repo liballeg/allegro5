@@ -6,15 +6,16 @@
 #  digits will remain unchanged and the comment will be set to the date.
 #  This is in particular useful for making SVN snapshots.
 
+BASE_H_FILE="include/allegro5/base.h"
 
-if [ $# -eq 1 -a $1 == "datestamp" ]; then
-   # Uses GNU grep -o.
-   ver=$( grep -o "ALLEGRO_VERSION [0-9.]*" CMakeLists.txt | cut -d' ' -f2 )
-   major_num=$( echo $ver | cut -d. -f1 )
-   sub_num=$( echo $ver | cut -d. -f2 )
-   wip_num=$( echo $ver | cut -d. -f3 )
-   $0 $major_num $sub_num $wip_num `date '+%Y%m%d'`
-   exit 0
+if [ $# -eq 1 ] && [ "$1" = "datestamp" ]; then
+   major_num=$( awk '/^#define\s+ALLEGRO_VERSION\s+[0-9]+$/ { print $NF }' $BASE_H_FILE )
+   sub_num=$( awk '/^#define\s+ALLEGRO_SUB_VERSION\s+[0-9]+$/ { print $NF }' $BASE_H_FILE )
+   wip_num=$( awk '/^#define\s+ALLEGRO_WIP_VERSION\s+[0-9]+$/ { print $NF }' $BASE_H_FILE )
+   datestamp=`date '+%Y%m%d'`
+   echo "Re-invoking script with args: [$major_num $sub_num $wip_num $datestamp]"
+   $0 $major_num $sub_num $wip_num $datestamp
+   exit $?
 fi
 
 case $# in
@@ -81,14 +82,9 @@ echo "s/\#define ALLEGRO_VERSION_STR .*/\#define ALLEGRO_VERSION_STR      \"$ver
 echo "s/\#define ALLEGRO_DATE_STR .*/\#define ALLEGRO_DATE_STR         \"$year\"/" >> fixver.sed
 echo "s/\#define ALLEGRO_DATE .*/\#define ALLEGRO_DATE             $year$month$day    \/\* yyyymmdd \*\//" >> fixver.sed
 
-echo "Patching include/allegro5/base.h..."
-cp include/allegro5/base.h fixver.tmp
-sed -f fixver.sed fixver.tmp > include/allegro5/base.h
-
-# patch CMakeLists.txt
-echo "Patching CMakeLists.txt..."
-cp CMakeLists.txt fixver.tmp
-sed -e "s/set(ALLEGRO_VERSION [^)]*)/set(ALLEGRO_VERSION $1.$2.$3)/" fixver.tmp > CMakeLists.txt
+echo "Patching ${BASE_H_FILE}..."
+cp $BASE_H_FILE fixver.tmp
+sed -f fixver.sed fixver.tmp > $BASE_H_FILE
 
 # clean up after ourselves
 rm fixver.sed fixver.tmp
