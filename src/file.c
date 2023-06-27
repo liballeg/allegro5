@@ -40,7 +40,7 @@
 #endif
 
 #ifdef ALLEGRO_WINDOWS
-   #include "winalleg.h" /* for GetTempPath */
+   #include "winalleg.h" /* for GetTempPath, GetTempFileName */
 #endif
 
 #ifndef O_BINARY
@@ -1952,7 +1952,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       int tmp_fd = -1;
       char *tmp_dir = NULL;
       char *tmp_name = NULL;
-      #ifndef ALLEGRO_HAVE_MKSTEMP
+      #if !(defined ALLEGRO_WINDOWS) && !(defined ALLEGRO_HAVE_MKSTEMP)
       char* tmpnam_string;
       #endif
 
@@ -1969,7 +1969,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          
          /* Check if we retrieved the path OK */
          if (new_size == 0)
-            sprintf(tmp_dir, "%s", "");
+            sprintf(tmp_dir, "%s", ".");
       #else
          /* Get the path of the temporary directory */
 
@@ -1996,7 +1996,20 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       /* the file is open in read/write mode, even if the pack file
        * seems to be in write only mode
        */
-      #ifdef ALLEGRO_HAVE_MKSTEMP
+      #ifdef ALLEGRO_WINDOWS
+
+         tmp_name = _AL_MALLOC_ATOMIC(MAX_PATH);
+
+         if (GetTempFileName(tmp_dir, "", 0, tmp_name) == 0) {
+            _AL_FREE(tmp_dir);
+            _AL_FREE(tmp_name);
+
+            return NULL;
+         }
+
+         tmp_fd = open(tmp_name, O_RDWR | O_BINARY, 0);
+
+      #elif defined ALLEGRO_HAVE_MKSTEMP
 
          tmp_name = _AL_MALLOC_ATOMIC(strlen(tmp_dir) + 16);
          sprintf(tmp_name, "%s/XXXXXX", tmp_dir);
