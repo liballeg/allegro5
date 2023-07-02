@@ -29,6 +29,7 @@ enum {
    ALLEGRO_OPENGL_ES_PROFILE           = 1 << 14,
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
    ALLEGRO_OPENGL_CORE_PROFILE         = 1 << 15,
+   ALLEGRO_DRAG_AND_DROP               = 1 << 16,
 #endif
 };
 

@@ -18,6 +18,7 @@
 #endif
 
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_xdnd.h"
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
 struct ALLEGRO_SYSTEM_XGLX
@@ -48,6 +49,9 @@ struct ALLEGRO_SYSTEM_XGLX
 
    Atom AllegroAtom;
    Atom XEmbedAtom;
+
+   /* drag and drop support */
+   DndInfo dnd_info;
 
    /* Background thread to process X events.
     * Not used if GTK main loop is used.

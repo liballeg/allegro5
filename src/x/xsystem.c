@@ -16,6 +16,7 @@ extern int _Xdebug; /* part of Xlib */
 #include "allegro5/internal/aintern_xkeyboard.h"
 #include "allegro5/internal/aintern_xmouse.h"
 #include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xdnd.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintxglx.h"
 
@@ -105,6 +106,8 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
       /* Message type for XEmbed protocol. */
       s->XEmbedAtom = XInternAtom(x11display, "_XEMBED", False);
+
+      _al_display_xglx_init_dnd_atoms(s);
 
       _al_thread_create(&s->xevents_thread, _al_xwin_background_thread, s);
       s->have_xevents_thread = true;

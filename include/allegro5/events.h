@@ -49,7 +49,9 @@ enum
    ALLEGRO_EVENT_TOUCH_CANCEL                = 53,
    
    ALLEGRO_EVENT_DISPLAY_CONNECTED           = 60,
-   ALLEGRO_EVENT_DISPLAY_DISCONNECTED        = 61
+   ALLEGRO_EVENT_DISPLAY_DISCONNECTED        = 61,
+
+   ALLEGRO_EVENT_DROP                        = 62,
 };
 
 
@@ -197,6 +199,18 @@ struct ALLEGRO_USER_EVENT
 
 
 
+typedef struct ALLEGRO_DROP_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_DISPLAY)
+   int x, y;
+   int row;
+   bool is_file;
+   char *text;
+   bool is_complete;
+} ALLEGRO_DROP_EVENT;
+
+
+
 /* Type: ALLEGRO_EVENT
  */
 typedef union ALLEGRO_EVENT ALLEGRO_EVENT;
@@ -217,6 +231,7 @@ union ALLEGRO_EVENT
    ALLEGRO_TIMER_EVENT    timer;
    ALLEGRO_TOUCH_EVENT    touch;
    ALLEGRO_USER_EVENT     user;
+   ALLEGRO_DROP_EVENT     drop;
 };
 
 

@@ -541,6 +541,43 @@ physical display. However, on iOS, a secondary physical display is supported.
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was disconnected.
 
+### ALLEGRO_EVENT_DROP
+
+If a display is created with the ALLEGRO_DRAG_AND_DROP flag it will
+generate ALLEGRO_EVENT_DROP events when files or text are dropped over
+the display.
+
+drop.x (int)
+:    X coordinate that something is being dragged to
+
+drop.y (int)
+:    Y coordinate that something is being dragged to
+
+drop.text (char *)
+:    the filename or text that was dropped - this will be NULL while the
+     item is being dragged and only set at the final drop.
+
+     > *Note*: if the *text* field is not NULL ownership transfers to the event
+               receiver and it must eventually be freed with al_free.
+
+drop.is_file (bool)
+:    if text is not NULL whether the text is a filename or just plain
+     text.
+
+drop.row (int)
+:    if there is multiple files or multiple rows of text this will
+     number them, starting with 0.
+
+drop.is_complete (bool)
+:    indicates that this event will be the last one sent for the drag&drop
+     action. If *is_complete* is set before receiving an event
+     where *text* was not NULL it means the user aborted the drag&drop.
+
+Since: 5.2.9
+
+> *[Unstable API]:* This is an experimental feature and currently only works for
+the X11 backend.
+
 ## API: ALLEGRO_USER_EVENT
 
 An event structure that can be emitted by user event sources.

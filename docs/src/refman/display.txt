@@ -196,6 +196,17 @@ ALLEGRO_GTK_TOPLEVEL
     ALLEGRO_GTK_TOPLEVEL is incompatible with ALLEGRO_FULLSCREEN.
     Since: 5.1.5
 
+ALLEGRO_DRAG_AND_DROP
+:   If a display is created with the ALLEGRO_DRAG_AND_DROP flag it will
+    generate ALLEGRO_EVENT_DROP events when files or text are dropped over
+    the display.
+
+    > *[Unstable API]:* This is an experimental feature and currently only works for
+the X11 backend.
+
+    Since: 5.2.9
+
+
 0 can be used for default values.
 
 See also: [al_set_new_display_option], [al_get_display_option], [al_set_display_option]

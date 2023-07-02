@@ -12,6 +12,7 @@
 #include "allegro5/internal/aintern_xmouse.h"
 #include "allegro5/internal/aintern_xsystem.h"
 #include "allegro5/internal/aintern_xtouch.h"
+#include "allegro5/internal/aintern_xdnd.h"
 
 #ifdef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
@@ -90,6 +91,9 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             _al_display_xglx_closebutton(&d->display, &event);
             break;
          }
+         if (_al_display_xglx_handle_drag_and_drop(s, d, &event)) {
+            break;
+         }
 #ifndef ALLEGRO_RASPBERRYPI
          if (event.xclient.message_type == s->XEmbedAtom) {
             const long xtime = event.xclient.data.l[0];
@@ -161,6 +165,8 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          break;
 
       case SelectionNotify:
+         if (_al_display_xglx_handle_drag_and_drop_selection(s, d, &event))
+            break;
         _al_xwin_display_selection_notify(&d->display, &event.xselection);
         d->is_selectioned = true;
         _al_cond_signal(&d->selectioned);

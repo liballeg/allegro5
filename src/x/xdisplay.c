@@ -11,6 +11,7 @@
 #include "allegro5/internal/aintern_xsystem.h"
 #include "allegro5/internal/aintern_xtouch.h"
 #include "allegro5/internal/aintern_xwindow.h"
+#include "allegro5/internal/aintern_xdnd.h"
 #include "allegro5/platform/aintxglx.h"
 
 #include <X11/Xatom.h>
@@ -250,6 +251,10 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
 
    if (display->flags & ALLEGRO_FRAMELESS) {
       _al_xwin_set_frame(display, false);
+   }
+
+   if (display->flags & ALLEGRO_DRAG_AND_DROP) {
+      _al_xwin_accept_drag_and_drop(display, true);
    }
 
    ALLEGRO_DEBUG("X11 window created.\n");

@@ -118,6 +118,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xclipboard.c
     src/x/xcursor.c
     src/x/xdisplay.c
+    src/x/xdnd.c
     src/x/xevents.c
     src/x/xfullscreen.c
     src/x/xglx_config.c
