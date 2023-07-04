@@ -198,7 +198,7 @@ static BYTE *get_dib_from_bitmap(BITMAP *bitmap)
    int bpp;
    int x, y;
    int pitch;
-   int col;
+   long col;
    BYTE *pixels;
    BYTE *src, *dst;
 

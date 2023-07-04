@@ -737,7 +737,7 @@ int uoffset(AL_CONST char *s, int index)
       }
    }
 
-   return (long)s - (long)orig;
+   return (long long)s - (long long)orig;
 }
 
 
@@ -1783,7 +1783,7 @@ int ustrsize(AL_CONST char *s)
       last = s;
    } while (ugetxc(&s) != 0);
 
-   return (long)last - (long)orig;
+   return (long long)last - (long long)orig;
 }
 
 
@@ -1800,7 +1800,7 @@ int ustrsizez(AL_CONST char *s)
    do {
    } while (ugetxc(&s) != 0);
 
-   return (long)s - (long)orig;
+   return (long long)s - (long long)orig;
 }
 
 
@@ -2313,7 +2313,7 @@ long ustrtol(AL_CONST char *s, char **endp, int base)
    ret = strtol(t, &myendp, base);
 
    if (endp)
-      *endp = (char *)s + uoffset(s, (long)myendp - (long)t);
+      *endp = (char *)s + uoffset(s, (long long)myendp - (long long)t);
 
    return ret;
 }
@@ -2337,7 +2337,7 @@ double ustrtod(AL_CONST char *s, char **endp)
    ret = strtod(t, &myendp);
 
    if (endp)
-      *endp = (char *)s + uoffset(s, (long)myendp - (long)t);
+      *endp = (char *)s + uoffset(s, (long long)myendp - (long long)t);
 
    return ret;
 }
@@ -2948,7 +2948,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 
 	       case 'p':
 		  /* pointer */
-		  slen = sprint_hex(string_arg, &info, FALSE, (unsigned long)(va_arg(args, void *)));
+		  slen = sprint_hex(string_arg, &info, FALSE, (unsigned long long)(va_arg(args, void *)));
 		  NEXT_C();
 		  break;
 

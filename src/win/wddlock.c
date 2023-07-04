@@ -165,7 +165,7 @@ void gfx_directx_lock(BITMAP *bmp)
       bmp->id |= BMP_ID_LOCKED;
 
       /* update the line array if our parent has moved */
-      pitch = (long)parent->line[1] - (long)parent->line[0];
+      pitch = (long long)parent->line[1] - (long long)parent->line[0];
       data = parent->line[0] +
              (bmp->y_ofs - parent->y_ofs) * pitch +
              (bmp->x_ofs - parent->x_ofs) * BYTES_PER_PIXEL(bitmap_color_depth(bmp));
@@ -263,7 +263,7 @@ void gfx_directx_autolock(BITMAP *bmp)
       }
 
       /* update the line array if our parent has moved */
-      pitch = (long)parent->line[1] - (long)parent->line[0];
+      pitch = (long long)parent->line[1] - (long long)parent->line[0];
       data = parent->line[0] +
              (bmp->y_ofs - parent->y_ofs) * pitch +
              (bmp->x_ofs - parent->x_ofs) * BYTES_PER_PIXEL(bitmap_color_depth(bmp));

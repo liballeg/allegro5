@@ -2078,7 +2078,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 	       return NULL;
 	    }
 	    _al_sane_strncpy(chunk->normal.passdata, f->normal.passdata, strlen(f->normal.passdata)+1);
-	    chunk->normal.passpos = chunk->normal.passdata + (long)f->normal.passpos - (long)f->normal.passdata;
+	    chunk->normal.passpos = chunk->normal.passdata + (ULONG_PTR)f->normal.passpos - (ULONG_PTR)f->normal.passdata;  //64bit   long
 	    f->normal.passpos = f->normal.passdata;
 	 }
 	 chunk->normal.flags |= PACKFILE_FLAG_OLD_CRYPT;
@@ -2201,7 +2201,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
       }
 
       if ((f->normal.passpos) && (f->normal.flags & PACKFILE_FLAG_OLD_CRYPT))
-	 parent->normal.passpos = parent->normal.passdata + (long)f->normal.passpos - (long)f->normal.passdata;
+	 parent->normal.passpos = parent->normal.passdata + (ULONG_PTR)f->normal.passpos - (ULONG_PTR)f->normal.passdata;  //64bit  long
 
       free_packfile(f);
    }

@@ -25,7 +25,7 @@
 #define DRAW_GLYPH(bits, size)                                               \
 {                                                                            \
    AL_CONST unsigned char *data = glyph->dat;                                \
-   unsigned long addr;                                                       \
+   unsigned long long addr;                                                       \
    int w = glyph->w;                                                         \
    int h = glyph->h;                                                         \
    int stride = (w+7)/8;                                                     \
@@ -183,7 +183,7 @@ void _linear_draw_glyph24(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y,
  */
 void _linear_draw_glyph32(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg)
 {
-   DRAW_GLYPH(32, sizeof(int32_t));
+   DRAW_GLYPH(32, sizeof(int32_t)); //64bit int32_t
 }
 
 #endif
