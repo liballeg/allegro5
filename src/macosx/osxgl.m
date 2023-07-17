@@ -1301,6 +1301,8 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       osx_run_fullscreen_display(dpy);
    });
    [pool drain];
+
+   _al_osx_tell_dock();
    return &dpy->parent;
 }
 #if 0
@@ -1696,6 +1698,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    [pool drain];
 
+   _al_osx_tell_dock();
    return display;
 }
 

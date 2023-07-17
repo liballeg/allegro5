@@ -53,12 +53,17 @@ NSBundle *_al_osx_bundle = NULL;
 static _AL_VECTOR osx_display_modes;
 static ALLEGRO_SYSTEM osx_system;
 
-/* osx_tell_dock:
+/* _al_osx_tell_dock:
  *  Tell the dock about us; promote us from a console app to a graphical app
  *  with dock icon and menu
  */
-static void osx_tell_dock(void)
+void _al_osx_tell_dock(void)
 {
+   if (_al_osx_bundle != NULL) {
+      /* If in a bundle, the dock will recognise us automatically */
+      return;
+   }
+
    ProcessSerialNumber psn = { 0, kCurrentProcess };
    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
    [[NSApplication sharedApplication] performSelectorOnMainThread: @selector(activateIgnoringOtherApps:)
@@ -112,9 +117,16 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    osx_system.vt = _al_system_osx_driver();
    _al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
 
-   if (_al_osx_bundle == NULL) {
+   // `_al_osx_tell_dock` is better done after creating a display. Support old behavior for compatability.
+   bool do_osx_tell_dock = true;
+   const char* osx_tell_dock_outside_bundle_value =
+      al_get_config_value(al_get_system_config(), "compatibility", "osx_tell_dock_outside_bundle");
+   if (osx_tell_dock_outside_bundle_value && strcmp(osx_tell_dock_outside_bundle_value, "false") == 0)
+      do_osx_tell_dock = false;
+
+   if (do_osx_tell_dock) {
        /* If in a bundle, the dock will recognise us automatically */
-       osx_tell_dock();
+       _al_osx_tell_dock();
    }
 
    /* Mark the beginning of time. */
