@@ -117,6 +117,7 @@ typedef struct HID_DEVICE_COLLECTION HID_DEVICE_COLLECTION;
 #endif
 
 int _al_osx_bootstrap_ok(void);
+void _al_osx_tell_dock(void);
 
 void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY*);
 void _al_osx_keyboard_modifiers(unsigned int new_mods, ALLEGRO_DISPLAY*);
