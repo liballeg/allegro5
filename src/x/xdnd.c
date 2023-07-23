@@ -42,7 +42,7 @@ void _al_display_xglx_init_dnd_atoms(ALLEGRO_SYSTEM_XGLX *s)
  */
 static void read_property(Property *p, Display *disp, Window w, Atom prop)
 {
-   unsigned char *ret=NULL;
+   unsigned char *ret = NULL;
    Atom type;
    int fmt;
    unsigned long count;
@@ -51,15 +51,15 @@ static void read_property(Property *p, Display *disp, Window w, Atom prop)
 
    do {
       if (ret != 0) XFree(ret);
-      XGetWindowProperty(disp, w, prop, 0, bytes_fetch, False,
+      XGetWindowProperty(disp, w, prop, 0, bytes_fetch, false,
          AnyPropertyType, &type, &fmt, &count, &bytes_left, &ret);
       bytes_fetch += bytes_left;
    } while (bytes_left != 0);
 
-   p->data=ret;
-   p->format=fmt;
-   p->count=count;
-   p->type=type;
+   p->data = ret;
+   p->format = fmt;
+   p->count = count;
+   p->type = type;
 }
 
 /* Find text-uri-list in a list of targets and return it's atom
@@ -70,7 +70,7 @@ static Atom pick_target(Display *disp, Atom list[], int list_count)
    Atom request = None;
    char *name;
    int i;
-   for (i=0; i < list_count && request == None; i++) {
+   for (i = 0; i < list_count && request == None; i++) {
       name = XGetAtomName(disp, list[i]);
       if ((strcmp("text/uri-list", name) == 0) || (strcmp("text/plain", name) == 0)) {
          request = list[i];
@@ -86,7 +86,7 @@ static Atom pick_target(Display *disp, Atom list[], int list_count)
  */
 static Atom pick_target_from_atoms(Display *disp, Atom a0, Atom a1, Atom a2)
 {
-   int count=0;
+   int count = 0;
    Atom atom[3];
    if (a0 != None) atom[count++] = a0;
    if (a1 != None) atom[count++] = a1;
@@ -130,7 +130,7 @@ static void x11_reply(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *allegro_disp
       m.data.l[1] = s->dnd_info.xdnd_req != None;
       m.data.l[2] = s->dnd_info.xdnd_req != None ? s->dnd_info.XdndActionCopy : None;
    }
-   XSendEvent(s->x11display, window, False, NoEventMask, (XEvent*)&m);
+   XSendEvent(s->x11display, window, false, NoEventMask, (XEvent*)&m);
    XSync(s->x11display, 0);
 }
 
@@ -197,14 +197,14 @@ bool _al_display_xglx_handle_drag_and_drop(ALLEGRO_SYSTEM_XGLX *s,
       // we don't send the text yet to avoid all the string allocations
       last_drop_x = window_x;
       last_drop_y = window_y;
-      _send_event(allegro_display, NULL, False, 0, False);
+      _send_event(allegro_display, NULL, false, 0, false);
       x11_reply(s, allegro_display, xevent->xclient.data.l[0], s->dnd_info.XdndStatus);
       return true;
    }
    else if (xevent->xclient.message_type == s->dnd_info.XdndDrop) {
       if (s->dnd_info.xdnd_req == None) {
          x11_reply(s, allegro_display, xevent->xclient.data.l[0], s->dnd_info.XdndFinished);
-         _send_event(allegro_display, NULL, False, 0, True);
+         _send_event(allegro_display, NULL, false, 0, true);
          ALLEGRO_DEBUG("Xdnd aborted\n");
       } else {
          ALLEGRO_DEBUG("Xdnd received, converting to selection\n");
@@ -221,7 +221,7 @@ bool _al_display_xglx_handle_drag_and_drop(ALLEGRO_SYSTEM_XGLX *s,
       return true;
    }
    else if (xevent->xclient.message_type == s->dnd_info.XdndLeave) {
-      _send_event(allegro_display, NULL, False, 0, True);
+      _send_event(allegro_display, NULL, false, 0, true);
       ALLEGRO_DEBUG("Xdnd cancelled\n");
    }
    return false;
@@ -344,7 +344,7 @@ void _al_xwin_accept_drag_and_drop(ALLEGRO_DISPLAY *display, bool accept)
       Atom xdnd_version = 5;
       XChangeProperty(system->x11display, glx->window, XdndAware, XA_ATOM, 32,
          PropModeReplace, (unsigned char*)&xdnd_version, 1);
-    } else {
-        XDeleteProperty(system->x11display, glx->window, XdndAware);
-    }
+   } else {
+      XDeleteProperty(system->x11display, glx->window, XdndAware);
+   }
 }
