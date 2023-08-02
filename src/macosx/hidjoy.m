@@ -443,7 +443,7 @@ static void osx_joy_generate_button_event(ALLEGRO_JOYSTICK_OSX *joy, int button,
    _al_event_source_emit_event(es, &event);
 }
 
-#define MAX_HAT_DIRECTIONS 9
+#define MAX_HAT_DIRECTIONS 8
 struct HAT_MAPPING {
    int axisV;
    int axisH;
@@ -456,7 +456,6 @@ struct HAT_MAPPING {
    {  1, -1 }, // 5
    {  0, -1 }, // 6
    { -1, -1 }, // 7
-   {  0,  0 }, // 8
 };
 
 static void value_callback(
@@ -496,9 +495,12 @@ static void value_callback(
    int int_value = IOHIDValueGetIntegerValue(value);
 
    if (joy->dpad == elem){
-      if (int_value >= 0 && int_value < MAX_HAT_DIRECTIONS) {
-         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  (float)hat_mapping[int_value].axisV);
-         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, (float)hat_mapping[int_value].axisH);
+      if (int_value > 0 && int_value <= MAX_HAT_DIRECTIONS) {
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  (float)hat_mapping[int_value-1].axisV);
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, (float)hat_mapping[int_value-1].axisH);
+      } else if (joy->min[joy->dpad_stick][1] > int_value || joy->max[joy->dpad_stick][1] < int_value) {
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  0);
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, 0);
       }
       goto done;
    }
