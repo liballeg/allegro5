@@ -492,14 +492,19 @@ static void value_callback(
    }
 
    int int_value = IOHIDValueGetIntegerValue(value);
+   int min = joy->min[joy->dpad_stick][1];
+   int max = joy->max[joy->dpad_stick][1];
 
    if (joy->dpad == elem){
-      if (joy->min[joy->dpad_stick][1] > int_value || joy->max[joy->dpad_stick][1] < int_value) {
+      if (int_value >= min && int_value <= max) {
+         int index = int_value - min;
+         if (index < MAX_HAT_DIRECTIONS) {
+            osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  (float)hat_mapping[index].axisV);
+            osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, (float)hat_mapping[index].axisH);
+         }
+      } else {
          osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  0);
          osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, 0);
-      } else if (int_value > 0 && int_value <= MAX_HAT_DIRECTIONS) {
-         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  (float)hat_mapping[int_value-1].axisV);
-         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, (float)hat_mapping[int_value-1].axisH);
       }
       goto done;
    }
