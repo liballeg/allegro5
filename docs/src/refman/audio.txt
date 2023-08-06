@@ -144,8 +144,10 @@ Since: 5.2.3
 
 ### API: al_play_audio_stream
 
-Loads and plays an audio file from disk as it is needed. This API can only play
-one audio stream at a time.
+Loads and plays an audio file, streaming from disk as it is needed. This API
+can only play one audio stream at a time. This requires a default mixer to be
+set, which is typically done via [al_reserve_samples], but can also be done via
+[al_set_default_mixer].
 
 Returns the stream on success, NULL on failure. You must not destroy the
 returned stream, it will be automatically destroyed when the addon is shut
@@ -163,7 +165,10 @@ Since: 5.2.8
 
 ### API: al_play_audio_stream_f
 
-Loads and plays an audio file from [ALLEGRO_FILE] stream as it is needed.
+Loads and plays an audio file from [ALLEGRO_FILE] stream, streaming it is
+needed. This API can only play one audio stream at a time. This requires a
+default mixer to be set, which is typically done via [al_reserve_samples], but
+can also be done via [al_set_default_mixer].
 
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
