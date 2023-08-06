@@ -21,7 +21,7 @@ addon][al_init_acodec_addon]). In order to stop samples, you can use the
 If you want to play large audio files (e.g. background music) without loading
 the whole file at once you can use [al_play_audio_stream] (after calling
 [al_reserve_samples]). This will load and play an `ALLEGRO_AUDIO_STREAM`. Note
-that the basic API only supports on such audio stream playing at once.
+that the basic API only supports one such audio stream playing at once.
 
 ### API: ALLEGRO_SAMPLE_ID
 
