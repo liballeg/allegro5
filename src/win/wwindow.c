@@ -203,9 +203,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       width+lsize+rsize,
       height+tsize+bsize,
       SWP_NOZORDER | SWP_NOMOVE);
-   SetWindowPos(my_window, 0, pos_x-lsize, pos_y-tsize,
-      0, 0,
-      SWP_NOZORDER | SWP_NOSIZE);
 
    if (flags & ALLEGRO_FRAMELESS) {
       SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
