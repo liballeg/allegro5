@@ -93,11 +93,50 @@ void _al_shutdown_native_dialog_addon(void)
    wm_size_cond = NULL;
 }
 
+static INT CALLBACK _browse_callback_proc(HWND hwnd, UINT uMsg, LPARAM unused, LPARAM pData)
+{
+   (void)unused;
+   if (uMsg == BFFM_INITIALIZED) SendMessage(hwnd, BFFM_SETSELECTION, TRUE, pData);
+   return 0;
+}
+
+static TCHAR* _extract_dirname(ALLEGRO_PATH *fullpath) 
+{
+   TCHAR* wpath = NULL;
+   bool is_dir;
+   const ALLEGRO_USTR *path = al_path_ustr(fullpath, ALLEGRO_NATIVE_PATH_SEP);
+
+   if (al_filename_exists(al_cstr(path))) {
+      ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(al_cstr(path));
+      is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
+      al_destroy_fs_entry(fs);
+   }
+   else {
+      is_dir = false;
+   }
+
+   if (is_dir) {
+      wpath = _twin_ustr_to_tchar(path);
+   }
+   else {
+      /* Extract the directory from the path. */
+      
+      ALLEGRO_PATH* initial_dir_path = NULL;
+      initial_dir_path = al_clone_path(fullpath);
+      if (initial_dir_path) {
+         al_set_path_filename(initial_dir_path, NULL);
+         wpath = _twin_utf8_to_tchar(al_path_cstr(initial_dir_path, ALLEGRO_NATIVE_PATH_SEP));
+         al_destroy_path(initial_dir_path);
+      }
+   }
+   return wpath;
+}
 
 static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    BROWSEINFO folderinfo;
+   TCHAR* wpath = NULL;
    LPCITEMIDLIST pidl;
    /* Selected path */
    TCHAR buf[MAX_PATH] = TEXT("");
@@ -110,10 +149,17 @@ static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    folderinfo.lpszTitle = _twin_ustr_to_tchar(fd->title);
    folderinfo.ulFlags = 0;
    folderinfo.lpfn = NULL;
+   
+   if (fd->fc_initial_path) {
+      wpath = _extract_dirname(fd->fc_initial_path);
+      folderinfo.lpfn = _browse_callback_proc;
+      folderinfo.lParam = (LPARAM) wpath;
+   }
 
    pidl = SHBrowseForFolder(&folderinfo);
 
    al_free((void*) folderinfo.lpszTitle);
+   al_free(wpath);
 
    if (pidl) {
       SHGetPathFromIDList(pidl, buf);
@@ -197,7 +243,6 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    TCHAR* wfilter = NULL;
    TCHAR* wpath = NULL;
    ALLEGRO_USTR *filter_string = NULL;
-   ALLEGRO_PATH* initial_dir_path = NULL;
 
    buf[0] = '\0';
 
@@ -229,29 +274,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
    /* Initialize file name buffer and starting directory. */
    if (fd->fc_initial_path) {
-      bool is_dir;
-      const ALLEGRO_USTR *path = al_path_ustr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
 
-      if (al_filename_exists(al_cstr(path))) {
-         ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(al_cstr(path));
-         is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
-         al_destroy_fs_entry(fs);
-      }
-      else {
-         is_dir = false;
-      }
-
-      if (is_dir) {
-         wpath = _twin_ustr_to_tchar(path);
-      }
-      else {
-         /* Extract the directory from the path. */
-         initial_dir_path = al_clone_path(fd->fc_initial_path);
-         if (initial_dir_path) {
-            al_set_path_filename(initial_dir_path, NULL);
-            wpath = _twin_utf8_to_tchar(al_path_cstr(initial_dir_path, ALLEGRO_NATIVE_PATH_SEP));
-         }
-      }
+      wpath = _extract_dirname(fd->fc_initial_path);
       ofn.lpstrInitialDir = wpath;
    }
 
@@ -276,9 +300,6 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       ret = GetOpenFileName(&ofn);
    }
 
-   if (initial_dir_path) {
-      al_destroy_path(initial_dir_path);
-   }
    al_free((void*) ofn.lpstrTitle);
    al_free(wfilter);
    al_free(wpath);
