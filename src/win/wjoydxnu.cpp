@@ -1532,19 +1532,19 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
          const int dwOfs    = item->dwOfs;
          const DWORD dwData = item->dwData;
 
-         if (joy->rx_mapping.j && joy->rx_mapping.j == dwOfs)
-            handle_axis_event(joy, &joy->rx_mapping, dwData);
-         else if (joy->ry_mapping.j && joy->ry_mapping.j == dwOfs)
-            handle_axis_event(joy, &joy->ry_mapping, dwData);
-         else if (dwOfs == DIJOFS_X)
+         if (dwOfs == DIJOFS_X)
          	handle_axis_event(joy, &joy->x_mapping, dwData);
          else if (dwOfs == DIJOFS_Y)
          	handle_axis_event(joy, &joy->y_mapping, dwData);
          else if (dwOfs == DIJOFS_Z)
          	handle_axis_event(joy, &joy->z_mapping, dwData);
-         else if (dwOfs == DIJOFS_RX)
+         else if (joy->rx_mapping.j && joy->rx_mapping.j == dwOfs)
+            handle_axis_event(joy, &joy->rx_mapping, dwData);
+         else if (joy->ry_mapping.j && joy->ry_mapping.j == dwOfs)
+            handle_axis_event(joy, &joy->ry_mapping, dwData);
+         else if (joy->rx_mapping.j == 0 && dwOfs == DIJOFS_RX)
          	handle_axis_event(joy, &joy->rx_mapping, dwData);
-         else if (dwOfs == DIJOFS_RY)
+         else if (joy->ry_mapping.j == 0 && dwOfs == DIJOFS_RY)
          	handle_axis_event(joy, &joy->ry_mapping, dwData);
          else if (dwOfs == DIJOFS_RZ)
          	handle_axis_event(joy, &joy->rz_mapping, dwData);
