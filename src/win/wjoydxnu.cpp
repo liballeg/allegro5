@@ -79,6 +79,7 @@
 #include <mmsystem.h>
 #include <process.h>
 #include <dinput.h>
+#include <utility>
 
 /* We need XInput detection if we actually compile the XInput driver in. 
 */ 
@@ -146,6 +147,7 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
 #define DEFINE_PRIVATE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
    static const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
 
+DEFINE_PRIVATE_GUID(__al_GUID_None, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 DEFINE_PRIVATE_GUID(__al_GUID_XAxis, 0xA36D02E0,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 DEFINE_PRIVATE_GUID(__al_GUID_YAxis, 0xA36D02E1,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
 DEFINE_PRIVATE_GUID(__al_GUID_ZAxis, 0xA36D02E2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
@@ -503,6 +505,7 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 #define GUIDTYPE_EQ(x)  GUID_EQUAL(lpddoi->guidType, x)
 
    CAPS_AND_NAMES *can = (CAPS_AND_NAMES *)pvRef;
+   DWORD j = 0;
 
    if (GUIDTYPE_EQ(__al_GUID_XAxis)) {
       can->have_x = true;
@@ -515,18 +518,22 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
    else if (GUIDTYPE_EQ(__al_GUID_ZAxis)) {
       can->have_z = true;
       _tcsncpy(can->name_z, lpddoi->tszName, NAME_LEN);
+      j = DIJOFS_Z;
    }
    else if (GUIDTYPE_EQ(__al_GUID_RxAxis)) {
       can->have_rx = true;
       _tcsncpy(can->name_rx, lpddoi->tszName, NAME_LEN);
+      j = DIJOFS_RX;
    }
    else if (GUIDTYPE_EQ(__al_GUID_RyAxis)) {
       can->have_ry = true;
       _tcsncpy(can->name_ry, lpddoi->tszName, NAME_LEN);
+      j = DIJOFS_RY;
    }
    else if (GUIDTYPE_EQ(__al_GUID_RzAxis)) {
       can->have_rz = true;
       _tcsncpy(can->name_rz, lpddoi->tszName, NAME_LEN);
+      j = DIJOFS_RZ;
    }
    else if (GUIDTYPE_EQ(__al_GUID_Slider)) {
       if (can->num_sliders < MAX_SLIDERS) {
@@ -547,6 +554,38 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
          _tcsncpy(can->name_button[can->num_buttons], lpddoi->tszName,
             NAME_LEN);
          can->num_buttons++;
+      }
+   }
+
+   // The first two axis (not X or Y) are stored and used as the secondary stick.
+   // The order of the enumeration is assumed to give us the X followed by the Y axis. However,
+   // an override is provided in the case that the second axis seen here is for Z, in which case that
+   // will be used as the X axis. This is to fit behaviors seen on specific controllers:
+   // - PS4 DualShock
+   // - Stadia
+   // ...it may be that using `Z` really is common for some input devices.
+   //
+   // Solution came from https://www.gamedev.net/forums/topic/613913-directinput-identifying-second-thumbstick/
+   if (j)
+   {
+      if (can->secondary_stick_axis_one == 0)
+      {
+         can->secondary_stick_axis_one = j;
+         _tcsncpy(can->name_rx, lpddoi->tszName, NAME_LEN);
+      }
+      else if (can->secondary_stick_axis_two == 0)
+      {
+         can->secondary_stick_axis_two = j;
+         _tcsncpy(can->name_ry, lpddoi->tszName, NAME_LEN);
+
+         if (j == DIJOFS_Z)
+         {
+            std::swap(can->secondary_stick_axis_one, can->secondary_stick_axis_two);
+            std::swap(can->name_rx, can->name_ry);
+         }
+
+         can->have_rx = true;
+         can->have_ry = true;
       }
    }
 
@@ -640,6 +679,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_rx, default_name_rx);
          joy->rx_mapping.stick = N_STICK;
          joy->rx_mapping.axis  = N_AXIS;
+         joy->rx_mapping.j = can->secondary_stick_axis_one;
          N_AXIS++;
       }
 
@@ -648,6 +688,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_ry, default_name_ry);
          joy->ry_mapping.stick = N_STICK;
          joy->ry_mapping.axis  = N_AXIS;
+         joy->ry_mapping.j = can->secondary_stick_axis_two;
          N_AXIS++;
       }
 
@@ -1491,7 +1532,11 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
          const int dwOfs    = item->dwOfs;
          const DWORD dwData = item->dwData;
 
-         if (dwOfs == DIJOFS_X)
+         if (joy->rx_mapping.j && joy->rx_mapping.j == dwOfs)
+            handle_axis_event(joy, &joy->rx_mapping, dwData);
+         else if (joy->ry_mapping.j && joy->ry_mapping.j == dwOfs)
+            handle_axis_event(joy, &joy->ry_mapping, dwData);
+         else if (dwOfs == DIJOFS_X)
          	handle_axis_event(joy, &joy->x_mapping, dwData);
          else if (dwOfs == DIJOFS_Y)
          	handle_axis_event(joy, &joy->y_mapping, dwData);
