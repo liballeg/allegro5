@@ -739,6 +739,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
       }
       case WM_SYSCOMMAND: {
+         DWORD style;
+         DWORD exstyle;
          if (_al_win_disable_screensaver &&
                ((wParam & 0xfff0) == SC_MONITORPOWER || (wParam & 0xfff0) == SC_SCREENSAVE)) {
             return 0;
@@ -751,11 +753,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          /* This is used by WM_GETMINMAXINFO to set constraints. */
          else if ((wParam & 0xfff0) == SC_MAXIMIZE) {
             d->flags |= ALLEGRO_MAXIMIZED;
-            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
+            display_flags_to_window_styles(d->flags, &style, &exstyle);
+            SetWindowLong(hWnd, GWL_EXSTYLE, exstyle);
          }
          else if ((wParam & 0xfff0) == SC_RESTORE) {
             d->flags &= ~ALLEGRO_MAXIMIZED;
-            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW);
+            display_flags_to_window_styles(d->flags, &style, &exstyle);
+            SetWindowLong(hWnd, GWL_EXSTYLE, exstyle);
          }
          break;
       }
