@@ -543,6 +543,8 @@ void _al_osx_mouse_was_installed(BOOL install) {
       ALLEGRO_INFO("Window finished resizing %d x %d\n", event.display.width, event.display.height);
    }
    _al_event_source_unlock(es);
+   dpy->old_w = NSWidth(content);
+   dpy->old_h = NSWidth(content);
 }
 /* Window switch in/out */
 -(void) windowDidBecomeMain:(NSNotification*) notification
@@ -1512,6 +1514,8 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 #endif
    display->w = w;
    display->h = h;
+   dpy->old_w = w;
+   dpy->old_h = h;
    _al_event_source_init(&display->es);
    _al_osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
@@ -2072,6 +2076,10 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    });
    // must be done on the thread the user calls it from, not the main thread
    setup_gl(d);
+   // Only update the old values in response to user-initiated resizes.
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)d;
+   dpy->old_w = w;
+   dpy->old_h = h;
    return rc;
 }
 
@@ -2458,7 +2466,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
                display->flags |= ALLEGRO_MAXIMIZED;
             else
                display->flags &= ~ALLEGRO_MAXIMIZED;
-            [dpy->view maximize];
+            [view maximize];
             break;
          case ALLEGRO_FULLSCREEN_WINDOW:
             if (onoff) {
@@ -2471,12 +2479,8 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
                display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
             } else {
                [view exitFullScreenWindowMode];
-               NSRect sc = [view frame];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-               sc = [win convertRectToBacking: sc];
-#endif
                display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
-               resize_display_win_main_thread(display, sc.size.width, sc.size.height);
+               resize_display_win_main_thread(display, dpy->old_w, dpy->old_h);
                [view finishExitingFullScreenWindowMode];
             }
             need_setup_gl = true;
