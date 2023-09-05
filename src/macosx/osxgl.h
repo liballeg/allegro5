@@ -40,6 +40,9 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    ALLEGRO_MUTEX *flip_mutex;
    ALLEGRO_COND *flip_cond;
    int num_flips;
+   /* These two store the old window size when restoring from a FS window. */
+   int old_w;
+   int old_h;
 } ALLEGRO_DISPLAY_OSX_WIN;
 
 /* This is our version of ALLEGRO_MOUSE_CURSOR */
