@@ -26,6 +26,7 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    NSOpenGLContext* ctx;
    NSOpenGLPixelFormatAttribute attributes[AL_OSX_NUM_PFA];
    ALWindow* win;
+   NSView* view;
    NSCursor* cursor;
    CGDirectDisplayID display_id;
    BOOL show_cursor;

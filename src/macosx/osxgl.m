@@ -636,7 +636,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    /* HACK? For some reason, we need to disable the chrome. If we don't, the fullscreen window
       will be created with space left over for it. Are we creating a fullscreen window in the wrong way? */
    [dpy->win setStyleMask: [dpy->win styleMask] & ~NSWindowStyleMaskTitled];
-   [[dpy->win contentView] enterFullScreenMode: [dpy->win screen] withOptions: dict];
+   [dpy->view enterFullScreenMode: [dpy->win screen] withOptions: dict];
    [dict release];
 #endif
 }
@@ -692,7 +692,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
     * crash. To avoid it, remove the tracking area and add it back after exiting fullscreen.
     * (my theory)
     */
-   [dpy->win orderOut:[dpy->win contentView]];
+   [dpy->win orderOut: dpy->view];
    [self exitFullScreenModeWithOptions: nil];
    /* Restore the title bar disabled in enterFullScreenWindowMode. */
    if (!(dpy_ptr->flags & ALLEGRO_FRAMELESS)) {
@@ -705,7 +705,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    ALLEGRO_DISPLAY_OSX_WIN *dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
 
    [dpy->win center];
-   [dpy->win makeKeyAndOrderFront:[dpy->win contentView]];
+   [dpy->win makeKeyAndOrderFront: dpy->view];
    [[self window] makeFirstResponder: self];
 }
 
@@ -1583,6 +1583,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
          
          return;
       }
+      dpy->view = view;
       /* Hook up the view to its display */
       [view setAllegroDisplay: &dpy->parent];
       [view setOpenGLContext: dpy->ctx];
@@ -1767,7 +1768,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
          CGDisplayModeRelease(dpy->original_mode);
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
          if (dpy->win) {
-            [[dpy->win contentView] exitFullScreenModeWithOptions: nil];
+            [dpy->view exitFullScreenModeWithOptions: nil];
          }
 #endif
          CGDisplayRelease(dpy->display_id);
@@ -1776,7 +1777,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
       else if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
          if (dpy->win) {
-            [[dpy->win contentView] exitFullScreenModeWithOptions: nil];
+            [dpy->view exitFullScreenModeWithOptions: nil];
          }
 #endif
       }
@@ -2416,7 +2417,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
    bool __block retcode = true;
    dispatch_sync(dispatch_get_main_queue(), ^{
       NSWindowStyleMask mask = [win styleMask];
-      ALOpenGLView *view = (ALOpenGLView *)[win contentView];
+      ALOpenGLView *view = (ALOpenGLView *)dpy->view;
       switch (flag) {
          case ALLEGRO_FRAMELESS:
             if (onoff)
@@ -2457,7 +2458,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
                display->flags |= ALLEGRO_MAXIMIZED;
             else
                display->flags &= ~ALLEGRO_MAXIMIZED;
-            [[win contentView] maximize];
+            [dpy->view maximize];
             break;
          case ALLEGRO_FULLSCREEN_WINDOW:
             if (onoff) {
