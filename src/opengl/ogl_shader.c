@@ -124,7 +124,22 @@ static bool glsl_attach_shader_source(ALLEGRO_SHADER *shader,
       if ((*handle) == 0) {
          return false;
       }
+#ifdef ALLEGRO_MACOSX
+      {
+         const char *version_string = glGetString(GL_SHADING_LANGUAGE_VERSION);
+         int version[2];
+         sscanf(version_string, "%d.%d", &version[0], &version[1]);
+         char version_line[] = "#version XXXXXXXXXX";
+         ASSERT(version[0] < 10 && version[1] < 100);
+         snprintf(version_line, sizeof(version_line), "#version %d%d\n", version[0], version[1]);
+
+         const char *sources[] = {version_line, source};
+
+         glShaderSource(*handle, 2, sources, NULL);
+      }
+#else
       glShaderSource(*handle, 1, &source, NULL);
+#endif
       glCompileShader(*handle);
       glGetShaderiv(*handle, GL_COMPILE_STATUS, &status);
       if (status == 0) {
