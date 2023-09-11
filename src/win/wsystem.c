@@ -230,6 +230,8 @@ static void win_shutdown(void)
    _al_d3d_shutdown_display();
 #endif
 
+   _al_win_shutdown_window();
+
    _al_win_shutdown_time();
 
    if (using_higher_res_timer) {

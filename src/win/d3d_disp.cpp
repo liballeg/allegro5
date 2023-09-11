@@ -1818,7 +1818,6 @@ static ALLEGRO_DISPLAY *d3d_create_display_locked(int w, int h)
    win_display->mouse_selected_hcursor = 0;
    win_display->mouse_cursor_shown = false;
    win_display->hide_mouse_on_move = false;
-   win_display->can_acknowledge = false;
 
    SetForegroundWindow(win_display->window);
    _al_win_grab_input(win_display);
@@ -2237,8 +2236,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       win_display->toggle_h = height;
       return true;
    }
-
-   win_display->can_acknowledge = false;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       /* Don't generate ALLEGRO_EVENT_DISPLAY_LOST events when destroying a

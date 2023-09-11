@@ -85,11 +85,6 @@ struct ALLEGRO_DISPLAY_WIN
    volatile bool end_thread;    /* The display thread should end */
    volatile bool thread_ended;  /* The display thread has ended */
 
-   /* For internal use by drivers, when this has been set to true
-    * after al_resize_display called you can call acknowledge_resize
-    */
-   bool can_acknowledge;
-
    /* For internal use by the windows driver. When this is set and a Windows
     * window resize event is received by the window procedure, the event is
     * ignored and this value is set to false.
@@ -179,6 +174,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
                                            int x1, int y1, int width, int height,
                                            int refresh_rate, int flags);
 int  _al_win_init_window(void);
+void  _al_win_shutdown_window(void);
 HWND _al_win_create_hidden_window(void);
 void _al_win_post_create_window(ALLEGRO_DISPLAY *display);
 
