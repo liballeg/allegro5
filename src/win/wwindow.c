@@ -49,7 +49,10 @@ ALLEGRO_DEBUG_CHANNEL("wwindow")
 
 static WNDCLASS window_class;
 
-static bool resize_postponed = false;
+static _AL_VECTOR resizing_displays;
+static ALLEGRO_MUTEX *resize_event_thread_mutex;
+static bool end_resize_event_thread;
+static bool resize_event_thread_ended;
 
 
 UINT _al_win_msg_call_proc = 0;
@@ -308,6 +311,10 @@ static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
    WINDOWINFO wi;
    int x, y, w, h;
 
+   if (win_display->ignore_resize) {
+      return;
+   }
+
    wi.cbSize = sizeof(WINDOWINFO);
    GetWindowInfo(win_display->window, &wi);
    x = wi.rcClient.left;
@@ -346,25 +353,6 @@ static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
       _al_event_source_unlock(es);
    }
 }
-
-static void postpone_thread_proc(void *arg)
-{
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)arg;
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-
-   Sleep(50);
-
-   if (win_display->ignore_resize) {
-      win_display->ignore_resize = false;
-   }
-   else {
-      win_generate_resize_event(win_display);
-   }
-
-   resize_postponed = false;
-   win_display->can_acknowledge = true;
-}
-
 
 static void handle_mouse_capture(bool down, HWND hWnd)
 {
@@ -412,6 +400,32 @@ static bool accept_mouse_event(void)
    return !((GetMessageExtraInfo() & _AL_MOUSEEVENTF_FROMTOUCH) == _AL_MOUSEEVENTF_FROMTOUCH);
 }
 
+/* We want to rate-limit the ALLEGRO_EVENT_DISPLAY_RESIZE events while
+ * live-resizing via mouse. To this end, we detect start/end of this
+ * via WM_ENTERSIZEMOVE/WM_EXITSIZEMOVE and then enable this code to
+ * periodically send those events.
+ */
+static void resize_event_thread_proc(void *arg)
+{
+   (void)arg;
+   while (true) {
+      al_lock_mutex(resize_event_thread_mutex);
+      if (end_resize_event_thread) {
+         al_unlock_mutex(resize_event_thread_mutex);
+         break;
+      }
+
+      for (int j = 0; j < (int)_al_vector_size(&resizing_displays); j++) {
+         ALLEGRO_DISPLAY_WIN **win_display = (ALLEGRO_DISPLAY_WIN **)_al_vector_ref(&resizing_displays, j);
+         win_generate_resize_event(*win_display);
+      }
+
+      al_unlock_mutex(resize_event_thread_mutex);
+      Sleep(50);
+   }
+   resize_event_thread_ended = true;
+}
+
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
@@ -438,6 +452,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       break_window_message_pump(win_display, hWnd);
       if (_al_win_unregister_touch_window)
          _al_win_unregister_touch_window(hWnd);
+      al_lock_mutex(resize_event_thread_mutex);
+      _al_vector_find_and_delete(&resizing_displays, &win_display);
+      al_unlock_mutex(resize_event_thread_mutex);
       DestroyWindow(hWnd);
       return 0;
    }
@@ -459,6 +476,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       break_window_message_pump(win_display, hWnd);
       if (_al_win_unregister_touch_window)
          _al_win_unregister_touch_window(hWnd);
+      al_lock_mutex(resize_event_thread_mutex);
+      _al_vector_find_and_delete(&resizing_displays, &win_display);
+      al_unlock_mutex(resize_event_thread_mutex);
       DestroyWindow(hWnd);
       return 0;
    }
@@ -939,15 +959,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             }
          }
          break;
-      case WM_SIZE:
+      case WM_SIZE: {
+         bool generate = false;
          if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
-            /*
-             * Delay the resize event so we don't get bogged down with them
-             */
-            if (!resize_postponed) {
-               resize_postponed = true;
-               _beginthread(postpone_thread_proc, 0, (void *)d);
-            }
+            generate = true;
             d->flags &= ~ALLEGRO_MAXIMIZED;
             if (wParam == SIZE_MAXIMIZED) {
                d->flags |= ALLEGRO_MAXIMIZED;
@@ -959,13 +974,19 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
              * We have to create the resize event, so the application could
              * redraw its content.
              */
-            if (!resize_postponed) {
-               resize_postponed = true;
-               _beginthread(postpone_thread_proc, 0, (void *)d);
-            }
+            generate = true;
+         }
+         al_lock_mutex(resize_event_thread_mutex);
+         if (_al_vector_contains(&resizing_displays, &win_display)) {
+            generate = false;
+         }
+         al_unlock_mutex(resize_event_thread_mutex);
+         if (generate) {
+            win_generate_resize_event(win_display);
          }
          return 0;
-      case WM_ENTERSIZEMOVE:
+      }
+      case WM_ENTERSIZEMOVE: {
          /* DefWindowProc for WM_ENTERSIZEMOVE enters a modal loop, which also
           * ends up blocking the loop in d3d_display_thread_proc (which is
           * where we are called from, if using D3D).  Rather than batching up
@@ -973,17 +994,23 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           * meantime anyway, make it so only a single resize event is generated
           * at WM_EXITSIZEMOVE.
           */
+         al_lock_mutex(resize_event_thread_mutex);
          if (d->flags & ALLEGRO_DIRECT3D_INTERNAL) {
-            resize_postponed = true;
+            win_display->ignore_resize = true;
          }
+         ALLEGRO_DISPLAY_WIN **add = (ALLEGRO_DISPLAY_WIN **)_al_vector_alloc_back(&resizing_displays);
+         *add = win_display;
+         al_unlock_mutex(resize_event_thread_mutex);
          break;
+      }
       case WM_EXITSIZEMOVE:
-         if (resize_postponed) {
-            win_generate_resize_event(win_display);
+         al_lock_mutex(resize_event_thread_mutex);
+         if (d->flags & ALLEGRO_DIRECT3D_INTERNAL) {
             win_display->ignore_resize = false;
-            resize_postponed = false;
-            win_display->can_acknowledge = true;
          }
+         _al_vector_find_and_delete(&resizing_displays, &win_display);
+         al_unlock_mutex(resize_event_thread_mutex);
+         win_generate_resize_event(win_display);
          break;
       case WM_DPICHANGED:
         if ((d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
@@ -1008,7 +1035,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    return DefWindowProc(hWnd,message,wParam,lParam);
 }
 
-int _al_win_init_window()
+int _al_win_init_window(void)
 {
    // Create A Window Class Structure
    window_class.cbClsExtra = 0;
@@ -1029,7 +1056,31 @@ int _al_win_init_window()
       _al_win_msg_suicide = RegisterWindowMessage(TEXT("Allegro window suicide"));
    }
 
+   resize_event_thread_mutex = al_create_mutex();
+   _al_vector_init(&resizing_displays, sizeof(ALLEGRO_DISPLAY_WIN *));
+   _beginthread(resize_event_thread_proc, 0, 0);
+
    return true;
+}
+
+void _al_win_shutdown_window(void)
+{
+   al_lock_mutex(resize_event_thread_mutex);
+   end_resize_event_thread = true;
+   al_unlock_mutex(resize_event_thread_mutex);
+
+   while (true) {
+      al_lock_mutex(resize_event_thread_mutex);
+      if (resize_event_thread_ended) {
+         al_unlock_mutex(resize_event_thread_mutex);
+         break;
+      }
+      al_unlock_mutex(resize_event_thread_mutex);
+      Sleep(10);
+   }
+   _al_vector_free(&resizing_displays);
+   al_destroy_mutex(resize_event_thread_mutex);
+   resize_event_thread_mutex = NULL;
 }
 
 

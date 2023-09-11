@@ -999,7 +999,6 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    win_disp->mouse_selected_hcursor = 0;
    win_disp->mouse_cursor_shown = false;
    win_disp->hide_mouse_on_move = false;
-   win_disp->can_acknowledge = false;
 
    _al_win_grab_input(win_disp);
 
@@ -1370,8 +1369,6 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       win_disp->toggle_h = height;
       return true;
    }
-
-   win_disp->can_acknowledge = false;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       ALLEGRO_BITMAP *target_bmp;
