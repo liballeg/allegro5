@@ -186,6 +186,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
       [box setMessageText:[NSString stringWithUTF8String: al_cstr(fd->title)]];
       [box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->mb_text)]];
       [box setAlertStyle: NSWarningAlertStyle];
+      [[box window] setLevel: NSFloatingWindowLevel];
       for (i = 0; i < [buttons count]; ++i)
          [box addButtonWithTitle: [buttons objectAtIndex: i]];
       
