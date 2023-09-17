@@ -91,6 +91,15 @@ struct ALLEGRO_DISPLAY_WIN
     */
    bool ignore_resize;
 
+   /* DefWindowProc for WM_ENTERSIZEMOVE enters a modal loop, which also
+    * ends up blocking the loop in d3d_display_thread_proc (which is
+    * where we are called from, if using D3D).  Rather than batching up
+    * intermediate resize events which the user cannot acknowledge in the
+    * meantime anyway, make it so only a single resize event is generated
+    * at WM_EXITSIZEMOVE.
+    */
+   bool d3d_ignore_resize;
+
    /* Size to reset to when al_set_display_flag(FULLSCREEN_WINDOW, false)
     * is called.
     */

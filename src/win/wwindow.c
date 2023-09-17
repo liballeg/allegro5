@@ -311,7 +311,7 @@ static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
    WINDOWINFO wi;
    int x, y, w, h;
 
-   if (win_display->ignore_resize) {
+   if (win_display->ignore_resize || win_display->d3d_ignore_resize) {
       return;
    }
 
@@ -987,16 +987,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          return 0;
       }
       case WM_ENTERSIZEMOVE: {
-         /* DefWindowProc for WM_ENTERSIZEMOVE enters a modal loop, which also
-          * ends up blocking the loop in d3d_display_thread_proc (which is
-          * where we are called from, if using D3D).  Rather than batching up
-          * intermediate resize events which the user cannot acknowledge in the
-          * meantime anyway, make it so only a single resize event is generated
-          * at WM_EXITSIZEMOVE.
-          */
          al_lock_mutex(resize_event_thread_mutex);
          if (d->flags & ALLEGRO_DIRECT3D_INTERNAL) {
-            win_display->ignore_resize = true;
+            win_display->d3d_ignore_resize = true;
          }
          ALLEGRO_DISPLAY_WIN **add = (ALLEGRO_DISPLAY_WIN **)_al_vector_alloc_back(&resizing_displays);
          *add = win_display;
@@ -1006,7 +999,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_EXITSIZEMOVE:
          al_lock_mutex(resize_event_thread_mutex);
          if (d->flags & ALLEGRO_DIRECT3D_INTERNAL) {
-            win_display->ignore_resize = false;
+            win_display->d3d_ignore_resize = false;
          }
          _al_vector_find_and_delete(&resizing_displays, &win_display);
          al_unlock_mutex(resize_event_thread_mutex);
