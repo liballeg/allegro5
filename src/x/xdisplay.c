@@ -464,6 +464,9 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    }
 
    if (flags & ALLEGRO_MAXIMIZED) {
+      /* _al_xwin_maximize works by comparing to current flag value, so we need
+       * to start with an unmaximized state. */
+      display->flags &= ~ALLEGRO_MAXIMIZED;
       _al_xwin_maximize(display, true);
    }
 
