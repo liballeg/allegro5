@@ -64,6 +64,14 @@ typedef struct
 } ARGS_POSITION;
 
 
+typedef struct ARGS_SET_FLAG
+{
+   ARGS_BASE base; /* must be first */
+   ALLEGRO_DISPLAY_XGLX *display;
+   bool onoff;
+} ARGS_SET_FLAG;
+
+
 /* forward declarations */
 static gboolean xgtk_quit_callback(GtkWidget *widget, GdkEvent *event,
    ALLEGRO_DISPLAY *display);
@@ -418,6 +426,102 @@ static bool xgtk_set_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 
+/* [gtk thread] */
+static gboolean do_maximize(gpointer data)
+{
+   ARGS_SET_FLAG *args = _al_gtk_lock_args(data);
+
+   if (args->onoff) {
+      gtk_window_maximize(GTK_WINDOW(args->display->gtk->gtkwindow));
+   } else {
+      gtk_window_unmaximize(GTK_WINDOW(args->display->gtk->gtkwindow));
+   }
+
+   return _al_gtk_release_args(args);
+}
+
+
+/* [gtk thread] */
+static gboolean do_set_frameless(gpointer data)
+{
+   ARGS_SET_FLAG *args = _al_gtk_lock_args(data);
+
+   if (args->onoff) {
+      gtk_window_set_decorated(GTK_WINDOW(args->display->gtk->gtkwindow), FALSE);
+   } else {
+      gtk_window_set_decorated(GTK_WINDOW(args->display->gtk->gtkwindow), TRUE);
+   }
+
+   return _al_gtk_release_args(args);
+}
+
+
+/* [user thread] */
+static bool xgtk_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+{
+   switch (flag) {
+      case ALLEGRO_FRAMELESS: {
+         if (!!(display->flags & ALLEGRO_FRAMELESS) == onoff)
+            return true;
+         ARGS_SET_FLAG args;
+         if (_al_gtk_init_args(&args, sizeof(args))) {
+            args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+            args.onoff = onoff;
+            _al_gtk_wait_for_args(do_set_frameless, &args);
+            if (onoff)
+               display->flags |= ALLEGRO_FRAMELESS;
+            else
+               display->flags &= ~ALLEGRO_FRAMELESS;
+         }
+         return true;
+      }
+      case ALLEGRO_MAXIMIZED: {
+         if (!!(display->flags & ALLEGRO_MAXIMIZED) == onoff)
+            return true;
+         ARGS_SET_FLAG args;
+         if (_al_gtk_init_args(&args, sizeof(args))) {
+            args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+            args.onoff = onoff;
+            ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+            int old_resize_count = glx->resize_count;
+            _al_gtk_wait_for_args(do_maximize, &args);
+            _al_display_xglx_await_resize(display, old_resize_count, true);
+         }
+
+         return true;
+      }
+   }
+   return false;
+}
+
+
+/* [gtk thread] */
+static gboolean do_check_maximized(gpointer data)
+{
+   ARGS_SET_FLAG *args = _al_gtk_lock_args(data);
+
+   args->onoff = gtk_window_is_maximized(GTK_WINDOW(args->display->gtk->gtkwindow));
+
+   return _al_gtk_release_args(args);
+}
+
+
+/* [user thread] */
+static void xgtk_check_maximized(ALLEGRO_DISPLAY *display)
+{
+   ARGS_SET_FLAG args;
+   if (_al_gtk_init_args(&args, sizeof(args))) {
+      args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+      _al_gtk_wait_for_args(do_check_maximized, &args);
+      if (args.onoff) {
+         display->flags |= ALLEGRO_MAXIMIZED;
+      }
+      else {
+         display->flags &= ~ALLEGRO_MAXIMIZED;
+      }
+   }
+}
+
 static struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt =
 {
    xgtk_create_display_hook,
@@ -426,7 +530,9 @@ static struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt =
    xgtk_set_window_title,
    xgtk_set_fullscreen_window,
    xgtk_set_window_position,
-   xgtk_set_window_constraints
+   xgtk_set_window_constraints,
+   xgtk_set_display_flag,
+   xgtk_check_maximized,
 };
 
 

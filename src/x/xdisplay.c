@@ -249,14 +249,6 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
       }
    }
 
-   if (display->flags & ALLEGRO_FRAMELESS) {
-      _al_xwin_set_frame(display, false);
-   }
-
-   if (display->flags & ALLEGRO_DRAG_AND_DROP) {
-      _al_xwin_accept_drag_and_drop(display, true);
-   }
-
    ALLEGRO_DEBUG("X11 window created.\n");
 
    /* Set the PID related to the window. */
@@ -463,11 +455,26 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       }
    }
 
+   if (display->flags & ALLEGRO_FRAMELESS) {
+      /* set_display_flag works by comparing to current flag value, so we need
+       * to start with an unset state. */
+      display->flags &= ~ALLEGRO_FRAMELESS;
+      /* Call the vt directly to bypass system lock.
+       */
+      d->overridable_vt->set_display_flag(display, ALLEGRO_FRAMELESS, true);
+   }
+
+   if (display->flags & ALLEGRO_DRAG_AND_DROP) {
+      _al_xwin_accept_drag_and_drop(display, true);
+   }
+
    if (flags & ALLEGRO_MAXIMIZED) {
-      /* _al_xwin_maximize works by comparing to current flag value, so we need
-       * to start with an unmaximized state. */
+      /* set_display_flag works by comparing to current flag value, so we need
+       * to start with an unset state. */
       display->flags &= ~ALLEGRO_MAXIMIZED;
-      _al_xwin_maximize(display, true);
+      /* Call the vt directly to bypass system lock.
+       */
+      d->overridable_vt->set_display_flag(display, ALLEGRO_MAXIMIZED, true);
    }
 
    if (!_al_xglx_config_create_context(d)) {
@@ -890,7 +897,7 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
          _al_ogl_setup_gl(d);
       }
 
-      _al_xwin_check_maximized(d);
+      glx->overridable_vt->check_maximized(d);
    }
 
    _al_mutex_unlock(&system->lock);
@@ -1081,7 +1088,7 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
 
    }
 
-   _al_xwin_check_maximized(d);
+   glx->overridable_vt->check_maximized(d);
 
    _al_event_source_unlock(es);
 }
@@ -1329,9 +1336,7 @@ static void xdpy_apply_window_constraints(ALLEGRO_DISPLAY *display,
 
 static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool onoff)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
-      _al_mutex_lock(&system->lock);
       _al_xwin_reset_size_hints(display);
       _al_xwin_set_fullscreen_window(display, 2);
       /* XXX Technically, the user may fiddle with the _NET_WM_STATE_FULLSCREEN
@@ -1342,19 +1347,11 @@ static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool on
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
 
       set_compositor_bypass_flag(display);
-      _al_mutex_unlock(&system->lock);
    }
 }
 
 
-static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
-{
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   glx->overridable_vt->set_fullscreen_window(display, onoff);
-}
-
-
-static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
+static bool xdpy_set_display_flag_default(ALLEGRO_DISPLAY *display, int flag,
    bool flag_onoff)
 {
    switch (flag) {
@@ -1363,13 +1360,26 @@ static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
          _al_xwin_set_frame(display, !flag_onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
-         xdpy_set_fullscreen_window(display, flag_onoff);
+         /* Bypass system lock. */
+         ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+         glx->overridable_vt->set_fullscreen_window(display, flag_onoff);
          return true;
       case ALLEGRO_MAXIMIZED:
          _al_xwin_maximize(display, flag_onoff);
          return true;
    }
    return false;
+}
+
+
+static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   _al_mutex_lock(&system->lock);
+   bool ret = glx->overridable_vt->set_display_flag(display, flag, onoff);
+   _al_mutex_unlock(&system->lock);
+   return ret;
 }
 
 
@@ -1433,7 +1443,9 @@ static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt =
    xdpy_set_window_title_default,
    xdpy_set_fullscreen_window_default,
    xdpy_set_window_position_default,
-   xdpy_set_window_constraints_default
+   xdpy_set_window_constraints_default,
+   xdpy_set_display_flag_default,
+   _al_xwin_check_maximized,
 };
 
 
