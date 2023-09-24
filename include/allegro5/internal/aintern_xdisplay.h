@@ -91,6 +91,8 @@ struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE
    void (*set_fullscreen_window)(ALLEGRO_DISPLAY *display, bool onoff);
    void (*set_window_position)(ALLEGRO_DISPLAY *display, int x, int y);
    bool (*set_window_constraints)(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h);
+   bool (*set_display_flag)(ALLEGRO_DISPLAY *display, int flag, bool onoff);
+   void (*check_maximized)(ALLEGRO_DISPLAY *display);
 };
 
 bool _al_xwin_set_gtk_display_overridable_interface(uint32_t check_version,

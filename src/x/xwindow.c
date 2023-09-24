@@ -213,8 +213,6 @@ void _al_xwin_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
    Display *x11 = system->x11display;
    Atom hints;
 
-   _al_mutex_lock(&system->lock);
-
 #if 1
    /* This code is taken from the GDK sources. So it works perfectly in Gnome,
     * no idea if it will work anywhere else. X11 documentation itself only
@@ -239,8 +237,6 @@ void _al_xwin_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
          display->flags |= ALLEGRO_FRAMELESS;
    }
 #endif
-
-   _al_mutex_unlock(&system->lock);
 }
 
 
