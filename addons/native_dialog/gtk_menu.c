@@ -37,6 +37,19 @@ struct ARGS
    int i;
 };
 
+typedef struct POPUP_ARGS POPUP_ARGS;
+
+struct POPUP_ARGS
+{
+   /* Must be first. */
+   ARGS_BASE base;
+
+   GtkWidget *gtk_window;
+   ALLEGRO_MENU *menu;
+   int x;
+   int y;
+};
+
 
 static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu);
 
@@ -368,14 +381,12 @@ static void popop_on_hide(ALLEGRO_MENU *menu)
 /* [gtk thread] */
 static gboolean do_show_popup_menu(gpointer data)
 {
-   ARGS *args = (ARGS *) data;
+   POPUP_ARGS *args = (POPUP_ARGS *) data;
    
    _al_gtk_lock_args(args);
    
-   GtkWidget *menu = NULL;
    if (!args->menu->extra1) {
-      menu = gtk_menu_new();
-      
+      GtkWidget *menu = gtk_menu_new();
       build_menu(menu, args->menu);
       
       gtk_widget_show(menu);
@@ -385,22 +396,33 @@ static gboolean do_show_popup_menu(gpointer data)
          G_CALLBACK(popop_on_hide), (gpointer) args->menu);
    }
 
-   bool position_called = false;
-   if (menu)
-      /* gtk_menu_popup_at_widget only exists in gtk newer than 3.22 */
 #if GTK_CHECK_VERSION(3, 22, 0)
-      gtk_menu_popup_at_widget(args->menu->extra1, menu,  GDK_GRAVITY_SOUTH_WEST,
-                              GDK_GRAVITY_NORTH_WEST,
-                              NULL);
+   GtkWidget *vbox = gtk_bin_get_child(GTK_BIN(args->gtk_window));
+   GList* list = gtk_container_get_children(GTK_CONTAINER(vbox));
+   int menu_height = 0;
+   if (g_list_length(list) == 2) {
+      GtkAllocation alloc;
+      gtk_widget_get_allocation(GTK_WIDGET(list->data), &alloc);
+      menu_height = alloc.height;
+   }
+   g_list_free(list);
+
+
+   GdkSeat* seat = gdk_display_get_default_seat(
+      gdk_window_get_display(gtk_widget_get_window(args->gtk_window)));
+   GdkDevice *device = gdk_seat_get_pointer(seat);
+   GdkEventButton event = { };
+   event.type = GDK_BUTTON_RELEASE;
+   event.time = GDK_CURRENT_TIME;
+   event.device = device;
+   GdkRectangle rect = { .x=args->x, .y=args->y + menu_height, .width=1, .height=1 };
+   gtk_menu_popup_at_rect(args->menu->extra1, gtk_widget_get_window(args->gtk_window),
+      &rect, GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, (GdkEvent*)&event);
 #else
-      gtk_menu_popup(args->menu->extra1, NULL, NULL, NULL, NULL, 1, 0);
+   gtk_menu_popup(args->menu->extra1, NULL, NULL, NULL, NULL, 1, 0);
 #endif
 
-   if (!position_called) {
-      ALLEGRO_DEBUG("Position canary not called, most likely the menu didn't show "
-      "up due to outstanding mouse events.\n");
-   }
-   args->base.response = position_called;
+   args->base.response = true;
    
    _al_gtk_release_args(args);
    
@@ -409,15 +431,23 @@ static gboolean do_show_popup_menu(gpointer data)
 
 bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
-   ARGS args;
-   (void)display;
+   GtkWidget *gtk_window;
+   POPUP_ARGS args;
+   ALLEGRO_MOUSE_STATE state;
+
+   al_get_mouse_state(&state);
+
+   if (!(gtk_window = _al_gtk_get_window(display)))
+      return false;
    
    if (!_al_gtk_init_args(&args, sizeof(args))) {
       return false;
    }
 
-   args.gtk_window = NULL;
+   args.gtk_window = gtk_window;
    args.menu = menu;
+   args.x = al_get_mouse_state_axis(&state, 0);
+   args.y = al_get_mouse_state_axis(&state, 1);
 
    return _al_gtk_wait_for_args(do_show_popup_menu, &args);
 }
