@@ -15,6 +15,8 @@ enum {
    FILE_OPEN_ID,
    FILE_RESIZE_ID,
    FILE_FULLSCREEN_ID,
+   FILE_MAXIMIZE_ID,
+   FILE_FRAMELESS_ID,
    FILE_CLOSE_ID,
    FILE_EXIT_ID,
    DYNAMIC_ID,
@@ -122,6 +124,8 @@ int main(int argc, char **argv)
          al_append_menu_item(pmenu, "&Open", FILE_OPEN_ID, 0, NULL, NULL);
          al_append_menu_item(pmenu, "&Resize", FILE_RESIZE_ID, 0, NULL, NULL);
          al_append_menu_item(pmenu, "&Fullscreen window", FILE_FULLSCREEN_ID, 0, NULL, NULL);
+         al_append_menu_item(pmenu, "Remove window fr&ame", FILE_FRAMELESS_ID, 0, NULL, NULL);
+         al_append_menu_item(pmenu, "&Maximize window", FILE_MAXIMIZE_ID, 0, NULL, NULL);
          al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
       }
    }
@@ -240,6 +244,16 @@ int main(int argc, char **argv)
                int flags = al_get_display_flags(display);
                bool value = (flags & ALLEGRO_FULLSCREEN_WINDOW) ? true : false;
                al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, !value);
+            }
+            else if (event.user.data1 == FILE_FRAMELESS_ID) {
+               int flags = al_get_display_flags(display);
+               bool value = (flags & ALLEGRO_FRAMELESS) ? true : false;
+               al_set_display_flag(display, ALLEGRO_FRAMELESS, !value);
+            }
+            else if (event.user.data1 == FILE_MAXIMIZE_ID) {
+               int flags = al_get_display_flags(display);
+               bool value = (flags & ALLEGRO_MAXIMIZED) ? true : false;
+               al_set_display_flag(display, ALLEGRO_MAXIMIZED, !value);
             }
          }
          else {
