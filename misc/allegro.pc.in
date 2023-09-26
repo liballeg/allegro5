@@ -11,4 +11,4 @@ Description: Allegro game programming library
 Version: ${version}
 Libs: -L${libdir} -lallegro${suffix}
 Libs.private: @link_with@
-Cflags: -I${includedir}
+Cflags: -I${includedir}/allegro${versuffix}
