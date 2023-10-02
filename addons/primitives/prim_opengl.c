@@ -671,7 +671,6 @@ int _al_draw_indexed_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 #endif
 }
 
-#include <stdio.h>
 #ifdef ALLEGRO_CFG_OPENGL
 static bool create_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type, const void* initial_data, GLsizeiptr size, int flags)
 {
