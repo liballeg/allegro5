@@ -139,21 +139,17 @@ class KeyListener implements View.OnKeyListener
       if (index >= 0) {
          code = getCode(keyCode, event, index);
       }
-      if (code == -1) {
-         return onKeyboardKey(v, keyCode, event);
-      }
-      else if (code == -2) {
-         return true;
-      }
-      if (event.getAction() == KeyEvent.ACTION_DOWN) {
-         if (event.getRepeatCount() == 0) {
-            nativeOnJoystickButton(index, code, true);
+      if (code >= 0) {
+         if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            if (event.getRepeatCount() == 0) {
+               nativeOnJoystickButton(index, code, true);
+            }
+         }
+         else {
+            nativeOnJoystickButton(index, code, false);
          }
       }
-      else {
-         nativeOnJoystickButton(index, code, false);
-      }
-      return true;
+      return onKeyboardKey(v, keyCode, event);
    }
 
    private void volumeChange(int inc)
