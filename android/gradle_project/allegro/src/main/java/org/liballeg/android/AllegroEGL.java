@@ -236,7 +236,7 @@ class AllegroEGL
 
          major = minMajor;
          minor = minMinor;
-         wantedVersion = versionCode(major, minor);
+         wantedVersion = minVersion;
       }
 
       Log.d(TAG, "egl_createContext: requesting OpenGL ES " + major + "." + minor);
