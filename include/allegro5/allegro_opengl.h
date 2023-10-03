@@ -101,7 +101,12 @@
 #include <GLES3/gl3ext.h>
 
 // TODO: should defines from GLES2 be there as well?
+// Answer: according to the Khronos OpenGL ES Registry, the extension header
+// file of OpenGL ES 3.x is actually <GLES2/gl2ext.h>. Note that GLES 3.x is
+// backwards-compatible with GLES2. See https://registry.khronos.org/OpenGL/
 // TODO: Also, how does it relate to src/opengl/ogl_helpers.h ?
+// Answer: redefinition of a constant
+#include <GLES2/gl2ext.h>
 
 #define glRenderbufferStorageMultisampleEXT glRenderbufferStorageMultisample
 

@@ -22,6 +22,7 @@
 #include "allegro5/internal/aintern_pixels.h"
 
 #ifdef ALLEGRO_ANDROID
+   #include <android/api-level.h>
    #include "allegro5/internal/aintern_android.h"
 #elif defined ALLEGRO_IPHONE
    #include "allegro5/internal/aintern_iphone.h"
@@ -622,12 +623,14 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
                GL_TEXTURE_2D, ogl_bitmap->texture, 0);
          }
 #if ((!defined ALLEGRO_CFG_OPENGLES || defined ALLEGRO_CFG_OPENGLES3) && !defined ALLEGRO_IPHONE)
+#if (!defined ALLEGRO_ANDROID) || (__ANDROID_API__ >= 28) /* Android: glFramebufferTexture2DMultisampleEXT exists in newer libGLESv[23].so */
          else {
             glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
                GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture, 
                0, al_get_bitmap_samples(bitmap));
       
          }
+#endif
 #endif
       }
       else
