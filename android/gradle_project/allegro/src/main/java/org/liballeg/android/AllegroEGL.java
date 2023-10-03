@@ -10,7 +10,8 @@ class AllegroEGL
 {
    private static final String TAG = "AllegroEGL";
 
-   private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+   private static final int EGL_CONTEXT_MAJOR_VERSION = 0x3098;
+   private static final int EGL_CONTEXT_MINOR_VERSION = 0x30fb;
    private static final int EGL_OPENGL_ES_BIT = 1;
    private static final int EGL_OPENGL_ES2_BIT = 4;
 
@@ -184,11 +185,26 @@ class AllegroEGL
       }
    }
 
+   private int[] versionAttribList(int major, int minor)
+   {
+      return new int[] {
+         EGL_CONTEXT_MAJOR_VERSION, major,
+         EGL_CONTEXT_MINOR_VERSION, minor,
+         EGL10.EGL_NONE
+      };
+   }
+
+   private int versionCode(int major, int minor)
+   {
+      return (major << 8) | minor;
+   }
+
    /* Return values:
     * 0 - failure
     * 1 - success
     */
-   int egl_createContext(int configIndex, boolean programmable_pipeline)
+   int egl_createContext(int configIndex, boolean programmable_pipeline,
+      int major, int minor, boolean isRequiredMajor, boolean isRequiredMinor)
    {
       Log.d(TAG, "egl_createContext");
 
@@ -198,21 +214,55 @@ class AllegroEGL
       matchingConfigs = null;
       attribMap = null;
 
-      int version = (programmable_pipeline) ? 2 : 1;
-      int[] attribs = {
-         EGL_CONTEXT_CLIENT_VERSION, version,
-         EGL10.EGL_NONE
-      };
+      // we'll attempt to create a GLES context of version major.minor.
+      // if major == minor == 0, then the user did not request a specific version.
+      // minMajor.minMinor is the minimum acceptable version.
 
-      EGLContext ctx = egl.eglCreateContext(egl_Display, chosenConfig,
-         EGL10.EGL_NO_CONTEXT, attribs);
-      if (ctx == EGL10.EGL_NO_CONTEXT) {
-         checkEglError("eglCreateContext", egl);
-         Log.d(TAG, "egl_createContext no context");
-         return 0;
+      int minMajor = (programmable_pipeline || major >= 2) ? 2 : 1;
+      int minMinor = 0;
+
+      if (isRequiredMajor && major > minMajor)
+         minMajor = major;
+      if (isRequiredMinor && minor > minMinor)
+         minMinor = minor;
+
+      int minVersion = versionCode(minMajor, minMinor);
+      int wantedVersion = versionCode(major, minor);
+      if (wantedVersion < minVersion) {
+         if(isRequiredMajor || isRequiredMinor) {
+            Log.d(TAG, "Can't require OpenGL ES version " + major + "." + minor);
+            return 0;
+         }
+
+         major = minMajor;
+         minor = minMinor;
+         wantedVersion = versionCode(major, minor);
       }
 
-      Log.d(TAG, "EGL context (OpenGL ES " + version + ") created");
+      Log.d(TAG, "egl_createContext: requesting OpenGL ES " + major + "." + minor);
+
+      // request a GLES context version major.minor
+      EGLContext ctx = egl.eglCreateContext(egl_Display, chosenConfig,
+         EGL10.EGL_NO_CONTEXT, versionAttribList(major, minor));
+      if (ctx == EGL10.EGL_NO_CONTEXT) {
+         // failed to create a GLES context of the requested version
+         checkEglError("eglCreateContext", egl);
+         Log.d(TAG, "egl_createContext failed. min version is " +
+            minMajor + "." + minMinor);
+
+         // try the min version instead, unless the user required the failed version
+         if ((wantedVersion == minVersion) || (EGL10.EGL_NO_CONTEXT == (ctx =
+            egl.eglCreateContext(egl_Display, chosenConfig, EGL10.EGL_NO_CONTEXT,
+            versionAttribList(minMajor, minMinor))
+         ))) {
+            // failed again
+            checkEglError("eglCreateContext", egl);
+            Log.d(TAG, "egl_createContext no context");
+            return 0;
+         }
+      }
+
+      Log.d(TAG, "egl_createContext: success");
 
       egl_Context = ctx;
       return 1;
