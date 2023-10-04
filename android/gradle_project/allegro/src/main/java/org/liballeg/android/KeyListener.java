@@ -92,6 +92,30 @@ class KeyListener implements View.OnKeyListener
       else if (keyCode == KeyEvent.KEYCODE_MENU) {
          code = AllegroActivity.JS_MENU;
       }
+      else if (keyCode == KeyEvent.KEYCODE_BUTTON_L2) {
+         code = AllegroActivity.JS_L2;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_BUTTON_R2) {
+         code = AllegroActivity.JS_R2;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_BUTTON_THUMBL) {
+         code = AllegroActivity.JS_THUMBL;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_BUTTON_THUMBR) {
+         code = AllegroActivity.JS_THUMBR;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_BUTTON_START) {
+         code = AllegroActivity.JS_START;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_BUTTON_SELECT) {
+         code = AllegroActivity.JS_SELECT;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_BUTTON_MODE) {
+         code = AllegroActivity.JS_MODE;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+         code = AllegroActivity.JS_DPAD_CENTER;
+      }
       else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
          if (event.getAction() == KeyEvent.ACTION_DOWN)
             nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_L, true);
