@@ -55,13 +55,13 @@ public class AllegroActivity extends Activity
    public final static int JS_DPAD_U = 8;
    public final static int JS_DPAD_D = 9;
    public final static int JS_MENU = 10;
-   public final static int JS_DPAD_CENTER = 11;
-   public final static int JS_L2 = 12;
-   public final static int JS_R2 = 13;
-   public final static int JS_THUMBL = 14;
-   public final static int JS_THUMBR = 15;
-   public final static int JS_START = 16;
-   public final static int JS_SELECT = 17;
+   public final static int JS_START = 11;
+   public final static int JS_SELECT = 12;
+   public final static int JS_THUMBL = 13;
+   public final static int JS_THUMBR = 14;
+   public final static int JS_L2 = 15;
+   public final static int JS_R2 = 16;
+   public final static int JS_DPAD_CENTER = 17;
    public final static int JS_MODE = 18;
 
    public boolean joystickActive = false;
