@@ -575,6 +575,18 @@ public class AllegroActivity extends Activity
       return joysticks.indexOf(id, 0);
    }
 
+   public String getJoystickName(int index) {
+      if (index >= 0 && index < joysticks.size()) {
+         int id = joysticks.get(index);
+         InputDevice input = InputDevice.getDevice(id);
+
+         if (input != null)
+            return input.getName();
+      }
+
+      return "";
+   }
+
    public void setJoystickActive() {
       joystickActive = true;
    }
