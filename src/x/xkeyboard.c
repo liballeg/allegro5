@@ -276,7 +276,7 @@ static int modifier_flags[8][3] = {
    {ALLEGRO_KEYMOD_NUMLOCK, Mod2Mask, 1},
    {ALLEGRO_KEYMOD_SCROLLLOCK, Mod3Mask, 1},
    {ALLEGRO_KEYMOD_LWIN | ALLEGRO_KEYMOD_RWIN, Mod4Mask, 0}, /* Should we use only one? */
-   {ALLEGRO_KEYMOD_MENU, Mod5Mask, 0} /* AltGr */
+   {ALLEGRO_KEYMOD_ALTGR, Mod5Mask, 0} /* AltGr */
 };
 
 /* Table of key names. */
