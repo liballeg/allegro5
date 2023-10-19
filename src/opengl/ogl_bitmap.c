@@ -1128,27 +1128,28 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    uint8_t *dst;
    uint8_t *src;
 
-   ASSERT(ptr);
    ASSERT(al_get_current_display() == _al_get_bitmap_display(bitmap));
 
    tmp = _al_create_bitmap_params(_al_get_bitmap_display(bitmap), w, h, format,
       al_get_bitmap_flags(bitmap), 0, 0);
    ASSERT(tmp);
 
-   lr = al_lock_bitmap(tmp, format, ALLEGRO_LOCK_WRITEONLY);
-   ASSERT(lr);
+   if (ptr != NULL) {
+      lr = al_lock_bitmap(tmp, format, ALLEGRO_LOCK_WRITEONLY);
+      ASSERT(lr);
 
-   dst = (uint8_t *)lr->data;
-   // we need to flip it
-   src = ((uint8_t *)ptr) + (pixsize * w * (h-1));
+      dst = (uint8_t *)lr->data;
+      // we need to flip it
+      src = ((uint8_t *)ptr) + (pixsize * w * (h-1));
 
-   for (y = 0; y < h; y++) {
-      memcpy(dst, src, pixsize * w);
-      dst += lr->pitch;
-      src -= pixsize * w; // minus because it's flipped
+      for (y = 0; y < h; y++) {
+         memcpy(dst, src, pixsize * w);
+         dst += lr->pitch;
+         src -= pixsize * w; // minus because it's flipped
+      }
+
+      al_unlock_bitmap(tmp);
    }
-
-   al_unlock_bitmap(tmp);
 
    ((ALLEGRO_BITMAP_EXTRA_OPENGL *)bitmap->extra)->texture =
       ((ALLEGRO_BITMAP_EXTRA_OPENGL *)tmp->extra)->texture;
