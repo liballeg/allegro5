@@ -841,8 +841,7 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
       int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
       {
          ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
          al_remove_opengl_fbo(bmp);
@@ -900,12 +899,16 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
       int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
       {
          int format = al_get_bitmap_format(bmp);
          format = _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
-         _al_ogl_upload_bitmap_memory(bmp, format, bmp->memory);
+
+         if (!(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+            _al_ogl_upload_bitmap_memory(bmp, format, bmp->memory);
+         else
+            _al_ogl_upload_bitmap_memory(bmp, format, NULL);
+
          bmp->dirty = false;
       }
    }
