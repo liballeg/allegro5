@@ -76,17 +76,17 @@ jobject _jni_callObjectMethodV(JNIEnv *env, jobject object,
    return ret;
 }
 
-ALLEGRO_USTR *_jni_getString(JNIEnv *env, jobject object)
+ALLEGRO_USTR *_jni_getString(JNIEnv *env, jstring str_obj)
 {
    VERBOSE_DEBUG("GetStringUTFLength");
-   jsize len = _jni_call(env, jsize, GetStringUTFLength, object);
+   jsize len = _jni_call(env, jsize, GetStringUTFLength, str_obj);
 
-   const char *str = _jni_call(env, const char *, GetStringUTFChars, object, NULL);
+   const char *str = _jni_call(env, const char *, GetStringUTFChars, str_obj, NULL);
 
    VERBOSE_DEBUG("al_ustr_new_from_buffer");
    ALLEGRO_USTR *ustr = al_ustr_new_from_buffer(str, len);
 
-   _jni_callv(env, ReleaseStringUTFChars, object, str);
+   _jni_callv(env, ReleaseStringUTFChars, str_obj, str);
 
    return ustr;
 }
@@ -94,8 +94,12 @@ ALLEGRO_USTR *_jni_getString(JNIEnv *env, jobject object)
 ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
    const char *name, const char *sig)
 {
-   jobject str_obj = _jni_callObjectMethod(env, obj, name, sig);
-   return _jni_getString(env, str_obj);
+   jstring str_obj = (jstring)_jni_callObjectMethod(env, obj, name, sig);
+   ALLEGRO_USTR *ustr = _jni_getString(env, str_obj);
+
+   _jni_callv(env, DeleteLocalRef, str_obj);
+
+   return ustr;
 }
 
 jobject _jni_callStaticObjectMethodV(JNIEnv *env, jclass cls,

@@ -78,7 +78,7 @@ jobject _jni_callObjectMethod(JNIEnv *env, jobject object,
          const char *name, const char *sig);
 jobject _jni_callObjectMethodV(JNIEnv *env, jobject object,
          const char *name, const char *sig, ...);
-ALLEGRO_USTR *_jni_getString(JNIEnv *env, jobject object);
+ALLEGRO_USTR *_jni_getString(JNIEnv *env, jstring str_obj);
 ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
          const char *name, const char *sig);
 jobject _jni_callStaticObjectMethodV(JNIEnv *env, jclass class_id,
