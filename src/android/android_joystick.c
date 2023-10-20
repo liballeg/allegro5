@@ -17,10 +17,11 @@ static bool initialized;
 
 static char *android_get_joystick_name(JNIEnv *env, jobject activity, int index, char *buffer, size_t buffer_size)
 {
-    jobject str_obj = _jni_callObjectMethodV(env, activity, "getJoystickName", "(I)Ljava/lang/String;", (jint)index);
+    jstring str_obj = (jstring)_jni_callObjectMethodV(env, activity, "getJoystickName", "(I)Ljava/lang/String;", (jint)index);
     ALLEGRO_USTR *s = _jni_getString(env, str_obj);
     _al_sane_strncpy(buffer, al_cstr(s), buffer_size);
     al_ustr_free(s);
+    _jni_callv(env, DeleteLocalRef, str_obj);
 
     return buffer;
 }
