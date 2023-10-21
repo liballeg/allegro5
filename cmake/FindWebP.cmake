@@ -30,7 +30,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 find_package(PkgConfig)
-pkg_check_modules(PC_WEBP QUIET libwebp)
+pkg_check_modules(PC_WEBP QUIET libwebp libsharpyuv)
 
 # Look for the header file.
 find_path(WEBP_INCLUDE_DIRS
@@ -41,10 +41,25 @@ mark_as_advanced(WEBP_INCLUDE_DIRS)
 
 # Look for the library.
 find_library(
-    WEBP_LIBRARIES
+    WEBP_LIBRARY
     NAMES webp
     HINTS ${PC_WEBP_LIBDIR} ${PC_WEBP_LIBRARY_DIRS}
 )
+
+if (WEBP_LIBRARY)
+  list(APPEND WEBP_LIBRARIES ${WEBP_LIBRARY})
+endif()
+# As of 1.3, libsharpyuv is split off from the main library.
+find_library(
+    SHARPYUV_LIBRARY
+    NAMES sharpyuv
+    HINTS ${PC_WEBP_LIBDIR} ${PC_WEBP_LIBRARY_DIRS}
+)
+if (SHARPYUV_LIBRARY)
+  list(APPEND WEBP_LIBRARIES ${SHARPYUV_LIBRARY})
+endif()
+
+set(WEBP_LIBRARIES ${WEBP_LIBRARIES} CACHE STRING "WebP libraries")
 mark_as_advanced(WEBP_LIBRARIES)
 
 include(FindPackageHandleStandardArgs)
