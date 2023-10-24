@@ -402,6 +402,18 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    }
 }
 
+/* Function: al_get_window_position
+ */
+bool al_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *right, int *top, int *bottom)
+{
+   if (display && display->vt && display->vt->get_window_position) {
+      return display->vt->get_window_borders(display, left, right, top, bottom);
+   }
+   else {
+      return false;
+   }
+}
+
 
 /* Function: al_set_window_constraints
  */

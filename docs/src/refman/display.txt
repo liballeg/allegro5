@@ -552,13 +552,27 @@ See also: [al_resize_display], [ALLEGRO_EVENT]
 
 Gets the position of a non-fullscreen display.
 
-See also: [al_set_window_position]
+See also: [al_set_window_position], [al_get_window_borders]
 
 ### API: al_set_window_position
 
 Sets the position on screen of a non-fullscreen display.
 
-See also: [al_get_window_position]
+See also: [al_get_window_position], [al_get_window_borders]
+
+### API: al_get_window_borders
+
+If that information is available returns TRUE and fills in the size of
+the window borders. You can pass NULL for borders you do not want to
+retrieve.
+
+If the border information is not available returns FALSE.
+
+Note: Currently only the X11 version will report window borders.
+
+See also: [al_set_window_position], [al_get_window_position]
+
+Since: 5.2.9
 
 ### API: al_get_window_constraints
 
