@@ -49,9 +49,10 @@ int main(int argc, char **argv)
       log_printf("Monitor %d: %d %d - %d %d\n", i, info[i].x1, info[i].y1, info[i].x2, info[i].y2);
    }
 
+   // center the first window
    ALLEGRO_MONITOR_INFO init_info = info[0];
-   x = init_info.x1 + ((init_info.x2 - init_info.x1) / 3) - (W / 2);
-   y = init_info.y1 + ((init_info.y2 - init_info.y1) / 2) - (H / 2);
+   x = (init_info.x1 + init_info.x2 - W) / 2;
+   y = (init_info.y1 + init_info.y2 - H) / 2;
    jump_x[0] = x;
    jump_y[0] = y;
    jump_adapter[0] = 0;
@@ -62,11 +63,11 @@ int main(int argc, char **argv)
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
    displays[0] = al_create_display(W, H);
 
-   x = init_info.x1 + (2 * (init_info.x2 - init_info.x1) / 3) - (W / 2);
-   jump_x[1] = x;
-   jump_y[1] = y;
+   // use the default position for the second window
+   jump_x[1] = INT_MAX;
+   jump_y[1] = INT_MAX;
    jump_adapter[1] = 0;
-   al_set_new_window_position(x, y);
+   al_set_new_window_position(INT_MAX, INT_MAX);
    al_set_new_window_title("Window 2");
 
    displays[1] = al_create_display(W, H);
@@ -102,7 +103,14 @@ int main(int argc, char **argv)
             dw = al_get_display_width(displays[i]);
             dh = al_get_display_height(displays[i]);
             al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 30, ALLEGRO_ALIGN_CENTRE, "Location: %d %d", dx, dy);
-            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, ALLEGRO_ALIGN_CENTRE, "Last jumped to: %d %d (adapter %d)", jump_x[i], jump_y[i], jump_adapter[i]);
+            if (jump_x[i] != INT_MAX && jump_y[i] != INT_MAX) {
+               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, ALLEGRO_ALIGN_CENTRE,
+                  "Last jumped to: %d %d (adapter %d)", jump_x[i], jump_y[i], jump_adapter[i]);
+            }
+            else {
+               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, ALLEGRO_ALIGN_CENTRE,
+                  "Last placed to default position (adapter %d)", jump_adapter[i]);
+            }
             al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 0, ALLEGRO_ALIGN_CENTRE, "Size: %dx%d", dw, dh);
             int bl = 0, bt = 0;
             bool b = al_get_window_borders(displays[i], &bl, NULL, &bt, NULL);

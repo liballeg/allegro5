@@ -478,12 +478,25 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    }
 
    _al_xwin_get_borders(display);
-   // We initially set the position to inner coordinates above when
-   // waiting for the window to get mapped because the border values
-   // were both 0 still. We now know the values and can translate to
-   // the outer position which we want to keep in x/y.
-   d->x -= d->border_left;
-   d->y -= d->border_top;
+   if (d->borders_known) {
+      int nx, ny;
+      al_get_new_window_position(&nx, &ny);
+      if (nx != INT_MAX && ny != INT_MAX) {
+         // Unfortunately there doesn't seem to be a good way to know the
+         // border size before mapping the window, so we have to adjust
+         // the position slightly now, after the window is mapped.
+         // The scenario is this:
+         // 1. We create the window above, passing nx/ny to X11, which
+         //    is interpreted as outer coordinates. Since borders are
+         //    not known yet d->x/d->y are also set to nx/ny.
+         // 2. The window is mapped and X11 sends us the inner coordinates
+         //    in XConfigure which we store in d->x/d->y.
+         // 3. Now d->x/d->y is in sync with the real position, but if
+         //    we wanted a specific position it is off by the border size
+         //    and so we adjust it below.
+         al_set_window_position(display, d->x - d->border_left, d->y - d->border_top);
+      }
+   }
 
    if (!_al_xglx_config_create_context(d)) {
       goto LateError;
@@ -1067,11 +1080,10 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
    }
 
    if (setglxy) {
-      // Note: XConfigure events will have our inner window position,
-      // but we are using outer positions for al_set/get_window_position
-      // so we adjust by the border size.
-      glx->x = x - glx->border_left;
-      glx->y = y - glx->border_top;
+      // Note: XConfigure events will have our inner window position
+      // which is what we are using for al_set/get_window_position
+      glx->x = x;
+      glx->y = y;
    }
 
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
@@ -1234,8 +1246,8 @@ static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 }
 
 
-// Note: we assume x/y to be the outer window position, Allegro's
-// drawing area will usually be offset by border, title bar, etc.
+// Note: we assume x/y to be the inner window position (that is drawing
+// to 0/0 in Allegro's drawing area will draw to x/y on the desktop)
 static void xdpy_set_window_position_default(ALLEGRO_DISPLAY *display,
    int x, int y)
 {
@@ -1245,15 +1257,14 @@ static void xdpy_set_window_position_default(ALLEGRO_DISPLAY *display,
    _al_mutex_lock(&system->lock);
 
    // Note: a previous version of this function tried to translate the
-   // coordinates from inner to outer coordinates (interpreting
-   // al_set_window_position coordinates as the inner position). However
-   // the translation was done incorrectly as far as my testing shows so
-   // the old version was using neither inner nor outer coordinates and
-   // it should be safe to just re-interpret as outer coordinates.
+   // coordinates with XTranslateCoordinates (assuming a parent window
+   // offset by exactly the border) - but that didn't quite work in any
+   // of the window managers I tried.
 
-   // XMoveWindow expects outer coordinates so we can just directly
-   // pass x and y.
-   XMoveWindow(system->x11display, glx->window, x, y);
+   // XMoveWindow expects outer coordinates so we offset by the border
+   // size.
+   XMoveWindow(system->x11display, glx->window, x - glx->border_left,
+      y - glx->border_top);
    XFlush(system->x11display);
 
    /* We have to store these immediately, as we will ignore the XConfigureEvent
