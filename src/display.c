@@ -406,7 +406,7 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
  */
 bool al_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *right, int *top, int *bottom)
 {
-   if (display && display->vt && display->vt->get_window_position) {
+   if (display && display->vt && display->vt->get_window_borders) {
       return display->vt->get_window_borders(display, left, right, top, bottom);
    }
    else {
