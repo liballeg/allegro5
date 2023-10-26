@@ -67,7 +67,7 @@ FUNC(_i_is_fpu)
 
    fninit
    movl $0x5A5A, %eax
-   fnstsw %ax
+   fnstsw %eax
    cmpl $0, %eax
    jne is_fpu_not_found
 
