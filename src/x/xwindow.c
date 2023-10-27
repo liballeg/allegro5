@@ -417,8 +417,16 @@ void _al_xwin_get_borders(ALLEGRO_DISPLAY *display) {
          glx->border_top = (int)((long *)property)[2];
          glx->border_bottom = (int)((long *)property)[3];
          glx->borders_known = true;
+         ALLEGRO_DEBUG("_NET_FRAME_EXTENTS: %d %d %d %d\n", glx->border_left, glx->border_top,
+            glx->border_right, glx->border_bottom);
+      }
+      else {
+         ALLEGRO_DEBUG("Unexpected _NET_FRAME_EXTENTS format: nitems=%lu\n", nitems);
       }
       XFree(property);
+   }
+   else {
+      ALLEGRO_DEBUG("Could not read _NET_FRAME_EXTENTS\n");
    }
 }
 

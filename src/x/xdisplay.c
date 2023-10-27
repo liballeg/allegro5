@@ -212,6 +212,10 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
       int xscr_x = 0;
       int xscr_y = 0;
       al_get_new_window_position(&x_off, &y_off);
+      if (x_off != INT_MAX && y_off != INT_MAX) {
+         d->need_initial_position_adjust = true;
+         ALLEGRO_DEBUG("Will adjust window position later to %d/%d\n", x_off, y_off);
+      }
 
       if (adapter >= 0) {
          /* Non default adapter. I'm assuming this means the user wants the
@@ -475,27 +479,6 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       /* Call the vt directly to bypass system lock.
        */
       d->overridable_vt->set_display_flag(display, ALLEGRO_MAXIMIZED, true);
-   }
-
-   _al_xwin_get_borders(display);
-   if (d->borders_known) {
-      int nx, ny;
-      al_get_new_window_position(&nx, &ny);
-      if (nx != INT_MAX && ny != INT_MAX) {
-         // Unfortunately there doesn't seem to be a good way to know the
-         // border size before mapping the window, so we have to adjust
-         // the position slightly now, after the window is mapped.
-         // The scenario is this:
-         // 1. We create the window above, passing nx/ny to X11, which
-         //    is interpreted as outer coordinates. Since borders are
-         //    not known yet d->x/d->y are also set to nx/ny.
-         // 2. The window is mapped and X11 sends us the inner coordinates
-         //    in XConfigure which we store in d->x/d->y.
-         // 3. Now d->x/d->y is in sync with the real position, but if
-         //    we wanted a specific position it is off by the border size
-         //    and so we adjust it below.
-         al_set_window_position(display, d->x - d->border_left, d->y - d->border_top);
-      }
    }
 
    if (!_al_xglx_config_create_context(d)) {
@@ -1059,6 +1042,8 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
    ALLEGRO_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
 
+   _al_xwin_get_borders(d);
+
    /* Generate a resize event if the size has changed non-programmatically.
     * We cannot asynchronously change the display size here yet, since the user
     * will only know about a changed size after receiving the resize event.
@@ -1084,6 +1069,24 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
       // which is what we are using for al_set/get_window_position
       glx->x = x;
       glx->y = y;
+
+      if (glx->need_initial_position_adjust && glx->borders_known) {
+         glx->need_initial_position_adjust = false;
+         // Unfortunately there doesn't seem to be a good way to know the
+         // border size before mapping the window, so we have to adjust
+         // the position slightly now, after the window is mapped.
+         // The scenario is this:
+         // 1. We create the window, passing the user position to X11, which
+         //    is interpreted as outer coordinates. Since borders are
+         //    not known yet d->x/d->y are also set to that position.
+         // 2. The window is mapped and X11 sends us the inner coordinates
+         //    in XConfigure which we store in d->x/d->y.
+         // 3. Now d->x/d->y is in sync with the real position, but if
+         //    we wanted a specific position it is off by the border size
+         //    and so we adjust it below.
+         ALLEGRO_DEBUG("Adjusting initial position: %d/%d", glx->x - glx->border_left, glx->y - glx->border_top);
+         al_set_window_position(d, glx->x - glx->border_left, glx->y - glx->border_top);
+      }
    }
 
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();

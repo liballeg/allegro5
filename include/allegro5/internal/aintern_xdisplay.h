@@ -61,6 +61,7 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* Desktop position. */
    int x, y;
+   bool need_initial_position_adjust;
    int border_left, border_right, border_top, border_bottom;
    bool borders_known;
 
