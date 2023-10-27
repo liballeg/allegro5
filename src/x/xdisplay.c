@@ -1299,7 +1299,7 @@ static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-static bool xdpy_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *right, int *top, int *bottom)
+static bool xdpy_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *top, int *right, int *bottom)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    if (!glx->borders_known) return false;

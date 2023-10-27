@@ -113,7 +113,7 @@ int main(int argc, char **argv)
             }
             al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 0, ALLEGRO_ALIGN_CENTRE, "Size: %dx%d", dw, dh);
             int bl = 0, bt = 0;
-            bool b = al_get_window_borders(displays[i], &bl, NULL, &bt, NULL);
+            bool b = al_get_window_borders(displays[i], &bl, &bt, NULL, NULL);
             if (b)
                al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 15, ALLEGRO_ALIGN_CENTRE, "Borders: left=%d top=%d", bl, bt);
             else
