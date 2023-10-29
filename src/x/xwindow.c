@@ -396,4 +396,38 @@ XID al_get_x_window_id(ALLEGRO_DISPLAY *display)
    return ((ALLEGRO_DISPLAY_XGLX*)display)->window;
 }
 
+
+// Note: this only seems to work after the window has been mapped
+void _al_xwin_get_borders(ALLEGRO_DISPLAY *display) {
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   Display *x11 = system->x11display;
+
+   Atom type;
+   int format;
+   unsigned long nitems, bytes_after;
+   unsigned char *property;
+   Atom frame_extents = X11_ATOM(_NET_FRAME_EXTENTS);
+   if (XGetWindowProperty(x11, glx->window,
+         frame_extents, 0, 16, 0, XA_CARDINAL,
+         &type, &format, &nitems, &bytes_after, &property) == Success) {
+      if (type != None && nitems == 4) {
+         glx->border_left = (int)((long *)property)[0];
+         glx->border_right = (int)((long *)property)[1];
+         glx->border_top = (int)((long *)property)[2];
+         glx->border_bottom = (int)((long *)property)[3];
+         glx->borders_known = true;
+         ALLEGRO_DEBUG("_NET_FRAME_EXTENTS: %d %d %d %d\n", glx->border_left, glx->border_top,
+            glx->border_right, glx->border_bottom);
+      }
+      else {
+         ALLEGRO_DEBUG("Unexpected _NET_FRAME_EXTENTS format: nitems=%lu\n", nitems);
+      }
+      XFree(property);
+   }
+   else {
+      ALLEGRO_DEBUG("Could not read _NET_FRAME_EXTENTS\n");
+   }
+}
+
 /* vim: set sts=3 sw=3 et: */
