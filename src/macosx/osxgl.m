@@ -2278,7 +2278,7 @@ static void set_window_position(ALLEGRO_DISPLAY* display, int x, int y)
     */
    NSArray *screen_list = [NSScreen screens];
    int found_screen = -1;
-   for (int i = 0; al_get_num_video_adapters(); i++) {
+   for (int i = 0; i < al_get_num_video_adapters(); i++) {
       ALLEGRO_MONITOR_INFO info;
       al_get_monitor_info(i, &info);
       if (x > info.x1 && x < info.x2 && y > info.y1 && y < info.y2) {
