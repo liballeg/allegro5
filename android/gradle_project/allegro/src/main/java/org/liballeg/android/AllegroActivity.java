@@ -550,11 +550,14 @@ public class AllegroActivity extends Activity
    private boolean isJoystick(int id) {
          InputDevice input = InputDevice.getDevice(id);
          int sources = input.getSources();
-         if ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK) {
-            return true;
-         }
-         return false;
+
+         // the device is a game controller if it has gamepad buttons, control sticks, or both
+         boolean hasAnalogSticks = ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK);
+         boolean hasGamepadButtons = ((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD);
+
+         return hasGamepadButtons || hasAnalogSticks;
    }
+
    public void reconfigureJoysticks() {
       joysticks.clear();
 
@@ -578,6 +581,18 @@ public class AllegroActivity extends Activity
 
    public int indexOfJoystick(int id) {
       return joysticks.indexOf(id, 0);
+   }
+
+   public String getJoystickName(int index) {
+      if (index >= 0 && index < joysticks.size()) {
+         int id = joysticks.get(index);
+         InputDevice input = InputDevice.getDevice(id);
+
+         if (input != null)
+            return input.getName();
+      }
+
+      return "";
    }
 
    public void setJoystickActive() {

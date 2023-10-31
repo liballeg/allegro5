@@ -9,15 +9,27 @@ ALLEGRO_DEBUG_CHANNEL("android")
 typedef struct ALLEGRO_JOYSTICK_ANDROID {
    ALLEGRO_JOYSTICK parent;
    ALLEGRO_JOYSTICK_STATE joystate;
-   const char *name;
+   char name[64];
 } ALLEGRO_JOYSTICK_ANDROID;
 
 static _AL_VECTOR joysticks = _AL_VECTOR_INITIALIZER(ALLEGRO_JOYSTICK_ANDROID *);
 static bool initialized;
 
+static char *android_get_joystick_name(JNIEnv *env, jobject activity, int index, char *buffer, size_t buffer_size)
+{
+    jobject str_obj = _jni_callObjectMethodV(env, activity, "getJoystickName", "(I)Ljava/lang/String;", (jint)index);
+    ALLEGRO_USTR *s = _jni_getString(env, str_obj);
+    _al_sane_strncpy(buffer, al_cstr(s), buffer_size);
+    al_ustr_free(s);
+
+    return buffer;
+}
+
 static void android_init_joysticks(int num)
 {
     int i, j;
+    JNIEnv *env = _al_android_get_jnienv();
+    jobject activity = _al_android_activity_object();
 
     for (i = 0; i < num; i++) {
        ALLEGRO_JOYSTICK_ANDROID *stick = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_ANDROID));
@@ -25,9 +37,9 @@ static void android_init_joysticks(int num)
        ALLEGRO_JOYSTICK *joy;
 
        joy = (void *)stick;
-       stick->name = "Android Joystick";
 
        /* Fill in the joystick information fields. */
+       android_get_joystick_name(env, activity, i, stick->name, sizeof(stick->name));
        joy->info.num_sticks = 2;
        joy->info.num_buttons = 19;
        joy->info.stick[0].name = "Stick 1";
@@ -57,11 +69,10 @@ static bool andjoy_init_joystick(void)
     ALLEGRO_JOYSTICK *joy;
     int num;
 
-    accel->name = "Accelerometer";
-
     joy = (void *)accel;
 
     /* Fill in the joystick information fields. */
+    _al_sane_strncpy(accel->name, "Accelerometer", sizeof(accel->name));
     joy->info.num_sticks = 1;
     joy->info.num_buttons = 0;
     joy->info.stick[0].name = "Accelerometer";

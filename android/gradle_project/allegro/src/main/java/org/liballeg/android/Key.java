@@ -429,7 +429,10 @@ final class Key
 
    /* Return Allegro key code for Android key code. */
    static int alKey(int keyCode) {
-      return keyMap[keyCode];
+      if (keyCode < keyMap.length)
+         return keyMap[keyCode];
+      else
+         return ALLEGRO_KEY_UNKNOWN;
    }
 }
 

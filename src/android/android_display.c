@@ -241,8 +241,12 @@ static bool _al_android_init_display(JNIEnv *env,
 {
    ALLEGRO_SYSTEM_ANDROID *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY *d = (ALLEGRO_DISPLAY *)display;
+   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras = &main_thread_display_settings;
    int config_index;
    bool programmable_pipeline;
+   int major_version, minor_version;
+   bool is_required_major, is_required_minor;
+   bool is_suggested_major, is_suggested_minor;
    int ret;
 
    ASSERT(system != NULL);
@@ -268,10 +272,22 @@ static bool _al_android_init_display(JNIEnv *env,
    }
 
    programmable_pipeline = (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE);
+   major_version = extras->settings[ALLEGRO_OPENGL_MAJOR_VERSION];
+   minor_version = extras->settings[ALLEGRO_OPENGL_MINOR_VERSION];
+   is_required_major = (extras->required & ((int64_t)1 << ALLEGRO_OPENGL_MAJOR_VERSION));
+   is_required_minor = (extras->required & ((int64_t)1 << ALLEGRO_OPENGL_MINOR_VERSION));
+   is_suggested_major = (extras->suggested & ((int64_t)1 << ALLEGRO_OPENGL_MAJOR_VERSION));
+   is_suggested_minor = (extras->suggested & ((int64_t)1 << ALLEGRO_OPENGL_MINOR_VERSION));
+
+   if (!is_required_major && !is_suggested_major) // "don't care"
+      major_version = 0;
+   if (!is_required_minor && !is_suggested_minor)
+      minor_version = 0;
 
    ALLEGRO_DEBUG("calling egl_createContext");
    ret = _jni_callIntMethodV(env, display->surface_object,
-      "egl_createContext", "(IZ)I", config_index, programmable_pipeline);
+      "egl_createContext", "(IZIIZZ)I", config_index, programmable_pipeline,
+      major_version, minor_version, is_required_major, is_required_minor);
    if (!ret) {
       // XXX should probably destroy the AllegroSurface here
       ALLEGRO_ERROR("failed to create egl context!");
