@@ -6,6 +6,11 @@
 
 ALLEGRO_DEBUG_CHANNEL("android")
 
+/* the number of gamepad & dpad buttons defined in the Android documentation
+   https://developer.android.com/reference/android/view/KeyEvent */
+#define MAX_BUTTONS 36
+ALLEGRO_STATIC_ASSERT(android_joystick, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
+
 typedef struct ALLEGRO_JOYSTICK_ANDROID {
    ALLEGRO_JOYSTICK parent;
    ALLEGRO_JOYSTICK_STATE joystate;
@@ -41,7 +46,7 @@ static void android_init_joysticks(int num)
        /* Fill in the joystick information fields. */
        android_get_joystick_name(env, activity, i, stick->name, sizeof(stick->name));
        joy->info.num_sticks = 2;
-       joy->info.num_buttons = 36;
+       joy->info.num_buttons = MAX_BUTTONS;
        joy->info.stick[0].name = "Stick 1";
        joy->info.stick[0].num_axes = 2;
        joy->info.stick[0].axis[0].name = "X";

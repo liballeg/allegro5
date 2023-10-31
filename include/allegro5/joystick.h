@@ -26,7 +26,11 @@
 /* internal values */
 #define _AL_MAX_JOYSTICK_AXES	   3
 #define _AL_MAX_JOYSTICK_STICKS    16
+#ifdef ALLEGRO_ANDROID
+#define _AL_MAX_JOYSTICK_BUTTONS   36
+#else
 #define _AL_MAX_JOYSTICK_BUTTONS   32
+#endif
 
 
 
