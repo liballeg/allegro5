@@ -41,7 +41,7 @@ static void android_init_joysticks(int num)
        /* Fill in the joystick information fields. */
        android_get_joystick_name(env, activity, i, stick->name, sizeof(stick->name));
        joy->info.num_sticks = 2;
-       joy->info.num_buttons = 19;
+       joy->info.num_buttons = 36;
        joy->info.stick[0].name = "Stick 1";
        joy->info.stick[0].num_axes = 2;
        joy->info.stick[0].axis[0].name = "X";
