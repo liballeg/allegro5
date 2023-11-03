@@ -34,7 +34,7 @@ ALLEGRO_MENU_INFO main_menu_info[] = {
    ALLEGRO_START_OF_MENU("&File", FILE_ID),
       { "&Open", FILE_OPEN_ID, 0, NULL },
       ALLEGRO_MENU_SEPARATOR,
-      { "E&xit", FILE_EXIT_ID, 0, NULL },
+      { "&Exit", FILE_EXIT_ID, 0, NULL },
       ALLEGRO_END_OF_MENU,
    
    ALLEGRO_START_OF_MENU("&Dynamic Options", DYNAMIC_ID),
