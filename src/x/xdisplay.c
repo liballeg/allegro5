@@ -1396,10 +1396,12 @@ static bool xdpy_set_display_flag_default(ALLEGRO_DISPLAY *display, int flag,
          _al_xwin_set_frame(display, !flag_onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
+      {
          /* Bypass system lock. */
          ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
          glx->overridable_vt->set_fullscreen_window(display, flag_onoff);
          return true;
+      }
       case ALLEGRO_MAXIMIZED:
          _al_xwin_maximize(display, flag_onoff);
          return true;
