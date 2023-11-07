@@ -206,6 +206,10 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       width+lsize+rsize,
       height+tsize+bsize,
       SWP_NOZORDER | SWP_NOMOVE);
+   SetWindowPos(my_window, 0, pos_x-lsize, pos_y-tsize,
+      0, 0,
+      SWP_NOZORDER | SWP_NOSIZE);
+
 
    if (flags & ALLEGRO_FRAMELESS) {
       SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
@@ -1192,13 +1196,25 @@ void _al_win_destroy_display_icons(ALLEGRO_DISPLAY *display)
       DestroyIcon(old_icon);
 }
 
+static void get_top_left_border(HWND window, int *left, int *top)
+{
+   WINDOWINFO wi;
+   wi.cbSize = sizeof(WINDOWINFO);
+   GetWindowInfo(window, &wi);
+
+   *left = (wi.rcClient.left - wi.rcWindow.left);
+   *top = (wi.rcClient.top - wi.rcWindow.top);
+}
+
 void _al_win_set_window_position(HWND window, int x, int y)
 {
+   int left, top;
+   get_top_left_border(window, &left, &top);
    SetWindowPos(
       window,
       HWND_TOP,
-      x,
-      y,
+      x - left,
+      y - top,
       0,
       0,
       SWP_NOSIZE | SWP_NOZORDER);
@@ -1207,13 +1223,15 @@ void _al_win_set_window_position(HWND window, int x, int y)
 void _al_win_get_window_position(HWND window, int *x, int *y)
 {
    RECT r;
+   int left, top;
+   get_top_left_border(window, &left, &top);
    GetWindowRect(window, &r);
 
    if (x) {
-      *x = r.left;
+      *x = r.left + left;
    }
    if (y) {
-      *y = r.top;
+      *y = r.top + top;
    }
 }
 
@@ -1463,6 +1481,20 @@ int _al_win_determine_adapter(void)
       return 0; // safety measure, probably not necessary
    }
    return a;
+}
+
+bool _al_win_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *top, int *right, int *bottom)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   WINDOWINFO wi;
+   wi.cbSize = sizeof(WINDOWINFO);
+   GetWindowInfo(win_display->window, &wi);
+
+   if (left) *left = (wi.rcClient.left - wi.rcWindow.left);
+   if (top) *top = (wi.rcClient.top - wi.rcWindow.top);
+   if (right) *right = (wi.rcWindow.right - wi.rcClient.right);
+   if (bottom) *bottom = (wi.rcWindow.bottom - wi.rcClient.bottom);
+   return true;
 }
 
 /* Function: al_win_add_window_callback
