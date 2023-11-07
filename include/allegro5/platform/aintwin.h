@@ -195,6 +195,7 @@ void _al_win_destroy_display_icons(ALLEGRO_DISPLAY *display);
 /* window decorations */
 void _al_win_set_window_position(HWND window, int x, int y);
 void _al_win_get_window_position(HWND window, int *x, int *y);
+bool _al_win_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *top, int *right, int *bottom);
 bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h);
 bool _al_win_get_window_constraints(ALLEGRO_DISPLAY *display, int *min_w, int *min_h, int *max_w, int *max_h);
 void _al_win_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff);
