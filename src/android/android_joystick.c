@@ -46,12 +46,12 @@ static void android_init_joysticks(int num)
        android_get_joystick_name(env, activity, i, stick->name, sizeof(stick->name));
        joy->info.num_sticks = MAX_STICKS;
        joy->info.num_buttons = 11;
-       joy->info.stick[0].name = "Stick 1";
+       joy->info.stick[0].name = "Left Thumbstick";
        joy->info.stick[0].num_axes = 2;
        joy->info.stick[0].axis[0].name = "X";
        joy->info.stick[0].axis[1].name = "Y";
        joy->info.stick[0].flags = ALLEGRO_JOYFLAG_ANALOGUE;
-       joy->info.stick[1].name = "Stick 2";
+       joy->info.stick[1].name = "Right Thumbstick";
        joy->info.stick[1].num_axes = 2;
        joy->info.stick[1].axis[0].name = "X";
        joy->info.stick[1].axis[1].name = "Y";
