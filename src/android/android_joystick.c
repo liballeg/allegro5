@@ -6,6 +6,10 @@
 
 ALLEGRO_DEBUG_CHANNEL("android")
 
+/* sticks: left & right thumbsticks; left & right triggers */
+#define MAX_STICKS 4
+ALLEGRO_STATIC_ASSERT(android_joystick, _AL_MAX_JOYSTICK_STICKS >= MAX_STICKS);
+
 typedef struct ALLEGRO_JOYSTICK_ANDROID {
    ALLEGRO_JOYSTICK parent;
    ALLEGRO_JOYSTICK_STATE joystate;
@@ -40,7 +44,7 @@ static void android_init_joysticks(int num)
 
        /* Fill in the joystick information fields. */
        android_get_joystick_name(env, activity, i, stick->name, sizeof(stick->name));
-       joy->info.num_sticks = 2;
+       joy->info.num_sticks = MAX_STICKS;
        joy->info.num_buttons = 11;
        joy->info.stick[0].name = "Stick 1";
        joy->info.stick[0].num_axes = 2;
@@ -52,6 +56,14 @@ static void android_init_joysticks(int num)
        joy->info.stick[1].axis[0].name = "X";
        joy->info.stick[1].axis[1].name = "Y";
        joy->info.stick[1].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+       joy->info.stick[2].name = "Left Trigger";
+       joy->info.stick[2].num_axes = 1;
+       joy->info.stick[2].axis[0].name = "Ramp";
+       joy->info.stick[2].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+       joy->info.stick[3].name = "Right Trigger";
+       joy->info.stick[3].num_axes = 1;
+       joy->info.stick[3].axis[0].name = "Ramp";
+       joy->info.stick[3].flags = ALLEGRO_JOYFLAG_ANALOGUE;
 
        for (j = 0; j < joy->info.num_buttons; j++) {
            joy->info.button[j].name = "";
