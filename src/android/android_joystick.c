@@ -17,6 +17,51 @@ typedef struct ALLEGRO_JOYSTICK_ANDROID {
    char name[64];
 } ALLEGRO_JOYSTICK_ANDROID;
 
+static const char *button_name[MAX_BUTTONS] = {
+   /* buttons are named according to the Android documentation
+      https://developer.android.com/reference/android/view/KeyEvent */
+
+   /* standard gamepad & d-pad buttons */
+   "A",
+   "B",
+   "X",
+   "Y",
+   "L1",
+   "R1",
+   "DPAD LEFT",
+   "DPAD RIGHT",
+   "DPAD UP",
+   "DPAD DOWN",
+   "START", /* start / menu */
+   "SELECT", /* select / back */
+   "MODE", /* mode / guide */
+   "THUMBL",
+   "THUMBR",
+   "L2",
+   "R2",
+   "C",
+   "Z",
+   "DPAD CENTER",
+
+   /* generic gamepad buttons */
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12",
+   "13",
+   "14",
+   "15",
+   "16"
+};
+
 static _AL_VECTOR joysticks = _AL_VECTOR_INITIALIZER(ALLEGRO_JOYSTICK_ANDROID *);
 static bool initialized;
 
@@ -59,7 +104,7 @@ static void android_init_joysticks(int num)
        joy->info.stick[1].flags = ALLEGRO_JOYFLAG_ANALOGUE;
 
        for (j = 0; j < joy->info.num_buttons; j++) {
-           joy->info.button[j].name = "";
+           joy->info.button[j].name = button_name[j];
        }
 
        ptr = _al_vector_alloc_back(&joysticks);
