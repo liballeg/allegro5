@@ -121,6 +121,12 @@ double _al_timer_thread_handle_tick(double interval)
    double new_delay = 0.032768;
    unsigned int i;
 
+   /* Never allow negative time, or greater than 10 seconds delta.
+    * This is to handle clock changes on platforms not using a monotonic,
+    * suspense-free clock.
+    */
+   interval = _ALLEGRO_CLAMP(0, interval, 10.0);
+
    for (i = 0; i < _al_vector_size(&active_timers); i++) {
       ALLEGRO_TIMER **slot = _al_vector_ref(&active_timers, i);
       ALLEGRO_TIMER *timer = *slot;
