@@ -59,6 +59,45 @@ static _AL_THREAD * volatile timer_thread = NULL;
 static ALLEGRO_COND *timer_cond = NULL;
 static bool destroy_thread = false;
 
+// Allegro's al_get_time measures "the time since Allegro started", and so
+// does not ignore time spent in a suspended state. Further, some implementations
+// currently use a calendar clock, which changes based on the system clock.
+// However, the timer control thread needs to ignore suspended time, so that it always
+// performs the correct number of timer ticks.
+// This has only been verified for Allegro, so for now fallback to old
+// behavior on other platforms. `_al_timer_thread_handle_tick` will bound
+// the interval to a reasonable value to prevent other platforms from behaving
+// poorly when the clock changes.
+// See https://github.com/liballeg/allegro5/issues/1510
+// Note: perhaps this could move into a new public API: al_get_uptime
+
+#if defined(ALLEGRO_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
+#define USE_UPTIME
+struct timespec _al_initial_uptime;
+#endif
+
+static void _init_get_uptime()
+{
+#ifdef USE_UPTIME
+   clock_gettime(CLOCK_UPTIME_RAW, &_al_initial_uptime);
+#endif
+}
+
+static double _al_get_uptime()
+{
+#ifdef USE_UPTIME
+   struct timespec now;
+   double time;
+
+   clock_gettime(CLOCK_UPTIME_RAW, &now);
+   time = (double) (now.tv_sec - _al_initial_uptime.tv_sec)
+      + (double) (now.tv_nsec - _al_initial_uptime.tv_nsec) * 1.0e-9;
+   return time;
+#else
+   return al_get_time();
+#endif
+}
+
 
 /* timer_thread_proc: [timer thread]
  *  The timer thread procedure itself.
@@ -79,7 +118,8 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
    }
 #endif
 
-   double old_time = al_get_time();
+   _init_get_uptime();
+   double old_time = _al_get_uptime();
    double new_time;
    double interval = 0.032768;
 
@@ -87,7 +127,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
       al_lock_mutex(timers_mutex);
       while (_al_vector_size(&active_timers) == 0 && !destroy_thread) {
          al_wait_cond(timer_cond, timers_mutex);
-         old_time = al_get_time() - interval;
+         old_time = _al_get_uptime() - interval;
       }
       al_unlock_mutex(timers_mutex);
 
@@ -96,7 +136,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
       al_lock_mutex(timers_mutex);
       {
          /* Calculate actual time elapsed.  */
-         new_time = al_get_time();
+         new_time = _al_get_uptime();
          interval = new_time - old_time;
          old_time = new_time;
 
