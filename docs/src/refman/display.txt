@@ -568,7 +568,10 @@ retrieve.
 
 If the border information is not available returns FALSE.
 
-Note: Currently only the X11 version will report window borders.
+> *[Unstable API]:* This is an experimental feature and currently only
+partially works on X11 and Windows. The meaning of the upper border may change
+when menus are present.
+
 
 See also: [al_set_window_position], [al_get_window_position]
 
