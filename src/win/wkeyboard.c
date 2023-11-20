@@ -336,7 +336,6 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    int char_count;
    int event_count;
    int i;
-   bool ks_state;
    BYTE ks[256];
    WCHAR buf[8] = { 0 };
 
@@ -380,11 +379,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
 
    /* Send char events, but not for modifier keys or dead keys. */
    if (my_code < ALLEGRO_KEY_MODIFIERS) {
-      ks_state = GetKeyboardState(ks);
-      if(ks_state && ks[VK_CONTROL] && (modifiers & ALLEGRO_KEYMOD_CTRL)) {
-         ks[VK_CONTROL] = 0;
-      }
-      char_count = ToUnicode(vcode, scode, ks_state ? ks : NULL, buf, 8, 0);
+      char_count = ToUnicode(vcode, scode, GetKeyboardState(ks) ? ks : NULL, buf, 8, 0);
       /* Send ASCII code 127 for both Del keys. */
       if (char_count == 0 && vcode == VK_DELETE) {
          char_count = 1;
