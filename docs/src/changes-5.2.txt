@@ -2,6 +2,135 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.8 to 5.2.9 (November 2023)
+===========================================
+
+Android:
+
+- Fix back button/gesture (alemart)
+
+- Implement `al_get_joystick_name` (alemart)
+
+- Great many assorted fixes (alemart)
+
+Audio:
+
+- Add `al_get_mixer_has_attached` and `al_get_voice_has_attached` (TRDario)
+
+- Fix `al_set_audio_stream_playmode` return value and interaction with looping
+  audio streams (Cody Licorish)
+
+- Send PulseAudio silence if the attached mixer is stopped (SiegeLord)
+
+Acodec:
+
+- voc memory leak fixes (TRDario)
+
+- Fix internal looping for mod files (SiegeLord)
+
+Build system:
+
+- Add a target for copying examples, letting you build the demo without the
+  examples (SiegeLord).
+
+- Improve CMake scripts (Gilad Reich)
+
+- Support the newer WebP library which is split into two (SiegeLord).
+
+Core:
+
+- Add `al_can_set_keyboard_leds` and `al_can_get_mouse_cursor_position`
+  (TRDario)
+
+- Allow outputting logs to STDOUT via ALLEGRO_TRACE environment variable
+  (SiegeLord)
+
+- Add `al_get_current_shader` (TRDario)
+
+- Add `al_get_window_borders` for Windows and Linux (Elias Pschernig +
+  SiegeLord)
+
+TTF:
+
+- Fixes for `al_get_glyph_width`, `al_get_glyph_al_get_glyph` when interacting
+  with zero-width/zero-height glyphs (Connor Clark)
+
+MacOS:
+
+- Don't close submenus on click (Todd Cope)
+
+- Fix disabling menu items (Todd Cope)
+
+- Add support for filtering by file extensions in the native file dialog (Todd
+  Cope)
+
+- Textlog improvements (Connor Clark)
+
+- Fix improper display boundary for cursors (Connor Clark)
+
+- Make `al_get_joystick_name` return the name of the joystick (Todd Cope)
+
+- Fix off-by-one error for hat switches (Connor Clark)
+
+- Add a workaround for live resizing not working. Enable it via `[osx]
+  allow_live_resize = false` in `allegro5.cfg` and then listen and respect
+  `ALLEGRO_EVENT_DISPLAY_HALT/RESUME_DRAWING` events (#1350) (SiegeLord + Elias
+  Pschernig)
+
+Linux:
+
+- Fix fullscreen window creation (#1349) (SiegeLord)
+
+- Fix some X11 + fullscreen window interaction (#1358) (SiegeLord)
+
+- Allow setting higher quality icons (SiegeLord + Trent Gamblin)
+
+- Improve `DISPLAY_SWITCH_IN/OUT` events (#1390, #1367) (SiegeLord)
+
+- Work on improving Window positioning (Elias Pschernig)
+
+- Fix creating an initially maximized window (SiegeLord)
+
+- Enable toggling and setting maximized/frameless modes when menus are used
+  (SiegeLord)
+
+- Fix popup menu (#1280) (SiegeLord)
+
+- Make AltGr (right Alt) toggle the `ALLEGRO_KEYMOD_ALTGR` modifier (SiegeLord)
+
+Windows:
+
+- Fix drawable area mouse hiding state being out of sync (#1388) (SiegeLord)
+
+- Fix some oddities with Shift + Alt on Windows (#1348)
+
+- Work on improving Window positioning (SiegeLord)
+
+- Make native file dialog respect the initial directory when
+  `ALLEGRO_FILECHOOSER_FOLDER` is set (José Carlos HR)
+
+- Fix the client area changing size on Windows when restoring a window (#1433)
+  (SiegeLord)
+
+- Fix crashes with menus and Windows (#1381) (SiegeLord)
+
+- Fix keyboard modifier keys + char events (#1504, #1430) (SiegeLord)
+
+SDL:
+
+- Fix touch ids (Sebastian Krzyszkowiak)
+
+- Fix `al_get_mouse_state` crash (Elias Pschernig)
+
+- Implement `al_create_mouse_cursor` (Connor Clark)
+
+- Implement `al_get_monitor_dpi` (Elias Pschernig)
+
+Documentation:
+
+- Assorted clarifications and improvements (various)
+
+
 Changes from 5.2.7 to 5.2.8 (June 2022)
 ========================================
 
