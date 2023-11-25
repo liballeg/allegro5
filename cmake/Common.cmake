@@ -88,7 +88,7 @@ function(add_our_library target framework_name sources extra_flags link_with)
     target_include_directories(${target} INTERFACE $<INSTALL_INTERFACE:include>)
     list(APPEND ALLEGRO_TARGETS "${target}")
     list(REMOVE_DUPLICATES ALLEGRO_TARGETS)
-    set(ALLEGRO_TARGETS "${ALLEGRO_TARGETS}" CACHE STRING "Available allegro libraries" FORCE)
+    set(ALLEGRO_TARGETS "${ALLEGRO_TARGETS}" CACHE INTERNAL "internal")
 
     if(MSVC)
         # Compile with multiple processors
