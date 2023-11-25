@@ -153,7 +153,7 @@ Installing Pandoc from source can be challenging, but you can build Allegro
 without building the documentation.
 
 Online documentation is available on the Allegro web site:
-<http://docs.liballeg.org/>
+<https://liballeg.org/docs.html>
 
 
 
