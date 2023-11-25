@@ -1034,6 +1034,7 @@ if(ALLEGRO_SDL)
 endif(ALLEGRO_SDL)
 
 set_our_header_properties(${ALLEGRO_PUBLIC_HEADERS})
+unset(ALLEGRO_TARGETS CACHE)
 
 if(NOT WANT_MONOLITH)
     # ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
