@@ -59,15 +59,15 @@ static _AL_THREAD * volatile timer_thread = NULL;
 static ALLEGRO_COND *timer_cond = NULL;
 static bool destroy_thread = false;
 
-// Allegro's al_get_time measures "the time since Allegro started", and so
-// does not ignore time spent in a suspended state. Further, some implementations
+// Allegro's al_get_time measures "the time since Allegro started", and so does
+// not ignore time spent in a suspended state. Further, some implementations
 // currently use a calendar clock, which changes based on the system clock.
-// However, the timer control thread needs to ignore suspended time, so that it always
-// performs the correct number of timer ticks.
-// This has only been verified for Allegro, so for now fallback to old
-// behavior on other platforms. `_al_timer_thread_handle_tick` will bound
-// the interval to a reasonable value to prevent other platforms from behaving
-// poorly when the clock changes.
+// However, the timer control thread needs to ignore suspended time, so that it
+// always performs the correct number of timer ticks.
+// This has only been verified for MacOS, so for now fallback to old behavior
+// on other platforms. `_al_timer_thread_handle_tick` will bound the interval
+// to a reasonable value to prevent other platforms from behaving poorly when
+// the clock changes.
 // See https://github.com/liballeg/allegro5/issues/1510
 // Note: perhaps this could move into a new public API: al_get_uptime
 
