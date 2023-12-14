@@ -1,6 +1,7 @@
 package org.liballeg.android;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -46,6 +47,7 @@ public class AllegroActivity extends Activity
    private Vector<Integer> joysticks;
    private Clipboard clipboard;
    private DisplayManager.DisplayListener displayListener;
+   private AllegroDialog dialog = null;
 
    public final static int JS_A = 0;
    public final static int JS_B = 1;
@@ -445,6 +447,14 @@ public class AllegroActivity extends Activity
 
       sensors.unlisten();
 
+      if (dialog != null) {
+         // Message boxes block the calling thread. If the app is switched out
+         // of focus while a message box is being displayed, we need to handle
+         // ALLEGRO_EVENT_DISPLAY_HALT_DRAWING, possibly in the same thread.
+         // We should not block in this case.
+         dialog.dismissMessageBox();
+      }
+
       nativeOnPause();
       Log.d("AllegroActivity", "onPause end");
    }
@@ -706,6 +716,23 @@ public class AllegroActivity extends Activity
             }
          });
       }
+   }
+
+   public AllegroDialog getNativeDialogAddon()
+   {
+      if (dialog == null)
+         dialog = new AllegroDialog(this); // lazy instantiation
+
+      return dialog;
+   }
+
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent resultData)
+   {
+      super.onActivityResult(requestCode, resultCode, resultData);
+
+      if (dialog != null)
+         dialog.onActivityResult(requestCode, resultCode, resultData);
    }
 }
 
