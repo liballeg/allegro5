@@ -166,8 +166,8 @@ The file `mode` can be `"r"`, `"w"`, `"rw"`, `"wt"`, `"wa"` or `"rwt"`. The
 exact implementation of these modes differ depending on the underlying content
 provider. For example, `"w"` may or may not truncate.
 
-Returns a file descriptor on success. If an error occurs, a negative value is
-returned and errno is set.
+Returns a file descriptor on success or a negative value on an error. On an
+error, the Allegro errno is set.
 
 > *Note:* Remember to add to your manifest file the relevant permissions to
 your app.
@@ -185,6 +185,13 @@ if (fd >= 0) {
         do_something_with(f);
         al_fclose(f);
     }
+    else {
+        handle_error(al_get_errno());
+        close(fd);
+    }
+}
+else {
+    handle_error(al_get_errno());
 }
 ~~~~
 
