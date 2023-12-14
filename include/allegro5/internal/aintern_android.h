@@ -24,6 +24,7 @@ typedef struct ALLEGRO_DISPLAY_ANDROID {
    bool first_run;
    bool resize_acknowledge;
    bool resize_acknowledge2;
+   bool halt_acknowledge;
    bool resumed;
    bool failed;
    bool is_destroy_display;

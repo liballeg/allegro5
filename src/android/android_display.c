@@ -35,7 +35,7 @@ static void android_set_display_option(ALLEGRO_DISPLAY *d, int o, int v);
 static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height);
 static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
 void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
-void  _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
+void _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 
 JNI_FUNC(void, AllegroSurface, nativeOnCreate, (JNIEnv *env, jobject obj))
 {
@@ -81,8 +81,11 @@ JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
       return true;
    }
 
-   ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
+   // we'll wait for acknowledge_drawing_halt
+   display->halt_acknowledge = false;
 
+   // emit ALLEGRO_EVENT_DISPLAY_HALT_DRAWING
+   ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
    _al_event_source_lock(&d->es);
 
    if (_al_event_source_needs_to_generate_event(&d->es)) {
@@ -96,9 +99,12 @@ JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
    _al_event_source_unlock(&d->es);
 
    // wait for acknowledge_drawing_halt
+   ALLEGRO_DEBUG("waiting for acknowledge_drawing_halt");
    al_lock_mutex(display->mutex);
-   al_wait_cond(display->cond, display->mutex);
+   while (!display->halt_acknowledge)
+      al_wait_cond(display->cond, display->mutex);
    al_unlock_mutex(display->mutex);
+   ALLEGRO_DEBUG("done waiting for acknowledge_drawing_halt");
 
    ALLEGRO_DEBUG("AllegroSurface_nativeOnDestroy end");
 
@@ -854,8 +860,11 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
 
    _al_android_clear_current(_al_android_get_jnienv(), d);
 
-   /* XXX mutex? */
+   /* signal the condition variable */
+   al_lock_mutex(d->mutex);
+   d->halt_acknowledge = true;
    al_broadcast_cond(d->cond);
+   al_unlock_mutex(d->mutex);
 
    ALLEGRO_DEBUG("acknowledged drawing halt");
 }
