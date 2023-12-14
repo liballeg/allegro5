@@ -28,6 +28,9 @@ import android.view.View;
 import android.view.KeyEvent;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import java.io.FileNotFoundException;
 
 public class AllegroActivity extends Activity
 {
@@ -562,6 +565,29 @@ public class AllegroActivity extends Activity
    String getOsVersion()
    {
       return android.os.Build.VERSION.RELEASE;
+   }
+
+   public int openFileDescriptor(String uriString, String mode)
+   {
+      final int NOT_FOUND = -1, UNSUPPORTED = -2;
+
+      if (Build.VERSION.SDK_INT < 12)
+         return UNSUPPORTED;
+
+      try {
+         // See https://developer.android.com/reference/android/content/ContentResolver#openFileDescriptor(android.net.Uri,%20java.lang.String)
+         Uri uri = Uri.parse(uriString); // content:// or file://
+         ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, mode);
+
+         // the user is responsible for closing this file descriptor
+         return pfd.detachFd(); // API 12+
+      }
+      catch (FileNotFoundException e) {
+         // permission issues?
+         Log.e("AllegroActivity", "openFileDescriptor: file not found or invalid mode");
+      }
+
+      return NOT_FOUND;
    }
 
    private boolean isJoystick(int id) {
