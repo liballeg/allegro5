@@ -355,8 +355,6 @@ restart:
          message("Display resize");
          al_acknowledge_resize(display);
       }
-#else
-      (void)halt_drawing;
 #endif
 
       if (redraw && !halt_drawing && al_is_event_queue_empty(queue)) {

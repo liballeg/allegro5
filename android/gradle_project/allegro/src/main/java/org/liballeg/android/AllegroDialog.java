@@ -22,12 +22,12 @@ import java.util.concurrent.CountDownLatch;
  */
 public class AllegroDialog
 {
-    private Activity activity = null;
-    private AllegroMessageBox messageBox = new AllegroMessageBox();
-    private AllegroFileChooser fileChooser = new AllegroFileChooser();
-    private AllegroTextLog textLog = new AllegroTextLog();
+    private final AllegroActivity activity;
+    private final AllegroMessageBox messageBox = new AllegroMessageBox();
+    private final AllegroFileChooser fileChooser = new AllegroFileChooser();
+    private final AllegroTextLog textLog = new AllegroTextLog();
 
-    public AllegroDialog(Activity activity)
+    public AllegroDialog(AllegroActivity activity)
     {
         this.activity = activity;
     }
