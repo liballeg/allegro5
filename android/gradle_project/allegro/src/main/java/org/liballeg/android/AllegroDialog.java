@@ -107,9 +107,10 @@ class AllegroMessageBox
                 builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
-                        interrupter.interrupt();
                         if (dialog == currentDialog)
                             currentDialog = null;
+
+                        interrupter.interrupt();
                     }
                 });
 
