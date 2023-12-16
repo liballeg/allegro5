@@ -198,7 +198,7 @@ char *really_open_file_chooser(int flags, const char *patterns, const char *init
 
     JNIEnv *env = _al_android_get_jnienv();
     jobject activity = _al_android_activity_object();
-    jobject dialog = _jni_callObjectMethod(env, activity, "getNativeDialogAddon", "()Lorg/liballeg/android/AllegroDialog;");
+    jobject dialog = _jni_callObjectMethod(env, activity, "getNativeDialogAddon", "()L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroDialog;");
 
     jstring jpatterns = _jni_call(env, jstring, NewStringUTF, patterns != NULL ? patterns : "");
     jstring jinitial_path = _jni_call(env, jstring, NewStringUTF, initial_path != NULL ? initial_path : "");
@@ -224,7 +224,7 @@ int show_message_box(const char *title, const char *message, const char *buttons
 {
     JNIEnv *env = _al_android_get_jnienv();
     jobject activity = _al_android_activity_object();
-    jobject dialog = _jni_callObjectMethod(env, activity, "getNativeDialogAddon", "()Lorg/liballeg/android/AllegroDialog;");
+    jobject dialog = _jni_callObjectMethod(env, activity, "getNativeDialogAddon", "()L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroDialog;");
 
     jstring jtitle = _jni_call(env, jstring, NewStringUTF, title != NULL ? title : "");
     jstring jmessage = _jni_call(env, jstring, NewStringUTF, message != NULL ? message : "");
@@ -245,7 +245,7 @@ void append_to_textlog(const char *tag, const char *message)
 {
     JNIEnv *env = _al_android_get_jnienv();
     jobject activity = _al_android_activity_object();
-    jobject dialog = _jni_callObjectMethod(env, activity, "getNativeDialogAddon", "()Lorg/liballeg/android/AllegroDialog;");
+    jobject dialog = _jni_callObjectMethod(env, activity, "getNativeDialogAddon", "()L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroDialog;");
 
     jstring jtag = _jni_call(env, jstring, NewStringUTF, tag != NULL ? tag : "");
     jstring jmessage = _jni_call(env, jstring, NewStringUTF, message != NULL ? message : "");
