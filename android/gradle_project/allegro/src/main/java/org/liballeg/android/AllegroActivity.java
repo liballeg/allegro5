@@ -316,6 +316,7 @@ public class AllegroActivity extends Activity
    }
 
    public void updateOrientation() {
+      dismissMessageBox();
       nativeOnOrientationChange(getAllegroOrientation(), false);
    }
 
@@ -372,7 +373,7 @@ public class AllegroActivity extends Activity
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-      if(Build.VERSION.SDK_INT >= 33) {
+      if (Build.VERSION.SDK_INT >= 33) {
          // handle the back button / gesture on API level 33+
          getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
             OnBackInvokedDispatcher.PRIORITY_DEFAULT, new OnBackInvokedCallback() {
@@ -446,14 +447,7 @@ public class AllegroActivity extends Activity
       Log.d("AllegroActivity", "onPause");
 
       sensors.unlisten();
-
-      if (dialog != null) {
-         // Message boxes block the calling thread. If the app is switched out
-         // of focus while a message box is being displayed, we need to handle
-         // ALLEGRO_EVENT_DISPLAY_HALT_DRAWING, possibly in the same thread.
-         // We should not block in this case.
-         dialog.dismissMessageBox();
-      }
+      dismissMessageBox();
 
       nativeOnPause();
       Log.d("AllegroActivity", "onPause end");
@@ -724,6 +718,19 @@ public class AllegroActivity extends Activity
          dialog = new AllegroDialog(this); // lazy instantiation
 
       return dialog;
+   }
+
+   private void dismissMessageBox()
+   {
+      // Message boxes block the calling thread. If the app receives a drawing
+      // halt / resume or a display resize event, Allegro will block the thread
+      // until these events are acknowledged. If they are emitted while a
+      // message box is visible and if their acknowledgement takes place in the
+      // same thread that spawned the message box, then the app will freeze.
+      // That will happen because they can't be acknowledged while the message
+      // box is blocking that same thread. We should not block in this case.
+      if (dialog != null)
+         dialog.dismissMessageBox();
    }
 
    @Override
