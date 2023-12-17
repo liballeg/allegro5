@@ -723,8 +723,8 @@ public class AllegroActivity extends Activity
    private void dismissMessageBox()
    {
       // Message boxes block the calling thread. If the app receives a drawing
-      // halt / resume or a display resize event, Allegro will block the thread
-      // until these events are acknowledged. If they are emitted while a
+      // halt / resume or a display resize event, Allegro will block the UI
+      // thread until these events are acknowledged. If they are emitted while a
       // message box is visible and if their acknowledgement takes place in the
       // same thread that spawned the message box, then the app will freeze.
       // That will happen because they can't be acknowledged while the message
