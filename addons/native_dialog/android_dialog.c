@@ -80,7 +80,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
     bool ret = open_file_chooser(fd->flags, patterns, initial_path, &fd->fc_paths, &fd->fc_path_count);
     ALLEGRO_DEBUG("done waiting for the file chooser");
 
-    /* wait some more before we return */
+    /* wait some more before we return - for predictable behavior */
     if (dpy != NULL) {
         ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
         ALLEGRO_TIMEOUT timeout;
@@ -88,7 +88,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
 
         memset(&event, 0, sizeof(event));
 
-        wait_start:
+        wait:
 
         /* wait for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING */
         ALLEGRO_DEBUG("waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
@@ -123,7 +123,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
         al_init_timeout(&timeout, 0.5);
         while (al_wait_for_event_until(queue, &event, &timeout)) {
             if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING)
-                goto wait_start;
+                goto wait;
         }
         ALLEGRO_DEBUG("done waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
 
