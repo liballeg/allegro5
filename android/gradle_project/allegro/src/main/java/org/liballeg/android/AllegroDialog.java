@@ -162,8 +162,10 @@ class AllegroMessageBox
 
     public void dismiss()
     {
-        if (currentDialog != null)
+        if (currentDialog != null) {
+            Log.d(TAG, "Dismissed by Allegro");
             currentDialog.dismiss();
+        }
     }
 
     private Looper myLooper()

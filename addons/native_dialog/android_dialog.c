@@ -20,32 +20,45 @@
 
 ALLEGRO_DEBUG_CHANNEL("android")
 
+static ALLEGRO_DISPLAY *get_active_display(void);
 static bool open_file_chooser(int flags, const char *patterns, const char *initial_path, ALLEGRO_PATH ***out_uri_strings, size_t *out_uri_count);
 static char *really_open_file_chooser(int flags, const char *patterns, const char *initial_path);
 static int show_message_box(const char *title, const char *message, const char *buttons, int flags);
 static void append_to_textlog(const char *tag, const char *message);
+
+static ALLEGRO_EVENT_QUEUE *queue = NULL;
 
 
 
 
 bool _al_init_native_dialog_addon(void)
 {
-    return true;
+    queue = al_create_event_queue();
+    return (queue != NULL);
 }
 
 void _al_shutdown_native_dialog_addon(void)
 {
+    al_destroy_event_queue(queue);
+    queue = NULL;
 }
 
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG *fd)
 {
     /* al_show_native_file_dialog() is specified as blocking in the API. Since
-       there is a need to handle ALLEGRO_EVENT_DISPLAY_HALT_DRAWING before this
-       function returns, users must call it from a separate thread. */
+       there is a need to handle drawing halt and drawing resume events before
+       this function returns, users must call it from a separate thread. */
 
+    ALLEGRO_DISPLAY *dpy = get_active_display();
     const char *patterns = al_cstr(fd->fc_patterns);
     const char *initial_path = NULL;
-    (void)display;
+    (void)display; /* possibly NULL */
+
+    /* fail if not initialized */
+    if (queue == NULL) {
+        ALLEGRO_DEBUG("the native dialog addon is not initialized");
+        return false;
+    }
 
     /* initial path (optional) */
     if (fd->fc_initial_path != NULL)
@@ -58,8 +71,69 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
         al_free(fd->fc_paths);
     }
 
+    /* register event source */
+    if (dpy != NULL)
+        al_register_event_source(queue, &dpy->es);
+
     /* open the file chooser */
-    return open_file_chooser(fd->flags, patterns, initial_path, &fd->fc_paths, &fd->fc_path_count);
+    ALLEGRO_DEBUG("waiting for the file chooser");
+    bool ret = open_file_chooser(fd->flags, patterns, initial_path, &fd->fc_paths, &fd->fc_path_count);
+    ALLEGRO_DEBUG("done waiting for the file chooser");
+
+    /* wait some more before we return */
+    if (dpy != NULL) {
+        ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
+        ALLEGRO_TIMEOUT timeout;
+        ALLEGRO_EVENT event;
+
+        memset(&event, 0, sizeof(event));
+
+        wait_start:
+
+        /* wait for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING */
+        ALLEGRO_DEBUG("waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
+        while (event.type != ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING)
+            al_wait_for_event(queue, &event);
+        ALLEGRO_DEBUG("done waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
+
+        /* wait for al_acknowledge_drawing_resume() */
+        ALLEGRO_DEBUG("waiting for al_acknowledge_drawing_resume");
+        al_lock_mutex(d->mutex);
+        while (!d->resumed)
+            al_wait_cond(d->cond, d->mutex);
+        al_unlock_mutex(d->mutex);
+        ALLEGRO_DEBUG("done waiting for al_acknowledge_drawing_resume");
+#if 1
+        /* wait for the ALLEGRO_EVENT_DISPLAY_RESIZE that follows */
+        ALLEGRO_DEBUG("waiting for ALLEGRO_EVENT_DISPLAY_RESIZE");
+        while (event.type != ALLEGRO_EVENT_DISPLAY_RESIZE)
+            al_wait_for_event(queue, &event);
+        ALLEGRO_DEBUG("done waiting for ALLEGRO_EVENT_DISPLAY_RESIZE");
+
+        /* wait for al_acknowledge_resize() */
+        ALLEGRO_DEBUG("waiting for al_acknowledge_resize");
+        al_lock_mutex(d->mutex);
+        while (!(d->resize_acknowledge && d->resize_acknowledge2))
+            al_wait_cond(d->cond, d->mutex);
+        al_unlock_mutex(d->mutex);
+        ALLEGRO_DEBUG("done waiting for al_acknowledge_resize");
+#endif
+        /* check if a new ALLEGRO_EVENT_DISPLAY_HALT_DRAWING is emitted */
+        ALLEGRO_DEBUG("waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+        al_init_timeout(&timeout, 0.5);
+        while (al_wait_for_event_until(queue, &event, &timeout)) {
+            if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING)
+                goto wait_start;
+        }
+        ALLEGRO_DEBUG("done waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+
+        /* unregister event source and drop all events from the event queue */
+        al_unregister_event_source(queue, &dpy->es);
+    }
+
+    /* done! */
+    ALLEGRO_DEBUG("done");
+    return ret;
 }
 
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG *nd)
@@ -156,6 +230,18 @@ int _al_get_menu_display_height(void)
 
 
 
+
+ALLEGRO_DISPLAY *get_active_display(void)
+{
+    ALLEGRO_SYSTEM *sys = al_get_system_driver();
+    ASSERT(sys);
+
+    if (_al_vector_size(&sys->displays) == 0)
+        return NULL;
+
+    ALLEGRO_DISPLAY **dptr = (ALLEGRO_DISPLAY **)_al_vector_ref(&sys->displays, 0);
+    return *dptr;
+}
 
 bool open_file_chooser(int flags, const char *patterns, const char *initial_path, ALLEGRO_PATH ***out_uri_strings, size_t *out_uri_count)
 {

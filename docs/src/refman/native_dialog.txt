@@ -109,9 +109,9 @@ call it from inside that thread.
 
 Returns true on success, false on failure.
 
-> *Note:* On Android, [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING] needs to be handled
-before this function returns. This means that you must call it from a different
-thread.
+> *Note:* On Android, [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING] and
+[ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] need to be handled before this function
+returns. This means that you must call it from a different thread.
 
 ## API: al_get_native_file_dialog_count
 
