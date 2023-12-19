@@ -278,7 +278,7 @@ class AllegroMessageBox
         - Allegro will block the UI thread until ALLEGRO_EVENT_DISPLAY_RESIZE
           is acknowledged.
 
-        - The thread the invoked the message box from native code will remain
+        - The thread that invoked the message box from native code will remain
           blocked until the alert dialog is dismissed.
 
         - The thread that invoked the message box cannot possibly acknowledge
@@ -286,7 +286,7 @@ class AllegroMessageBox
 
         - The alert dialog is displayed from the UI thread. If the UI thread
           is blocked, then the dialog can't be dismissed. If the dialog isn't
-          dismissed, then the thread the invoked the message box will remain
+          dismissed, then the thread that invoked the message box will remain
           blocked.
 
         - Unless al_acknowledge_resize() is called by some other thread, then
