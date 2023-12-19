@@ -2,8 +2,12 @@ package org.liballeg.android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -147,7 +151,7 @@ class AllegroMessageBox
 
                 // build and show the alert dialog
                 currentDialog = builder.create();
-                currentDialog.show();
+                showDialogWithImmersiveModeFix(currentDialog, activity);
             }
         });
 
@@ -166,6 +170,12 @@ class AllegroMessageBox
             Log.d(TAG, "Dismissed by Allegro");
             currentDialog.dismiss();
         }
+    }
+
+    private void showDialogWithImmersiveModeFix(Dialog dialog, Activity activity)
+    {
+        ImmersiveDialogWrapper dlg = new ImmersiveDialogWrapper(dialog);
+        dlg.show(activity);
     }
 
     private Looper myLooper()
@@ -219,7 +229,7 @@ class AllegroMessageBox
 
     private class OnClickListenerGenerator
     {
-        private MutableInteger result;
+        private final MutableInteger result;
 
         public OnClickListenerGenerator(MutableInteger result)
         {
@@ -235,6 +245,88 @@ class AllegroMessageBox
                     dialog.dismiss();
                 }
             };
+        }
+    }
+
+    private class ImmersiveDialogWrapper
+    {
+        /*
+
+        This class wraps a Dialog object with code that handles the immersive
+        mode in a special way.
+
+        Message boxes have a blocking interface. When the app is in immersive
+        mode (i.e., the ALLEGRO_FRAMELESS display flag is on), a deadlock may
+        occur as soon as a message box is invoked. That will happen if the
+        thread that calls al_acknowledge_resize() is the same thread that
+        invokes the message box.
+
+        Without a special handling of the immersive mode, the Android system
+        will momentarily show the navigation bar and trigger a surface change
+        as soon as the message box is called forth. This, in turn, triggers a
+        display resize event. In summary, here is what happens:
+
+        - Allegro will block the UI thread until ALLEGRO_EVENT_DISPLAY_RESIZE
+          is acknowledged.
+
+        - The thread the invoked the message box from native code will remain
+          blocked until the alert dialog is dismissed.
+
+        - The thread that invoked the message box cannot possibly acknowledge
+          the display resize while it is blocked.
+
+        - The alert dialog is displayed from the UI thread. If the UI thread
+          is blocked, then the dialog can't be dismissed. If the dialog isn't
+          dismissed, then the thread the invoked the message box will remain
+          blocked.
+
+        - Unless al_acknowledge_resize() is called by some other thread, then
+          both threads will be waiting forever. Deadlock!
+
+        The solution below prevents the deadlock from occurring by preventing
+        the triggering of a display resize event in the first place. This is
+        achieved with a little trick that makes the dialog non-focusable while
+        it's being created.
+
+        */
+        private final Dialog dialog;
+
+        public ImmersiveDialogWrapper(Dialog dialog)
+        {
+            this.dialog = dialog;
+        }
+
+        public void show(Activity activity)
+        {
+            if (!isInImmersiveMode(activity)) {
+                dialog.show();
+                return;
+            }
+
+            // This solution is based on https://stackoverflow.com/a/23207365
+            View view = activity.getWindow().getDecorView();
+            int immersiveFlags = view.getSystemUiVisibility();
+            Window dialogWindow = dialog.getWindow();
+
+            dialogWindow.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
+            dialog.show();
+
+            dialogWindow.getDecorView().setSystemUiVisibility(immersiveFlags);
+            dialogWindow.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        }
+
+        private boolean isInImmersiveMode(Activity activity)
+        {
+            if (Build.VERSION.SDK_INT < 19)
+                return false;
+
+            // This is based on AllegroActivity.setAllegroFrameless()
+            View view = activity.getWindow().getDecorView();
+            int flags = view.getSystemUiVisibility();
+            final int IMMERSIVE_FLAGS = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+
+            return (flags & IMMERSIVE_FLAGS) != 0;
         }
     }
 }
