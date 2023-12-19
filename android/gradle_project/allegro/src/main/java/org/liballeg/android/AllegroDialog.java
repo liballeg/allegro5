@@ -85,72 +85,15 @@ class AllegroMessageBox
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final LooperInterrupter interrupter = new LooperInterrupter(looper);
-                OnClickListenerGenerator resultSetter = new OnClickListenerGenerator(result);
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-                // configure the alert dialog
-                builder.setTitle(title);
-                builder.setMessage(message);
-                builder.setCancelable(true);
-
-                if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_WARN))
-                    builder.setIcon(android.R.drawable.ic_dialog_alert);
-                else if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_ERROR))
-                    builder.setIcon(android.R.drawable.ic_dialog_alert); // ic_delete
-                else if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_QUESTION))
-                    builder.setIcon(android.R.drawable.ic_dialog_info);
-
-                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        if (dialog == currentDialog)
-                            currentDialog = null;
-
-                        interrupter.interrupt();
-                    }
-                });
-
-                // configure the buttons
-                boolean wantCustomButtons = !buttons.equals("");
-                String[] buttonText = wantCustomButtons ? buttons.split("\\|") : null;
-
-                if (!wantCustomButtons) {
-                    builder.setPositiveButton(android.R.string.ok, resultSetter.generate(POSITIVE_BUTTON));
-
-                    if (0 != (flags & (AllegroDialogConst.ALLEGRO_MESSAGEBOX_OK_CANCEL | AllegroDialogConst.ALLEGRO_MESSAGEBOX_YES_NO))) {
-                        // unfortunately, android.R.string.yes and android.R.string.no
-                        // are deprecated and resolve to android.R.string.ok and
-                        // android.R.string.cancel, respectively.
-                        builder.setNegativeButton(android.R.string.cancel, resultSetter.generate(NEGATIVE_BUTTON));
-                    }
-                }
-                else if (buttonText.length == 1) {
-                    builder.setPositiveButton(buttonText[0], resultSetter.generate(POSITIVE_BUTTON));
-                }
-                else if (buttonText.length == 2) {
-                    builder.setPositiveButton(buttonText[0], resultSetter.generate(POSITIVE_BUTTON));
-                    builder.setNegativeButton(buttonText[1], resultSetter.generate(NEGATIVE_BUTTON));
-                }
-                else if (buttonText.length >= 3) { // we support up to 3 buttons
-                    builder.setPositiveButton(buttonText[0], resultSetter.generate(POSITIVE_BUTTON));
-                    builder.setNegativeButton(buttonText[1], resultSetter.generate(NEGATIVE_BUTTON));
-                    builder.setNeutralButton(buttonText[2], resultSetter.generate(NEUTRAL_BUTTON));
-                }
+                // create an alert dialog
+                AlertDialog newDialog = createAlertDialog(activity, title, message, buttons, flags, result, looper);
 
                 // only one alert dialog can be active at any given time
                 if (currentDialog != null)
                     currentDialog.dismiss();
 
-                // build and show the alert dialog
-                currentDialog = builder.create();
+                // show the alert dialog
+                currentDialog = newDialog;
                 showDialogWithImmersiveModeFix(currentDialog, activity);
             }
         });
@@ -170,6 +113,72 @@ class AllegroMessageBox
             Log.d(TAG, "Dismissed by Allegro");
             currentDialog.dismiss();
         }
+    }
+
+    private AlertDialog createAlertDialog(Activity activity, String title, String message, String buttons, int flags, MutableInteger result, Looper looper)
+    {
+        final LooperInterrupter interrupter = new LooperInterrupter(looper);
+        OnClickListenerGenerator resultSetter = new OnClickListenerGenerator(result);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+        // configure the alert dialog
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setCancelable(true);
+
+        if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_WARN))
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+        else if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_ERROR))
+            builder.setIcon(android.R.drawable.ic_dialog_alert); // ic_delete
+        else if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_QUESTION))
+            builder.setIcon(android.R.drawable.ic_dialog_info);
+
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (dialog == currentDialog)
+                    currentDialog = null;
+
+                interrupter.interrupt();
+            }
+        });
+
+        // configure the buttons
+        boolean wantCustomButtons = !buttons.equals("");
+        String[] buttonText = wantCustomButtons ? buttons.split("\\|") : null;
+
+        if (!wantCustomButtons) {
+            builder.setPositiveButton(android.R.string.ok, resultSetter.generate(POSITIVE_BUTTON));
+
+            if (0 != (flags & (AllegroDialogConst.ALLEGRO_MESSAGEBOX_OK_CANCEL | AllegroDialogConst.ALLEGRO_MESSAGEBOX_YES_NO))) {
+                // unfortunately, android.R.string.yes and android.R.string.no
+                // are deprecated and resolve to android.R.string.ok and
+                // android.R.string.cancel, respectively.
+                builder.setNegativeButton(android.R.string.cancel, resultSetter.generate(NEGATIVE_BUTTON));
+            }
+        }
+        else if (buttonText.length == 1) {
+            builder.setPositiveButton(buttonText[0], resultSetter.generate(POSITIVE_BUTTON));
+        }
+        else if (buttonText.length == 2) {
+            builder.setPositiveButton(buttonText[0], resultSetter.generate(POSITIVE_BUTTON));
+            builder.setNegativeButton(buttonText[1], resultSetter.generate(NEGATIVE_BUTTON));
+        }
+        else if (buttonText.length >= 3) { // we support up to 3 buttons
+            builder.setPositiveButton(buttonText[0], resultSetter.generate(POSITIVE_BUTTON));
+            builder.setNegativeButton(buttonText[1], resultSetter.generate(NEGATIVE_BUTTON));
+            builder.setNeutralButton(buttonText[2], resultSetter.generate(NEUTRAL_BUTTON));
+        }
+
+        // create the alert dialog
+        return builder.create();
     }
 
     private void showDialogWithImmersiveModeFix(Dialog dialog, Activity activity)
