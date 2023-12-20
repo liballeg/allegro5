@@ -117,6 +117,11 @@ public class AllegroActivity extends Activity
       return getFilesDir().getAbsolutePath();
    }
 
+   String getTempDir()
+   {
+      return getCacheDir().getAbsolutePath();
+   }
+
    String getApkPath()
    {
       return getApplicationInfo().sourceDir;
