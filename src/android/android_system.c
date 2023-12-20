@@ -50,6 +50,7 @@ struct system_data_t {
    ALLEGRO_USTR *user_lib_name;
    ALLEGRO_USTR *resources_dir;
    ALLEGRO_USTR *data_dir;
+   ALLEGRO_USTR *temp_dir;
    ALLEGRO_USTR *apk_path;
    ALLEGRO_USTR *model;
    ALLEGRO_USTR *manufacturer;
@@ -220,11 +221,13 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    system_data.user_lib_name = _jni_callStringMethod(env, system_data.activity_object, "getUserLibName", "()Ljava/lang/String;");
    system_data.resources_dir = _jni_callStringMethod(env, system_data.activity_object, "getResourcesDir", "()Ljava/lang/String;");
    system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
+   system_data.temp_dir = _jni_callStringMethod(env, system_data.activity_object, "getTempDir", "()Ljava/lang/String;");
    system_data.apk_path = _jni_callStringMethod(env, system_data.activity_object, "getApkPath", "()Ljava/lang/String;");
    system_data.model = _jni_callStringMethod(env, system_data.activity_object, "getModel", "()Ljava/lang/String;");
    system_data.manufacturer = _jni_callStringMethod(env, system_data.activity_object, "getManufacturer", "()Ljava/lang/String;");
    ALLEGRO_DEBUG("resources_dir: %s", al_cstr(system_data.resources_dir));
    ALLEGRO_DEBUG("data_dir: %s", al_cstr(system_data.data_dir));
+   ALLEGRO_DEBUG("temp_dir: %s", al_cstr(system_data.temp_dir));
    ALLEGRO_DEBUG("apk_path: %s", al_cstr(system_data.apk_path));
    ALLEGRO_DEBUG("model: %s", al_cstr(system_data.model));
    ALLEGRO_DEBUG("manufacturer: %s", al_cstr(system_data.manufacturer));
@@ -565,6 +568,10 @@ ALLEGRO_PATH *_al_android_get_path(int id)
          break;
 
       case ALLEGRO_TEMP_PATH:
+         /* path to the application cache */
+         path = al_create_path_for_directory(al_cstr(system_data.temp_dir));
+         break;
+
       case ALLEGRO_USER_DATA_PATH:
       case ALLEGRO_USER_HOME_PATH:
       case ALLEGRO_USER_SETTINGS_PATH:
