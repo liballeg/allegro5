@@ -503,6 +503,8 @@ static bool android_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 
    ALLEGRO_DEBUG("Monitor Info: %d:%d", info->x2, info->y2);
 
+   _jni_callv(env, DeleteLocalRef, rect);
+
    return true;
 }
 
