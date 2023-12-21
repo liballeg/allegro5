@@ -21,6 +21,7 @@
 ALLEGRO_DEBUG_CHANNEL("android")
 
 static ALLEGRO_DISPLAY *get_active_display(void);
+static void wait_for_display_events(ALLEGRO_DISPLAY *dpy);
 static bool open_file_chooser(int flags, const char *patterns, const char *initial_path, ALLEGRO_PATH ***out_uri_strings, size_t *out_uri_count);
 static char *really_open_file_chooser(int flags, const char *patterns, const char *initial_path);
 static int show_message_box(const char *title, const char *message, const char *buttons, int flags);
@@ -80,55 +81,15 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
     bool ret = open_file_chooser(fd->flags, patterns, initial_path, &fd->fc_paths, &fd->fc_path_count);
     ALLEGRO_DEBUG("done waiting for the file chooser");
 
-    /* wait some more before we return - for predictable behavior */
+    /* ensure predictable behavior */
     if (dpy != NULL) {
-        ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
-        ALLEGRO_TIMEOUT timeout;
-        ALLEGRO_EVENT event;
 
-        memset(&event, 0, sizeof(event));
-
-        wait:
-
-        /* wait for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING */
-        ALLEGRO_DEBUG("waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
-        while (event.type != ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING)
-            al_wait_for_event(queue, &event);
-        ALLEGRO_DEBUG("done waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
-
-        /* wait for al_acknowledge_drawing_resume() */
-        ALLEGRO_DEBUG("waiting for al_acknowledge_drawing_resume");
-        al_lock_mutex(d->mutex);
-        while (!d->resumed)
-            al_wait_cond(d->cond, d->mutex);
-        al_unlock_mutex(d->mutex);
-        ALLEGRO_DEBUG("done waiting for al_acknowledge_drawing_resume");
-#if 1
-        /* wait for the ALLEGRO_EVENT_DISPLAY_RESIZE that follows */
-        ALLEGRO_DEBUG("waiting for ALLEGRO_EVENT_DISPLAY_RESIZE");
-        while (event.type != ALLEGRO_EVENT_DISPLAY_RESIZE)
-            al_wait_for_event(queue, &event);
-        ALLEGRO_DEBUG("done waiting for ALLEGRO_EVENT_DISPLAY_RESIZE");
-
-        /* wait for al_acknowledge_resize() */
-        ALLEGRO_DEBUG("waiting for al_acknowledge_resize");
-        al_lock_mutex(d->mutex);
-        while (!(d->resize_acknowledge && d->resize_acknowledge2))
-            al_wait_cond(d->cond, d->mutex);
-        al_unlock_mutex(d->mutex);
-        ALLEGRO_DEBUG("done waiting for al_acknowledge_resize");
-#endif
-        /* check if a new ALLEGRO_EVENT_DISPLAY_HALT_DRAWING is emitted */
-        ALLEGRO_DEBUG("waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
-        al_init_timeout(&timeout, 0.5);
-        while (al_wait_for_event_until(queue, &event, &timeout)) {
-            if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING)
-                goto wait;
-        }
-        ALLEGRO_DEBUG("done waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+        /* wait some more before we return */
+        wait_for_display_events(dpy);
 
         /* unregister event source and drop all events from the event queue */
         al_unregister_event_source(queue, &dpy->es);
+
     }
 
     /* done! */
@@ -241,6 +202,57 @@ ALLEGRO_DISPLAY *get_active_display(void)
 
     ALLEGRO_DISPLAY **dptr = (ALLEGRO_DISPLAY **)_al_vector_ref(&sys->displays, 0);
     return *dptr;
+}
+
+void wait_for_display_events(ALLEGRO_DISPLAY *dpy)
+{
+    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
+    ALLEGRO_TIMEOUT timeout;
+    ALLEGRO_EVENT event;
+    bool expected_state = false;
+
+    memset(&event, 0, sizeof(event));
+
+    /* We expect a drawing halt event to be on the queue. If that is not true,
+       then the drawing halt did not take place for some unusual reason */
+    ALLEGRO_DEBUG("looking for ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+    while (al_get_next_event(queue, &event)) {
+        if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
+            expected_state = true;
+            break;
+        }
+    }
+
+    /* skip if we're on an inconsistent state */
+    if (!expected_state) {
+        ALLEGRO_DEBUG("unexpected state: no ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+        return;
+    }
+
+    wait_for_resume_drawing:
+
+    /* wait for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING */
+    ALLEGRO_DEBUG("waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
+    while (event.type != ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING)
+        al_wait_for_event(queue, &event);
+    ALLEGRO_DEBUG("done waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
+
+    /* wait for al_acknowledge_drawing_resume() */
+    ALLEGRO_DEBUG("waiting for al_acknowledge_drawing_resume");
+    al_lock_mutex(d->mutex);
+    while (!d->resumed)
+        al_wait_cond(d->cond, d->mutex);
+    al_unlock_mutex(d->mutex);
+    ALLEGRO_DEBUG("done waiting for al_acknowledge_drawing_resume");
+
+    /* check if a new ALLEGRO_EVENT_DISPLAY_HALT_DRAWING is emitted */
+    ALLEGRO_DEBUG("waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+    al_init_timeout(&timeout, 0.5);
+    while (al_wait_for_event_until(queue, &event, &timeout)) {
+        if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING)
+            goto wait_for_resume_drawing;
+    }
+    ALLEGRO_DEBUG("done waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
 }
 
 bool open_file_chooser(int flags, const char *patterns, const char *initial_path, ALLEGRO_PATH ***out_uri_strings, size_t *out_uri_count)
