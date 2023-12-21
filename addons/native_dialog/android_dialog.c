@@ -97,7 +97,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
            halt. We expect it to return after a drawing resume. */
         wait_for_display_events(dpy);
 
-        /* unregister event source and drop all events from the event queue */
+        /* unregister event source */
         al_unregister_event_source(queue, &dpy->es);
 
     }
@@ -270,12 +270,24 @@ void wait_for_display_events(ALLEGRO_DISPLAY *dpy)
     al_unlock_mutex(d->mutex);
     ALLEGRO_DEBUG("done waiting for al_acknowledge_drawing_resume");
 
+    /* A resize event takes place here, as can be seen in the implementation of
+       AllegroSurface.nativeOnChange() at src/android_display.c (at the time of
+       this writing). However, the Allegro documentation does not specify that
+       a resize event must follow a drawing resume.
+
+       We expect that the user will call al_acknowledge_resize() immediately.
+       We don't wait for the acknowledgement of the resize event, in case the
+       implementation changes someday. */
+    ;
+
     /* check if a new ALLEGRO_EVENT_DISPLAY_HALT_DRAWING is emitted */
     ALLEGRO_DEBUG("waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
     al_init_timeout(&timeout, 0.5);
     while (al_wait_for_event_until(queue, &event, &timeout)) {
         if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING)
             goto wait_for_drawing_resume;
+        else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+            al_init_timeout(&timeout, 0.5);
     }
     ALLEGRO_DEBUG("done waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
 }
