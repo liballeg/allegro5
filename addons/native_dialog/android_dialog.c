@@ -20,6 +20,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("android")
 
+static void release_internals(void);
 static ALLEGRO_DISPLAY *get_active_display(void);
 static void wait_for_display_events(ALLEGRO_DISPLAY *dpy);
 static bool open_file_chooser(int flags, const char *patterns, const char *initial_path, ALLEGRO_PATH ***out_uri_strings, size_t *out_uri_count);
@@ -28,6 +29,7 @@ static int show_message_box(const char *title, const char *message, const char *
 static void append_to_textlog(const char *tag, const char *message);
 
 static ALLEGRO_EVENT_QUEUE *queue = NULL;
+static ALLEGRO_MUTEX *mutex = NULL;
 
 
 
@@ -35,33 +37,39 @@ static ALLEGRO_EVENT_QUEUE *queue = NULL;
 bool _al_init_native_dialog_addon(void)
 {
     queue = al_create_event_queue();
-    return (queue != NULL);
+    mutex = al_create_mutex();
+
+    if (queue == NULL || mutex == NULL) {
+        release_internals();
+        return false;
+    }
+
+    return true;
 }
 
 void _al_shutdown_native_dialog_addon(void)
 {
-    al_destroy_event_queue(queue);
-    queue = NULL;
+    release_internals();
 }
 
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG *fd)
 {
-    /* al_show_native_file_dialog() is specified as blocking in the API. Since
-       there is a need to handle drawing halt and drawing resume events before
-       this function returns, users must call it from a separate thread. */
-
-    ALLEGRO_DISPLAY *dpy = get_active_display();
-    const char *patterns = al_cstr(fd->fc_patterns);
-    const char *initial_path = NULL;
+    /* al_show_native_file_dialog() has a blocking interface. Since there is a
+       need to handle drawing halt and drawing resume events before this
+       function returns, users must call it from a separate thread. */
     (void)display; /* possibly NULL */
 
-    /* fail if not initialized */
-    if (queue == NULL) {
+    /* fail if the native dialog addon is not initialized */
+    if (!al_is_native_dialog_addon_initialized()) {
         ALLEGRO_DEBUG("the native dialog addon is not initialized");
         return false;
     }
 
+    /* only one file chooser may be opened at a time */
+    al_lock_mutex(mutex);
+
     /* initial path (optional) */
+    const char *initial_path = NULL;
     if (fd->fc_initial_path != NULL)
         initial_path = al_path_cstr(fd->fc_initial_path, '/');
 
@@ -73,18 +81,20 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
     }
 
     /* register event source */
+    ALLEGRO_DISPLAY *dpy = get_active_display();
     if (dpy != NULL)
         al_register_event_source(queue, &dpy->es);
 
     /* open the file chooser */
     ALLEGRO_DEBUG("waiting for the file chooser");
-    bool ret = open_file_chooser(fd->flags, patterns, initial_path, &fd->fc_paths, &fd->fc_path_count);
+    bool ret = open_file_chooser(fd->flags, al_cstr(fd->fc_patterns), initial_path, &fd->fc_paths, &fd->fc_path_count);
     ALLEGRO_DEBUG("done waiting for the file chooser");
 
     /* ensure predictable behavior */
     if (dpy != NULL) {
 
-        /* wait some more before we return */
+        /* We expect al_show_native_file_dialog() to be called before a drawing
+           halt. We expect it to return after a drawing resume. */
         wait_for_display_events(dpy);
 
         /* unregister event source and drop all events from the event queue */
@@ -94,6 +104,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
 
     /* done! */
     ALLEGRO_DEBUG("done");
+
+    al_unlock_mutex(mutex);
     return ret;
 }
 
@@ -192,6 +204,19 @@ int _al_get_menu_display_height(void)
 
 
 
+void release_internals(void)
+{
+    if (mutex != NULL) {
+        al_destroy_mutex(mutex);
+        mutex = NULL;
+    }
+
+    if (queue != NULL) {
+        al_destroy_event_queue(queue);
+        queue = NULL;
+    }
+}
+
 ALLEGRO_DISPLAY *get_active_display(void)
 {
     ALLEGRO_SYSTEM *sys = al_get_system_driver();
@@ -215,7 +240,7 @@ void wait_for_display_events(ALLEGRO_DISPLAY *dpy)
 
     /* We expect a drawing halt event to be on the queue. If that is not true,
        then the drawing halt did not take place for some unusual reason */
-    ALLEGRO_DEBUG("looking for ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+    ALLEGRO_DEBUG("looking for a ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
     while (al_get_next_event(queue, &event)) {
         if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
             expected_state = true;
@@ -223,13 +248,13 @@ void wait_for_display_events(ALLEGRO_DISPLAY *dpy)
         }
     }
 
-    /* skip if we're on an inconsistent state */
+    /* skip if we're in an unexpected state */
     if (!expected_state) {
-        ALLEGRO_DEBUG("unexpected state: no ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
+        ALLEGRO_DEBUG("ALLEGRO_EVENT_DISPLAY_HALT_DRAWING not found");
         return;
     }
 
-    wait_for_resume_drawing:
+    wait_for_drawing_resume:
 
     /* wait for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING */
     ALLEGRO_DEBUG("waiting for ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING");
@@ -250,7 +275,7 @@ void wait_for_display_events(ALLEGRO_DISPLAY *dpy)
     al_init_timeout(&timeout, 0.5);
     while (al_wait_for_event_until(queue, &event, &timeout)) {
         if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING)
-            goto wait_for_resume_drawing;
+            goto wait_for_drawing_resume;
     }
     ALLEGRO_DEBUG("done waiting for another ALLEGRO_EVENT_DISPLAY_HALT_DRAWING");
 }
