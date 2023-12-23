@@ -80,7 +80,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
         al_free(fd->fc_paths);
     }
 
-    /* register event source */
+    /* register the event source */
     ALLEGRO_DISPLAY *dpy = get_active_display();
     if (dpy != NULL)
         al_register_event_source(queue, &dpy->es);
@@ -97,7 +97,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
            halt. We expect it to return after a drawing resume. */
         wait_for_display_events(dpy);
 
-        /* unregister event source */
+        /* unregister the event source */
         al_unregister_event_source(queue, &dpy->es);
 
     }
@@ -277,7 +277,7 @@ void wait_for_display_events(ALLEGRO_DISPLAY *dpy)
 
        We expect that the user will call al_acknowledge_resize() immediately.
        We don't wait for the acknowledgement of the resize event, in case the
-       implementation changes someday. */
+       implementation changes someday. We just wait a little bit. */
     ;
 
     /* check if a new ALLEGRO_EVENT_DISPLAY_HALT_DRAWING is emitted */
@@ -308,14 +308,14 @@ bool open_file_chooser(int flags, const char *patterns, const char *initial_path
     if (result == NULL)
         return false;
 
-    /* split the returned string. If the file chooser was cancelled, result is an empty string */
+    /* split the returned string. If the file chooser was cancelled, variable result is an empty string */
     for (char *next_uri = result, *p = result; *p; p++) {
         if (*p == URI_DELIMITER) {
             int last = (*out_uri_count)++;
             *out_uri_strings = al_realloc(*out_uri_strings, (*out_uri_count) * sizeof(ALLEGRO_PATH**));
 
             /* ALLEGRO_PATHs don't explicitly support URIs at this time, but this works nonetheless.
-               See parse_path_string() in src/path.c */
+               See parse_path_string() at src/path.c */
             *p = '\0';
             (*out_uri_strings)[last] = al_create_path(next_uri);
             next_uri = p+1;
