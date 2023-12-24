@@ -20,7 +20,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("android")
 
-static void release_internals(void);
 static ALLEGRO_DISPLAY *get_active_display(void);
 static void wait_for_display_events(ALLEGRO_DISPLAY *dpy);
 static bool open_file_chooser(int flags, const char *patterns, const char *initial_path, ALLEGRO_PATH ***out_uri_strings, size_t *out_uri_count);
@@ -36,11 +35,11 @@ static ALLEGRO_MUTEX *mutex = NULL;
 
 bool _al_init_native_dialog_addon(void)
 {
-    queue = al_create_event_queue();
-    mutex = al_create_mutex();
+    if (NULL == (mutex = al_create_mutex()))
+        return false;
 
-    if (queue == NULL || mutex == NULL) {
-        release_internals();
+    if (NULL == (queue = al_create_event_queue())) {
+        al_destroy_mutex(mutex);
         return false;
     }
 
@@ -49,7 +48,8 @@ bool _al_init_native_dialog_addon(void)
 
 void _al_shutdown_native_dialog_addon(void)
 {
-    release_internals();
+    al_destroy_mutex(mutex);
+    /*al_destroy_event_queue(queue);*/ /* already released by Allegro's destructors */
 }
 
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG *fd)
@@ -203,19 +203,6 @@ int _al_get_menu_display_height(void)
 
 
 
-
-void release_internals(void)
-{
-    if (mutex != NULL) {
-        al_destroy_mutex(mutex);
-        mutex = NULL;
-    }
-
-    if (queue != NULL) {
-        al_destroy_event_queue(queue);
-        queue = NULL;
-    }
-}
 
 ALLEGRO_DISPLAY *get_active_display(void)
 {
