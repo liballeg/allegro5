@@ -49,7 +49,10 @@ bool _al_init_native_dialog_addon(void)
 void _al_shutdown_native_dialog_addon(void)
 {
     al_destroy_mutex(mutex);
+    mutex = NULL;
+
     /*al_destroy_event_queue(queue);*/ /* already released by Allegro's destructors */
+    queue = NULL;
 }
 
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG *fd)
