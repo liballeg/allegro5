@@ -490,6 +490,9 @@ static bool xgtk_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff
 
          return true;
       }
+      case ALLEGRO_FULLSCREEN_WINDOW:
+         xgtk_set_fullscreen_window(display, onoff);
+         return true;
    }
    return false;
 }
