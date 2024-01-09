@@ -1373,6 +1373,9 @@ static void xdpy_apply_window_constraints(ALLEGRO_DISPLAY *display,
 static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool onoff)
 {
    if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+      ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+      _al_mutex_lock(&system->lock);
+
       _al_xwin_reset_size_hints(display);
       _al_xwin_set_fullscreen_window(display, 2);
       /* XXX Technically, the user may fiddle with the _NET_WM_STATE_FULLSCREEN
@@ -1383,6 +1386,8 @@ static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool on
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
 
       set_compositor_bypass_flag(display);
+
+      _al_mutex_unlock(&system->lock);
    }
 }
 
@@ -1392,19 +1397,25 @@ static bool xdpy_set_display_flag_default(ALLEGRO_DISPLAY *display, int flag,
 {
    switch (flag) {
       case ALLEGRO_FRAMELESS:
+      {
          /* The ALLEGRO_FRAMELESS flag is backwards. */
          _al_xwin_set_frame(display, !flag_onoff);
          return true;
+      }
       case ALLEGRO_FULLSCREEN_WINDOW:
       {
-         /* Bypass system lock. */
          ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
          glx->overridable_vt->set_fullscreen_window(display, flag_onoff);
          return true;
       }
       case ALLEGRO_MAXIMIZED:
+      {
+         ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+         _al_mutex_lock(&system->lock);
          _al_xwin_maximize(display, flag_onoff);
+         _al_mutex_unlock(&system->lock);
          return true;
+      }
    }
    return false;
 }
@@ -1413,11 +1424,7 @@ static bool xdpy_set_display_flag_default(ALLEGRO_DISPLAY *display, int flag,
 static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   _al_mutex_lock(&system->lock);
-   bool ret = glx->overridable_vt->set_display_flag(display, flag, onoff);
-   _al_mutex_unlock(&system->lock);
-   return ret;
+   return glx->overridable_vt->set_display_flag(display, flag, onoff);
 }
 
 

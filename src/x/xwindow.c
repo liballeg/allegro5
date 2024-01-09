@@ -320,6 +320,9 @@ void _al_xwin_set_icons(ALLEGRO_DISPLAY *d,
 }
 
 
+/* Note: The system mutex must be locked (exactly once) before
+ * calling this as we call _al_display_xglx_await_resize.
+ */
 void _al_xwin_maximize(ALLEGRO_DISPLAY *display, bool maximized)
 {
 #ifndef ALLEGRO_RASPBERRYPI
