@@ -333,7 +333,6 @@ static void xgtk_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
    }
 }
 
-
 /* [gtk thread] */
 static gboolean do_set_fullscreen_window(gpointer data)
 {
@@ -463,7 +462,9 @@ static bool xgtk_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff
       case ALLEGRO_FRAMELESS: {
          if (!!(display->flags & ALLEGRO_FRAMELESS) == onoff)
             return true;
+         ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
          ARGS_SET_FLAG args;
+         _al_mutex_lock(&system->lock);
          if (_al_gtk_init_args(&args, sizeof(args))) {
             args.display = (ALLEGRO_DISPLAY_XGLX *)display;
             args.onoff = onoff;
@@ -473,12 +474,15 @@ static bool xgtk_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff
             else
                display->flags &= ~ALLEGRO_FRAMELESS;
          }
+         _al_mutex_unlock(&system->lock);
          return true;
       }
       case ALLEGRO_MAXIMIZED: {
          if (!!(display->flags & ALLEGRO_MAXIMIZED) == onoff)
             return true;
+         ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
          ARGS_SET_FLAG args;
+         _al_mutex_lock(&system->lock);
          if (_al_gtk_init_args(&args, sizeof(args))) {
             args.display = (ALLEGRO_DISPLAY_XGLX *)display;
             args.onoff = onoff;
@@ -487,6 +491,7 @@ static bool xgtk_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff
             _al_gtk_wait_for_args(do_maximize, &args);
             _al_display_xglx_await_resize(display, old_resize_count, true);
          }
+         _al_mutex_unlock(&system->lock);
 
          return true;
       }
