@@ -484,7 +484,7 @@ class AllegroFileChooser
         close(null);
     }
 
-    private void close(/*@Nullable*/ Uri[] result)
+    private void close(Uri[] result)
     {
         // store the result, which is null or an array of content:// URIs
         resultUri = result;
@@ -494,7 +494,7 @@ class AllegroFileChooser
             signal.countDown();
     }
 
-    private void reallyOpen(Activity activity, int flags, String[] mimeTypes, /*@Nullable*/ Uri initialUri) throws RuntimeException
+    private void reallyOpen(Activity activity, int flags, String[] mimeTypes, Uri initialUri) throws RuntimeException
     {
         if (Build.VERSION.SDK_INT < 19)
             throw new UnsupportedOperationException("Unsupported operation in API level " + Build.VERSION.SDK_INT);
