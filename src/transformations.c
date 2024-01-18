@@ -135,6 +135,7 @@ const ALLEGRO_TRANSFORM *al_get_current_inverse_transform(void)
    if (target->inverse_transform_dirty) {
       al_copy_transform(&target->inverse_transform, &target->transform);
       al_invert_transform(&target->inverse_transform);
+      target->inverse_transform_dirty = false;
    }
 
    return &target->inverse_transform;
