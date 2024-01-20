@@ -2,6 +2,15 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.9 to 5.2.9.1 (January 2024)
+============================================
+
+Linux:
+
+- Fix a regression where toggling fullscreen window when menus are used stopped
+  working (SiegeLord)
+
+
 Changes from 5.2.8 to 5.2.9 (November 2023)
 ===========================================
 
