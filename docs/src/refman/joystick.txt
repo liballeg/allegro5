@@ -131,6 +131,10 @@ handles may become inactive, and vice versa.
 
 See also: [al_reconfigure_joysticks]
 
+## API: al_get_joystick_device_id
+
+Return the device id of the given joystick.
+
 ## API: al_get_joystick_name
 
 Return the name of the given joystick.

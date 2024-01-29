@@ -183,6 +183,14 @@ static bool sdl_get_active(ALLEGRO_JOYSTICK *joy)
    return SDL_JoystickGetAttached(sdl);
 }
 
+static int sdl_get_device_id(ALLEGRO_JOYSTICK *joy)
+{
+   (void)joy;
+   // TODO: Add implementation here
+   ALLEGRO_INFO("sdl_get_device_id: not implemented");
+   return 0;
+}
+
 ALLEGRO_JOYSTICK_DRIVER *_al_sdl_joystick_driver(void)
 {
    if (vt)
@@ -202,6 +210,7 @@ ALLEGRO_JOYSTICK_DRIVER *_al_sdl_joystick_driver(void)
    vt->get_joystick_state = sdl_get_joystick_state;;
    vt->get_name = sdl_get_name;
    vt->get_active = sdl_get_active;
+   vt->get_device_id = sdl_get_device_id;
 
    return vt;
 }

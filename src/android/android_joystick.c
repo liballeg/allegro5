@@ -400,5 +400,6 @@ ALLEGRO_JOYSTICK_DRIVER _al_android_joystick_driver = {
     andjoy_release_joystick,
     andjoy_get_joystick_state,
     andjoy_get_name,
-    andjoy_get_active
+    andjoy_get_active,
+    andjoy_get_device_id
 };

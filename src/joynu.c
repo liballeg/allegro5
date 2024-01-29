@@ -300,6 +300,19 @@ void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_st
    new_joystick_driver->get_joystick_state(joy, ret_state);
 }
 
+
+
+/* Function: al_get_joystick_device_id
+ */
+int al_get_joystick_device_id(ALLEGRO_JOYSTICK *joy)
+{
+   ASSERT(new_joystick_driver);
+
+   return new_joystick_driver->get_device_id(joy);
+}
+
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3
