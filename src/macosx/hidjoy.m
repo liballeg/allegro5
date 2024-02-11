@@ -189,6 +189,7 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
    char default_name[100];
    int stick_class = -1;
    int axis_index = 0;
+   bool old_style = _al_get_joystick_compat_version() < AL_ID(5, 2, 10, 0);
 
    joy_null(joy);
 
@@ -199,15 +200,25 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
       );
 
       int usage = IOHIDElementGetUsage(elem);
+      int usage_page = IOHIDElementGetUsagePage(elem);
       if (IOHIDElementGetType(elem) == kIOHIDElementTypeInput_Button) {
-         if (usage >= 0 && usage < _AL_MAX_JOYSTICK_BUTTONS &&
-            !joy->buttons[usage-1]) {
-            joy->buttons[usage-1] = elem;
-            sprintf(default_name, "Button %d", usage-1);
+         int idx;
+         if (old_style)
+            idx = usage - 1;
+         else {
+            idx = joy->parent.info.num_buttons;
+            // 0x09 is the Button Page.
+            if (usage_page != 0x09)
+               continue;
+         }
+         if (idx >= 0 && idx < _AL_MAX_JOYSTICK_BUTTONS &&
+            !joy->buttons[idx]) {
+            joy->buttons[idx] = elem;
+            sprintf(default_name, "Button %d", idx);
             const char *name = get_element_name(elem, default_name);
             char *str = al_malloc(strlen(name)+1);
             strcpy(str, name);
-            joy->parent.info.button[usage-1].name = str;
+            joy->parent.info.button[idx].name = str;
             joy->parent.info.num_buttons++;
          }
       }
