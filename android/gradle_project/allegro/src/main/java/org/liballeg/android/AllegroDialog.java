@@ -349,7 +349,7 @@ class AllegroFileChooser
     public static final int REQUEST_FILE_CHOOSER = 0xF11E;
 
     private static final String TAG = "AllegroFileChooser";
-    private static final String URI_DELIMITER = "\n";
+    private static final String URI_DELIMITER = "\n"; // the Line Feed character cannot be part of a URI (RFC 3986)
     private CountDownLatch signal = null;
     private Uri[] resultUri = null;
     private boolean canceled = false;
