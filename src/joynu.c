@@ -21,6 +21,8 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
+#include <stdio.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
