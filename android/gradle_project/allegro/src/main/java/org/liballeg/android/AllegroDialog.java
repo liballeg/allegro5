@@ -189,7 +189,8 @@ class AllegroMessageBox
 
     private Looper myLooper()
     {
-        try { Looper.prepare(); } catch (Exception e) { ; } // Looper.prepare() will raise an exception if a Looper already exists in the thread
+        // Looper.prepare() will raise an exception if a Looper already exists in the thread
+        try { Looper.prepare(); } catch (Exception e) { ; }
         return Looper.myLooper();
     }
 
