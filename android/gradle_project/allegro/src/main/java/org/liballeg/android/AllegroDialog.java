@@ -94,7 +94,7 @@ class AllegroMessageBox
 
                 // show the alert dialog
                 currentDialog = newDialog;
-                showDialogWithImmersiveModeFix(currentDialog, activity);
+                showAlertDialog(currentDialog, activity);
             }
         });
 
@@ -181,7 +181,7 @@ class AllegroMessageBox
         return builder.create();
     }
 
-    private void showDialogWithImmersiveModeFix(Dialog dialog, Activity activity)
+    private void showAlertDialog(AlertDialog dialog, Activity activity)
     {
         ImmersiveDialogWrapper dlg = new ImmersiveDialogWrapper(dialog);
         dlg.show(activity);
