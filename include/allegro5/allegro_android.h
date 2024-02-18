@@ -29,6 +29,7 @@ void al_android_set_apk_fs_interface(void);
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 JNIEnv *al_android_get_jni_env(void);
 jobject al_android_get_activity(void);
+int al_android_open_fd(const char *uri, const char *mode);
 #endif
 
 /* XXX decide if this should be public */

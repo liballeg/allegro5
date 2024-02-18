@@ -665,4 +665,27 @@ jobject al_android_get_activity(void)
    return _al_android_activity_object();
 }
 
+/* Function: al_android_open_fd
+ */
+int al_android_open_fd(const char *uri, const char *mode)
+{
+   JNIEnv *env = _al_android_get_jnienv();
+   jobject activity = _al_android_activity_object();
+
+   jstring juri = _jni_call(env, jstring, NewStringUTF, uri != NULL ? uri : ""); /* content:// or file:// */
+   jstring jmode = _jni_call(env, jstring, NewStringUTF, mode != NULL ? mode : ""); /* "r", "w", "rw", "wa", "wt", "rwt" */
+
+   int fd = _jni_callIntMethodV(env, activity, "openFileDescriptor", "(Ljava/lang/String;Ljava/lang/String;)I", juri, jmode);
+
+   _jni_callv(env, DeleteLocalRef, jmode);
+   _jni_callv(env, DeleteLocalRef, juri);
+
+   if (fd == -1)
+      al_set_errno(ENOENT);
+   else if (fd < 0)
+      al_set_errno(ENOTSUP);
+
+   return fd;
+}
+
 /* vim: set sts=3 sw=3 et: */

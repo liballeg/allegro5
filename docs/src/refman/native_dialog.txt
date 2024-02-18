@@ -109,6 +109,10 @@ call it from inside that thread.
 
 Returns true on success, false on failure.
 
+> *Note:* On Android, [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING] and
+[ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] need to be handled before this function
+returns. This means that you must call it from a different thread.
+
 ## API: al_get_native_file_dialog_count
 
 Returns the number of files selected, or 0 if the dialog was cancelled.
@@ -117,6 +121,10 @@ Returns the number of files selected, or 0 if the dialog was cancelled.
 
 Returns one of the selected paths with index `i`. The index should range
 from `0` to the return value of [al_get_native_file_dialog_count] `-1`.
+
+> *Note:* On Android, this function returns a content:// Universal Resource
+Identifier instead of a file path due to the constraints of Scoped Storage.
+Selected files may be accessed using [al_android_open_fd].
 
 ## API: al_destroy_native_file_dialog
 
@@ -133,7 +141,7 @@ dialog boxes usually have on the native system. If the `buttons` parameter is
 not NULL, you can instead specify the button text in a string, with buttons
 separated by a vertical bar (|).
 
-> *Note:* `buttons` parameter is currently unimplemented on Windows.
+> *Note:* The `buttons` parameter is currently unimplemented on Windows.
 
 The flags available are:
 
@@ -208,6 +216,8 @@ ALLEGRO_TEXTLOG_MONOSPACE
 
 Returns NULL if there was an error opening the window, or if text log windows
 are not implemented on the platform.
+
+> *Note:* On Android, logs can be viewed using logcat.
 
 See also: [al_append_native_text_log], [al_close_native_text_log]
 
