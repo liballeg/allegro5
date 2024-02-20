@@ -233,6 +233,12 @@ const ALLEGRO_AUDIO_DEVICE* al_get_audio_output_device(int index)
    return NULL;
 }
 
+const bool al_set_audio_output_device(const ALLEGRO_AUDIO_DEVICE* device)
+{
+   if (!al_is_audio_installed()) return false;
+   return _al_kcm_driver->set_output_device(device);
+}
+
 /* Function: al_get_audio_device_name
  */
 const char* al_get_audio_device_name(const ALLEGRO_AUDIO_DEVICE * device)

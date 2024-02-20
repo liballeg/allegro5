@@ -265,6 +265,38 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
    return NULL;
 }
 
+static bool _dsound_set_audio_output_device(ALLEGRO_AUDIO_DEVICE* output_device) {
+   ALLEGRO_VOICE* voice = al_get_default_voice();
+   ALLEGRO_DS_DATA* ex_data = (ALLEGRO_DS_DATA*)voice->extra;
+   MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8*);
+
+   IDirectSound8* old_device = device;
+
+   HRESULT hr = DirectSoundCreate8((LPCGUID)output_device->identifier, &device, NULL);
+   if (FAILED(hr)) {
+      ALLEGRO_ERROR("DirectSoundCreate8 failed: %s\n", ds_get_error(hr));
+      return false;
+   }
+
+   hr = device->SetCooperativeLevel(get_window(), DSSCL_PRIORITY);
+   if (FAILED(hr)) {
+      ALLEGRO_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
+      return false;
+   }
+
+   hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
+   if (FAILED(hr)) {
+      ALLEGRO_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
+      return false;
+   }
+
+   ex_data->ds_buffer->QueryInterface(_al_IID_IDirectSoundBuffer8, u.v);
+   ex_data->ds8_buffer->SetVolume(DSBVOLUME_MAX);
+
+   old_device->Release();
+
+   return true;
+}
 
 /* The open method starts up the driver and should lock the device, using the
    previously set parameters, or defaults. It shouldn't need to start sending
@@ -879,6 +911,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
    _dsound_close_recorder,
 
    _dsound_get_output_devices,
+   _dsound_set_audio_output_device,
 };
 
 } /* End extern "C" */
