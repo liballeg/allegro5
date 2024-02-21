@@ -86,7 +86,7 @@ struct ALLEGRO_AUDIO_DRIVER {
    void           (*deallocate_recorder)(struct ALLEGRO_AUDIO_RECORDER *);
 
    _AL_LIST*      (*get_output_devices)(void);
-   bool           (*set_output_device)(ALLEGRO_AUDIO_DEVICE*);
+   int            (*set_output_device)(ALLEGRO_AUDIO_DEVICE*);
 };
 
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;

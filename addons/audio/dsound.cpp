@@ -265,37 +265,51 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
    return NULL;
 }
 
-static bool _dsound_set_audio_output_device(ALLEGRO_AUDIO_DEVICE* output_device) {
+static int _dsound_set_audio_output_device(ALLEGRO_AUDIO_DEVICE* output_device) {
    ALLEGRO_VOICE* voice = al_get_default_voice();
    ALLEGRO_DS_DATA* ex_data = (ALLEGRO_DS_DATA*)voice->extra;
    MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8*);
 
-   IDirectSound8* old_device = device;
+   HRESULT hr;
+   LPVOID ptr1, ptr2;
+   DWORD block1_bytes, block2_bytes;
 
-   HRESULT hr = DirectSoundCreate8((LPCGUID)output_device->identifier, &device, NULL);
+   IDirectSound8* old_device = device;
+   LPDIRECTSOUNDBUFFER8 old_buffer = ex_data->ds8_buffer;
+
+   hr = old_buffer->Lock(0, voice->buffer_size, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
+   if (FAILED(hr)) {
+      ALLEGRO_ERROR("Failed to lock DIRECTSOUNDBUFFER8: %s\n", ds_get_error(hr));
+      printf(ds_get_error(hr));
+      return 1;
+   }
+
+   hr = DirectSoundCreate8((LPCGUID)output_device->identifier, &device, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("DirectSoundCreate8 failed: %s\n", ds_get_error(hr));
-      return false;
+      return 1;
    }
 
    hr = device->SetCooperativeLevel(get_window(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
-      return false;
+      return 1;
    }
 
    hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
-      return false;
+      return 1;
    }
 
    ex_data->ds_buffer->QueryInterface(_al_IID_IDirectSoundBuffer8, u.v);
    ex_data->ds8_buffer->SetVolume(DSBVOLUME_MAX);
 
+   old_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
+   old_buffer->Stop();
    old_device->Release();
 
-   return true;
+   return 0;
 }
 
 /* The open method starts up the driver and should lock the device, using the
