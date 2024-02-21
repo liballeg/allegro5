@@ -684,6 +684,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    ALLEGRO_AUDIO_STREAM *stream = vstream;
    ALLEGRO_EVENT_QUEUE *queue;
    bool finished_event_sent = false;
+   bool prefill = true;
    (void)self;
 
    ALLEGRO_DEBUG("Stream feeder thread started.\n");
@@ -702,10 +703,12 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
       char *fragment;
       ALLEGRO_EVENT event;
 
-      al_wait_for_event(queue, &event);
+      if (!prefill)
+         al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT
+      if ((prefill || event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT)
           && !stream->is_draining) {
+         prefill = false;
          unsigned long bytes;
          unsigned long bytes_written;
          ALLEGRO_MUTEX *stream_mutex;
