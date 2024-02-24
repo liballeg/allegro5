@@ -362,7 +362,7 @@ static int enumerate_and_create_initial_joystick_devices(IOHIDManagerRef manager
    else
    {
       CFIndex num_devices = CFSetGetCount(devices);
-      IOHIDDeviceRef *device_arr = calloc(num_devices, sizeof(IOHIDDeviceRef));
+      IOHIDDeviceRef *device_arr = al_calloc(num_devices, sizeof(IOHIDDeviceRef));
       CFSetGetValues(devices, (const void **) device_arr);
 
       for (i = 0; i < num_devices; i++) {
@@ -370,7 +370,7 @@ static int enumerate_and_create_initial_joystick_devices(IOHIDManagerRef manager
          add_joystick_device(dev, false);
          num_joysticks_enumerated++;
       }
-
+      al_free(device_arr);
       CFRelease(devices);
    }
 
