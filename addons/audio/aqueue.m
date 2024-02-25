@@ -55,6 +55,7 @@ typedef struct ALLEGRO_AQ_DATA {
 } ALLEGRO_AQ_DATA;
 
 static _AL_VECTOR saved_voices = _AL_VECTOR_INITIALIZER(ALLEGRO_VOICE*);
+static _AL_LIST* output_device_list;
 
 /* Audio queue callback */
 static void handle_buffer(
@@ -128,10 +129,104 @@ static void property_listener(void *inClientData, AudioSessionPropertyID inID, U
 }
 #endif
 
+static bool _aqueue_device_has_scope(AudioObjectID deviceID, AudioObjectPropertyScope scope)
+{
+    AudioObjectPropertyAddress propertyAddress = {
+        .mSelector = kAudioDevicePropertyStreamConfiguration,
+        .mScope = scope,
+        .mElement = kAudioObjectPropertyElementWildcard
+    };
+
+    UInt32 dataSize = 0;
+    if (AudioObjectGetPropertyDataSize(deviceID, &propertyAddress, 0, NULL, &dataSize) != noErr) {
+      return false;
+    }
+
+    AudioBufferList *bufferList = al_malloc(dataSize);
+    if(bufferList == NULL) {
+        return false;
+    }
+
+    if (AudioObjectGetPropertyData(deviceID, &propertyAddress, 0, NULL, &dataSize, bufferList) != noErr) {
+      al_free(bufferList);
+      return false;
+    }
+
+    BOOL supportsScope = bufferList->mNumberBuffers > 0;
+    al_free(bufferList);
+    return supportsScope;
+}
+
+static _AL_LIST* _aqueue_get_output_devices(void)
+{
+   return output_device_list;
+}
+
+static void _output_device_list_dtor(void* value, void* userdata)
+{
+   (void)userdata;
+
+   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   al_free(device->name);
+   al_free(device->identifier);
+   al_free(device);
+}
+
+static void _aqueue_list_audio_output_devices(void)
+{
+   output_device_list = _al_list_create();
+
+   AudioObjectPropertyAddress propertyAddress;
+   AudioObjectID *deviceIDs;
+   UInt32 propertySize;
+   NSInteger numDevices;
+   
+   propertyAddress.mSelector = kAudioHardwarePropertyDevices;
+   propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+   propertyAddress.mElement = kAudioObjectPropertyElementMain;
+   
+   if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize) != noErr) {
+      return;
+   }
+
+   numDevices = propertySize / sizeof(AudioDeviceID);
+   deviceIDs = (AudioDeviceID *)al_calloc(numDevices, sizeof(AudioDeviceID));
+      
+   if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize, deviceIDs) != noErr) {
+      return;
+   }
+
+   for (NSInteger idx=0; idx<numDevices; idx++) {
+      AudioObjectPropertyAddress deviceAddress;   
+      char deviceName[64];
+
+      propertySize = sizeof(deviceName);
+      deviceAddress.mSelector = kAudioDevicePropertyDeviceName;
+      deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
+      deviceAddress.mElement = kAudioObjectPropertyElementMain;
+      if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, deviceName) != noErr) {
+         continue;
+      }
+  
+      if (_aqueue_device_has_scope(deviceIDs[idx], kAudioObjectPropertyScopeOutput)) {
+         ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+         device->identifier = (void*)al_malloc(sizeof(AudioDeviceID));
+         device->name = (char*)al_malloc(sizeof(deviceName));
+
+         memcpy(device->identifier, &deviceIDs[idx], sizeof(AudioDeviceID));
+         memcpy(device->name, deviceName, sizeof(deviceName));
+
+         _al_list_push_back_ex(output_device_list, device, _output_device_list_dtor);
+      }
+   }
+   
+   al_free(deviceIDs);
+}
+
 /* The open method starts up the driver and should lock the device, using the
    previously set paramters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
-static int _aqueue_open()
+static int _aqueue_open(void)
 {
 #ifdef ALLEGRO_IPHONE
    /* These settings allow ipod music playback simultaneously with
@@ -150,14 +245,18 @@ static int _aqueue_open()
 
    AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, property_listener, NULL);
 #endif
+
+   _aqueue_list_audio_output_devices();
+
    return 0;
 }
 
 
 /* The close method should close the device, freeing any resources, and allow
    other processes to use the device */
-static void _aqueue_close()
+static void _aqueue_close(void)
 {
+   _al_list_destroy(output_device_list);
    _al_vector_free(&saved_voices);
 }
 
@@ -278,6 +377,7 @@ static void *stream_proc(void *in_data)
       kCFRunLoopCommonModes,
       0,
       &ex_data->queue);
+   (void)ret; // FIXME: handle failure?
 
    int i;
    for (i = 0; i < NUM_BUFFERS; ++i) {
@@ -578,6 +678,6 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
    _aqueue_allocate_recorder,
    _aqueue_deallocate_recorder,
 
-   NULL
+   _aqueue_get_output_devices,
 };
 
