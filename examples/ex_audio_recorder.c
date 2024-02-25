@@ -1,7 +1,7 @@
 /*
  *    Example program for the Allegro library.
  *
- *    Demonstrate 'simple' audio interface.
+ *    Demonstrate audio recorder interface.
  */
 
 #define ALLEGRO_UNSTABLE
@@ -20,28 +20,19 @@ int main(int argc, const char* argv[])
     ALLEGRO_DISPLAY* display = NULL;
     ALLEGRO_EVENT_QUEUE* event_queue;
     ALLEGRO_EVENT event;
-    ALLEGRO_SAMPLE_ID sample_id;
     ALLEGRO_TIMER* timer;
-    ALLEGRO_FONT* font;
 
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");
     }
-    if (!al_init_font_addon()) {
-        abort_example("Could not init the font addon.\n");
-    }
 
-    open_log();
     al_install_keyboard();
 
     display = al_create_display(640, 480);
     if (!display) {
         abort_example("Could not create display\n");
     }
-    font = al_create_builtin_font();
 
-
-    al_init_acodec_addon();
     al_init_primitives_addon();
 
     if (!al_install_audio()) {
@@ -117,7 +108,6 @@ int main(int argc, const char* argv[])
     al_uninstall_audio();
 
     al_destroy_display(display);
-    close_log(true);
     return 0;
 }
 
