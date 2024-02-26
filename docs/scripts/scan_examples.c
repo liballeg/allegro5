@@ -54,10 +54,19 @@ typedef struct {
    int index;
    /* How many APIs are used in each example */
    int count;
+   /* Store a pointer to the file string for comparison purposes */
+   char *filename;
 } lookup_t;
 static lookup_t *lookup;
+static int number_of_items = 0;
 static int compare(const void *pa, const void *pb) {
-   return ((const lookup_t *) pa)->count - ((const lookup_t *) pb)->count;
+   int val = ((const lookup_t *) pa)->count - ((const lookup_t *) pb)->count;
+
+   // if different count values, sort according to this.
+   if (val != 0) return val;
+
+   // But if the count value is the same, sort according to filename
+   return strcmp( (char*)((const lookup_t *) pa)->filename, (char*)((const lookup_t *) pb)->filename);
 }
 
 int main(int argc, char* argv[])
@@ -81,9 +90,13 @@ int main(int argc, char* argv[])
    lookup = calloc(argc, sizeof(lookup_t));
    for (j = 0; j < argc; ++j) {
       lookup[j].index = j;
+      int len = strlen(argv[j]);
+      lookup[j].filename = calloc(len, sizeof(char));
+      strncpy(lookup[j].filename, argv[j], len);
    }
 
-   
+   number_of_items = argc;
+
    for (j = 1; j < argc; ++j) {
       d_open_input(argv[j]);
       while (d_getline(line)) {
@@ -131,6 +144,10 @@ int main(int argc, char* argv[])
 void cleanup(void)
 {
    free(table);
+
+   for (int j = 0; j < number_of_items; j++) {
+      free(lookup[j].filename);
+   }
    free(lookup);
    sl_free(&apis);
 }
