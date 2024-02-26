@@ -21,6 +21,7 @@ int main(int argc, const char* argv[])
     ALLEGRO_EVENT_QUEUE* event_queue;
     ALLEGRO_EVENT event;
     ALLEGRO_TIMER* timer;
+    double fps = 60.0;
 
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");
@@ -39,8 +40,8 @@ int main(int argc, const char* argv[])
         abort_example("Could not init sound!\n");
     }
 
-    int sample_count = 640;
     int freq = 44100;
+    int sample_count = freq / fps;
 
     ALLEGRO_AUDIO_RECORDER* recorder = al_create_audio_recorder(1, sample_count, freq,
         ALLEGRO_AUDIO_DEPTH_UINT8, ALLEGRO_CHANNEL_CONF_1);
@@ -48,7 +49,7 @@ int main(int argc, const char* argv[])
         abort_example("Count not open recorder\n");
     }
 
-    timer = al_create_timer(1 / 60.0);
+    timer = al_create_timer(1 / fps);
     al_start_timer(timer);
     event_queue = al_create_event_queue();
     al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -89,13 +90,17 @@ int main(int argc, const char* argv[])
                 int dx = 0;
                 int dy = window_h / 2;
 
-                float bar_width = window_w / sample_count;
+                float bar_width = 1.0f;
                 for (int i = 0; i < sample_count; i++) {
+                   int r = i < 256 ? 255 - i : i < 512 ? 0 : i - 512;
+                   int g = i < 256 ? i : i < 512 ? 512 - i : 0;
+                   int b = i < 256 ? 0 : i < 512 ? i - 256 : 768 - i;
+
                     int value_cursor = i;
 
                     char value = (UINT8_MAX / 2) - fragment[value_cursor];
                     float bx = dx + i * bar_width;
-                    al_draw_line(bx, dy, bx, dy + value, al_map_rgb_f(200, 0., 0.), bar_width);
+                    al_draw_line(bx, dy, bx, dy + value, al_map_rgb(r, g, b), bar_width);
                 }
             }
 
