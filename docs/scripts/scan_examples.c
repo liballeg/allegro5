@@ -90,9 +90,7 @@ int main(int argc, char* argv[])
    lookup = calloc(argc, sizeof(lookup_t));
    for (j = 0; j < argc; ++j) {
       lookup[j].index = j;
-      int len = strlen(argv[j]);
-      lookup[j].filename = calloc(len, sizeof(char));
-      strncpy(lookup[j].filename, argv[j], len);
+      lookup[j].filename = argv[j];
    }
 
    number_of_items = argc;
@@ -144,10 +142,6 @@ int main(int argc, char* argv[])
 void cleanup(void)
 {
    free(table);
-
-   for (int j = 0; j < number_of_items; j++) {
-      free(lookup[j].filename);
-   }
    free(lookup);
    sl_free(&apis);
 }
