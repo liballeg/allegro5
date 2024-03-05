@@ -58,7 +58,6 @@ typedef struct {
    char *filename;
 } lookup_t;
 static lookup_t *lookup;
-static int number_of_items = 0;
 static int compare(const void *pa, const void *pb) {
    int val = ((const lookup_t *) pa)->count - ((const lookup_t *) pb)->count;
 
@@ -92,8 +91,6 @@ int main(int argc, char* argv[])
       lookup[j].index = j;
       lookup[j].filename = argv[j];
    }
-
-   number_of_items = argc;
 
    for (j = 1; j < argc; ++j) {
       d_open_input(argv[j]);
