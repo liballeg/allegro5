@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdlib.h>
 #include "dawk.h"
 
 int main(int argc, char **argv)
@@ -15,7 +18,35 @@ int main(int argc, char **argv)
    char buf[64];
    char const *version = "unknown";
 
-   time(&now);
+   char *source_date_epoch;
+   unsigned long long epoch;
+   char *endptr;
+
+   source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+   if (source_date_epoch) {
+      errno = 0;
+      epoch = strtoull(source_date_epoch, &endptr, 10);
+      if ((errno == ERANGE && (epoch == ULLONG_MAX || epoch == 0))
+            || (errno != 0 && epoch == 0)) {
+         fprintf(stderr, "Environment variable $SOURCE_DATE_EPOCH: strtoull: %s\n", strerror(errno));
+         exit(EXIT_FAILURE);
+      }
+      if (endptr == source_date_epoch) {
+         fprintf(stderr, "Environment variable $SOURCE_DATE_EPOCH: No digits were found: %s\n", endptr);
+         exit(EXIT_FAILURE);
+      }
+      if (*endptr != '\0') {
+         fprintf(stderr, "Environment variable $SOURCE_DATE_EPOCH: Trailing garbage: %s\n", endptr);
+         exit(EXIT_FAILURE);
+      }
+      if (epoch > ULONG_MAX) {
+         fprintf(stderr, "Environment variable $SOURCE_DATE_EPOCH: value must be smaller than or equal to %lu but was found to be: %llu \n", ULONG_MAX, epoch);
+         exit(EXIT_FAILURE);
+      }
+      now = epoch;
+   } else {
+      now = time(NULL);
+   }
    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S UTC", gmtime(&now));
    
    if (argc > 1) {
