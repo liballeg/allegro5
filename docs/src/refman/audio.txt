@@ -735,6 +735,20 @@ If you're late with supplying new data, the stream will be silent until new data
 is provided. You must call [al_drain_audio_stream] when you're finished with
 supplying data to the stream.
 
+It is often a good idea to prefill the audio stream with data before
+[ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT] events arrive. Here is a snippet that will
+fill the stream buffers with silence:
+
+~~~~c
+ALLEGRO_AUDIO_STREAM *stream = al_create_audio_stream(num_buffers,
+   samples_per_buffer, freq, depth, channel_conf);
+void *buf;
+while ((buf = al_get_audio_stream_fragment(stream))) {
+   al_fill_silence(buf, samples_per_buffer, depth, channel_conf);
+   al_set_audio_stream_fragment(stream, buf);
+}
+~~~~
+
 If the stream is created by [al_load_audio_stream] or [al_play_audio_stream]
 then it will also generate an [ALLEGRO_EVENT_AUDIO_STREAM_FINISHED] event if it
 reaches the end of the file and is not set to loop.
