@@ -96,11 +96,11 @@ Restart:
 
    {
       int count = al_get_num_audio_output_devices(); // returns -1 for unsupported backends
-      printf("audio device count: %d\n", count);
+      log_printf("audio device count: %d\n", count);
       for (int i = 0; i < count; i++)
       {
          const ALLEGRO_AUDIO_DEVICE* device = al_get_audio_output_device(i);
-         printf(" --- audio device: %s\n", al_get_audio_device_name(device));
+         log_printf(" --- audio device: %s\n", al_get_audio_device_name(device));
       }
    }
 
