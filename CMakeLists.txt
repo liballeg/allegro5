@@ -1226,6 +1226,7 @@ endif(INSTALL_PKG_CONFIG_FILES)
 
 # Generate CMake package-config files
 include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 set(PKG_NAME "Allegro")
 string(TOLOWER ${PKG_NAME} PKG_NAME_LOWER)
