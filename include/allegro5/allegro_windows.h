@@ -19,6 +19,8 @@
 
 #include <windows.h>
 
+#include "allegro5/internal/alconfig.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
