@@ -850,7 +850,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       },
 
       /* the data */
-      2000,                     // dwData
+      0,                    // dwData
    };
 
    DIPROPDWORD property_buffersize =
