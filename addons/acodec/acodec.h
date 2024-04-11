@@ -33,8 +33,28 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
 bool _al_identify_flac(ALLEGRO_FILE *f);
 #endif
 
-#ifdef ALLEGRO_CFG_ACODEC_MODAUDIO
+#ifdef ALLEGRO_CFG_ACODEC_DUMB
 bool _al_register_dumb_loaders(void);
+#endif
+
+#ifdef ALLEGRO_CFG_ACODEC_OPENMPT
+bool _al_register_openmpt_loaders(void);
+#endif
+
+#if defined(ALLEGRO_CFG_ACODEC_DUMB) || defined(ALLEGRO_CFG_ACODEC_OPENMPT)
+bool _al_identify_it(ALLEGRO_FILE *f);
+bool _al_identify_669(ALLEGRO_FILE *f);
+bool _al_identify_amf(ALLEGRO_FILE *f);
+bool _al_identify_asy(ALLEGRO_FILE *f);
+bool _al_identify_mtm(ALLEGRO_FILE *f);
+bool _al_identify_okt(ALLEGRO_FILE *f);
+bool _al_identify_psm(ALLEGRO_FILE *f);
+bool _al_identify_ptm(ALLEGRO_FILE *f);
+bool _al_identify_riff(ALLEGRO_FILE *f);
+bool _al_identify_stm(ALLEGRO_FILE *f);
+bool _al_identify_mod(ALLEGRO_FILE *f);
+bool _al_identify_s3m(ALLEGRO_FILE *f);
+bool _al_identify_xm(ALLEGRO_FILE *f);
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_VORBIS

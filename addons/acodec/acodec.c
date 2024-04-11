@@ -59,8 +59,12 @@ bool al_init_acodec_addon(void)
    ret &= al_register_sample_identifier(".opus", _al_identify_ogg_opus);
 #endif
 
-#ifdef ALLEGRO_CFG_ACODEC_MODAUDIO
+#ifdef ALLEGRO_CFG_ACODEC_DUMB
    ret &= _al_register_dumb_loaders();
+#endif
+
+#ifdef ALLEGRO_CFG_ACODEC_OPENMPT
+   ret &= _al_register_openmpt_loaders();
 #endif
 
    /* MP3 will mis-identify a lot of mod files, so put its identifier last */
