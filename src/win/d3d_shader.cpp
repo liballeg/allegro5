@@ -32,8 +32,6 @@ ALLEGRO_DEBUG_CHANNEL("shader")
 
 static _AL_VECTOR shaders;
 
-typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
-
 struct ALLEGRO_SHADER_HLSL_S
 {
    ALLEGRO_SHADER shader;

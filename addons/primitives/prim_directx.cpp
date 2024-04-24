@@ -78,24 +78,24 @@ static bool is_legacy_card(void)
    return legacy_card;
 }
 
-typedef struct LEGACY_VERTEX
+struct LEGACY_VERTEX
 {
    float x, y, z;
    DWORD color;
    float u, v;
-} LEGACY_VERTEX;
+};
 
 static uint8_t* legacy_buffer;
 static size_t legacy_buffer_size = 0;
 #define A5V_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #define A5V_LEGACY_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
-typedef struct DISPLAY_LOCAL_DATA
+struct DISPLAY_LOCAL_DATA
 {
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DVERTEXSHADER9 shader;
    ALLEGRO_INDEX_BUFFER* loop_index_buffer;
-} DISPLAY_LOCAL_DATA;
+};
 
 static DISPLAY_LOCAL_DATA* display_local_data;
 static int display_local_data_size = 0;
