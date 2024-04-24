@@ -74,7 +74,7 @@ typedef union
 /*
  * Haptic effect system data.
  */
-typedef struct
+struct ALLEGRO_HAPTIC_EFFECT_WINDOWS
 {
    int id;
    bool active;
@@ -84,12 +84,12 @@ typedef struct
    DWORD axes[HAPTICS_AXES_MAX];
    LONG directions[HAPTICS_AXES_MAX];
    ALLEGRO_HAPTIC_PARAMETER_WINDOWS parameter;
-   const GUID *guid;
-} ALLEGRO_HAPTIC_EFFECT_WINDOWS;
+   const GUID* guid;
+};
 
 
 
-typedef struct
+struct ALLEGRO_HAPTIC_WINDOWS
 {
    struct ALLEGRO_HAPTIC parent;        /* must be first */
    bool active;
@@ -98,12 +98,12 @@ typedef struct
    DIDEVICEINSTANCE instance;
    DIDEVCAPS capabilities;
    LPDIRECTINPUTDEVICE8 device8;
-   ALLEGRO_DISPLAY_WIN *display;
+   ALLEGRO_DISPLAY_WIN* display;
    int flags;
    ALLEGRO_HAPTIC_EFFECT_WINDOWS effects[HAPTICS_EFFECTS_MAX];
    DWORD axes[HAPTICS_AXES_MAX];
    int naxes;
-} ALLEGRO_HAPTIC_WINDOWS;
+};
 
 
 #define LONG_BITS    (sizeof(long) * 8)

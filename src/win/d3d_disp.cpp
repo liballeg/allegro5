@@ -101,14 +101,14 @@ ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
  */
-typedef struct D3D_DISPLAY_PARAMETERS {
+struct D3D_DISPLAY_PARAMETERS {
    ALLEGRO_DISPLAY_D3D *display;
    volatile bool init_failed;
    HANDLE AckEvent;
    int window_x, window_y;
    /* Not owned. */
    const char *window_title;
-} D3D_DISPLAY_PARAMETERS;
+};
 
 
 static int allegro_formats[] = {

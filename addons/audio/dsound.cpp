@@ -138,7 +138,7 @@ static char *ds_get_error(HRESULT hr)
 
 /* Custom struct to hold voice information DirectSound needs */
 /* TODO: review */
-typedef struct ALLEGRO_DS_DATA {
+struct ALLEGRO_DS_DATA {
    int bits_per_sample;
    int channels;
    DSBUFFERDESC desc;
@@ -147,7 +147,7 @@ typedef struct ALLEGRO_DS_DATA {
    LPDIRECTSOUNDBUFFER8 ds8_buffer;
    int stop_voice;
    ALLEGRO_THREAD *thread;
-} ALLEGRO_DS_DATA;
+};
 
 
 static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice);
@@ -632,12 +632,12 @@ static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
    return 0;
 }
 
-typedef struct DSOUND_RECORD_DATA {
+struct DSOUND_RECORD_DATA {
    LPDIRECTSOUNDCAPTUREBUFFER buffer;
    LPDIRECTSOUNDCAPTUREBUFFER8 buffer8;
    DSCBUFFERDESC desc;
    WAVEFORMATEX wave_fmt;
-} DSOUND_RECORD_DATA;
+};
 
 static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
 {
