@@ -45,13 +45,13 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
          break;
       }
       case POINTS: {
-         int n = 32;
-         float d = n - 1;
-         ALLEGRO_VERTEX vtxs[n * n];
+#define POINTS_N 32
+         float d = POINTS_N - 1;
+         ALLEGRO_VERTEX vtxs[POINTS_N * POINTS_N];
 
-         for (int iy = 0; iy < n; iy++) {
-            for (int ix = 0; ix < n; ix++) {
-               ALLEGRO_VERTEX *v = &vtxs[iy * n + ix];
+         for (int iy = 0; iy < POINTS_N; iy++) {
+            for (int ix = 0; ix < POINTS_N; ix++) {
+               ALLEGRO_VERTEX *v = &vtxs[iy * POINTS_N + ix];
                v->x = x + 5. * w * (float)ix / d;
                v->y = y + 5. * h * (float)iy / d;
                v->z = 0.;
@@ -61,15 +61,15 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
             }
          }
          
-         al_draw_prim(vtxs, NULL, texture, 0, n * n, ALLEGRO_PRIM_POINT_LIST);
+         al_draw_prim(vtxs, NULL, texture, 0, POINTS_N * POINTS_N, ALLEGRO_PRIM_POINT_LIST);
          break;
       }
       case LINES: {
-         int n = 32;
-         float d = n - 1;
-         ALLEGRO_VERTEX vtxs[2 * n * 2];
+#define LINES_N 32
+         float d = LINES_N - 1;
+         ALLEGRO_VERTEX vtxs[2 * LINES_N * 2];
 
-         for (int iy = 0; iy < n; iy++) {
+         for (int iy = 0; iy < LINES_N; iy++) {
             for (int ix = 0; ix < 2; ix++) {
                ALLEGRO_VERTEX *v = &vtxs[ix + 2 * iy];
                v->x = x + 5. * w * (float)ix;
@@ -81,8 +81,8 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
             }
          }
          for (int iy = 0; iy < 2; iy++) {
-            for (int ix = 0; ix < n; ix++) {
-               ALLEGRO_VERTEX *v = &vtxs[2 * ix + iy + 2 * n];
+            for (int ix = 0; ix < LINES_N; ix++) {
+               ALLEGRO_VERTEX *v = &vtxs[2 * ix + iy + 2 * LINES_N];
                v->x = x + 5. * w * (float)ix / d;
                v->y = y + 5. * h * (float)iy;
                v->z = 0.;
@@ -91,7 +91,7 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
                v->color = c;
             }
          }
-         al_draw_prim(vtxs, NULL, texture, 0, 4 * n, ALLEGRO_PRIM_LINE_LIST);
+         al_draw_prim(vtxs, NULL, texture, 0, 4 * LINES_N, ALLEGRO_PRIM_LINE_LIST);
          break;
       }
    }
