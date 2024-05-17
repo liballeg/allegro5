@@ -36,7 +36,7 @@ jobs:
         with:
             folder: build/docs/html/refman
             target-folder: a5docs/trunk
-            token: ${{ secrets.LIBALLEG_PAT }}
+            ssh-key: ${{ secrets.LIBALLEG_DEPLOY_KEY }}
             branch: master
             repository-name: liballeg/liballeg.github.io
             commit-message: Automatic update from allegro5
