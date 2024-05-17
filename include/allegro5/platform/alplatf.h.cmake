@@ -28,6 +28,8 @@
 
 #cmakedefine ALLEGRO_CFG_ANDROID_LEGACY
 
+#cmakedefine ALLEGRO_CFG_HAVE_XINPUT_CAPABILITIES_EX
+
 /*---------------------------------------------------------------------------*/
 
 /* Define to 1 if you have the corresponding header file. */
