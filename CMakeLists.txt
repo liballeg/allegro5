@@ -868,6 +868,15 @@ if(WIN32)
 
     # Xinput support for xbox compatible controllers.
     if(XINPUT_FOUND)
+        run_c_compile_test("
+            #include <xinput.h>
+            XINPUT_CAPABILITIES_EX x;
+            int main(void) { return 0; }"
+            HAVE_XINPUT_CAPABILITIES_EX
+        )
+        if(HAVE_XINPUT_CAPABILITIES_EX)
+            set(ALLEGRO_CFG_HAVE_XINPUT_CAPABILITIES_EX 1)
+        endif()
         set(SUPPORT_XINPUT 1)
         set(ALLEGRO_CFG_XINPUT 1)
     endif(XINPUT_FOUND)
