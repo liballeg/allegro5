@@ -32,13 +32,13 @@ jobs:
             make html
 
       - name: Deploy
-        uses: actions/checkout@v4
-        with:
+        - uses: actions/checkout@v4
+          with:
             repository: liballeg/liballeg.github.io
             ssh-key: ${{ secrets.LIBALLEG_DEPLOY_KEY }}
             ref: master
             path: liballeg
-        run: |
+        - run: |
             cd liballeg
             git config user.name "allebot"
             git config user.email "13711631+allebot@users.noreply.github.com"
