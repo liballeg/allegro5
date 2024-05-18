@@ -31,20 +31,22 @@ jobs:
             cmake ..
             make html
 
+      - name: Checkout liballeg
+        uses: actions/checkout@v4
+        with:
+          repository: liballeg/liballeg.github.io
+          ssh-key: ${{ secrets.LIBALLEG_DEPLOY_KEY }}
+          ref: master
+          path: liballeg
+
       - name: Deploy
-        - uses: actions/checkout@v4
-          with:
-            repository: liballeg/liballeg.github.io
-            ssh-key: ${{ secrets.LIBALLEG_DEPLOY_KEY }}
-            ref: master
-            path: liballeg
-        - run: |
-            cd liballeg
-            git config user.name "allebot"
-            git config user.email "13711631+allebot@users.noreply.github.com"
-            rm -R a5docs/trunk
-            cp -R ../build/docs/html/refman a5docs/trunk
-            git add a5docs/trunk
-            git commit -m "Automatic update from allegro5"
-            git push
+        run: |
+          cd liballeg
+          git config user.name "allebot"
+          git config user.email "13711631+allebot@users.noreply.github.com"
+          rm -R a5docs/trunk
+          cp -R ../build/docs/html/refman a5docs/trunk
+          git add a5docs/trunk
+          git commit -m "Automatic update from allegro5"
+          git push
 
