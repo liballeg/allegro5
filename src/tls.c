@@ -207,18 +207,11 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 void al_set_new_window_title(const char *title)
 {
    thread_local_state *tls;
-   size_t size;
 
    if ((tls = tls_get()) == NULL)
       return;
 
-   size = strlen(title);
-
-   if (size > ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE) {
-      size = ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE;
-   }
-
-   _al_sane_strncpy(tls->new_window_title, title, size + 1);
+   _al_sane_strncpy(tls->new_window_title, title, sizeof(tls->new_window_title));
 }
 
 
@@ -233,9 +226,8 @@ const char *al_get_new_window_title(void)
    if ((tls = tls_get()) == NULL)
       return al_get_app_name();
 
-   if (strlen(tls->new_window_title) < 1)
+   if (tls->new_window_title[0] == '\0')
       return al_get_app_name();
-
 
    return (const char *)tls->new_window_title;
 }
