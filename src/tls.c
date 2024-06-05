@@ -718,7 +718,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
       _STORE(new_window_y);
       _STORE(new_display_settings);
       _al_sane_strncpy(stored->tls.new_window_title, tls->new_window_title,
-                       strlen(tls->new_window_title));
+                       sizeof(stored->tls.new_window_title));
    }
 
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
@@ -789,7 +789,7 @@ void al_restore_state(ALLEGRO_STATE const *state)
       _RESTORE(new_window_y);
       _RESTORE(new_display_settings);
       _al_sane_strncpy(tls->new_window_title, stored->tls.new_window_title,
-                       strlen(tls->new_window_title));
+                       sizeof(tls->new_window_title));
    }
 
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
