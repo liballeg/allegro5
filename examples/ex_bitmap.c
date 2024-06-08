@@ -2,6 +2,7 @@
  * command-line parameters, multi-screen, screen-orientation and
  * zooming.
  */
+#include "allegro5/allegro_direct3d.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "allegro5/allegro.h"

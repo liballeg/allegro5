@@ -21,7 +21,10 @@
 #if defined ALLEGRO_CFG_D3DX9 && defined __cplusplus
 #include <d3dx9.h>
 #endif
-#include "allegro5/platform/alplatf.h"
+
+#include "allegro5/base.h"
+#include "allegro5/display.h"
+#include "allegro5/bitmap.h"
 
 /* Display creation flag. */
 #define ALLEGRO_DIRECT3D     ALLEGRO_DIRECT3D_INTERNAL

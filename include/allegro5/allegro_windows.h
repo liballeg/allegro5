@@ -19,7 +19,8 @@
 
 #include <windows.h>
 
-#include "allegro5/internal/alconfig.h"
+#include "allegro5/base.h"
+#include "allegro5/display.h"
 
 #ifdef __cplusplus
    extern "C" {
