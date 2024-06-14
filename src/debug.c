@@ -136,7 +136,9 @@ void _al_configure_logging(void)
    trace_info.level = 9999;
 #endif
 
-   v = al_get_config_value(config, "trace", "level");
+   v = getenv("ALLEGRO_TRACE_LEVEL");
+   if (!v)
+      v = al_get_config_value(config, "trace", "level");
    if (v) {
       if (!strcmp(v, "error")) trace_info.level = 3;
       else if (!strcmp(v, "warn")) trace_info.level = 2;
