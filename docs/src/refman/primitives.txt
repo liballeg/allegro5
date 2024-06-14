@@ -588,8 +588,8 @@ created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 * vertex_buffer - Vertex buffer to draw
 * texture - Texture to use, pass NULL to use only color shaded primitves
 * index_buffer - Index buffer to use
-* start - Start index of the subset of the vertex buffer to draw
-* end - One past the last index of the subset of the vertex buffer to draw
+* start - Start index of the subset of the index buffer to draw
+* end - One past the last index of the subset of the index buffer to draw
 * type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying
   what kind of primitive to draw. Note that ALLEGRO_PRIM_LINE_LOOP and
   ALLEGRO_PRIM_POINT_LIST are not supported.
