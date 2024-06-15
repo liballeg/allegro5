@@ -1236,6 +1236,23 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
 }
 
 
+static void update_adapter(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (void*)display;
+   int x, y, adapter, num_adapters;
+   al_get_window_position(display, &x, &y);
+   num_adapters = al_get_num_video_adapters();
+   for (adapter = 0; adapter < num_adapters; adapter++) {
+      ALLEGRO_MONITOR_INFO mi;
+      al_get_monitor_info(adapter, &mi);
+      if (x >= mi.x1 && x < mi.x2 && y >= mi.y1 && y < mi.y2) {
+         win_display->adapter = adapter;
+         break;
+      }
+   }
+}
+
+
 void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND hWnd,
    bool frameless)
 {
@@ -1310,6 +1327,7 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          }
 
          if (onoff) {
+            update_adapter(display);
             int adapter = win_display->adapter;
             al_get_monitor_info(adapter, &mi);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
