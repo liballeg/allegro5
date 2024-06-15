@@ -1357,9 +1357,7 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
-   int adapter = al_get_new_display_adapter();
-   if (adapter < 0)
-      adapter = 0;
+   int adapter = win_disp->adapter;
    al_get_monitor_info(adapter, &mi);
    full_w = mi.x2 - mi.x1;
    full_h = mi.y2 - mi.y1;
