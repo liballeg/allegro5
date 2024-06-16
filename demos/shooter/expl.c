@@ -64,7 +64,10 @@ void generate_explosions(void)
             lp[0] = pal->rgb[c2].r * 255;
             lp[1] = pal->rgb[c2].g * 255;
             lp[2] = pal->rgb[c2].b * 255;
-            lp[3] = pal->rgb[c2].a * 255;
+            if (c2 > 0)
+               lp[3] = pal->rgb[c2].a * 127;
+            else
+               lp[3] = 0;
          }
       }
 
