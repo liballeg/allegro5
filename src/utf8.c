@@ -192,6 +192,13 @@ const ALLEGRO_USTR *al_ref_ustr(ALLEGRO_USTR_INFO *info, const ALLEGRO_USTR *us,
 }
 
 
+/* Function: al_ref_info
+ */
+const ALLEGRO_USTR *al_ref_info(const ALLEGRO_USTR_INFO *info)
+{
+   return info;
+}
+
 /* Function: al_ustr_size
  */
 size_t al_ustr_size(const ALLEGRO_USTR *us)

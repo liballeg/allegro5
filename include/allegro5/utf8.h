@@ -45,6 +45,7 @@ AL_FUNC(const ALLEGRO_USTR *, al_ref_buffer, (ALLEGRO_USTR_INFO *info, const cha
       size_t size));
 AL_FUNC(const ALLEGRO_USTR *, al_ref_ustr, (ALLEGRO_USTR_INFO *info,
       const ALLEGRO_USTR *us, int start_pos, int end_pos));
+AL_FUNC(const ALLEGRO_USTR *, al_ref_info, (const ALLEGRO_USTR_INFO *info));
 
 /* Sizes and offsets */
 AL_FUNC(size_t, al_ustr_size, (const ALLEGRO_USTR *us));

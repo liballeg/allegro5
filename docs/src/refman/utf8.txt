@@ -97,9 +97,10 @@ NULs.
 ### API: ALLEGRO_USTR_INFO
 
 A type that holds additional information for an [ALLEGRO_USTR] that references
-an external memory buffer.
+an external memory buffer. You can convert it back to [ALLEGRO_USTR] via
+[al_ref_info].
 
-See also: [al_ref_cstr], [al_ref_buffer] and [al_ref_ustr].
+See also: [al_ref_cstr], [al_ref_buffer], [al_ref_info] and [al_ref_ustr].
 
 
 ## Creating and destroying strings
@@ -267,6 +268,16 @@ If you need a range of code-points instead of bytes, use [al_ustr_offset]
 to find the byte offsets.
 
 See also: [al_ref_cstr], [al_ref_buffer]
+
+
+### API: al_ref_info
+
+Create a read-only string that references the storage of another [ALLEGRO_USTR]
+string that has already been stored in the [ALLEGRO_USTR_INFO] structure.
+
+The string is valid until the underlying string is modified or destroyed.
+
+See also: [al_ref_cstr], [al_ref_buffer], [al_ref_ustr]
 
 
 ## Sizes and offsets
