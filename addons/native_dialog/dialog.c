@@ -10,6 +10,9 @@ ALLEGRO_DEBUG_CHANNEL("native_dialog")
 
 static bool inited_addon = false;
 
+static _AL_VECTOR make_patterns_and_desc_vec(const ALLEGRO_USTR* patterns_ustr);
+static void free_patterns_and_desc_vec(_AL_VECTOR *patterns_and_desc_vec);
+
 /* Function: al_init_native_dialog_addon
  */
 bool al_init_native_dialog_addon(void)
@@ -60,7 +63,8 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
       fc->fc_initial_path = al_create_path(initial_path);
    }
    fc->title = al_ustr_new(title);
-   fc->fc_patterns = al_ustr_new(patterns);
+   fc->fc_patterns_ustr = al_ustr_new(patterns);
+   fc->fc_patterns = make_patterns_and_desc_vec(fc->fc_patterns_ustr);
    fc->flags = mode;
 
    fc->dtor_item = _al_register_destructor(_al_dtor_list, "native_dialog", fc,
@@ -115,7 +119,8 @@ void al_destroy_native_file_dialog(ALLEGRO_FILECHOOSER *dialog)
       al_destroy_path(fd->fc_paths[i]);
    }
    al_free(fd->fc_paths);
-   al_ustr_free(fd->fc_patterns);
+   free_patterns_and_desc_vec(&fd->fc_patterns);
+   al_ustr_free(fd->fc_patterns_ustr);
    al_free(fd);
 }
 
@@ -164,5 +169,113 @@ uint32_t al_get_allegro_native_dialog_version(void)
    return ALLEGRO_VERSION_INT;
 }
 
+
+static _AL_VECTOR split_patterns(const ALLEGRO_USTR* ustr)
+{
+   int pattern_start = 0;
+   int cur_pos = 0;
+   bool is_mime = false;
+   bool is_catchall = true;
+   _AL_VECTOR patterns_vec;
+   _al_vector_init(&patterns_vec, sizeof(_AL_PATTERN));
+   /* This does a straightforward split on semicolons. We check for MIME types
+    * and catchalls, as some backends care about this.
+    */
+   while (true) {
+      int32_t c = al_ustr_get(ustr, cur_pos);
+      if (c == -1 || c == ';') {
+         ALLEGRO_USTR_INFO info;
+         const ALLEGRO_USTR *pattern_ustr = al_ref_buffer(&info,
+               al_cstr(ustr) + pattern_start, cur_pos - pattern_start);
+         if (al_ustr_length(pattern_ustr) > 0) {
+            _AL_PATTERN pattern = {
+               .info = info, .is_mime = is_mime, .is_catchall = is_catchall
+            };
+           *((_AL_PATTERN*)_al_vector_alloc_back(&patterns_vec)) = pattern;
+         }
+
+         is_mime = false;
+         is_catchall = true;
+         pattern_start = cur_pos + 1;
+      }
+      else if (c == '/') {
+         is_mime = true;
+         is_catchall = false;
+      }
+      else if (c != '*' && c != '.') {
+         is_catchall = false;
+      }
+      if (c == -1) {
+         break;
+      }
+      al_ustr_next(ustr, &cur_pos);
+   }
+   return patterns_vec;
+}
+
+
+static _AL_VECTOR make_patterns_and_desc_vec(const ALLEGRO_USTR* patterns_ustr)
+{
+   _AL_VECTOR patterns_and_desc_vec;
+   _al_vector_init(&patterns_and_desc_vec, sizeof(_AL_PATTERNS_AND_DESC));
+
+   if (al_ustr_length(patterns_ustr) == 0)
+      return patterns_and_desc_vec;
+
+   int line_start = 0;
+   int chunk_start = 0;
+   int cur_pos = 0;
+   /* Split by newlines + spaces simultaneously. Chunks are separated by
+    * spaces, and the final chunk is interpreted as the actual patterns, while
+    * the rest of the line is the "description".
+    */
+   while (true) {
+      int32_t c = al_ustr_get(patterns_ustr, cur_pos);
+      if (c == ' ') {
+         chunk_start = cur_pos + 1;
+      }
+      else if (c == '\n' || c == -1) {
+         ALLEGRO_USTR_INFO desc_info, real_patterns_info;
+         const ALLEGRO_USTR *ustr;
+         /* Strip trailing whitespace. */
+         int desc_end = chunk_start - 1;
+         for (; desc_end >= line_start; desc_end--) {
+            if (al_ustr_get(patterns_ustr, desc_end) != ' ')
+               break;
+         }
+         al_ref_ustr(&desc_info, patterns_ustr, line_start, desc_end + 1);
+         ustr = al_ref_ustr(&real_patterns_info, patterns_ustr, chunk_start, cur_pos);
+
+         _AL_VECTOR patterns_vec = split_patterns(ustr);
+         if (_al_vector_size(&patterns_vec) > 0) {
+            _AL_PATTERNS_AND_DESC patterns_and_desc = {
+               .desc = desc_info,
+               .patterns_vec = patterns_vec
+            };
+            *((_AL_PATTERNS_AND_DESC*)_al_vector_alloc_back(&patterns_and_desc_vec)) = patterns_and_desc;
+         }
+
+         chunk_start = cur_pos + 1;
+         line_start = cur_pos + 1;
+      }
+      if (c == -1) {
+         break;
+      }
+      al_ustr_next(patterns_ustr, &cur_pos);
+   }
+
+   return patterns_and_desc_vec;
+}
+
+
+static void free_patterns_and_desc_vec(_AL_VECTOR *patterns_and_desc_vec)
+{
+   for (size_t i = 0; i < _al_vector_size(patterns_and_desc_vec); i++) {
+      _AL_PATTERNS_AND_DESC *patterns_and_desc =
+         (_AL_PATTERNS_AND_DESC*)_al_vector_ref(patterns_and_desc_vec, i);
+      _al_vector_free(&patterns_and_desc->patterns_vec);
+   }
+   _al_vector_free(patterns_and_desc_vec);
+}
 
 /* vim: set sts=3 sw=3 et: */

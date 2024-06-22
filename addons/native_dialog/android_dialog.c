@@ -90,7 +90,30 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG
 
     /* open the file chooser */
     ALLEGRO_DEBUG("waiting for the file chooser");
-    bool ret = open_file_chooser(fd->flags, al_cstr(fd->fc_patterns), initial_path, &fd->fc_paths, &fd->fc_path_count);
+    ALLEGRO_USTR *mime_patterns = al_ustr_new("");
+    bool first = true;
+    bool any_catchalls = false;
+    for (size_t i = 0; i < _al_vector_size(&fd->fc_patterns); i++) {
+       _AL_PATTERNS_AND_DESC *patterns_and_desc = _al_vector_ref(&fd->fc_patterns, (int)i);
+       for (size_t j = 0; j < _al_vector_size(&patterns_and_desc->patterns_vec); j++) {
+           _AL_PATTERN *pattern = _al_vector_ref(&patterns_and_desc->patterns_vec, (int)j);
+           if (pattern->is_catchall) {
+               any_catchalls = true;
+               break;
+           }
+           if (pattern->is_mime)
+           {
+               if (!first)
+                   al_ustr_append_chr(mime_patterns, ';');
+               first = false;
+               al_ustr_append(mime_patterns, al_ref_info(&pattern->info));
+           }
+       }
+    }
+    if (any_catchalls)
+       al_ustr_truncate(mime_patterns, 0);
+    bool ret = open_file_chooser(fd->flags, al_cstr(mime_patterns), initial_path, &fd->fc_paths, &fd->fc_path_count);
+    al_ustr_free(mime_patterns);
     ALLEGRO_DEBUG("done waiting for the file chooser");
 
     /* ensure predictable behavior */

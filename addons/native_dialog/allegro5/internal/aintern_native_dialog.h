@@ -5,6 +5,19 @@
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
 
+typedef struct
+{
+   ALLEGRO_USTR_INFO info;
+   bool is_mime;
+   bool is_catchall;
+} _AL_PATTERN;
+
+typedef struct
+{
+   ALLEGRO_USTR_INFO desc;
+   _AL_VECTOR patterns_vec;
+} _AL_PATTERNS_AND_DESC;
+
 typedef struct ALLEGRO_NATIVE_DIALOG ALLEGRO_NATIVE_DIALOG;
 
 /* We could use different structs for the different dialogs. But why
@@ -19,7 +32,10 @@ struct ALLEGRO_NATIVE_DIALOG
    ALLEGRO_PATH *fc_initial_path;
    size_t fc_path_count;
    ALLEGRO_PATH **fc_paths;
-   ALLEGRO_USTR *fc_patterns;
+   /* Vector of _AL_PATTERNS_AND_DESC, substrings index into fc_patterns_ustr.
+    */
+   _AL_VECTOR fc_patterns;
+   ALLEGRO_USTR *fc_patterns_ustr;
 
    /* Only used by message box. */
    ALLEGRO_USTR *mb_heading;
@@ -42,7 +58,7 @@ struct ALLEGRO_NATIVE_DIALOG
    bool is_active;
    void *window;
    void *async_queue;
-   
+
    _AL_LIST_ITEM *dtor_item;
 };
 
@@ -113,7 +129,7 @@ extern bool _al_walk_over_menu(ALLEGRO_MENU *menu, bool (*proc)
 _AL_MENU_ID *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t unique_id);
 bool _al_find_menu_item_unique(ALLEGRO_MENU *haystack, uint16_t unique_id, ALLEGRO_MENU **menu,
    int *index);
-   
+
 /* Platform Specific Functions
  * ---------------------------
  * Each of these should return true if successful. If at all possible, they

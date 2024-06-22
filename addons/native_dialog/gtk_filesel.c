@@ -98,36 +98,30 @@ static gboolean create_gtk_file_dialog(gpointer data)
    if (fd->flags & ALLEGRO_FILECHOOSER_MULTIPLE)
       gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(window), true);
 
-   /* FIXME: Move all this filter parsing stuff into a common file. */
-   if (al_ustr_size(fd->fc_patterns) > 0) {
+   for (size_t i = 0; i < _al_vector_size(&fd->fc_patterns); i++)
+   {
+      _AL_PATTERNS_AND_DESC *patterns_and_desc = _al_vector_ref(&fd->fc_patterns, i);
+      const ALLEGRO_USTR *desc = al_ref_info(&patterns_and_desc->desc);
       GtkFileFilter* filter = gtk_file_filter_new();
-      int start = 0;
-      int end = 0;
-      bool is_mime_type = false;
-      while (true) {
-         int32_t c = al_ustr_get(fd->fc_patterns, end);
-         if (c < 0 || c == ';') {
-            if (end - start > 0) {
-               ALLEGRO_USTR* pattern = al_ustr_dup_substr(fd->fc_patterns, start, end);
-               if (is_mime_type) {
-                  gtk_file_filter_add_mime_type(filter, al_cstr(pattern));
-               }
-               else {
-                  gtk_file_filter_add_pattern(filter, al_cstr(pattern));
-               }
-               al_ustr_free(pattern);
-            }
-            start = end + 1;
-            is_mime_type = false;
-         }
-         if (c == '/')
-            is_mime_type = true;
-         if (c < 0)
-            break;
-         end += al_utf8_width(c);
+      if (al_ustr_size(desc) > 0) {
+         char *cstr = al_cstr_dup(desc);
+         gtk_file_filter_set_name(filter, cstr);
+         al_free(cstr);
       }
-
-      gtk_file_filter_set_name(filter, "All supported files");
+      else {
+         gtk_file_filter_set_name(filter, "All supported files");
+      }
+      for (size_t j = 0; j < _al_vector_size(&patterns_and_desc->patterns_vec); j++) {
+         _AL_PATTERN *pattern = _al_vector_ref(&patterns_and_desc->patterns_vec, j);
+         char *cstr = al_cstr_dup(al_ref_info(&pattern->info));
+         if (pattern->is_mime) {
+            gtk_file_filter_add_mime_type(filter, cstr);
+         }
+         else {
+            gtk_file_filter_add_pattern(filter, cstr);
+         }
+         al_free(cstr);
+      }
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(window), filter);
    }
 

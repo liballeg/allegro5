@@ -58,11 +58,29 @@ Parameters:
 
 - `title`: Title of the dialog.
 
-- `patterns`: A list of semi-colon separated patterns to match. This
-  should not contain any whitespace characters. If a pattern
-  contains the '/' character, then it is treated as a MIME type (e.g.
-  'image/png'). Not all platforms support file patterns. If the native dialog
-  does not provide support, this parameter is ignored.
+- `patterns`: A string containing newline separated sets of patterns to match.
+  A pattern is either a shell-style glob pattern (e.g. `"*.txt"`) or a MIME
+  type (e.g. `"image/png"`). Not all platforms support both (and some don't
+  even support globs), so a portable solution is to specify a MIME type and
+  simple style globs which Allegro will pick from to match what the platform
+  supports (e.g. do `"image/png;*.png"`). Multiple patterns are separated
+  using a semicolon. If the platform does not provide support for patterns,
+  this parameter is ignored. Here are some example patterns:
+
+    - `"*.txt"` -- defines a single filter, matching `*.txt` files.
+    - `"*.txt;*.md"` -- like above, but matching two types of files.
+    - `"Text files (*.txt, *.md) *.txt;*.md"` -- like above, but with a custom
+      description (separated from the patterns using a space).
+    - `"Text files *.txt\nPNG images image/png;*.png"` -- defines two filters,
+      with the second filter using a MIME type and extension at the same time.
+
+   > *Note:* Windows does not support MIME types. Android supports only MIME
+   > types. Instead of file patterns, MacOS supports extensions, so matching
+   > based on filename beyond file type does not work. Allegro will parse your
+   > file pattern to try to extract the file extension. MacOS also supports
+   > MIME types, which behave more predictably. MacOS does not support detailed
+   > descriptions or multiple pattern sets, Allegro will strip the detailed
+   > descriptions and concatenate all patterns into one list.
 
 - `mode`: 0, or a combination of the following flags:
 
@@ -278,7 +296,7 @@ This ID should be unique per menu; if you duplicate IDs, then there will be no
 way for you to determine exactly which item generated the event.
 
 There are many functions that take `pos` as a parameter used for locating a
-particular menu item. In those cases, it represents one of two things: an ID 
+particular menu item. In those cases, it represents one of two things: an ID
 or a zero-based index. Any value greater than zero will always be treated as an ID.
 Anything else (including zero) will be considered an index based on the absolute
 value. In other words, 0 is the first menu item, -1 is the second menu item, -2
@@ -393,7 +411,7 @@ See also: [al_create_menu], [al_build_menu]
 
 ### API: al_build_menu
 
-Builds a menu based on the specifications of a sequence of 
+Builds a menu based on the specifications of a sequence of
 `ALLEGRO_MENU_INFO` elements.
 
 Returns a pointer to the root `ALLEGRO_MENU`, or `NULL` on failure.
@@ -406,7 +424,7 @@ See also: [ALLEGRO_MENU_INFO], [al_create_menu], [al_create_popup_menu]
 
 ### API: al_append_menu_item
 
-Appends a menu item to the end of the menu. See [al_insert_menu_item] 
+Appends a menu item to the end of the menu. See [al_insert_menu_item]
 for more information.
 
 Since: 5.1.0
@@ -419,7 +437,7 @@ Inserts a menu item at the spot specified. See the introductory text for a
 detailed explanation of how the `pos` parameter is interpreted.
 
 The `parent` menu can be a popup menu or a regular menu. To underline
-one character in the `title`, prefix it with an ampersand. 
+one character in the `title`, prefix it with an ampersand.
 
 The `flags` can be any combination of:
 
@@ -434,7 +452,7 @@ ALLEGRO_MENU_ITEM_CHECKBOX
 ALLEGRO_MENU_ITEM_CHECKED
 :   The item is checked. If set, ALLEGRO_MENU_ITEM_CHECKBOX will automatically
     be set as well.
-    
+
 The `icon` is not yet supported.
 
 The `submenu` parameter indicates that this item contains a child menu.
@@ -525,7 +543,7 @@ See also: [al_set_menu_item_flags], [al_toggle_menu_item_flags]
 ### API: al_set_menu_item_flags
 
 Updates the menu item's flags. See [al_insert_menu_item] for a description
-of the available flags. 
+of the available flags.
 
 Since: 5.1.0
 
@@ -534,7 +552,7 @@ See also: [al_get_menu_item_flags], [al_toggle_menu_item_flags]
 ### API: al_toggle_menu_item_flags
 
 Toggles the specified menu item's flags. See [al_insert_menu_item] for a
-description of the available flags. 
+description of the available flags.
 
 Returns a bitfield of only the specified flags that are set after the toggle.
 A flag that was not toggled will not be returned, even if it is set.
@@ -581,7 +599,7 @@ Returns the menu, if found. Otherwise returns `NULL`.
 Since: 5.1.0
 
 See also: [al_find_menu_item]
- 
+
 ### API: al_find_menu_item
 
 Searches in the `haystack` menu for an item with the given `id`. (Note that
@@ -596,7 +614,7 @@ Returns true if the menu item was found.
 Since: 5.1.0
 
 See also: [al_find_menu]
- 
+
 ### API: al_get_default_menu_event_source
 
 Returns the default event source used for menu clicks. If a menu was not
@@ -623,7 +641,7 @@ See also: [al_register_event_source], [al_get_default_menu_event_source],
 
 ### API: al_disable_menu_event_source
 
-Disables a unique event source for the menu, causing it to use the 
+Disables a unique event source for the menu, causing it to use the
 default event source.
 
 Since: 5.1.0
@@ -653,7 +671,7 @@ to be resized! You should listen for a resize event, check how much space was
 lost, and resize the window accordingly if you want to maintain your window's
 prior size.
 
-Returns true if successful. 
+Returns true if successful.
 
 Since: 5.1.0
 
@@ -666,7 +684,7 @@ created with [al_create_popup_menu]. It generates events just like a regular
 display menu does. It is possible that the menu will be canceled without any
 selection being made.
 
-The `display` parameter indicates which window the menu is associated with 
+The `display` parameter indicates which window the menu is associated with
 (when you process the menu click event), but does not actually affect where
 the menu is located on the screen.
 

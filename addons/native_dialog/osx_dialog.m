@@ -1,6 +1,9 @@
 #import <Cocoa/Cocoa.h>
 #import <Availability.h>
 #import <IOKit/hid/IOHIDLib.h>
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+#include <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+#endif
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
@@ -17,36 +20,53 @@ void _al_shutdown_native_dialog_addon(void)
 }
 #pragma mark File Dialog
 
-static NSArray * remove_mime_types(NSArray * array)
+static NSArray * get_filter_array(const _AL_VECTOR *patterns)
 {
-   NSMutableArray * work_array = [array mutableCopy];
+   NSMutableArray *filter_array = [[NSMutableArray alloc] init];
 
-   for(NSInteger i = work_array.count - 1; i >= 0; i--){
-      if([[work_array objectAtIndex: i] rangeOfString:@"/"].location != NSNotFound){
-         [work_array removeObjectAtIndex: i];
+   bool any_catchalls = false;
+   for (size_t i = 0; i < _al_vector_size(patterns); i++) {
+      _AL_PATTERNS_AND_DESC *patterns_and_desc = _al_vector_ref(patterns, (int)i);
+      for (size_t j = 0; j < _al_vector_size(&patterns_and_desc->patterns_vec); j++) {
+         _AL_PATTERN *pattern = _al_vector_ref(&patterns_and_desc->patterns_vec, (int)j);
+         if (pattern->is_catchall) {
+            any_catchalls = true;
+            break;
+         }
+         char *cstr = al_cstr_dup(al_ref_info(&pattern->info));
+         NSString *filter_text = [NSString stringWithUTF8String: cstr];
+         al_free(cstr);
+         if (!pattern->is_mime) {
+            /* MacOS expects extensions, so make an attempt to extract them. */
+            NSArray *parts = [filter_text componentsSeparatedByString: @"."];
+            size_t num_parts = parts.count;
+            if (num_parts <= 1)
+               continue;
+            /* Extensions with dots did not work for me, so just grab the last component. */
+            parts = [parts subarrayWithRange:NSMakeRange(num_parts - 1, 1)];
+            filter_text = [parts componentsJoinedByString: @"."];
+         }
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+         UTType *type;
+         if (pattern->is_mime)
+            type = [UTType typeWithMIMEType:filter_text];
+         else
+            type = [UTType typeWithFilenameExtension:filter_text];
+         if (type != nil)
+            [filter_array addObject: type];
+#else
+         if (pattern->is_mime) {
+            continue;
+         }
+         [filter_array addObject: filter_text];
+#endif
       }
    }
-   return [work_array copy];
-}
 
-static NSArray * get_filter_array(ALLEGRO_USTR * patterns)
-{
-   NSMutableString *filter_text;
-   NSArray *filter_array = nil;
-
-   filter_text = [NSMutableString stringWithUTF8String: al_cstr(patterns)];
-   [filter_text replaceOccurrencesOfString:@"*"
-                                withString:@""
-                                   options:0
-                                     range:NSMakeRange(0, filter_text.length)];
-   [filter_text replaceOccurrencesOfString:@"."
-                                withString:@""
-                                   options:0
-                                     range:NSMakeRange(0, filter_text.length)];
-   if (filter_text.length > 0) {
-      filter_array = [filter_text componentsSeparatedByString: @";"];
-      filter_array = remove_mime_types(filter_array);
+   if (any_catchalls) {
+      filter_array = [[NSMutableArray alloc] init];
    }
+
    return filter_array;
 }
 
@@ -58,13 +78,13 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    int mode = fd->flags;
    NSString *filename;
    NSURL *directory;
-   
+
    /* Set initial directory to pass to the file selector */
    if (fd->fc_initial_path) {
       ALLEGRO_PATH *initial_directory = al_clone_path(fd->fc_initial_path);
       /* Strip filename from path  */
       al_set_path_filename(initial_directory, NULL);
-      
+
       /* Convert path and filename to NSString objects */
       directory = [NSURL fileURLWithPath: [NSString stringWithUTF8String: al_path_cstr(initial_directory, '/')]
                              isDirectory: YES];
@@ -74,25 +94,30 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       directory = nil;
       filename = nil;
    }
-   dispatch_sync(dispatch_get_main_queue(), ^{      
+   dispatch_sync(dispatch_get_main_queue(), ^{
       /* We need slightly different code for SAVE and LOAD dialog boxes, which
        * are handled by slightly different classes.
        */
       if (mode & ALLEGRO_FILECHOOSER_SAVE) {    // Save dialog
          NSSavePanel *panel = [NSSavePanel savePanel];
          NSArray *filter_array;
-         
+
          /* Set file save dialog box options */
          [panel setCanCreateDirectories: YES];
          [panel setCanSelectHiddenExtension: YES];
          [panel setAllowsOtherFileTypes: YES];
+         [panel setExtensionHidden: NO];
          if (filename) {
             [panel setNameFieldStringValue:filename];
          }
-         if (fd->fc_patterns) {
-            filter_array = get_filter_array(fd->fc_patterns);
+         if (_al_vector_size(&fd->fc_patterns) > 0) {
+            filter_array = get_filter_array(&fd->fc_patterns);
             if (filter_array && [filter_array count] > 0) {
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+               [panel setAllowedContentTypes:filter_array];
+#else
                [panel setAllowedFileTypes:filter_array];
+#endif
             }
          }
          [panel setDirectoryURL: directory];
@@ -111,7 +136,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       } else {                                  // Open dialog
          NSOpenPanel *panel = [NSOpenPanel openPanel];
          NSArray *filter_array;
-         
+
          /* Set file selection box options */
          if (mode & ALLEGRO_FILECHOOSER_FOLDER) {
             [panel setCanChooseFiles: NO];
@@ -120,7 +145,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
             [panel setCanChooseFiles: YES];
             [panel setCanChooseDirectories: NO];
          }
-         
+
          [panel setResolvesAliases:YES];
          if (mode & ALLEGRO_FILECHOOSER_MULTIPLE)
             [panel setAllowsMultipleSelection: YES];
@@ -130,10 +155,14 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          if (filename) {
             [panel setNameFieldStringValue:filename];
          }
-         if (fd->fc_patterns) {
-            filter_array = get_filter_array(fd->fc_patterns);
+         if (_al_vector_size(&fd->fc_patterns) > 0) {
+            filter_array = get_filter_array(&fd->fc_patterns);
             if (filter_array && [filter_array count] > 0) {
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+               [panel setAllowedContentTypes:filter_array];
+#else
                [panel setAllowedFileTypes:filter_array];
+#endif
             }
          }
          /* Open dialog box */
@@ -156,9 +185,9 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
    });
    _al_osx_clear_mouse_state();
-   
+
    [pool release];
-   
+
    return true;
 }
 
@@ -172,7 +201,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
       NSString* button_text;
       unsigned int i;
       NSAlert* box = [[NSAlert alloc] init];
-      
+
       if (fd->mb_buttons == NULL) {
          button_text = @"OK";
          if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
@@ -181,7 +210,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
       else {
          button_text = [NSString stringWithUTF8String: al_cstr(fd->mb_buttons)];
       }
-      
+
       NSArray* buttons = [button_text componentsSeparatedByString: @"|"];
       [box setMessageText:[NSString stringWithUTF8String: al_cstr(fd->title)]];
       [box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->mb_text)]];
@@ -189,7 +218,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
       [[box window] setLevel: NSFloatingWindowLevel];
       for (i = 0; i < [buttons count]; ++i)
          [box addButtonWithTitle: [buttons objectAtIndex: i]];
-      
+
       int retval = [box runModal];
       fd->mb_pressed_button = retval + 1 - NSAlertFirstButtonReturn;
       [box release];
@@ -272,13 +301,13 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    unsigned int mask = NSTitledWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
    if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE))
       mask |= NSClosableWindowMask;
-   
+
    if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
       screen = [[NSScreen screens] objectAtIndex: adapter];
    } else {
       screen = [NSScreen mainScreen];
    }
-   
+
    dispatch_sync(dispatch_get_main_queue(), ^{
       NSWindow *win = [[NSWindow alloc] initWithContentRect: rect
                                                   styleMask: mask
@@ -293,10 +322,10 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       [scrollView setHasVerticalScroller: YES];
       [scrollView setAutohidesScrollers: YES];
       [scrollView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-      
+
       [[scrollView contentView] setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
       [[scrollView contentView] setAutoresizesSubviews: YES];
-      
+
       NSRect framerect = [[scrollView contentView] frame];
       ALLEGLogView *view = [[ALLEGLogView alloc] initWithFrame: framerect];
       view->textlog = textlog;
@@ -311,13 +340,13 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       }
       [view setEditable: NO];
       [scrollView setDocumentView: view];
-      
+
       [[win contentView] addSubview: scrollView];
       [scrollView release];
-      
+
       [win setDelegate: view];
       [win orderFront: nil];
-      
+
       /* Save handles for future use. */
       textlog->window = win; // Non-owning reference
       textlog->tl_textview = view; // Non-owning reference
@@ -354,7 +383,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
         [view performSelectorOnMainThread:@selector(appendText:)
                                withObject:text
                             waitUntilDone:NO];
-        
+
         al_ustr_truncate(textlog->tl_pending_text, 0);
     }
 }
@@ -377,7 +406,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 @end
 
 /* This class represents a menu item target. There is one of these
- * for each NSMenu and it handles all the items in that menu. It 
+ * for each NSMenu and it handles all the items in that menu. It
  * maintains the correspondence between ALLEGRO_MENU_ITEMs and
  * NSMenuItems, taking into account the 'App menu' (the one with
  * the app's name in bold) which appears by convention on OS X.
@@ -472,7 +501,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
     (void) display;
     ALLEGMenuTarget* target = [ALLEGMenuTarget targetForMenu: amenu];
     [target performSelectorOnMainThread:@selector(showPopup) withObject:nil waitUntilDone:NO];
-    
+
     return true;
 }
 
@@ -509,7 +538,7 @@ int _al_get_menu_display_height(void)
     if (!self->_hasAppMenu) {
         NSMenuItem* apple = [[NSMenuItem alloc] init];
         [apple setTitle:@"Apple"];
-        
+
         NSMenu* appleItems = [[NSMenu alloc] init];
         [appleItems setTitle:@"Apple"];
         [apple setSubmenu:appleItems];
@@ -661,7 +690,7 @@ int _al_get_menu_display_height(void)
                                               eventNumber:0
                                                clickCount:0
                                                  pressure:0];
-    
+
     [NSMenu popUpContextMenu:self.menu withEvent:fakeMouseEvent forView:[window contentView]];
 }
 // Find the target associated with this ALLEGRO_MENU
@@ -691,7 +720,7 @@ static ALLEGTargetManager* _sharedmanager = nil;
         self->_items = [[NSMutableArray alloc] init];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onWindowChange:) name:NSWindowDidBecomeMainNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onWindowClose:) name:NSWindowWillCloseNotification object:nil];
-        
+
     }
     return self;
 }

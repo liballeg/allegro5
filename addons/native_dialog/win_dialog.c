@@ -50,12 +50,12 @@ static bool got_wm_size_event = false;
 /* For Unicode support, define some helper functions
  * which work with either UTF-16 or ANSI code pages
  * depending on whether UNICODE is defined or not.
- */ 
+ */
 
 /* tcreate_path:
  * Create path from TCHARs
  */
-static ALLEGRO_PATH* _tcreate_path(const TCHAR* ts) 
+static ALLEGRO_PATH* _tcreate_path(const TCHAR* ts)
 {
    char* tmp = _twin_tchar_to_utf8(ts);
    ALLEGRO_PATH* path = al_create_path(tmp);
@@ -65,7 +65,7 @@ static ALLEGRO_PATH* _tcreate_path(const TCHAR* ts)
 /* tcreate_path:
  * Create directory path from TCHARs
  */
-static ALLEGRO_PATH* _tcreate_path_for_directory(const TCHAR* ts) 
+static ALLEGRO_PATH* _tcreate_path_for_directory(const TCHAR* ts)
 {
    char* tmp = _twin_tchar_to_utf8(ts);
    ALLEGRO_PATH* path = al_create_path_for_directory(tmp);
@@ -100,7 +100,7 @@ static INT CALLBACK _browse_callback_proc(HWND hwnd, UINT uMsg, LPARAM unused, L
    return 0;
 }
 
-static TCHAR* _extract_dirname(ALLEGRO_PATH *fullpath) 
+static TCHAR* _extract_dirname(ALLEGRO_PATH *fullpath)
 {
    TCHAR* wpath = NULL;
    bool is_dir;
@@ -120,7 +120,7 @@ static TCHAR* _extract_dirname(ALLEGRO_PATH *fullpath)
    }
    else {
       /* Extract the directory from the path. */
-      
+
       ALLEGRO_PATH* initial_dir_path = NULL;
       initial_dir_path = al_clone_path(fullpath);
       if (initial_dir_path) {
@@ -149,7 +149,7 @@ static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    folderinfo.lpszTitle = _twin_ustr_to_tchar(fd->title);
    folderinfo.ulFlags = 0;
    folderinfo.lpfn = NULL;
-   
+
    if (fd->fc_initial_path) {
       wpath = _extract_dirname(fd->fc_initial_path);
       folderinfo.lpfn = _browse_callback_proc;
@@ -171,49 +171,42 @@ static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    return false;
 }
 
-static ALLEGRO_USTR *create_filter_string(const ALLEGRO_USTR *patterns)
+static ALLEGRO_USTR *create_filter_string(const _AL_VECTOR *patterns)
 {
    ALLEGRO_USTR *filter = al_ustr_new("");
-   bool filter_all = false;
-   int start, end;
-
-   /* FIXME: Move all this filter parsing stuff into a common file. */
-   if (0 == strcmp(al_cstr(patterns), "*.*")) {
-      filter_all = true;
-   }
-   else {
-      al_ustr_append_cstr(filter, "All Supported Files");
+   for (size_t i = 0; i < _al_vector_size(patterns); i++)
+   {
+      _AL_PATTERNS_AND_DESC *patterns_and_desc = _al_vector_ref(patterns, i);
+      bool any_valid = false;
+      for (size_t j = 0; j < _al_vector_size(&patterns_and_desc->patterns_vec); j++) {
+         _AL_PATTERN *pattern = _al_vector_ref(&patterns_and_desc->patterns_vec, j);
+         any_valid |= !pattern->is_mime;
+      }
+      if (!any_valid) {
+         continue;
+      }
+      const ALLEGRO_USTR *desc = al_ref_info(&patterns_and_desc->desc);
+      if (al_ustr_size(desc) > 0) {
+         al_ustr_append(filter, desc);
+      }
+      else {
+         al_ustr_append_cstr(filter, "All supported files");
+      }
       al_ustr_append_chr(filter, '\0');
-      start = al_ustr_size(filter);
-      al_ustr_append(filter, patterns);
-
-      /* Remove all instances of "*.*", which will be added separately. */
-      for (;;) {
-         int pos = al_ustr_find_cstr(filter, start, "*.*;");
-         if (pos == -1)
-            break;
-         if (pos == start || al_ustr_get(filter, pos - 1) == ';') {
-            filter_all = true;
-            al_ustr_remove_range(filter, pos, pos + 4);
-            start = pos;
-         }
-         else {
-            start = pos + 4;
+      bool first = true;
+      for (size_t j = 0; j < _al_vector_size(&patterns_and_desc->patterns_vec); j++) {
+         _AL_PATTERN *pattern = _al_vector_ref(&patterns_and_desc->patterns_vec, j);
+         if (!pattern->is_mime) {
+            if (!first) {
+               al_ustr_append_chr(filter, ';');
+            }
+            first = false;
+            if (pattern->is_catchall)
+               al_ustr_append_cstr(filter, "*.*");
+            else
+               al_ustr_append(filter, al_ref_info(&pattern->info));
          }
       }
-      while (al_ustr_has_suffix_cstr(filter, ";*.*")) {
-         filter_all = true;
-         end = al_ustr_size(filter);
-         al_ustr_remove_range(filter, end - 4, end);
-      }
-
-      al_ustr_append_chr(filter, '\0');
-   }
-
-   if (filter_all) {
-      al_ustr_append_cstr(filter, "All Files");
-      al_ustr_append_chr(filter, '\0');
-      al_ustr_append_cstr(filter, "*.*");
       al_ustr_append_chr(filter, '\0');
    }
 
@@ -258,8 +251,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ofn.hwndOwner = win_display ? win_display->window : NULL;
 
    /* Create filter string. */
-   if (fd->fc_patterns) {
-      filter_string = create_filter_string(fd->fc_patterns);
+   if (_al_vector_size(&fd->fc_patterns) > 0) {
+      filter_string = create_filter_string(&fd->fc_patterns);
       wfilter = _twin_ustr_to_tchar(filter_string);
       ofn.lpstrFilter = wfilter;
    }
@@ -366,9 +359,9 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
       type |= MB_ICONQUESTION;
    else if (fd->flags & ALLEGRO_MESSAGEBOX_WARN)
       type |= MB_ICONWARNING;
-   else if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR) 
+   else if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR)
       type |= MB_ICONERROR;
-   else 
+   else
       type |= MB_ICONINFORMATION;
 
    if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO)
@@ -378,7 +371,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
    /* heading + text are combined together */
 
-   if (al_ustr_size(fd->mb_heading)) 
+   if (al_ustr_size(fd->mb_heading))
       al_ustr_append_cstr(fd->mb_heading, "\n\n");
 
    al_ustr_append(fd->mb_heading, fd->mb_text);
@@ -442,7 +435,7 @@ static void wlog_do_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    index = GetWindowTextLength(textlog->tl_textview);
    SendMessage(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
    convert_crlf(textlog->tl_pending_text);
-   TCHAR* buf = _twin_utf8_to_tchar(al_cstr(textlog->tl_pending_text));   
+   TCHAR* buf = _twin_utf8_to_tchar(al_cstr(textlog->tl_pending_text));
    SendMessage(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM) buf);
    al_free(buf);
    al_ustr_truncate(textlog->tl_pending_text, 0);
@@ -752,7 +745,7 @@ static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPA
       ALLEGRO_MENU *menu = (ALLEGRO_MENU *) lParam;
       HWND hwnd = al_get_win_window_handle(display);
       POINT pos;
-      GetCursorPos(&pos);      
+      GetCursorPos(&pos);
       SetForegroundWindow(hwnd);
       TrackPopupMenuEx((HMENU) menu->extra1, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, pos.x, pos.y, hwnd, NULL);
 
@@ -783,7 +776,7 @@ static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
 {
    memset(info, 0, sizeof(*info));
 
-   info->cbSize = sizeof(*info);   
+   info->cbSize = sizeof(*info);
    info->fMask = MIIM_FTYPE | MIIM_STATE | MIIM_ID | MIIM_SUBMENU | MIIM_STRING | MIIM_CHECKMARKS;
    info->wID = menu->unique_id;
 
@@ -822,13 +815,13 @@ static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
       bi.bmiHeader.biCompression = BI_RGB;
 
       hdc = GetDC(menu->parent->display ? al_get_win_window_handle(menu->parent->display) : NULL);
-      
+
       hbmp = CreateDIBSection(hdc, (BITMAPINFO *)&bi, DIB_RGB_COLORS, (void **)&data, NULL, 0);
 
       lock = al_lock_bitmap(menu->icon, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
       memcpy(data, lock->data, w * h * 4);
       al_unlock_bitmap(menu->icon);
-      
+
       info->hbmpUnchecked = hbmp;
       menu->extra2 = hbmp;
 
@@ -861,7 +854,7 @@ bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 {
    MENUITEMINFO info;
    init_menu_info(&info, item);
-  
+
    InsertMenuItem((HMENU) item->parent->extra1, i, TRUE, &info);
    destroy_menu_info(&info);
    return true;
@@ -896,7 +889,7 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    if (!hwnd) return false;
 
    ASSERT(menu->extra1);
-   
+
    /* Note that duplicate callbacks are automatically filtered out, so it's safe
       to call this many times. */
    al_win_add_window_callback(display, menu_callback, NULL);
@@ -914,7 +907,7 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
       }
       al_unlock_mutex(global_mutex);
    }
-   
+
    return true;
 }
 
@@ -939,7 +932,7 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    }
 
    (void) menu;
-   
+
    return true;
 }
 
