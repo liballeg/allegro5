@@ -504,10 +504,13 @@ class AllegroFileChooser
         Intent intent = new Intent(action);
 
         if (0 != (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_SAVE)) {
-            // "Save file": must indicate a mime type
-            intent.setType("application/octet-stream"); // binary
-            //intent.setType("text/plain"); // plain text
-            if (mimeTypes.length > 0 && !mimeTypes[0].equals("*/*"))
+            // "Save file"
+            if (mimeTypes.length != 1) {
+                intent.setType("*/*");
+                if (mimeTypes.length > 0)
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            }
+            else
                 intent.setType(mimeTypes[0]);
         }
         else if (0 == (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_FOLDER)) {
