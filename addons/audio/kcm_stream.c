@@ -692,11 +692,6 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    queue = al_create_event_queue();
    al_register_event_source(queue, &stream->spl.es);
 
-   al_lock_mutex(stream->feed_thread_started_mutex);
-   stream->feed_thread_started = true;
-   al_broadcast_cond(stream->feed_thread_started_cond);
-   al_unlock_mutex(stream->feed_thread_started_mutex);
-
    stream->quit_feed_thread = false;
 
    while (!stream->quit_feed_thread) {
@@ -708,7 +703,6 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
       if ((prefill || event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT)
           && !stream->is_draining) {
-         prefill = false;
          unsigned long bytes;
          unsigned long bytes_written;
          ALLEGRO_MUTEX *stream_mutex;
@@ -784,6 +778,13 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          fin_event.user.timestamp = al_get_time();
          al_emit_user_event(&stream->spl.es, &fin_event, NULL);
       }
+      if (prefill) {
+         al_lock_mutex(stream->feed_thread_started_mutex);
+         stream->feed_thread_started = true;
+         al_broadcast_cond(stream->feed_thread_started_cond);
+         al_unlock_mutex(stream->feed_thread_started_mutex);
+      }
+      prefill = false;
    }
 
    al_destroy_event_queue(queue);
