@@ -36,7 +36,7 @@
    #include "allegro5/internal/aintern_xsystem.h"
 #endif
 
-#if defined ALLEGRO_MACOSX || defined __APPLE__
+#if defined __APPLE__ && !defined ALLEGRO_IPHONE
 #include <OpenGL/glu.h>
 #elif !defined ALLEGRO_CFG_OPENGLES
 #include <GL/glu.h>
