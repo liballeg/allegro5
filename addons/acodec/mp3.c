@@ -79,7 +79,7 @@ ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f)
       return NULL;
    }
 
-   /* Allocate buffer and read all the file. */
+   /* Allocate buffer and read the entire file. */
    uint8_t* mp3data = (uint8_t*)al_malloc(filesize);
    size_t readbytes = al_fread(f, mp3data, filesize);
    if (readbytes != (size_t)filesize) {
@@ -118,9 +118,8 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream(const char *filename, size_t buf
    }
 
    stream = _al_load_mp3_audio_stream_f(f, buffer_count, samples);
-   if (!stream) {
-      al_fclose(f);
-   }
+   /* We load the entire file into memory. */
+   al_fclose(f);
 
    return stream;
 }
@@ -274,7 +273,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
       ALLEGRO_WARN("Failed to read file into memory.\n");
       goto failure;
    }
-   al_fclose(f);
 
    /* Go through all the frames, to build the offset table. */
    int frame_offset_capacity = 0;
@@ -340,7 +338,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
 failure:
    al_free(mp3file->frame_offsets);
    al_free(mp3file->file_buffer);
-   al_free(mp3file->frame_buffer);
    al_free(mp3file);
    return NULL;
 }
