@@ -183,7 +183,11 @@ static void _aqueue_list_audio_output_devices(void)
    
    propertyAddress.mSelector = kAudioHardwarePropertyDevices;
    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
-   propertyAddress.mElement = kAudioObjectPropertyElementMain;
+   #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 120000)
+      propertyAddress.mElement = kAudioObjectPropertyElementMain;
+   #else
+      propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+   #endif
    
    if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize) != noErr) {
       return;
@@ -203,7 +207,11 @@ static void _aqueue_list_audio_output_devices(void)
       propertySize = sizeof(deviceName);
       deviceAddress.mSelector = kAudioDevicePropertyDeviceName;
       deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
-      deviceAddress.mElement = kAudioObjectPropertyElementMain;
+      #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 120000)
+         deviceAddress.mElement = kAudioObjectPropertyElementMain;
+      #else
+         deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+      #endif
       if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, deviceName) != noErr) {
          continue;
       }
