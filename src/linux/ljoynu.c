@@ -558,7 +558,7 @@ static void ljoy_scan(bool configure)
             }
             char const *path = al_get_fs_entry_name(dev);
             /* In the second pass in /dev/input we don't filter anymore.
-               In the first pass, strlen(path) > strlen(suffix). */
+               In the first pass, in /dev/input/by-path, strlen(path) > strlen(suffix). */
             if (t == 1 || strcmp(suffix, path + strlen(path) - strlen(suffix)) == 0) {
                found = true;
                al_ustr_assign_cstr(device_name, path);
