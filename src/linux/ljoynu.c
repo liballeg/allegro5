@@ -513,6 +513,7 @@ static void ljoy_scan(bool configure)
 {
    int num;
    ALLEGRO_USTR *device_name;
+   const ALLEGRO_FS_INTERFACE *fs_interface;
    unsigned i;
    int t;
 
@@ -521,6 +522,10 @@ static void ljoy_scan(bool configure)
       ALLEGRO_JOYSTICK_LINUX **joypp = _al_vector_ref(&joysticks, i);
       (*joypp)->marked = false;
    }
+
+   /* Make sure we're using stdio. */
+   fs_interface = al_get_fs_interface();
+   al_set_standard_fs_interface();
 
    device_name = al_ustr_new("");
 
@@ -552,8 +557,9 @@ static void ljoy_scan(bool configure)
                continue;
             }
             char const *path = al_get_fs_entry_name(dev);
-            /* In the second pass in /dev/input we don't filter anymore. */
-            if (t ==1 || strcmp(suffix, path + strlen(path) - strlen(suffix)) == 0) {
+            /* In the second pass in /dev/input we don't filter anymore.
+               In the first pass, strlen(path) > strlen(suffix). */
+            if (t == 1 || strcmp(suffix, path + strlen(path) - strlen(suffix)) == 0) {
                found = true;
                al_ustr_assign_cstr(device_name, path);
                ljoy_device(device_name);
@@ -573,6 +579,9 @@ static void ljoy_scan(bool configure)
    }
 
    al_ustr_free(device_name);
+
+   /* Restore the fs interface. */
+   al_set_fs_interface(fs_interface);
 
    /* Schedule unmarked structures to be inactivated. */
    for (i = 0; i < _al_vector_size(&joysticks); i++) {
