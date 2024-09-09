@@ -108,7 +108,7 @@ void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 
    ASSERT(ut);
 
-   _al_clock_gettime(CLOCK_ID, &now);
+   _al_clock_gettime(CLOCK_REALTIME, &now);
 
    if (seconds <= 0.0) {
       ut->abstime.tv_sec = now.tv_sec;
