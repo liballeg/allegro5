@@ -28,26 +28,6 @@ typedef struct ALLEGRO_MONITOR_INFO
 
 See also: [al_get_monitor_info]
 
-## API: al_get_new_display_adapter
-
-Gets the video adapter index where new displays
-will be created by the calling thread, if previously set with
-[al_set_new_display_adapter].
-Otherwise returns `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
-
-See also: [al_set_new_display_adapter]
-
-## API: al_set_new_display_adapter
-
-Sets the adapter to use for new displays created by the calling thread.
-The adapter has a monitor attached to it. Information
-about the monitor can be gotten using [al_get_num_video_adapters]
-and [al_get_monitor_info].
-
-To return to the default behaviour, pass `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
-
-See also: [al_get_num_video_adapters], [al_get_monitor_info]
-
 ## API: al_get_monitor_info
 
 Get information about a monitor's position on the desktop.

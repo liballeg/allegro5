@@ -103,7 +103,8 @@ int main(int argc, char **argv)
             al_get_window_position(displays[i], &dx, &dy);
             dw = al_get_display_width(displays[i]);
             dh = al_get_display_height(displays[i]);
-            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 30, ALLEGRO_ALIGN_CENTRE, "Location: %d %d", dx, dy);
+            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 30, ALLEGRO_ALIGN_CENTRE, "Location: %d %d (adapter %d)",
+               dx, dy, al_get_display_adapter(displays[i]));
             if (jump_x[i] != INT_MAX && jump_y[i] != INT_MAX) {
                al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, ALLEGRO_ALIGN_CENTRE,
                   "Last jumped to: %d %d (adapter %d)", jump_x[i], jump_y[i], jump_adapter[i]);

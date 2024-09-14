@@ -157,6 +157,7 @@ AL_FUNC(void, al_set_display_icons, (ALLEGRO_DISPLAY *display, int num_icons, AL
 /* Stuff for multihead/window management */
 AL_FUNC(int, al_get_new_display_adapter, (void));
 AL_FUNC(void, al_set_new_display_adapter, (int adapter));
+AL_FUNC(int, al_get_display_adapter, (ALLEGRO_DISPLAY *display));
 AL_FUNC(void, al_set_new_window_position, (int x, int y));
 AL_FUNC(void, al_get_new_window_position, (int *x, int *y));
 AL_FUNC(void, al_set_window_position, (ALLEGRO_DISPLAY *display, int x, int y));
