@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -666,5 +666,23 @@ void al_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
    if (display->vt && display->vt->apply_window_constraints)
       display->vt->apply_window_constraints(display, onoff);
 }
+
+/* Function: al_get_display_adapter
+ */
+int al_get_display_adapter(ALLEGRO_DISPLAY *display)
+{
+   int x, y, adapter, num_adapters;
+   al_get_window_position(display, &x, &y);
+   num_adapters = al_get_num_video_adapters();
+   for (adapter = 0; adapter < num_adapters; adapter++) {
+      ALLEGRO_MONITOR_INFO mi;
+      al_get_monitor_info(adapter, &mi);
+      if (x >= mi.x1 && x < mi.x2 && y >= mi.y1 && y < mi.y2) {
+         return adapter;
+      }
+   }
+   return -1;
+}
+
 
 /* vim: set sts=3 sw=3 et: */
