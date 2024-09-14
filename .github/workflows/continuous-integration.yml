@@ -81,7 +81,7 @@ jobs:
                   make run_standalone_tests
             - name: Upload artifacts
               if: failure()
-              uses: actions/upload-artifact@v1
+              uses: actions/upload-artifact@v4
               with:
                   name: bitmaps
                   path: build/test_outputs
