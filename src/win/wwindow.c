@@ -1239,17 +1239,11 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
 static void update_adapter(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (void*)display;
-   int x, y, adapter, num_adapters;
-   al_get_window_position(display, &x, &y);
-   num_adapters = al_get_num_video_adapters();
-   for (adapter = 0; adapter < num_adapters; adapter++) {
-      ALLEGRO_MONITOR_INFO mi;
-      al_get_monitor_info(adapter, &mi);
-      if (x >= mi.x1 && x < mi.x2 && y >= mi.y1 && y < mi.y2) {
-         win_display->adapter = adapter;
-         break;
-      }
-   }
+   int adapter = al_get_display_adapter(display);
+   if (adapter >= 0)
+      win_display->adapter = adapter;
+   else
+      win_display->adapter = 0;
 }
 
 
