@@ -116,7 +116,9 @@ int init_framework(void)
       sound or music (or both). */
    al_install_audio();
    al_init_acodec_addon();
-   al_reserve_samples(8);
+
+   if (al_is_audio_installed())
+      al_reserve_samples(8);
    
    event_queue = al_create_event_queue();
 

@@ -132,26 +132,30 @@ static void move_everyone(void)
          if ((key[ALLEGRO_KEY_UP])) { // || (joy[0].stick[0].axis[1].d1)) {
             /* firing thrusters */
             if (yspeed < MAX_SPEED) {
-               if (yspeed == 0) {
-                  al_stop_sample(&engine);
-                  al_play_sample(data[ENGINE_SPL].dat, 0.9, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0,
-                     1.0, ALLEGRO_PLAYMODE_LOOP, &engine);
-               }
-               else {
-                  /* fade in sample while speeding up */
-                  ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
-                  al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
-                  al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
-                  al_unlock_sample_id(&engine);
-               }
+	       if (al_is_audio_installed()) {
+                  if (yspeed == 0) {
+	             al_stop_sample(&engine);
+                     al_play_sample(data[ENGINE_SPL].dat, 0.9, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0,
+                        1.0, ALLEGRO_PLAYMODE_LOOP, &engine);
+                  }
+                  else {
+                     /* fade in sample while speeding up */
+                     ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+                     al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
+                     al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
+                     al_unlock_sample_id(&engine);
+                  }
+	       }
                yspeed++;
             }
             else {
-               /* adjust pan while the sample is looping */
-               ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
-               al_set_sample_instance_gain(si, 64 / 255.0);
-               al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
-               al_unlock_sample_id(&engine);
+               if (al_is_audio_installed()) {
+                  /* adjust pan while the sample is looping */
+                  ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+                  al_set_sample_instance_gain(si, 64 / 255.0);
+                  al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
+                  al_unlock_sample_id(&engine);
+	       }
             }
 
             ship_burn = TRUE;
@@ -161,17 +165,19 @@ static void move_everyone(void)
             /* not firing thrusters */
             if (yspeed) {
                yspeed--;
-               if (yspeed == 0) {
-                  al_stop_sample(&engine);
-               }
-               else {
-                  /* fade out and reduce frequency when slowing down */
-                  ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
-                  al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
-                  al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
-                  al_set_sample_instance_speed(si, (500 + yspeed * 500 / MAX_SPEED) / 1000.0);
-                  al_unlock_sample_id(&engine);
-               }
+	       if (al_is_audio_installed()) {
+                  if (yspeed == 0) {
+                     al_stop_sample(&engine);
+                  }
+                  else {
+                     /* fade out and reduce frequency when slowing down */
+                     ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+                     al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
+                     al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
+                     al_set_sample_instance_speed(si, (500 + yspeed * 500 / MAX_SPEED) / 1000.0);
+                     al_unlock_sample_id(&engine);
+                  }
+	       }
             }
 
             ship_burn = FALSE;
@@ -343,7 +349,10 @@ void play_game(void)
 
    /* introduction synced to the music */
    draw_intro_item(INTRO_BMP_1, 5);
-   play_midi(data[GAME_MUSIC].dat, TRUE);
+
+   if (al_is_audio_installed())
+      play_midi(data[GAME_MUSIC].dat, TRUE);
+
    clear_keybuf();
 
    if (fade_intro_item(-1, 2))
@@ -447,7 +456,8 @@ void play_game(void)
    }
 
    /* cleanup */
-   al_stop_sample(&engine);
+   if (al_is_audio_installed())
+     al_stop_sample(&engine);
 
    while (bullet_list)
       delete_bullet(bullet_list);
