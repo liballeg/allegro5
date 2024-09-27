@@ -2040,6 +2040,20 @@ Since: 5.1.2
 
 See also: [al_set_render_state]
 
+
+### API: al_get_render_state
+
+Returns one of several render attributes; see [ALLEGRO_RENDER_STATE]
+for details.
+
+This function will return 0 when there is no current display.
+
+Since: 5.2.11
+
+See also: [al_set_render_state], [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
+[ALLEGRO_WRITE_MASK_FLAGS]
+
+
 ### API: al_set_render_state
 
 Set one of several render attributes; see [ALLEGRO_RENDER_STATE]
@@ -2049,7 +2063,7 @@ This function does nothing if the target bitmap is a memory bitmap.
 
 Since: 5.1.2
 
-See also: [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
+See also: [al_get_render_state], [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
 [ALLEGRO_WRITE_MASK_FLAGS]
 
 
