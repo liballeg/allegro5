@@ -46,6 +46,7 @@ typedef enum ALLEGRO_WRITE_MASK_FLAGS {
    ALLEGRO_MASK_RGBA = (ALLEGRO_MASK_RGB | ALLEGRO_MASK_ALPHA)
 } ALLEGRO_WRITE_MASK_FLAGS;
 
+AL_FUNC(int, al_get_render_state, (ALLEGRO_RENDER_STATE state));
 AL_FUNC(void, al_set_render_state, (ALLEGRO_RENDER_STATE state, int value));
 
 #ifdef __cplusplus

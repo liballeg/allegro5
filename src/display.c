@@ -602,6 +602,41 @@ void al_acknowledge_drawing_resume(ALLEGRO_DISPLAY *display)
    }
 }
 
+/* Function: al_get_render_state
+ */
+int al_get_render_state(ALLEGRO_RENDER_STATE state)
+{
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+
+   if (!display)
+      return 0;
+
+   switch (state) {
+      case ALLEGRO_ALPHA_TEST:
+         return display->render_state.alpha_test;
+         break;
+      case ALLEGRO_WRITE_MASK:
+         return display->render_state.write_mask;
+         break;
+      case ALLEGRO_DEPTH_TEST:
+         return display->render_state.depth_test;
+         break;
+      case ALLEGRO_DEPTH_FUNCTION:
+         return display->render_state.depth_function;
+         break;
+      case ALLEGRO_ALPHA_FUNCTION:
+         return display->render_state.alpha_function;
+         break;
+      case ALLEGRO_ALPHA_TEST_VALUE:
+         return display->render_state.alpha_test_value;
+         break;
+      default:
+         ALLEGRO_WARN("unknown state to retrieve: %d\n", state);
+         return 0;
+         break;
+   }
+}
+
 /* Function: al_set_render_state
  */
 void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
