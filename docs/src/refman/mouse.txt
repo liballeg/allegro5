@@ -44,7 +44,7 @@ typedef enum ALLEGRO_MOUSE_BUTTON
 
 Since: 5.2.10
 
-See also: [al_get_mouse_num_buttons]
+See also: [al_get_mouse_num_buttons], [al_mouse_button_down]
 
 ## API: al_install_mouse
 
@@ -116,7 +116,12 @@ See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state], [al_mouse_button_down]
 ## API: al_mouse_button_down
 
 Return true if the mouse button specified was held down in the state
-specified.  Unlike most things, the first mouse button is numbered 1.
+specified.
+
+Unlike most things, the first mouse button is numbered 1.  As a convenience, the constants
+ALLEGRO_MOUSE_BUTTON_LEFT, ALLEGRO_MOUSE_BUTTON_RIGHT, ALLEGRO_MOUSE_BUTTON_MIDDLE are provided.
+However, depending on the hardware there may be more or fewer mouse buttons. You can check
+[al_get_mouse_num_buttons] if you want to be sure.
 
 See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state], [al_get_mouse_state_axis]
 
