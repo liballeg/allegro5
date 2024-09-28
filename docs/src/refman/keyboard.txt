@@ -32,8 +32,8 @@ pressed_keys[key_code] = true;
 ~~~~
 
 These are the list of key codes used by Allegro, which are returned in
-the event.keyboard.keycode field of the ALLEGRO_KEY_DOWN and
-ALLEGRO_KEY_UP events and which you can pass to [al_key_down]:
+the event.keyboard.keycode field of the ALLEGRO_EVENT_KEY_DOWN and
+ALLEGRO_EVENT_KEY_UP events and which you can pass to [al_key_down]:
 
     ALLEGRO_KEY_A ... ALLEGRO_KEY_Z
     ALLEGRO_KEY_0 ... ALLEGRO_KEY_9
