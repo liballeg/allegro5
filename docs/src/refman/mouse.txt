@@ -23,6 +23,29 @@ Public fields (read only):
 
 See also: [al_get_mouse_state], [al_get_mouse_state_axis], [al_mouse_button_down]
 
+## Mouse button constants
+
+Unlike other indexes, the first mouse button is numbered 1 when returned in
+the event.mouse.button field of ALLEGRO_EVENT_MOUSE_BUTTON_UP and
+ALLEGRO_EVENT_MOUSE_BUTTON_DOWN events.
+
+As a convenience, the following ALLEGRO_MOUSE_BUTTON constants are provided below.
+However, depending on the hardware there may be more or fewer mouse buttons. You
+can check [al_get_mouse_num_buttons] if you want to be sure.
+
+~~~~c
+typedef enum ALLEGRO_MOUSE_BUTTON
+{
+   ALLEGRO_MOUSE_BUTTON_LEFT = 1,
+   ALLEGRO_MOUSE_BUTTON_RIGHT = 2,
+   ALLEGRO_MOUSE_BUTTON_MIDDLE = 3
+} ALLEGRO_MOUSE_BUTTON;
+~~~~
+
+Since: 5.2.10
+
+See also: [al_get_mouse_num_buttons]
+
 ## API: al_install_mouse
 
 Install a mouse driver.

@@ -218,7 +218,10 @@ mouse.w (int)
 :   w-coordinate
 
 mouse.button (unsigned)
-:   The mouse button which was pressed, numbering from 1.
+:   The mouse button which was pressed, numbering from 1.  As a convenience, the constants
+ALLEGRO_MOUSE_BUTTON_LEFT, ALLEGRO_MOUSE_BUTTON_RIGHT, ALLEGRO_MOUSE_BUTTON_MIDDLE are provided.
+However, depending on the hardware there may be more or fewer mouse buttons. You can check
+[al_get_mouse_num_buttons] if you want to be sure.
 
 mouse.pressure (float)
 :   Pressure, ranging from `0.0` to `1.0`.
@@ -243,7 +246,10 @@ mouse.w (int)
 :   w-coordinate
 
 mouse.button (unsigned)
-:   The mouse button which was released, numbering from 1.
+:   The mouse button which was released, numbering from 1. As a convenience, the constants
+ALLEGRO_MOUSE_BUTTON_LEFT, ALLEGRO_MOUSE_BUTTON_RIGHT, ALLEGRO_MOUSE_BUTTON_MIDDLE are provided.
+However, depending on the hardware there may be more or fewer mouse buttons. You can check
+[al_get_mouse_num_buttons] if you want to be sure.
 
 mouse.pressure (float)
 :   Pressure, ranging from `0.0` to `1.0`.

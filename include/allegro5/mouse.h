@@ -53,6 +53,14 @@ struct ALLEGRO_MOUSE_STATE
 };
 
 
+typedef enum ALLEGRO_MOUSE_BUTTON
+{
+   ALLEGRO_MOUSE_BUTTON_LEFT = 1,
+   ALLEGRO_MOUSE_BUTTON_RIGHT = 2,
+   ALLEGRO_MOUSE_BUTTON_MIDDLE = 3,
+} ALLEGRO_MOUSE_BUTTON;
+
+
 AL_FUNC(bool,           al_is_mouse_installed,  (void));
 AL_FUNC(bool,           al_install_mouse,       (void));
 AL_FUNC(void,           al_uninstall_mouse,     (void));
