@@ -609,7 +609,7 @@ int al_get_render_state(ALLEGRO_RENDER_STATE state)
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
    if (!display)
-      return 0;
+      return -1;
 
    switch (state) {
       case ALLEGRO_ALPHA_TEST:
@@ -631,8 +631,8 @@ int al_get_render_state(ALLEGRO_RENDER_STATE state)
          return display->render_state.alpha_test_value;
          break;
       default:
-         ALLEGRO_WARN("unknown state to retrieve: %d\n", state);
-         return 0;
+         ALLEGRO_ERROR("Unknown state to retrieve: %d\n", state);
+         return -1;
          break;
    }
 }
@@ -666,7 +666,7 @@ void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
          display->render_state.alpha_test_value = value;
          break;
       default:
-         ALLEGRO_WARN("unknown state to change: %d\n", state);
+         ALLEGRO_WARN("Unknown state to change: %d\n", state);
          break;
    }
 
