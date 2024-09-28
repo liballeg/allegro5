@@ -2046,9 +2046,9 @@ See also: [al_set_render_state]
 Returns one of several render attributes; see [ALLEGRO_RENDER_STATE]
 for details.
 
-This function will return 0 when there is no current display.
+This function will return -1 when there is no current display.
 
-Since: 5.2.11
+Since: 5.2.10
 
 See also: [al_set_render_state], [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
 [ALLEGRO_WRITE_MASK_FLAGS]
