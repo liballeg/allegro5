@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
-#ifdef ALLEGRO_HAVE_STDINT_H
+#ifdef A5O_HAVE_STDINT_H
 #include <stdint.h>
 #endif
 
@@ -20,21 +20,21 @@
 #include <jpeglib.h>
 #include <jerror.h>
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 
 struct my_src_mgr
 {
    struct jpeg_source_mgr pub;
    JOCTET *buffer;
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
 };
 
 struct my_dest_mgr
 {
    struct jpeg_destination_mgr pub;
    JOCTET *buffer;
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
 };
 
 struct my_err_mgr
@@ -81,7 +81,7 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
    }
    else {
       long skip = num_bytes - src->pub.bytes_in_buffer;
-      al_fseek(src->fp, skip, ALLEGRO_SEEK_CUR);
+      al_fseek(src->fp, skip, A5O_SEEK_CUR);
       src->pub.bytes_in_buffer = 0;
    }
 }
@@ -98,7 +98,7 @@ static void term_destination(j_compress_ptr cinfo)
 }
 
 
-static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *fp,
+static void jpeg_packfile_src(j_decompress_ptr cinfo, A5O_FILE *fp,
                               JOCTET *buffer)
 {
    struct my_src_mgr *src;
@@ -119,7 +119,7 @@ static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *fp,
    src->fp = fp;
 }
 
-static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *fp,
+static void jpeg_packfile_dest(j_compress_ptr cinfo, A5O_FILE *fp,
                                JOCTET *buffer)
 {
    struct my_dest_mgr *dest;
@@ -143,7 +143,7 @@ static void my_error_exit(j_common_ptr cinfo)
    char buffer[JMSG_LENGTH_MAX];
    struct my_err_mgr *jerr = (void *)cinfo->err;
    jerr->pub.format_message(cinfo, buffer);
-   ALLEGRO_ERROR("jpeg error: %s\n", buffer);
+   A5O_ERROR("jpeg error: %s\n", buffer);
    longjmp(jerr->jmpenv, 1);
 }
 
@@ -153,21 +153,21 @@ static void my_error_exit(j_common_ptr cinfo)
  */
 struct load_jpg_entry_helper_data {
    bool error;
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
    JOCTET *buffer;
    unsigned char *row;
 };
 
-static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
+static void load_jpg_entry_helper(A5O_FILE *fp,
    struct load_jpg_entry_helper_data *data, int flags)
 {
    struct jpeg_decompress_struct cinfo;
    struct my_err_mgr jerr;
-   ALLEGRO_LOCKED_REGION *lock;
+   A5O_LOCKED_REGION *lock;
    int w, h, s;
 
-   /* ALLEGRO_NO_PREMULTIPLIED_ALPHA does not apply.
-    * ALLEGRO_KEEP_INDEX does not apply.
+   /* A5O_NO_PREMULTIPLIED_ALPHA does not apply.
+    * A5O_KEEP_INDEX does not apply.
     */
    (void)flags;
 
@@ -199,32 +199,32 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    /* Only one and three components make sense in a JPG file. */
    if (s != 1 && s != 3) {
       data->error = true;
-      ALLEGRO_ERROR("%d components makes no sense\n", s);
+      A5O_ERROR("%d components makes no sense\n", s);
       goto error;
    }
 
    data->bmp = al_create_bitmap(w, h);
    if (!data->bmp) {
       data->error = true;
-      ALLEGRO_ERROR("%dx%d bitmap creation failed\n", w, h);
+      A5O_ERROR("%dx%d bitmap creation failed\n", w, h);
       goto error;
    }
 
    /* Allegro's pixel format is endian independent, so that in
-    * ALLEGRO_PIXEL_FORMAT_RGB_888 the lower 8 bits always hold the Blue
+    * A5O_PIXEL_FORMAT_RGB_888 the lower 8 bits always hold the Blue
     * component.  On a little endian system this is in byte 0.  On a big
     * endian system this is in byte 2.
     *
     * libjpeg expects byte 0 to hold the Red component, byte 1 to hold the
     * Green component, byte 2 to hold the Blue component.  Hence on little
-    * endian systems we need the opposite format, ALLEGRO_PIXEL_FORMAT_BGR_888.
+    * endian systems we need the opposite format, A5O_PIXEL_FORMAT_BGR_888.
     */
-#ifdef ALLEGRO_BIG_ENDIAN
-   lock = al_lock_bitmap(data->bmp, ALLEGRO_PIXEL_FORMAT_RGB_888,
-       ALLEGRO_LOCK_WRITEONLY);
+#ifdef A5O_BIG_ENDIAN
+   lock = al_lock_bitmap(data->bmp, A5O_PIXEL_FORMAT_RGB_888,
+       A5O_LOCK_WRITEONLY);
 #else
-   lock = al_lock_bitmap(data->bmp, ALLEGRO_PIXEL_FORMAT_BGR_888,
-       ALLEGRO_LOCK_WRITEONLY);
+   lock = al_lock_bitmap(data->bmp, A5O_PIXEL_FORMAT_BGR_888,
+       A5O_LOCK_WRITEONLY);
 #endif
 
    if (s == 3) {
@@ -277,7 +277,7 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    al_free(data->row);
 }
 
-ALLEGRO_BITMAP *_al_load_jpg_f(ALLEGRO_FILE *fp, int flags)
+A5O_BITMAP *_al_load_jpg_f(A5O_FILE *fp, int flags)
 {
    struct load_jpg_entry_helper_data data;
 
@@ -293,12 +293,12 @@ struct save_jpg_entry_helper_data {
    JOCTET *buffer;
 };
 
-static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
+static void save_jpg_entry_helper(A5O_FILE *fp, A5O_BITMAP *bmp,
    struct save_jpg_entry_helper_data *data)
 {
    struct jpeg_compress_struct cinfo;
    struct my_err_mgr jerr;
-   ALLEGRO_LOCKED_REGION *lock;
+   A5O_LOCKED_REGION *lock;
 
    data->error = false;
 
@@ -331,12 +331,12 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
    jpeg_start_compress(&cinfo, 1);
 
    /* See comment in load_jpg_entry_helper. */
-#ifdef ALLEGRO_BIG_ENDIAN
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_RGB_888,
-      ALLEGRO_LOCK_READONLY);
+#ifdef A5O_BIG_ENDIAN
+   lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_RGB_888,
+      A5O_LOCK_READONLY);
 #else
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_BGR_888,
-      ALLEGRO_LOCK_READONLY);
+   lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_BGR_888,
+      A5O_LOCK_READONLY);
 #endif
 
    while (cinfo.next_scanline < cinfo.image_height) {
@@ -359,7 +359,7 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
    al_free(data->buffer);
 }
 
-bool _al_save_jpg_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
+bool _al_save_jpg_f(A5O_FILE *fp, A5O_BITMAP *bmp)
 {
    struct save_jpg_entry_helper_data data;
 
@@ -369,16 +369,16 @@ bool _al_save_jpg_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
    return !data.error;
 }
 
-ALLEGRO_BITMAP *_al_load_jpg(char const *filename, int flags)
+A5O_BITMAP *_al_load_jpg(char const *filename, int flags)
 {
-   ALLEGRO_FILE *fp;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *fp;
+   A5O_BITMAP *bmp;
 
-   ALLEGRO_ASSERT(filename);
+   A5O_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -389,18 +389,18 @@ ALLEGRO_BITMAP *_al_load_jpg(char const *filename, int flags)
    return bmp;
 }
 
-bool _al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
+bool _al_save_jpg(char const *filename, A5O_BITMAP *bmp)
 {
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
    bool retsave;
    bool retclose;
 
-   ALLEGRO_ASSERT(filename);
-   ALLEGRO_ASSERT(bmp);
+   A5O_ASSERT(filename);
+   A5O_ASSERT(bmp);
 
    fp = al_fopen(filename, "wb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable to open file %s for writing\n", filename);
+      A5O_ERROR("Unable to open file %s for writing\n", filename);
       return false;
    }
 

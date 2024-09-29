@@ -10,7 +10,7 @@ public:
    void* get(void);
    SampleResource(const char* filename);
 private:
-   ALLEGRO_SAMPLE *sample_data;
+   A5O_SAMPLE *sample_data;
    std::string filename;
 };
 

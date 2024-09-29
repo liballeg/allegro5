@@ -15,19 +15,19 @@ These functions are declared in the main Allegro header file:
 ~~~~
 
 
-## API: ALLEGRO_THREAD
+## API: A5O_THREAD
 
 An opaque structure representing a thread.
 
 
 
-## API: ALLEGRO_MUTEX
+## API: A5O_MUTEX
 
 An opaque structure representing a mutex.
 
 
 
-## API: ALLEGRO_COND
+## API: A5O_COND
 
 An opaque structure representing a condition variable.
 

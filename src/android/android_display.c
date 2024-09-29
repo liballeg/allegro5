@@ -25,31 +25,31 @@
 
 #include "EGL/egl.h"
 
-ALLEGRO_DEBUG_CHANNEL("display")
+A5O_DEBUG_CHANNEL("display")
 
-static ALLEGRO_DISPLAY_INTERFACE *vt;
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS main_thread_display_settings;
+static A5O_DISPLAY_INTERFACE *vt;
+static A5O_EXTRA_DISPLAY_SETTINGS main_thread_display_settings;
 
-static int select_best_visual_and_update(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
-static void android_set_display_option(ALLEGRO_DISPLAY *d, int o, int v);
-static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height);
-static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
-void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
-void _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
+static int select_best_visual_and_update(JNIEnv *env, A5O_DISPLAY_ANDROID *d);
+static void android_set_display_option(A5O_DISPLAY *d, int o, int v);
+static void _al_android_resize_display(A5O_DISPLAY_ANDROID *d, int width, int height);
+static bool _al_android_init_display(JNIEnv *env, A5O_DISPLAY_ANDROID *display);
+void _al_android_clear_current(JNIEnv *env, A5O_DISPLAY_ANDROID *d);
+void _al_android_make_current(JNIEnv *env, A5O_DISPLAY_ANDROID *d);
 
 JNI_FUNC(void, AllegroSurface, nativeOnCreate, (JNIEnv *env, jobject obj))
 {
-   ALLEGRO_DEBUG("nativeOnCreate");
+   A5O_DEBUG("nativeOnCreate");
    (void)env;
    (void)obj;
 
-   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
+   A5O_SYSTEM *system = (void *)al_get_system_driver();
    ASSERT(system != NULL);
 
-   ALLEGRO_DEBUG("AllegroSurface_nativeOnCreate");
+   A5O_DEBUG("AllegroSurface_nativeOnCreate");
 
-   ALLEGRO_DISPLAY_ANDROID **dptr = _al_vector_ref(&system->displays, 0);
-   ALLEGRO_DISPLAY_ANDROID *d = *dptr;
+   A5O_DISPLAY_ANDROID **dptr = _al_vector_ref(&system->displays, 0);
+   A5O_DISPLAY_ANDROID *d = *dptr;
    ASSERT(d != NULL);
 
    d->recreate = true;
@@ -57,21 +57,21 @@ JNI_FUNC(void, AllegroSurface, nativeOnCreate, (JNIEnv *env, jobject obj))
 
 JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
-   ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
+   A5O_SYSTEM *sys = (void *)al_get_system_driver();
    ASSERT(sys != NULL);
 
-   ALLEGRO_DISPLAY_ANDROID **dptr = _al_vector_ref(&sys->displays, 0);
-   ALLEGRO_DISPLAY_ANDROID *display = *dptr;
+   A5O_DISPLAY_ANDROID **dptr = _al_vector_ref(&sys->displays, 0);
+   A5O_DISPLAY_ANDROID *display = *dptr;
    ASSERT(display != NULL);
 
-   ALLEGRO_DISPLAY *d = (ALLEGRO_DISPLAY *)display;
+   A5O_DISPLAY *d = (A5O_DISPLAY *)display;
 
-   ALLEGRO_DEBUG("AllegroSurface_nativeOnDestroy");
+   A5O_DEBUG("AllegroSurface_nativeOnDestroy");
    (void)obj;
    (void)env;
 
    if (!display->created) {
-      ALLEGRO_DEBUG("Display creation failed, not sending HALT");
+      A5O_DEBUG("Display creation failed, not sending HALT");
       return false;
    }
 
@@ -84,29 +84,29 @@ JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
    // we'll wait for acknowledge_drawing_halt
    display->halt_acknowledge = false;
 
-   // emit ALLEGRO_EVENT_DISPLAY_HALT_DRAWING
-   ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
+   // emit A5O_EVENT_DISPLAY_HALT_DRAWING
+   A5O_DEBUG("locking display event source: %p %p", d, &d->es);
    _al_event_source_lock(&d->es);
 
    if (_al_event_source_needs_to_generate_event(&d->es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_HALT_DRAWING;
       event.display.timestamp = al_current_time();
       _al_event_source_emit_event(&d->es, &event);
    }
 
-   ALLEGRO_DEBUG("unlocking display event source");
+   A5O_DEBUG("unlocking display event source");
    _al_event_source_unlock(&d->es);
 
    // wait for acknowledge_drawing_halt
-   ALLEGRO_DEBUG("waiting for acknowledge_drawing_halt");
+   A5O_DEBUG("waiting for acknowledge_drawing_halt");
    al_lock_mutex(display->mutex);
    while (!display->halt_acknowledge)
       al_wait_cond(display->cond, display->mutex);
    al_unlock_mutex(display->mutex);
-   ALLEGRO_DEBUG("done waiting for acknowledge_drawing_halt");
+   A5O_DEBUG("done waiting for acknowledge_drawing_halt");
 
-   ALLEGRO_DEBUG("AllegroSurface_nativeOnDestroy end");
+   A5O_DEBUG("AllegroSurface_nativeOnDestroy end");
 
    return true;
 }
@@ -116,15 +116,15 @@ JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
 JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
    jint format, jint width, jint height))
 {
-   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
+   A5O_SYSTEM *system = (void *)al_get_system_driver();
    ASSERT(system != NULL);
 
-   ALLEGRO_DISPLAY_ANDROID **dptr = _al_vector_ref(&system->displays, 0);
-   ALLEGRO_DISPLAY_ANDROID *d = *dptr;
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY*)d;
+   A5O_DISPLAY_ANDROID **dptr = _al_vector_ref(&system->displays, 0);
+   A5O_DISPLAY_ANDROID *d = *dptr;
+   A5O_DISPLAY *display = (A5O_DISPLAY*)d;
    ASSERT(display != NULL);
 
-   ALLEGRO_DEBUG("on change %dx%d!", width, height);
+   A5O_DEBUG("on change %dx%d!", width, height);
    (void)format;
 
    if (!d->first_run && !d->recreate) {
@@ -136,7 +136,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
 
    if (d->first_run || d->recreate) {
       d->surface_object = (*env)->NewGlobalRef(env, obj);
-      if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      if (display->flags & A5O_FULLSCREEN_WINDOW) {
          display->w = width;
          display->h = height;
       }
@@ -156,18 +156,18 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
    d->resumed = false;
 
    if (!d->first_run) {
-      ALLEGRO_DEBUG("locking display event source: %p", d);
+      A5O_DEBUG("locking display event source: %p", d);
       _al_event_source_lock(&display->es);
 
-      ALLEGRO_DEBUG("check generate event");
+      A5O_DEBUG("check generate event");
       if (_al_event_source_needs_to_generate_event(&display->es)) {
-         ALLEGRO_EVENT event;
-         event.display.type = ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING;
+         A5O_EVENT event;
+         event.display.type = A5O_EVENT_DISPLAY_RESUME_DRAWING;
          event.display.timestamp = al_current_time();
          _al_event_source_emit_event(&display->es, &event);
       }
 
-      ALLEGRO_DEBUG("unlocking display event source");
+      A5O_DEBUG("unlocking display event source");
       _al_event_source_unlock(&display->es);
    }
 
@@ -176,11 +176,11 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
       d->first_run = false;
    }
    else {
-      ALLEGRO_DEBUG("Waiting for al_acknowledge_drawing_resume");
+      A5O_DEBUG("Waiting for al_acknowledge_drawing_resume");
       while (!d->resumed) {
          al_wait_cond(d->cond, d->mutex);
       }
-      ALLEGRO_DEBUG("Got al_acknowledge_drawing_resume");
+      A5O_DEBUG("Got al_acknowledge_drawing_resume");
    }
 
    al_unlock_mutex(d->mutex);
@@ -232,22 +232,22 @@ void _al_android_destroy_surface(JNIEnv *env, jobject surface, bool post)
    }
 }
 
-void  _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
+void  _al_android_make_current(JNIEnv *env, A5O_DISPLAY_ANDROID *d)
 {
    _jni_callVoidMethodV(env, d->surface_object, "egl_makeCurrent", "()V");
 }
 
-void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
+void _al_android_clear_current(JNIEnv *env, A5O_DISPLAY_ANDROID *d)
 {
    _jni_callVoidMethodV(env, d->surface_object, "egl_clearCurrent", "()V");
 }
 
 static bool _al_android_init_display(JNIEnv *env,
-   ALLEGRO_DISPLAY_ANDROID *display)
+   A5O_DISPLAY_ANDROID *display)
 {
-   ALLEGRO_SYSTEM_ANDROID *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY *d = (ALLEGRO_DISPLAY *)display;
-   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras = &main_thread_display_settings;
+   A5O_SYSTEM_ANDROID *system = (void *)al_get_system_driver();
+   A5O_DISPLAY *d = (A5O_DISPLAY *)display;
+   const A5O_EXTRA_DISPLAY_SETTINGS *extras = &main_thread_display_settings;
    int config_index;
    bool programmable_pipeline;
    int major_version, minor_version;
@@ -258,13 +258,13 @@ static bool _al_android_init_display(JNIEnv *env,
    ASSERT(system != NULL);
    ASSERT(display != NULL);
 
-   ALLEGRO_DEBUG("calling egl_Init");
+   A5O_DEBUG("calling egl_Init");
 
    if (!_jni_callBooleanMethodV(env, display->surface_object,
          "egl_Init", "()Z"))
    {
       // XXX should probably destroy the AllegroSurface here
-      ALLEGRO_ERROR("failed to initialize EGL");
+      A5O_ERROR("failed to initialize EGL");
       display->failed = true;
       return false;
    }
@@ -272,46 +272,46 @@ static bool _al_android_init_display(JNIEnv *env,
    config_index = select_best_visual_and_update(env, display);
    if (config_index < 0) {
       // XXX should probably destroy the AllegroSurface here
-      ALLEGRO_ERROR("Failed to choose config.\n");
+      A5O_ERROR("Failed to choose config.\n");
       display->failed = true;
       return false;
    }
 
-   programmable_pipeline = (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE);
-   major_version = extras->settings[ALLEGRO_OPENGL_MAJOR_VERSION];
-   minor_version = extras->settings[ALLEGRO_OPENGL_MINOR_VERSION];
-   is_required_major = (extras->required & ((int64_t)1 << ALLEGRO_OPENGL_MAJOR_VERSION));
-   is_required_minor = (extras->required & ((int64_t)1 << ALLEGRO_OPENGL_MINOR_VERSION));
-   is_suggested_major = (extras->suggested & ((int64_t)1 << ALLEGRO_OPENGL_MAJOR_VERSION));
-   is_suggested_minor = (extras->suggested & ((int64_t)1 << ALLEGRO_OPENGL_MINOR_VERSION));
+   programmable_pipeline = (d->flags & A5O_PROGRAMMABLE_PIPELINE);
+   major_version = extras->settings[A5O_OPENGL_MAJOR_VERSION];
+   minor_version = extras->settings[A5O_OPENGL_MINOR_VERSION];
+   is_required_major = (extras->required & ((int64_t)1 << A5O_OPENGL_MAJOR_VERSION));
+   is_required_minor = (extras->required & ((int64_t)1 << A5O_OPENGL_MINOR_VERSION));
+   is_suggested_major = (extras->suggested & ((int64_t)1 << A5O_OPENGL_MAJOR_VERSION));
+   is_suggested_minor = (extras->suggested & ((int64_t)1 << A5O_OPENGL_MINOR_VERSION));
 
    if (!is_required_major && !is_suggested_major) // "don't care"
       major_version = 0;
    if (!is_required_minor && !is_suggested_minor)
       minor_version = 0;
 
-   ALLEGRO_DEBUG("calling egl_createContext");
+   A5O_DEBUG("calling egl_createContext");
    ret = _jni_callIntMethodV(env, display->surface_object,
       "egl_createContext", "(IZIIZZ)I", config_index, programmable_pipeline,
       major_version, minor_version, is_required_major, is_required_minor);
    if (!ret) {
       // XXX should probably destroy the AllegroSurface here
-      ALLEGRO_ERROR("failed to create egl context!");
+      A5O_ERROR("failed to create egl context!");
       display->failed = true;
       return false;
    }
 
-   ALLEGRO_DEBUG("calling egl_createSurface");
+   A5O_DEBUG("calling egl_createSurface");
    if (!_jni_callBooleanMethodV(env, display->surface_object,
          "egl_createSurface", "()Z"))
    {
       // XXX should probably destroy the AllegroSurface here
-      ALLEGRO_ERROR("failed to create egl surface!");
+      A5O_ERROR("failed to create egl surface!");
       display->failed = true;
       return false;
    }
 
-   ALLEGRO_DEBUG("initialize ogl extensions");
+   A5O_DEBUG("initialize ogl extensions");
    _al_ogl_manage_extensions(d);
    _al_ogl_set_extensions(d->ogl_extras->extension_api);
 
@@ -323,28 +323,28 @@ static bool _al_android_init_display(JNIEnv *env,
 
 /* implementation helpers */
 
-static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d,
+static void _al_android_resize_display(A5O_DISPLAY_ANDROID *d,
    int width, int height)
 {
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+   A5O_DISPLAY *display = (A5O_DISPLAY *)d;
    bool emitted_event = true;
 
-   ALLEGRO_DEBUG("display resize");
+   A5O_DEBUG("display resize");
 
    d->resize_acknowledge = false;
    d->resize_acknowledge2 = false;
 
-   ALLEGRO_DEBUG("locking mutex");
+   A5O_DEBUG("locking mutex");
    al_lock_mutex(d->mutex);
-   ALLEGRO_DEBUG("done locking mutex");
+   A5O_DEBUG("done locking mutex");
 
-   ALLEGRO_DEBUG("locking display event source: %p", d);
+   A5O_DEBUG("locking display event source: %p", d);
    _al_event_source_lock(&display->es);
 
-   ALLEGRO_DEBUG("check generate event");
+   A5O_DEBUG("check generate event");
    if(_al_event_source_needs_to_generate_event(&display->es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_RESIZE;
       event.display.timestamp = al_current_time();
       event.display.x = 0; // FIXME: probably not correct
       event.display.y = 0;
@@ -357,23 +357,23 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d,
       emitted_event = false;
    }
 
-   ALLEGRO_DEBUG("unlocking display event source");
+   A5O_DEBUG("unlocking display event source");
    _al_event_source_unlock(&display->es);
 
    if (emitted_event) {
-      ALLEGRO_DEBUG("waiting for display resize acknowledge");
+      A5O_DEBUG("waiting for display resize acknowledge");
       while (!d->resize_acknowledge) {
-         ALLEGRO_DEBUG("calling al_wait_cond");
+         A5O_DEBUG("calling al_wait_cond");
          al_wait_cond(d->cond, d->mutex);
       }
       al_unlock_mutex(d->mutex);
-      ALLEGRO_DEBUG("done waiting for display resize acknowledge");
+      A5O_DEBUG("done waiting for display resize acknowledge");
    }
 
    display->w = width;
    display->h = height;
 
-   ALLEGRO_DEBUG("resize backbuffer");
+   A5O_DEBUG("resize backbuffer");
    _al_ogl_setup_gl(display);
 
    if (emitted_event) {
@@ -383,39 +383,39 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d,
 
    al_unlock_mutex(d->mutex);
 
-   ALLEGRO_DEBUG("done");
+   A5O_DEBUG("done");
 }
 
-static void call_initRequiredAttribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
+static void call_initRequiredAttribs(JNIEnv *env, A5O_DISPLAY_ANDROID *d)
 {
    _jni_callVoidMethodV(env, d->surface_object,
       "egl_initRequiredAttribs", "()V");
 }
 
-static void call_setRequiredAttrib(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
+static void call_setRequiredAttrib(JNIEnv *env, A5O_DISPLAY_ANDROID *d,
    int attr, int value)
 {
    _jni_callVoidMethodV(env, d->surface_object,
       "egl_setRequiredAttrib", "(II)V", attr, value);
 }
 
-static int call_chooseConfig(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
+static int call_chooseConfig(JNIEnv *env, A5O_DISPLAY_ANDROID *d)
 {
-   bool pp = (d->display.flags & ALLEGRO_PROGRAMMABLE_PIPELINE);
+   bool pp = (d->display.flags & A5O_PROGRAMMABLE_PIPELINE);
    return _jni_callIntMethodV(env, d->surface_object,
       "egl_chooseConfig", "(Z)I", pp);
 }
 
-static void call_getConfigAttribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
-   int configIndex, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+static void call_getConfigAttribs(JNIEnv *env, A5O_DISPLAY_ANDROID *d,
+   int configIndex, A5O_EXTRA_DISPLAY_SETTINGS *eds)
 {
    jintArray jArray;
    jint *ptr;
    int i;
 
-   jArray = (*env)->NewIntArray(env, ALLEGRO_DISPLAY_OPTIONS_COUNT);
+   jArray = (*env)->NewIntArray(env, A5O_DISPLAY_OPTIONS_COUNT);
    if (jArray == NULL) {
-      ALLEGRO_ERROR("NewIntArray failed\n");
+      A5O_ERROR("NewIntArray failed\n");
       return;
    }
 
@@ -423,15 +423,15 @@ static void call_getConfigAttribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
       "egl_getConfigAttribs", "(I[I)V", configIndex, jArray);
 
    ptr = (*env)->GetIntArrayElements(env, jArray, 0);
-   for (i = 0; i < ALLEGRO_DISPLAY_OPTIONS_COUNT; i++) {
+   for (i = 0; i < A5O_DISPLAY_OPTIONS_COUNT; i++) {
       eds->settings[i] = ptr[i];
    }
 
    (*env)->ReleaseIntArrayElements(env, jArray, ptr, 0);
 }
 
-static void set_required_attribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
+static void set_required_attribs(JNIEnv *env, A5O_DISPLAY_ANDROID *d,
+   A5O_EXTRA_DISPLAY_SETTINGS *ref)
 {
    #define MAYBE_SET(v)                                                       \
       do {                                                                    \
@@ -441,33 +441,33 @@ static void set_required_attribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
          }                                                                    \
       } while (0)
 
-   MAYBE_SET(ALLEGRO_RED_SIZE);
-   MAYBE_SET(ALLEGRO_GREEN_SIZE);
-   MAYBE_SET(ALLEGRO_BLUE_SIZE);
-   MAYBE_SET(ALLEGRO_ALPHA_SIZE);
-   MAYBE_SET(ALLEGRO_COLOR_SIZE);
-   MAYBE_SET(ALLEGRO_DEPTH_SIZE);
-   MAYBE_SET(ALLEGRO_STENCIL_SIZE);
-   MAYBE_SET(ALLEGRO_SAMPLE_BUFFERS);
-   MAYBE_SET(ALLEGRO_SAMPLES);
+   MAYBE_SET(A5O_RED_SIZE);
+   MAYBE_SET(A5O_GREEN_SIZE);
+   MAYBE_SET(A5O_BLUE_SIZE);
+   MAYBE_SET(A5O_ALPHA_SIZE);
+   MAYBE_SET(A5O_COLOR_SIZE);
+   MAYBE_SET(A5O_DEPTH_SIZE);
+   MAYBE_SET(A5O_STENCIL_SIZE);
+   MAYBE_SET(A5O_SAMPLE_BUFFERS);
+   MAYBE_SET(A5O_SAMPLES);
 
    #undef MAYBE_SET
 }
 
 static int select_best_visual_and_update(JNIEnv *env,
-   ALLEGRO_DISPLAY_ANDROID *d)
+   A5O_DISPLAY_ANDROID *d)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref = &main_thread_display_settings;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
+   A5O_EXTRA_DISPLAY_SETTINGS *ref = &main_thread_display_settings;
+   A5O_EXTRA_DISPLAY_SETTINGS **eds = NULL;
    int num_configs;
    int chosen_index;
    int i;
 
-   ALLEGRO_DEBUG("Setting required display settings.\n");
+   A5O_DEBUG("Setting required display settings.\n");
    call_initRequiredAttribs(env, d);
    set_required_attribs(env, d, ref);
 
-   ALLEGRO_DEBUG("Calling eglChooseConfig.\n");
+   A5O_DEBUG("Calling eglChooseConfig.\n");
    num_configs = call_chooseConfig(env, d);
    if (num_configs < 1) {
       return -1;
@@ -480,20 +480,20 @@ static int select_best_visual_and_update(JNIEnv *env,
 
       call_getConfigAttribs(env, d, i, eds[i]);
 
-      eds[i]->settings[ALLEGRO_RENDER_METHOD] = 1;
-      eds[i]->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
-      eds[i]->settings[ALLEGRO_SWAP_METHOD] = 2;
-      eds[i]->settings[ALLEGRO_VSYNC] = 1;
+      eds[i]->settings[A5O_RENDER_METHOD] = 1;
+      eds[i]->settings[A5O_COMPATIBLE_DISPLAY] = 1;
+      eds[i]->settings[A5O_SWAP_METHOD] = 2;
+      eds[i]->settings[A5O_VSYNC] = 1;
 
       eds[i]->index = i;
       eds[i]->score = _al_score_display_settings(eds[i], ref);
    }
 
-   ALLEGRO_DEBUG("Sorting configs.\n");
+   A5O_DEBUG("Sorting configs.\n");
    qsort(eds, num_configs, sizeof(*eds), _al_display_settings_sorter);
 
    chosen_index = eds[0]->index;
-   ALLEGRO_INFO("Chose config %i\n", chosen_index);
+   A5O_INFO("Chose config %i\n", chosen_index);
 
    d->display.extra_settings = *eds[0];
 
@@ -508,11 +508,11 @@ static int select_best_visual_and_update(JNIEnv *env,
 
 /* driver implementation hooks */
 
-static bool android_set_display_flag(ALLEGRO_DISPLAY *dpy, int flag, bool onoff)
+static bool android_set_display_flag(A5O_DISPLAY *dpy, int flag, bool onoff)
 {
    (void)dpy; (void)flag; (void)onoff;
 
-   if (flag == ALLEGRO_FRAMELESS) {
+   if (flag == A5O_FRAMELESS) {
       _jni_callVoidMethodV(_al_android_get_jnienv(),
          _al_android_activity_object(), "setAllegroFrameless", "(Z)V", onoff);
    }
@@ -520,22 +520,22 @@ static bool android_set_display_flag(ALLEGRO_DISPLAY *dpy, int flag, bool onoff)
    return false;
 }
 
-static ALLEGRO_DISPLAY *android_create_display(int w, int h)
+static A5O_DISPLAY *android_create_display(int w, int h)
 {
-   ALLEGRO_DEBUG("begin");
+   A5O_DEBUG("begin");
 
    int flags = al_get_new_display_flags();
-#ifndef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
-   if (flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      ALLEGRO_WARN("Programmable pipeline support not built.\n");
+#ifndef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (flags & A5O_PROGRAMMABLE_PIPELINE) {
+      A5O_WARN("Programmable pipeline support not built.\n");
       return NULL;
    }
 #endif
 
-   ALLEGRO_DISPLAY_ANDROID *d = al_malloc(sizeof *d);
-   ALLEGRO_DISPLAY *display = (void *)d;
+   A5O_DISPLAY_ANDROID *d = al_malloc(sizeof *d);
+   A5O_DISPLAY *display = (void *)d;
 
-   ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
+   A5O_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
    memset(d, 0, sizeof *d);
    memset(ogl, 0, sizeof *ogl);
    display->ogl_extras = ogl;
@@ -544,12 +544,12 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    display->h = h;
    display->flags = flags;
 
-   display->flags |= ALLEGRO_OPENGL;
-#ifdef ALLEGRO_CFG_OPENGLES2
-   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   display->flags |= A5O_OPENGL;
+#ifdef A5O_CFG_OPENGLES2
+   display->flags |= A5O_PROGRAMMABLE_PIPELINE;
 #endif
-#ifdef ALLEGRO_CFG_OPENGLES
-   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#ifdef A5O_CFG_OPENGLES
+   display->flags |= A5O_OPENGL_ES_PROFILE;
 #endif
 
    _al_event_source_init(&display->es);
@@ -565,10 +565,10 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    d->first_run = true;
    d->failed = false;
 
-   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
+   A5O_SYSTEM *system = (void *)al_get_system_driver();
    ASSERT(system != NULL);
 
-   ALLEGRO_DISPLAY_ANDROID **add;
+   A5O_DISPLAY_ANDROID **add;
    add = _al_vector_alloc_back(&system->displays);
    *add = d;
 
@@ -578,48 +578,48 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    _al_android_create_surface(_al_android_get_jnienv(), true);
 
    // wait for sizing to happen
-   ALLEGRO_DEBUG("waiting for surface onChange");
+   A5O_DEBUG("waiting for surface onChange");
    while (!d->created && !d->failed) {
       al_wait_cond(d->cond, d->mutex);
    }
    al_unlock_mutex(d->mutex);
-   ALLEGRO_DEBUG("done waiting for surface onChange");
+   A5O_DEBUG("done waiting for surface onChange");
 
    if (d->failed) {
-      ALLEGRO_DEBUG("Display creation failed");
+      A5O_DEBUG("Display creation failed");
       _al_vector_find_and_delete(&system->displays, &d);
       al_free(ogl);
       al_free(d);
       return NULL;
    }
 
-   ALLEGRO_DEBUG("display: %p %ix%i", display, display->w, display->h);
+   A5O_DEBUG("display: %p %ix%i", display, display->w, display->h);
 
    _al_android_clear_current(_al_android_get_jnienv(), d);
    _al_android_make_current(_al_android_get_jnienv(), d);
 
    /* Don't need to repeat what this does */
-   android_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS,
-      al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
+   android_set_display_option(display, A5O_SUPPORTED_ORIENTATIONS,
+      al_get_new_display_option(A5O_SUPPORTED_ORIENTATIONS, NULL));
 
    /* Fill in opengl version */
    const int v = d->display.ogl_extras->ogl_info.version;
-   d->display.extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
-   d->display.extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+   d->display.extra_settings.settings[A5O_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   d->display.extra_settings.settings[A5O_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
 
-   if (flags & ALLEGRO_FRAMELESS) {
-      android_set_display_flag(display, ALLEGRO_FRAMELESS, true);
+   if (flags & A5O_FRAMELESS) {
+      android_set_display_flag(display, A5O_FRAMELESS, true);
    }
 
-   ALLEGRO_DEBUG("end");
+   A5O_DEBUG("end");
    return display;
 }
 
-static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
+static void android_destroy_display(A5O_DISPLAY *dpy)
 {
-   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID*)dpy;
+   A5O_DISPLAY_ANDROID *d = (A5O_DISPLAY_ANDROID*)dpy;
 
-   ALLEGRO_DEBUG("clear current");
+   A5O_DEBUG("clear current");
 
    if (!d->created) {
       // if nativeOnDestroy was called (the app switched out) and
@@ -649,43 +649,43 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
 
 already_deleted:
    // XXX: this causes a crash, no idea why as of yet
-   //ALLEGRO_DEBUG("destroy backbuffer");
+   //A5O_DEBUG("destroy backbuffer");
    //_al_ogl_destroy_backbuffer(al_get_backbuffer(dpy));
 
-   ALLEGRO_DEBUG("destroy mutex");
+   A5O_DEBUG("destroy mutex");
    al_destroy_mutex(d->mutex);
 
-   ALLEGRO_DEBUG("destroy cond");
+   A5O_DEBUG("destroy cond");
    al_destroy_cond(d->cond);
 
-   ALLEGRO_DEBUG("free ogl_extras");
+   A5O_DEBUG("free ogl_extras");
    al_free(dpy->ogl_extras);
 
-   ALLEGRO_DEBUG("remove display from system list");
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   A5O_DEBUG("remove display from system list");
+   A5O_SYSTEM *s = al_get_system_driver();
    _al_vector_find_and_delete(&s->displays, &d);
 
    _al_vector_free(&dpy->bitmaps);
    al_free(dpy->vertex_cache);
 
-   ALLEGRO_DEBUG("free display");
+   A5O_DEBUG("free display");
    al_free(d);
 
-   ALLEGRO_DEBUG("done");
+   A5O_DEBUG("done");
 }
 
-static bool android_set_current_display(ALLEGRO_DISPLAY *dpy)
+static bool android_set_current_display(A5O_DISPLAY *dpy)
 {
-   ALLEGRO_DEBUG("make current %p", dpy);
+   A5O_DEBUG("make current %p", dpy);
 
    if (al_get_current_display() != NULL){
      _al_android_clear_current(_al_android_get_jnienv(),
-        (ALLEGRO_DISPLAY_ANDROID *)al_get_current_display());
+        (A5O_DISPLAY_ANDROID *)al_get_current_display());
    }
 
    if (dpy) {
       _al_android_make_current(_al_android_get_jnienv(),
-         (ALLEGRO_DISPLAY_ANDROID *)dpy);
+         (A5O_DISPLAY_ANDROID *)dpy);
    }
 
    _al_ogl_update_render_state(dpy);
@@ -693,32 +693,32 @@ static bool android_set_current_display(ALLEGRO_DISPLAY *dpy)
    return true;
 }
 
-static void android_unset_current_display(ALLEGRO_DISPLAY *dpy)
+static void android_unset_current_display(A5O_DISPLAY *dpy)
 {
-   ALLEGRO_DEBUG("unset current %p", dpy);
+   A5O_DEBUG("unset current %p", dpy);
    _al_android_clear_current(_al_android_get_jnienv(),
-      (ALLEGRO_DISPLAY_ANDROID *)dpy);
+      (A5O_DISPLAY_ANDROID *)dpy);
 }
 
-static void android_flip_display(ALLEGRO_DISPLAY *dpy)
+static void android_flip_display(A5O_DISPLAY *dpy)
 {
    // Some Androids crash if you swap buffers with an fbo bound
    // so temporarily change target to the backbuffer.
-   ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
+   A5O_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_backbuffer(dpy);
 
    _jni_callVoidMethod(_al_android_get_jnienv(),
-      ((ALLEGRO_DISPLAY_ANDROID *)dpy)->surface_object, "egl_SwapBuffers");
+      ((A5O_DISPLAY_ANDROID *)dpy)->surface_object, "egl_SwapBuffers");
 
    al_set_target_bitmap(old_target);
 
-   /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are
+   /* Backup bitmaps created without A5O_NO_PRESERVE_TEXTURE that are
     * dirty, to system memory.
     */
    al_backup_dirty_bitmaps(dpy);
 }
 
-static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y,
+static void android_update_display_region(A5O_DISPLAY *dpy, int x, int y,
    int width, int height)
 {
    (void)x;
@@ -728,49 +728,49 @@ static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y,
    android_flip_display(dpy);
 }
 
-static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
+static bool android_acknowledge_resize(A5O_DISPLAY *dpy)
 {
-   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
+   A5O_DISPLAY_ANDROID *d = (A5O_DISPLAY_ANDROID *)dpy;
 
-   ALLEGRO_DEBUG("clear current context");
+   A5O_DEBUG("clear current context");
    _al_android_clear_current(_al_android_get_jnienv(), d);
 
-   ALLEGRO_DEBUG("locking mutex");
+   A5O_DEBUG("locking mutex");
    al_lock_mutex(d->mutex);
    d->resize_acknowledge = true;
    al_broadcast_cond(d->cond);
-   ALLEGRO_DEBUG("broadcasted condvar");
+   A5O_DEBUG("broadcasted condvar");
 
-   ALLEGRO_DEBUG("waiting for display resize acknowledge 2");
+   A5O_DEBUG("waiting for display resize acknowledge 2");
    while (!d->resize_acknowledge2)  {
-      ALLEGRO_DEBUG("calling al_wait_cond");
+      A5O_DEBUG("calling al_wait_cond");
       al_wait_cond(d->cond, d->mutex);
    }
    al_unlock_mutex(d->mutex);
-   ALLEGRO_DEBUG("done waiting for display resize acknowledge 2");
+   A5O_DEBUG("done waiting for display resize acknowledge 2");
 
-   ALLEGRO_DEBUG("acquire context");
+   A5O_DEBUG("acquire context");
    _al_android_make_current(_al_android_get_jnienv(), d);
 
-   ALLEGRO_DEBUG("done");
+   A5O_DEBUG("done");
    return true;
 }
 
-static int android_get_orientation(ALLEGRO_DISPLAY *dpy)
+static int android_get_orientation(A5O_DISPLAY *dpy)
 {
    (void)dpy;
    return _al_android_get_display_orientation();
 }
 
-static bool android_is_compatible_bitmap(ALLEGRO_DISPLAY *dpy,
-   ALLEGRO_BITMAP *bmp)
+static bool android_is_compatible_bitmap(A5O_DISPLAY *dpy,
+   A5O_BITMAP *bmp)
 {
    (void)dpy;
    (void)bmp;
    return true;
 }
 
-static bool android_resize_display(ALLEGRO_DISPLAY *dpy, int w, int h)
+static bool android_resize_display(A5O_DISPLAY *dpy, int w, int h)
 {
    (void)dpy;
    (void)w;
@@ -778,85 +778,85 @@ static bool android_resize_display(ALLEGRO_DISPLAY *dpy, int w, int h)
    return false;
 }
 
-static void android_set_icons(ALLEGRO_DISPLAY *dpy, int num_icons,
-   ALLEGRO_BITMAP *bmps[])
+static void android_set_icons(A5O_DISPLAY *dpy, int num_icons,
+   A5O_BITMAP *bmps[])
 {
    (void)dpy;
    (void)num_icons;
    (void)bmps;
 }
 
-static void android_set_window_title(ALLEGRO_DISPLAY *dpy, const char *title)
+static void android_set_window_title(A5O_DISPLAY *dpy, const char *title)
 {
    (void)dpy; (void)title;
 }
 
-static void android_set_window_position(ALLEGRO_DISPLAY *dpy, int x, int y)
+static void android_set_window_position(A5O_DISPLAY *dpy, int x, int y)
 {
    (void)dpy;
    (void)x;
    (void)y;
 }
 
-static void android_get_window_position(ALLEGRO_DISPLAY *dpy, int *x, int *y)
+static void android_get_window_position(A5O_DISPLAY *dpy, int *x, int *y)
 {
    (void)dpy;
    *x = *y = 0;
 }
 
-static bool android_wait_for_vsync(ALLEGRO_DISPLAY *dpy)
+static bool android_wait_for_vsync(A5O_DISPLAY *dpy)
 {
    (void)dpy;
    return false;
 }
 
-static bool android_set_mouse_cursor(ALLEGRO_DISPLAY *dpy,
-   ALLEGRO_MOUSE_CURSOR *cursor)
+static bool android_set_mouse_cursor(A5O_DISPLAY *dpy,
+   A5O_MOUSE_CURSOR *cursor)
 {
    (void)dpy; (void)cursor;
    return false;
 }
 
-static bool android_set_system_mouse_cursor(ALLEGRO_DISPLAY *dpy,
-   ALLEGRO_SYSTEM_MOUSE_CURSOR id)
+static bool android_set_system_mouse_cursor(A5O_DISPLAY *dpy,
+   A5O_SYSTEM_MOUSE_CURSOR id)
 {
    (void)dpy; (void)id;
    return false;
 }
 
-static bool android_show_mouse_cursor(ALLEGRO_DISPLAY *dpy)
+static bool android_show_mouse_cursor(A5O_DISPLAY *dpy)
 {
    (void)dpy;
    return false;
 }
 
-static bool android_hide_mouse_cursor(ALLEGRO_DISPLAY *dpy)
+static bool android_hide_mouse_cursor(A5O_DISPLAY *dpy)
 {
    (void)dpy;
    return false;
 }
 
-static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
+static void android_acknowledge_drawing_halt(A5O_DISPLAY *dpy)
 {
    int i;
-   ALLEGRO_DEBUG("android_acknowledge_drawing_halt");
+   A5O_DEBUG("android_acknowledge_drawing_halt");
 
    for (i = 0; i < (int)dpy->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
-      ALLEGRO_BITMAP *bmp = *bptr;
+      A5O_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
+      A5O_BITMAP *bmp = *bptr;
       int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
+         !(bitmap_flags & A5O_MEMORY_BITMAP))
       {
-         ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
+         A5O_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
          al_remove_opengl_fbo(bmp);
          glDeleteTextures(1, &extra->texture);
          extra->texture = 0;
       }
    }
 
-   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
+   A5O_DISPLAY_ANDROID *d = (A5O_DISPLAY_ANDROID *)dpy;
 
    _al_android_clear_current(_al_android_get_jnienv(), d);
 
@@ -866,31 +866,31 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
    al_broadcast_cond(d->cond);
    al_unlock_mutex(d->mutex);
 
-   ALLEGRO_DEBUG("acknowledged drawing halt");
+   A5O_DEBUG("acknowledged drawing halt");
 }
 
-static void android_broadcast_resume(ALLEGRO_DISPLAY_ANDROID *d)
+static void android_broadcast_resume(A5O_DISPLAY_ANDROID *d)
 {
-   ALLEGRO_DEBUG("Broadcasting resume");
+   A5O_DEBUG("Broadcasting resume");
    d->resumed = true;
    al_broadcast_cond(d->cond);
-   ALLEGRO_DEBUG("done broadcasting resume");
+   A5O_DEBUG("done broadcasting resume");
 }
 
-static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
+static void android_acknowledge_drawing_resume(A5O_DISPLAY *dpy)
 {
    unsigned i;
 
-   ALLEGRO_DEBUG("begin");
+   A5O_DEBUG("begin");
 
-   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
+   A5O_DISPLAY_ANDROID *d = (A5O_DISPLAY_ANDROID *)dpy;
 
    _al_android_clear_current(_al_android_get_jnienv(), d);
    _al_android_make_current(_al_android_get_jnienv(), d);
 
-   ALLEGRO_DEBUG("made current");
+   A5O_DEBUG("made current");
 
-   if (dpy->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+   if (dpy->flags & A5O_PROGRAMMABLE_PIPELINE) {
       dpy->default_shader = _al_create_default_shader(dpy);
    }
 
@@ -903,17 +903,17 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    // Restore bitmaps
    // have to get this because new bitmaps could be created below
    for (i = 0; i < _al_vector_size(&dpy->bitmaps); i++) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
-      ALLEGRO_BITMAP *bmp = *bptr;
+      A5O_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
+      A5O_BITMAP *bmp = *bptr;
       int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
+         !(bitmap_flags & A5O_MEMORY_BITMAP))
       {
          int format = al_get_bitmap_format(bmp);
-         format = _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
+         format = _al_pixel_format_is_compressed(format) ? A5O_PIXEL_FORMAT_ABGR_8888_LE : format;
 
-         if (!(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+         if (!(bitmap_flags & A5O_NO_PRESERVE_TEXTURE))
             _al_ogl_upload_bitmap_memory(bmp, format, bmp->memory);
          else
             _al_ogl_upload_bitmap_memory(bmp, format, NULL);
@@ -924,21 +924,21 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
 
    android_broadcast_resume(d);
 
-   ALLEGRO_DEBUG("acknowledge_drawing_resume end");
+   A5O_DEBUG("acknowledge_drawing_resume end");
 }
 
-static void android_set_display_option(ALLEGRO_DISPLAY *d, int o, int v)
+static void android_set_display_option(A5O_DISPLAY *d, int o, int v)
 {
    (void)d;
 
-   if (o == ALLEGRO_SUPPORTED_ORIENTATIONS) {
+   if (o == A5O_SUPPORTED_ORIENTATIONS) {
       _jni_callVoidMethodV(_al_android_get_jnienv(),
          _al_android_activity_object(), "setAllegroOrientation", "(I)V", v);
    }
 }
 
 /* obtain a reference to the android driver */
-ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
+A5O_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
 {
    if (vt)
       return vt;

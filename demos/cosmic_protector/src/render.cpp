@@ -3,7 +3,7 @@
 #include <ctime>
 
 static float waveAngle = 0.0f;
-static ALLEGRO_BITMAP *waveBitmap = 0;
+static A5O_BITMAP *waveBitmap = 0;
 static float bgx = 0;
 static float bgy = 0;
 static int shakeUpdateCount = 0;
@@ -16,7 +16,7 @@ static void renderWave(void)
    int w = al_get_bitmap_width(waveBitmap);
    int h = al_get_bitmap_height(waveBitmap);
 
-   float a = waveAngle + ALLEGRO_PI/2;
+   float a = waveAngle + A5O_PI/2;
 
    int x = (int)(BB_W/2 + 64*cos(a));
    int y = (int)(BB_H/2 + 64*sin(a));
@@ -39,7 +39,7 @@ void showWave(int num)
 
    ResourceManager& rm = ResourceManager::getInstance();
 
-   ALLEGRO_FONT *myfont = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
+   A5O_FONT *myfont = (A5O_FONT *)rm.getData(RES_LARGEFONT);
    
    char text[20];
    sprintf(text, "WAVE %d", num);
@@ -48,13 +48,13 @@ void showWave(int num)
    int h = al_get_font_line_height(myfont);
 
    waveBitmap = al_create_bitmap(w, h);
-   ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
+   A5O_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(waveBitmap);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    al_draw_textf(myfont, al_map_rgb(255, 255, 255), 0, 0, 0, "%s", text);
    al_set_target_bitmap(old_target);
 
-   waveAngle = (ALLEGRO_PI*2);
+   waveAngle = (A5O_PI*2);
 }
 
 void shake(void)
@@ -68,14 +68,14 @@ void shake(void)
 
 void render(int step)
 {
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
    if (switched_out)
       return;
 #endif
 
    ResourceManager& rm = ResourceManager::getInstance();
 
-   ALLEGRO_BITMAP *bg = (ALLEGRO_BITMAP *)rm.getData(RES_BACKGROUND);
+   A5O_BITMAP *bg = (A5O_BITMAP *)rm.getData(RES_BACKGROUND);
 
    if (shakeUpdateCount > 0) {
       shakeUpdateCount -= step;
@@ -107,9 +107,9 @@ void render(int step)
       Entity *e = *it;
       e->render_four(al_map_rgb(255, 255, 255));
       if (e->isHighlighted()) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ALPHA, A5O_ONE);
          e->render_four(al_map_rgb(150, 150, 150));
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       }
    }
 
@@ -125,7 +125,7 @@ void render(int step)
       }
    }
    
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
    Input *input = (Input *)rm.getData(RES_INPUT);
    input->draw();
       

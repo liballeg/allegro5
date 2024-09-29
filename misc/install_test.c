@@ -26,8 +26,8 @@ int main() {
    int release = version & 255;
 
    fprintf(stderr, "Library version: %d.%d.%d.%d\n", major, minor, revision, release);
-   fprintf(stderr, "Header version: %d.%d.%d.%d\n", ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION, ALLEGRO_RELEASE_NUMBER);
-   fprintf(stderr, "Header version string: %s\n", ALLEGRO_VERSION_STR);
+   fprintf(stderr, "Header version: %d.%d.%d.%d\n", A5O_VERSION, A5O_SUB_VERSION, A5O_WIP_VERSION, A5O_RELEASE_NUMBER);
+   fprintf(stderr, "Header version string: %s\n", A5O_VERSION_STR);
 
    if (!al_init()) {
       fprintf(stderr, "Failed to initialize Allegro, probably a header/shared library version mismatch.\n");

@@ -6,7 +6,7 @@
  *    source to communicate back to the main program.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
@@ -14,26 +14,26 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_color.h>
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include <allegro5/allegro_android.h>
 #endif
 
 #include "common.c"
 
 /* To communicate from a separate thread, we need a user event. */
-#define ASYNC_DIALOG_EVENT1   ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', '1')
-#define ASYNC_DIALOG_EVENT2   ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', '2')
+#define ASYNC_DIALOG_EVENT1   A5O_GET_EVENT_TYPE('e', 'N', 'F', '1')
+#define ASYNC_DIALOG_EVENT2   A5O_GET_EVENT_TYPE('e', 'N', 'F', '2')
 
 
 typedef struct
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FILECHOOSER *file_dialog;
-   ALLEGRO_EVENT_SOURCE event_source;
-   ALLEGRO_THREAD *thread;
+   A5O_DISPLAY *display;
+   A5O_FILECHOOSER *file_dialog;
+   A5O_EVENT_SOURCE event_source;
+   A5O_THREAD *thread;
 } AsyncDialog;
 
-ALLEGRO_TEXTLOG *textlog;
+A5O_TEXTLOG *textlog;
 
 static void message(char const *format, ...)
 {
@@ -47,10 +47,10 @@ static void message(char const *format, ...)
 }
 
 /* Our thread to show the native file dialog. */
-static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
+static void *async_file_dialog_thread_func(A5O_THREAD *thread, void *arg)
 {
    AsyncDialog *data = arg;
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    (void)thread;
 
    /* The next line is the heart of this example - we display the
@@ -69,10 +69,10 @@ static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
 
 
 /* A thread to show the message boxes. */
-static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
+static void *message_box_thread(A5O_THREAD *thread, void *arg)
 {
    AsyncDialog *data = arg;
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    int button;
 
    (void)thread;
@@ -80,11 +80,11 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
    button = al_show_native_message_box(data->display, "Warning",
       "Click Detected",
       "That does nothing. Stop clicking there.",
-      "Oh no!|Don't press|Ok", ALLEGRO_MESSAGEBOX_WARN);
+      "Oh no!|Don't press|Ok", A5O_MESSAGEBOX_WARN);
    if (button == 2) {
       button = al_show_native_message_box(data->display, "Error", "Hey!",
          "Stop it! I told you not to click there.",
-         NULL, ALLEGRO_MESSAGEBOX_ERROR);
+         NULL, A5O_MESSAGEBOX_ERROR);
    }
 
    event.user.type = ASYNC_DIALOG_EVENT2;
@@ -95,12 +95,12 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
 
 
 /* Function to start the new thread. */
-static AsyncDialog *spawn_async_file_dialog(ALLEGRO_DISPLAY *display,
+static AsyncDialog *spawn_async_file_dialog(A5O_DISPLAY *display,
                                             const char *initial_path,
                                             bool save)
 {
    AsyncDialog *data = malloc(sizeof *data);
-   int flags = save ? ALLEGRO_FILECHOOSER_SAVE : ALLEGRO_FILECHOOSER_MULTIPLE;
+   int flags = save ? A5O_FILECHOOSER_SAVE : A5O_FILECHOOSER_MULTIPLE;
    const char* title = save ? "Save (no files will be changed)" : "Choose files";
    data->file_dialog = al_create_native_file_dialog(
       initial_path, title, NULL,
@@ -114,7 +114,7 @@ static AsyncDialog *spawn_async_file_dialog(ALLEGRO_DISPLAY *display,
    return data;
 }
 
-static AsyncDialog *spawn_async_message_dialog(ALLEGRO_DISPLAY *display)
+static AsyncDialog *spawn_async_message_dialog(A5O_DISPLAY *display)
 {
    AsyncDialog *data = calloc(1, sizeof *data);
 
@@ -141,10 +141,10 @@ static void stop_async_dialog(AsyncDialog *data)
 
 
 /* Helper function to display the result from a file dialog. */
-static void show_files_list(ALLEGRO_FILECHOOSER *dialog,
-   const ALLEGRO_FONT *font, ALLEGRO_COLOR info)
+static void show_files_list(A5O_FILECHOOSER *dialog,
+   const A5O_FONT *font, A5O_COLOR info)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
    int count = al_get_native_file_dialog_count(dialog);
    int th = al_get_font_line_height(font);
    float x = al_get_bitmap_width(target) / 2;
@@ -153,19 +153,19 @@ static void show_files_list(ALLEGRO_FILECHOOSER *dialog,
 
    for (i = 0; i < count; i++) {
       const char *name = al_get_native_file_dialog_path(dialog, i);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-      al_draw_textf(font, info, x, y + i * th, ALLEGRO_ALIGN_CENTRE, name, 0, 0);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
+      al_draw_textf(font, info, x, y + i * th, A5O_ALIGN_CENTRE, name, 0, 0);
    }
 }
 
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_FONT *font;
-   ALLEGRO_COLOR background, active, inactive, info;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_FONT *font;
+   A5O_COLOR background, active, inactive, info;
    AsyncDialog *old_dialog = NULL;
    AsyncDialog *cur_dialog = NULL;
    AsyncDialog *message_box = NULL;
@@ -202,13 +202,13 @@ int main(int argc, char **argv)
    al_install_keyboard();
     
    if (touch) {
-      al_set_mouse_emulation_mode(ALLEGRO_MOUSE_EMULATION_5_0_x);
+      al_set_mouse_emulation_mode(A5O_MOUSE_EMULATION_5_0_x);
    }
 
    message("Creating window...");
     
-#ifdef ALLEGRO_IPHONE
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+#ifdef A5O_IPHONE
+   al_set_new_display_flags(A5O_FULLSCREEN_WINDOW);
 #endif
 
    display = al_create_display(640, 480);
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
    }
    message("success.\n");
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    al_android_set_apk_file_interface();
 #endif
 
@@ -251,16 +251,16 @@ restart:
    while (1) {
       float h = al_get_display_height(display);
       
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE && !cur_dialog)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE && !cur_dialog)
          break;
 
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+      if (event.type == A5O_EVENT_KEY_DOWN) {
          if (!cur_dialog) {
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE ||
-                event.keyboard.keycode == ALLEGRO_KEY_BACK)
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE ||
+                event.keyboard.keycode == A5O_KEY_BACK)
                break;
          }
       }
@@ -268,7 +268,7 @@ restart:
       /* When a mouse button is pressed, and no native dialog is
        * shown already, we show a new one.
        */
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
           message("Mouse clicked at %d,%d.\n", event.mouse.x, event.mouse.y);
           if (event.mouse.y > 30) {
              if (event.mouse.y > h - 30) {
@@ -328,30 +328,30 @@ restart:
          message_box = NULL;
       }
 
-      if (event.type == ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE) {
+      if (event.type == A5O_EVENT_NATIVE_DIALOG_CLOSE) {
          close_log = true;
       }
 
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          redraw = true;
       }
 
-#ifdef ALLEGRO_ANDROID
-      if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
+#ifdef A5O_ANDROID
+      if (event.type == A5O_EVENT_DISPLAY_HALT_DRAWING) {
          message("Drawing halt");
          halt_drawing = true;
          al_stop_timer(timer);
          al_acknowledge_drawing_halt(display);
       }
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING) {
+      if (event.type == A5O_EVENT_DISPLAY_RESUME_DRAWING) {
          message("Drawing resume");
          al_acknowledge_drawing_resume(display);
          al_resume_timer(timer);
          halt_drawing = false;
       }
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          message("Display resize");
          al_acknowledge_resize(display);
       }
@@ -362,11 +362,11 @@ restart:
          float y = 0;
          redraw = false;
          al_clear_to_color(background);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-         al_draw_textf(font, cur_dialog ? inactive : active, x/2, y, ALLEGRO_ALIGN_CENTRE, "Open");
-         al_draw_textf(font, cur_dialog ? inactive : active, x/2*3, y, ALLEGRO_ALIGN_CENTRE, "Save");
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
+         al_draw_textf(font, cur_dialog ? inactive : active, x/2, y, A5O_ALIGN_CENTRE, "Open");
+         al_draw_textf(font, cur_dialog ? inactive : active, x/2*3, y, A5O_ALIGN_CENTRE, "Save");
          al_draw_textf(font, cur_dialog ? inactive : active, x, h - 30,
-            ALLEGRO_ALIGN_CENTRE, message_log ? "Close Message Log" : "Open Message Log");
+            A5O_ALIGN_CENTRE, message_log ? "Close Message Log" : "Open Message Log");
          if (old_dialog)
             show_files_list(old_dialog->file_dialog, font, info);
          al_flip_display();
@@ -393,7 +393,7 @@ restart:
       " This is your last chance to rethink your decision."
       " Do you really want to quit?",
       NULL,
-      ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION);
+      A5O_MESSAGEBOX_YES_NO | A5O_MESSAGEBOX_QUESTION);
    if (button != 1)
       goto restart;
 

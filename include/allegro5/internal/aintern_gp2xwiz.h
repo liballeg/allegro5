@@ -11,21 +11,21 @@
 
 #include <wiz/castor.h>
 
-typedef struct ALLEGRO_SYSTEM_GP2XWIZ ALLEGRO_SYSTEM_GP2XWIZ;
-typedef struct ALLEGRO_DISPLAY_GP2XWIZ_OGL ALLEGRO_DISPLAY_GP2XWIZ_OGL;
-typedef struct ALLEGRO_DISPLAY_GP2XWIZ_FB ALLEGRO_DISPLAY_GP2XWIZ_FB;
+typedef struct A5O_SYSTEM_GP2XWIZ A5O_SYSTEM_GP2XWIZ;
+typedef struct A5O_DISPLAY_GP2XWIZ_OGL A5O_DISPLAY_GP2XWIZ_OGL;
+typedef struct A5O_DISPLAY_GP2XWIZ_FB A5O_DISPLAY_GP2XWIZ_FB;
 
-struct ALLEGRO_SYSTEM_GP2XWIZ
+struct A5O_SYSTEM_GP2XWIZ
 {
-   ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
+   A5O_SYSTEM system; /* This must be the first member, we "derive" from it. */
 
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS extras;
+   A5O_EXTRA_DISPLAY_SETTINGS extras;
 };
 
-/* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
-struct ALLEGRO_DISPLAY_GP2XWIZ_OGL
+/* This is our version of A5O_DISPLAY with driver specific extra data. */
+struct A5O_DISPLAY_GP2XWIZ_OGL
 {
-   ALLEGRO_DISPLAY display; /* This must be the first member. */
+   A5O_DISPLAY display; /* This must be the first member. */
 
    EGLDisplay egl_display;
    EGLConfig egl_config;
@@ -34,12 +34,12 @@ struct ALLEGRO_DISPLAY_GP2XWIZ_OGL
    NativeWindowType hNativeWnd;
 };
 
-/* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
-struct ALLEGRO_DISPLAY_GP2XWIZ_FB
+/* This is our version of A5O_DISPLAY with driver specific extra data. */
+struct A5O_DISPLAY_GP2XWIZ_FB
 {
-   ALLEGRO_DISPLAY display; /* This must be the first member. */
+   A5O_DISPLAY display; /* This must be the first member. */
 
-   ALLEGRO_BITMAP *backbuffer;
+   A5O_BITMAP *backbuffer;
    /*
     * We create the backbuffer bitmap then points it's ->memory at
     * lc_fb1 (initialized with libcastor. This is a backup of the

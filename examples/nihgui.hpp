@@ -14,13 +14,13 @@ class Widget;
 
 class Theme {
 public:
-   ALLEGRO_COLOR        bg;
-   ALLEGRO_COLOR        fg;
-   ALLEGRO_COLOR        highlight;
-   const ALLEGRO_FONT   *font;
+   A5O_COLOR        bg;
+   A5O_COLOR        fg;
+   A5O_COLOR        highlight;
+   const A5O_FONT   *font;
 
    // Null font is fine if you don't use a widget that requires text.
-   explicit Theme(const ALLEGRO_FONT *font=NULL);
+   explicit Theme(const A5O_FONT *font=NULL);
 };
 
 class Widget {
@@ -59,7 +59,7 @@ public:
    virtual bool   want_key_focus() { return false; }
    virtual void   got_key_focus() {}
    virtual void   lost_key_focus() {}
-   virtual void   on_key_down(const ALLEGRO_KEYBOARD_EVENT & event) {
+   virtual void   on_key_down(const A5O_KEYBOARD_EVENT & event) {
                      (void)event; }
 
    virtual void   draw() = 0;
@@ -72,14 +72,14 @@ public:
 class EventHandler {
 public:
    virtual ~EventHandler() {}
-   virtual void   handle_event(const ALLEGRO_EVENT & event) = 0;
+   virtual void   handle_event(const A5O_EVENT & event) = 0;
 };
 
 class Dialog {
 private:
    const Theme &        theme;
-   ALLEGRO_DISPLAY *    display;
-   ALLEGRO_EVENT_QUEUE *event_queue;
+   A5O_DISPLAY *    display;
+   A5O_EVENT_QUEUE *event_queue;
    int                  grid_m;
    int                  grid_n;
    int                  x_padding;
@@ -96,7 +96,7 @@ private:
    EventHandler *       event_handler;
 
 public:
-   Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
+   Dialog(const Theme & theme, A5O_DISPLAY *display,
       int grid_m, int grid_n);
    ~Dialog();
 
@@ -112,16 +112,16 @@ public:
    void           draw();
    const Theme &  get_theme() const;
 
-   void           register_event_source(ALLEGRO_EVENT_SOURCE *source);
+   void           register_event_source(A5O_EVENT_SOURCE *source);
    void           set_event_handler(EventHandler *handler);
 
 private:
    void           configure_all();
-   void           on_key_down(const ALLEGRO_KEYBOARD_EVENT & event);
-   void           on_mouse_axes(const ALLEGRO_MOUSE_EVENT & event);
+   void           on_key_down(const A5O_KEYBOARD_EVENT & event);
+   void           on_mouse_axes(const A5O_MOUSE_EVENT & event);
    void           check_mouse_over(int mx, int my);
-   void           on_mouse_button_down(const ALLEGRO_MOUSE_EVENT & event);
-   void           on_mouse_button_up(const ALLEGRO_MOUSE_EVENT & event);
+   void           on_mouse_button_down(const A5O_MOUSE_EVENT & event);
+   void           on_mouse_button_up(const A5O_MOUSE_EVENT & event);
 };
 
 /*---------------------------------------------------------------------------*/
@@ -171,7 +171,7 @@ private:
 public:
    List(int initial_selection = 0);
    virtual bool   want_key_focus();
-   virtual void   on_key_down(const ALLEGRO_KEYBOARD_EVENT & event);
+   virtual void   on_key_down(const A5O_KEYBOARD_EVENT & event);
    virtual void   on_click(int mx, int my);
    virtual void   draw();
 
@@ -219,7 +219,7 @@ class TextEntry : public Widget {
 private:
    static const int CURSOR_WIDTH = 8;
 
-   ALLEGRO_USTR   *text;
+   A5O_USTR   *text;
    bool           focused;
    int            cursor_pos;
    int            left_pos;
@@ -231,7 +231,7 @@ public:
    virtual bool   want_key_focus();
    virtual void   got_key_focus();
    virtual void   lost_key_focus();
-   virtual void   on_key_down(const ALLEGRO_KEYBOARD_EVENT & event);
+   virtual void   on_key_down(const A5O_KEYBOARD_EVENT & event);
    virtual void   draw();
 
    const char *   get_text();

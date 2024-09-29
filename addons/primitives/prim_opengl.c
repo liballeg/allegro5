@@ -16,7 +16,7 @@
  *      See readme.txt for copyright information.
  */
 
-#define ALLEGRO_INTERNAL_UNSTABLE
+#define A5O_INTERNAL_UNSTABLE
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
@@ -27,81 +27,81 @@
 #include "allegro5/platform/alplatf.h"
 #include "allegro5/internal/aintern_prim.h"
 
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
 
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-static void convert_storage(ALLEGRO_PRIM_STORAGE storage, GLenum* type, int* ncoord, bool* normalized)
+static void convert_storage(A5O_PRIM_STORAGE storage, GLenum* type, int* ncoord, bool* normalized)
 {
    switch(storage) {
-      case ALLEGRO_PRIM_FLOAT_2:
+      case A5O_PRIM_FLOAT_2:
          *type = GL_FLOAT;
          *ncoord = 2;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_FLOAT_3:
+      case A5O_PRIM_FLOAT_3:
          *type = GL_FLOAT;
          *ncoord = 3;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_SHORT_2:
+      case A5O_PRIM_SHORT_2:
          *type = GL_SHORT;
          *ncoord = 2;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_FLOAT_1:
+      case A5O_PRIM_FLOAT_1:
          *type = GL_FLOAT;
          *ncoord = 1;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_FLOAT_4:
+      case A5O_PRIM_FLOAT_4:
          *type = GL_FLOAT;
          *ncoord = 4;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_UBYTE_4:
+      case A5O_PRIM_UBYTE_4:
          *type = GL_UNSIGNED_BYTE;
          *ncoord = 4;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_SHORT_4:
+      case A5O_PRIM_SHORT_4:
          *type = GL_SHORT;
          *ncoord = 4;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_NORMALIZED_UBYTE_4:
+      case A5O_PRIM_NORMALIZED_UBYTE_4:
          *type = GL_UNSIGNED_BYTE;
          *ncoord = 4;
          *normalized = true;
          break;
-      case ALLEGRO_PRIM_NORMALIZED_SHORT_2:
+      case A5O_PRIM_NORMALIZED_SHORT_2:
          *type = GL_SHORT;
          *ncoord = 2;
          *normalized = true;
          break;
-      case ALLEGRO_PRIM_NORMALIZED_SHORT_4:
+      case A5O_PRIM_NORMALIZED_SHORT_4:
          *type = GL_SHORT;
          *ncoord = 4;
          *normalized = true;
          break;
-      case ALLEGRO_PRIM_NORMALIZED_USHORT_2:
+      case A5O_PRIM_NORMALIZED_USHORT_2:
          *type = GL_UNSIGNED_SHORT;
          *ncoord = 2;
          *normalized = true;
          break;
-      case ALLEGRO_PRIM_NORMALIZED_USHORT_4:
+      case A5O_PRIM_NORMALIZED_USHORT_4:
          *type = GL_UNSIGNED_SHORT;
          *ncoord = 4;
          *normalized = true;
          break;
-#ifndef ALLEGRO_CFG_OPENGLES
-      case ALLEGRO_PRIM_HALF_FLOAT_2:
+#ifndef A5O_CFG_OPENGLES
+      case A5O_PRIM_HALF_FLOAT_2:
          *type = GL_HALF_FLOAT;
          *ncoord = 2;
          *normalized = false;
          break;
-      case ALLEGRO_PRIM_HALF_FLOAT_4:
+      case A5O_PRIM_HALF_FLOAT_4:
          *type = GL_HALF_FLOAT;
          *ncoord = 4;
          *normalized = false;
@@ -112,20 +112,20 @@ static void convert_storage(ALLEGRO_PRIM_STORAGE storage, GLenum* type, int* nco
    }
 }
 
-static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture)
+static void setup_state(const char* vtxs, const A5O_VERTEX_DECL* decl, A5O_BITMAP* texture)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
+   A5O_DISPLAY *display = al_get_current_display();
    GLenum type;
    int ncoord;
    bool normalized;
 
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if(decl) {
-         ALLEGRO_VERTEX_ELEMENT* e;
+         A5O_VERTEX_ELEMENT* e;
          int i;
 
-         e = &decl->elements[ALLEGRO_PRIM_POSITION];
+         e = &decl->elements[A5O_PRIM_POSITION];
          if(e->attribute) {
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
@@ -139,9 +139,9 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             }
          }
 
-         e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+         e = &decl->elements[A5O_PRIM_TEX_COORD];
          if(!e->attribute)
-            e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+            e = &decl->elements[A5O_PRIM_TEX_COORD_PIXEL];
          if(e->attribute) {
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
@@ -155,7 +155,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             }
          }
 
-         e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
+         e = &decl->elements[A5O_PRIM_COLOR_ATTR];
          if(e->attribute) {
             if (display->ogl_extras->varlocs.color_loc >= 0) {
                glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, decl->stride, vtxs + e->offset);
@@ -167,8 +167,8 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             }
          }
 
-         for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
-            e = &decl->elements[ALLEGRO_PRIM_USER_ATTR + i];
+         for (i = 0; i < _A5O_PRIM_MAX_USER_ATTR; i++) {
+            e = &decl->elements[A5O_PRIM_USER_ATTR + i];
             if (e->attribute) {
                convert_storage(e->storage, &type, &ncoord, &normalized);
 
@@ -184,27 +184,27 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          }
       } else {
          if (display->ogl_extras->varlocs.pos_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, 3, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
+            glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, 3, GL_FLOAT, false, sizeof(A5O_VERTEX), vtxs + offsetof(A5O_VERTEX, x));
             glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
          }
          
          if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, 2, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
+            glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, 2, GL_FLOAT, false, sizeof(A5O_VERTEX), vtxs + offsetof(A5O_VERTEX, u));
             glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
          }
          
          if (display->ogl_extras->varlocs.color_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
+            glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, sizeof(A5O_VERTEX), vtxs + offsetof(A5O_VERTEX, color));
             glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
          }
       }
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       if(decl) {
-         ALLEGRO_VERTEX_ELEMENT* e;
-         e = &decl->elements[ALLEGRO_PRIM_POSITION];
+         A5O_VERTEX_ELEMENT* e;
+         e = &decl->elements[A5O_PRIM_POSITION];
          if(e->attribute) {
             glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -215,9 +215,9 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glDisableClientState(GL_VERTEX_ARRAY);
          }
    
-         e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+         e = &decl->elements[A5O_PRIM_TEX_COORD];
          if(!e->attribute)
-            e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+            e = &decl->elements[A5O_PRIM_TEX_COORD_PIXEL];
          if(texture && e->attribute) {
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
    
@@ -228,7 +228,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
          }
    
-         e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
+         e = &decl->elements[A5O_PRIM_COLOR_ATTR];
          if(e->attribute) {
             glEnableClientState(GL_COLOR_ARRAY);
 
@@ -241,12 +241,12 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glEnableClientState(GL_COLOR_ARRAY);
          glEnableClientState(GL_VERTEX_ARRAY);
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-         if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE))
+         if (!(display->flags & A5O_PROGRAMMABLE_PIPELINE))
             glDisableClientState(GL_NORMAL_ARRAY);
    
-         glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
-         glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
-         glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
+         glVertexPointer(3, GL_FLOAT, sizeof(A5O_VERTEX), vtxs + offsetof(A5O_VERTEX, x));
+         glColorPointer(4, GL_FLOAT, sizeof(A5O_VERTEX), vtxs + offsetof(A5O_VERTEX, color));
+         glTexCoordPointer(2, GL_FLOAT, sizeof(A5O_VERTEX), vtxs + offsetof(A5O_VERTEX, u));
       }
 #endif
    }
@@ -275,7 +275,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       mat[3][1] = (float)(height - tex_y) / true_h;
          
       if(decl) {
-         if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+         if(decl->elements[A5O_PRIM_TEX_COORD_PIXEL].attribute) {
             mat[0][0] = 1.0f / true_w;
             mat[1][1] = -1.0f / true_h;
          } else {
@@ -287,15 +287,15 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          mat[1][1] = -1.0f / true_h;
       }
 
-      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+      if (!(display->flags & A5O_PROGRAMMABLE_PIPELINE)) {
          glBindTexture(GL_TEXTURE_2D, gl_texture);
       }
 
-      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      A5O_BITMAP_WRAP wrap_u, wrap_v;
       _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 
-      if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+      if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
          GLint handle;
 
          handle = display->ogl_extras->varlocs.tex_matrix_loc;
@@ -314,44 +314,44 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
             glUniform1i(display->ogl_extras->varlocs.tex_loc, 0); // 0th sampler
 
-            if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            if (wrap_u == A5O_BITMAP_WRAP_DEFAULT)
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            if (wrap_v == A5O_BITMAP_WRAP_DEFAULT)
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
          }
 #endif
       }
       else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
          glMatrixMode(GL_TEXTURE);
          glLoadMatrixf(mat[0]);
          glMatrixMode(GL_MODELVIEW);
          glEnable(GL_TEXTURE_2D);
-         if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+         if (wrap_u == A5O_BITMAP_WRAP_DEFAULT)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-         if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+         if (wrap_v == A5O_BITMAP_WRAP_DEFAULT)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 #endif
       }
    } else {
       /* Don't unbind the texture here if shaders are used, since the user may
        * have set the 0'th texture unit manually via the shader API. */
-      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+      if (!(display->flags & A5O_PROGRAMMABLE_PIPELINE)) {
          glBindTexture(GL_TEXTURE_2D, 0);
       }
    }
 }
 
-static void revert_state(ALLEGRO_BITMAP* texture)
+static void revert_state(A5O_BITMAP* texture)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
+   A5O_DISPLAY *display = al_get_current_display();
 
    if(texture) {
-      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      A5O_BITMAP_WRAP wrap_u, wrap_v;
       _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 
-      if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+      if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
          float identity[16] = {
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -369,18 +369,18 @@ static void revert_state(ALLEGRO_BITMAP* texture)
             glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 0);
 
          if (display->ogl_extras->varlocs.tex_loc >= 0) {
-            if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            if (wrap_u == A5O_BITMAP_WRAP_DEFAULT)
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+            if (wrap_v == A5O_BITMAP_WRAP_DEFAULT)
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
          }
 #endif
       }
       else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
-         if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
+         if (wrap_u == A5O_BITMAP_WRAP_DEFAULT)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-         if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+         if (wrap_v == A5O_BITMAP_WRAP_DEFAULT)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
          glDisable(GL_TEXTURE_2D);
@@ -391,8 +391,8 @@ static void revert_state(ALLEGRO_BITMAP* texture)
       }
    }
 
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.pos_loc >= 0)
          glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
       if (display->ogl_extras->varlocs.color_loc >= 0)
@@ -402,7 +402,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -410,15 +410,15 @@ static void revert_state(ALLEGRO_BITMAP* texture)
    }
 }
 
-static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
-   ALLEGRO_VERTEX_BUFFER* vertex_buffer,
-   const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
+static int draw_prim_raw(A5O_BITMAP* target, A5O_BITMAP* texture,
+   A5O_VERTEX_BUFFER* vertex_buffer,
+   const void* vtx, const A5O_VERTEX_DECL* decl,
    int start, int end, int type)
 {
    int num_primitives = 0;
-   ALLEGRO_DISPLAY *disp = _al_get_bitmap_display(target);
-   ALLEGRO_BITMAP *opengl_target = target;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   A5O_DISPLAY *disp = _al_get_bitmap_display(target);
+   A5O_BITMAP *opengl_target = target;
+   A5O_BITMAP_EXTRA_OPENGL *extra;
    int num_vtx = end - start;
 
    if (target->parent) {
@@ -444,37 +444,37 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    setup_state(vtx, decl, texture);
 
    switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
+      case A5O_PRIM_LINE_LIST: {
          glDrawArrays(GL_LINES, start, num_vtx);
          num_primitives = num_vtx / 2;
          break;
       };
-      case ALLEGRO_PRIM_LINE_STRIP: {
+      case A5O_PRIM_LINE_STRIP: {
          glDrawArrays(GL_LINE_STRIP, start, num_vtx);
          num_primitives = num_vtx - 1;
          break;
       };
-      case ALLEGRO_PRIM_LINE_LOOP: {
+      case A5O_PRIM_LINE_LOOP: {
          glDrawArrays(GL_LINE_LOOP, start, num_vtx);
          num_primitives = num_vtx;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+      case A5O_PRIM_TRIANGLE_LIST: {
          glDrawArrays(GL_TRIANGLES, start, num_vtx);
          num_primitives = num_vtx / 3;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+      case A5O_PRIM_TRIANGLE_STRIP: {
          glDrawArrays(GL_TRIANGLE_STRIP, start, num_vtx);
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+      case A5O_PRIM_TRIANGLE_FAN: {
          glDrawArrays(GL_TRIANGLE_FAN, start, num_vtx);
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_POINT_LIST: {
+      case A5O_PRIM_POINT_LIST: {
          glDrawArrays(GL_POINTS, start, num_vtx);
          num_primitives = num_vtx;
          break;
@@ -490,23 +490,23 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    return num_primitives;
 }
 
-static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
-   ALLEGRO_VERTEX_BUFFER* vertex_buffer,
-   const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
-   ALLEGRO_INDEX_BUFFER* index_buffer,
+static int draw_prim_indexed_raw(A5O_BITMAP* target, A5O_BITMAP* texture,
+   A5O_VERTEX_BUFFER* vertex_buffer,
+   const void* vtx, const A5O_VERTEX_DECL* decl,
+   A5O_INDEX_BUFFER* index_buffer,
    const int* indices,
    int start, int end, int type)
 {
    int num_primitives = 0;
-   ALLEGRO_DISPLAY *disp = _al_get_bitmap_display(target);
-   ALLEGRO_BITMAP *opengl_target = target;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   A5O_DISPLAY *disp = _al_get_bitmap_display(target);
+   A5O_BITMAP *opengl_target = target;
+   A5O_BITMAP_EXTRA_OPENGL *extra;
    const char* idx = (const char*)indices;
    int start_offset = 0;
    GLenum idx_size = GL_UNSIGNED_INT;
    bool use_buffers = index_buffer != NULL;
    int num_vtx = end - start;
-#if defined ALLEGRO_IPHONE
+#if defined A5O_IPHONE
    GLushort* iphone_idx = NULL;
 #endif
 
@@ -530,7 +530,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
       }
    }
 
-#if defined ALLEGRO_IPHONE
+#if defined A5O_IPHONE
    if (!use_buffers) {
       int ii;
       iphone_idx = al_malloc(num_vtx * sizeof(GLushort));
@@ -553,36 +553,36 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
    setup_state(vtx, decl, texture);
 
    switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
+      case A5O_PRIM_LINE_LIST: {
          glDrawElements(GL_LINES, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx / 2;
          break;
       };
-      case ALLEGRO_PRIM_LINE_STRIP: {
+      case A5O_PRIM_LINE_STRIP: {
          glDrawElements(GL_LINE_STRIP, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx - 1;
          break;
       };
-      case ALLEGRO_PRIM_LINE_LOOP: {
+      case A5O_PRIM_LINE_LOOP: {
          /* Unimplemented, as it's too hard to do for Direct3D */
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+      case A5O_PRIM_TRIANGLE_LIST: {
          glDrawElements(GL_TRIANGLES, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx / 3;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+      case A5O_PRIM_TRIANGLE_STRIP: {
          glDrawElements(GL_TRIANGLE_STRIP, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+      case A5O_PRIM_TRIANGLE_FAN: {
          glDrawElements(GL_TRIANGLE_FAN, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_POINT_LIST: {
+      case A5O_PRIM_POINT_LIST: {
          /* Unimplemented, as it's too hard to do for Direct3D */
          break;
       };
@@ -595,18 +595,18 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
    }
 
-#if defined ALLEGRO_IPHONE
+#if defined A5O_IPHONE
    al_free(iphone_idx);
 #endif
    
    return num_primitives;
 }
 
-#endif /* ALLEGRO_CFG_OPENGL */
+#endif /* A5O_CFG_OPENGL */
 
-int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
+int _al_draw_prim_opengl(A5O_BITMAP* target, A5O_BITMAP* texture, const void* vtxs, const A5O_VERTEX_DECL* decl, int start, int end, int type)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    return draw_prim_raw(target, texture, 0, vtxs, decl, start, end, type);
 #else
    (void)target;
@@ -621,9 +621,9 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
 #endif
 }
 
-int _al_draw_vertex_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type)
+int _al_draw_vertex_buffer_opengl(A5O_BITMAP* target, A5O_BITMAP* texture, A5O_VERTEX_BUFFER* vertex_buffer, int start, int end, int type)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    return draw_prim_raw(target, texture, vertex_buffer, 0, vertex_buffer->decl, start, end, type);
 #else
    (void)target;
@@ -637,9 +637,9 @@ int _al_draw_vertex_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textur
 #endif
 }
 
-int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_opengl(A5O_BITMAP *target, A5O_BITMAP* texture, const void* vtxs, const A5O_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    return draw_prim_indexed_raw(target, texture, NULL, vtxs, decl, NULL, indices, 0, num_vtx, type);
 #else
    (void)target;
@@ -654,9 +654,9 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 #endif
 }
 
-int _al_draw_indexed_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
+int _al_draw_indexed_buffer_opengl(A5O_BITMAP* target, A5O_BITMAP* texture, A5O_VERTEX_BUFFER* vertex_buffer, A5O_INDEX_BUFFER* index_buffer, int start, int end, int type)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    return draw_prim_indexed_raw(target, texture, vertex_buffer, NULL, vertex_buffer->decl, index_buffer, NULL, start, end, type);
 #else
    (void)target;
@@ -671,23 +671,23 @@ int _al_draw_indexed_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 #endif
 }
 
-#ifdef ALLEGRO_CFG_OPENGL
-static bool create_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type, const void* initial_data, GLsizeiptr size, int flags)
+#ifdef A5O_CFG_OPENGL
+static bool create_buffer_common(A5O_BUFFER_COMMON* common, GLenum type, const void* initial_data, GLsizeiptr size, int flags)
 {
    GLuint vbo;
    GLenum usage;
 
    switch (flags)
    {
-#if !defined ALLEGRO_CFG_OPENGLES
-      case ALLEGRO_PRIM_BUFFER_STREAM:
+#if !defined A5O_CFG_OPENGLES
+      case A5O_PRIM_BUFFER_STREAM:
          usage = GL_STREAM_DRAW;
          break;
 #endif
-      case ALLEGRO_PRIM_BUFFER_STATIC:
+      case A5O_PRIM_BUFFER_STATIC:
          usage = GL_STATIC_DRAW;
          break;
-      case ALLEGRO_PRIM_BUFFER_DYNAMIC:
+      case A5O_PRIM_BUFFER_DYNAMIC:
          usage = GL_DYNAMIC_DRAW;
          break;
       default:
@@ -708,10 +708,10 @@ static bool create_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type, con
 }
 #endif
 
-bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
+bool _al_create_vertex_buffer_opengl(A5O_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
 {
-#ifdef ALLEGRO_CFG_OPENGL
-   int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+#ifdef A5O_CFG_OPENGL
+   int stride = buf->decl ? buf->decl->stride : (int)sizeof(A5O_VERTEX);
 
    return create_buffer_common(&buf->common, GL_ARRAY_BUFFER, initial_data, num_vertices * stride, flags);
 #else
@@ -724,9 +724,9 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
 #endif
 }
 
-bool _al_create_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf, const void* initial_data, size_t num_indices, int flags)
+bool _al_create_index_buffer_opengl(A5O_INDEX_BUFFER* buf, const void* initial_data, size_t num_indices, int flags)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    return create_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER, initial_data, num_indices * buf->index_size, flags);;
 #else
    (void)buf;
@@ -738,9 +738,9 @@ bool _al_create_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf, const void* initi
 #endif
 }
 
-void _al_destroy_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+void _al_destroy_vertex_buffer_opengl(A5O_VERTEX_BUFFER* buf)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    glDeleteBuffers(1, (GLuint*)&buf->common.handle);
    al_free(buf->common.locked_memory);
 #else
@@ -748,9 +748,9 @@ void _al_destroy_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 #endif
 }
 
-void _al_destroy_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
+void _al_destroy_index_buffer_opengl(A5O_INDEX_BUFFER* buf)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    glDeleteBuffers(1, (GLuint*)&buf->common.handle);
    al_free(buf->common.locked_memory);
 #else
@@ -758,16 +758,16 @@ void _al_destroy_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
 #endif
 }
 
-#ifdef ALLEGRO_CFG_OPENGL
-static void* lock_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type)
+#ifdef A5O_CFG_OPENGL
+static void* lock_buffer_common(A5O_BUFFER_COMMON* common, GLenum type)
 {
    if (common->local_buffer_length < common->lock_length) {
       common->locked_memory = al_realloc(common->locked_memory, common->lock_length);
       common->local_buffer_length = common->lock_length;
    }
 
-   if (common->lock_flags != ALLEGRO_LOCK_WRITEONLY) {
-#if !defined ALLEGRO_CFG_OPENGLES
+   if (common->lock_flags != A5O_LOCK_WRITEONLY) {
+#if !defined A5O_CFG_OPENGLES
       glBindBuffer(type, (GLuint)common->handle);
       glGetBufferSubData(type, common->lock_offset, common->lock_length, common->locked_memory);
       glBindBuffer(type, 0);
@@ -782,9 +782,9 @@ static void* lock_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type)
 }
 #endif
 
-void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+void* _al_lock_vertex_buffer_opengl(A5O_VERTEX_BUFFER* buf)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    return lock_buffer_common(&buf->common, GL_ARRAY_BUFFER);
 #else
    (void)buf;
@@ -793,9 +793,9 @@ void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 #endif
 }
 
-void* _al_lock_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
+void* _al_lock_index_buffer_opengl(A5O_INDEX_BUFFER* buf)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    return lock_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER);
 #else
    (void)buf;
@@ -804,10 +804,10 @@ void* _al_lock_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
 #endif
 }
 
-#ifdef ALLEGRO_CFG_OPENGL
-static void unlock_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type)
+#ifdef A5O_CFG_OPENGL
+static void unlock_buffer_common(A5O_BUFFER_COMMON* common, GLenum type)
 {
-   if (common->lock_flags != ALLEGRO_LOCK_READONLY) {
+   if (common->lock_flags != A5O_LOCK_READONLY) {
       glBindBuffer(type, (GLuint)common->handle);
       glBufferSubData(type, common->lock_offset, common->lock_length, common->locked_memory);
       glBindBuffer(type, 0);
@@ -815,18 +815,18 @@ static void unlock_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type)
 }
 #endif
 
-void _al_unlock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+void _al_unlock_vertex_buffer_opengl(A5O_VERTEX_BUFFER* buf)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    unlock_buffer_common(&buf->common, GL_ARRAY_BUFFER);
 #else
    (void)buf;
 #endif
 }
 
-void _al_unlock_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
+void _al_unlock_index_buffer_opengl(A5O_INDEX_BUFFER* buf)
 {
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    unlock_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER);
 #else
    (void)buf;

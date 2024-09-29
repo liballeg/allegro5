@@ -19,7 +19,7 @@
 #ifndef __al_included_allegro5_base_h
 #define __al_included_allegro5_base_h
 
-#ifndef ALLEGRO_NO_STD_HEADERS
+#ifndef A5O_NO_STD_HEADERS
    #include <errno.h>
    #ifdef _MSC_VER
       /* enable posix for limits.h and only limits.h
@@ -53,20 +53,20 @@
    extern "C" {
 #endif
 
-#define ALLEGRO_VERSION          5
-#define ALLEGRO_SUB_VERSION      2
-#define ALLEGRO_WIP_VERSION      10
+#define A5O_VERSION          5
+#define A5O_SUB_VERSION      2
+#define A5O_WIP_VERSION      10
 
-#ifdef ALLEGRO_UNSTABLE
+#ifdef A5O_UNSTABLE
    /* 1 << 31 represented as a signed int to match the arg type of
     * al_install_system.
     */
-   #define ALLEGRO_UNSTABLE_BIT _ALLEGRO_UNSTABLE_BIT_SET
+   #define A5O_UNSTABLE_BIT _A5O_UNSTABLE_BIT_SET
 #else
-   #define ALLEGRO_UNSTABLE_BIT  0
+   #define A5O_UNSTABLE_BIT  0
 #endif
 
-/* Not sure we need it, but since ALLEGRO_VERSION_STR contains it:
+/* Not sure we need it, but since A5O_VERSION_STR contains it:
  * 0 = GIT
  * 1 = first release
  * 2... = hotfixes?
@@ -74,15 +74,15 @@
  * Note x.y.z (= x.y.z.0) has release number 1, and x.y.z.1 has release
  * number 2, just to confuse you.
  */
-#define ALLEGRO_RELEASE_NUMBER   0
+#define A5O_RELEASE_NUMBER   0
 
-#define ALLEGRO_VERSION_STR      "5.2.10 (20231119)"
-#define ALLEGRO_DATE_STR         "2023"
-#define ALLEGRO_DATE             20231119    /* yyyymmdd */
-#define ALLEGRO_VERSION_INT \
-    ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
-    (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER | \
-    ALLEGRO_UNSTABLE_BIT)
+#define A5O_VERSION_STR      "5.2.10 (20231119)"
+#define A5O_DATE_STR         "2023"
+#define A5O_DATE             20231119    /* yyyymmdd */
+#define A5O_VERSION_INT \
+    ((A5O_VERSION << 24) | (A5O_SUB_VERSION << 16) | \
+    (A5O_WIP_VERSION << 8) | A5O_RELEASE_NUMBER | \
+    A5O_UNSTABLE_BIT)
 
 AL_FUNC(uint32_t, al_get_allegro_version, (void));
 AL_FUNC(int, al_run_main, (int argc, char **argv, int (*)(int, char **)));
@@ -91,9 +91,9 @@ AL_FUNC(int, al_run_main, (int argc, char **argv, int (*)(int, char **)));
 /************ Some global stuff ************/
 /*******************************************/
 
-/* Type: ALLEGRO_PI
+/* Type: A5O_PI
  */
-#define ALLEGRO_PI        3.14159265358979323846
+#define A5O_PI        3.14159265358979323846
 
 #define AL_ID(a,b,c,d)     (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 

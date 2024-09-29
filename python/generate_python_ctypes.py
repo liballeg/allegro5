@@ -187,9 +187,9 @@ class Allegro:
                 funcs.append(line)
                 continue
             # anonymous structs have no name at all
-            if name and not name.startswith("ALLEGRO_"):
+            if name and not name.startswith("A5O_"):
                 continue
-            if name == "ALLEGRO_OGL_EXT_API":
+            if name == "A5O_OGL_EXT_API":
                 continue
             if proto.startswith("union") or\
                 proto.startswith("typedef union"):
@@ -521,20 +521,20 @@ else:
 
     # some stuff the automated parser doesn't pick up
     f.write(r"""
-ALLEGRO_VERSION_INT = \
-    ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
-    (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)
+A5O_VERSION_INT = \
+    ((A5O_VERSION << 24) | (A5O_SUB_VERSION << 16) | \
+    (A5O_WIP_VERSION << 8) | A5O_RELEASE_NUMBER)
     """)
 
     f.write(r"""
 # work around bug http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36834
 if os.name == "nt":
-    def al_map_rgba_f(r, g, b, a): return ALLEGRO_COLOR(r, g, b, a)
-    def al_map_rgb_f(r, g, b): return ALLEGRO_COLOR(r, g, b, 1)
+    def al_map_rgba_f(r, g, b, a): return A5O_COLOR(r, g, b, a)
+    def al_map_rgb_f(r, g, b): return A5O_COLOR(r, g, b, 1)
     def al_map_rgba(r, g, b, a):
-        return ALLEGRO_COLOR(r / 255.0, g / 255.0, b / 255.0, a / 255.0)
+        return A5O_COLOR(r / 255.0, g / 255.0, b / 255.0, a / 255.0)
     def al_map_rgb(r, g, b):
-        return ALLEGRO_COLOR(r / 255.0, g / 255.0, b / 255.0, 1)
+        return A5O_COLOR(r / 255.0, g / 255.0, b / 255.0, 1)
     """)
 
     f.write("""

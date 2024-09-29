@@ -2,7 +2,7 @@
 
 bool useFullScreenMode = false;
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 int BB_W;
 int BB_H;
 #else
@@ -21,19 +21,19 @@ void DisplayResource::destroy(void)
 
 bool DisplayResource::load(void)
 {
-#ifdef ALLEGRO_IPHONE
-   int flags = ALLEGRO_FULLSCREEN_WINDOW;
-   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_REQUIRE);
+#ifdef A5O_IPHONE
+   int flags = A5O_FULLSCREEN_WINDOW;
+   al_set_new_display_option(A5O_SUPPORTED_ORIENTATIONS, A5O_DISPLAY_ORIENTATION_LANDSCAPE, A5O_REQUIRE);
 #else
-   int flags = useFullScreenMode ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
+   int flags = useFullScreenMode ? A5O_FULLSCREEN : A5O_WINDOWED;
 #endif
    al_set_new_display_flags(flags);
    display = al_create_display(BB_W, BB_H);
    if (!display)
        return false;
 
-#ifndef ALLEGRO_IPHONE
-   ALLEGRO_BITMAP *bmp = al_load_bitmap(getResource("gfx/icon48.png"));
+#ifndef A5O_IPHONE
+   A5O_BITMAP *bmp = al_load_bitmap(getResource("gfx/icon48.png"));
    al_set_display_icon(display, bmp);
    al_destroy_bitmap(bmp);
 #endif
@@ -41,11 +41,11 @@ bool DisplayResource::load(void)
    BB_W = al_get_display_width(display);
    BB_H = al_get_display_height(display);
    
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
    if (BB_W < 960) {
 	BB_W *= 2;
 	BB_H *= 2;
-	ALLEGRO_TRANSFORM t;
+	A5O_TRANSFORM t;
 	al_identity_transform(&t);
 	al_scale_transform(&t, 0.5, 0.5);
 	al_use_transform(&t);
@@ -63,7 +63,7 @@ void* DisplayResource::get(void)
    return display;
 }
 
-ALLEGRO_EVENT_QUEUE *DisplayResource::getEventQueue(void)
+A5O_EVENT_QUEUE *DisplayResource::getEventQueue(void)
 {
    return events;
 }

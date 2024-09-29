@@ -29,9 +29,9 @@
 /*
  *  Public X-related API
  */
-AL_FUNC(XID, al_get_x_window_id, (ALLEGRO_DISPLAY *display));
-#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
-AL_FUNC(bool, al_x_set_initial_icon, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(XID, al_get_x_window_id, (A5O_DISPLAY *display));
+#if defined(A5O_UNSTABLE) || defined(A5O_INTERNAL_UNSTABLE) || defined(A5O_SRC)
+AL_FUNC(bool, al_x_set_initial_icon, (A5O_BITMAP *bitmap));
 #endif
 
 #ifdef __cplusplus

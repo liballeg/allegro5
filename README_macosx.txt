@@ -49,11 +49,11 @@ will be larger than is reported by the OS. When changing the display DPI or
 moving the window between two displays with different DPIs, Allegro displays
 behave in the following way:
 
-- If the ALLEGRO_DISPLAY was created with the ALLEGRO_RESIZABLE flag it will
-  send an ALLEGRO_DISPLAY_RESIZE event. This will have the effect of your app's
+- If the A5O_DISPLAY was created with the A5O_RESIZABLE flag it will
+  send an A5O_DISPLAY_RESIZE event. This will have the effect of your app's
   window remaining visually the same, while the display size in pixels will
   increase or decrease. This is the recommended situation.
 
-- If the ALLEGRO_DISPLAY was not created with the ALLEGRO_RESIZABLE flag, then
+- If the A5O_DISPLAY was not created with the A5O_RESIZABLE flag, then
   the display size in pixels will remain the same, but the app's window will
   appear to grow or shrink.

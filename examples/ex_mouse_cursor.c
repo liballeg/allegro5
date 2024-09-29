@@ -22,39 +22,39 @@ typedef struct {
 
 CursorList cursor_list[NUM_CURSORS] =
 {
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT, "DEFAULT" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW, "ARROW" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY, "BUSY" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION, "QUESTION" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT, "EDIT" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE, "MOVE" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N, "RESIZE_N" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W, "RESIZE_W" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S, "RESIZE_S" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E, "RESIZE_E" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW, "RESIZE_NW" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW, "RESIZE_SW" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE, "RESIZE_SE" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE, "RESIZE_NE" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS, "PROGRESS" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION, "PRECISION" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK, "LINK" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT, "ALT_SELECT" },
-   { ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE, "UNAVAILABLE" },
+   { A5O_SYSTEM_MOUSE_CURSOR_DEFAULT, "DEFAULT" },
+   { A5O_SYSTEM_MOUSE_CURSOR_ARROW, "ARROW" },
+   { A5O_SYSTEM_MOUSE_CURSOR_BUSY, "BUSY" },
+   { A5O_SYSTEM_MOUSE_CURSOR_QUESTION, "QUESTION" },
+   { A5O_SYSTEM_MOUSE_CURSOR_EDIT, "EDIT" },
+   { A5O_SYSTEM_MOUSE_CURSOR_MOVE, "MOVE" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_N, "RESIZE_N" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_W, "RESIZE_W" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_S, "RESIZE_S" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_E, "RESIZE_E" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_NW, "RESIZE_NW" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_SW, "RESIZE_SW" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_SE, "RESIZE_SE" },
+   { A5O_SYSTEM_MOUSE_CURSOR_RESIZE_NE, "RESIZE_NE" },
+   { A5O_SYSTEM_MOUSE_CURSOR_PROGRESS, "PROGRESS" },
+   { A5O_SYSTEM_MOUSE_CURSOR_PRECISION, "PRECISION" },
+   { A5O_SYSTEM_MOUSE_CURSOR_LINK, "LINK" },
+   { A5O_SYSTEM_MOUSE_CURSOR_ALT_SELECT, "ALT_SELECT" },
+   { A5O_SYSTEM_MOUSE_CURSOR_UNAVAILABLE, "UNAVAILABLE" },
    { -1, "CUSTOM" }
 };
 
 int current_cursor[2] = { 0, 0 };
 
 
-static void draw_display(ALLEGRO_FONT *font)
+static void draw_display(A5O_FONT *font)
 {
    int th;
    int i;
 
    al_clear_to_color(al_map_rgb(128, 128, 128));
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    th = al_get_font_line_height(font);
    for (i = 0; i < NUM_CURSORS; i++) {
       al_draw_text(font, al_map_rgba_f(0, 0, 0, 1),
@@ -69,7 +69,7 @@ static void draw_display(ALLEGRO_FONT *font)
    al_flip_display();
 }
 
-static int hover(ALLEGRO_FONT *font, int y)
+static int hover(A5O_FONT *font, int y)
 {
    int th;
    int i;
@@ -87,14 +87,14 @@ static int hover(ALLEGRO_FONT *font, int y)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display1;
-   ALLEGRO_DISPLAY *display2;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_BITMAP *shrunk_bmp;
-   ALLEGRO_MOUSE_CURSOR *custom_cursor;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_FONT *font;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display1;
+   A5O_DISPLAY *display2;
+   A5O_BITMAP *bmp;
+   A5O_BITMAP *shrunk_bmp;
+   A5O_MOUSE_CURSOR *custom_cursor;
+   A5O_EVENT_QUEUE *queue;
+   A5O_FONT *font;
+   A5O_EVENT event;
 
    (void)argc;
    (void)argv;
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
       abort_example("Error installing keyboard\n");
    }
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display1 = al_create_display(400, 400);
    if (!display1) {
       abort_example("Error creating display1\n");
@@ -175,15 +175,15 @@ int main(int argc, char **argv)
 
    while (1) {
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_EXPOSE) {
          al_set_target_backbuffer(event.display.source);
          draw_display(font);
          continue;
       }
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+      if (event.type == A5O_EVENT_KEY_CHAR) {
          switch (event.keyboard.unichar) {
             case 27: /* escape */
                goto Quit;
@@ -197,7 +197,7 @@ int main(int argc, char **argv)
                break;
          }
       }
-      if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+      if (event.type == A5O_EVENT_MOUSE_AXES) {
          int dpy = (event.mouse.display == display1) ? 0 : 1;
          int i = hover(font, event.mouse.y);
 

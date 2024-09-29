@@ -4,9 +4,9 @@
 #include "allegro5/internal/aintern_xfullscreen.h"
 #include "allegro5/internal/aintern_xsystem.h"
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+#ifdef A5O_XWINDOWS_WITH_XRANDR
 
-ALLEGRO_DEBUG_CHANNEL("xrandr")
+A5O_DEBUG_CHANNEL("xrandr")
 
 typedef struct xrandr_screen xrandr_screen;
 typedef struct xrandr_crtc xrandr_crtc;
@@ -111,8 +111,8 @@ static void xrandr_clear_fake_refresh_rates(xrandr_mode *modes, int nmode)
       }
    }
 
-   ALLEGRO_WARN("Zeroing out fake refresh rates from nvidia proprietary driver.\n");
-   ALLEGRO_WARN("Disable the DynamicTwinView driver option to avoid this.\n");
+   A5O_WARN("Zeroing out fake refresh rates from nvidia proprietary driver.\n");
+   A5O_WARN("Disable the DynamicTwinView driver option to avoid this.\n");
 
    for (i = 0; i < nmode; i++) {
       modes[i].refresh = 0;
@@ -131,7 +131,7 @@ static void xrandr_copy_output(xrandr_output *output, RROutput id, XRROutputInfo
    output->connection     = rroutput->connection;
    output->subpixel_order = rroutput->subpixel_order;
    
-   ALLEGRO_DEBUG("output[%s] %s on crtc %i.\n", output->name, output->connection == RR_Connected ? "Connected" : "Not Connected", (int)output->crtc);
+   A5O_DEBUG("output[%s] %s on crtc %i.\n", output->name, output->connection == RR_Connected ? "Connected" : "Not Connected", (int)output->crtc);
    
    _al_vector_init(&output->crtcs, sizeof(RRCrtc));
    if(rroutput->ncrtc) {
@@ -173,7 +173,7 @@ static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
       _al_vector_append_array(&crtc->connected, rrcrtc->noutput, rrcrtc->outputs);
    }
    
-   ALLEGRO_DEBUG("found %i outputs.\n", rrcrtc->noutput);
+   A5O_DEBUG("found %i outputs.\n", rrcrtc->noutput);
    
    _al_vector_init(&crtc->possible, sizeof(RROutput));
    if(rrcrtc->npossible) {
@@ -181,7 +181,7 @@ static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
 
       int i;
       for(i = 0; i < rrcrtc->npossible; i++) {
-         ALLEGRO_DEBUG("output[%i] %i.\n", i, (int)rrcrtc->possible[i]);
+         A5O_DEBUG("output[%i] %i.\n", i, (int)rrcrtc->possible[i]);
       }
    }
    
@@ -192,7 +192,7 @@ static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
    crtc->align = CRTC_POS_NONE;
 }
 
-static void xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XRRScreenResources *res)
+static void xrandr_copy_screen(A5O_SYSTEM_XGLX *s, xrandr_screen *screen, XRRScreenResources *res)
 {
    int j;
 
@@ -208,9 +208,9 @@ static void xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XR
 
    _al_vector_init(&screen->crtcs, sizeof(xrandr_crtc));
    if(res->ncrtc) {
-      ALLEGRO_DEBUG("found %i crtcs.\n", res->ncrtc);
+      A5O_DEBUG("found %i crtcs.\n", res->ncrtc);
       for(j = 0; j < res->ncrtc; j++) {
-         ALLEGRO_DEBUG("crtc[%i] %i.\n", j, (int)res->crtcs[j]);
+         A5O_DEBUG("crtc[%i] %i.\n", j, (int)res->crtcs[j]);
          xrandr_crtc *crtc = _al_vector_alloc_back(&screen->crtcs);
          XRRCrtcInfo *rrcrtc = XRRGetCrtcInfo(s->x11display, res, res->crtcs[j]);
       
@@ -222,9 +222,9 @@ static void xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XR
    
    _al_vector_init(&screen->outputs, sizeof(xrandr_output));
    if(res->noutput) {
-      ALLEGRO_DEBUG("found %i outputs.\n", res->noutput);
+      A5O_DEBUG("found %i outputs.\n", res->noutput);
       for(j = 0; j < res->noutput; j++) {
-         ALLEGRO_DEBUG("output[%i] %i.\n", j, (int)res->outputs[j]);
+         A5O_DEBUG("output[%i] %i.\n", j, (int)res->outputs[j]);
          xrandr_output *output = _al_vector_alloc_back(&screen->outputs);
          XRROutputInfo *rroutput = XRRGetOutputInfo(s->x11display, res, res->outputs[j]);
       
@@ -236,7 +236,7 @@ static void xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XR
    }
 }
 
-static xrandr_crtc *xrandr_fetch_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, RRCrtc id)
+static xrandr_crtc *xrandr_fetch_crtc(A5O_SYSTEM_XGLX *s, int sid, RRCrtc id)
 {
    unsigned int i;
    
@@ -251,7 +251,7 @@ static xrandr_crtc *xrandr_fetch_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, RRCrtc id
    return NULL;
 }
 
-static xrandr_output *xrandr_fetch_output(ALLEGRO_SYSTEM_XGLX *s, int sid, RROutput id)
+static xrandr_output *xrandr_fetch_output(A5O_SYSTEM_XGLX *s, int sid, RROutput id)
 {
    unsigned int i;
    
@@ -266,7 +266,7 @@ static xrandr_output *xrandr_fetch_output(ALLEGRO_SYSTEM_XGLX *s, int sid, RROut
    return NULL;
 }
 
-static xrandr_mode *xrandr_fetch_mode(ALLEGRO_SYSTEM_XGLX *s, int sid, RRMode id)
+static xrandr_mode *xrandr_fetch_mode(A5O_SYSTEM_XGLX *s, int sid, RRMode id)
 {
    unsigned int i;
    
@@ -281,12 +281,12 @@ static xrandr_mode *xrandr_fetch_mode(ALLEGRO_SYSTEM_XGLX *s, int sid, RRMode id
    return NULL;
 }
 
-static inline xrandr_crtc *xrandr_map_to_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
+static inline xrandr_crtc *xrandr_map_to_crtc(A5O_SYSTEM_XGLX *s, int sid, int adapter)
 {
    return xrandr_fetch_crtc(s, sid, *(RRCrtc*)_al_vector_ref(&s->xrandr_adaptermap, adapter));
 }
 
-static inline xrandr_output *xrandr_map_adapter(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
+static inline xrandr_output *xrandr_map_adapter(A5O_SYSTEM_XGLX *s, int sid, int adapter)
 {
    xrandr_crtc *crtc = xrandr_map_to_crtc(s, sid, adapter);
    return xrandr_fetch_output(s, sid, *(RROutput*)_al_vector_ref(&crtc->connected, 0));
@@ -309,9 +309,9 @@ static void xrandr_combine_output_rect(struct xrandr_rect *rect, xrandr_crtc *cr
 
 /* begin vtable methods */
 
-static int xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter);
+static int xrandr_get_xscreen(A5O_SYSTEM_XGLX *s, int adapter);
 
-static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
+static bool xrandr_query(A5O_SYSTEM_XGLX *s)
 {
    int screen_count = ScreenCount(s->x11display);
    int i;
@@ -325,12 +325,12 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
       
       XRRScreenResources *res = XRRGetScreenResources(s->x11display, XRootWindow(s->x11display, i));
       if(!res) {
-         ALLEGRO_DEBUG("failed to get screen resources for screen %i\n", i);
+         A5O_DEBUG("failed to get screen resources for screen %i\n", i);
          continue;
       }
       
       if(!res->noutput) {
-         ALLEGRO_DEBUG("screen %i doesn't have any outputs.\n", i);
+         A5O_DEBUG("screen %i doesn't have any outputs.\n", i);
          continue;
       }
       
@@ -366,11 +366,11 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
          
          if(not_clone) {
             RRCrtc *crtc_ptr = _al_vector_alloc_back(&s->xrandr_adaptermap);
-            ALLEGRO_DEBUG("Map Allegro Adadpter %i to RandR CRTC %i.\n", (int)(_al_vector_size(&s->xrandr_adaptermap)-1), (int)crtc->id);
+            A5O_DEBUG("Map Allegro Adadpter %i to RandR CRTC %i.\n", (int)(_al_vector_size(&s->xrandr_adaptermap)-1), (int)crtc->id);
             *crtc_ptr = crtc->id;
          }
          else {
-            ALLEGRO_DEBUG("RandR CRTC %i is a clone, ignoring.\n", (int)crtc->id);
+            A5O_DEBUG("RandR CRTC %i is a clone, ignoring.\n", (int)crtc->id);
          }
       }
       
@@ -397,29 +397,29 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
          if(crtc->x == crtc_j->x + (int)crtc_j->width) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_RIGHTOF;
-            ALLEGRO_DEBUG("Adapter %i is RightOf Adapter %i.\n", i, j);
+            A5O_DEBUG("Adapter %i is RightOf Adapter %i.\n", i, j);
          }
          else if(crtc->x + (int)crtc->width == crtc_j->x) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_LEFTOF;
-            ALLEGRO_DEBUG("Adapter %i is LeftOf Adapter %i.\n", i, j);
+            A5O_DEBUG("Adapter %i is LeftOf Adapter %i.\n", i, j);
          }
          else if(crtc->y == crtc_j->y + (int)crtc_j->height) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_BELOW;
-            ALLEGRO_DEBUG("Adapter %i is Below Adapter %i.\n", i, j);
+            A5O_DEBUG("Adapter %i is Below Adapter %i.\n", i, j);
          }
          else if(crtc->y + (int)crtc->height == crtc_j->y) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_ABOVE;
-            ALLEGRO_DEBUG("Adapter %i is Above Adapter %i.\n", i, j);
+            A5O_DEBUG("Adapter %i is Above Adapter %i.\n", i, j);
          }
       }
    }
       
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available && s->xinerama_screen_count != (int)_al_vector_size(&s->xrandr_adaptermap)) {
-      ALLEGRO_WARN("XRandR and Xinerama seem to disagree on how many screens there are (%i vs %i), going to ignore XRandR.\n", (int)_al_vector_size(&s->xrandr_adaptermap), s->xinerama_screen_count);
+      A5O_WARN("XRandR and Xinerama seem to disagree on how many screens there are (%i vs %i), going to ignore XRandR.\n", (int)_al_vector_size(&s->xrandr_adaptermap), s->xinerama_screen_count);
       // only actually going to ignore the output count, and setting of modes on the extra xinerama screens.
       ret = false;
    }
@@ -428,7 +428,7 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
    return ret;
 }
 
-static int xrandr_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static int xrandr_get_num_modes(A5O_SYSTEM_XGLX *s, int adapter)
 {
    if(adapter < 0 || adapter >= (int)_al_vector_size(&s->xrandr_adaptermap))
       return 0;
@@ -438,7 +438,7 @@ static int xrandr_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    return _al_vector_size(&output->modes);
 }
 
-static ALLEGRO_DISPLAY_MODE *xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int id, ALLEGRO_DISPLAY_MODE *amode)
+static A5O_DISPLAY_MODE *xrandr_get_mode(A5O_SYSTEM_XGLX *s, int adapter, int id, A5O_DISPLAY_MODE *amode)
 {
    int xscreen = _al_xglx_get_xscreen(s, adapter);
    xrandr_output *output = xrandr_map_adapter(s, xscreen, adapter);
@@ -456,7 +456,7 @@ static ALLEGRO_DISPLAY_MODE *xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter
    return amode;
 }
 
-static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xrandr_crtc *crtc, int new_w, int new_h, int *x, int *y)
+static bool xrandr_realign_crtc_origin(A5O_SYSTEM_XGLX *s, int xscreen, xrandr_crtc *crtc, int new_w, int new_h, int *x, int *y)
 {
    bool ret;
    
@@ -491,7 +491,7 @@ static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xran
          break;
       
       default:
-         ALLEGRO_WARN("unknown crtc alignment flag (%i)!", crtc->align);
+         A5O_WARN("unknown crtc alignment flag (%i)!", crtc->align);
          ret = false;
          break;
    }
@@ -499,7 +499,7 @@ static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xran
    return ret;
 }
 
-static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w, int h, int format, int refresh)
+static bool xrandr_set_mode(A5O_SYSTEM_XGLX *s, A5O_DISPLAY_XGLX *d, int w, int h, int format, int refresh)
 {
    int adapter = _al_xglx_get_adapter(s, d, false);
    int xscreen = _al_xglx_get_xscreen(s, adapter);
@@ -510,16 +510,16 @@ static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int
    xrandr_mode *cur_mode = xrandr_fetch_mode(s, xscreen, crtc->mode);
    
    if((int)cur_mode->width == w && (int)cur_mode->height == h && (refresh == 0 || refresh == (int)cur_mode->refresh)) {
-      ALLEGRO_DEBUG("mode already set, good to go\n");
+      A5O_DEBUG("mode already set, good to go\n");
       return true;
    }
    else {
-      ALLEGRO_DEBUG("new mode: %dx%d@%d old mode: %dx%d@%d.\n", w, h, refresh, cur_mode->width, cur_mode->height, cur_mode->refresh);
+      A5O_DEBUG("new mode: %dx%d@%d old mode: %dx%d@%d.\n", w, h, refresh, cur_mode->width, cur_mode->height, cur_mode->refresh);
    }
    
    int mode_idx = _al_xglx_fullscreen_select_mode(s, adapter, w, h, format, refresh);
    if(mode_idx == -1) {
-      ALLEGRO_DEBUG("mode %dx%d@%d not found\n", w, h, refresh);
+      A5O_DEBUG("mode %dx%d@%d not found\n", w, h, refresh);
       return false;
    }
    
@@ -530,7 +530,7 @@ static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int
    
    xrandr_realign_crtc_origin(s, xscreen, crtc, w, h, &new_x, &new_y);
    
-   ALLEGRO_DEBUG("xrandr: set mode %i+%i-%ix%i on adapter %i\n", new_x, new_y, w, h, adapter);
+   A5O_DEBUG("xrandr: set mode %i+%i-%ix%i on adapter %i\n", new_x, new_y, w, h, adapter);
    
    _al_mutex_lock(&s->lock);
    
@@ -548,7 +548,7 @@ static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int
    );
    
    if (ok != RRSetConfigSuccess) {
-      ALLEGRO_ERROR("XRandR failed to set mode.\n");
+      A5O_ERROR("XRandR failed to set mode.\n");
       _al_mutex_unlock(&s->lock);
       return false;
    }
@@ -581,20 +581,20 @@ static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int
    return true;
 }
 
-static void xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static void xrandr_restore_mode(A5O_SYSTEM_XGLX *s, int adapter)
 {
    int xscreen = _al_xglx_get_xscreen(s, adapter);
    xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, xscreen);
    xrandr_crtc *crtc = xrandr_map_to_crtc(s, xscreen, adapter);
    
    if(crtc->mode == crtc->original_mode) {
-      ALLEGRO_DEBUG("current crtc mode (%i) equals the original mode (%i), not restoring.\n", (int)crtc->mode, (int)crtc->original_mode);
+      A5O_DEBUG("current crtc mode (%i) equals the original mode (%i), not restoring.\n", (int)crtc->mode, (int)crtc->original_mode);
       return;
    }
    
    xrandr_mode *orig_mode = xrandr_fetch_mode(s, xscreen, crtc->original_mode);
    
-   ALLEGRO_DEBUG("restore mode %i+%i-%ix%i@%i on adapter %i\n", crtc->original_xoff, crtc->original_yoff, orig_mode->width, orig_mode->height, orig_mode->refresh, adapter);
+   A5O_DEBUG("restore mode %i+%i-%ix%i@%i on adapter %i\n", crtc->original_xoff, crtc->original_yoff, orig_mode->width, orig_mode->height, orig_mode->refresh, adapter);
    
    _al_mutex_lock(&s->lock);
    
@@ -613,7 +613,7 @@ static void xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    );
    
    if(ok != RRSetConfigSuccess) {
-      ALLEGRO_ERROR("failed to restore mode.\n");
+      A5O_ERROR("failed to restore mode.\n");
    }
    
    // XSync(s->x11display, False);
@@ -621,7 +621,7 @@ static void xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    _al_mutex_unlock(&s->lock);
 }
 
-static void xrandr_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
+static void xrandr_get_display_offset(A5O_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
    int xscreen = _al_xglx_get_xscreen(s, adapter);
    
@@ -633,15 +633,15 @@ static void xrandr_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *
    *x = crtc->x;
    *y = crtc->y;
    
-   ALLEGRO_DEBUG("display offset: %ix%i.\n", *x, *y);
+   A5O_DEBUG("display offset: %ix%i.\n", *x, *y);
 }
 
-static int xrandr_get_num_adapters(ALLEGRO_SYSTEM_XGLX *s)
+static int xrandr_get_num_adapters(A5O_SYSTEM_XGLX *s)
 {
    return _al_vector_size(&s->xrandr_adaptermap);
 }
 
-static bool xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
+static bool xrandr_get_monitor_info(A5O_SYSTEM_XGLX *s, int adapter, A5O_MONITOR_INFO *mi)
 {
    if(adapter < 0 || adapter >= (int)_al_vector_size(&s->xrandr_adaptermap))
       return false;
@@ -658,7 +658,7 @@ static bool xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO
    return true;
 }
 
-static int xrandr_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
+static int xrandr_get_default_adapter(A5O_SYSTEM_XGLX *s)
 {
    // if we have more than one xrandr_screen, we're in multi-head x mode
    if(_al_vector_size(&s->xrandr_screens) > 1)
@@ -679,12 +679,12 @@ static int xrandr_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
       }
    }
    
-   ALLEGRO_DEBUG("selected default adapter: %i.\n", default_adapter);
+   A5O_DEBUG("selected default adapter: %i.\n", default_adapter);
    
    return default_adapter;
 }
 
-static int xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static int xrandr_get_xscreen(A5O_SYSTEM_XGLX *s, int adapter)
 {
    // more than one screen means we have multi-head x mode
    if(_al_vector_size(&s->xrandr_screens) > 1)
@@ -694,38 +694,38 @@ static int xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    return 0;
 }
 
-static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e)
+static void xrandr_handle_xevent(A5O_SYSTEM_XGLX *s, A5O_DISPLAY_XGLX *d, XEvent *e)
 {
    if(e->type == s->xrandr_event_base + RRNotify) {
       XRRNotifyEvent *rre = (XRRNotifyEvent*)e;
       if(rre->subtype == RRNotify_CrtcChange) {
          XRRCrtcChangeNotifyEvent *rrce = (XRRCrtcChangeNotifyEvent*)rre;
-         ALLEGRO_DEBUG("RRNotify_CrtcChange!\n");
+         A5O_DEBUG("RRNotify_CrtcChange!\n");
          
          xrandr_crtc *crtc = xrandr_fetch_crtc(s, d->xscreen, rrce->crtc);
          if(!crtc) {
-            ALLEGRO_DEBUG("invalid RRCrtc(%i).\n", (int)rrce->crtc);
+            A5O_DEBUG("invalid RRCrtc(%i).\n", (int)rrce->crtc);
             return;
          }
          
          if(rrce->mode != crtc->mode) {
-            ALLEGRO_DEBUG("mode changed from %i to %i.\n", (int)crtc->mode, (int)rrce->mode);
+            A5O_DEBUG("mode changed from %i to %i.\n", (int)crtc->mode, (int)rrce->mode);
             crtc->mode = rrce->mode;
          }
          
          if(rrce->rotation != crtc->rotation) {
-            ALLEGRO_DEBUG("rotation changed from %i to %i.\n", crtc->rotation, rrce->rotation);
+            A5O_DEBUG("rotation changed from %i to %i.\n", crtc->rotation, rrce->rotation);
             crtc->rotation = rrce->rotation;
          }
          
          if(rrce->x != crtc->x || rrce->y != crtc->y) {
-            ALLEGRO_DEBUG("origin changed from %i+%i to %i+%i.\n", crtc->x, crtc->y, rrce->x, rrce->y);
+            A5O_DEBUG("origin changed from %i+%i to %i+%i.\n", crtc->x, crtc->y, rrce->x, rrce->y);
             crtc->x = rrce->x;
             crtc->y = rrce->y;
          }
          
          if(rrce->width != crtc->width || rrce->height != crtc->height) {
-            ALLEGRO_DEBUG("size changed from %ix%i to %ix%i.\n", crtc->width, crtc->height, rrce->width, rrce->height);
+            A5O_DEBUG("size changed from %ix%i to %ix%i.\n", crtc->width, crtc->height, rrce->width, rrce->height);
             crtc->width = rrce->width;
             crtc->height = rrce->height;
          }
@@ -738,14 +738,14 @@ static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d
                                                       
          xrandr_output *output = xrandr_fetch_output(s, d->xscreen, rroe->output);
          if(!output) {
-            ALLEGRO_DEBUG("invalid RROutput(%i).\n", (int)rroe->output);
+            A5O_DEBUG("invalid RROutput(%i).\n", (int)rroe->output);
             return;
          }
          
-         ALLEGRO_DEBUG("xrandr: RRNotify_OutputChange %s!\n", output->name);
+         A5O_DEBUG("xrandr: RRNotify_OutputChange %s!\n", output->name);
          
          if(rroe->crtc != output->crtc) {
-            ALLEGRO_DEBUG("crtc changed from %i to %i.\n", (int)output->crtc, (int)rroe->crtc);
+            A5O_DEBUG("crtc changed from %i to %i.\n", (int)output->crtc, (int)rroe->crtc);
             output->crtc = rroe->crtc;
          }
          
@@ -753,7 +753,7 @@ static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d
          // that is, what happens when a monitor is connected, and disconnected...
          // IE: CHECK!
          if(rroe->connection != output->connection) {
-            ALLEGRO_DEBUG("connection changed from %i to %i.\n", output->connection, rroe->connection);
+            A5O_DEBUG("connection changed from %i to %i.\n", output->connection, rroe->connection);
             output->connection = rroe->connection;
          }
          
@@ -761,17 +761,17 @@ static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d
          output->timestamp = screen->timestamp;
       }
       else if(rre->subtype == RRNotify_OutputProperty) {
-         ALLEGRO_DEBUG("xrandr: RRNotify_OutputProperty!\n");
+         A5O_DEBUG("xrandr: RRNotify_OutputProperty!\n");
       }
       else {
-         ALLEGRO_DEBUG("xrandr: RRNotify_Unknown(%i)!\n", rre->subtype);  
+         A5O_DEBUG("xrandr: RRNotify_Unknown(%i)!\n", rre->subtype);  
       }
    }
    else if(e->type == s->xrandr_event_base + RRScreenChangeNotify) {
       XRRScreenChangeNotifyEvent *rre = (XRRScreenChangeNotifyEvent*)e;
       XRRUpdateConfiguration( e );
       
-      ALLEGRO_DEBUG("RRScreenChangeNotify!\n");
+      A5O_DEBUG("RRScreenChangeNotify!\n");
       
       /* XXX I don't think we need to actually handle this event fully,
        * it only really deals with the virtual screen as a whole it seems
@@ -787,7 +787,7 @@ static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d
 
 /* begin "public" ctor/dtor methods */
 
-void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s)
+void _al_xsys_xrandr_init(A5O_SYSTEM_XGLX *s)
 {
    int error_base = 0;
    
@@ -796,30 +796,30 @@ void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s)
    if (XRRQueryExtension(s->x11display, &s->xrandr_event_base, &error_base)) {
       int minor_version = 0, major_version = 0;
       int status = XRRQueryVersion(s->x11display, &major_version, &minor_version);
-      ALLEGRO_INFO("XRandR version: %i.%i\n", major_version, minor_version);
+      A5O_INFO("XRandR version: %i.%i\n", major_version, minor_version);
 
       if (!status) {
-         ALLEGRO_WARN("XRandR not available, XRRQueryVersion failed.\n");
+         A5O_WARN("XRandR not available, XRRQueryVersion failed.\n");
       }
       else if (major_version == 1 && minor_version < 2) {
          /* this is unlikely to happen, unless the user has an ancient Xorg,
          Xorg will just emulate the latest version and return that
          instead of what the driver actually supports, stupid. */
-         ALLEGRO_WARN("XRandR not available, unsupported version: %i.%i\n", major_version, minor_version);
+         A5O_WARN("XRandR not available, unsupported version: %i.%i\n", major_version, minor_version);
       }
       else {
          bool ret = xrandr_query(s);
          if (ret) {
-            ALLEGRO_INFO("XRandR is active\n");
+            A5O_INFO("XRandR is active\n");
             s->xrandr_available = 1;
          }
          else {
-            ALLEGRO_INFO("XRandR is not active\n");
+            A5O_INFO("XRandR is not active\n");
          }
       }
    }
    else {
-      ALLEGRO_WARN("XRandR extension is not available.\n");
+      A5O_WARN("XRandR extension is not available.\n");
    }
 
    if (s->xrandr_available) {
@@ -839,11 +839,11 @@ void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s)
    _al_mutex_unlock(&s->lock);
 }
 
-void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
+void _al_xsys_xrandr_exit(A5O_SYSTEM_XGLX *s)
 {
 #if 0
    // int i;
-   ALLEGRO_DEBUG("XRandR exiting.\n");
+   A5O_DEBUG("XRandR exiting.\n");
    
    // for (i = 0; i < s->xrandr_output_count; i++) {
    //   XRRFreeOutputInfo(s->xrandr_outputs[i]);
@@ -853,7 +853,7 @@ void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
    //    XRRFreeScreenResources(s->xrandr_res[i]);
    // }
 
-   ALLEGRO_DEBUG("XRRFreeScreenResources\n");
+   A5O_DEBUG("XRRFreeScreenResources\n");
    //if (s->xrandr_res)
    //   XRRFreeScreenResources(s->xrandr_res);
 
@@ -866,7 +866,7 @@ void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
    s->xrandr_output_count = 0;
    s->xrandr_outputs = NULL;
 
-   ALLEGRO_DEBUG("XRandR exit finished.\n");
+   A5O_DEBUG("XRandR exit finished.\n");
 #endif /* 0 */
 
    int i;
@@ -901,6 +901,6 @@ void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
    
 }
 
-#endif /* ALLEGRO_XWINDOWS_WITH_XRANDR */
+#endif /* A5O_XWINDOWS_WITH_XRANDR */
 
 /* vim: set sts=3 sw=3 et: */

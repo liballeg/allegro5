@@ -11,13 +11,13 @@ static float scroll_y;
 static int text_length;
 
 /* The Alex logo. */
-static ALLEGRO_BITMAP *logo;
+static A5O_BITMAP *logo;
 
 /* The star particle. */
-static ALLEGRO_BITMAP *particle;
+static A5O_BITMAP *particle;
 
 /* The font we use for everything. */
-static ALLEGRO_FONT *font;
+static A5O_FONT *font;
 
 
 /* Local pseudo-random number generator. */
@@ -51,7 +51,7 @@ static void *load(char const *path, char const *type, ...)
 
 
 /* Print fading text. */
-static int print(ALLEGRO_FONT *font, float x, float y, float r, float g,
+static int print(A5O_FONT *font, float x, float y, float r, float g,
    float b, float fade, char const *text)
 {
    float c = 1 + (y - fade) / 360 / 2.0;
@@ -60,7 +60,7 @@ static int print(ALLEGRO_FONT *font, float x, float y, float r, float g,
    if (c < 0)
       c = 0;
    al_draw_text(font, al_map_rgba_f(c * r, c * g, c * b, c), x, y,
-      ALLEGRO_ALIGN_CENTER, text);
+      A5O_ALIGN_CENTER, text);
    return y + al_get_font_line_height(font);
 }
 
@@ -69,9 +69,9 @@ static int print(ALLEGRO_FONT *font, float x, float y, float r, float g,
  * 180 vertical units with square pixel aspect and 90° vertical
  * FoV.
  */
-static void setup_3d_projection(ALLEGRO_TRANSFORM *projection)
+static void setup_3d_projection(A5O_TRANSFORM *projection)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
+   A5O_DISPLAY *display = al_get_current_display();
    int dw = al_get_display_width(display);
    int dh = al_get_display_height(display);
    al_perspective_transform(projection, -180 * dw / dh, -180, 180,
@@ -83,11 +83,11 @@ static void setup_3d_projection(ALLEGRO_TRANSFORM *projection)
 /* 3D transformations make it very easy to draw a starfield. */
 static void draw_stars(void)
 {
-   ALLEGRO_TRANSFORM projection;
+   A5O_TRANSFORM projection;
    int seed;
    int i;
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
 
    seed = 0;
    for (i = 0; i < 100; i++) {
@@ -107,12 +107,12 @@ static void draw_stars(void)
 /* The main part of this example. */
 static void draw_scrolling_text(void)
 {
-   ALLEGRO_TRANSFORM projection;
+   A5O_TRANSFORM projection;
    int bw = al_get_bitmap_width(logo);
    int bh = al_get_bitmap_height(logo);
    float x, y, c;
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
    al_identity_transform(&projection);
 
@@ -125,7 +125,7 @@ static void draw_scrolling_text(void)
 
    /* Then we tilt it backwards 30 degrees. */
    al_rotate_transform_3d(&projection, 1, 0, 0,
-      30 * ALLEGRO_PI / 180.0);
+      30 * A5O_PI / 180.0);
 
    /* And finally move it down so the 0 position ends up
     * at the bottom of the screen.
@@ -170,7 +170,7 @@ static void draw_scrolling_text(void)
 
 static void draw_intro_text(void)
 {
-   ALLEGRO_TRANSFORM projection;
+   A5O_TRANSFORM projection;
    int fade;
    int fh = al_get_font_line_height(font);
 
@@ -190,9 +190,9 @@ static void draw_intro_text(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    int redraw = 0;
 
    (void)argc;
@@ -207,14 +207,14 @@ int main(int argc, char **argv)
    init_platform_specific();
    al_install_keyboard();
 
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_RESIZABLE);
    display = al_create_display(640, 360);
    if (!display) {
       abort_example("Error creating display\n");
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR |
-      ALLEGRO_MIPMAP);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR |
+      A5O_MIPMAP);
 
    font = load("data/DejaVuSans.ttf", "font", 40, 0);
    logo = load("data/alexlogo.png", "bitmap");
@@ -234,19 +234,19 @@ int main(int argc, char **argv)
 
    al_start_timer(timer);
    while (true) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      else if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(display);
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      else if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_TIMER) {
+      else if (event.type == A5O_EVENT_TIMER) {
          scroll_y++;
          if (scroll_y > text_length * 2)
             scroll_y -= text_length * 2;
@@ -255,7 +255,7 @@ int main(int argc, char **argv)
       }
 
       if (redraw  && al_is_event_queue_empty(queue)) {
-         ALLEGRO_COLOR black = al_map_rgba_f(0, 0, 0, 1);
+         A5O_COLOR black = al_map_rgba_f(0, 0, 0, 1);
 
          al_clear_to_color(black);
 

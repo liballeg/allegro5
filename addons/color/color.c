@@ -251,7 +251,7 @@ char const *al_color_rgb_to_name(float r, float g, float b)
 
 /* Function: al_color_name
  */
-ALLEGRO_COLOR al_color_name(char const *name)
+A5O_COLOR al_color_name(char const *name)
 {
    float r, g, b;
    if (al_color_name_to_rgb(name, &r, &g, &b))
@@ -336,7 +336,7 @@ void al_color_rgb_to_hsv(float red, float green, float blue,
 
 /* Function: al_color_hsv
  */
-ALLEGRO_COLOR al_color_hsv(float h, float s, float v)
+A5O_COLOR al_color_hsv(float h, float s, float v)
 {
    float r, g, b;
 
@@ -433,7 +433,7 @@ void al_color_rgb_to_hsl(float red, float green, float blue,
 
 /* Function: al_color_hsl
  */
-ALLEGRO_COLOR al_color_hsl(float h, float s, float l)
+A5O_COLOR al_color_hsl(float h, float s, float l)
 {
    float r, g, b;
    al_color_hsl_to_rgb(h, s, l, &r, &g, &b);
@@ -477,7 +477,7 @@ void al_color_rgb_to_cmyk(float red, float green, float blue,
 
 /* Function: al_color_cmyk
  */
-ALLEGRO_COLOR al_color_cmyk(float c, float m, float y, float k)
+A5O_COLOR al_color_cmyk(float c, float m, float y, float k)
 {
    float r, g, b;
    al_color_cmyk_to_rgb(c, m, y, k, &r, &g, &b);
@@ -493,9 +493,9 @@ void al_color_yuv_to_rgb(float y, float u, float v,
    /* Translate range 0..1 to actual range. */
    u = 0.436 * (u * 2 - 1);
    v = 0.615 * (v * 2 - 1);
-   *red = _ALLEGRO_CLAMP(0, 1, y + v * 1.13983);
-   *green = _ALLEGRO_CLAMP(0, 1, y + u * -0.39465 + v * -0.58060);
-   *blue = _ALLEGRO_CLAMP(0, 1, y + u * 2.03211);
+   *red = _A5O_CLAMP(0, 1, y + v * 1.13983);
+   *green = _A5O_CLAMP(0, 1, y + u * -0.39465 + v * -0.58060);
+   *blue = _A5O_CLAMP(0, 1, y + u * 2.03211);
 }
 
 
@@ -515,7 +515,7 @@ void al_color_rgb_to_yuv(float red, float green, float blue,
 
 /* Function: al_color_yuv
  */
-ALLEGRO_COLOR al_color_yuv(float y, float u, float v)
+A5O_COLOR al_color_yuv(float y, float u, float v)
 {
    float r, g, b;
    al_color_yuv_to_rgb(y, u, v, &r, &g, &b);
@@ -565,7 +565,7 @@ bool al_color_html_to_rgb(char const *string,
 
 /* Function: al_color_html
  */
-ALLEGRO_COLOR al_color_html(char const *string)
+A5O_COLOR al_color_html(char const *string)
 {
    float r, g, b;
 
@@ -580,7 +580,7 @@ ALLEGRO_COLOR al_color_html(char const *string)
  */
 uint32_t al_get_allegro_color_version(void)
 {
-   return ALLEGRO_VERSION_INT;
+   return A5O_VERSION_INT;
 }
 
 
@@ -626,7 +626,7 @@ void al_color_rgb_to_linear(float red, float green, float blue,
 
 /* Function: al_color_linear
  */
-ALLEGRO_COLOR al_color_linear(float r, float g, float b)
+A5O_COLOR al_color_linear(float r, float g, float b)
 {
    float r2, g2, b2;
    al_color_linear_to_rgb(r, g, b, &r2, &g2, &b2);
@@ -664,7 +664,7 @@ void al_color_rgb_to_xyz(float red, float green, float blue,
 
 /* Function: al_color_xyz
  */
-ALLEGRO_COLOR al_color_xyz(float x, float y, float z)
+A5O_COLOR al_color_xyz(float x, float y, float z)
 {
    float r, g, b;
    al_color_xyz_to_rgb(x, y, z, &r, &g, &b);
@@ -714,7 +714,7 @@ void al_color_rgb_to_lab(float red, float green, float blue,
 
 /* Function: al_color_lab
  */
-ALLEGRO_COLOR al_color_lab(float l, float a, float b)
+A5O_COLOR al_color_lab(float l, float a, float b)
 {
    float r2, g2, b2;
    al_color_lab_to_rgb(l, a, b, &r2, &g2, &b2);
@@ -741,13 +741,13 @@ void al_color_rgb_to_lch(float red, float green, float blue,
    float a, b;
    al_color_rgb_to_lab(red, green, blue, l, &a, &b);
    *c = sqrt(a * a + b * b);
-   *h = fmod(ALLEGRO_PI * 2 + atan2(b, a), ALLEGRO_PI * 2);
+   *h = fmod(A5O_PI * 2 + atan2(b, a), A5O_PI * 2);
 }
 
 
 /* Function: al_color_lch
  */
-ALLEGRO_COLOR al_color_lch(float l, float c, float h)
+A5O_COLOR al_color_lch(float l, float c, float h)
 {
    float r, g, b;
    al_color_lch_to_rgb(l, c, h, &r, &g, &b);
@@ -780,7 +780,7 @@ void al_color_rgb_to_xyy(float red, float green, float blue,
 
 /* Function: al_color_xyy
  */
-ALLEGRO_COLOR al_color_xyy(float x, float y, float y2)
+A5O_COLOR al_color_xyy(float x, float y, float y2)
 {
    float r, g, b;
    al_color_xyy_to_rgb(x, y, y2, &r, &g, &b);
@@ -790,15 +790,15 @@ ALLEGRO_COLOR al_color_xyy(float x, float y, float y2)
 
 /* Function: al_color_distance_ciede2000
  */
-double al_color_distance_ciede2000(ALLEGRO_COLOR color1,
-      ALLEGRO_COLOR color2) {
+double al_color_distance_ciede2000(A5O_COLOR color1,
+      A5O_COLOR color2) {
    /* For implementation details refer to e.g.
     * http://www.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf
     */
    float l1, a1, b1, l2, a2, b2;
    al_color_rgb_to_lab(color1.r, color1.g, color1.b, &l1, &a1, &b1);
    al_color_rgb_to_lab(color2.r, color2.g, color2.b, &l2, &a2, &b2);
-   double pi = ALLEGRO_PI;
+   double pi = A5O_PI;
    double dl = l1 - l2;
    double ml = (l1 + l2) / 2;
    double c1 = sqrt(a1 * a1 + b1 * b1);
@@ -840,7 +840,7 @@ double al_color_distance_ciede2000(ALLEGRO_COLOR color1,
 
 /* Function al_color_is_valid
  */
-bool al_is_color_valid(ALLEGRO_COLOR color)
+bool al_is_color_valid(A5O_COLOR color)
 {
    return color.r >= 0 && color.g >= 0 && color.b >= 0 &&
       color.r <= 1 && color.g <= 1 && color.b <= 1;
@@ -891,7 +891,7 @@ void al_color_rgb_to_oklab(float red, float green, float blue,
 
 /* Function: al_color_oklab
  */
-ALLEGRO_COLOR al_color_oklab(float l, float a, float b)
+A5O_COLOR al_color_oklab(float l, float a, float b)
 {
    float r2, g2, b2;
    al_color_oklab_to_rgb(l, a, b, &r2, &g2, &b2);

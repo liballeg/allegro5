@@ -12,11 +12,11 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_FONT *f;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bmp;
+   A5O_FONT *f;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    bool redraw;
    int min_w, min_h, max_w, max_h;
    int ret_min_w, ret_min_h, ret_max_w, ret_max_h;
@@ -33,8 +33,8 @@ int main(int argc, char **argv)
    al_init_image_addon();
    al_init_font_addon();
 
-   al_set_new_display_flags(ALLEGRO_RESIZABLE |
-      ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_RESIZABLE |
+      A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to set any graphic mode\n");
@@ -105,27 +105,27 @@ int main(int argc, char **argv)
       }
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(event.display.source);
          redraw = true;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_EXPOSE) {
          redraw = true;
       }
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
             break;
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_Z) {
+         else if (event.keyboard.keycode == A5O_KEY_Z) {
             constr_min_w = ! constr_min_w;
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_X) {
+         else if (event.keyboard.keycode == A5O_KEY_X) {
             constr_min_h = ! constr_min_h;
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_C) {
+         else if (event.keyboard.keycode == A5O_KEY_C) {
             constr_max_w = ! constr_max_w;
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_V) {
+         else if (event.keyboard.keycode == A5O_KEY_V) {
             constr_max_h = ! constr_max_h;
          }
 
@@ -140,7 +140,7 @@ int main(int argc, char **argv)
          }
          al_apply_window_constraints(display, true);
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
    }

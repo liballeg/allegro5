@@ -17,7 +17,7 @@
 
 
 /*
-#ifdef ALLEGRO_SRC
+#ifdef A5O_SRC
    #error Currently BCC32 cannot build the library
 #endif
 */
@@ -36,22 +36,22 @@
 
 
 /* describe this platform */
-#define ALLEGRO_PLATFORM_STR  "BCC32"
-#define ALLEGRO_WINDOWS
-#define ALLEGRO_I386
-#define ALLEGRO_LITTLE_ENDIAN
-#define ALLEGRO_GUESS_INTTYPES_OK
+#define A5O_PLATFORM_STR  "BCC32"
+#define A5O_WINDOWS
+#define A5O_I386
+#define A5O_LITTLE_ENDIAN
+#define A5O_GUESS_INTTYPES_OK
    /* TODO: check if BCC has inttypes.h and/or stdint.h */
 
-#ifdef ALLEGRO_USE_CONSOLE
-   #define ALLEGRO_NO_MAGIC_MAIN
+#ifdef A5O_USE_CONSOLE
+   #define A5O_NO_MAGIC_MAIN
 #endif
 
 
 /* describe how function prototypes look to BCC32 */
-#if (defined ALLEGRO_STATICLINK)
+#if (defined A5O_STATICLINK)
    #define _AL_DLL
-#elif (defined ALLEGRO_SRC)
+#elif (defined A5O_SRC)
    #define _AL_DLL   __declspec(dllexport)
 #else
    #define _AL_DLL   __declspec(dllimport)
@@ -92,6 +92,6 @@
 /* This fixes 99.999999% of Borland C++Builder's problems with structs. */
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alwin.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
-#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintwthr.h"
+#define A5O_EXTRA_HEADER     "allegro5/platform/alwin.h"
+#define A5O_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
+#define A5O_INTERNAL_THREAD_HEADER "allegro5/platform/aintwthr.h"

@@ -6,12 +6,12 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_FILE
+## API: A5O_FILE
 
 An opaque object representing an open file.  This could be a
 real file on disk or a virtual file.
 
-## API: ALLEGRO_FILE_INTERFACE
+## API: A5O_FILE_INTERFACE
 
 A structure containing function pointers to handle a type of "file",
 real or virtual.  See the full discussion in [al_set_new_file_interface].
@@ -20,18 +20,18 @@ The fields are:
 
 ~~~~c
 void*         (*fi_fopen)(const char *path, const char *mode);
-bool          (*fi_fclose)(ALLEGRO_FILE *f);
-size_t        (*fi_fread)(ALLEGRO_FILE *f, void *ptr, size_t size);
-size_t        (*fi_fwrite)(ALLEGRO_FILE *f, const void *ptr, size_t size);
-bool          (*fi_fflush)(ALLEGRO_FILE *f);
-int64_t       (*fi_ftell)(ALLEGRO_FILE *f);
-bool          (*fi_fseek)(ALLEGRO_FILE *f, int64_t offset, int whence);
-bool          (*fi_feof)(ALLEGRO_FILE *f);
-int           (*fi_ferror)(ALLEGRO_FILE *f);
-const char *  (*fi_ferrmsg)(ALLEGRO_FILE *f);
-void          (*fi_fclearerr)(ALLEGRO_FILE *f);
-int           (*fi_fungetc)(ALLEGRO_FILE *f, int c);
-off_t         (*fi_fsize)(ALLEGRO_FILE *f);
+bool          (*fi_fclose)(A5O_FILE *f);
+size_t        (*fi_fread)(A5O_FILE *f, void *ptr, size_t size);
+size_t        (*fi_fwrite)(A5O_FILE *f, const void *ptr, size_t size);
+bool          (*fi_fflush)(A5O_FILE *f);
+int64_t       (*fi_ftell)(A5O_FILE *f);
+bool          (*fi_fseek)(A5O_FILE *f, int64_t offset, int whence);
+bool          (*fi_feof)(A5O_FILE *f);
+int           (*fi_ferror)(A5O_FILE *f);
+const char *  (*fi_ferrmsg)(A5O_FILE *f);
+void          (*fi_fclearerr)(A5O_FILE *f);
+int           (*fi_fungetc)(A5O_FILE *f, int c);
+off_t         (*fi_fsize)(A5O_FILE *f);
 ~~~~
 
 The fi_open function must allocate memory for whatever userdata structure it needs.
@@ -40,16 +40,16 @@ file. The other functions can access that data by calling [al_get_file_userdata]
 on the file handle. If fi_open returns NULL then [al_fopen] will also return NULL. 
 
 The fi_fclose function must clean up and free the userdata, but Allegro will
-free the [ALLEGRO_FILE] handle.
+free the [A5O_FILE] handle.
 
 If fi_fungetc is NULL, then Allegro's default implementation of a 16 char long
 buffer will be used.
 
-## API: ALLEGRO_SEEK
+## API: A5O_SEEK
 
-* ALLEGRO_SEEK_SET - seek relative to beginning of file
-* ALLEGRO_SEEK_CUR - seek relative to current file position
-* ALLEGRO_SEEK_END - seek relative to end of file
+* A5O_SEEK_SET - seek relative to beginning of file
+* A5O_SEEK_CUR - seek relative to current file position
+* A5O_SEEK_END - seek relative to end of file
 
 See also: [al_fseek]
 
@@ -96,8 +96,8 @@ The slice is opened at the current location of the parent file, up through
 `initial_size` bytes. The `initial_size` may be any non-negative integer
 that will not exceed the bounds of the parent file.
 
-Seeking with `ALLEGRO_SEEK_SET` will be relative to this starting location.
-`ALLEGRO_SEEK_END` will be relative to the starting location plus the 
+Seeking with `A5O_SEEK_SET` will be relative to this starting location.
+`A5O_SEEK_END` will be relative to the starting location plus the 
 size of the slice.
 
 The mode can be any combination of:
@@ -181,9 +181,9 @@ to that specified by 'whence', plus 'offset' number of bytes.
 
 'whence' can be:
 
-* ALLEGRO_SEEK_SET - seek relative to beginning of file
-* ALLEGRO_SEEK_CUR - seek relative to current file position
-* ALLEGRO_SEEK_END - seek relative to end of file
+* A5O_SEEK_SET - seek relative to beginning of file
+* A5O_SEEK_CUR - seek relative to current file position
+* A5O_SEEK_END - seek relative to end of file
 
 Returns true on success, false on failure.
 errno is set to indicate the error.
@@ -396,7 +396,7 @@ See also: [al_fget_ustr]
 Read a string of bytes terminated with a newline or end-of-file.
 The line terminator(s), if any, are included in the returned string.
 
-On success returns a pointer to a new ALLEGRO_USTR structure.
+On success returns a pointer to a new A5O_USTR structure.
 This must be freed eventually with [al_ustr_free].
 Returns NULL if an error occurred or if the end of file was reached without
 reading any bytes.
@@ -431,11 +431,11 @@ See also: [al_fwrite]
 
 ### API: al_fopen_fd
 
-Create an [ALLEGRO_FILE] object that operates on an open file descriptor using
+Create an [A5O_FILE] object that operates on an open file descriptor using
 stdio routines.  See the documentation of fdopen() for a description of the
 'mode' argument.
 
-Returns an ALLEGRO_FILE object on success or NULL on an error.
+Returns an A5O_FILE object on success or NULL on an error.
 On an error, the Allegro errno will be set and the file descriptor will
 not be closed.
 
@@ -456,7 +456,7 @@ number generator only.  There should be no path separators.
 If 'ret_path' is not NULL, the address it points to will be set
 to point to a new path structure with the name of the temporary file.
 
-Returns the opened [ALLEGRO_FILE] on success, NULL on failure.
+Returns the opened [A5O_FILE] on success, NULL on failure.
 
 ## Alternative file streams
 
@@ -465,8 +465,8 @@ hence work with files on the local filesystem, but can be overridden so that
 you can read and write to other streams.  For example, you can work with blocks
 of memory or sub-files inside .zip files.
 
-There are two ways to get an [ALLEGRO_FILE] that doesn't use stdio.
-An addon library may provide a function that returns a new ALLEGRO_FILE
+There are two ways to get an [A5O_FILE] that doesn't use stdio.
+An addon library may provide a function that returns a new A5O_FILE
 directly, after which, all al_f* calls on that object will use
 overridden functions for that type of stream.
 Alternatively, [al_set_new_file_interface] changes which function will handle
@@ -474,7 +474,7 @@ the following [al_fopen] calls for the current thread.
 
 ### API: al_set_new_file_interface
 
-Set the [ALLEGRO_FILE_INTERFACE] table for the calling thread.
+Set the [A5O_FILE_INTERFACE] table for the calling thread.
 This will change the handler for later calls to [al_fopen].
 
 See also: [al_set_standard_file_interface], [al_store_state],
@@ -482,14 +482,14 @@ See also: [al_set_standard_file_interface], [al_store_state],
 
 ### API: al_set_standard_file_interface
 
-Set the [ALLEGRO_FILE_INTERFACE] table to the default, for the calling thread.
+Set the [A5O_FILE_INTERFACE] table to the default, for the calling thread.
 This will change the handler for later calls to [al_fopen].
 
 See also: [al_set_new_file_interface]
 
 ### API: al_get_new_file_interface
 
-Return a pointer to the [ALLEGRO_FILE_INTERFACE] table in effect
+Return a pointer to the [A5O_FILE_INTERFACE] table in effect
 for the calling thread.
 
 See also: [al_store_state], [al_restore_state].
@@ -497,7 +497,7 @@ See also: [al_store_state], [al_restore_state].
 ### API: al_create_file_handle
 
 Creates an empty, opened file handle with some abstract user data.
-This allows custom interfaces to extend the [ALLEGRO_FILE] struct
+This allows custom interfaces to extend the [A5O_FILE] struct
 with their own data. You should close the handle with the standard
 [al_fclose] function when you are finished with it.
 
@@ -507,5 +507,5 @@ See also: [al_fopen], [al_fclose], [al_set_new_file_interface]
 
 Returns a pointer to the custom userdata that is attached to the
 file handle. This is intended to be used by functions that extend
-[ALLEGRO_FILE_INTERFACE].
+[A5O_FILE_INTERFACE].
 

@@ -4,9 +4,9 @@
 
 #include "allegro5/internal/aintern_display.h"
 
-void _al_xwin_display_selection_notify(ALLEGRO_DISPLAY  *display, XSelectionEvent *xselection);
-void _al_xwin_display_selection_request(ALLEGRO_DISPLAY *display, XSelectionRequestEvent *xselectionrequest);
-void _al_xwin_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
+void _al_xwin_display_selection_notify(A5O_DISPLAY  *display, XSelectionEvent *xselection);
+void _al_xwin_display_selection_request(A5O_DISPLAY *display, XSelectionRequestEvent *xselectionrequest);
+void _al_xwin_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt);
 
 #endif
 

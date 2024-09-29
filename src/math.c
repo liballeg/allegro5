@@ -20,7 +20,7 @@
 
 #include "allegro5/allegro.h"
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #define hypotf(x, y) _hypotf((x), (y))
 #endif
 

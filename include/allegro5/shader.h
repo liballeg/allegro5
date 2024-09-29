@@ -9,63 +9,63 @@
 #endif
 
 
-/* Type: ALLEGRO_SHADER
+/* Type: A5O_SHADER
  */
-typedef struct ALLEGRO_SHADER ALLEGRO_SHADER;
+typedef struct A5O_SHADER A5O_SHADER;
 
-enum ALLEGRO_SHADER_TYPE {
-   ALLEGRO_VERTEX_SHADER = 1,
-   ALLEGRO_PIXEL_SHADER = 2
+enum A5O_SHADER_TYPE {
+   A5O_VERTEX_SHADER = 1,
+   A5O_PIXEL_SHADER = 2
 };
 
-/* Enum: ALLEGRO_SHADER_TYPE
+/* Enum: A5O_SHADER_TYPE
  */
-typedef enum ALLEGRO_SHADER_TYPE ALLEGRO_SHADER_TYPE;
+typedef enum A5O_SHADER_TYPE A5O_SHADER_TYPE;
 
-enum ALLEGRO_SHADER_PLATFORM {
-   ALLEGRO_SHADER_AUTO = 0,
-   ALLEGRO_SHADER_GLSL = 1,
-   ALLEGRO_SHADER_HLSL = 2,
-   ALLEGRO_SHADER_AUTO_MINIMAL = 3,
-   ALLEGRO_SHADER_GLSL_MINIMAL = 4,
-   ALLEGRO_SHADER_HLSL_MINIMAL = 5,
-   ALLEGRO_SHADER_HLSL_SM_3_0 = 6,
+enum A5O_SHADER_PLATFORM {
+   A5O_SHADER_AUTO = 0,
+   A5O_SHADER_GLSL = 1,
+   A5O_SHADER_HLSL = 2,
+   A5O_SHADER_AUTO_MINIMAL = 3,
+   A5O_SHADER_GLSL_MINIMAL = 4,
+   A5O_SHADER_HLSL_MINIMAL = 5,
+   A5O_SHADER_HLSL_SM_3_0 = 6,
 };
 
-/* Enum: ALLEGRO_SHADER_PLATFORM
+/* Enum: A5O_SHADER_PLATFORM
  */
-typedef enum ALLEGRO_SHADER_PLATFORM ALLEGRO_SHADER_PLATFORM;
+typedef enum A5O_SHADER_PLATFORM A5O_SHADER_PLATFORM;
 
 /* Shader variable names */
-#define ALLEGRO_SHADER_VAR_COLOR             "al_color"
-#define ALLEGRO_SHADER_VAR_POS               "al_pos"
-#define ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX   "al_projview_matrix"
-#define ALLEGRO_SHADER_VAR_TEX               "al_tex"
-#define ALLEGRO_SHADER_VAR_TEXCOORD          "al_texcoord"
-#define ALLEGRO_SHADER_VAR_TEX_MATRIX        "al_tex_matrix"
-#define ALLEGRO_SHADER_VAR_USER_ATTR         "al_user_attr_"
-#define ALLEGRO_SHADER_VAR_USE_TEX           "al_use_tex"
-#define ALLEGRO_SHADER_VAR_USE_TEX_MATRIX    "al_use_tex_matrix"
-#define ALLEGRO_SHADER_VAR_ALPHA_TEST        "al_alpha_test"
-#define ALLEGRO_SHADER_VAR_ALPHA_FUNCTION    "al_alpha_func"
-#define ALLEGRO_SHADER_VAR_ALPHA_TEST_VALUE  "al_alpha_test_val"
+#define A5O_SHADER_VAR_COLOR             "al_color"
+#define A5O_SHADER_VAR_POS               "al_pos"
+#define A5O_SHADER_VAR_PROJVIEW_MATRIX   "al_projview_matrix"
+#define A5O_SHADER_VAR_TEX               "al_tex"
+#define A5O_SHADER_VAR_TEXCOORD          "al_texcoord"
+#define A5O_SHADER_VAR_TEX_MATRIX        "al_tex_matrix"
+#define A5O_SHADER_VAR_USER_ATTR         "al_user_attr_"
+#define A5O_SHADER_VAR_USE_TEX           "al_use_tex"
+#define A5O_SHADER_VAR_USE_TEX_MATRIX    "al_use_tex_matrix"
+#define A5O_SHADER_VAR_ALPHA_TEST        "al_alpha_test"
+#define A5O_SHADER_VAR_ALPHA_FUNCTION    "al_alpha_func"
+#define A5O_SHADER_VAR_ALPHA_TEST_VALUE  "al_alpha_test_val"
 
-AL_FUNC(ALLEGRO_SHADER *, al_create_shader, (ALLEGRO_SHADER_PLATFORM platform));
-AL_FUNC(bool, al_attach_shader_source, (ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type, const char *source));
-AL_FUNC(bool, al_attach_shader_source_file, (ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type, const char *filename));
-AL_FUNC(bool, al_build_shader, (ALLEGRO_SHADER *shader));
-AL_FUNC(const char *, al_get_shader_log, (ALLEGRO_SHADER *shader));
-AL_FUNC(ALLEGRO_SHADER_PLATFORM, al_get_shader_platform, (ALLEGRO_SHADER *shader));
-AL_FUNC(bool, al_use_shader, (ALLEGRO_SHADER *shader));
-AL_FUNC(ALLEGRO_SHADER *, al_get_current_shader, (void));
-AL_FUNC(void, al_destroy_shader, (ALLEGRO_SHADER *shader));
+AL_FUNC(A5O_SHADER *, al_create_shader, (A5O_SHADER_PLATFORM platform));
+AL_FUNC(bool, al_attach_shader_source, (A5O_SHADER *shader,
+   A5O_SHADER_TYPE type, const char *source));
+AL_FUNC(bool, al_attach_shader_source_file, (A5O_SHADER *shader,
+   A5O_SHADER_TYPE type, const char *filename));
+AL_FUNC(bool, al_build_shader, (A5O_SHADER *shader));
+AL_FUNC(const char *, al_get_shader_log, (A5O_SHADER *shader));
+AL_FUNC(A5O_SHADER_PLATFORM, al_get_shader_platform, (A5O_SHADER *shader));
+AL_FUNC(bool, al_use_shader, (A5O_SHADER *shader));
+AL_FUNC(A5O_SHADER *, al_get_current_shader, (void));
+AL_FUNC(void, al_destroy_shader, (A5O_SHADER *shader));
 
-AL_FUNC(bool, al_set_shader_sampler, (const char *name, ALLEGRO_BITMAP *bitmap,
+AL_FUNC(bool, al_set_shader_sampler, (const char *name, A5O_BITMAP *bitmap,
    int unit));
 AL_FUNC(bool, al_set_shader_matrix, (const char *name,
-   const ALLEGRO_TRANSFORM *matrix));
+   const A5O_TRANSFORM *matrix));
 AL_FUNC(bool, al_set_shader_int, (const char *name, int i));
 AL_FUNC(bool, al_set_shader_float, (const char *name, float f));
 AL_FUNC(bool, al_set_shader_int_vector, (const char *name, int num_components,
@@ -74,8 +74,8 @@ AL_FUNC(bool, al_set_shader_float_vector, (const char *name, int num_components,
    const float *f, int num_elems));
 AL_FUNC(bool, al_set_shader_bool, (const char *name, bool b));
 
-AL_FUNC(char const *, al_get_default_shader_source, (ALLEGRO_SHADER_PLATFORM platform,
-   ALLEGRO_SHADER_TYPE type));
+AL_FUNC(char const *, al_get_default_shader_source, (A5O_SHADER_PLATFORM platform,
+   A5O_SHADER_TYPE type));
 
 #ifdef __cplusplus
    }

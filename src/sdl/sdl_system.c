@@ -17,11 +17,11 @@
 #include "allegro5/platform/allegro_internal_sdl.h"
 #include "allegro5/internal/aintern_timer.h"
 
-ALLEGRO_DEBUG_CHANNEL("SDL")
+A5O_DEBUG_CHANNEL("SDL")
 
-static ALLEGRO_SYSTEM_INTERFACE *vt;
+static A5O_SYSTEM_INTERFACE *vt;
 
-#define ALLEGRO_SDL_EVENT_QUEUE_SIZE 8
+#define A5O_SDL_EVENT_QUEUE_SIZE 8
 
 #ifdef DEBUGMODE
 #define _E(x) if (type == x) return #x;
@@ -75,12 +75,12 @@ static char const *event_name(int type)
 
 static void sdl_heartbeat(void)
 {
-   SDL_Event events[ALLEGRO_SDL_EVENT_QUEUE_SIZE];
-   ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
+   SDL_Event events[A5O_SDL_EVENT_QUEUE_SIZE];
+   A5O_SYSTEM_SDL *s = (void *)al_get_system_driver();
    al_lock_mutex(s->mutex);
    SDL_PumpEvents();
    int n, i;
-   while ((n = SDL_PeepEvents(events, ALLEGRO_SDL_EVENT_QUEUE_SIZE, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) > 0) {
+   while ((n = SDL_PeepEvents(events, A5O_SDL_EVENT_QUEUE_SIZE, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) > 0) {
       for (i = 0; i < n; i++) {
          //printf("event %s\n", event_name(events[i].type));
          switch (events[i].type) {
@@ -138,10 +138,10 @@ static void sdl_heartbeat(void)
    al_unlock_mutex(s->mutex);
 }
 
-static ALLEGRO_SYSTEM *sdl_initialize(int flags)
+static A5O_SYSTEM *sdl_initialize(int flags)
 {
    (void)flags;
-   ALLEGRO_SYSTEM_SDL *s = al_calloc(1, sizeof *s);
+   A5O_SYSTEM_SDL *s = al_calloc(1, sizeof *s);
    s->system.vt = vt;
 
    // TODO: map allegro flags to sdl flags.
@@ -151,21 +151,21 @@ static ALLEGRO_SYSTEM *sdl_initialize(int flags)
    sdl_flags &= ~SDL_INIT_HAPTIC;
 #endif
    if (SDL_Init(sdl_flags) < 0) {
-      ALLEGRO_ERROR("SDL_Init failed: %s", SDL_GetError());
+      A5O_ERROR("SDL_Init failed: %s", SDL_GetError());
       return NULL;
    }
 
-   _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_SDL *));
+   _al_vector_init(&s->system.displays, sizeof (A5O_DISPLAY_SDL *));
 
    return &s->system;
 }
 
 static void sdl_heartbeat_init(void)
 {
-   ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
+   A5O_SYSTEM_SDL *s = (void *)al_get_system_driver();
 
    /* This cannot be done in sdl_initialize because the threading system
-    * requires a completed ALLEGRO_SYSTEM which only exists after the
+    * requires a completed A5O_SYSTEM which only exists after the
     * function returns. This function on the other hand will get called
     * once the system was created.
     */
@@ -178,12 +178,12 @@ static void sdl_heartbeat_init(void)
 
 static void sdl_shutdown_system(void)
 {
-   ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
+   A5O_SYSTEM_SDL *s = (void *)al_get_system_driver();
 
    /* Close all open displays. */
    while (_al_vector_size(&s->system.displays) > 0) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->system.displays, 0);
-      ALLEGRO_DISPLAY *d = *dptr;
+      A5O_DISPLAY **dptr = _al_vector_ref(&s->system.displays, 0);
+      A5O_DISPLAY *d = *dptr;
       al_destroy_display(d);
    }
    _al_vector_free(&s->system.displays);
@@ -193,28 +193,28 @@ static void sdl_shutdown_system(void)
    SDL_Quit();
 }
 
-static ALLEGRO_PATH *sdl_get_path(int id)
+static A5O_PATH *sdl_get_path(int id)
 {
-   ALLEGRO_PATH *p = NULL;
+   A5O_PATH *p = NULL;
    char* dir;
    switch (id) {
-      case ALLEGRO_TEMP_PATH:
-      case ALLEGRO_USER_DOCUMENTS_PATH:
-      case ALLEGRO_USER_DATA_PATH:
-      case ALLEGRO_USER_SETTINGS_PATH:
+      case A5O_TEMP_PATH:
+      case A5O_USER_DOCUMENTS_PATH:
+      case A5O_USER_DATA_PATH:
+      case A5O_USER_SETTINGS_PATH:
          dir = SDL_GetPrefPath(al_get_org_name(), al_get_app_name());
          p = al_create_path_for_directory(dir);
-         if (id == ALLEGRO_TEMP_PATH) {
+         if (id == A5O_TEMP_PATH) {
             al_append_path_component(p, "tmp");
          }
          SDL_free(dir);
          break;
-      case ALLEGRO_RESOURCES_PATH:
-      case ALLEGRO_EXENAME_PATH:
-      case ALLEGRO_USER_HOME_PATH:
+      case A5O_RESOURCES_PATH:
+      case A5O_EXENAME_PATH:
+      case A5O_USER_HOME_PATH:
          dir = SDL_GetBasePath();
          p = al_create_path_for_directory(dir);
-         if (id == ALLEGRO_EXENAME_PATH) {
+         if (id == A5O_EXENAME_PATH) {
             al_set_path_filename(p, al_get_app_name());
          }
          SDL_free(dir);
@@ -223,33 +223,33 @@ static ALLEGRO_PATH *sdl_get_path(int id)
    return p;
 }
 
-static ALLEGRO_DISPLAY_INTERFACE *sdl_get_display_driver(void)
+static A5O_DISPLAY_INTERFACE *sdl_get_display_driver(void)
 {
    return _al_sdl_display_driver();
 }
 
-static ALLEGRO_KEYBOARD_DRIVER *sdl_get_keyboard_driver(void)
+static A5O_KEYBOARD_DRIVER *sdl_get_keyboard_driver(void)
 {
    return _al_sdl_keyboard_driver();
 }
 
-static ALLEGRO_MOUSE_DRIVER *sdl_get_mouse_driver(void)
+static A5O_MOUSE_DRIVER *sdl_get_mouse_driver(void)
 {
    return _al_sdl_mouse_driver();
 }
 
-static ALLEGRO_TOUCH_INPUT_DRIVER *sdl_get_touch_input_driver(void)
+static A5O_TOUCH_INPUT_DRIVER *sdl_get_touch_input_driver(void)
 {
    return _al_sdl_touch_input_driver();
 }
 
-static ALLEGRO_JOYSTICK_DRIVER *sdl_get_joystick_driver(void)
+static A5O_JOYSTICK_DRIVER *sdl_get_joystick_driver(void)
 {
    return _al_sdl_joystick_driver();
 }
 
 #define ADD(allegro, sdl) if (sdl_format == \
-   SDL_PIXELFORMAT_##sdl) return ALLEGRO_PIXEL_FORMAT_##allegro;
+   SDL_PIXELFORMAT_##sdl) return A5O_PIXEL_FORMAT_##allegro;
 int _al_sdl_get_allegro_pixel_format(int sdl_format) {
    ADD(ARGB_8888, ARGB8888)
    ADD(RGBA_8888, RGBA8888)
@@ -259,7 +259,7 @@ int _al_sdl_get_allegro_pixel_format(int sdl_format) {
 #undef ADD
 
 #define ADD(allegro, sdl) if (allegro_format == \
-   ALLEGRO_PIXEL_FORMAT_##allegro) return SDL_PIXELFORMAT_##sdl;
+   A5O_PIXEL_FORMAT_##allegro) return SDL_PIXELFORMAT_##sdl;
 int _al_sdl_get_sdl_pixel_format(int allegro_format) {
    ADD(ANY, ABGR8888)
    ADD(ANY_NO_ALPHA, ABGR8888)
@@ -280,7 +280,7 @@ static int sdl_get_num_video_adapters(void)
    return SDL_GetNumVideoDisplays();
 }
 
-static bool sdl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool sdl_get_monitor_info(int adapter, A5O_MONITOR_INFO *info)
 {
    SDL_Rect rect;
    if (SDL_GetDisplayBounds(adapter, &rect) < 0)
@@ -292,10 +292,10 @@ static bool sdl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    return true;
 }
 
-static ALLEGRO_MOUSE_CURSOR* sdl_create_mouse_cursor(ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
+static A5O_MOUSE_CURSOR* sdl_create_mouse_cursor(A5O_BITMAP *sprite, int xfocus, int yfocus)
 {
    SDL_Cursor *cursor;
-   ALLEGRO_MOUSE_CURSOR_SDL *sdl_cursor;
+   A5O_MOUSE_CURSOR_SDL *sdl_cursor;
 
    int w = al_get_bitmap_width(sprite);
    int h = al_get_bitmap_height(sprite);
@@ -316,13 +316,13 @@ static ALLEGRO_MOUSE_CURSOR* sdl_create_mouse_cursor(ALLEGRO_BITMAP *sprite, int
    amask = 0xff000000;
 #endif
 
-   ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(sprite, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_READONLY);
+   A5O_LOCKED_REGION *lock = al_lock_bitmap(sprite, A5O_PIXEL_FORMAT_ABGR_8888, A5O_LOCK_READONLY);
    if (lock) {
       int i = 0, y = 0;
       for (y = 0; y < h; y++) {
          int x = 0;
          for (x = 0; x < w; x++) {
-            ALLEGRO_COLOR c = al_get_pixel(sprite, x, y);
+            A5O_COLOR c = al_get_pixel(sprite, x, y);
             al_unmap_rgba(c, data+i, data+i+1, data+i+2, data+i+3);
             i += 4;
          }
@@ -346,12 +346,12 @@ static ALLEGRO_MOUSE_CURSOR* sdl_create_mouse_cursor(ALLEGRO_BITMAP *sprite, int
    }
 
    sdl_cursor->cursor = cursor;
-   return (ALLEGRO_MOUSE_CURSOR *)sdl_cursor;
+   return (A5O_MOUSE_CURSOR *)sdl_cursor;
 }
 
-static void sdl_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
+static void sdl_destroy_mouse_cursor(A5O_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_MOUSE_CURSOR_SDL *sdl_cursor = (ALLEGRO_MOUSE_CURSOR_SDL *) cursor;
+   A5O_MOUSE_CURSOR_SDL *sdl_cursor = (A5O_MOUSE_CURSOR_SDL *) cursor;
    ASSERT(sdl_cursor);
    SDL_FreeCursor(sdl_cursor->cursor);
    al_free(sdl_cursor);
@@ -373,7 +373,7 @@ static int sdl_get_num_display_modes(void)
    return SDL_GetNumDisplayModes(i);
 }
 
-static ALLEGRO_DISPLAY_MODE *sdl_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
+static A5O_DISPLAY_MODE *sdl_get_display_mode(int index, A5O_DISPLAY_MODE *mode)
 {
    SDL_DisplayMode sdl_mode;
    int i = al_get_new_display_adapter();
@@ -399,13 +399,13 @@ static bool sdl_inhibit_screensaver(bool inhibit)
 }
 
 /* Internal function to get a reference to this driver. */
-ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
+A5O_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
 {
    if (vt)
       return vt;
 
    vt = al_calloc(1, sizeof *vt);
-   vt->id = ALLEGRO_SYSTEM_ID_SDL;
+   vt->id = A5O_SYSTEM_ID_SDL;
    vt->initialize = sdl_initialize;
    vt->get_display_driver = sdl_get_display_driver;
    vt->get_keyboard_driver = sdl_get_keyboard_driver;
@@ -442,7 +442,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
 
 void _al_register_system_interfaces(void)
 {
-   ALLEGRO_SYSTEM_INTERFACE **add;
+   A5O_SYSTEM_INTERFACE **add;
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_sdl_system_driver();
 }

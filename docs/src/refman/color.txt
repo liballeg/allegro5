@@ -32,7 +32,7 @@ brightness output of the monitor will be less than half).
 
 ## API: al_color_cmyk
 
-Return an [ALLEGRO_COLOR] structure from CMYK values (cyan, magenta, yellow,
+Return an [A5O_COLOR] structure from CMYK values (cyan, magenta, yellow,
 black).
 
 See also: [al_color_cmyk_to_rgb], [al_color_rgb_to_cmyk]
@@ -47,7 +47,7 @@ See also: [al_color_cmyk], [al_color_rgb_to_cmyk]
 
 ## API: al_color_hsl
 
-Return an [ALLEGRO_COLOR] structure from HSL (hue, saturation, lightness)
+Return an [A5O_COLOR] structure from HSL (hue, saturation, lightness)
 values.
 
 Parameters:
@@ -75,7 +75,7 @@ See also: [al_color_rgb_to_hsl], [al_color_hsl], [al_color_hsv_to_rgb]
 
 ## API: al_color_hsv
 
-Return an [ALLEGRO_COLOR] structure from HSV (hue, saturation, value)
+Return an [A5O_COLOR] structure from HSV (hue, saturation, value)
 values.
 
 Parameters:
@@ -130,7 +130,7 @@ See also: [al_color_html], [al_color_rgb_to_html]
 
 ## API: al_color_rgb_to_html
 
-Create an HTML-style string representation of an [ALLEGRO_COLOR],
+Create an HTML-style string representation of an [A5O_COLOR],
 e.g. #00faff.
 
 Parameters:
@@ -153,7 +153,7 @@ See also: [al_color_html], [al_color_html_to_rgb]
 
 ## API: al_color_name
 
-Return an [ALLEGRO_COLOR] with the given name.  If the color is not found then
+Return an [A5O_COLOR] with the given name.  If the color is not found then
 black is returned.
 
 See [al_color_name_to_rgb] for the list of names.
@@ -261,7 +261,7 @@ See also: [al_color_xyz], [al_color_xyz_to_rgb]
 
 ## API: al_color_xyz
 
-Return an [ALLEGRO_COLOR] structure from XYZ values. The CIE 1931 XYZ
+Return an [A5O_COLOR] structure from XYZ values. The CIE 1931 XYZ
 color space consists of three components in the range 0..1. The Y
 component corresponds to luminance and the X and Z components define
 the color.
@@ -300,7 +300,7 @@ See also: [al_color_xyy], [al_color_xyy_to_rgb]
 
 ## API: al_color_xyy
 
-Return an [ALLEGRO_COLOR] structure from xyY values. The Y component
+Return an [A5O_COLOR] structure from xyY values. The Y component
 in the xyY color space is the same as the Y in XYZ.
 
 However the x and y values are computed from XYZ like this:
@@ -335,7 +335,7 @@ See also: [al_color_lab], [al_color_lab_to_rgb]
 
 ## API: al_color_lab
 
-Return an [ALLEGRO_COLOR] structure from CIE L\*a\*b\* values. The L\*
+Return an [A5O_COLOR] structure from CIE L\*a\*b\* values. The L\*
 component corresponds to luminance from 0..1. The a\* and b\* components
 are in the range -1..+1.
 
@@ -377,7 +377,7 @@ See also: [al_color_lch], [al_color_lch_to_rgb]
 
 ## API: al_color_lch
 
-Return an [ALLEGRO_COLOR] structure from CIE LCH values. LCH colors are
+Return an [A5O_COLOR] structure from CIE LCH values. LCH colors are
 very similar to HSL, with the same meaning of L and H and C
 corresponding to S. However LCH is more visually uniform. Furthermore,
 this function expects the angle for H in radians and not in degree.
@@ -438,7 +438,7 @@ See also: [al_color_yuv], [al_color_yuv_to_rgb]
 
 ## API: al_color_yuv
 
-Return an [ALLEGRO_COLOR] structure from YUV values.
+Return an [A5O_COLOR] structure from YUV values.
 
 See also: [al_color_yuv_to_rgb], [al_color_rgb_to_yuv]
 
@@ -476,7 +476,7 @@ See also: [al_color_oklab], [al_color_oklab_to_rgb]
 
 ## API: al_color_oklab
 
-Return an [ALLEGRO_COLOR] structure from Oklab values. The L component
+Return an [A5O_COLOR] structure from Oklab values. The L component
 corresponds to luminance from 0..1. The a and b components
 are in the range -1..+1.
 
@@ -512,7 +512,7 @@ See also: [al_color_linear], [al_color_linear_to_rgb]
 
 ## API: al_color_linear
 
-Return an [ALLEGRO_COLOR] structure from linear sRGB values. Allegro
+Return an [A5O_COLOR] structure from linear sRGB values. Allegro
 RGB values are assumed to be sRGB. The sRGB standard is in wide use by
 various display devices. It accounts for a standard gamma correction
 applied to RGB colors before they get displayed.
@@ -528,7 +528,7 @@ For some applications it may be useful to specify a color in linear sRGB
 components, in which case you can use this function. For example:
 
 ~~~~c
-ALLEGRO_COLOR gray = al_color_linear(0.216, 0.216, 0.216);
+A5O_COLOR gray = al_color_linear(0.216, 0.216, 0.216);
 char html[8];
 al_color_rgb_to_html(gray.r, gray.g, gray.b, html); // "#808080"
 ~~~~

@@ -10,8 +10,8 @@ typedef struct TRANSITION {
    GAMESTATE *to;
    double duration;
    double progress;
-   ALLEGRO_BITMAP *from_bmp;
-   ALLEGRO_BITMAP *to_bmp;
+   A5O_BITMAP *from_bmp;
+   A5O_BITMAP *to_bmp;
 } TRANSITION;
 
 

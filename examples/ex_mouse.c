@@ -9,8 +9,8 @@
 static void draw_mouse_button(int but, bool down)
 {
    const int offset[NUM_BUTTONS] = {0, 70, 35};
-   ALLEGRO_COLOR grey;
-   ALLEGRO_COLOR black;
+   A5O_COLOR grey;
+   A5O_COLOR black;
    int x;
    int y;
 
@@ -29,10 +29,10 @@ static void draw_mouse_button(int but, bool down)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *cursor;
-   ALLEGRO_MOUSE_STATE msestate;
-   ALLEGRO_KEYBOARD_STATE kbdstate;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *cursor;
+   A5O_MOUSE_STATE msestate;
+   A5O_KEYBOARD_STATE kbdstate;
    int i;
 
    (void)argc;
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
       al_flip_display();
 
       al_rest(0.005);
-   } while (!al_key_down(&kbdstate, ALLEGRO_KEY_ESCAPE));
+   } while (!al_key_down(&kbdstate, A5O_KEY_ESCAPE));
 
    return 0;
 }

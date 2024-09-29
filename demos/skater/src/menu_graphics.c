@@ -65,7 +65,7 @@ static void init(void)
       choice_res = calloc(n + 1, sizeof *choice_res);
       menu[3].data = (void *)choice_res;
       for (i = 0; i < n; i++) {
-         ALLEGRO_DISPLAY_MODE m;
+         A5O_DISPLAY_MODE m;
          char str[100];
          al_get_display_mode(i, &m);
          sprintf(str, "%dx%d", m.width, m.height);

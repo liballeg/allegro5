@@ -11,7 +11,7 @@
 /* The GTK and OSX implementations do not require an extra thread.
  * The Windows implementation does.
  */
-#if defined(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS) 
+#if defined(A5O_CFG_NATIVE_DIALOG_WINDOWS) 
    #define TEXT_LOG_EXTRA_THREAD true
 #else
    #define TEXT_LOG_EXTRA_THREAD false
@@ -19,9 +19,9 @@
 
 
 /* This will only return when the text window is closed. */
-static void *text_log_thread_proc(ALLEGRO_THREAD *thread, void *arg)
+static void *text_log_thread_proc(A5O_THREAD *thread, void *arg)
 {
-   ALLEGRO_NATIVE_DIALOG *textlog = arg;
+   A5O_NATIVE_DIALOG *textlog = arg;
 
    if (!_al_open_native_text_log(textlog)) {
       al_lock_mutex(textlog->tl_text_mutex);
@@ -36,9 +36,9 @@ static void *text_log_thread_proc(ALLEGRO_THREAD *thread, void *arg)
 
 /* Function: al_open_native_text_log
  */
-ALLEGRO_TEXTLOG *al_open_native_text_log(char const *title, int flags)
+A5O_TEXTLOG *al_open_native_text_log(char const *title, int flags)
 {
-   ALLEGRO_NATIVE_DIALOG *textlog = NULL;
+   A5O_NATIVE_DIALOG *textlog = NULL;
 
    /* Avoid warnings when log windows are unimplemented. */
    (void)title;
@@ -76,22 +76,22 @@ ALLEGRO_TEXTLOG *al_open_native_text_log(char const *title, int flags)
    }
 
    if (textlog->tl_init_error) {
-      al_close_native_text_log((ALLEGRO_TEXTLOG *)textlog);
+      al_close_native_text_log((A5O_TEXTLOG *)textlog);
       return NULL;
    }
 
    textlog->dtor_item = _al_register_destructor(_al_dtor_list, "textlog", textlog,
       (void (*)(void *))al_close_native_text_log);
 
-   return (ALLEGRO_TEXTLOG *)textlog;
+   return (A5O_TEXTLOG *)textlog;
 }
 
 
 /* Function: al_close_native_text_log
  */
-void al_close_native_text_log(ALLEGRO_TEXTLOG *textlog)
+void al_close_native_text_log(A5O_TEXTLOG *textlog)
 {
-   ALLEGRO_NATIVE_DIALOG *dialog = (ALLEGRO_NATIVE_DIALOG *)textlog;
+   A5O_NATIVE_DIALOG *dialog = (A5O_NATIVE_DIALOG *)textlog;
 
    if (!dialog)
       return;
@@ -132,10 +132,10 @@ void al_close_native_text_log(ALLEGRO_TEXTLOG *textlog)
 
 /* Function: al_append_native_text_log
  */
-void al_append_native_text_log(ALLEGRO_TEXTLOG *textlog,
+void al_append_native_text_log(A5O_TEXTLOG *textlog,
    char const *format, ...)
 {
-   ALLEGRO_NATIVE_DIALOG *dialog = (ALLEGRO_NATIVE_DIALOG *)textlog;
+   A5O_NATIVE_DIALOG *dialog = (A5O_NATIVE_DIALOG *)textlog;
    va_list args;
 
    /* Fall back to printf if no window. */
@@ -161,10 +161,10 @@ void al_append_native_text_log(ALLEGRO_TEXTLOG *textlog,
 
 /* Function: al_get_native_text_log_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_native_text_log_event_source(
-   ALLEGRO_TEXTLOG *textlog)
+A5O_EVENT_SOURCE *al_get_native_text_log_event_source(
+   A5O_TEXTLOG *textlog)
 {
-   ALLEGRO_NATIVE_DIALOG *dialog = (ALLEGRO_NATIVE_DIALOG *)textlog;
+   A5O_NATIVE_DIALOG *dialog = (A5O_NATIVE_DIALOG *)textlog;
    ASSERT(dialog);
 
    return &dialog->tl_events;

@@ -86,7 +86,7 @@ char const *names[] = {
 
 int title_pal[];
 int game_pal[];
-ALLEGRO_BITMAP *ast;
+A5O_BITMAP *ast;
 
 static PALETTE *_make_pal(int *pal) {
     PALETTE *p = al_calloc(1, sizeof *p);

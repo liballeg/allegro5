@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <gtk/gtkx.h>
 
-#define ALLEGRO_INTERNAL_UNSTABLE
+#define A5O_INTERNAL_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
 #include "allegro5/internal/aintern.h"
@@ -14,13 +14,13 @@
 #include "gtk_dialog.h"
 #include "gtk_xgtk.h"
 
-ALLEGRO_DEBUG_CHANNEL("gtk")
+A5O_DEBUG_CHANNEL("gtk")
 
 
 typedef struct ARGS_CREATE
 {
    ARGS_BASE base; /* must be first */
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_DISPLAY_XGLX *display;
    int w;
    int h;
    const char *title;
@@ -29,14 +29,14 @@ typedef struct ARGS_CREATE
 typedef struct
 {
    ARGS_BASE base; /* must be first */
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_DISPLAY_XGLX *display;
    bool is_last;
 } ARGS_DESTROY;
 
 typedef struct
 {
    ARGS_BASE base; /* must be first */
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_DISPLAY_XGLX *display;
    int w;
    int h;
 } ARGS_RESIZE;
@@ -44,21 +44,21 @@ typedef struct
 typedef struct
 {
    ARGS_BASE base; /* must be first */
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_DISPLAY_XGLX *display;
    const char *title;
 } ARGS_TITLE;
 
 typedef struct
 {
    ARGS_BASE base; /* must be first */
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_DISPLAY_XGLX *display;
    bool fullscreen;
 } ARGS_FULLSCREEN_WINDOW;
 
 typedef struct
 {
    ARGS_BASE base; /* must be first */
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_DISPLAY_XGLX *display;
    int x;
    int y;
 } ARGS_POSITION;
@@ -67,27 +67,27 @@ typedef struct
 typedef struct ARGS_SET_FLAG
 {
    ARGS_BASE base; /* must be first */
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_DISPLAY_XGLX *display;
    bool onoff;
 } ARGS_SET_FLAG;
 
 
 /* forward declarations */
 static gboolean xgtk_quit_callback(GtkWidget *widget, GdkEvent *event,
-   ALLEGRO_DISPLAY *display);
+   A5O_DISPLAY *display);
 static gboolean xgtk_handle_configure_event(GtkWidget *widget,
-   GdkEventConfigure *event, ALLEGRO_DISPLAY *display);
-static void xgtk_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff);
+   GdkEventConfigure *event, A5O_DISPLAY *display);
+static void xgtk_set_fullscreen_window(A5O_DISPLAY *display, bool onoff);
 
-static struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt;
+static struct A5O_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt;
 
 
 /* [gtk thread] */
 static gboolean do_create_display_hook(gpointer data)
 {
    const ARGS_CREATE *args = _al_gtk_lock_args(data);
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)args->display;
-   ALLEGRO_DISPLAY_XGLX *d = args->display;
+   A5O_DISPLAY *display = (A5O_DISPLAY *)args->display;
+   A5O_DISPLAY_XGLX *d = args->display;
    const int w = args->w;
    const int h = args->h;
 
@@ -111,13 +111,13 @@ static gboolean do_create_display_hook(gpointer data)
    d->gtk->gtksocket = socket;
    gtk_box_pack_end(GTK_BOX(vbox), socket, TRUE, TRUE, 0);
    gtk_socket_add_id(GTK_SOCKET(socket), d->window);
-   ALLEGRO_DEBUG("gtk_socket_add_id: window = %ld\n", d->window);
+   A5O_DEBUG("gtk_socket_add_id: window = %ld\n", d->window);
 
    gtk_window_set_title(GTK_WINDOW(window), args->title);
 
    gtk_widget_show_all(window);
 
-   if (display->flags & ALLEGRO_RESIZABLE) {
+   if (display->flags & A5O_RESIZABLE) {
       /* Allow socket widget to be resized smaller than initial size. */
       gtk_widget_set_size_request(socket, -1, -1);
       gtk_window_set_resizable(GTK_WINDOW(window), true);
@@ -126,7 +126,7 @@ static gboolean do_create_display_hook(gpointer data)
       gtk_window_set_resizable(GTK_WINDOW(window), false);
    }
 
-   if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+   if (display->flags & A5O_FULLSCREEN_WINDOW) {
       gtk_window_fullscreen(GTK_WINDOW(window));
    }
 
@@ -137,14 +137,14 @@ static gboolean do_create_display_hook(gpointer data)
 
 
 /* [user thread] */
-static bool xgtk_create_display_hook(ALLEGRO_DISPLAY *display, int w, int h)
+static bool xgtk_create_display_hook(A5O_DISPLAY *display, int w, int h)
 {
-   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *d = (A5O_DISPLAY_XGLX *)display;
    ARGS_CREATE args;
 
    d->gtk = al_calloc(1, sizeof(*(d->gtk)));
    if (!d->gtk) {
-      ALLEGRO_WARN("Out of memory\n");
+      A5O_WARN("Out of memory\n");
       return false;
    }
 
@@ -170,7 +170,7 @@ static bool xgtk_create_display_hook(ALLEGRO_DISPLAY *display, int w, int h)
 
 
 static gboolean xgtk_quit_callback(GtkWidget *widget, GdkEvent *event,
-   ALLEGRO_DISPLAY *display)
+   A5O_DISPLAY *display)
 {
    (void)widget;
    (void)event;
@@ -180,9 +180,9 @@ static gboolean xgtk_quit_callback(GtkWidget *widget, GdkEvent *event,
 
 
 static gboolean xgtk_handle_configure_event(GtkWidget *widget,
-   GdkEventConfigure *event, ALLEGRO_DISPLAY *display)
+   GdkEventConfigure *event, A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *d = (A5O_DISPLAY_XGLX *)display;
    (void)widget;
    (void)event;
 
@@ -199,7 +199,7 @@ static gboolean xgtk_handle_configure_event(GtkWidget *widget,
 static gboolean do_destroy_display_hook(gpointer data)
 {
    ARGS_DESTROY *args = _al_gtk_lock_args(data);
-   ALLEGRO_DISPLAY_XGLX *d = args->display;
+   A5O_DISPLAY_XGLX *d = args->display;
    bool is_last = args->is_last;
 
    gtk_widget_destroy(d->gtk->gtkwindow);
@@ -213,9 +213,9 @@ static gboolean do_destroy_display_hook(gpointer data)
 
 
 /* [user thread] */
-static void xgtk_destroy_display_hook(ALLEGRO_DISPLAY *display, bool is_last)
+static void xgtk_destroy_display_hook(A5O_DISPLAY *display, bool is_last)
 {
-   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *d = (A5O_DISPLAY_XGLX *)display;
    ARGS_DESTROY args;
 
    if (!_al_gtk_init_args(&args, sizeof(args)))
@@ -235,7 +235,7 @@ static void xgtk_destroy_display_hook(ALLEGRO_DISPLAY *display, bool is_last)
 static gboolean do_resize_display1(gpointer data)
 {
    ARGS_RESIZE *args = _al_gtk_lock_args(data);
-   ALLEGRO_DISPLAY_XGLX *d = args->display;
+   A5O_DISPLAY_XGLX *d = args->display;
    int w = args->w;
    int h = args->h;
 
@@ -257,7 +257,7 @@ static gboolean do_resize_display1(gpointer data)
 static gboolean do_resize_display2(gpointer data)
 {
    ARGS_RESIZE *args = _al_gtk_lock_args(data);
-   ALLEGRO_DISPLAY_XGLX *d = args->display;
+   A5O_DISPLAY_XGLX *d = args->display;
 
    /* Remove the minimum size constraint again. */
    gtk_widget_set_size_request(d->gtk->gtksocket, -1, -1);
@@ -267,10 +267,10 @@ static gboolean do_resize_display2(gpointer data)
 
 
 /* [user thread] */
-static bool xgtk_resize_display(ALLEGRO_DISPLAY *display, int w, int h)
+static bool xgtk_resize_display(A5O_DISPLAY *display, int w, int h)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *d = (A5O_DISPLAY_XGLX *)display;
    bool ret = true;
 
    _al_mutex_lock(&system->lock);
@@ -312,7 +312,7 @@ static bool xgtk_resize_display(ALLEGRO_DISPLAY *display, int w, int h)
 static gboolean do_set_window_title(gpointer data)
 {
    ARGS_TITLE *args = _al_gtk_lock_args(data);
-   ALLEGRO_DISPLAY_XGLX *d = args->display;
+   A5O_DISPLAY_XGLX *d = args->display;
    const char *title = args->title;
 
    gtk_window_set_title(GTK_WINDOW(d->gtk->gtkwindow), title);
@@ -322,12 +322,12 @@ static gboolean do_set_window_title(gpointer data)
 
 
 /* [user thread] */
-static void xgtk_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+static void xgtk_set_window_title(A5O_DISPLAY *display, const char *title)
 {
    ARGS_TITLE args;
 
    if (_al_gtk_init_args(&args, sizeof(args))) {
-      args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+      args.display = (A5O_DISPLAY_XGLX *)display;
       args.title = title;
       _al_gtk_wait_for_args(do_set_window_title, &args);
    }
@@ -337,7 +337,7 @@ static void xgtk_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 static gboolean do_set_fullscreen_window(gpointer data)
 {
    ARGS_FULLSCREEN_WINDOW *args = _al_gtk_lock_args(data);
-   ALLEGRO_DISPLAY_XGLX *d = args->display;
+   A5O_DISPLAY_XGLX *d = args->display;
    bool fullscreen = args->fullscreen;
 
    if (fullscreen) {
@@ -352,12 +352,12 @@ static gboolean do_set_fullscreen_window(gpointer data)
 
 
 /* [user thread] */
-static void xgtk_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
+static void xgtk_set_fullscreen_window(A5O_DISPLAY *display, bool onoff)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *d = (A5O_DISPLAY_XGLX *)display;
 
-   if (onoff == (display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+   if (onoff == (display->flags & A5O_FULLSCREEN_WINDOW)) {
       return;
    }
 
@@ -366,7 +366,7 @@ static void xgtk_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
       int old_resize_count;
       ARGS_FULLSCREEN_WINDOW args;
 
-      display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
+      display->flags ^= A5O_FULLSCREEN_WINDOW;
       old_resize_count = d->resize_count;
       d->programmatic_resize = true;
 
@@ -376,7 +376,7 @@ static void xgtk_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
          _al_gtk_wait_for_args(do_set_fullscreen_window, &args);
 
          _al_display_xglx_await_resize(display, old_resize_count,
-            (display->flags & ALLEGRO_FULLSCREEN));
+            (display->flags & A5O_FULLSCREEN));
       }
 
       d->programmatic_resize = false;
@@ -398,12 +398,12 @@ static gboolean do_set_window_position(gpointer data)
 
 
 /* [user thread] */
-static void xgtk_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void xgtk_set_window_position(A5O_DISPLAY *display, int x, int y)
 {
    ARGS_POSITION args;
 
    if (_al_gtk_init_args(&args, sizeof(args))) {
-      args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+      args.display = (A5O_DISPLAY_XGLX *)display;
       args.x = x;
       args.y = y;
       _al_gtk_wait_for_args(do_set_window_position, &args);
@@ -412,7 +412,7 @@ static void xgtk_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 
 
 /* [user thread] */
-static bool xgtk_set_window_constraints(ALLEGRO_DISPLAY *display,
+static bool xgtk_set_window_constraints(A5O_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
    // FIXME
@@ -456,37 +456,37 @@ static gboolean do_set_frameless(gpointer data)
 
 
 /* [user thread] */
-static bool xgtk_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+static bool xgtk_set_display_flag(A5O_DISPLAY *display, int flag, bool onoff)
 {
    switch (flag) {
-      case ALLEGRO_FRAMELESS: {
-         if (!!(display->flags & ALLEGRO_FRAMELESS) == onoff)
+      case A5O_FRAMELESS: {
+         if (!!(display->flags & A5O_FRAMELESS) == onoff)
             return true;
-         ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+         A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
          ARGS_SET_FLAG args;
          _al_mutex_lock(&system->lock);
          if (_al_gtk_init_args(&args, sizeof(args))) {
-            args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+            args.display = (A5O_DISPLAY_XGLX *)display;
             args.onoff = onoff;
             _al_gtk_wait_for_args(do_set_frameless, &args);
             if (onoff)
-               display->flags |= ALLEGRO_FRAMELESS;
+               display->flags |= A5O_FRAMELESS;
             else
-               display->flags &= ~ALLEGRO_FRAMELESS;
+               display->flags &= ~A5O_FRAMELESS;
          }
          _al_mutex_unlock(&system->lock);
          return true;
       }
-      case ALLEGRO_MAXIMIZED: {
-         if (!!(display->flags & ALLEGRO_MAXIMIZED) == onoff)
+      case A5O_MAXIMIZED: {
+         if (!!(display->flags & A5O_MAXIMIZED) == onoff)
             return true;
-         ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+         A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
          ARGS_SET_FLAG args;
          _al_mutex_lock(&system->lock);
          if (_al_gtk_init_args(&args, sizeof(args))) {
-            args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+            args.display = (A5O_DISPLAY_XGLX *)display;
             args.onoff = onoff;
-            ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+            A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
             int old_resize_count = glx->resize_count;
             _al_gtk_wait_for_args(do_maximize, &args);
             _al_display_xglx_await_resize(display, old_resize_count, true);
@@ -495,7 +495,7 @@ static bool xgtk_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff
 
          return true;
       }
-      case ALLEGRO_FULLSCREEN_WINDOW:
+      case A5O_FULLSCREEN_WINDOW:
          xgtk_set_fullscreen_window(display, onoff);
          return true;
    }
@@ -515,22 +515,22 @@ static gboolean do_check_maximized(gpointer data)
 
 
 /* [user thread] */
-static void xgtk_check_maximized(ALLEGRO_DISPLAY *display)
+static void xgtk_check_maximized(A5O_DISPLAY *display)
 {
    ARGS_SET_FLAG args;
    if (_al_gtk_init_args(&args, sizeof(args))) {
-      args.display = (ALLEGRO_DISPLAY_XGLX *)display;
+      args.display = (A5O_DISPLAY_XGLX *)display;
       _al_gtk_wait_for_args(do_check_maximized, &args);
       if (args.onoff) {
-         display->flags |= ALLEGRO_MAXIMIZED;
+         display->flags |= A5O_MAXIMIZED;
       }
       else {
-         display->flags &= ~ALLEGRO_MAXIMIZED;
+         display->flags &= ~A5O_MAXIMIZED;
       }
    }
 }
 
-static struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt =
+static struct A5O_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt =
 {
    xgtk_create_display_hook,
    xgtk_destroy_display_hook,
@@ -546,20 +546,20 @@ static struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt =
 
 bool _al_gtk_set_display_overridable_interface(bool on)
 {
-   return _al_xwin_set_gtk_display_overridable_interface(ALLEGRO_VERSION_INT,
+   return _al_xwin_set_gtk_display_overridable_interface(A5O_VERSION_INT,
       (on) ? &xgtk_override_vt : NULL);
 }
 
 
-GtkWidget *_al_gtk_get_window(ALLEGRO_DISPLAY *display)
+GtkWidget *_al_gtk_get_window(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *d = (A5O_DISPLAY_XGLX *)display;
 
    if (d->overridable_vt == &xgtk_override_vt) {
       return d->gtk->gtkwindow;
    }
 
-   ALLEGRO_WARN("Not display created with GTK.\n");
+   A5O_WARN("Not display created with GTK.\n");
    return NULL;
 }
 

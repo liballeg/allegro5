@@ -37,20 +37,20 @@
 
 /* these are available in OpenWatcom 1.3 (12.3) */
 #if __WATCOMC__ >= 1230
-   #define ALLEGRO_HAVE_INTTYPES_H	1
-   #define ALLEGRO_HAVE_STDINT_H	1
+   #define A5O_HAVE_INTTYPES_H	1
+   #define A5O_HAVE_STDINT_H	1
 #else
-   #define ALLEGRO_GUESS_INTTYPES_OK
+   #define A5O_GUESS_INTTYPES_OK
 #endif
 
 
 /* describe this platform */
-#define ALLEGRO_PLATFORM_STR  "Watcom"
-#define ALLEGRO_DOS
-#define ALLEGRO_I386
-#define ALLEGRO_LITTLE_ENDIAN
+#define A5O_PLATFORM_STR  "Watcom"
+#define A5O_DOS
+#define A5O_I386
+#define A5O_LITTLE_ENDIAN
 
-#ifdef ALLEGRO_GUESS_INTTYPES_OK
+#ifdef A5O_GUESS_INTTYPES_OK
    #define int64_t   signed long long
    #define uint64_t  unsigned long long
 #endif
@@ -177,5 +177,5 @@ void _unlock_dpmi_data(void *addr, int size);
 
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro5/platform/aldos.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintdos.h"
+#define A5O_EXTRA_HEADER     "allegro5/platform/aldos.h"
+#define A5O_INTERNAL_HEADER  "allegro5/platform/aintdos.h"

@@ -335,9 +335,9 @@ native-lib.cpp and replace its code with this:
              al_flip_display();
              redraw = false;
          }
-         ALLEGRO_EVENT event;
+         A5O_EVENT event;
          al_wait_for_event(queue, &event);
-         if (event.type == ALLEGRO_EVENT_TIMER) {
+         if (event.type == A5O_EVENT_TIMER) {
              redraw = true;
          }
      }

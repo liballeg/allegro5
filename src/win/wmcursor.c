@@ -26,14 +26,14 @@
 #include "allegro5/platform/aintwin.h"
 
 
-static void local_stretch_blit_to_hdc(ALLEGRO_BITMAP *bitmap, HDC dc,
+static void local_stretch_blit_to_hdc(A5O_BITMAP *bitmap, HDC dc,
    int src_x, int src_y, int src_w, int src_h,
    int dest_x, int dest_y, int dest_w, int dest_h);
-static void local_draw_to_hdc(HDC dc, ALLEGRO_BITMAP *bitmap, int x, int y);
+static void local_draw_to_hdc(HDC dc, A5O_BITMAP *bitmap, int x, int y);
 
 
 HICON _al_win_create_icon(HWND wnd,
-   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor, bool resize)
+   A5O_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor, bool resize)
 {
    int x, y;
    int sys_sm_cx, sys_sm_cy;
@@ -47,7 +47,7 @@ HICON _al_win_create_icon(HWND wnd,
    HBITMAP hOldXorMaskBitmap;
    HICON icon;
    bool was_locked;
-   ALLEGRO_BITMAP *tmp = sprite;
+   A5O_BITMAP *tmp = sprite;
 
    if (resize) {
       if (is_cursor) {
@@ -63,7 +63,7 @@ HICON _al_win_create_icon(HWND wnd,
       if ((tmp->w > sys_sm_cx) || (tmp->h > sys_sm_cy)) {
          float ratio = tmp->w / (float)tmp->h;
          int w, h;
-         ALLEGRO_STATE state;
+         A5O_STATE state;
          if (ratio > 1) {
             w = sys_sm_cx;
             h = sys_sm_cy / ratio;
@@ -72,10 +72,10 @@ HICON _al_win_create_icon(HWND wnd,
             w = sys_sm_cx * ratio;
             h = sys_sm_cy;
          }
-         al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP |
-            ALLEGRO_STATE_BLENDER);
+         al_store_state(&state, A5O_STATE_TARGET_BITMAP |
+            A5O_STATE_BLENDER);
          tmp = _al_create_bitmap_params(al_get_current_display(), w, h,
-            al_get_bitmap_format(tmp), ALLEGRO_MEMORY_BITMAP, 0, 0);
+            al_get_bitmap_format(tmp), A5O_MEMORY_BITMAP, 0, 0);
          al_set_target_bitmap(tmp);
          al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
          al_draw_scaled_bitmap(
@@ -114,7 +114,7 @@ HICON _al_win_create_icon(HWND wnd,
    /* Lock sprite to speed up repeated get pixel calls. */
    was_locked = al_is_bitmap_locked(tmp);
    if (!was_locked) {
-      al_lock_bitmap(tmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+      al_lock_bitmap(tmp, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
    }
 
    local_draw_to_hdc(h_xor_dc, tmp, 0, 0);
@@ -122,7 +122,7 @@ HICON _al_win_create_icon(HWND wnd,
    /* Make cursor background transparent */
    for (y = 0; y < tmp->h; y++) {
       for (x = 0; x < tmp->w; x++) {
-         ALLEGRO_COLOR c;
+         A5O_COLOR c;
          unsigned char r, g, b, a;
 
          c = al_get_pixel(tmp, x, y);
@@ -167,12 +167,12 @@ HICON _al_win_create_icon(HWND wnd,
 }
 
 
-ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_BITMAP *sprite,
+A5O_MOUSE_CURSOR *_al_win_create_mouse_cursor(A5O_BITMAP *sprite,
    int xfocus, int yfocus)
 {
    HWND wnd;
    HCURSOR hcursor;
-   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor;
+   A5O_MOUSE_CURSOR_WIN *win_cursor;
 
    /* A null HWND retrieves the DC for the entire screen. */
    wnd = NULL;
@@ -189,15 +189,15 @@ ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_BITMAP *sprite,
    }
 
    win_cursor->hcursor = hcursor;
-   return (ALLEGRO_MOUSE_CURSOR *)win_cursor;
+   return (A5O_MOUSE_CURSOR *)win_cursor;
 }
 
 
 
-void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
+void _al_win_destroy_mouse_cursor(A5O_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
-   ALLEGRO_SYSTEM *sys = al_get_system_driver();
+   A5O_MOUSE_CURSOR_WIN *win_cursor = (A5O_MOUSE_CURSOR_WIN *) cursor;
+   A5O_SYSTEM *sys = al_get_system_driver();
    unsigned i;
 
    ASSERT(win_cursor);
@@ -205,12 +205,12 @@ void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
    /* XXX not at all thread safe */
 
    for (i = 0; i < _al_vector_size(&sys->displays); i++) {
-      ALLEGRO_DISPLAY_WIN **slot = _al_vector_ref(&sys->displays, i);
-      ALLEGRO_DISPLAY_WIN *win_display = *slot;
+      A5O_DISPLAY_WIN **slot = _al_vector_ref(&sys->displays, i);
+      A5O_DISPLAY_WIN *win_display = *slot;
 
       if (win_cursor->hcursor == win_display->mouse_selected_hcursor) {
-         _al_win_set_system_mouse_cursor((ALLEGRO_DISPLAY *)win_display,
-            ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+         _al_win_set_system_mouse_cursor((A5O_DISPLAY *)win_display,
+            A5O_SYSTEM_MOUSE_CURSOR_ARROW);
       }
    }
 
@@ -220,11 +220,11 @@ void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 
 
 
-bool _al_win_set_mouse_cursor(ALLEGRO_DISPLAY *display,
-                              ALLEGRO_MOUSE_CURSOR *cursor)
+bool _al_win_set_mouse_cursor(A5O_DISPLAY *display,
+                              A5O_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *) display;
+   A5O_MOUSE_CURSOR_WIN *win_cursor = (A5O_MOUSE_CURSOR_WIN *) cursor;
 
    ASSERT(win_cursor);
    ASSERT(win_cursor->hcursor);
@@ -248,28 +248,28 @@ bool _al_win_set_mouse_cursor(ALLEGRO_DISPLAY *display,
 }
 
 
-bool _al_win_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+bool _al_win_show_mouse_cursor(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   ALLEGRO_MOUSE_CURSOR_WIN tmp_cursor;
-   ALLEGRO_MOUSE_CURSOR_WIN *tmp_cursor_ptr = &tmp_cursor;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *) display;
+   A5O_MOUSE_CURSOR_WIN tmp_cursor;
+   A5O_MOUSE_CURSOR_WIN *tmp_cursor_ptr = &tmp_cursor;
 
    /* XXX do we need this? */
    if (!win_display->mouse_selected_hcursor) {
-      _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+      _al_win_set_system_mouse_cursor(display, A5O_SYSTEM_MOUSE_CURSOR_ARROW);
    }
 
    tmp_cursor.hcursor = win_display->mouse_selected_hcursor;
    win_display->mouse_cursor_shown = true;
    win_display->hide_mouse_on_move = false;
-   _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR *)tmp_cursor_ptr);
+   _al_win_set_mouse_cursor(display, (A5O_MOUSE_CURSOR *)tmp_cursor_ptr);
 
    return true;
 }
 
-bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+bool _al_win_hide_mouse_cursor(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *) display;
    win_display->mouse_cursor_shown = false;
    PostMessage(win_display->window, WM_SETCURSOR, 0, 0);
 
@@ -277,41 +277,41 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 }
 
 
-static HCURSOR system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+static HCURSOR system_cursor_to_hcursor(A5O_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    switch (cursor_id) {
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT:
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
+      case A5O_SYSTEM_MOUSE_CURSOR_DEFAULT:
+      case A5O_SYSTEM_MOUSE_CURSOR_ARROW:
          return LoadCursor(NULL, IDC_ARROW);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
+      case A5O_SYSTEM_MOUSE_CURSOR_BUSY:
          return LoadCursor(NULL, IDC_WAIT);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
+      case A5O_SYSTEM_MOUSE_CURSOR_QUESTION:
          return LoadCursor(NULL, IDC_HELP);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
+      case A5O_SYSTEM_MOUSE_CURSOR_EDIT:
          return LoadCursor(NULL, IDC_IBEAM);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE:
+      case A5O_SYSTEM_MOUSE_CURSOR_MOVE:
          return LoadCursor(NULL, IDC_SIZEALL);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N:
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_N:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_S:
          return LoadCursor(NULL, IDC_SIZENS);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E:
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_E:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_W:
          return LoadCursor(NULL, IDC_SIZEWE);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE:
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_NE:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_SW:
          return LoadCursor(NULL, IDC_SIZENESW);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW:
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_NW:
+      case A5O_SYSTEM_MOUSE_CURSOR_RESIZE_SE:
          return LoadCursor(NULL, IDC_SIZENWSE);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS:
+      case A5O_SYSTEM_MOUSE_CURSOR_PROGRESS:
          return LoadCursor(NULL, IDC_APPSTARTING);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION:
+      case A5O_SYSTEM_MOUSE_CURSOR_PRECISION:
          return LoadCursor(NULL, IDC_CROSS);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK:
+      case A5O_SYSTEM_MOUSE_CURSOR_LINK:
          return LoadCursor(NULL, IDC_HAND);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT:
+      case A5O_SYSTEM_MOUSE_CURSOR_ALT_SELECT:
          return LoadCursor(NULL, IDC_UPARROW);
-      case ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE:
+      case A5O_SYSTEM_MOUSE_CURSOR_UNAVAILABLE:
          return LoadCursor(NULL, IDC_NO);
       default:
          return NULL;
@@ -319,10 +319,10 @@ static HCURSOR system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 }
 
 
-bool _al_win_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+bool _al_win_set_system_mouse_cursor(A5O_DISPLAY *display,
+   A5O_SYSTEM_MOUSE_CURSOR cursor_id)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *) display;
    HCURSOR wc;
 
    wc = system_cursor_to_hcursor(cursor_id);
@@ -337,10 +337,10 @@ bool _al_win_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
       MySetCursor(wc);
       PostMessage(wgl_display->window, WM_MOUSEMOVE, 0, 0);
       */
-      ALLEGRO_MOUSE_CURSOR_WIN tmp_cursor;
-      ALLEGRO_MOUSE_CURSOR_WIN *tmp_cursor_ptr = &tmp_cursor;
+      A5O_MOUSE_CURSOR_WIN tmp_cursor;
+      A5O_MOUSE_CURSOR_WIN *tmp_cursor_ptr = &tmp_cursor;
       tmp_cursor.hcursor = wc;
-      _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR *)tmp_cursor_ptr);
+      _al_win_set_mouse_cursor(display, (A5O_MOUSE_CURSOR *)tmp_cursor_ptr);
    }
    return true;
 }
@@ -351,12 +351,12 @@ bool _al_win_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 
 
 /* get_bitmap_info:
- *  Returns a BITMAPINFO structure suited to an ALLEGRO_BITMAP.
+ *  Returns a BITMAPINFO structure suited to an A5O_BITMAP.
  *  You have to free the memory allocated by this function.
  *
  *  This version always returns a 32-bit BITMAPINFO.
  */
-static BITMAPINFO *get_bitmap_info(ALLEGRO_BITMAP *bitmap)
+static BITMAPINFO *get_bitmap_info(A5O_BITMAP *bitmap)
 {
    BITMAPINFO *bi;
    int i;
@@ -391,7 +391,7 @@ static BITMAPINFO *get_bitmap_info(ALLEGRO_BITMAP *bitmap)
  *
  *  This version always creates a 32-bit DIB.
  */
-static BYTE *get_dib_from_bitmap_32(ALLEGRO_BITMAP *bitmap)
+static BYTE *get_dib_from_bitmap_32(A5O_BITMAP *bitmap)
 {
    int w, h;
    int x, y;
@@ -411,7 +411,7 @@ static BYTE *get_dib_from_bitmap_32(ALLEGRO_BITMAP *bitmap)
       dst = pixels + y * pitch;
 
       for (x = 0; x < w; x++) {
-         ALLEGRO_COLOR col;
+         A5O_COLOR col;
          unsigned char r, g, b, a;
 
          col = al_get_pixel(bitmap, x, y);
@@ -436,7 +436,7 @@ static BYTE *get_dib_from_bitmap_32(ALLEGRO_BITMAP *bitmap)
  *  Draws an entire Allegro BITMAP to a Windows DC. Has a syntax similar to
  *  draw_sprite().
  */
-static void local_draw_to_hdc(HDC dc, ALLEGRO_BITMAP *bitmap, int x, int y)
+static void local_draw_to_hdc(HDC dc, A5O_BITMAP *bitmap, int x, int y)
 {
    int w = al_get_bitmap_width(bitmap);
    int h = al_get_bitmap_height(bitmap);
@@ -449,7 +449,7 @@ static void local_draw_to_hdc(HDC dc, ALLEGRO_BITMAP *bitmap, int x, int y)
  *  Blits an Allegro BITMAP to a Windows DC. Has a syntax similar to
  *  stretch_blit().
  */
-static void local_stretch_blit_to_hdc(ALLEGRO_BITMAP *bitmap, HDC dc,
+static void local_stretch_blit_to_hdc(A5O_BITMAP *bitmap, HDC dc,
    int src_x, int src_y, int src_w, int src_h,
    int dest_x, int dest_y, int dest_w, int dest_h)
 {

@@ -119,14 +119,14 @@ typedef struct HID_DEVICE_COLLECTION HID_DEVICE_COLLECTION;
 int _al_osx_bootstrap_ok(void);
 void _al_osx_tell_dock(void);
 
-void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY*);
-void _al_osx_keyboard_modifiers(unsigned int new_mods, ALLEGRO_DISPLAY*);
+void _al_osx_keyboard_handler(int pressed, NSEvent *event, A5O_DISPLAY*);
+void _al_osx_keyboard_modifiers(unsigned int new_mods, A5O_DISPLAY*);
 void _al_osx_keyboard_focused(int focused, int state);
 
-void _al_osx_mouse_generate_event(NSEvent*, ALLEGRO_DISPLAY*);
+void _al_osx_mouse_generate_event(NSEvent*, A5O_DISPLAY*);
 void _al_osx_mouse_handler(NSEvent*);
-int _al_osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y);
-int _al_osx_mouse_show(ALLEGRO_BITMAP *bmp, int x, int y);
+int _al_osx_mouse_set_sprite(A5O_BITMAP *sprite, int x, int y);
+int _al_osx_mouse_show(A5O_BITMAP *bmp, int x, int y);
 void _al_osx_mouse_hide(void);
 void _al_osx_mouse_move(int x, int y);
 
@@ -134,33 +134,33 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION*);
 void _al_osx_hid_free(HID_DEVICE_COLLECTION *);
 
 // Record in the keyboard state that the main window has changed
-void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *, bool switch_in);
+void _al_osx_switch_keyboard_focus(A5O_DISPLAY *, bool switch_in);
 // Record in the mouse state that the main window has changed
-void _al_osx_switch_mouse_focus(ALLEGRO_DISPLAY *, bool switch_in);
+void _al_osx_switch_mouse_focus(A5O_DISPLAY *, bool switch_in);
 // Clear the mouse state when a dialog closes in the dialog addon
 void _al_osx_clear_mouse_state(void);
 // Notify the display that the mouse driver was installed/uninstalled.
 void _al_osx_mouse_was_installed(BOOL);
 // Create and destroy mouse cursors
-ALLEGRO_MOUSE_CURSOR *_al_osx_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus);
-void _al_osx_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *curs);
+A5O_MOUSE_CURSOR *_al_osx_create_mouse_cursor(A5O_BITMAP *bmp, int x_focus, int y_focus);
+void _al_osx_destroy_mouse_cursor(A5O_MOUSE_CURSOR *curs);
 // Notify the display that the keyboard driver was installed/uninstalled.
 void _al_osx_keyboard_was_installed(BOOL);
 // Notify that the quit menu was clicked
 void _al_osx_post_quit(void);
 // Get the underlying view
-NSView* _al_osx_view_from_display(ALLEGRO_DISPLAY*);
+NSView* _al_osx_view_from_display(A5O_DISPLAY*);
 // Create an image from an allegro bitmap
-NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
+NSImage* NSImageFromAllegroBitmap(A5O_BITMAP* bmp);
 // Get the y coordinate of the upper-left corner of the primary display.
 int _al_osx_get_primary_screen_y(void);
 // Get the global scale factor.
 float _al_osx_get_global_scale_factor(void);
 // Drivers
-AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, _al_osx_get_keyboard_driver, (void));
-AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, _al_osx_get_display_driver, (void));
-AL_FUNC(ALLEGRO_MOUSE_DRIVER*, _al_osx_get_mouse_driver, (void));
-AL_FUNC(ALLEGRO_JOYSTICK_DRIVER*, _al_osx_get_joystick_driver, (void));
+AL_FUNC(A5O_KEYBOARD_DRIVER*, _al_osx_get_keyboard_driver, (void));
+AL_FUNC(A5O_DISPLAY_INTERFACE*, _al_osx_get_display_driver, (void));
+AL_FUNC(A5O_MOUSE_DRIVER*, _al_osx_get_mouse_driver, (void));
+AL_FUNC(A5O_JOYSTICK_DRIVER*, _al_osx_get_joystick_driver, (void));
 #endif
 
 AL_FUNC(int, _al_osx_run_main, (int argc, char **argv,

@@ -20,15 +20,15 @@
 
 /* This is a custom mult line output function that demonstrates
  * al_do_multiline_text. See below for the implementation. */
-static void draw_custom_multiline(ALLEGRO_FONT * font, int x, int y,
+static void draw_custom_multiline(A5O_FONT * font, int x, int y,
    int max_width, int line_height, int tick, const char * text);
 
-ALLEGRO_TIMER *timer;
-ALLEGRO_FONT  *font;
-ALLEGRO_FONT  *font_ttf;
-ALLEGRO_FONT  *font_bmp;
-ALLEGRO_FONT  *font_gui;
-ALLEGRO_FONT  *font_bin;
+A5O_TIMER *timer;
+A5O_FONT  *font;
+A5O_FONT  *font_ttf;
+A5O_FONT  *font_bmp;
+A5O_FONT  *font_gui;
+A5O_FONT  *font_bin;
 
 class Prog : public EventHandler {
 private:
@@ -47,14 +47,14 @@ private:
    int tick;
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, A5O_DISPLAY *display);
    virtual ~Prog() {}
    void run();
    void draw_text();
-   void handle_event(const ALLEGRO_EVENT & event);
+   void handle_event(const A5O_EVENT & event);
 };
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display) :
    d(Dialog(theme, display, 14, 20)),
    text_label(Label("Text")),
    width_label(Label("Width")),
@@ -111,9 +111,9 @@ void Prog::run()
    }
 }
 
-void Prog::handle_event(const ALLEGRO_EVENT & event)
+void Prog::handle_event(const A5O_EVENT & event)
 {
-   if (event.type == ALLEGRO_EVENT_TIMER) {
+   if (event.type == A5O_EVENT_TIMER) {
       tick = (int)event.timer.count;
       d.request_draw();
    }
@@ -137,12 +137,12 @@ void Prog::draw_text()
    }
    
    if (text_align.get_selected_item_text() == "Left") {
-      flags = ALLEGRO_ALIGN_LEFT | ALLEGRO_ALIGN_INTEGER;
+      flags = A5O_ALIGN_LEFT | A5O_ALIGN_INTEGER;
    } else if (text_align.get_selected_item_text() == "Center") {
-      flags = ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER;
+      flags = A5O_ALIGN_CENTER | A5O_ALIGN_INTEGER;
       x = 10 + w / 2;
    } else if (text_align.get_selected_item_text() == "Right") {
-      flags = ALLEGRO_ALIGN_RIGHT | ALLEGRO_ALIGN_INTEGER;
+      flags = A5O_ALIGN_RIGHT | A5O_ALIGN_INTEGER;
       x  = 10 + w;
    }
   
@@ -164,7 +164,7 @@ void Prog::draw_text()
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
 
    (void)argc;
    (void)argv;
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
    al_init_ttf_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display\n");
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 
 /* Helper struct for draw_custom_multiline. */
 typedef struct DRAW_CUSTOM_LINE_EXTRA {
-   const ALLEGRO_FONT *font;
+   const A5O_FONT *font;
    float x;
    float y;
    int tick;
@@ -245,8 +245,8 @@ static bool draw_custom_multiline_cb(int line_num, const char *line, int size,
    void *extra) {
    DRAW_CUSTOM_LINE_EXTRA *s = (DRAW_CUSTOM_LINE_EXTRA *) extra;
    float x, y;
-   ALLEGRO_USTR_INFO info;
-   ALLEGRO_COLOR c =
+   A5O_USTR_INFO info;
+   A5O_COLOR c =
       al_color_hsv(fmod(360.0 * (float)line_num / 5.0 + s->tick, 360.0),
                    1.0, 1.0);
    x  = s->x + 10 + sin(line_num + s->tick * 0.05) * 10;
@@ -257,7 +257,7 @@ static bool draw_custom_multiline_cb(int line_num, const char *line, int size,
 
 /* This is a custom mult line output function that demonstrates
  * al_do_multiline_text. */
-static void draw_custom_multiline(ALLEGRO_FONT * font, int x, int y,
+static void draw_custom_multiline(A5O_FONT * font, int x, int y,
    int max_width, int line_height, int tick, const char * text) {
    DRAW_CUSTOM_LINE_EXTRA extra;
 

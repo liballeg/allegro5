@@ -1,12 +1,12 @@
 #import <UIKit/UIKit.h>
 
-struct ALLEGRO_DISPLAY;
+struct A5O_DISPLAY;
 
 @interface ViewController : UIViewController
 {
 @public
 	int adapter;
-	struct ALLEGRO_DISPLAY *display;
+	struct A5O_DISPLAY *display;
 }
 
 - (void) create_view;

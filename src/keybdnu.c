@@ -19,7 +19,7 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -31,7 +31,7 @@
 
 
 /* the active keyboard driver */
-static ALLEGRO_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
+static A5O_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
 
 
 /* Provide a default naming for the most common keys. Keys whose
@@ -101,9 +101,9 @@ const char *_al_keyboard_common_names[/* leave empty */] =
    "SCROLLLOCK", "NUMLOCK",    "CAPSLOCK"
 };
 
-ALLEGRO_STATIC_ASSERT(keybdnu,
+A5O_STATIC_ASSERT(keybdnu,
    sizeof(_al_keyboard_common_names) / sizeof(_al_keyboard_common_names[0])
-   == ALLEGRO_KEY_MAX);
+   == A5O_KEY_MAX);
 
 
 
@@ -185,11 +185,11 @@ void al_uninstall_keyboard(void)
 /* This was in the public API but its only purpose is now served by
  * al_get_keyboard_event_source().
  */
-static ALLEGRO_KEYBOARD *al_get_keyboard(void)
+static A5O_KEYBOARD *al_get_keyboard(void)
 {
    ASSERT(new_keyboard_driver);
    {
-      ALLEGRO_KEYBOARD *kbd = new_keyboard_driver->get_keyboard();
+      A5O_KEYBOARD *kbd = new_keyboard_driver->get_keyboard();
       ASSERT(kbd);
 
       return kbd;
@@ -230,7 +230,7 @@ const char *al_keycode_to_name(int keycode)
    const char *name = NULL;
 
    ASSERT(new_keyboard_driver);
-   ASSERT((keycode >= 0) && (keycode < ALLEGRO_KEY_MAX));
+   ASSERT((keycode >= 0) && (keycode < A5O_KEY_MAX));
 
    if (new_keyboard_driver->keycode_to_name)
       name = new_keyboard_driver->keycode_to_name(keycode);
@@ -247,7 +247,7 @@ const char *al_keycode_to_name(int keycode)
 
 /* Function: al_get_keyboard_state
  */
-void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
+void al_get_keyboard_state(A5O_KEYBOARD_STATE *ret_state)
 {
    ASSERT(new_keyboard_driver);
    ASSERT(ret_state);
@@ -259,20 +259,20 @@ void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 /* Function: al_clear_keyboard_state
  */
-void al_clear_keyboard_state(ALLEGRO_DISPLAY *display)
+void al_clear_keyboard_state(A5O_DISPLAY *display)
 {
    ASSERT(new_keyboard_driver);
 
    if (display) {
-      ALLEGRO_EVENT_SOURCE *es = al_get_keyboard_event_source();
-      ALLEGRO_KEYBOARD_STATE ks; al_get_keyboard_state(&ks);
+      A5O_EVENT_SOURCE *es = al_get_keyboard_event_source();
+      A5O_KEYBOARD_STATE ks; al_get_keyboard_state(&ks);
       _al_event_source_lock(es);
       if (_al_event_source_needs_to_generate_event(es)) {
          int keycode;
-         for (keycode = ALLEGRO_KEY_A; keycode < ALLEGRO_KEY_MAX; keycode++) {
+         for (keycode = A5O_KEY_A; keycode < A5O_KEY_MAX; keycode++) {
             if (al_key_down(&ks, keycode)) {
-               ALLEGRO_EVENT event;
-               event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+               A5O_EVENT event;
+               event.keyboard.type = A5O_EVENT_KEY_UP;
                event.keyboard.timestamp = al_get_time();
                event.keyboard.display = display;
                event.keyboard.keycode = keycode;
@@ -292,7 +292,7 @@ void al_clear_keyboard_state(ALLEGRO_DISPLAY *display)
 
 /* Function: al_key_down
  */
-bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
+bool al_key_down(const A5O_KEYBOARD_STATE *state, int keycode)
 {
    return _AL_KEYBOARD_STATE_KEY_DOWN(*state, keycode);
 }
@@ -301,9 +301,9 @@ bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
 
 /* Function: al_get_keyboard_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_keyboard_event_source(void)
+A5O_EVENT_SOURCE *al_get_keyboard_event_source(void)
 {
-   ALLEGRO_KEYBOARD *keyboard = al_get_keyboard();
+   A5O_KEYBOARD *keyboard = al_get_keyboard();
 
    return (keyboard) ? &keyboard->es : NULL;
 }
@@ -315,7 +315,7 @@ static int match_key_name(const char *s)
    int i;
 
    /* Some key names are not intuitive, but this is all we've got. */
-   for (i = 1; i < ALLEGRO_KEY_MAX; i++) {
+   for (i = 1; i < A5O_KEY_MAX; i++) {
       if (0 == _al_stricmp(s, _al_keyboard_common_names[i]))
          return i;
    }
@@ -326,13 +326,13 @@ static int match_key_name(const char *s)
 
 static unsigned int match_modifier(const char *s)
 {
-   if (0 == _al_stricmp(s, "SHIFT"))   return ALLEGRO_KEYMOD_SHIFT;
-   if (0 == _al_stricmp(s, "CTRL"))    return ALLEGRO_KEYMOD_CTRL;
-   if (0 == _al_stricmp(s, "ALT"))     return ALLEGRO_KEYMOD_ALT;
-   if (0 == _al_stricmp(s, "LWIN"))    return ALLEGRO_KEYMOD_LWIN;
-   if (0 == _al_stricmp(s, "RWIN"))    return ALLEGRO_KEYMOD_RWIN;
-   if (0 == _al_stricmp(s, "ALTGR"))   return ALLEGRO_KEYMOD_ALTGR;
-   if (0 == _al_stricmp(s, "COMMAND")) return ALLEGRO_KEYMOD_COMMAND;
+   if (0 == _al_stricmp(s, "SHIFT"))   return A5O_KEYMOD_SHIFT;
+   if (0 == _al_stricmp(s, "CTRL"))    return A5O_KEYMOD_CTRL;
+   if (0 == _al_stricmp(s, "ALT"))     return A5O_KEYMOD_ALT;
+   if (0 == _al_stricmp(s, "LWIN"))    return A5O_KEYMOD_LWIN;
+   if (0 == _al_stricmp(s, "RWIN"))    return A5O_KEYMOD_RWIN;
+   if (0 == _al_stricmp(s, "ALTGR"))   return A5O_KEYMOD_ALTGR;
+   if (0 == _al_stricmp(s, "COMMAND")) return A5O_KEYMOD_COMMAND;
    return 0;
 }
 
@@ -340,7 +340,7 @@ static unsigned int match_modifier(const char *s)
 
 int _al_parse_key_binding(const char *s, unsigned int *modifiers)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
    unsigned start = 0;
    int keycode = 0;
 

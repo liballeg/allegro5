@@ -7,9 +7,9 @@
 
 #include "common.c"
 
-static ALLEGRO_BITMAP *load_bitmap(char const *filename)
+static A5O_BITMAP *load_bitmap(char const *filename)
 {
-   ALLEGRO_BITMAP *bitmap = al_load_bitmap(filename);
+   A5O_BITMAP *bitmap = al_load_bitmap(filename);
    if (!bitmap)
       abort_example("%s not found or failed to load\n", filename);
    return bitmap;
@@ -17,12 +17,12 @@ static ALLEGRO_BITMAP *load_bitmap(char const *filename)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bitmap[2];
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bitmap[2];
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    bool redraw = true;
-   ALLEGRO_SHADER *shader;
+   A5O_SHADER *shader;
    int t = 0;
    const char* pixel_file = NULL;
 
@@ -38,11 +38,11 @@ int main(int argc, char **argv)
    al_init_image_addon();
    init_platform_specific();
 
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR |
-      ALLEGRO_MIPMAP);
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
-   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR |
+      A5O_MIPMAP);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLES, 4, A5O_SUGGEST);
+   al_set_new_display_flags(A5O_PROGRAMMABLE_PIPELINE);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
@@ -51,17 +51,17 @@ int main(int argc, char **argv)
    bitmap[0]= load_bitmap("data/mysha.pcx");
    bitmap[1]= load_bitmap("data/obp.jpg");
 
-   shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+   shader = al_create_shader(A5O_SHADER_AUTO);
    if (!shader)
       abort_example("Error creating shader.\n");
 
-   if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+   if (al_get_shader_platform(shader) == A5O_SHADER_GLSL) {
+#ifdef A5O_CFG_SHADER_GLSL
       pixel_file = "data/ex_shader_multitex_pixel.glsl";
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_SHADER_HLSL
+#ifdef A5O_CFG_SHADER_HLSL
       pixel_file = "data/ex_shader_multitex_pixel.hlsl";
 #endif
    }
@@ -69,11 +69,11 @@ int main(int argc, char **argv)
    if (!pixel_file) {
       abort_example("No shader source\n");
    }
-   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-         al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
+   if (!al_attach_shader_source(shader, A5O_VERTEX_SHADER,
+         al_get_default_shader_source(A5O_SHADER_AUTO, A5O_VERTEX_SHADER))) {
       abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
    }
-   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_file))
+   if (!al_attach_shader_source_file(shader, A5O_PIXEL_SHADER, pixel_file))
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
    if (!al_build_shader(shader))
       abort_example("al_build_shader failed: %s\n", al_get_shader_log(shader));
@@ -88,26 +88,26 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
          
       }
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          redraw = true;
          t++;
       }
 
       if (redraw && al_is_event_queue_empty(queue)) {
          int dw, dh;
-         double scale = 1 + 100 * (1 + sin(t * ALLEGRO_PI * 2 / 60 / 10));
-         double angle = ALLEGRO_PI * 2 * t / 60 / 15;
-         double x = 120 - 20 * cos(ALLEGRO_PI * 2 * t / 60 / 25);
-         double y = 120 - 20 * sin(ALLEGRO_PI * 2 * t / 60 / 25);
+         double scale = 1 + 100 * (1 + sin(t * A5O_PI * 2 / 60 / 10));
+         double angle = A5O_PI * 2 * t / 60 / 15;
+         double x = 120 - 20 * cos(A5O_PI * 2 * t / 60 / 25);
+         double y = 120 - 20 * sin(A5O_PI * 2 * t / 60 / 25);
          
          dw = al_get_display_width(display);
          dh = al_get_display_height(display);

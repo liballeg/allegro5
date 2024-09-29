@@ -6,7 +6,7 @@
 #  and finally zip up the results.
 #
 #  Note! If you use Cygwin to generate the DLLs make sure you have set up
-#  your MINGDIR and ALLEGRO_USE_CYGWIN environment variables correctly.
+#  your MINGDIR and A5O_USE_CYGWIN environment variables correctly.
 #
 #  It should be run from the root of the Allegro directory, eg.
 #  bash misc/zipwin.sh, so that it can find misc/vcvars.c and misc/askq.c.
@@ -22,7 +22,7 @@ name=$(echo "$1" | sed -e 's/.*[\\\/]//; s/\.zip//')
 
 
 # check that MSVC or Cygwin is available
-if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+if [ "$A5O_USE_CYGWIN" = "1" ]; then
    if [ "$MINGDIR" = "" ]; then
       echo "You need to set up Cygwin before running this script" 1>&2
       exit 1
@@ -43,7 +43,7 @@ fi
 
 
 # convert Allegro to MSVC or Cygwin format
-if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+if [ "$A5O_USE_CYGWIN" = "1" ]; then
    ./fix.sh mingw --dtou
 else
    ./fix.sh msvc --utod
@@ -76,7 +76,7 @@ ver=`sed -n -e "s/LIBRARY_VERSION = \(.*\)/\1/p" makefile.ver`
 
 # compile vcvars
 echo "Compiling vcvars.exe..."
-if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+if [ "$A5O_USE_CYGWIN" = "1" ]; then
    gcc -Wl,--subsystem,console -o vcvars.exe misc/vcvars.c -ladvapi32
 else
    cl -nologo misc/vcvars.c advapi32.lib
@@ -86,7 +86,7 @@ fi
 
 # compile askq
 echo "Compiling askq.exe..."
-if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+if [ "$A5O_USE_CYGWIN" = "1" ]; then
    gcc -Wl,--subsystem,console -o askq.exe misc/askq.c
 else
    cl -nologo misc/askq.c
@@ -143,7 +143,7 @@ END_OF_BATCH
 
 
 # If running Cygwin, we need to do some trickery
-if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+if [ "$A5O_USE_CYGWIN" = "1" ]; then
    ./fix.sh msvc --utod
    export MSVCDIR="MSVCDIR"
    make.exe depend UNIX_TOOLS=1
@@ -208,7 +208,7 @@ make.exe -n | \
 
 rm _fix1.sed _fix2.sed
 
-if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+if [ "$A5O_USE_CYGWIN" = "1" ]; then
    unset MSVCDIR
 fi
 
@@ -346,7 +346,7 @@ echo "Creating $name.zip..."
 cd ..
 if [ -f $name.zip ]; then rm $name.zip; fi
 
-if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+if [ "$A5O_USE_CYGWIN" = "1" ]; then
    unix2dos allegro/$name.txt
    unix2dos allegro/msvcmake.bat
 fi

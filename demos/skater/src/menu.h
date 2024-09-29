@@ -21,7 +21,7 @@
 #define		DEMO_MENU_MSG_HEIGHT	   5
 #define		DEMO_MENU_MSG_TICK		6
 
-extern ALLEGRO_BITMAP *demo_menu_canvas;
+extern A5O_BITMAP *demo_menu_canvas;
 
 typedef struct DEMO_MENU DEMO_MENU;
 

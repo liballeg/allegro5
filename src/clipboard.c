@@ -26,7 +26,7 @@
 
 /* Function: al_get_clipboard_text
  */
-char *al_get_clipboard_text(ALLEGRO_DISPLAY *display)
+char *al_get_clipboard_text(A5O_DISPLAY *display)
 {
    if (!display)
       display = al_get_current_display();
@@ -43,7 +43,7 @@ char *al_get_clipboard_text(ALLEGRO_DISPLAY *display)
 
 /* Function: al_set_clipboard_text
  */
-bool al_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
+bool al_set_clipboard_text(A5O_DISPLAY *display, const char *text)
 {
    if (!display)
       display = al_get_current_display();
@@ -61,7 +61,7 @@ bool al_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
 
 /* Function: al_clipboard_has_text
  */
-bool al_clipboard_has_text(ALLEGRO_DISPLAY *display)
+bool al_clipboard_has_text(A5O_DISPLAY *display)
 {
    if (!display)
       display = al_get_current_display();

@@ -9,7 +9,7 @@
 #include "allegro5/allegro_iphone.h"
 #include "allegro5/internal/aintern_iphone.h"
 
-ALLEGRO_DEBUG_CHANNEL("iphone")
+A5O_DEBUG_CHANNEL("iphone")
 
 typedef struct touch_t
 {
@@ -56,8 +56,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     return [CAEAGLLayer class];
 }
 
-- (void)set_allegro_display:(ALLEGRO_DISPLAY *)display {
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+- (void)set_allegro_display:(A5O_DISPLAY *)display {
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)display;
 
    allegro_display = display;
 
@@ -65,7 +65,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
    
    NSString *color_format = kEAGLColorFormatRGBA8;
-   if (display->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16)
+   if (display->extra_settings.settings[A5O_COLOR_SIZE] == 16)
       color_format = kEAGLColorFormatRGB565;
 
    eaglLayer.opaque = YES;
@@ -73,24 +73,24 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
       color_format, kEAGLDrawablePropertyColorFormat, nil];
 
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      ALLEGRO_INFO("Attempting to create ES2 context\n");
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+      A5O_INFO("Attempting to create ES2 context\n");
       context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
       if (context == nil) {
-         ALLEGRO_WARN("ES2 context could not be created. Attempting to create ES1 context instead.\n");
-         display->flags &= ~ ALLEGRO_PROGRAMMABLE_PIPELINE;
+         A5O_WARN("ES2 context could not be created. Attempting to create ES1 context instead.\n");
+         display->flags &= ~ A5O_PROGRAMMABLE_PIPELINE;
          context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
       }
    }
    else {
-      ALLEGRO_INFO("Attempting to create ES1 context.\n");
+      A5O_INFO("Attempting to create ES1 context.\n");
       context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
    }
 
-   ALLEGRO_INFO("Context is %p\n", context);
+   A5O_INFO("Context is %p\n", context);
    
    if (!context || ![EAGLContext setCurrentContext:context]) {
-      ALLEGRO_ERROR("context is nil or setCurrentContext failed.\n");
+      A5O_ERROR("context is nil or setCurrentContext failed.\n");
       [self release];
       return;
    }
@@ -99,12 +99,12 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    [self setMultipleTouchEnabled:YES];
 
 
-   ALLEGRO_INFO("Created EAGLView.\n");
+   A5O_INFO("Created EAGLView.\n");
 }
 
 - (id)initWithFrame:(CGRect)frame {
     
-    ALLEGRO_DEBUG("Creating UIView.\n");
+    A5O_DEBUG("Creating UIView.\n");
 
     self = [super initWithFrame:frame];
     
@@ -133,7 +133,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 }
 
 - (void)send_resize_event {
-   ALLEGRO_DISPLAY *display = allegro_display;
+   A5O_DISPLAY *display = allegro_display;
    
    int x = self.frame.origin.x;
    int y = self.frame.origin.y;
@@ -142,8 +142,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
    _al_event_source_lock(&display->es);
    if (_al_event_source_needs_to_generate_event(&display->es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_RESIZE;
       event.display.timestamp = al_get_time();
       event.display.x = x;
       event.display.y = y;
@@ -172,23 +172,23 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
 - (BOOL)orientation_supported:(UIInterfaceOrientation) o {
    if (!allegro_display) return NO;
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)allegro_display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)allegro_display;
    if (d->extra->adapter != 0) return NO;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &allegro_display->extra_settings;
-   int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
-   if (o == UIInterfaceOrientationPortrait) return supported & ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
-   if (o == UIInterfaceOrientationLandscapeLeft) return supported & ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
-   if (o == UIInterfaceOrientationPortraitUpsideDown) return supported & ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
-   if (o == UIInterfaceOrientationLandscapeRight) return supported & ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+   A5O_EXTRA_DISPLAY_SETTINGS *options = &allegro_display->extra_settings;
+   int supported = options->settings[A5O_SUPPORTED_ORIENTATIONS];
+   if (o == UIInterfaceOrientationPortrait) return supported & A5O_DISPLAY_ORIENTATION_0_DEGREES;
+   if (o == UIInterfaceOrientationLandscapeLeft) return supported & A5O_DISPLAY_ORIENTATION_90_DEGREES;
+   if (o == UIInterfaceOrientationPortraitUpsideDown) return supported & A5O_DISPLAY_ORIENTATION_180_DEGREES;
+   if (o == UIInterfaceOrientationLandscapeRight) return supported & A5O_DISPLAY_ORIENTATION_270_DEGREES;
    return NO;
 }
 
 - (BOOL)createFramebuffer {
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)allegro_display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)allegro_display;
 
     if (d->extra->adapter == 0 && [self respondsToSelector:@selector(contentScaleFactor)]) {
         scale = self.contentScaleFactor = [[UIScreen mainScreen] scale];
-        ALLEGRO_INFO("Screen scale is %f\n", self.contentScaleFactor);
+        A5O_INFO("Screen scale is %f\n", self.contentScaleFactor);
     }
     else {
     	scale = 1.0f;
@@ -205,11 +205,11 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
    
-    ALLEGRO_INFO("Creating GL framebuffer %dx%d.\n", backingWidth, backingHeight);
+    A5O_INFO("Creating GL framebuffer %dx%d.\n", backingWidth, backingHeight);
     
-    if (allegro_display->extra_settings.settings[ALLEGRO_DEPTH_SIZE]) {
+    if (allegro_display->extra_settings.settings[A5O_DEPTH_SIZE]) {
         GLint depth_stencil_format;
-        if (allegro_display->extra_settings.settings[ALLEGRO_STENCIL_SIZE]) {
+        if (allegro_display->extra_settings.settings[A5O_STENCIL_SIZE]) {
 	    depth_stencil_format = GL_DEPTH24_STENCIL8_OES;
 	}
 	else {
@@ -219,7 +219,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
         glRenderbufferStorageOES(GL_RENDERBUFFER_OES, depth_stencil_format, backingWidth, backingHeight);
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
-        if (allegro_display->extra_settings.settings[ALLEGRO_STENCIL_SIZE]) {
+        if (allegro_display->extra_settings.settings[A5O_STENCIL_SIZE]) {
         	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
 	}
     }

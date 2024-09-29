@@ -344,9 +344,9 @@ void _al_cond_wait(_AL_COND *cond, _AL_MUTEX *mtxExternal)
 
 
 int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
-   const ALLEGRO_TIMEOUT *timeout)
+   const A5O_TIMEOUT *timeout)
 {
-   ALLEGRO_TIMEOUT_WIN *win_timeout = (ALLEGRO_TIMEOUT_WIN *) timeout;
+   A5O_TIMEOUT_WIN *win_timeout = (A5O_TIMEOUT_WIN *) timeout;
    DWORD now;
    DWORD rel_msecs;
 

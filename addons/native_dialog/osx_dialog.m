@@ -70,8 +70,8 @@ static NSArray * get_filter_array(const _AL_VECTOR *patterns)
    return filter_array;
 }
 
-bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
-                                 ALLEGRO_NATIVE_DIALOG *fd)
+bool _al_show_native_file_dialog(A5O_DISPLAY *display,
+                                 A5O_NATIVE_DIALOG *fd)
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    (void)display;
@@ -81,7 +81,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
    /* Set initial directory to pass to the file selector */
    if (fd->fc_initial_path) {
-      ALLEGRO_PATH *initial_directory = al_clone_path(fd->fc_initial_path);
+      A5O_PATH *initial_directory = al_clone_path(fd->fc_initial_path);
       /* Strip filename from path  */
       al_set_path_filename(initial_directory, NULL);
 
@@ -98,7 +98,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       /* We need slightly different code for SAVE and LOAD dialog boxes, which
        * are handled by slightly different classes.
        */
-      if (mode & ALLEGRO_FILECHOOSER_SAVE) {    // Save dialog
+      if (mode & A5O_FILECHOOSER_SAVE) {    // Save dialog
          NSSavePanel *panel = [NSSavePanel savePanel];
          NSArray *filter_array;
 
@@ -138,7 +138,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          NSArray *filter_array;
 
          /* Set file selection box options */
-         if (mode & ALLEGRO_FILECHOOSER_FOLDER) {
+         if (mode & A5O_FILECHOOSER_FOLDER) {
             [panel setCanChooseFiles: NO];
             [panel setCanChooseDirectories: YES];
          } else {
@@ -147,7 +147,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          }
 
          [panel setResolvesAliases:YES];
-         if (mode & ALLEGRO_FILECHOOSER_MULTIPLE)
+         if (mode & A5O_FILECHOOSER_MULTIPLE)
             [panel setAllowsMultipleSelection: YES];
          else
             [panel setAllowsMultipleSelection: NO];
@@ -192,8 +192,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 }
 
 #pragma mark Alert Box
-int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
-                                ALLEGRO_NATIVE_DIALOG *fd)
+int _al_show_native_message_box(A5O_DISPLAY *display,
+                                A5O_NATIVE_DIALOG *fd)
 {
    (void)display;
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -204,8 +204,8 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
       if (fd->mb_buttons == NULL) {
          button_text = @"OK";
-         if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
-         if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
+         if (fd->flags & A5O_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
+         if (fd->flags & A5O_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
       }
       else {
          button_text = [NSString stringWithUTF8String: al_cstr(fd->mb_buttons)];
@@ -237,7 +237,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 #endif
 {
 @public
-   ALLEGRO_NATIVE_DIALOG *textlog;
+   A5O_NATIVE_DIALOG *textlog;
 }
 - (void)keyDown: (NSEvent*)event;
 - (BOOL)windowShouldClose: (id)sender;
@@ -265,7 +265,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 {
    (void)sender;
    if (self->textlog->is_active) {
-      if (!(self->textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE)) {
+      if (!(self->textlog->flags & A5O_TEXTLOG_NO_CLOSE)) {
          [self emitCloseEventWithKeypress: NO];
       }
    }
@@ -274,8 +274,8 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
 - (void)emitCloseEventWithKeypress: (BOOL)keypress
 {
-   ALLEGRO_EVENT event;
-   event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
+   A5O_EVENT event;
+   event.user.type = A5O_EVENT_NATIVE_DIALOG_CLOSE;
    event.user.timestamp = al_get_time();
    event.user.data1 = (intptr_t)self->textlog;
    event.user.data2 = (intptr_t)keypress;
@@ -293,13 +293,13 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 }
 @end
 
-bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+bool _al_open_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
    NSRect rect = NSMakeRect(0, 0, 640, 480);
    int adapter = al_get_new_display_adapter();
    NSScreen *screen;
    unsigned int mask = NSTitledWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
-   if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE))
+   if (!(textlog->flags & A5O_TEXTLOG_NO_CLOSE))
       mask |= NSClosableWindowMask;
 
    if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
@@ -335,7 +335,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       [[view textContainer] setContainerSize: NSMakeSize(rect.size.width, 1000000)];
       [[view textContainer] setWidthTracksTextView: NO];
       [view setTextColor: [NSColor grayColor]];
-      if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
+      if (textlog->flags & A5O_TEXTLOG_MONOSPACE) {
          [view setFont: [NSFont userFixedPitchFontOfSize: 0]];
       }
       [view setEditable: NO];
@@ -357,7 +357,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    return true;
 }
 
-void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+void _al_close_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
     NSWindow *win = (NSWindow *)textlog->window;
     __block bool is_visible = false;
@@ -375,7 +375,7 @@ void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
     textlog->tl_done = true;
 }
 
-void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+void _al_append_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
     if (textlog->is_active) {
         ALLEGLogView *view = (ALLEGLogView *)textlog->tl_textview;
@@ -407,29 +407,29 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
 /* This class represents a menu item target. There is one of these
  * for each NSMenu and it handles all the items in that menu. It
- * maintains the correspondence between ALLEGRO_MENU_ITEMs and
+ * maintains the correspondence between A5O_MENU_ITEMs and
  * NSMenuItems, taking into account the 'App menu' (the one with
  * the app's name in bold) which appears by convention on OS X.
  */
 @interface ALLEGMenuTarget : NSObject
 {
     NSLock* lock;
-    ALLEGRO_MENU* amenu;
+    A5O_MENU* amenu;
     BOOL _hasAppMenu;
     NSMenu* _menu;
 }
 -(NSMenu*) menu;
--(id) initWithMenu:(ALLEGRO_MENU*) amenu; // Designated initializer
+-(id) initWithMenu:(A5O_MENU*) amenu; // Designated initializer
 -(NSMenu*) menu;
 -(void) show;
 -(void) showPopup;
--(void) insertItem:(ALLEGRO_MENU_ITEM*) item atIndex:(int) index;
--(void) updateItem:(ALLEGRO_MENU_ITEM*) item atIndex: (int) index;
--(void) destroyItem:(ALLEGRO_MENU_ITEM*) item atIndex: (int) index;
+-(void) insertItem:(A5O_MENU_ITEM*) item atIndex:(int) index;
+-(void) updateItem:(A5O_MENU_ITEM*) item atIndex: (int) index;
+-(void) destroyItem:(A5O_MENU_ITEM*) item atIndex: (int) index;
 -(void) activated: (id) sender;
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem;
 -(void) dealloc;
-+(ALLEGMenuTarget*) targetForMenu:(ALLEGRO_MENU*) amenu;
++(ALLEGMenuTarget*) targetForMenu:(A5O_MENU*) amenu;
 @end
 
 /* Take a menu caption. If it has an accelerator char (preceeded by & or _)
@@ -446,39 +446,39 @@ static NSString* extract_accelerator(NSMutableString* caption) {
     }
 }
 
-bool _al_init_menu(ALLEGRO_MENU *amenu)
+bool _al_init_menu(A5O_MENU *amenu)
 {
    amenu->extra1 = [[ALLEGMenuTarget alloc] initWithMenu: amenu];
    return true;
 }
 
-bool _al_init_popup_menu(ALLEGRO_MENU *amenu)
+bool _al_init_popup_menu(A5O_MENU *amenu)
 {
     amenu->extra1 = [[ALLEGMenuTarget alloc] initWithMenu: amenu];
     return true;
 }
 
-bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *aitem, int i)
+bool _al_insert_menu_item_at(A5O_MENU_ITEM *aitem, int i)
 {
    ALLEGMenuTarget* mt = [ALLEGMenuTarget targetForMenu: aitem->parent];
    [mt insertItem: aitem atIndex: i];
    return true;
 }
 
-bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *aitem, int i)
+bool _al_destroy_menu_item_at(A5O_MENU_ITEM *aitem, int i)
 {
     ALLEGMenuTarget* mt = [ALLEGMenuTarget targetForMenu: aitem->parent];
     [mt destroyItem: aitem atIndex: i];
     return true;}
 
-bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+bool _al_update_menu_item_at(A5O_MENU_ITEM *item, int i)
 {
    ALLEGMenuTarget* mt = [ALLEGMenuTarget targetForMenu: item->parent];
    [mt updateItem: item atIndex: i];
    return true;
 }
 
-bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
+bool _al_show_display_menu(A5O_DISPLAY *display, A5O_MENU *amenu)
 {
     ALLEGMenuTarget* target = [ALLEGMenuTarget targetForMenu:amenu];
     NSWindow* window = al_osx_get_window(display);
@@ -488,7 +488,7 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
     return true;
 }
 
-bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool _al_hide_display_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
    (void)menu;
    (void)display;
@@ -496,7 +496,7 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    return false;
 }
 
-bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
+bool _al_show_popup_menu(A5O_DISPLAY *display, A5O_MENU *amenu)
 {
     (void) display;
     ALLEGMenuTarget* target = [ALLEGMenuTarget targetForMenu: amenu];
@@ -511,11 +511,11 @@ int _al_get_menu_display_height(void)
 }
 
 @implementation ALLEGMenuTarget
-/* Initial conversion of ALLEGRO_MENU_ITEM to NSMenuItem.
+/* Initial conversion of A5O_MENU_ITEM to NSMenuItem.
  * The target (self) is set for the item.
  * The checkbox state is not set here, it's done dynamically in -validateMenuItem.
  */
--(NSMenuItem*) buildMenuItemFor:(ALLEGRO_MENU_ITEM*) aitem
+-(NSMenuItem*) buildMenuItemFor:(A5O_MENU_ITEM*) aitem
 {
     NSMenuItem* item;
     if (aitem->caption && al_ustr_length(aitem->caption) > 0) {
@@ -552,8 +552,8 @@ int _al_get_menu_display_height(void)
         self->_hasAppMenu = YES;
     }
 }
-// Get the NSMenuItem corresponding to this ALLEGRO_MENU_ITEM
-- (NSMenuItem*) itemForAllegroItem:(ALLEGRO_MENU_ITEM*) aitem
+// Get the NSMenuItem corresponding to this A5O_MENU_ITEM
+- (NSMenuItem*) itemForAllegroItem:(A5O_MENU_ITEM*) aitem
 {
     int index = _al_vector_find(&self->amenu->items, &aitem);
     if (index >= 0) {
@@ -566,22 +566,22 @@ int _al_get_menu_display_height(void)
         return nil;
     }
 }
-// Get the ALLEGRO_MENU_ITEM corresponding to this NSMenuItem
-- (ALLEGRO_MENU_ITEM*) allegroItemforItem: (NSMenuItem*) mi
+// Get the A5O_MENU_ITEM corresponding to this NSMenuItem
+- (A5O_MENU_ITEM*) allegroItemforItem: (NSMenuItem*) mi
 {
     int i;
-    ALLEGRO_MENU_ITEM * ami;
+    A5O_MENU_ITEM * ami;
 
     for (i = 0; i < (int)_al_vector_size(&self->amenu->items); i++) {
-        ami = *(ALLEGRO_MENU_ITEM**) _al_vector_ref(&self->amenu->items, i);
+        ami = *(A5O_MENU_ITEM**) _al_vector_ref(&self->amenu->items, i);
         if (ami->extra1 == mi) {
             return ami;
         }
     }
     return NULL;
 }
-// Create target with ALLEGRO_MENU bound to it.
-- (id)initWithMenu:(ALLEGRO_MENU*) source_menu
+// Create target with A5O_MENU bound to it.
+- (id)initWithMenu:(A5O_MENU*) source_menu
 {
     self = [super init];
     if (self) {
@@ -599,11 +599,11 @@ int _al_get_menu_display_height(void)
 }
 // Manage the enabled and checked state (done dynamically by the framework)
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem {
-    ALLEGRO_MENU_ITEM* aitem = [self allegroItemforItem:menuItem];
+    A5O_MENU_ITEM* aitem = [self allegroItemforItem:menuItem];
     if (aitem) {
-        int checked = (aitem->flags & (ALLEGRO_MENU_ITEM_CHECKBOX|ALLEGRO_MENU_ITEM_CHECKED)) == (ALLEGRO_MENU_ITEM_CHECKBOX|ALLEGRO_MENU_ITEM_CHECKED);
+        int checked = (aitem->flags & (A5O_MENU_ITEM_CHECKBOX|A5O_MENU_ITEM_CHECKED)) == (A5O_MENU_ITEM_CHECKBOX|A5O_MENU_ITEM_CHECKED);
         [menuItem setState: checked ? NSOnState : NSOffState ];
-        return aitem->flags & ALLEGRO_MENU_ITEM_DISABLED ? NO : YES;
+        return aitem->flags & A5O_MENU_ITEM_DISABLED ? NO : YES;
     }
     return YES;
 }
@@ -621,16 +621,16 @@ int _al_get_menu_display_height(void)
 // Action event when the menu is selected
 -(void) activated:(id)sender {
     NSMenuItem* mitem = (NSMenuItem*) sender;
-    ALLEGRO_MENU_ITEM* aitim = [self allegroItemforItem:mitem];
+    A5O_MENU_ITEM* aitim = [self allegroItemforItem:mitem];
     if (aitim) {
-        if (aitim->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
-            aitim->flags ^= ALLEGRO_MENU_ITEM_CHECKED;
+        if (aitim->flags & A5O_MENU_ITEM_CHECKBOX) {
+            aitim->flags ^= A5O_MENU_ITEM_CHECKED;
         }
         _al_emit_menu_event(aitim->parent->display, aitim->unique_id);
     }
 }
 // Insert an item, keep the NSMenu in sync
--(void) insertItem:(ALLEGRO_MENU_ITEM*) aitem atIndex: (int) index
+-(void) insertItem:(A5O_MENU_ITEM*) aitem atIndex: (int) index
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSMenuItem* item = [self buildMenuItemFor:aitem];
@@ -644,7 +644,7 @@ int _al_get_menu_display_height(void)
     [pool release];
 }
 // Update an item (caption only, see -validateMenuItem: )
--(void) updateItem:(ALLEGRO_MENU_ITEM *)aitem atIndex:(int)index
+-(void) updateItem:(A5O_MENU_ITEM *)aitem atIndex:(int)index
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     (void) index;
@@ -654,12 +654,12 @@ int _al_get_menu_display_height(void)
     [item setTitle:caption];
     [item setKeyEquivalent:key];
     if (aitem->popup) {
-        [item setEnabled:(aitem->flags & ALLEGRO_MENU_ITEM_DISABLED) ? NO : YES];
+        [item setEnabled:(aitem->flags & A5O_MENU_ITEM_DISABLED) ? NO : YES];
     }
     [pool release];
 }
 // Remove an item, keep the NSMenu in sync
--(void) destroyItem:(ALLEGRO_MENU_ITEM *)aitem atIndex:(int)index
+-(void) destroyItem:(A5O_MENU_ITEM *)aitem atIndex:(int)index
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     (void) index;
@@ -693,8 +693,8 @@ int _al_get_menu_display_height(void)
 
     [NSMenu popUpContextMenu:self.menu withEvent:fakeMouseEvent forView:[window contentView]];
 }
-// Find the target associated with this ALLEGRO_MENU
-+(ALLEGMenuTarget*) targetForMenu:(ALLEGRO_MENU *)amenu {
+// Find the target associated with this A5O_MENU
++(ALLEGMenuTarget*) targetForMenu:(A5O_MENU *)amenu {
     if (!amenu->extra1) {
         amenu->extra1 = [[ALLEGMenuTarget alloc] initWithMenu:amenu];
     }

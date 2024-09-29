@@ -14,7 +14,7 @@ SDL2 is required.
 Building
 --------
 
-Pass -D ALLEGRO_SDL=on to cmake to enable building for SDL2.
+Pass -D A5O_SDL=on to cmake to enable building for SDL2.
 
 
 Limitations
@@ -72,14 +72,14 @@ EM_CACHE=path-to-emsdk/upstream/emscripten/cache
 
 emcmake cmake .. \
     -D CMAKE_BUILD_TYPE=Release \
-    -D ALLEGRO_SDL=ON \
+    -D A5O_SDL=ON \
     -D SHARED=OFF \
     -D WANT_MONOLITH=ON \
     -D WANT_ALLOW_SSE=OFF \
     -D WANT_DOCS=OFF \
     -D WANT_TESTS=OFF \
     -D WANT_OPENAL=OFF \
-    -D ALLEGRO_WAIT_EVENT_SLEEP=ON \
+    -D A5O_WAIT_EVENT_SLEEP=ON \
     -D SDL2_INCLUDE_DIR=$EM_CACHE/sysroot/include \
     -D CMAKE_C_FLAGS="${USE_FLAGS[*]}" \
     -D CMAKE_CXX_FLAGS="${USE_FLAGS[*]}" \

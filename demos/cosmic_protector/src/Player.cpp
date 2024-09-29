@@ -139,17 +139,17 @@ void Player::render_extra(void)
       return;
    }
 
-   ALLEGRO_STATE st;
-   al_store_state(&st, ALLEGRO_STATE_BLENDER);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+   A5O_STATE st;
+   al_store_state(&st, A5O_STATE_BLENDER);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
    al_draw_bitmap(icon, 1, 2, 0);
    al_restore_state(&st);
-   ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
+   A5O_FONT *small_font = (A5O_FONT *)rm.getData(RES_SMALLFONT);
    al_draw_textf(small_font, al_map_rgb(255, 255, 255), 20, 2, 0, "x%d", lives);
    al_draw_textf(small_font, al_map_rgb(255, 255, 255), 2, 18, 0, "%d", score);
 }
 
-void Player::render(int offx, int offy, ALLEGRO_COLOR tint)
+void Player::render(int offx, int offy, A5O_COLOR tint)
 {
    if (lives <= 0)
       return;
@@ -159,23 +159,23 @@ void Player::render(int offx, int offy, ALLEGRO_COLOR tint)
    if (!isDestructable) {
       al_draw_tinted_rotated_bitmap(trans_bitmap, tint,
          draw_radius, draw_radius, rx, ry,
-         angle+(ALLEGRO_PI/2.0f), 0);
+         angle+(A5O_PI/2.0f), 0);
    }
    else {
       al_draw_tinted_rotated_bitmap(bitmap,
          tint, draw_radius, draw_radius, rx, ry,
-         angle+(ALLEGRO_PI/2.0f), 0);
+         angle+(A5O_PI/2.0f), 0);
    }
    if (draw_trail) {
       int tw = al_get_bitmap_width(trail_bitmap);
       int th = al_get_bitmap_height(trail_bitmap);
-      float ca = (ALLEGRO_PI*2)+angle;
-      float a = ca + ((210.0f / 180.0f) * ALLEGRO_PI);
+      float ca = (A5O_PI*2)+angle;
+      float a = ca + ((210.0f / 180.0f) * A5O_PI);
       float tx = rx + 42.0f * cos(a);
       float ty = ry + 42.0f * sin(a);
       al_draw_tinted_rotated_bitmap(trail_bitmap, tint, tw, th/2,
          tx, ty, a, 0);
-      a = ca + ((150.0f / 180.0f) * ALLEGRO_PI);
+      a = ca + ((150.0f / 180.0f) * A5O_PI);
       tx = rx + 42.0f * cos(a);
       ty = ry + 42.0f * sin(a);
       al_draw_tinted_rotated_bitmap(trail_bitmap, tint, tw, th/2,
@@ -227,8 +227,8 @@ void Player::destroy(void)
 
 bool Player::load(void)
 {
-   ALLEGRO_STATE state;
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+   A5O_STATE state;
+   al_store_state(&state, A5O_STATE_TARGET_BITMAP | A5O_STATE_BLENDER);
 
    bitmap = al_load_bitmap(getResource("gfx/ship.png"));
    if (!bitmap) {
@@ -246,7 +246,7 @@ bool Player::load(void)
 
    /* Make a translucent copy of the ship */
    al_set_target_bitmap(trans_bitmap);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    al_draw_tinted_bitmap(bitmap, al_map_rgba(255, 255, 255, 160),
       0, 0, 0);
    al_restore_state(&state);
@@ -302,7 +302,7 @@ void Player::reset(void)
    y = BB_H/2;
    dx = 0;
    dy = 0;
-   angle = -ALLEGRO_PI/2;
+   angle = -A5O_PI/2;
    draw_trail = false;
    weapon = WEAPON_SMALL;
 }
@@ -317,15 +317,15 @@ void Player::die(void)
       // game over
       isDestructable = false;
       invincibleCount = 8000;
-      ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
+      A5O_BITMAP *old_target = al_get_target_bitmap();
       al_set_target_bitmap(highscoreBitmap);
       int w = al_get_bitmap_width(highscoreBitmap);
       int h = al_get_bitmap_height(highscoreBitmap);
       ResourceManager& rm = ResourceManager::getInstance();
-      ALLEGRO_FONT *large_font = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
-      ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
-      al_draw_textf(large_font, al_map_rgb(255, 255, 255), w/2, h/2-16, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
-      al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, h/2+16, ALLEGRO_ALIGN_CENTRE, "%d Points", score);
+      A5O_FONT *large_font = (A5O_FONT *)rm.getData(RES_LARGEFONT);
+      A5O_FONT *small_font = (A5O_FONT *)rm.getData(RES_SMALLFONT);
+      al_draw_textf(large_font, al_map_rgb(255, 255, 255), w/2, h/2-16, A5O_ALIGN_CENTRE, "GAME OVER");
+      al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, h/2+16, A5O_ALIGN_CENTRE, "%d Points", score);
       al_set_target_bitmap(old_target);
    }
    else {

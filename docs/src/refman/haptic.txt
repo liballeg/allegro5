@@ -12,7 +12,7 @@ DirectInput compatible devices. There is also minimal support for
 Android. It is not yet supported on OSX, iOS, or on Windows for XInput 
 compatible devices.
 
-## API: ALLEGRO_HAPTIC
+## API: A5O_HAPTIC
 
 This is an abstract data type representing a haptic device that supports
 force feedback or vibration.
@@ -24,42 +24,42 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 See also: [al_get_haptic_from_joystick]
 
-## API: ALLEGRO_HAPTIC_CONSTANTS
+## API: A5O_HAPTIC_CONSTANTS
 
 This enum contains flags that are used to define haptic effects and
 capabilities.  If the flag is set in the return value of
 [al_get_haptic_capabilities], it means the device supports the given effect.
-The value of these flags should be set into a [ALLEGRO_HAPTIC_EFFECT] struct
+The value of these flags should be set into a [A5O_HAPTIC_EFFECT] struct
 to determine what kind of haptic effect should be played.
 
-* ALLEGRO_HAPTIC_RUMBLE    - simple vibration effects
-* ALLEGRO_HAPTIC_PERIODIC  - periodic, wave-form effects
-* ALLEGRO_HAPTIC_CONSTANT  - constant effects
-* ALLEGRO_HAPTIC_SPRING    - spring effects
-* ALLEGRO_HAPTIC_FRICTION  - friction effects
-* ALLEGRO_HAPTIC_DAMPER    - damper effects
-* ALLEGRO_HAPTIC_INERTIA   - inertia effects
-* ALLEGRO_HAPTIC_RAMP      - ramp effects
-* ALLEGRO_HAPTIC_SQUARE    - square wave periodic effect
-* ALLEGRO_HAPTIC_TRIANGLE  - triangle wave periodic effect
-* ALLEGRO_HAPTIC_SINE      - sine wave periodic effect
-* ALLEGRO_HAPTIC_SAW_UP    - upwards saw wave periodic effect
-* ALLEGRO_HAPTIC_SAW_DOWN  - downwards saw wave periodic effect
-* ALLEGRO_HAPTIC_CUSTOM    - custom wave periodic effect
-* ALLEGRO_HAPTIC_GAIN      - the haptic device supports gain setting
-* ALLEGRO_HAPTIC_ANGLE     - the haptic device supports angle coordinates
-* ALLEGRO_HAPTIC_RADIUS    - the haptic device supports radius coordinates
-* ALLEGRO_HAPTIC_AZIMUTH   - the haptic device supports azimuth coordinates
-* ALLEGRO_HAPTIC_AUTOCENTER
+* A5O_HAPTIC_RUMBLE    - simple vibration effects
+* A5O_HAPTIC_PERIODIC  - periodic, wave-form effects
+* A5O_HAPTIC_CONSTANT  - constant effects
+* A5O_HAPTIC_SPRING    - spring effects
+* A5O_HAPTIC_FRICTION  - friction effects
+* A5O_HAPTIC_DAMPER    - damper effects
+* A5O_HAPTIC_INERTIA   - inertia effects
+* A5O_HAPTIC_RAMP      - ramp effects
+* A5O_HAPTIC_SQUARE    - square wave periodic effect
+* A5O_HAPTIC_TRIANGLE  - triangle wave periodic effect
+* A5O_HAPTIC_SINE      - sine wave periodic effect
+* A5O_HAPTIC_SAW_UP    - upwards saw wave periodic effect
+* A5O_HAPTIC_SAW_DOWN  - downwards saw wave periodic effect
+* A5O_HAPTIC_CUSTOM    - custom wave periodic effect
+* A5O_HAPTIC_GAIN      - the haptic device supports gain setting
+* A5O_HAPTIC_ANGLE     - the haptic device supports angle coordinates
+* A5O_HAPTIC_RADIUS    - the haptic device supports radius coordinates
+* A5O_HAPTIC_AZIMUTH   - the haptic device supports azimuth coordinates
+* A5O_HAPTIC_AUTOCENTER
 
 Since: 5.1.8
 
 > *[Unstable API]:* Perhaps could be simplified due to limited support for all the
 exposed features across all of the platforms. Awaiting feedback from users.
 
-See also: [al_get_haptic_capabilities], [ALLEGRO_HAPTIC_EFFECT]
+See also: [al_get_haptic_capabilities], [A5O_HAPTIC_EFFECT]
 
-## API: ALLEGRO_HAPTIC_EFFECT
+## API: A5O_HAPTIC_EFFECT
 
 This struct models a particular haptic or vibration effect. It needs to be
 filled in correctly and uploaded to a haptic device before the device can
@@ -68,34 +68,34 @@ play it back.
 *Fields:*
 
 type
-:   The type of the haptic effect. May be one of the ALLEGRO_HAPTIC_CONSTANTS
-    constants between or equal to ALLEGRO_HAPTIC_RUMBLE and
-    ALLEGRO_HAPTIC_RAMP.
+:   The type of the haptic effect. May be one of the A5O_HAPTIC_CONSTANTS
+    constants between or equal to A5O_HAPTIC_RUMBLE and
+    A5O_HAPTIC_RAMP.
 
-    * If `type` is set to ALLEGRO_HAPTIC_RUMBLE, then the effect is a simple
+    * If `type` is set to A5O_HAPTIC_RUMBLE, then the effect is a simple
       "rumble" or vibration effect that shakes the device. In some cases,
       such as on a mobile platform, the whole device may shake.
 
-    * If `type` is set to ALLEGRO_HAPTIC_PERIODIC, the effect is a shake or
+    * If `type` is set to A5O_HAPTIC_PERIODIC, the effect is a shake or
       vibration of which the intensity is a periodic wave form.
 
-    * If `type` is set to ALLEGRO_HAPTIC_CONSTANT, the effect is a constant
+    * If `type` is set to A5O_HAPTIC_CONSTANT, the effect is a constant
       pressure, motion or push-back in a certain direction of the axes of
       the device.
 
-    * If `type` is set to ALLEGRO_HAPTIC_SPRING, the effect is a springy kind
+    * If `type` is set to A5O_HAPTIC_SPRING, the effect is a springy kind
       of resistance against motion of the axes of the haptic device.
 
-    * If `type` is set to ALLEGRO_HAPTIC_FRICTION, the effect is a friction
+    * If `type` is set to A5O_HAPTIC_FRICTION, the effect is a friction
       kind of resistance against motion of the axes of the haptic device.
 
-    * If `type` is set to ALLEGRO_HAPTIC_DAMPER, the effect is a damper kind
+    * If `type` is set to A5O_HAPTIC_DAMPER, the effect is a damper kind
       of resistance against motion of the axes of the haptic device.
 
-    * If `type` is set to ALLEGRO_HAPTIC_INERTIA, the effect causes inertia
+    * If `type` is set to A5O_HAPTIC_INERTIA, the effect causes inertia
       or slowness of motions on the axes of the haptic device.
 
-    * If `type` is set to ALLEGRO_HAPTIC_RAMP, the effect causes a pressure
+    * If `type` is set to A5O_HAPTIC_RAMP, the effect causes a pressure
       or push-back that ramps up or down depending on the position of the
       axis.
 
@@ -113,7 +113,7 @@ direction
     to the left of the user, an angle of π means the direction away from 
     the user, and an angle of 3π/2 means to the right of the user.
 
-    If [al_get_haptic_capabilities] has the flag ALLEGRO_HAPTIC_ANGLE set,
+    If [al_get_haptic_capabilities] has the flag A5O_HAPTIC_ANGLE set,
     then setting `direction.angle` is supported. Otherwise, it is
     unsupported, and you should set it to 0.
 
@@ -124,7 +124,7 @@ direction
     that the effect should play back away from the center as far as is
     possible.
 
-    If [al_get_haptic_capabilities] has the flag ALLEGRO_HAPTIC_RADIUS set,
+    If [al_get_haptic_capabilities] has the flag A5O_HAPTIC_RADIUS set,
     then setting `direction.radius` is supported. Otherwise, it is
     unsupported, and you should set it to 0.
 
@@ -135,7 +135,7 @@ direction
     the effect plays back vertically above the user plane, and an azimuth 
     -π/2 means the effect plays back vertically below the user plane.
 
-    If [al_get_haptic_capabilities] has the flag ALLEGRO_HAPTIC_AZIMUTH set,
+    If [al_get_haptic_capabilities] has the flag A5O_HAPTIC_AZIMUTH set,
     then setting `direction.azimuth` is supported. Otherwise, it is
     unsupported, and you should set it to 0.
 
@@ -148,7 +148,7 @@ replay
 data
 :   Determines in detail the parameters of the haptic effect to play back.
 
-    If `type` is set to ALLEGRO_HAPTIC_RUMBLE, then
+    If `type` is set to A5O_HAPTIC_RUMBLE, then
     `data.rumble.strong_magnitude` must be set to a relative magnitude
     between 0.0 and 1.0 to determine how intensely the "large" rumble motor
     of the haptic device will vibrate, and `data.rumble.weak_magnitude` must
@@ -157,10 +157,10 @@ data
     Not all devices have a "weak" motor, in which case the value set in
     `data.rumble.weak_magnitude` will be ignored.
 
-    If `type` is set to ALLEGRO_HAPTIC_PERIODIC, then
-    data.periodic.waveform must be set to one of ALLEGRO_HAPTIC_SQUARE,
-    ALLEGRO_HAPTIC_TRIANGLE, ALLEGRO_HAPTIC_SINE, ALLEGRO_HAPTIC_SAW_UP,
-    ALLEGRO_HAPTIC_SAW_DOWN, ALLEGRO_HAPTIC_CUSTOM. This will then determine
+    If `type` is set to A5O_HAPTIC_PERIODIC, then
+    data.periodic.waveform must be set to one of A5O_HAPTIC_SQUARE,
+    A5O_HAPTIC_TRIANGLE, A5O_HAPTIC_SINE, A5O_HAPTIC_SAW_UP,
+    A5O_HAPTIC_SAW_DOWN, A5O_HAPTIC_CUSTOM. This will then determine
     the wave form of the vibration effect that will be played on the haptic
     device.
 
@@ -173,21 +173,21 @@ data
     `data.periodic.phase` is the phase of the wave form of vibration in
     seconds.
 
-    If `data.periodic.waveform` is set to ALLEGRO_HAPTIC_CUSTOM, then
+    If `data.periodic.waveform` is set to A5O_HAPTIC_CUSTOM, then
     `data.periodic.custom_data` must point to an array of
     `data.periodic.custom_len` doubles, each with values between -1.0 and
     1.0.  This value array will determine the shape of the wave form of the
-    haptic effect.  ALLEGRO_HAPTIC_CUSTOM is not supported on some platforms,
+    haptic effect.  A5O_HAPTIC_CUSTOM is not supported on some platforms,
     so use [al_get_haptic_capabilities] to check if it's available. If it isn't,
     you may want to play back a non-custom wave effect as a substitute instead.
 
-    If `type` is set to ALLEGRO_HAPTIC_CONSTANT, then `data.constant.level`
+    If `type` is set to A5O_HAPTIC_CONSTANT, then `data.constant.level`
     must be set to a relative intensity value between 0.0 and 1.0 to
     determine the intensity of the effect.
 
-    If `type` is set to any of ALLEGRO_HAPTIC_SPRING,
-    ALLEGRO_HAPTIC_FRICTION, ALLEGRO_HAPTIC_DAMPER, ALLEGRO_HAPTIC_INERTIA,
-    ALLEGRO_HAPTIC_RAMP, then the `data.condition` struct should be filled in.
+    If `type` is set to any of A5O_HAPTIC_SPRING,
+    A5O_HAPTIC_FRICTION, A5O_HAPTIC_DAMPER, A5O_HAPTIC_INERTIA,
+    A5O_HAPTIC_RAMP, then the `data.condition` struct should be filled in.
     To explain this better, it's best to keep in mind that these kinds of
     effects are most useful for steering-wheel kind of devices, where
     resistance or inertia should be applied when turning the device's wheel a
@@ -219,15 +219,15 @@ data
     at full intensity when outside of the dead band. If set to 0.0 the effect
     will not be felt at all.
 
-    If `type` is set to ALLEGRO_HAPTIC_RAMP, then `data.ramp.start_level`
+    If `type` is set to A5O_HAPTIC_RAMP, then `data.ramp.start_level`
     should be set to a relative magnitude value between -1.0 and 1.0 to
     determine the initial intensity of the haptic effect. The field
     `data.ramp.end_level` should be set to a relative magnitude value between
     -1.0 and 1.0 to determine the final intensity of the haptic effect at the
     end of playback.
 
-    If `type` is set to any of ALLEGRO_HAPTIC_PERIODIC,
-    ALLEGRO_HAPTIC_CONSTANT, ALLEGRO_HAPTIC_RAMP, then `data.envelope`
+    If `type` is set to any of A5O_HAPTIC_PERIODIC,
+    A5O_HAPTIC_CONSTANT, A5O_HAPTIC_RAMP, then `data.envelope`
     determines the "envelope" of the effect. That is, it determines the
     duration and intensity for the ramp-up attack or "fade in" and the
     ramp-down or "fade out" of the effect.
@@ -258,7 +258,7 @@ Since: 5.1.8
 > *[Unstable API]:* Perhaps could be simplified due to limited support for all the
 exposed features across all of the platforms. Awaiting feedback from users.
 
-## API: ALLEGRO_HAPTIC_EFFECT_ID
+## API: A5O_HAPTIC_EFFECT_ID
 
 This struct is used as a handle to control playback of a haptic effect and should
 be considered opaque. Its implementation is visible merely to allow allocation
@@ -440,7 +440,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_get_haptic_capabilities
 
-Returns an integer with or'ed values from [ALLEGRO_HAPTIC_CONSTANTS], which,
+Returns an integer with or'ed values from [A5O_HAPTIC_CONSTANTS], which,
 if set, indicate that the haptic device supports the given feature.
 
 Since: 5.1.8
@@ -452,7 +452,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 Returns true if the haptic device supports the feature indicated by
 the query parameter, false if the feature is not supported. 
-The query parameter must be one of the values of [ALLEGRO_HAPTIC_CONSTANTS]. 
+The query parameter must be one of the values of [A5O_HAPTIC_CONSTANTS]. 
 
 Since: 5.1.9
 
@@ -467,7 +467,7 @@ Sets the gain of the haptic device if supported. Gain is much like volume for
 sound, it is as if every effect's intensity is multiplied by it. Gain is a
 value between 0.0 and 1.0. Returns true if set successfully, false if not.
 Only works if [al_get_haptic_capabilities] returns a value that has
-[ALLEGRO_HAPTIC_GAIN][ALLEGRO_HAPTIC_CONSTANTS] set.  If not, this
+[A5O_HAPTIC_GAIN][A5O_HAPTIC_CONSTANTS] set.  If not, this
 function returns false, and all
 effects will be played without any gain influence.
 
@@ -481,7 +481,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 Returns the current gain of the device. Gain is much like volume for sound,
 it is as if every effect's intensity is multiplied by it. Gain is a value
 between 0.0 and 1.0. Only works correctly if [al_get_haptic_capabilities]
-returns a value that has [ALLEGRO_HAPTIC_GAIN][ALLEGRO_HAPTIC_CONSTANTS]
+returns a value that has [A5O_HAPTIC_GAIN][A5O_HAPTIC_CONSTANTS]
  set. If this is not set, this
 function will simply return 1.0 and all effects will be played without any
 gain influence.
@@ -505,7 +505,7 @@ centering. If that is the case, a value of less than 0.5 will turn
 it off, while a value equal to or higher to 0.5 will turn it on.
 Returns true if set successfully, false if not.
 Can only work if [al_get_haptic_capabilities] returns a value that has
-[ALLEGRO_HAPTIC_AUTOCENTER][ALLEGRO_HAPTIC_CONSTANTS] set.  If not, this
+[A5O_HAPTIC_AUTOCENTER][A5O_HAPTIC_CONSTANTS] set.  If not, this
 function returns false.
 
 Since: 5.1.9
@@ -526,7 +526,7 @@ centering is enabled. Some platforms do not support partial automatic
 centering. If that is the case, a value of less than 0.5 means it is turned 
 off, while a value equal to or higher to 0.5 means it is turned on.
 Can only work if [al_get_haptic_capabilities] returns a 
-value that has [ALLEGRO_HAPTIC_AUTOCENTER][ALLEGRO_HAPTIC_CONSTANTS]
+value that has [A5O_HAPTIC_AUTOCENTER][A5O_HAPTIC_CONSTANTS]
 set. If not, this function returns 0.0.
 
 Since: 5.1.9
@@ -559,7 +559,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 Uploads the haptic effect to the device.  The haptic effect must have been
 filled in completely and correctly.  You must also pass in a pointer to a
-user allocated [ALLEGRO_HAPTIC_EFFECT_ID].  This `id` can be used to control
+user allocated [A5O_HAPTIC_EFFECT_ID].  This `id` can be used to control
 playback of the effect.  Returns true if the effect was successfully uploaded,
 false if not. 
 
@@ -567,7 +567,7 @@ The function [al_get_max_haptic_effects] returns how many effects can
 be uploaded to the device at the same time.
 
 The same haptic effect can be uploaded several times, as long as care is
-taken to pass in a different [ALLEGRO_HAPTIC_EFFECT_ID].
+taken to pass in a different [A5O_HAPTIC_EFFECT_ID].
 
 Since: 5.1.8
 
@@ -577,7 +577,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 ## API: al_play_haptic_effect
 
 Plays back a previously uploaded haptic effect. The play_id must be a valid
-[ALLEGRO_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
+[A5O_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
 [al_upload_and_play_haptic_effect] or [al_rumble_haptic].
 
 The haptic effect will be played back loop times in sequence. If loop is less
@@ -614,7 +614,7 @@ See also: [al_upload_haptic_effect], [al_play_haptic_effect]
 ## API: al_stop_haptic_effect
 
 Stops playing a previously uploaded haptic effect. The play_id must be a
-valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
+valid [A5O_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
 [al_upload_and_play_haptic_effect] or [al_rumble_haptic].
 
 Since: 5.1.8
@@ -626,7 +626,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 Returns true if the haptic effect is currently playing. Returns false if the
 effect has been stopped or if it has already finished playing, or if it has not been
-played yet. The play_id must be a valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained
+played yet. The play_id must be a valid [A5O_HAPTIC_EFFECT_ID] obtained
 from [al_upload_haptic_effect], [al_upload_and_play_haptic_effect] or
 [al_rumble_haptic].
 
@@ -650,11 +650,11 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 Releases a previously uploaded haptic effect from the device it has been
 uploaded to, allowing for other effects to be uploaded. The play_id must be 
-a valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
+a valid [A5O_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
 [al_upload_and_play_haptic_effect] or [al_rumble_haptic].
 
 This function is called automatically when you call [al_release_haptic] 
-on a [ALLEGRO_HAPTIC] for all effects that are still uploaded to the device.
+on a [A5O_HAPTIC] for all effects that are still uploaded to the device.
 Therefore this function is most useful if you want to upload and release
 haptic effects dynamically, for example as a way to circumvent the limit 
 imposed by [al_get_max_haptic_effects].
@@ -676,7 +676,7 @@ and 1.0 that determines the intensity of the rumble effect. The `duration`
 determines the duration of the effect in seconds.
 
 You must also pass in a pointer to a user allocated
-[ALLEGRO_HAPTIC_EFFECT_ID].  It it is stored a reference to be used to
+[A5O_HAPTIC_EFFECT_ID].  It it is stored a reference to be used to
 control playback of the effect.  Returns true if the rumble effect was
 successfully uploaded and started, false if not.
 

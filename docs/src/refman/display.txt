@@ -32,15 +32,15 @@ You don't have to use Allegro's drawing routines, however: since creating a disp
 implies the creation of an OpenGL context or Direct3D device respectively, you can
 use these APIs directly if you prefer to do so. Allegro provides integration for
 both (see the OpenGL / Direct3D sections), so you can retrieve the underlying
-textures of [ALLEGRO_BITMAP]s, for example.
+textures of [A5O_BITMAP]s, for example.
 
 In order to write a well-behaved application, it is necessary to remember that
-displays will also inform you about important [events][ALLEGRO_EVENT_DISPLAY_EXPOSE]
+displays will also inform you about important [events][A5O_EVENT_DISPLAY_EXPOSE]
 via their [event sources][al_get_display_event_source].
 
 ## Display creation
 
-### API: ALLEGRO_DISPLAY
+### API: A5O_DISPLAY
 
 An opaque type representing an open display or window.
 
@@ -88,15 +88,15 @@ See also: [al_set_new_display_flags], [al_set_display_flag]
 Sets various flags to be used when creating new displays on the calling thread.
 flags is a bitfield containing any reasonable combination of the following:
 
-ALLEGRO_WINDOWED
+A5O_WINDOWED
 :   Prefer a windowed mode.
 
     Under multi-head X (not XRandR/TwinView), the use of more than one adapter is
     impossible due to bugs in X and GLX. [al_create_display] will fail if more than one
     adapter is attempted to be used.
 
-ALLEGRO_FULLSCREEN_WINDOW
-:   Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
+A5O_FULLSCREEN_WINDOW
+:   Make the window span the entire screen. Unlike A5O_FULLSCREEN this
     will never attempt to modify the screen resolution. Instead the pixel
     dimensions of the created display will be the same as the desktop.
 
@@ -104,8 +104,8 @@ ALLEGRO_FULLSCREEN_WINDOW
     out of fullscreen mode later but will be ignored initially.
 
     Under Windows and X11 a fullscreen display created with this flag
-    will behave differently from one created with the ALLEGRO_FULLSCREEN
-    flag - even if the ALLEGRO_FULLSCREEN display is passed the desktop
+    will behave differently from one created with the A5O_FULLSCREEN
+    flag - even if the A5O_FULLSCREEN display is passed the desktop
     dimensions. The exact difference is platform dependent, but some
     things which may be different is how alt-tab works, how fast you can
     toggle between fullscreen/windowed mode or how additional monitors
@@ -115,90 +115,90 @@ ALLEGRO_FULLSCREEN_WINDOW
     or with true Xinerama enabled is impossible due to bugs in X/GLX,
     creation will fail if more than one adapter is attempted to be used.
 
-ALLEGRO_FULLSCREEN
+A5O_FULLSCREEN
 :   Prefer a fullscreen mode.
 
     Under X the use of more than one FULLSCREEN display when using multi-head X,
     or true Xinerama is not possible due to bugs in X and GLX,
     display creation will fail if more than one adapter is attempted to be used.
 
-    > *Note:* Prefer using ALLEGRO_FULLSCREEN_WINDOW as it typically provides a
+    > *Note:* Prefer using A5O_FULLSCREEN_WINDOW as it typically provides a
     better user experience as the monitor doesn't change resolution and
     switching away from your game via Alt-Tab works smoothly.
-    ALLEGRO_FULLSCREEN is typically less well supported compared to
-    ALLEGRO_FULLSCREEN_WINDOW.
+    A5O_FULLSCREEN is typically less well supported compared to
+    A5O_FULLSCREEN_WINDOW.
 
-ALLEGRO_RESIZABLE
+A5O_RESIZABLE
 :   The display is resizable (only applicable if combined with
-    ALLEGRO_WINDOWED).
+    A5O_WINDOWED).
 
-ALLEGRO_MAXIMIZED
+A5O_MAXIMIZED
 :   The display window will be maximized (only applicable if combined
-    with ALLEGRO_RESIZABLE).
+    with A5O_RESIZABLE).
     Since: 5.1.12
 
-ALLEGRO_OPENGL
+A5O_OPENGL
 :   Require the driver to provide an initialized OpenGL context after returning
     successfully.
 
-ALLEGRO_OPENGL_3_0
+A5O_OPENGL_3_0
 :   Require the driver to provide an initialized OpenGL
     context compatible with OpenGL version 3.0.
 
-ALLEGRO_OPENGL_FORWARD_COMPATIBLE
+A5O_OPENGL_FORWARD_COMPATIBLE
 :   If this flag is set, the OpenGL
-    context created with ALLEGRO_OPENGL_3_0 will be forward compatible *only*,
+    context created with A5O_OPENGL_3_0 will be forward compatible *only*,
     meaning that all of the OpenGL API declared deprecated in OpenGL 3.0 will not
     be supported. Currently, a display created with this flag will *not* be
     compatible with Allegro drawing routines; the display option
-    ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
+    A5O_COMPATIBLE_DISPLAY will be set to false.
 
-ALLEGRO_OPENGL_ES_PROFILE
-:   Used together with ALLEGRO_OPENGL, requests that the OpenGL context
+A5O_OPENGL_ES_PROFILE
+:   Used together with A5O_OPENGL, requests that the OpenGL context
     uses the OpenGL ES profile. A specific version can be requested
     with [al_set_new_display_option].
     Note: Currently this is only supported by the X11/GLX driver.
     Since: 5.1.13
 
-ALLEGRO_OPENGL_CORE_PROFILE
-:   Used together with ALLEGRO_OPENGL, requests that the OpenGL context
+A5O_OPENGL_CORE_PROFILE
+:   Used together with A5O_OPENGL, requests that the OpenGL context
     uses the OpenGL Core profile. A specific version can be requested
     with [al_set_new_display_option].
     Note: Currently this is only supported by the X11/GLX driver.
     Since: 5.2.7
 
-ALLEGRO_DIRECT3D
+A5O_DIRECT3D
 :   Require the driver to do rendering with Direct3D and
     provide a Direct3D device.
 
-ALLEGRO_PROGRAMMABLE_PIPELINE
+A5O_PROGRAMMABLE_PIPELINE
 :   Require a programmable graphics pipeline.
-    This flag is required to use [ALLEGRO_SHADER] objects.
+    This flag is required to use [A5O_SHADER] objects.
     Since: 5.1.6
 
-ALLEGRO_FRAMELESS
+A5O_FRAMELESS
 :   Try to create a window without a frame (i.e. no border or titlebar).
     This usually does nothing for fullscreen modes, and even in windowed modes
     it depends on the underlying platform whether it is supported or not.
     Since: 5.0.7, 5.1.2
 
-ALLEGRO_NOFRAME
-:   Original name for ALLEGRO_FRAMELESS.
+A5O_NOFRAME
+:   Original name for A5O_FRAMELESS.
     This works with older versions of Allegro.
 
-ALLEGRO_GENERATE_EXPOSE_EVENTS
+A5O_GENERATE_EXPOSE_EVENTS
 :   Let the display generate expose events.
 
-ALLEGRO_GTK_TOPLEVEL
+A5O_GTK_TOPLEVEL
 :   Create a GTK toplevel window for the display, on X.
     This flag is conditionally defined by the native dialog addon.
     You must call [al_init_native_dialog_addon] for it to succeed.
-    ALLEGRO_GTK_TOPLEVEL is incompatible with ALLEGRO_FULLSCREEN.
+    A5O_GTK_TOPLEVEL is incompatible with A5O_FULLSCREEN.
     Since: 5.1.5
 
-ALLEGRO_DRAG_AND_DROP
-:   If a display is created with the ALLEGRO_DRAG_AND_DROP flag it will
-    generate ALLEGRO_EVENT_DROP events when files or text are dropped over
+A5O_DRAG_AND_DROP
+:   If a display is created with the A5O_DRAG_AND_DROP flag it will
+    generate A5O_EVENT_DROP events when files or text are dropped over
     the display.
 
     > *[Unstable API]:* This is an experimental feature and currently only works for
@@ -226,84 +226,84 @@ them, for example if you want to use multisampling.
 
 The 'importance' parameter can be either:
 
-* ALLEGRO_REQUIRE - The display will not be created if the setting can
+* A5O_REQUIRE - The display will not be created if the setting can
     not be met.
-* ALLEGRO_SUGGEST - If the setting is not available, the display will
+* A5O_SUGGEST - If the setting is not available, the display will
     be created anyway with a setting as close as possible to the
     requested one.
     You can query the actual value used in that case by calling
     [al_get_display_option] after the display has been created.
-* ALLEGRO_DONTCARE - If you added a display option with one of the above
+* A5O_DONTCARE - If you added a display option with one of the above
     two settings before, it will be removed again. Else this does
     nothing.
 
 The supported options are:
 
-ALLEGRO_COLOR_SIZE
+A5O_COLOR_SIZE
 :   This can be used to ask for a specific bit depth. For example to
     force a 16-bit framebuffer set this to 16.
 
-ALLEGRO_RED_SIZE, ALLEGRO_GREEN_SIZE, ALLEGRO_BLUE_SIZE, ALLEGRO_ALPHA_SIZE
+A5O_RED_SIZE, A5O_GREEN_SIZE, A5O_BLUE_SIZE, A5O_ALPHA_SIZE
 :   Individual color component size in bits.
 
-ALLEGRO_RED_SHIFT, ALLEGRO_GREEN_SHIFT, ALLEGRO_BLUE_SHIFT, ALLEGRO_ALPHA_SHIFT
+A5O_RED_SHIFT, A5O_GREEN_SHIFT, A5O_BLUE_SHIFT, A5O_ALPHA_SHIFT
 :   Together with the previous settings these can be used to specify the
     exact pixel layout the display should use. Normally there is no reason to use these.
 
-ALLEGRO_ACC_RED_SIZE, ALLEGRO_ACC_GREEN_SIZE, ALLEGRO_ACC_BLUE_SIZE, ALLEGRO_ACC_ALPHA_SIZE
+A5O_ACC_RED_SIZE, A5O_ACC_GREEN_SIZE, A5O_ACC_BLUE_SIZE, A5O_ACC_ALPHA_SIZE
 :   This can be used to define the required accumulation buffer size.
 
-ALLEGRO_STEREO
+A5O_STEREO
 :   Whether the display is a stereo display.
 
-ALLEGRO_AUX_BUFFERS
+A5O_AUX_BUFFERS
 :   Number of auxiliary buffers the display should
     have.
 
-ALLEGRO_DEPTH_SIZE
+A5O_DEPTH_SIZE
 :   How many depth buffer (z-buffer) bits to use.
 
-ALLEGRO_STENCIL_SIZE
+A5O_STENCIL_SIZE
 :   How many bits to use for the stencil buffer.
 
-ALLEGRO_SAMPLE_BUFFERS
+A5O_SAMPLE_BUFFERS
 :   Whether to use multisampling (1) or not (0).
 
-ALLEGRO_SAMPLES
+A5O_SAMPLES
 :   If the above is 1, the number of samples to use
     per pixel. Else 0.
 
-ALLEGRO_RENDER_METHOD:
+A5O_RENDER_METHOD:
 :   0 if hardware acceleration is not used with this display.
 
-ALLEGRO_FLOAT_COLOR
+A5O_FLOAT_COLOR
 :   Whether to use floating point color components.
 
-ALLEGRO_FLOAT_DEPTH
+A5O_FLOAT_DEPTH
 :   Whether to use a floating point depth buffer.
 
-ALLEGRO_SINGLE_BUFFER
+A5O_SINGLE_BUFFER
 :   Whether the display uses a single buffer (1)
     or another update method (0).
 
-ALLEGRO_SWAP_METHOD
+A5O_SWAP_METHOD
 :   If the above is 0, this is set to 1 to indicate
     the display is using a copying method to make the next buffer in
     the flip chain available, or to 2 to indicate a flipping or other
     method.
 
-ALLEGRO_COMPATIBLE_DISPLAY
+A5O_COMPATIBLE_DISPLAY
 :   Indicates if Allegro's graphics
     functions can use this display. If you request a display not
     useable by Allegro, you can still use for example OpenGL to draw
     graphics.
 
-ALLEGRO_UPDATE_DISPLAY_REGION
+A5O_UPDATE_DISPLAY_REGION
 :   Set to 1 if the display is
     capable of updating just a region, and 0 if calling
     [al_update_display_region] is equivalent to [al_flip_display].
 
-ALLEGRO_VSYNC
+A5O_VSYNC
 :   Set to 1 to tell the driver to wait for vsync
     in [al_flip_display], or to 2 to force vsync off. The default of
     0 means that Allegro does not try to modify the vsync behavior so
@@ -312,7 +312,7 @@ ALLEGRO_VSYNC
     the vsync behavior in the graphics driver so you should not rely
     on it.
 
-ALLEGRO_MAX_BITMAP_SIZE
+A5O_MAX_BITMAP_SIZE
 :   When queried this returns the maximum
     size (width as well as height) a bitmap can have for this
     display. Calls to [al_create_bitmap] or [al_load_bitmap] for
@@ -320,64 +320,64 @@ ALLEGRO_MAX_BITMAP_SIZE
     bitmaps which always can have arbitrary size (but are slow for
     drawing).
 
-ALLEGRO_SUPPORT_NPOT_BITMAP
+A5O_SUPPORT_NPOT_BITMAP
 :   Set to 1 if textures used for bitmaps
     on this display can have a size which is not a power of two. This
     is mostly useful if you use Allegro to load textures as otherwise
     only power-of-two textures will be used internally as bitmap
     storage.
 
-ALLEGRO_CAN_DRAW_INTO_BITMAP
+A5O_CAN_DRAW_INTO_BITMAP
 :   Set to 1 if you can use
     [al_set_target_bitmap] on bitmaps of this display to draw into them.
     If this is not the case software emulation will be used when drawing
     into display bitmaps (which can be very slow).
 
-ALLEGRO_SUPPORT_SEPARATE_ALPHA
+A5O_SUPPORT_SEPARATE_ALPHA
 :   This is set to 1 if the
     [al_set_separate_blender] function is supported. Otherwise the
     alpha parameters will be ignored.
 
-ALLEGRO_AUTO_CONVERT_BITMAPS
+A5O_AUTO_CONVERT_BITMAPS
 :   This is on by default. It causes any
-    existing memory bitmaps with the ALLEGRO_CONVERT_BITMAP flag to be
+    existing memory bitmaps with the A5O_CONVERT_BITMAP flag to be
     converted to a display bitmap of the newly created display with
     the option set.
 
     Since: 5.1.0
 
-ALLEGRO_SUPPORTED_ORIENTATIONS
+A5O_SUPPORTED_ORIENTATIONS
 :   This is a bit-combination of the
     orientations supported by the application. The orientations are
     the same as for [al_get_display_orientation] with the additional
     possibilities:
 
-    * ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT
-    * ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE
-    * ALLEGRO_DISPLAY_ORIENTATION_ALL
+    * A5O_DISPLAY_ORIENTATION_PORTRAIT
+    * A5O_DISPLAY_ORIENTATION_LANDSCAPE
+    * A5O_DISPLAY_ORIENTATION_ALL
 
     PORTRAIT means only the two portrait orientations are supported,
     LANDSCAPE means only the two landscape orientations and ALL allows
     all four orientations. When the orientation changes between a
     portrait and a landscape orientation the display needs to be
-    resized. This is done by sending an [ALLEGRO_EVENT_DISPLAY_RESIZE]
+    resized. This is done by sending an [A5O_EVENT_DISPLAY_RESIZE]
     message which should be handled by calling [al_acknowledge_resize].
 
     Since: 5.1.0
 
-ALLEGRO_OPENGL_MAJOR_VERSION
+A5O_OPENGL_MAJOR_VERSION
 :   Request a specific OpenGL major version.
 
     Since: 5.1.13
 
-ALLEGRO_OPENGL_MINOR_VERSION
+A5O_OPENGL_MINOR_VERSION
 :   Request a specific OpenGL minor version.
 
     Since: 5.1.13
 
-ALLEGRO_DEFAULT_SHADER_PLATFORM
+A5O_DEFAULT_SHADER_PLATFORM
 :   Specify the shader platform to use for the default shader. See
-    [ALLEGRO_SHADER_PLATFORM]. The default is ALLEGRO_SHADER_AUTO.
+    [A5O_SHADER_PLATFORM]. The default is A5O_SHADER_AUTO.
 
     Since: 5.2.8
 
@@ -432,7 +432,7 @@ See also: [al_get_new_display_refresh_rate]
 ### API: al_get_display_event_source
 
 Retrieve the associated event source. See the
-[documentation on events][ALLEGRO_EVENT_DISPLAY_EXPOSE]
+[documentation on events][A5O_EVENT_DISPLAY_EXPOSE]
 for a list of the events displays will generate.
 
 ### API: al_get_backbuffer
@@ -460,23 +460,23 @@ visible on screen. Pointers to the special back buffer
 bitmap remain valid and retain their semantics as the back buffer,
 although the contents may have changed.
 
-> *Note:* If not using the ALLEGRO_SINGLE_BUFFER option, you typically want to
+> *Note:* If not using the A5O_SINGLE_BUFFER option, you typically want to
 redraw every pixel of the backbuffer bitmap to avoid uninitialized memory
 artifacts.
 
 Several display options change how this function behaves:
 
-- With ALLEGRO_SINGLE_BUFFER, no flipping is done. You still have to
+- With A5O_SINGLE_BUFFER, no flipping is done. You still have to
 call this function to display graphics, depending on how the used
 graphics system works.
 
-- The ALLEGRO_SWAP_METHOD option may have additional information about what
+- The A5O_SWAP_METHOD option may have additional information about what
 kind of operation is used internally to flip the front and back buffers.
 
-- If ALLEGRO_VSYNC is 1, this function will force waiting for vsync. If
-ALLEGRO_VSYNC is 2, this function will not wait for vsync. With many
+- If A5O_VSYNC is 1, this function will force waiting for vsync. If
+A5O_VSYNC is 2, this function will not wait for vsync. With many
 drivers the vsync behavior is controlled by the user and not the
-application, and ALLEGRO_VSYNC will not be set; in this case
+application, and A5O_VSYNC will not be set; in this case
 [al_flip_display] will wait for vsync depending on the settings set
 in the system's graphics preferences.
 
@@ -488,7 +488,7 @@ Does the same as [al_flip_display], but tries to update only the
 specified region. With many drivers this is not possible, but for
 some it can improve performance. If this is not supported, this function falls
 back to the behavior of [al_flip_display]. You can query the support for this
-function using `al_get_display_option(display, ALLEGRO_UPDATE_DISPLAY_REGION)`.
+function using `al_get_display_option(display, A5O_UPDATE_DISPLAY_REGION)`.
 
 See also: [al_flip_display], [al_get_display_option]
 
@@ -526,7 +526,7 @@ See also: [al_get_display_width]
 
 Resize the display. Returns true on success, or false on error.
 This works on both fullscreen and windowed displays, regardless of the
-ALLEGRO_RESIZABLE flag.
+A5O_RESIZABLE flag.
 
 Adjusts the clipping rectangle to the full size of the backbuffer.
 
@@ -534,7 +534,7 @@ See also: [al_acknowledge_resize]
 
 ### API: al_acknowledge_resize
 
-When the user receives a [resize event][ALLEGRO_EVENT_DISPLAY_RESIZE]
+When the user receives a [resize event][A5O_EVENT_DISPLAY_RESIZE]
 from a resizable display, if they wish the display to be resized they
 must call this function to let the graphics driver know that it can now
 resize the display. Returns true on success.
@@ -546,7 +546,7 @@ resets the backbuffers projection transform to default orthographic transform
 Note that a resize event may be outdated by the time you acknowledge it;
 there could be further resize events generated in the meantime.
 
-See also: [al_resize_display], [ALLEGRO_EVENT]
+See also: [al_resize_display], [A5O_EVENT]
 
 ### API: al_get_window_position
 
@@ -635,7 +635,7 @@ See also: [al_get_window_constraints], [al_set_window_constraints]
 Gets the flags of the display.
 
 In addition to the flags set for the display at creation time with
-[al_set_new_display_flags] it can also have the ALLEGRO_MINIMIZED flag
+[al_set_new_display_flags] it can also have the A5O_MINIMIZED flag
 set, indicating that the window is currently minimized. This flag
 is very platform-dependent as even a minimized application may still
 render a preview version so normally you should not care whether it
@@ -649,9 +649,9 @@ Enable or disable one of the display flags. The flags are the same
 as for [al_set_new_display_flags]. The only flags that can be changed
 after creation are:
 
-- ALLEGRO_FULLSCREEN_WINDOW
-- ALLEGRO_FRAMELESS
-- ALLEGRO_MAXIMIZED
+- A5O_FULLSCREEN_WINDOW
+- A5O_FRAMELESS
+- A5O_MAXIMIZED
 
 Returns true if the driver supports toggling the specified flag else
 false. You can use [al_get_display_flags] to query whether the given
@@ -677,7 +677,7 @@ displays, and doesn't touch the options of already created displays.
 display options can be changed or changing them will have no effect. Changing
 options other than those listed below is undefined.
 
-* ALLEGRO_SUPPORTED_ORIENTATIONS - This can be changed to allow new or restrict
+* A5O_SUPPORTED_ORIENTATIONS - This can be changed to allow new or restrict
     previously enabled orientations of the screen/device. See
     [al_set_new_display_option] for more information on this option.
 
@@ -689,19 +689,19 @@ See also: [al_set_new_display_option]
 
 Gets the pixel format of the display.
 
-See also: [ALLEGRO_PIXEL_FORMAT]
+See also: [A5O_PIXEL_FORMAT]
 
 ### API: al_get_display_orientation
 
 Return the display orientation, which can be one of the following:
 
--  ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
--  ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES
--  ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES
--  ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES
--  ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES
--  ALLEGRO_DISPLAY_ORIENTATION_FACE_UP
--  ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN
+-  A5O_DISPLAY_ORIENTATION_UNKNOWN
+-  A5O_DISPLAY_ORIENTATION_0_DEGREES
+-  A5O_DISPLAY_ORIENTATION_90_DEGREES
+-  A5O_DISPLAY_ORIENTATION_180_DEGREES
+-  A5O_DISPLAY_ORIENTATION_270_DEGREES
+-  A5O_DISPLAY_ORIENTATION_FACE_UP
+-  A5O_DISPLAY_ORIENTATION_FACE_DOWN
 
 Since: 5.1.0
 
@@ -721,15 +721,15 @@ See also: [al_set_display_icon], [al_set_display_icons]
 ### API: al_set_new_window_title
 
 Set the title that will be used when a new display is created.
-Allegro uses a static buffer of [ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE] to
+Allegro uses a static buffer of [A5O_NEW_WINDOW_TITLE_MAX_SIZE] to
 store this, so the length of the titme you set must be less than this.
 
 See also: [al_set_window_title], [al_get_new_window_title], [al_create_display],
-          [ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE]
+          [A5O_NEW_WINDOW_TITLE_MAX_SIZE]
 
 Since: 5.1.12
 
-### API: ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE
+### API: A5O_NEW_WINDOW_TITLE_MAX_SIZE
 
 This is the maximum size of the title that can be set with
 [al_set_new_window_title].
@@ -778,7 +778,7 @@ See also: [al_set_display_icon], [al_set_window_title]
 
 ### API: al_acknowledge_drawing_halt
 
-Call this in response to the [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING] event.
+Call this in response to the [A5O_EVENT_DISPLAY_HALT_DRAWING] event.
 This is currently necessary for Android and iOS as you are not allowed to draw
 to your display while it is not being shown. If you do not call this
 function to let the operating system know that you have stopped
@@ -787,15 +787,15 @@ considered misbehaving and get terminated.
 
 Since: 5.1.0
 
-See also: [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING]
+See also: [A5O_EVENT_DISPLAY_HALT_DRAWING]
 
 ### API: al_acknowledge_drawing_resume
 
-Call this in response to the [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] event.
+Call this in response to the [A5O_EVENT_DISPLAY_RESUME_DRAWING] event.
 
 Since: 5.1.1
 
-See also: [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING]
+See also: [A5O_EVENT_DISPLAY_RESUME_DRAWING]
 
 ## Screensaver
 

@@ -11,8 +11,8 @@
  */
 
 
-#ifndef A5_OSX_ALLEGRO_H
-#define A5_OSX_ALLEGRO_H
+#ifndef A5_OSX_A5O_H
+#define A5_OSX_A5O_H
 
 /*
  *  Public Objective-C OSX-related API
@@ -21,10 +21,10 @@
    extern "C" {
 #endif
 
-AL_FUNC(NSWindow *, al_osx_get_window,            (ALLEGRO_DISPLAY *d));
+AL_FUNC(NSWindow *, al_osx_get_window,            (A5O_DISPLAY *d));
 
 #ifdef __cplusplus
    }
 #endif
 
-#endif /* A5_OSX_ALLEGRO_H */
+#endif /* A5_OSX_A5O_H */

@@ -21,20 +21,20 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 #include "allegro5/allegro.h"
 
-#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
+#ifdef A5O_HAVE_LINUX_INPUT_H
 
-ALLEGRO_DEBUG_CHANNEL("lmseev");
+A5O_DEBUG_CHANNEL("lmseev");
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintlnx.h"
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_vector.h"
@@ -52,9 +52,9 @@ ALLEGRO_DEBUG_CHANNEL("lmseev");
 
 typedef struct AL_MOUSE_EVDEV
 {
-   ALLEGRO_MOUSE parent;
+   A5O_MOUSE parent;
    int fd;
-   ALLEGRO_MOUSE_STATE state;
+   A5O_MOUSE_STATE state;
 } AL_MOUSE_EVDEV;
 
 
@@ -231,7 +231,7 @@ static void get_axis_value(int fd, AXIS *axis, int type)
 static int has_event(int fd, unsigned short type, unsigned short code)
 {
    const unsigned int len = sizeof(unsigned long)*8;
-   const unsigned int max = _ALLEGRO_MAX(EV_MAX, _ALLEGRO_MAX(KEY_MAX, _ALLEGRO_MAX(REL_MAX, _ALLEGRO_MAX(ABS_MAX, _ALLEGRO_MAX(LED_MAX, _ALLEGRO_MAX(SND_MAX, FF_MAX))))));
+   const unsigned int max = _A5O_MAX(EV_MAX, _A5O_MAX(KEY_MAX, _A5O_MAX(REL_MAX, _A5O_MAX(ABS_MAX, _A5O_MAX(LED_MAX, _A5O_MAX(SND_MAX, FF_MAX))))));
    unsigned long bits[(max+len-1)/len];
    if (ioctl(fd, EVIOCGBIT(type, max), bits)) {
      return (bits[code/len] >> (code%len)) & 1;
@@ -396,11 +396,11 @@ static void handle_button_event(unsigned int button, bool is_down)
 
    if (is_down) {
       the_mouse.state.buttons |= (1 << (button-1));
-      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
+      event_type = A5O_EVENT_MOUSE_BUTTON_DOWN;
    }
    else {
       the_mouse.state.buttons &=~ (1 << (button-1));
-      event_type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
+      event_type = A5O_EVENT_MOUSE_BUTTON_UP;
    }
 
    generate_mouse_event(
@@ -480,8 +480,8 @@ static void process_abs(const struct input_event *event)
 static void handle_axis_event(int dx, int dy, int dz)
 {
    if (current_tool != no_tool) {
-      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = _A5O_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = _A5O_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
       /* There's no range for z */
 
       the_mouse.state.x = x_axis.out_abs;
@@ -491,7 +491,7 @@ static void handle_axis_event(int dx, int dy, int dz)
       dz *= al_get_mouse_wheel_precision();
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_AXES,
+         A5O_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, dz,
          0);
@@ -510,13 +510,13 @@ static int open_mouse_device (const char *device_file)
 
    fd = open (device_file, O_RDONLY | O_NONBLOCK);
    if (fd >= 0) {
-      ALLEGRO_DEBUG("Opened device %s\n", device_file);
+      A5O_DEBUG("Opened device %s\n", device_file);
       /* The device is a mouse if it has a BTN_MOUSE */
       if (has_event(fd, EV_KEY, BTN_MOUSE)) {
-	 ALLEGRO_DEBUG("Device %s was a mouse.\n", device_file);
+	 A5O_DEBUG("Device %s was a mouse.\n", device_file);
       }
       else {
-	 ALLEGRO_DEBUG("Device %s was not mouse, closing.\n", device_file);
+	 A5O_DEBUG("Device %s was not mouse, closing.\n", device_file);
 	 close(fd);
 	 fd = -1;
       }
@@ -550,7 +550,7 @@ static bool mouse_init (void)
                                  NULL };
    int i;
 
-   ALLEGRO_DEBUG("Trying /dev/input/event[0-3] devices\n");
+   A5O_DEBUG("Trying /dev/input/event[0-3] devices\n");
 
    for (i=0; device_name[i]; i++) {
       the_mouse.fd = open_mouse_device (device_name[i]);
@@ -597,11 +597,11 @@ static void mouse_exit (void)
 
 
 /* mouse_get_mouse:
- *  Returns the address of a ALLEGRO_MOUSE structure representing the mouse.
+ *  Returns the address of a A5O_MOUSE structure representing the mouse.
  */
-static ALLEGRO_MOUSE *mouse_get_mouse(void)
+static A5O_MOUSE *mouse_get_mouse(void)
 {
-   return (ALLEGRO_MOUSE *)&the_mouse;
+   return (A5O_MOUSE *)&the_mouse;
 }
 
 
@@ -634,7 +634,7 @@ static unsigned int mouse_get_mouse_num_axes(void)
 /* mouse_set_mouse_xy:
  *
  */
-static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+static bool mouse_set_mouse_xy(A5O_DISPLAY *display, int x, int y)
 {
    (void)display;
 
@@ -642,8 +642,8 @@ static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
    {
       int dx, dy;
 
-      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x, x_axis.out_max);
-      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y, y_axis.out_max);
+      x_axis.out_abs = _A5O_CLAMP(x_axis.out_min, x, x_axis.out_max);
+      y_axis.out_abs = _A5O_CLAMP(y_axis.out_min, y, y_axis.out_max);
       x_axis.mickeys = 0;
       y_axis.mickeys = 0;
 
@@ -655,7 +655,7 @@ static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
          the_mouse.state.y = y_axis.out_abs;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            A5O_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0);
@@ -690,7 +690,7 @@ static bool mouse_set_mouse_axis(int which, int z)
          the_mouse.state.z = z_axis.out_abs;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            A5O_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
             0);
@@ -717,8 +717,8 @@ bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2)
       x_axis.out_max = x2;
       y_axis.out_max = y2;
 
-      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = _A5O_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = _A5O_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
 
       dx = x_axis.out_abs - the_mouse.state.x;
       dy = y_axis.out_abs - the_mouse.state.y;
@@ -728,7 +728,7 @@ bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2)
          the_mouse.state.y = y_axis.out_abs;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            A5O_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0);
@@ -744,7 +744,7 @@ bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2)
 /* mouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+static void mouse_get_state(A5O_MOUSE_STATE *ret_state)
 {
    _al_event_source_lock(&the_mouse.parent.es);
    {
@@ -803,7 +803,7 @@ static void generate_mouse_event(unsigned int type,
                                  int dx, int dy, int dz,
                                  unsigned int button)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
@@ -825,7 +825,7 @@ static void generate_mouse_event(unsigned int type,
 
 
 /* the driver vtable */
-ALLEGRO_MOUSE_DRIVER _al_mousedrv_linux_evdev =
+A5O_MOUSE_DRIVER _al_mousedrv_linux_evdev =
 {
    AL_MOUSEDRV_LINUX_EVDEV,
    "",
@@ -843,7 +843,7 @@ ALLEGRO_MOUSE_DRIVER _al_mousedrv_linux_evdev =
 
 
 
-#endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
+#endif /* A5O_HAVE_LINUX_INPUT_H */
 
 /*
  * Local Variables:

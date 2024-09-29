@@ -13,9 +13,9 @@ configure_file(
     )
 
 add_our_addon_library(allegro_ttf
-    AllegroTTF-${ALLEGRO_SOVERSION}
+    AllegroTTF-${A5O_SOVERSION}
     "${TTF_SOURCES};${TTF_INCLUDE_FILES}"
-    "-DALLEGRO_TTF_SRC"
+    "-DA5O_TTF_SRC"
     "${FONT_LINK_WITH};${TTF_LIBRARIES}"
     )
 

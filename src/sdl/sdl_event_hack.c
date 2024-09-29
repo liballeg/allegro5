@@ -23,14 +23,14 @@
  * timer events) to prevent a deadlock in an unbound al_wait_for_event.
  */
 
-static ALLEGRO_THREAD *thread;
+static A5O_THREAD *thread;
 
 static void wakeup_with_fake_timer_event(void)
 {
-   ALLEGRO_EVENT_SOURCE *es = al_get_keyboard_event_source();
+   A5O_EVENT_SOURCE *es = al_get_keyboard_event_source();
    _al_event_source_lock(es);
-   ALLEGRO_EVENT event;
-   event.timer.type = ALLEGRO_EVENT_TIMER;
+   A5O_EVENT event;
+   event.timer.type = A5O_EVENT_TIMER;
    event.timer.timestamp = al_get_time();
    event.timer.count = 0;
    event.timer.error = 0;
@@ -38,7 +38,7 @@ static void wakeup_with_fake_timer_event(void)
    _al_event_source_unlock(es);
 }
 
-static void *wakeup_thread(ALLEGRO_THREAD *thread, void *user)
+static void *wakeup_thread(A5O_THREAD *thread, void *user)
 {
    al_rest(1);
    while (!al_get_thread_should_stop(thread)) {

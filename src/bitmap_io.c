@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-ALLEGRO_DEBUG_CHANNEL("bitmap")
+A5O_DEBUG_CHANNEL("bitmap")
 
 #define MAX_EXTENSION   (32)
 
@@ -29,11 +29,11 @@ ALLEGRO_DEBUG_CHANNEL("bitmap")
 typedef struct Handler
 {
    char extension[MAX_EXTENSION];
-   ALLEGRO_IIO_LOADER_FUNCTION loader;
-   ALLEGRO_IIO_SAVER_FUNCTION saver;
-   ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader;
-   ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver;
-   ALLEGRO_IIO_IDENTIFIER_FUNCTION identifier;
+   A5O_IIO_LOADER_FUNCTION loader;
+   A5O_IIO_SAVER_FUNCTION saver;
+   A5O_IIO_FS_LOADER_FUNCTION fs_loader;
+   A5O_IIO_FS_SAVER_FUNCTION fs_saver;
+   A5O_IIO_IDENTIFIER_FUNCTION identifier;
 } Handler;
 
 
@@ -81,7 +81,7 @@ static Handler *find_handler(const char *extension, bool create_if_not)
 }
 
 
-static Handler *find_handler_for_file(ALLEGRO_FILE *f)
+static Handler *find_handler_for_file(A5O_FILE *f)
 {
    unsigned i;
 
@@ -92,7 +92,7 @@ static Handler *find_handler_for_file(ALLEGRO_FILE *f)
       if (l->identifier) {
          int64_t pos = al_ftell(f);
          bool identified = l->identifier(f);
-         al_fseek(f, pos, ALLEGRO_SEEK_SET);
+         al_fseek(f, pos, A5O_SEEK_SET);
          if (identified)
             return l;
       }
@@ -126,7 +126,7 @@ void _al_init_iio_table(void)
 /* Function: al_register_bitmap_loader
  */
 bool al_register_bitmap_loader(const char *extension,
-   ALLEGRO_BITMAP *(*loader)(const char *filename, int flags))
+   A5O_BITMAP *(*loader)(const char *filename, int flags))
 {
    REGISTER(loader)
 }
@@ -135,7 +135,7 @@ bool al_register_bitmap_loader(const char *extension,
 /* Function: al_register_bitmap_saver
  */
 bool al_register_bitmap_saver(const char *extension,
-   bool (*saver)(const char *filename, ALLEGRO_BITMAP *bmp))
+   bool (*saver)(const char *filename, A5O_BITMAP *bmp))
 {
    REGISTER(saver)
 }
@@ -144,7 +144,7 @@ bool al_register_bitmap_saver(const char *extension,
 /* Function: al_register_bitmap_loader_f
  */
 bool al_register_bitmap_loader_f(const char *extension,
-   ALLEGRO_BITMAP *(*fs_loader)(ALLEGRO_FILE *fp, int flags))
+   A5O_BITMAP *(*fs_loader)(A5O_FILE *fp, int flags))
 {
    REGISTER(fs_loader)
 }
@@ -153,7 +153,7 @@ bool al_register_bitmap_loader_f(const char *extension,
 /* Function: al_register_bitmap_saver_f
  */
 bool al_register_bitmap_saver_f(const char *extension,
-   bool (*fs_saver)(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp))
+   bool (*fs_saver)(A5O_FILE *fp, A5O_BITMAP *bmp))
 {
    REGISTER(fs_saver)
 }
@@ -162,7 +162,7 @@ bool al_register_bitmap_saver_f(const char *extension,
 /* Function: al_register_bitmap_identifier
  */
 bool al_register_bitmap_identifier(const char *extension,
-   bool (*identifier)(ALLEGRO_FILE *f))
+   bool (*identifier)(A5O_FILE *f))
 {
    REGISTER(identifier)
 }
@@ -170,14 +170,14 @@ bool al_register_bitmap_identifier(const char *extension,
 
 /* Function: al_load_bitmap
  */
-ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
+A5O_BITMAP *al_load_bitmap(const char *filename)
 {
    int flags = 0;
 
    /* For backwards compatibility with the 5.0 branch. */
-   if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-      flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
-      ALLEGRO_WARN("ALLEGRO_NO_PREMULTIPLIED_ALPHA in new_bitmap_flags "
+   if (al_get_new_bitmap_flags() & A5O_NO_PREMULTIPLIED_ALPHA) {
+      flags |= A5O_NO_PREMULTIPLIED_ALPHA;
+      A5O_WARN("A5O_NO_PREMULTIPLIED_ALPHA in new_bitmap_flags "
          "is deprecated\n");
    }
 
@@ -187,17 +187,17 @@ ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
 
 /* Function: al_load_bitmap_flags
  */
-ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
+A5O_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
 {
    const char *ext;
    Handler *h;
-   ALLEGRO_BITMAP *ret;
+   A5O_BITMAP *ret;
 
    ext = al_identify_bitmap(filename);
    if (!ext) {
       ext = strrchr(filename, '.');
       if (!ext) {
-         ALLEGRO_ERROR("Could not identify bitmap %s!\n", filename);
+         A5O_ERROR("Could not identify bitmap %s!\n", filename);
          return NULL;
       }
    }
@@ -206,11 +206,11 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
    if (h && h->loader) {
       ret = h->loader(filename, flags);
       if (!ret)
-         ALLEGRO_ERROR("Failed loading bitmap %s with %s handler.\n",
+         A5O_ERROR("Failed loading bitmap %s with %s handler.\n",
             filename, ext);
    }
    else {
-      ALLEGRO_ERROR("No handler for bitmap %s!\n", filename);
+      A5O_ERROR("No handler for bitmap %s!\n", filename);
       ret = NULL;
    }
 
@@ -220,14 +220,14 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
 
 /* Function: al_save_bitmap
  */
-bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
+bool al_save_bitmap(const char *filename, A5O_BITMAP *bitmap)
 {
    const char *ext;
    Handler *h;
 
    ext = strrchr(filename, '.');
    if (!ext) {
-      ALLEGRO_ERROR("Unable to determine file format from %s\n", filename);
+      A5O_ERROR("Unable to determine file format from %s\n", filename);
       return false;
    }
 
@@ -235,7 +235,7 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
    if (h && h->saver)
       return h->saver(filename, bitmap);
    else {
-      ALLEGRO_ERROR("No handler for image %s found\n", filename);
+      A5O_ERROR("No handler for image %s found\n", filename);
       return false;
    }
 }
@@ -243,14 +243,14 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_load_bitmap_f
  */
-ALLEGRO_BITMAP *al_load_bitmap_f(ALLEGRO_FILE *fp, const char *ident)
+A5O_BITMAP *al_load_bitmap_f(A5O_FILE *fp, const char *ident)
 {
    int flags = 0;
 
    /* For backwards compatibility with the 5.0 branch. */
-   if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-      flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
-      ALLEGRO_WARN("ALLEGRO_NO_PREMULTIPLIED_ALPHA in new_bitmap_flags "
+   if (al_get_new_bitmap_flags() & A5O_NO_PREMULTIPLIED_ALPHA) {
+      flags |= A5O_NO_PREMULTIPLIED_ALPHA;
+      A5O_WARN("A5O_NO_PREMULTIPLIED_ALPHA in new_bitmap_flags "
          "is deprecated\n");
    }
 
@@ -260,7 +260,7 @@ ALLEGRO_BITMAP *al_load_bitmap_f(ALLEGRO_FILE *fp, const char *ident)
 
 /* Function: al_load_bitmap_flags_f
  */
-ALLEGRO_BITMAP *al_load_bitmap_flags_f(ALLEGRO_FILE *fp,
+A5O_BITMAP *al_load_bitmap_flags_f(A5O_FILE *fp,
    const char *ident, int flags)
 {
    Handler *h;
@@ -277,14 +277,14 @@ ALLEGRO_BITMAP *al_load_bitmap_flags_f(ALLEGRO_FILE *fp,
 
 /* Function: al_save_bitmap_f
  */
-bool al_save_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
-   ALLEGRO_BITMAP *bitmap)
+bool al_save_bitmap_f(A5O_FILE *fp, const char *ident,
+   A5O_BITMAP *bitmap)
 {
    Handler *h = find_handler(ident, false);
    if (h && h->fs_saver)
       return h->fs_saver(fp, bitmap);
    else {
-      ALLEGRO_ERROR("No handler for image %s found\n", ident);
+      A5O_ERROR("No handler for image %s found\n", ident);
       return false;
    }
 }
@@ -292,7 +292,7 @@ bool al_save_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
 
 /* Function: al_identify_bitmap_f
  */
-char const *al_identify_bitmap_f(ALLEGRO_FILE *fp)
+char const *al_identify_bitmap_f(A5O_FILE *fp)
 {
    Handler *h = find_handler_for_file(fp);
    if (!h)
@@ -306,7 +306,7 @@ char const *al_identify_bitmap_f(ALLEGRO_FILE *fp)
 char const *al_identify_bitmap(char const *filename)
 {
    char const *ext;
-   ALLEGRO_FILE *fp = al_fopen(filename, "rb");
+   A5O_FILE *fp = al_fopen(filename, "rb");
    if (!fp)
       return NULL;
    ext = al_identify_bitmap_f(fp);

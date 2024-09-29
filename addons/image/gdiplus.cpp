@@ -10,13 +10,13 @@
 
 #include "iio.h"
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H
+#ifdef A5O_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H
    #include <gdiplus.h>
 #else
    #include <GdiPlus.h>
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 /* Needed with the MinGW w32api-3.15 headers. */
 using namespace Gdiplus;
@@ -62,16 +62,16 @@ static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
    return -1;  
 }
 
-/* A wrapper around an already opened ALLEGRO_FILE* pointer
+/* A wrapper around an already opened A5O_FILE* pointer
  */
 class AllegroWindowsStream : public IStream 
 {
    long refCount;
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
 
 public:
    /* Create a stream from an open file handle */
-   AllegroWindowsStream(ALLEGRO_FILE *fp) :
+   AllegroWindowsStream(A5O_FILE *fp) :
       refCount(1),
       fp(fp)
    {
@@ -135,15 +135,15 @@ public:
    virtual HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
       ULARGE_INTEGER *plibNewPosition)
    {
-      ALLEGRO_SEEK o;
+      A5O_SEEK o;
       if (dwOrigin == STREAM_SEEK_SET) {
-         o = ALLEGRO_SEEK_SET;
+         o = A5O_SEEK_SET;
       }
       else if (dwOrigin == STREAM_SEEK_CUR) {
-         o = ALLEGRO_SEEK_CUR; 
+         o = A5O_SEEK_CUR; 
       }
       else {
-         o = ALLEGRO_SEEK_END;
+         o = A5O_SEEK_END;
       }
       
       bool ret = al_fseek(fp, dlibMove.QuadPart, o);
@@ -224,7 +224,7 @@ public:
 };
 
 static void load_indexed_data(Gdiplus::Bitmap *gdi_bmp,
-   ALLEGRO_BITMAP *a_bmp, uint32_t w, uint32_t h)
+   A5O_BITMAP *a_bmp, uint32_t w, uint32_t h)
 {
    Gdiplus::BitmapData *gdi_lock = new Gdiplus::BitmapData();
    Gdiplus::Rect rect(0, 0, w, h);
@@ -232,8 +232,8 @@ static void load_indexed_data(Gdiplus::Bitmap *gdi_bmp,
    if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
          PixelFormat8bppIndexed, gdi_lock))
    {
-      ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
-         ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8, ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
+         A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8, A5O_LOCK_WRITEONLY);
 
       if (a_lock) {
          unsigned char *in = (unsigned char *)gdi_lock->Scan0;
@@ -260,7 +260,7 @@ static void load_indexed_data(Gdiplus::Bitmap *gdi_bmp,
 }
 
 static void load_non_indexed_data(Gdiplus::Bitmap *gdi_bmp,
-   ALLEGRO_BITMAP *a_bmp, uint32_t w, uint32_t h, bool premul)
+   A5O_BITMAP *a_bmp, uint32_t w, uint32_t h, bool premul)
 {
    Gdiplus::BitmapData *gdi_lock = new Gdiplus::BitmapData();
    Gdiplus::Rect rect(0, 0, w, h);
@@ -268,8 +268,8 @@ static void load_non_indexed_data(Gdiplus::Bitmap *gdi_bmp,
    if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
          PixelFormat32bppARGB, gdi_lock))
    {
-      ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
-         ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
+         A5O_PIXEL_FORMAT_ARGB_8888, A5O_LOCK_WRITEONLY);
 
       if (a_lock) {
          unsigned char *in = (unsigned char *)gdi_lock->Scan0;
@@ -319,23 +319,23 @@ static void load_non_indexed_data(Gdiplus::Bitmap *gdi_bmp,
    delete gdi_lock;
 }
 
-ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
+A5O_BITMAP *_al_load_gdiplus_bitmap_f(A5O_FILE *fp, int flags)
 {
    AllegroWindowsStream *s = new AllegroWindowsStream(fp);
    if (!s) {
-      ALLEGRO_ERROR("Unable to create AllegroWindowsStream.\n");
+      A5O_ERROR("Unable to create AllegroWindowsStream.\n");
       return NULL;
    }
 
-   ALLEGRO_BITMAP *a_bmp = NULL;
+   A5O_BITMAP *a_bmp = NULL;
    Gdiplus::Bitmap *gdi_bmp = Gdiplus::Bitmap::FromStream(s, false);
 
    if (gdi_bmp) {
       const uint32_t w = gdi_bmp->GetWidth();
       const uint32_t h = gdi_bmp->GetHeight();
       const PixelFormat pf = gdi_bmp->GetPixelFormat();
-      bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
-      bool keep_index = (flags & ALLEGRO_KEEP_INDEX);
+      bool premul = !(flags & A5O_NO_PREMULTIPLIED_ALPHA);
+      bool keep_index = (flags & A5O_KEEP_INDEX);
 
       a_bmp = al_create_bitmap(w, h);
       if (a_bmp) {
@@ -354,10 +354,10 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
    return a_bmp;
 }
 
-ALLEGRO_BITMAP *_al_load_gdiplus_bitmap(const char *filename, int flags)
+A5O_BITMAP *_al_load_gdiplus_bitmap(const char *filename, int flags)
 {
-   ALLEGRO_BITMAP *bmp = NULL;
-   ALLEGRO_FILE *fp;
+   A5O_BITMAP *bmp = NULL;
+   A5O_FILE *fp;
 	
    fp = al_fopen(filename, "rb");		
    if (fp) {
@@ -368,8 +368,8 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap(const char *filename, int flags)
    return bmp;
 }
 
-bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
-   ALLEGRO_BITMAP *a_bmp)
+bool _al_save_gdiplus_bitmap_f(A5O_FILE *fp, const char *ident,
+   A5O_BITMAP *a_bmp)
 {
    CLSID encoder;
    int encoder_status = -1;
@@ -391,13 +391,13 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
    }
 
    if (encoder_status == -1) {
-      ALLEGRO_ERROR("Invalid encoder status.\n");
+      A5O_ERROR("Invalid encoder status.\n");
       return false;    
    }
 
    AllegroWindowsStream *s = new AllegroWindowsStream(fp);
    if (!s) {
-      ALLEGRO_ERROR("Couldn't create AllegroWindowsStream.\n");
+      A5O_ERROR("Couldn't create AllegroWindowsStream.\n");
       return false;
    }
 
@@ -413,8 +413,8 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
       if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeWrite,
             PixelFormat32bppARGB, gdi_lock)) {
 
-         ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(
-            a_bmp, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
+         A5O_LOCKED_REGION *a_lock = al_lock_bitmap(
+            a_bmp, A5O_PIXEL_FORMAT_ARGB_8888, A5O_LOCK_READONLY);
 
          if (a_lock) {
             unsigned char *in = (unsigned char *)a_lock->data;
@@ -448,14 +448,14 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
    return ret;
 }
 
-bool _al_save_gdiplus_bitmap(const char *filename, ALLEGRO_BITMAP *bmp)
+bool _al_save_gdiplus_bitmap(const char *filename, A5O_BITMAP *bmp)
 {
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
    bool ret = false;
 
    fp = al_fopen(filename, "wb");
    if (fp) {
-      ALLEGRO_PATH *path = al_create_path(filename);
+      A5O_PATH *path = al_create_path(filename);
       if (path) {
          ret = _al_save_gdiplus_bitmap_f(fp, al_get_path_extension(path), bmp);
          al_destroy_path(path);
@@ -466,22 +466,22 @@ bool _al_save_gdiplus_bitmap(const char *filename, ALLEGRO_BITMAP *bmp)
    return ret;
 }	
 
-bool _al_save_gdiplus_png_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_save_gdiplus_png_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_save_gdiplus_bitmap_f(f, ".png", bmp);
 }
 
-bool _al_save_gdiplus_jpg_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_save_gdiplus_jpg_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_save_gdiplus_bitmap_f(f, ".jpg", bmp);
 }
 
-bool _al_save_gdiplus_tif_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_save_gdiplus_tif_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_save_gdiplus_bitmap_f(f, ".tif", bmp);
 }
 
-bool _al_save_gdiplus_gif_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_save_gdiplus_gif_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_save_gdiplus_bitmap_f(f, ".gif", bmp);
 }

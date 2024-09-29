@@ -30,20 +30,20 @@ int mouse_y(void)
    return my;
 }
 
-void mouse_handle_event(ALLEGRO_EVENT *event)
+void mouse_handle_event(A5O_EVENT *event)
 {
    switch (event->type) {
-      case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+      case A5O_EVENT_MOUSE_BUTTON_DOWN:
          mouse_array[event->mouse.button] |= (1 << 0);
          mouse_array[event->mouse.button] |= (1 << 1);
          break;
 
-      case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+      case A5O_EVENT_MOUSE_BUTTON_UP:
          mouse_array[event->mouse.button] &= ~(1 << 0);
          mouse_array[event->mouse.button] |= (1 << 2);
          break;
       
-      case ALLEGRO_EVENT_MOUSE_AXES:
+      case A5O_EVENT_MOUSE_AXES:
          mx = event->mouse.x;
          my = event->mouse.y;
          break;

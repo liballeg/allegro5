@@ -15,8 +15,8 @@ void _al_shutdown_native_dialog_addon(void)
 {
 }
 
-bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
-                                 ALLEGRO_NATIVE_DIALOG *fd)
+bool _al_show_native_file_dialog(A5O_DISPLAY *display,
+                                 A5O_NATIVE_DIALOG *fd)
 {
     (void)display;
     (void)fd;
@@ -24,11 +24,11 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 }
 
 @interface AlertDelegate : NSObject<UIAlertViewDelegate> {
-    ALLEGRO_MUTEX *mutex;
-    ALLEGRO_COND *button_pressed;
+    A5O_MUTEX *mutex;
+    A5O_COND *button_pressed;
 }
-@property ALLEGRO_MUTEX *mutex;
-@property ALLEGRO_COND *button_pressed;
+@property A5O_MUTEX *mutex;
+@property A5O_COND *button_pressed;
 @end
 
 @implementation AlertDelegate
@@ -51,8 +51,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
 @end
 
-int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
-                                ALLEGRO_NATIVE_DIALOG *nd)
+int _al_show_native_message_box(A5O_DISPLAY *display,
+                                A5O_NATIVE_DIALOG *nd)
 {
     (void)display;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
@@ -92,70 +92,70 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
     return 0;
 }
 
-bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+bool _al_open_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
     (void)textlog;
     return false;
 }
 
-void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+void _al_close_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
     (void) textlog;
 }
 
-void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+void _al_append_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
     (void) textlog;
 }
 
-bool _al_init_menu(ALLEGRO_MENU *menu)
+bool _al_init_menu(A5O_MENU *menu)
 {
     (void) menu;
     return false;
 }
 
-bool _al_init_popup_menu(ALLEGRO_MENU *menu)
+bool _al_init_popup_menu(A5O_MENU *menu)
 {
     (void) menu;
     return false;
 }
 
-bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+bool _al_insert_menu_item_at(A5O_MENU_ITEM *item, int i)
 {
     (void) item;
     (void) i;
     return false;
 }
 
-bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+bool _al_destroy_menu_item_at(A5O_MENU_ITEM *item, int i)
 {
     (void) item;
     (void) i;
     return false;
 }
 
-bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+bool _al_update_menu_item_at(A5O_MENU_ITEM *item, int i)
 {
     (void) item;
     (void) i;
     return false;
 }
 
-bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool _al_show_display_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
     (void) display;
     (void) menu;
     return false;
 }
 
-bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool _al_hide_display_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
     (void) display;
     (void) menu;
     return false;
 }
 
-bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool _al_show_popup_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
     (void) display;
     (void) menu;

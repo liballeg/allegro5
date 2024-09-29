@@ -18,13 +18,13 @@
 #include <unistd.h>
 
 /* Describe this platform.  */
-#define ALLEGRO_PLATFORM_STR  "IPHONE"
+#define A5O_PLATFORM_STR  "IPHONE"
 
-#define ALLEGRO_EXTRA_HEADER "allegro5/platform/aliphone.h"
-#define ALLEGRO_INTERNAL_HEADER "allegro5/platform/aintiphone.h"
-#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
+#define A5O_EXTRA_HEADER "allegro5/platform/aliphone.h"
+#define A5O_INTERNAL_HEADER "allegro5/platform/aintiphone.h"
+#define A5O_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
 
-#define ALLEGRO_EXCLUDE_GLX
+#define A5O_EXCLUDE_GLX
 
 #ifndef AL_INLINE
 #define AL_INLINE(type, name, args, code)    \

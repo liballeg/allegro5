@@ -18,14 +18,14 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_pixels.h"
 
-ALLEGRO_DEBUG_CHANNEL("pixels")
+A5O_DEBUG_CHANNEL("pixels")
 
 
 /* lookup table for scaling 8 bit integers up to floats [0.0, 1.0] */
 #include "pixel_tables.inc"
 
 static int pixel_sizes[] = {
-   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0, /* A5O_PIXEL_FORMAT_ANY */
    0,
    0,
    2,
@@ -34,7 +34,7 @@ static int pixel_sizes[] = {
    3,
    4,
    4,
-   4, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   4, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    4,
    2,
    3,
@@ -49,17 +49,17 @@ static int pixel_sizes[] = {
    2,
    4,
    4,
-   16, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   4, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   2, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   1, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   16, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   4, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   2, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   1, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    0,
    0,
    0,
 };
 
 static int pixel_bits[] = {
-   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0, /* A5O_PIXEL_FORMAT_ANY */
    0,
    0,
    15,
@@ -68,7 +68,7 @@ static int pixel_bits[] = {
    24,
    32,
    32,
-   32, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   32, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    32,
    16,
    24,
@@ -83,17 +83,17 @@ static int pixel_bits[] = {
    15,
    32,
    32,
-   128, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   32, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   16, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   8, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   128, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   32, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   16, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   8, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    0,
    0,
    0,
 };
 
 static int pixel_block_widths[] = {
-   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0, /* A5O_PIXEL_FORMAT_ANY */
    0,
    0,
    1,
@@ -102,7 +102,7 @@ static int pixel_block_widths[] = {
    1,
    1,
    1,
-   1, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   1, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    1,
    1,
    1,
@@ -117,17 +117,17 @@ static int pixel_block_widths[] = {
    1,
    1,
    1,
-   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   1, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   1, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   1, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   1, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   1, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   1, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    4,
    4,
    4,
 };
 
 static int pixel_block_heights[] = {
-   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0, /* A5O_PIXEL_FORMAT_ANY */
    0,
    0,
    1,
@@ -136,7 +136,7 @@ static int pixel_block_heights[] = {
    1,
    1,
    1,
-   1, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   1, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    1,
    1,
    1,
@@ -151,17 +151,17 @@ static int pixel_block_heights[] = {
    1,
    1,
    1,
-   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   1, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   1, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   1, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   1, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   1, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   1, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    4,
    4,
    4,
 };
 
 static int pixel_block_sizes[] = {
-   0,  /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0,  /* A5O_PIXEL_FORMAT_ANY */
    0,
    0,
    2,
@@ -170,7 +170,7 @@ static int pixel_block_sizes[] = {
    3,
    4,
    4,
-   4,  /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   4,  /* A5O_PIXEL_FORMAT_ARGB_8888 */
    4,
    2,
    3,
@@ -185,17 +185,17 @@ static int pixel_block_sizes[] = {
    2,
    4,
    4,
-   16, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   4,  /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   2,  /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   1,  /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   16, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   4,  /* A5O_PIXEL_FORMAT_ABGR_LE */
+   2,  /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   1,  /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    8,
    16,
    16,
 };
 
-static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
-   false, /* neutral (ALLEGRO_PIXEL_FORMAT_ANY) */
+static bool format_alpha_table[A5O_NUM_PIXEL_FORMATS] = {
+   false, /* neutral (A5O_PIXEL_FORMAT_ANY) */
    false,
    true,
    false,
@@ -204,7 +204,7 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false,
    false,
    true,
-   true, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   true, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    true,
    true,
    false,
@@ -219,16 +219,16 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false,
    false,
    false,
-   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   true, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   false, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   true, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   true, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   true, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   false, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    true,
    true,
    true,
 };
 
-static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
+static char const *pixel_format_names[A5O_NUM_PIXEL_FORMATS + 1] = {
    "ANY",
    "ANY_NO_ALPHA",
    "ANY_WITH_ALPHA",
@@ -263,9 +263,9 @@ static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
    "INVALID"
 };
 
-static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
+static bool format_is_real[A5O_NUM_PIXEL_FORMATS] =
 {
-   false, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   false, /* A5O_PIXEL_FORMAT_ANY */
    false,
    false,
    false,
@@ -274,7 +274,7 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    false,
    false,
    false,
-   true, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   true, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    true,
    true,
    true,
@@ -289,18 +289,18 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true,
    true,
    true,
-   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   true, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   true, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   true, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   true, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   true, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   true, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    true,
    true,
    true,
 };
 
-static bool format_is_video_only[ALLEGRO_NUM_PIXEL_FORMATS] =
+static bool format_is_video_only[A5O_NUM_PIXEL_FORMATS] =
 {
-   false, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   false, /* A5O_PIXEL_FORMAT_ANY */
    false,
    false,
    false,
@@ -309,7 +309,7 @@ static bool format_is_video_only[ALLEGRO_NUM_PIXEL_FORMATS] =
    false,
    false,
    false,
-   false, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   false, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    false,
    false,
    false,
@@ -324,18 +324,18 @@ static bool format_is_video_only[ALLEGRO_NUM_PIXEL_FORMATS] =
    false,
    false,
    false,
-   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   false, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   false, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   false, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   false, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   false, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   false, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    true,
    true,
    true,
 };
 
-static bool format_is_compressed[ALLEGRO_NUM_PIXEL_FORMATS] =
+static bool format_is_compressed[A5O_NUM_PIXEL_FORMATS] =
 {
-   false, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   false, /* A5O_PIXEL_FORMAT_ANY */
    false,
    false,
    false,
@@ -344,7 +344,7 @@ static bool format_is_compressed[ALLEGRO_NUM_PIXEL_FORMATS] =
    false,
    false,
    false,
-   false, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   false, /* A5O_PIXEL_FORMAT_ARGB_8888 */
    false,
    false,
    false,
@@ -359,10 +359,10 @@ static bool format_is_compressed[ALLEGRO_NUM_PIXEL_FORMATS] =
    false,
    false,
    false,
-   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   false, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
-   false, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   false, /* A5O_PIXEL_FORMAT_ABGR_F32 */
+   false, /* A5O_PIXEL_FORMAT_ABGR_LE */
+   false, /* A5O_PIXEL_FORMAT_RGBA_4444 */
+   false, /* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
    true,
    true,
    true,
@@ -418,7 +418,7 @@ bool _al_pixel_format_has_alpha(int format)
 bool _al_pixel_format_is_real(int format)
 {
    ASSERT(format >= 0);
-   ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
+   ASSERT(format < A5O_NUM_PIXEL_FORMATS);
 
    return format_is_real[format];
 }
@@ -426,7 +426,7 @@ bool _al_pixel_format_is_real(int format)
 bool _al_pixel_format_is_video_only(int format)
 {
    ASSERT(format >= 0);
-   ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
+   ASSERT(format < A5O_NUM_PIXEL_FORMATS);
 
    return format_is_video_only[format];
 }
@@ -434,7 +434,7 @@ bool _al_pixel_format_is_video_only(int format)
 bool _al_pixel_format_is_compressed(int format)
 {
    ASSERT(format >= 0);
-   ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
+   ASSERT(format < A5O_NUM_PIXEL_FORMATS);
 
    return format_is_compressed[format];
 }
@@ -443,7 +443,7 @@ bool _al_pixel_format_is_compressed(int format)
 /* We use al_get_display_format() as a hint for the preferred RGB ordering when
  * nothing else is specified.
  */
-static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
+static bool try_display_format(A5O_DISPLAY *display, int *format)
 {
    int best_format;
    int bytes;
@@ -463,14 +463,14 @@ static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
    if (_al_pixel_format_has_alpha(*format) &&
       !_al_pixel_format_has_alpha(best_format)) {
       switch (best_format) {
-         case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
-            *format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+         case A5O_PIXEL_FORMAT_RGBX_8888:
+            *format = A5O_PIXEL_FORMAT_RGBA_8888;
             return true;
-         case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
-             *format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+         case A5O_PIXEL_FORMAT_XRGB_8888:
+             *format = A5O_PIXEL_FORMAT_ARGB_8888;
             return true;
-         case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
-            *format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+         case A5O_PIXEL_FORMAT_XBGR_8888:
+            *format = A5O_PIXEL_FORMAT_ABGR_8888;
             return true;
          default:
             return false;
@@ -479,14 +479,14 @@ static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
    if (!_al_pixel_format_has_alpha(*format) &&
       _al_pixel_format_has_alpha(best_format)) {
       switch (best_format) {
-         case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
-            *format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
+         case A5O_PIXEL_FORMAT_RGBA_8888:
+            *format = A5O_PIXEL_FORMAT_RGBX_8888;
             return true;
-         case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
-             *format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         case A5O_PIXEL_FORMAT_ARGB_8888:
+             *format = A5O_PIXEL_FORMAT_XRGB_8888;
             return true;
-         case ALLEGRO_PIXEL_FORMAT_ABGR_8888:
-            *format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+         case A5O_PIXEL_FORMAT_ABGR_8888:
+            *format = A5O_PIXEL_FORMAT_XBGR_8888;
             return true;
          default:
             return false;
@@ -497,37 +497,37 @@ static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
 }
 
 
-int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format)
+int _al_get_real_pixel_format(A5O_DISPLAY *display, int format)
 {
    /* Pick an appropriate format if the user is vague */
    switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
-      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+      case A5O_PIXEL_FORMAT_ANY_NO_ALPHA:
+      case A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA:
          if (!try_display_format(display, &format))
-            format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+            format = A5O_PIXEL_FORMAT_XRGB_8888;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY:
-      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
-      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+      case A5O_PIXEL_FORMAT_ANY:
+      case A5O_PIXEL_FORMAT_ANY_WITH_ALPHA:
+      case A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
          if (!try_display_format(display, &format))
-#if defined ALLEGRO_CFG_OPENGLES // OPENGLES doesn't have ARGB_8888
-            format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+#if defined A5O_CFG_OPENGLES // OPENGLES doesn't have ARGB_8888
+            format = A5O_PIXEL_FORMAT_ABGR_8888_LE;
 #else
-            format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+            format = A5O_PIXEL_FORMAT_ARGB_8888;
 #endif
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_RGB_555;
+      case A5O_PIXEL_FORMAT_ANY_15_NO_ALPHA:
+         format = A5O_PIXEL_FORMAT_RGB_555;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+      case A5O_PIXEL_FORMAT_ANY_16_NO_ALPHA:
          if (!try_display_format(display, &format))
-            format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+            format = A5O_PIXEL_FORMAT_RGB_565;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
+      case A5O_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         format = A5O_PIXEL_FORMAT_RGBA_4444;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_RGB_888;
+      case A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         format = A5O_PIXEL_FORMAT_RGB_888;
          break;
       default:
          /* Already a real format - don't change it. */
@@ -539,9 +539,9 @@ int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format)
 }
 
 
-char const *_al_pixel_format_name(ALLEGRO_PIXEL_FORMAT format)
+char const *_al_pixel_format_name(A5O_PIXEL_FORMAT format)
 {
-   if (format >= ALLEGRO_NUM_PIXEL_FORMATS) format = ALLEGRO_NUM_PIXEL_FORMATS;
+   if (format >= A5O_NUM_PIXEL_FORMATS) format = A5O_NUM_PIXEL_FORMATS;
    return pixel_format_names[format];
 }
 
@@ -550,10 +550,10 @@ char const *_al_pixel_format_name(ALLEGRO_PIXEL_FORMAT format)
 
 /* Function: al_map_rgba
  */
-ALLEGRO_COLOR al_map_rgba(
+A5O_COLOR al_map_rgba(
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
    _AL_MAP_RGBA(color, r, g, b, a);
    return color;
 }
@@ -561,10 +561,10 @@ ALLEGRO_COLOR al_map_rgba(
 
 /* Function: al_premul_rgba
  */
-ALLEGRO_COLOR al_premul_rgba(
+A5O_COLOR al_premul_rgba(
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
    _AL_MAP_RGBA(color, r * a / 255, g * a / 255, b * a / 255, a);
    return color;
 }
@@ -572,7 +572,7 @@ ALLEGRO_COLOR al_premul_rgba(
 
 /* Function: al_map_rgb
  */
-ALLEGRO_COLOR al_map_rgb(
+A5O_COLOR al_map_rgb(
    unsigned char r, unsigned char g, unsigned char b)
 {
    return al_map_rgba(r, g, b, 255);
@@ -581,9 +581,9 @@ ALLEGRO_COLOR al_map_rgb(
 
 /* Function: al_map_rgba_f
  */
-ALLEGRO_COLOR al_map_rgba_f(float r, float g, float b, float a)
+A5O_COLOR al_map_rgba_f(float r, float g, float b, float a)
 {
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
    color.r = r;
    color.g = g;
    color.b = b;
@@ -594,9 +594,9 @@ ALLEGRO_COLOR al_map_rgba_f(float r, float g, float b, float a)
 
 /* Function: al_premul_rgba_f
  */
-ALLEGRO_COLOR al_premul_rgba_f(float r, float g, float b, float a)
+A5O_COLOR al_premul_rgba_f(float r, float g, float b, float a)
 {
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
    color.r = r * a;
    color.g = g * a;
    color.b = b * a;
@@ -607,7 +607,7 @@ ALLEGRO_COLOR al_premul_rgba_f(float r, float g, float b, float a)
 
 /* Function: al_map_rgb_f
  */
-ALLEGRO_COLOR al_map_rgb_f(float r, float g, float b)
+A5O_COLOR al_map_rgb_f(float r, float g, float b)
 {
    return al_map_rgba_f(r, g, b, 1.0f);
 }
@@ -618,7 +618,7 @@ ALLEGRO_COLOR al_map_rgb_f(float r, float g, float b)
 
 /* Function: al_unmap_rgba
  */
-void al_unmap_rgba(ALLEGRO_COLOR color,
+void al_unmap_rgba(A5O_COLOR color,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = color.r * 255.0f;
@@ -630,7 +630,7 @@ void al_unmap_rgba(ALLEGRO_COLOR color,
 
 /* Function: al_unmap_rgb
  */
-void al_unmap_rgb(ALLEGRO_COLOR color,
+void al_unmap_rgb(A5O_COLOR color,
    unsigned char *r, unsigned char *g, unsigned char *b)
 {
    unsigned char tmp;
@@ -641,7 +641,7 @@ void al_unmap_rgb(ALLEGRO_COLOR color,
 
 /* Function: al_unmap_rgba_f
  */
-void al_unmap_rgba_f(ALLEGRO_COLOR color,
+void al_unmap_rgba_f(A5O_COLOR color,
    float *r, float *g, float *b, float *a)
 {
    *r = color.r;
@@ -653,7 +653,7 @@ void al_unmap_rgba_f(ALLEGRO_COLOR color,
 
 /* Function: al_unmap_rgb_f
  */
-void al_unmap_rgb_f(ALLEGRO_COLOR color, float *r, float *g, float *b)
+void al_unmap_rgb_f(A5O_COLOR color, float *r, float *g, float *b)
 {
    float tmp;
 

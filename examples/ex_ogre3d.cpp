@@ -14,7 +14,7 @@
 
 #include <Ogre.h>
 #include <allegro5/allegro.h>
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
 #include <allegro5/allegro_windows.h>
 #endif
 #include <allegro5/allegro_opengl.h>
@@ -46,7 +46,7 @@ protected:
    Camera *mCamera;
 
 public:
-   void setup(ALLEGRO_DISPLAY *display)
+   void setup(A5O_DISPLAY *display)
    {
       createRoot();
       defineResources();
@@ -102,7 +102,7 @@ private:
       }
    }
 
-   void createRenderWindow(ALLEGRO_DISPLAY *display)
+   void createRenderWindow(A5O_DISPLAY *display)
    {
       int w = al_get_display_width(display);
       int h = al_get_display_height(display);
@@ -111,7 +111,7 @@ private:
       mRoot->initialise(false);
 
       Ogre::NameValuePairList misc;
-      #ifdef ALLEGRO_WINDOWS
+      #ifdef A5O_WINDOWS
       unsigned long winHandle      = reinterpret_cast<size_t>(al_get_win_window_handle(display));
       unsigned long winGlContext   = reinterpret_cast<size_t>(wglGetCurrentContext());
       misc["externalWindowHandle"] = StringConverter::toString(winHandle);
@@ -171,9 +171,9 @@ public:
 class Example : public Application
 {
 private:
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
 
    double startTime;
    double lastRenderTime;
@@ -188,7 +188,7 @@ private:
    Vector3 last_translate;
 
 public:
-   Example(ALLEGRO_DISPLAY *display);
+   Example(A5O_DISPLAY *display);
    ~Example();
    void setup();
    void mainLoop();
@@ -201,7 +201,7 @@ private:
    void nextFrame();
 };
 
-Example::Example(ALLEGRO_DISPLAY *display) :
+Example::Example(A5O_DISPLAY *display) :
    display(display),
    queue(NULL),
    timer(NULL),
@@ -282,7 +282,7 @@ void Example::mainLoop()
    al_start_timer(timer);
 
    for (;;) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (al_is_event_queue_empty(queue) && redraw) {
          nextFrame();
@@ -290,11 +290,11 @@ void Example::mainLoop()
       }
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
 
@@ -303,18 +303,18 @@ void Example::mainLoop()
       Vector3 translate(Vector3::ZERO);
 
       switch (event.type) {
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             redraw = true;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+         case A5O_EVENT_MOUSE_BUTTON_DOWN:
             if (event.mouse.button == 1)
                lmb = true;
             if (event.mouse.button == 2)
                rmb = true;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+         case A5O_EVENT_MOUSE_BUTTON_UP:
             if (event.mouse.button == 1)
                lmb = false;
             if (event.mouse.button == 2)
@@ -323,7 +323,7 @@ void Example::mainLoop()
                al_show_mouse_cursor(display);
             break;
 
-         case ALLEGRO_EVENT_MOUSE_AXES:
+         case A5O_EVENT_MOUSE_AXES:
             if (lmb) {
                rot_x = Degree(-event.mouse.dx * 0.13);
                rot_y = Degree(-event.mouse.dy * 0.13);
@@ -340,21 +340,21 @@ void Example::mainLoop()
             }
             break;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-         case ALLEGRO_EVENT_KEY_UP: {
-            const bool is_down = (event.type == ALLEGRO_EVENT_KEY_DOWN);
-            if (event.keyboard.keycode == ALLEGRO_KEY_W)
+         case A5O_EVENT_KEY_DOWN:
+         case A5O_EVENT_KEY_UP: {
+            const bool is_down = (event.type == A5O_EVENT_KEY_DOWN);
+            if (event.keyboard.keycode == A5O_KEY_W)
                forward = is_down;
-            if (event.keyboard.keycode == ALLEGRO_KEY_S)
+            if (event.keyboard.keycode == A5O_KEY_S)
                back = is_down;
-            if (event.keyboard.keycode == ALLEGRO_KEY_A)
+            if (event.keyboard.keycode == A5O_KEY_A)
                left = is_down;
-            if (event.keyboard.keycode == ALLEGRO_KEY_D)
+            if (event.keyboard.keycode == A5O_KEY_D)
                right = is_down;
             break;
          }
 
-         case ALLEGRO_EVENT_DISPLAY_RESIZE: {
+         case A5O_EVENT_DISPLAY_RESIZE: {
             al_acknowledge_resize(event.display.source);
             int w = al_get_display_width(display);
             int h = al_get_display_height(display);
@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
 {
    (void)argc;
    (void)argv;
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
    al_install_keyboard();
    al_install_mouse();
 
-   al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_OPENGL | A5O_RESIZABLE);
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
       abort_example("Error creating display\n");

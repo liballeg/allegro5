@@ -51,7 +51,7 @@ void destroy_screenshot(SCREENSHOT * ss)
 void take_screenshot(SCREENSHOT * ss)
 {
    char buf[64];
-   ALLEGRO_BITMAP *bmp2 = NULL;
+   A5O_BITMAP *bmp2 = NULL;
 
    snprintf(buf, sizeof(buf), "%s%04d.%s", ss->name, ss->counter, ss->ext);
 

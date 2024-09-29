@@ -1,6 +1,6 @@
 /* This example lists the available audio devices.
  */
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include <stdio.h>
 #include "allegro5/allegro.h"
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
    }
 
    for (int i = 0; i < count; i++) {
-      const ALLEGRO_AUDIO_DEVICE* device = al_get_audio_output_device(i);
+      const A5O_AUDIO_DEVICE* device = al_get_audio_output_device(i);
       log_printf("%s\n", al_get_audio_device_name(device));
    }
 

@@ -9,25 +9,25 @@
 
 #define EURO      "\xe2\x82\xac"
 
-static void wait_for_esc(ALLEGRO_DISPLAY *display)
+static void wait_for_esc(A5O_DISPLAY *display)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_BITMAP *screen_clone;
+   A5O_EVENT_QUEUE *queue;
+   A5O_BITMAP *screen_clone;
    al_install_keyboard();
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    screen_clone = al_clone_bitmap(al_get_target_bitmap());
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      else if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_EXPOSE) {
          int x = event.display.x;
          int y = event.display.y;
          int w = event.display.width;
@@ -44,9 +44,9 @@ static void wait_for_esc(ALLEGRO_DISPLAY *display)
 
 int main(int argc, char **argv)
 {
-    ALLEGRO_DISPLAY *display;
-    ALLEGRO_BITMAP *bitmap, *font_bitmap;
-    ALLEGRO_FONT *f1, *f2, *f3;
+    A5O_DISPLAY *display;
+    A5O_BITMAP *bitmap, *font_bitmap;
+    A5O_FONT *f1, *f2, *f3;
     
     int range, index, x, y;
 
@@ -67,8 +67,8 @@ int main(int argc, char **argv)
     al_init_font_addon();
     init_platform_specific();
 
-    al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
-    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+    al_set_new_display_option(A5O_SINGLE_BUFFER, true, A5O_SUGGEST);
+    al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
     display = al_create_display(640, 480);
     if (!display) {
         abort_example("Failed to create display\n");
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
     al_draw_textf(f2, al_map_rgb(0, 0, 255), 60, 60, 0, "Mysha's 0.02" EURO);
 
     /* Draw a yellow text with the builtin font */
-    al_draw_textf(f3, al_map_rgb(255, 255, 0), 20, 200, ALLEGRO_ALIGN_CENTER,
+    al_draw_textf(f3, al_map_rgb(255, 255, 0), 20, 200, A5O_ALIGN_CENTER,
         "a string from builtin font data");
 
     /* Draw all individual glyphs the f2 font's range in rainbow colors.     
@@ -120,10 +120,10 @@ int main(int argc, char **argv)
        int stop  = ranges[2*range + 1];      
        for (index = start; index < stop; index ++) {
           /* Use al_get_glyph_advance for the stride. */
-          int width = al_get_glyph_advance(f2, index, ALLEGRO_NO_KERNING);
-          int r     = fabs(sin(ALLEGRO_PI * (index) * 36 / 360.0)) * 255.0;
-          int g     = fabs(sin(ALLEGRO_PI * (index + 12) * 36 / 360.0)) * 255.0;
-          int b     = fabs(sin(ALLEGRO_PI * (index + 24) * 36 / 360.0)) * 255.0;
+          int width = al_get_glyph_advance(f2, index, A5O_NO_KERNING);
+          int r     = fabs(sin(A5O_PI * (index) * 36 / 360.0)) * 255.0;
+          int g     = fabs(sin(A5O_PI * (index + 12) * 36 / 360.0)) * 255.0;
+          int b     = fabs(sin(A5O_PI * (index + 24) * 36 / 360.0)) * 255.0;
           al_draw_glyph(f2, al_map_rgb(r, g, b), x, y, index);
           x += width;
           if (x > (al_get_display_width(display) - 10)) {

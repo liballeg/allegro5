@@ -63,7 +63,7 @@ extern "C" {
 
    Parameters:
       SCREENSHOT *ss - a pointer to an SCREENSHOT object
-      ALLEGRO_BITMAP *buffer - the bitmap from which we take a screenshot; this can be
+      A5O_BITMAP *buffer - the bitmap from which we take a screenshot; this can be
                        the screen bitmap but taking screenshots from video
 		       bitmaps like the screen is a bit slower so if you use a
 		       memory double buferring system you should pass your

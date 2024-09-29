@@ -15,20 +15,20 @@
 #include "acodec.h"
 #include "helper.h"
 
-#ifndef ALLEGRO_CFG_ACODEC_OPENMPT
-   #error configuration problem, ALLEGRO_CFG_ACODEC_OPENMPT not set
+#ifndef A5O_CFG_ACODEC_OPENMPT
+   #error configuration problem, A5O_CFG_ACODEC_OPENMPT not set
 #endif
 
 #include <libopenmpt/libopenmpt.h>
 #include <libopenmpt/libopenmpt_stream_callbacks_file.h>
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
+A5O_DEBUG_CHANNEL("acodec")
 
 
 typedef struct MOD_FILE
 {
    openmpt_module *mod;
-   ALLEGRO_FILE *fh;
+   A5O_FILE *fh;
    double length;
    double loop_start, loop_end;
 } MOD_FILE;
@@ -36,7 +36,7 @@ typedef struct MOD_FILE
 
 static size_t stream_read_func(void *stream, void *dst, size_t bytes)
 {
-   return al_fread((ALLEGRO_FILE*)stream, dst, bytes);
+   return al_fread((A5O_FILE*)stream, dst, bytes);
 }
 
 
@@ -46,32 +46,32 @@ static int stream_seek_func(void *stream, int64_t offset, int whence)
    switch (whence)
    {
       case OPENMPT_STREAM_SEEK_SET:
-         allegro_whence = ALLEGRO_SEEK_SET;
+         allegro_whence = A5O_SEEK_SET;
          break;
       case OPENMPT_STREAM_SEEK_CUR:
-         allegro_whence = ALLEGRO_SEEK_CUR;
+         allegro_whence = A5O_SEEK_CUR;
          break;
       case OPENMPT_STREAM_SEEK_END:
-         allegro_whence = ALLEGRO_SEEK_END;
+         allegro_whence = A5O_SEEK_END;
          break;
       default:
          return -1;
    }
 
-   return al_fseek((ALLEGRO_FILE*)stream, offset, allegro_whence) ? 0 : -1;
+   return al_fseek((A5O_FILE*)stream, offset, allegro_whence) ? 0 : -1;
 }
 
 
 static int64_t stream_tell_func(void *stream)
 {
-   return al_ftell((ALLEGRO_FILE*)stream);
+   return al_ftell((A5O_FILE*)stream);
 }
 
 
 static void log_func(const char* message, void *user)
 {
    (void)user;
-   ALLEGRO_DEBUG("OpenMPT: %s", message);
+   A5O_DEBUG("OpenMPT: %s", message);
 }
 
 
@@ -80,16 +80,16 @@ static int error_func(int error, void *user)
    (void)user;
    const char* error_str = openmpt_error_string(error);
    if (error_str) {
-      ALLEGRO_ERROR("OpenMPT error: %s\n", error_str);
+      A5O_ERROR("OpenMPT error: %s\n", error_str);
       openmpt_free_string(error_str);
    }
    else
-      ALLEGRO_ERROR("OpenMPT error: %d\n", error);
+      A5O_ERROR("OpenMPT error: %d\n", error);
    return OPENMPT_ERROR_FUNC_RESULT_NONE;
 }
 
 // /* Stream Functions */
-static size_t openmpt_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t openmpt_stream_update(A5O_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    MOD_FILE *const modf = stream->extra;
@@ -99,7 +99,7 @@ static size_t openmpt_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t written = 0;
    size_t i;
 
-   if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
+   if (stream->spl.loop == _A5O_PLAYMODE_STREAM_ONCE) {
      openmpt_module_ctl_set_text(modf->mod, "play.at_end", "stop");
      openmpt_module_set_repeat_count(modf->mod, 0);
    } else {
@@ -114,7 +114,7 @@ static size_t openmpt_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
       bool manual_loop = false;
       /* If manual looping is not enabled, then we need to implement
        * short-stopping manually. */
-      if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && modf->loop_end != -1 &&
+      if (stream->spl.loop != _A5O_PLAYMODE_STREAM_ONCE && modf->loop_end != -1 &&
           position + frames_to_read / 44100 >= modf->loop_end) {
          frames_to_read = (long)((modf->loop_end - position) * 44100);
          if (frames_to_read < 0)
@@ -136,7 +136,7 @@ static size_t openmpt_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    return written;
 }
 
-static void openmpt_stream_close(ALLEGRO_AUDIO_STREAM *stream)
+static void openmpt_stream_close(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const modf = stream->extra;
    _al_acodec_stop_feed_thread(stream);
@@ -147,7 +147,7 @@ static void openmpt_stream_close(ALLEGRO_AUDIO_STREAM *stream)
       al_fclose(modf->fh);
 }
 
-static bool openmpt_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
+static bool openmpt_stream_rewind(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const modf = stream->extra;
    openmpt_module_set_position_seconds(modf->mod, modf->loop_start);
@@ -155,7 +155,7 @@ static bool openmpt_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-static bool openmpt_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
+static bool openmpt_stream_seek(A5O_AUDIO_STREAM *stream, double time)
 {
    MOD_FILE *const modf = stream->extra;
 
@@ -169,21 +169,21 @@ static bool openmpt_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 }
 
 
-static double openmpt_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
+static double openmpt_stream_get_position(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const modf = stream->extra;
    return openmpt_module_get_position_seconds(modf->mod);
 }
 
 
-static double openmpt_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
+static double openmpt_stream_get_length(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const modf = stream->extra;
    return modf->length;
 }
 
 
-static bool openmpt_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
+static bool openmpt_stream_set_loop(A5O_AUDIO_STREAM *stream,
    double start, double end)
 {
    MOD_FILE *const modf = stream->extra;
@@ -195,12 +195,12 @@ static bool openmpt_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
 }
 
 
-static ALLEGRO_AUDIO_STREAM *openmpt_stream_init(ALLEGRO_FILE* f,
+static A5O_AUDIO_STREAM *openmpt_stream_init(A5O_FILE* f,
    size_t buffer_count, unsigned int samples
 )
 {
    int64_t start_pos = al_ftell(f);
-   ALLEGRO_AUDIO_STREAM *stream = NULL;
+   A5O_AUDIO_STREAM *stream = NULL;
 
    openmpt_stream_callbacks callbacks = {
       stream_read_func,
@@ -229,7 +229,7 @@ static ALLEGRO_AUDIO_STREAM *openmpt_stream_init(ALLEGRO_FILE* f,
    // TODO: OpenMPT recommends 48000 and float
    // TODO: OpenMPT supports quad channels too
    stream = al_create_audio_stream(buffer_count, samples, 44100,
-      ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+      A5O_AUDIO_DEPTH_INT16, A5O_CHANNEL_CONF_2);
 
    if (stream) {
       MOD_FILE *mf = al_malloc(sizeof(MOD_FILE));
@@ -257,7 +257,7 @@ static ALLEGRO_AUDIO_STREAM *openmpt_stream_init(ALLEGRO_FILE* f,
       _al_acodec_start_feed_thread(stream);
    }
    else {
-      ALLEGRO_ERROR("Failed to create stream.\n");
+      A5O_ERROR("Failed to create stream.\n");
       goto Error;
    }
 
@@ -269,28 +269,28 @@ Error:
 
    /* try to return back to where we started to load */
    if (start_pos != -1)
-      al_fseek(f, start_pos, ALLEGRO_SEEK_SET);
+      al_fseek(f, start_pos, A5O_SEEK_SET);
 
    return NULL;
 }
 
 
-static ALLEGRO_AUDIO_STREAM *load_audio_stream_f(ALLEGRO_FILE *f,
+static A5O_AUDIO_STREAM *load_audio_stream_f(A5O_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    return openmpt_stream_init(f, buffer_count, samples);
 }
 
-static ALLEGRO_AUDIO_STREAM *load_audio_stream(const char *filename,
+static A5O_AUDIO_STREAM *load_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 

@@ -36,7 +36,7 @@ static const IID _al_IID_IDirectSoundCaptureBuffer8 = { 0x00990df4, 0x0dbb, 0x48
 
 extern "C" {
 
-ALLEGRO_DEBUG_CHANNEL("audio-dsound")
+A5O_DEBUG_CHANNEL("audio-dsound")
 
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_system.h"
@@ -70,11 +70,11 @@ static HWND get_window()
    HWND ret;
    if (val && strncmp(val, "foreground", 10) == 0) {
       ret = GetForegroundWindow();
-      ALLEGRO_INFO("Using foreground window: %p\n", ret);
+      A5O_INFO("Using foreground window: %p\n", ret);
    }
    else {
       ret = GetDesktopWindow();
-      ALLEGRO_INFO("Using desktop window: %p\n", ret);
+      A5O_INFO("Using desktop window: %p\n", ret);
    }
    return ret;
 }
@@ -138,7 +138,7 @@ static char *ds_get_error(HRESULT hr)
 
 /* Custom struct to hold voice information DirectSound needs */
 /* TODO: review */
-struct ALLEGRO_DS_DATA {
+struct A5O_DS_DATA {
    int bits_per_sample;
    int channels;
    DSBUFFERDESC desc;
@@ -146,19 +146,19 @@ struct ALLEGRO_DS_DATA {
    LPDIRECTSOUNDBUFFER ds_buffer;
    LPDIRECTSOUNDBUFFER8 ds8_buffer;
    int stop_voice;
-   ALLEGRO_THREAD *thread;
+   A5O_THREAD *thread;
 };
 
 
-static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice);
+static bool _dsound_voice_is_playing(const A5O_VOICE *voice);
 
 
 /* Custom routine which runs in another thread to periodically check if DirectSound
    wants more data for a stream */
-static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
+static void* _dsound_update(A5O_THREAD *self, void *arg)
 {
-   ALLEGRO_VOICE *voice = (ALLEGRO_VOICE *)arg;
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA*)voice->extra;
+   A5O_VOICE *voice = (A5O_VOICE *)arg;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA*)voice->extra;
    const int bytes_per_sample = ex_data->bits_per_sample / 8;
    DWORD play_cursor = 0;
    DWORD write_cursor;
@@ -195,7 +195,7 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
       ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
    }
    else {
-      ALLEGRO_ERROR("Lock failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("Lock failed: %s\n", ds_get_error(hr));
    }
 
    ex_data->ds8_buffer->Play(0, 0, DSBPLAY_LOOPING);
@@ -245,11 +245,11 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
          hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes,
             ptr2, block2_bytes);
          if (FAILED(hr)) {
-            ALLEGRO_ERROR("Unlock failed: %s\n", ds_get_error(hr));
+            A5O_ERROR("Unlock failed: %s\n", ds_get_error(hr));
          }
       }
       else {
-         ALLEGRO_ERROR("Lock failed: %s\n", ds_get_error(hr));
+         A5O_ERROR("Lock failed: %s\n", ds_get_error(hr));
       }
       saved_play_cursor += block1_bytes + block2_bytes;
       saved_play_cursor %= buffer_size;
@@ -272,7 +272,7 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
 static int _dsound_open()
 {
    HRESULT hr;
-   ALLEGRO_INFO("Starting DirectSound...\n");
+   A5O_INFO("Starting DirectSound...\n");
 
    output_device_list = _al_list_create();
    DirectSoundEnumerate((LPDSENUMCALLBACK)_ds_enum_callback, NULL);
@@ -281,15 +281,15 @@ static int _dsound_open()
 
    hr = DirectSoundCreate8(NULL, &device, NULL);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("DirectSoundCreate8 failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("DirectSoundCreate8 failed: %s\n", ds_get_error(hr));
       return 1;
    }
 
-   ALLEGRO_DEBUG("DirectSoundCreate8 succeeded\n");
+   A5O_DEBUG("DirectSoundCreate8 succeeded\n");
 
    hr = device->SetCooperativeLevel(get_window(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
       return 1;
    }
 
@@ -301,72 +301,72 @@ static int _dsound_open()
    other processes to use the device */
 static void _dsound_close()
 {
-   ALLEGRO_DEBUG("Releasing device\n");
+   A5O_DEBUG("Releasing device\n");
 
    _al_list_destroy(output_device_list);
    device->Release();
 
-   ALLEGRO_DEBUG("Released device\n");
-   ALLEGRO_INFO("DirectSound closed\n");
+   A5O_DEBUG("Released device\n");
+   A5O_INFO("DirectSound closed\n");
 }
 
 
 /* The allocate_voice method should grab a voice from the system, and allocate
    any data common to streaming and non-streaming sources. */
-static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
+static int _dsound_allocate_voice(A5O_VOICE *voice)
 {
-   ALLEGRO_DS_DATA *ex_data;
+   A5O_DS_DATA *ex_data;
    int bits_per_sample;
    int channels;
 
-   ALLEGRO_DEBUG("Allocating voice\n");
+   A5O_DEBUG("Allocating voice\n");
 
    /* openal doesn't support very much! */
    switch (voice->depth)
    {
-      case ALLEGRO_AUDIO_DEPTH_UINT8:
+      case A5O_AUDIO_DEPTH_UINT8:
          /* format supported */
          bits_per_sample = 8;
          break;
-      case ALLEGRO_AUDIO_DEPTH_INT8:
-         ALLEGRO_ERROR("DirectSound requires 8-bit data to be unsigned\n");
+      case A5O_AUDIO_DEPTH_INT8:
+         A5O_ERROR("DirectSound requires 8-bit data to be unsigned\n");
          return 1;
-      case ALLEGRO_AUDIO_DEPTH_UINT16:
-         ALLEGRO_ERROR("DirectSound requires 16-bit data to be signed\n");
+      case A5O_AUDIO_DEPTH_UINT16:
+         A5O_ERROR("DirectSound requires 16-bit data to be signed\n");
          return 1;
-      case ALLEGRO_AUDIO_DEPTH_INT16:
+      case A5O_AUDIO_DEPTH_INT16:
          /* format supported */
          bits_per_sample = 16;
          break;
-      case ALLEGRO_AUDIO_DEPTH_UINT24:
-         ALLEGRO_ERROR("DirectSound does not support 24-bit data\n");
+      case A5O_AUDIO_DEPTH_UINT24:
+         A5O_ERROR("DirectSound does not support 24-bit data\n");
          return 1;
-      case ALLEGRO_AUDIO_DEPTH_INT24:
-         ALLEGRO_ERROR("DirectSound does not support 24-bit data\n");
+      case A5O_AUDIO_DEPTH_INT24:
+         A5O_ERROR("DirectSound does not support 24-bit data\n");
          return 1;
-      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-         ALLEGRO_ERROR("DirectSound does not support 32-bit floating data\n");
+      case A5O_AUDIO_DEPTH_FLOAT32:
+         A5O_ERROR("DirectSound does not support 32-bit floating data\n");
          return 1;
       default:
-         ALLEGRO_ERROR("Cannot allocate unknown voice depth\n");
+         A5O_ERROR("Cannot allocate unknown voice depth\n");
          return 1;
    }
 
    switch (voice->chan_conf) {
-      case ALLEGRO_CHANNEL_CONF_1:
+      case A5O_CHANNEL_CONF_1:
          channels = 1;
          break;
-      case ALLEGRO_CHANNEL_CONF_2:
+      case A5O_CHANNEL_CONF_2:
          channels = 2;
          break;
       default:
-         ALLEGRO_ERROR("Unsupported number of channels\n");
+         A5O_ERROR("Unsupported number of channels\n");
          return 1;
    }
 
-   ex_data = (ALLEGRO_DS_DATA *)al_calloc(1, sizeof(*ex_data));
+   ex_data = (A5O_DS_DATA *)al_calloc(1, sizeof(*ex_data));
    if (!ex_data) {
-      ALLEGRO_ERROR("Could not allocate voice data memory\n");
+      A5O_ERROR("Could not allocate voice data memory\n");
       return 1;
    }
 
@@ -378,7 +378,7 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = ex_data;
 
-   ALLEGRO_DEBUG("Allocated voice\n");
+   A5O_DEBUG("Allocated voice\n");
 
    return 0;
 }
@@ -386,14 +386,14 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
 /* The deallocate_voice method should free the resources for the given voice,
    but still retain a hold on the device. The voice should be stopped and
    unloaded by the time this is called */
-static void _dsound_deallocate_voice(ALLEGRO_VOICE *voice)
+static void _dsound_deallocate_voice(A5O_VOICE *voice)
 {
-   ALLEGRO_DEBUG("Deallocating voice\n");
+   A5O_DEBUG("Deallocating voice\n");
 
    al_free(voice->extra);
    voice->extra = NULL;
 
-   ALLEGRO_DEBUG("Deallocated voice\n");
+   A5O_DEBUG("Deallocated voice\n");
 }
 
 /* The load_voice method loads a sample into the driver's memory. The voice's
@@ -401,15 +401,15 @@ static void _dsound_deallocate_voice(ALLEGRO_VOICE *voice)
    'buffer_size' field will be the total length in bytes of the sample data.
    The voice's attached sample's looping mode should be honored, and loading
    must fail if it cannot be. */
-static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *_data)
+static int _dsound_load_voice(A5O_VOICE *voice, const void *_data)
 {
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA *)voice->extra;
    HRESULT hr;
    LPVOID ptr1, ptr2;
    DWORD block1_bytes, block2_bytes;
    MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8 *);
 
-   ALLEGRO_DEBUG("Loading voice\n");
+   A5O_DEBUG("Loading voice\n");
 
    ex_data->wave_fmt.wFormatTag = WAVE_FORMAT_PCM;
    ex_data->wave_fmt.nChannels = ex_data->channels;
@@ -428,7 +428,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *_data)
 
    hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
       return 1;
    }
 
@@ -437,7 +437,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *_data)
    hr = ex_data->ds8_buffer->Lock(0, voice->buffer_size,
       &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("Locking buffer failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("Locking buffer failed: %s\n", ds_get_error(hr));
       return 1;
    }
 
@@ -452,15 +452,15 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *_data)
 
 /* The unload_voice method unloads a sample previously loaded with load_voice.
    This method should not be called on a streaming voice. */
-static void _dsound_unload_voice(ALLEGRO_VOICE *voice)
+static void _dsound_unload_voice(A5O_VOICE *voice)
 {
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA *)voice->extra;
 
-   ALLEGRO_DEBUG("Unloading voice\n");
+   A5O_DEBUG("Unloading voice\n");
 
    ex_data->ds8_buffer->Release();
 
-   ALLEGRO_DEBUG("Unloaded voice\n");
+   A5O_DEBUG("Unloaded voice\n");
 }
 
 
@@ -468,21 +468,21 @@ static void _dsound_unload_voice(ALLEGRO_VOICE *voice)
    should start polling the device and call _al_voice_update for audio data.
    For non-streaming voices, it should resume playing from the last set
    position */
-static int _dsound_start_voice(ALLEGRO_VOICE *voice)
+static int _dsound_start_voice(A5O_VOICE *voice)
 {
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA *)voice->extra;
    HRESULT hr;
    MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8 *);
 
-   ALLEGRO_DEBUG("Starting voice\n");
+   A5O_DEBUG("Starting voice\n");
 
    if (!voice->is_streaming) {
       hr = ex_data->ds8_buffer->Play(0, 0, 0);
       if (FAILED(hr)) {
-         ALLEGRO_ERROR("Streaming voice failed to start: %s\n", ds_get_error(hr));
+         A5O_ERROR("Streaming voice failed to start: %s\n", ds_get_error(hr));
          return 1;
       }
-      ALLEGRO_INFO("Streaming voice started\n");
+      A5O_INFO("Streaming voice started\n");
       return 0;
    }
 
@@ -502,91 +502,91 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       ex_data->desc.lpwfxFormat = &ex_data->wave_fmt;
       ex_data->desc.guid3DAlgorithm = DS3DALG_DEFAULT;
 
-      ALLEGRO_DEBUG("CreateSoundBuffer\n");
+      A5O_DEBUG("CreateSoundBuffer\n");
 
       hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
       if (FAILED(hr)) {
-         ALLEGRO_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
+         A5O_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
          return 1;
       }
 
-      ALLEGRO_DEBUG("CreateSoundBuffer succeeded\n");
+      A5O_DEBUG("CreateSoundBuffer succeeded\n");
 
       ex_data->ds_buffer->QueryInterface(_al_IID_IDirectSoundBuffer8, u.v);
 
       ex_data->ds8_buffer->SetVolume(DSBVOLUME_MAX);
 
-      ALLEGRO_DEBUG("Starting _dsound_update thread\n");
+      A5O_DEBUG("Starting _dsound_update thread\n");
 
       ex_data->stop_voice = 0;
       ex_data->thread = al_create_thread(_dsound_update, (void*) voice);
       al_start_thread(ex_data->thread);
    }
    else {
-      ALLEGRO_WARN("stop_voice == 0\n");
+      A5O_WARN("stop_voice == 0\n");
    }
 
-   ALLEGRO_INFO("Voice started\n");
+   A5O_INFO("Voice started\n");
    return 0;
 }
 
 /* The stop_voice method should stop playback. For non-streaming voices, it
    should leave the data loaded, and reset the voice position to 0. */
-static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
+static int _dsound_stop_voice(A5O_VOICE* voice)
 {
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA *)voice->extra;
 
-   ALLEGRO_DEBUG("Stopping voice\n");
+   A5O_DEBUG("Stopping voice\n");
 
    if (!ex_data->ds8_buffer) {
-      ALLEGRO_ERROR("Trying to stop empty voice buffer\n");
+      A5O_ERROR("Trying to stop empty voice buffer\n");
       return 1;
    }
 
    /* if playing a sample */
    if (!voice->is_streaming) {
-      ALLEGRO_DEBUG("Stopping non-streaming voice\n");
+      A5O_DEBUG("Stopping non-streaming voice\n");
       ex_data->ds8_buffer->Stop();
       ex_data->ds8_buffer->SetCurrentPosition(0);
-      ALLEGRO_INFO("Non-streaming voice stopped\n");
+      A5O_INFO("Non-streaming voice stopped\n");
       return 0;
    }
 
    if (ex_data->stop_voice == 0) {
-      ALLEGRO_DEBUG("Joining thread\n");
+      A5O_DEBUG("Joining thread\n");
       ex_data->stop_voice = 1;
       while (ex_data->stop_voice == 1) {
          al_wait_cond(voice->cond, voice->mutex);
       }
       al_join_thread(ex_data->thread, NULL);
-      ALLEGRO_DEBUG("Joined thread\n");
+      A5O_DEBUG("Joined thread\n");
 
-      ALLEGRO_DEBUG("Destroying thread\n");
+      A5O_DEBUG("Destroying thread\n");
       al_destroy_thread(ex_data->thread);
-      ALLEGRO_DEBUG("Thread destroyed\n");
+      A5O_DEBUG("Thread destroyed\n");
       /* This is required to restart the background thread when the voice
        * restarts.
        */
       ex_data->stop_voice = 1;
    }
 
-   ALLEGRO_DEBUG("Releasing buffer\n");
+   A5O_DEBUG("Releasing buffer\n");
    ex_data->ds8_buffer->Release();
    ex_data->ds8_buffer = NULL;
 
-   ALLEGRO_INFO("Voice stopped\n");
+   A5O_INFO("Voice stopped\n");
    return 0;
 }
 
 /* The voice_is_playing method should only be called on non-streaming sources,
    and should return true if the voice is playing */
-static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice)
+static bool _dsound_voice_is_playing(const A5O_VOICE *voice)
 {
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA *)voice->extra;
    DWORD status;
 
    if (!ex_data) {
-      ALLEGRO_WARN("ex_data is null\n");
+      A5O_WARN("ex_data is null\n");
       return false;
    }
 
@@ -598,15 +598,15 @@ static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice)
 /* The get_voice_position method should return the current sample position of
    the voice (sample_pos = byte_pos / (depth/8) / channels). This should never
    be called on a streaming voice. */
-static unsigned int _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int _dsound_get_voice_position(const A5O_VOICE *voice)
 {
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA *)voice->extra;
    DWORD play_pos;
    HRESULT hr;
 
    hr = ex_data->ds8_buffer->GetCurrentPosition(&play_pos, NULL);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("GetCurrentPosition failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("GetCurrentPosition failed: %s\n", ds_get_error(hr));
       return 0;
    }
 
@@ -616,16 +616,16 @@ static unsigned int _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
 /* The set_voice_position method should set the voice's playback position,
    given the value in samples. This should never be called on a streaming
    voice. */
-static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
+static int _dsound_set_voice_position(A5O_VOICE *voice, unsigned int val)
 {
-   ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   A5O_DS_DATA *ex_data = (A5O_DS_DATA *)voice->extra;
    HRESULT hr;
 
    val *= ex_data->channels * (ex_data->bits_per_sample/8);
 
    hr = ex_data->ds8_buffer->SetCurrentPosition(val);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("SetCurrentPosition failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("SetCurrentPosition failed: %s\n", ds_get_error(hr));
       return 1;
    }
 
@@ -639,18 +639,18 @@ struct DSOUND_RECORD_DATA {
    WAVEFORMATEX wave_fmt;
 };
 
-static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
+static void *_dsound_update_recorder(A5O_THREAD *t, void *data)
 {
-   ALLEGRO_AUDIO_RECORDER *r = (ALLEGRO_AUDIO_RECORDER *) data;
+   A5O_AUDIO_RECORDER *r = (A5O_AUDIO_RECORDER *) data;
    DSOUND_RECORD_DATA *extra = (DSOUND_RECORD_DATA *) r->extra;
    DWORD last_read_pos = 0;
-   ALLEGRO_EVENT user_event;
+   A5O_EVENT user_event;
    bool is_dsound_recording = false;
 
    size_t fragment_i = 0;
    size_t bytes_written = 0;
 
-   ALLEGRO_INFO("Starting recorder thread\n");
+   A5O_INFO("Starting recorder thread\n");
 
    while (!al_get_thread_should_stop(t)) {
       al_lock_mutex(r->mutex);
@@ -688,7 +688,7 @@ static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
 
          extra->buffer8->Lock(last_read_pos, bytes_to_read, &buffer1, &buffer1_size, &buffer2, &buffer2_size, 0);
 
-         ALLEGRO_ASSERT(buffer2 == NULL);
+         A5O_ASSERT(buffer2 == NULL);
 
          buffer = (uint8_t *)buffer1;
          buffer_size = buffer1_size;
@@ -700,14 +700,14 @@ static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
                buffer_size = 0;
             }
             else {
-               ALLEGRO_AUDIO_RECORDER_EVENT *e;
+               A5O_AUDIO_RECORDER_EVENT *e;
                size_t bytes_to_write = r->fragment_size - bytes_written;
                memcpy((uint8_t*) r->fragments[fragment_i] + bytes_written, buffer, bytes_to_write);
 
                buffer_size -= bytes_to_write;
                buffer += bytes_to_write;
 
-               user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+               user_event.user.type = A5O_EVENT_AUDIO_RECORDER_FRAGMENT;
                e = al_get_audio_recorder_event(&user_event);
                e->buffer = r->fragments[fragment_i];
                e->samples = r->samples;
@@ -739,34 +739,34 @@ stop_recording:
       extra->buffer8->Stop();
    }
 
-   ALLEGRO_INFO("Leaving recorder thread\n");
+   A5O_INFO("Leaving recorder thread\n");
 
    return NULL;
 }
 
-static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
+static int _dsound_open_recorder(A5O_AUDIO_RECORDER *r)
 {
    HRESULT hr;
 
    if (capture_device != NULL) {
       /* FIXME: It's wrong to assume only a single recording device, but since
                 there is no enumeration of devices, it doesn't matter for now. */
-      ALLEGRO_ERROR("Already recording.\n");
+      A5O_ERROR("Already recording.\n");
       return 1;
    }
 
-   ALLEGRO_INFO("Creating default capture device.\n");
+   A5O_INFO("Creating default capture device.\n");
 
    /* FIXME: Use default device until we have device enumeration */
    hr = DirectSoundCaptureCreate8(NULL, &capture_device, NULL);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("DirectSoundCaptureCreate8 failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("DirectSoundCaptureCreate8 failed: %s\n", ds_get_error(hr));
       return 1;
    }
    
    hr = device->SetCooperativeLevel(get_window(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
       return 1;
    }
 
@@ -776,10 +776,10 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
    dsccaps.dwSize = sizeof(DSCCAPS);
    hr = capture_device->GetCaps(&dsccaps);
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("DirectSoundCaptureCreate8::GetCaps failed: %s\n", ds_get_error(hr));
+      A5O_ERROR("DirectSoundCaptureCreate8::GetCaps failed: %s\n", ds_get_error(hr));
    }
    else {
-      ALLEGRO_INFO("caps: %lu %lu\n", dsccaps.dwFormats, dsccaps.dwFormats & WAVE_FORMAT_2M16);
+      A5O_INFO("caps: %lu %lu\n", dsccaps.dwFormats, dsccaps.dwFormats & WAVE_FORMAT_2M16);
    }
 
    memset(&extra->wave_fmt, 0, sizeof(extra->wave_fmt));
@@ -798,7 +798,7 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
    hr = capture_device->CreateCaptureBuffer(&extra->desc, &extra->buffer, NULL);
    if (FAILED(hr)) {
       al_free(extra);
-      ALLEGRO_ERROR("Unable to create Capture Buffer\n");
+      A5O_ERROR("Unable to create Capture Buffer\n");
       return 1;
    }
 
@@ -810,8 +810,8 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
    return 0;
 }
 
-void _dsound_close_recorder(ALLEGRO_AUDIO_RECORDER *r) {
-   ALLEGRO_ASSERT(capture_device);
+void _dsound_close_recorder(A5O_AUDIO_RECORDER *r) {
+   A5O_ASSERT(capture_device);
    (void) r;
 
    capture_device->Release();
@@ -822,7 +822,7 @@ static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
-   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
    al_free(device);
@@ -838,7 +838,7 @@ static BOOL CALLBACK _ds_enum_callback(
    (void)lpContext;
 
    if (lpGuid != NULL) {
-      ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+      A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)al_malloc(sizeof(A5O_AUDIO_DEVICE));
       device->identifier = (void*)al_malloc(sizeof(GUID));
       device->name = _twin_tchar_to_utf8(lpcstrDescription);
 
@@ -855,7 +855,7 @@ static _AL_LIST* _dsound_get_output_devices(void)
    return output_device_list;
 }
 
-ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
+A5O_AUDIO_DRIVER _al_kcm_dsound_driver = {
    "DirectSound",
 
    _dsound_open,

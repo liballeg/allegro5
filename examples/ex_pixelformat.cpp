@@ -19,44 +19,44 @@ typedef struct FORMAT
    char const *name;
 } FORMAT;
 
-const FORMAT formats[ALLEGRO_NUM_PIXEL_FORMATS] = {
-   {ALLEGRO_PIXEL_FORMAT_ANY, "any"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA, "no alpha"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA, "alpha"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA, "15"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA, "16"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA, "16 alpha"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA, "24"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA, "32"},
-   {ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, "32 alpha"},
-   {ALLEGRO_PIXEL_FORMAT_ARGB_8888, "ARGB8888"},
-   {ALLEGRO_PIXEL_FORMAT_RGBA_8888, "RGBA8888"},
-   {ALLEGRO_PIXEL_FORMAT_ARGB_4444, "ARGB4444"},
-   {ALLEGRO_PIXEL_FORMAT_RGB_888, "RGB888"},
-   {ALLEGRO_PIXEL_FORMAT_RGB_565, "RGB565"},
-   {ALLEGRO_PIXEL_FORMAT_RGB_555, "RGB555"},
-   {ALLEGRO_PIXEL_FORMAT_RGBA_5551, "RGBA5551"},
-   {ALLEGRO_PIXEL_FORMAT_ARGB_1555, "ARGB1555"},
-   {ALLEGRO_PIXEL_FORMAT_ABGR_8888, "ABGR8888"},
-   {ALLEGRO_PIXEL_FORMAT_XBGR_8888, "XBGR8888"},
-   {ALLEGRO_PIXEL_FORMAT_BGR_888, "BGR888"},
-   {ALLEGRO_PIXEL_FORMAT_BGR_565, "BGR565"},
-   {ALLEGRO_PIXEL_FORMAT_BGR_555, "BGR555"},
-   {ALLEGRO_PIXEL_FORMAT_RGBX_8888, "RGBX8888"},
-   {ALLEGRO_PIXEL_FORMAT_XRGB_8888, "XRGB8888"},
-   {ALLEGRO_PIXEL_FORMAT_ABGR_F32, "ABGR32F"},
-   {ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, "ABGR(LE)"},
-   {ALLEGRO_PIXEL_FORMAT_RGBA_4444, "RGBA4444"},
-   {ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8, "SINGLE_CHANNEL_8"},
-   {ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1, "RGBA_DXT1"},
-   {ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3, "RGBA_DXT3"},
-   {ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5, "RGBA_DXT5"},
+const FORMAT formats[A5O_NUM_PIXEL_FORMATS] = {
+   {A5O_PIXEL_FORMAT_ANY, "any"},
+   {A5O_PIXEL_FORMAT_ANY_NO_ALPHA, "no alpha"},
+   {A5O_PIXEL_FORMAT_ANY_WITH_ALPHA, "alpha"},
+   {A5O_PIXEL_FORMAT_ANY_15_NO_ALPHA, "15"},
+   {A5O_PIXEL_FORMAT_ANY_16_NO_ALPHA, "16"},
+   {A5O_PIXEL_FORMAT_ANY_16_WITH_ALPHA, "16 alpha"},
+   {A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA, "24"},
+   {A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA, "32"},
+   {A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA, "32 alpha"},
+   {A5O_PIXEL_FORMAT_ARGB_8888, "ARGB8888"},
+   {A5O_PIXEL_FORMAT_RGBA_8888, "RGBA8888"},
+   {A5O_PIXEL_FORMAT_ARGB_4444, "ARGB4444"},
+   {A5O_PIXEL_FORMAT_RGB_888, "RGB888"},
+   {A5O_PIXEL_FORMAT_RGB_565, "RGB565"},
+   {A5O_PIXEL_FORMAT_RGB_555, "RGB555"},
+   {A5O_PIXEL_FORMAT_RGBA_5551, "RGBA5551"},
+   {A5O_PIXEL_FORMAT_ARGB_1555, "ARGB1555"},
+   {A5O_PIXEL_FORMAT_ABGR_8888, "ABGR8888"},
+   {A5O_PIXEL_FORMAT_XBGR_8888, "XBGR8888"},
+   {A5O_PIXEL_FORMAT_BGR_888, "BGR888"},
+   {A5O_PIXEL_FORMAT_BGR_565, "BGR565"},
+   {A5O_PIXEL_FORMAT_BGR_555, "BGR555"},
+   {A5O_PIXEL_FORMAT_RGBX_8888, "RGBX8888"},
+   {A5O_PIXEL_FORMAT_XRGB_8888, "XRGB8888"},
+   {A5O_PIXEL_FORMAT_ABGR_F32, "ABGR32F"},
+   {A5O_PIXEL_FORMAT_ABGR_8888_LE, "ABGR(LE)"},
+   {A5O_PIXEL_FORMAT_RGBA_4444, "RGBA4444"},
+   {A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8, "SINGLE_CHANNEL_8"},
+   {A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1, "RGBA_DXT1"},
+   {A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3, "RGBA_DXT3"},
+   {A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5, "RGBA_DXT5"},
 };
 
-#define NUM_FORMATS ALLEGRO_NUM_PIXEL_FORMATS
+#define NUM_FORMATS A5O_NUM_PIXEL_FORMATS
 
 
-const char *get_format_name(ALLEGRO_BITMAP *bmp)
+const char *get_format_name(A5O_BITMAP *bmp)
 {
    if (!bmp)
       return "none";
@@ -84,7 +84,7 @@ private:
    const char* bmp_filename;
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display, const char* bmp_filename);
+   Prog(const Theme & theme, A5O_DISPLAY *display, const char* bmp_filename);
    void run();
 
 private:
@@ -92,7 +92,7 @@ private:
 };
 
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display, const char* bmp_filename) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display, const char* bmp_filename) :
    d(Dialog(theme, display, 20, 30)),
    source_label(Label("Source")),
    dest_label(Label("Destination")),
@@ -141,17 +141,17 @@ void Prog::draw_sample()
 {
    const int i = source_list.get_cur_value();
    const int j = dest_list.get_cur_value();
-   ALLEGRO_BITMAP *bitmap1;
-   ALLEGRO_BITMAP *bitmap2;
+   A5O_BITMAP *bitmap1;
+   A5O_BITMAP *bitmap2;
    bool use_memory = use_memory_button.get_pushed();
    bool enable_timing = enable_timing_button.get_pushed();
    int bmp_w = 128;
    int bmp_h = 128;
    
    if (use_memory)
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    else
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
 
    al_set_new_bitmap_format(formats[i].format);
 
@@ -173,11 +173,11 @@ void Prog::draw_sample()
    }
 
    if (bitmap1 && bitmap2) {
-      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+      A5O_BITMAP *target = al_get_target_bitmap();
 
       al_set_target_bitmap(bitmap2);
       al_clear_to_color(al_map_rgb(128, 128, 128));
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       if (enable_timing) {
          double t0, t1;
          char str[256];
@@ -200,7 +200,7 @@ void Prog::draw_sample()
       }
 
       al_set_target_bitmap(target);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       al_draw_bitmap(bitmap2, 0, 0, 0);
    }
    else {
@@ -220,8 +220,8 @@ void Prog::draw_sample()
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
    const char* bmp_filename = "data/allegro.pcx";
 
    if (argc > 1) {
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
    al_install_keyboard();
    al_install_mouse();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(800, 600);
    if (!display) {
       abort_example("Error creating display\n");

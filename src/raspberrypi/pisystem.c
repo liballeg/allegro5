@@ -13,21 +13,21 @@
 
 #include <signal.h>
 
-ALLEGRO_DEBUG_CHANNEL("system")
+A5O_DEBUG_CHANNEL("system")
 
-static ALLEGRO_SYSTEM_INTERFACE *pi_vt;
+static A5O_SYSTEM_INTERFACE *pi_vt;
 
-static ALLEGRO_SYSTEM *pi_initialize(int flags)
+static A5O_SYSTEM *pi_initialize(int flags)
 {
    (void)flags;
 
-   ALLEGRO_SYSTEM_RASPBERRYPI *s;
+   A5O_SYSTEM_RASPBERRYPI *s;
 
    bcm_host_init();
 
    s = al_calloc(1, sizeof *s);
 
-   _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_RASPBERRYPI *));
+   _al_vector_init(&s->system.displays, sizeof (A5O_DISPLAY_RASPBERRYPI *));
 
    _al_unix_init_time();
 
@@ -35,7 +35,7 @@ static ALLEGRO_SYSTEM *pi_initialize(int flags)
       _al_mutex_init_recursive(&s->lock);
       s->x11display = XOpenDisplay(0);
       _al_thread_create(&s->thread, _al_xwin_background_thread, s);
-      ALLEGRO_INFO("events thread spawned.\n");
+      A5O_INFO("events thread spawned.\n");
       /* We need to put *some* atom into the ClientMessage we send for
        * faking mouse movements with al_set_mouse_xy - so let's ask X11
        * for one here.
@@ -52,15 +52,15 @@ static ALLEGRO_SYSTEM *pi_initialize(int flags)
 
 static void pi_shutdown_system(void)
 {
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
-   ALLEGRO_SYSTEM_RASPBERRYPI *spi = (void *)s;
+   A5O_SYSTEM *s = al_get_system_driver();
+   A5O_SYSTEM_RASPBERRYPI *spi = (void *)s;
 
-   ALLEGRO_INFO("shutting down.\n");
+   A5O_INFO("shutting down.\n");
 
    /* Close all open displays. */
    while (_al_vector_size(&s->displays) > 0) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
-      ALLEGRO_DISPLAY *d = *dptr;
+      A5O_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
+      A5O_DISPLAY *d = *dptr;
       al_destroy_display(d);
    }
    _al_vector_free(&s->displays);
@@ -77,7 +77,7 @@ static void pi_shutdown_system(void)
    al_free(spi);
 }
 
-static ALLEGRO_KEYBOARD_DRIVER *pi_get_keyboard_driver(void)
+static A5O_KEYBOARD_DRIVER *pi_get_keyboard_driver(void)
 {
    if (getenv("DISPLAY")) {
       return _al_xwin_keyboard_driver();
@@ -85,7 +85,7 @@ static ALLEGRO_KEYBOARD_DRIVER *pi_get_keyboard_driver(void)
    return _al_linux_keyboard_driver_list[0].driver;
 }
 
-static ALLEGRO_MOUSE_DRIVER *pi_get_mouse_driver(void)
+static A5O_MOUSE_DRIVER *pi_get_mouse_driver(void)
 {
    if (getenv("DISPLAY")) {
       return _al_xwin_mouse_driver();
@@ -93,7 +93,7 @@ static ALLEGRO_MOUSE_DRIVER *pi_get_mouse_driver(void)
    return _al_linux_mouse_driver_list[0].driver;
 }
 
-static ALLEGRO_JOYSTICK_DRIVER *pi_get_joystick_driver(void)
+static A5O_JOYSTICK_DRIVER *pi_get_joystick_driver(void)
 {
    return _al_joystick_driver_list[0].driver;
 }
@@ -103,7 +103,7 @@ static int pi_get_num_video_adapters(void)
    return 1;
 }
 
-static bool pi_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool pi_get_monitor_info(int adapter, A5O_MONITOR_INFO *info)
 {
    (void)adapter;
    int dx, dy, w, h;
@@ -125,7 +125,7 @@ static bool pi_get_cursor_position(int *ret_x, int *ret_y)
 
 static bool pi_inhibit_screensaver(bool inhibit)
 {
-   ALLEGRO_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
 
    system->inhibit_screensaver = inhibit;
    return true;
@@ -136,7 +136,7 @@ static int pi_get_num_display_modes(void)
    return 1;
 }
 
-static ALLEGRO_DISPLAY_MODE *pi_get_display_mode(int mode, ALLEGRO_DISPLAY_MODE *dm)
+static A5O_DISPLAY_MODE *pi_get_display_mode(int mode, A5O_DISPLAY_MODE *dm)
 {
    (void)mode;
    int dx, dy, w, h;
@@ -148,38 +148,38 @@ static ALLEGRO_DISPLAY_MODE *pi_get_display_mode(int mode, ALLEGRO_DISPLAY_MODE 
    return dm;
 }
 
-static ALLEGRO_MOUSE_CURSOR *pi_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int focus_x_ignored, int focus_y_ignored)
+static A5O_MOUSE_CURSOR *pi_create_mouse_cursor(A5O_BITMAP *bmp, int focus_x_ignored, int focus_y_ignored)
 {
    (void)focus_x_ignored;
    (void)focus_y_ignored;
 
-   ALLEGRO_STATE state;
-   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS | ALLEGRO_STATE_TARGET_BITMAP);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   ALLEGRO_BITMAP *cursor_bmp = al_clone_bitmap(bmp);
-   ALLEGRO_MOUSE_CURSOR_RASPBERRYPI *cursor = al_malloc(sizeof(ALLEGRO_MOUSE_CURSOR_RASPBERRYPI));
+   A5O_STATE state;
+   al_store_state(&state, A5O_STATE_NEW_BITMAP_PARAMETERS | A5O_STATE_TARGET_BITMAP);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ARGB_8888);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+   A5O_BITMAP *cursor_bmp = al_clone_bitmap(bmp);
+   A5O_MOUSE_CURSOR_RASPBERRYPI *cursor = al_malloc(sizeof(A5O_MOUSE_CURSOR_RASPBERRYPI));
    cursor->bitmap = cursor_bmp;
    al_restore_state(&state);
-   return (ALLEGRO_MOUSE_CURSOR *)cursor;
+   return (A5O_MOUSE_CURSOR *)cursor;
 }
 
-static void pi_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
+static void pi_destroy_mouse_cursor(A5O_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_MOUSE_CURSOR_RASPBERRYPI *pi_cursor = (void *)cursor;
+   A5O_MOUSE_CURSOR_RASPBERRYPI *pi_cursor = (void *)cursor;
    al_destroy_bitmap(pi_cursor->bitmap);
    al_free(pi_cursor);
 }
 
 /* Internal function to get a reference to this driver. */
-ALLEGRO_SYSTEM_INTERFACE *_al_system_raspberrypi_driver(void)
+A5O_SYSTEM_INTERFACE *_al_system_raspberrypi_driver(void)
 {
    if (pi_vt)
       return pi_vt;
 
    pi_vt = al_calloc(1, sizeof *pi_vt);
 
-   pi_vt->id = ALLEGRO_SYSTEM_ID_RASPBERRYPI;
+   pi_vt->id = A5O_SYSTEM_ID_RASPBERRYPI;
    pi_vt->initialize = pi_initialize;
    pi_vt->get_display_driver = _al_get_raspberrypi_display_interface;
    pi_vt->get_keyboard_driver = pi_get_keyboard_driver;

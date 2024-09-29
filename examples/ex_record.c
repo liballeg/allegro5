@@ -14,7 +14,7 @@
  * will be working with bytes.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_primitives.h"
@@ -33,7 +33,7 @@
 
 #ifdef WANT_8_BIT_DEPTH 
 
-const ALLEGRO_AUDIO_DEPTH audio_depth = ALLEGRO_AUDIO_DEPTH_UINT8;
+const A5O_AUDIO_DEPTH audio_depth = A5O_AUDIO_DEPTH_UINT8;
 typedef uint8_t* audio_buffer_t;
 const uint8_t sample_center = 128;
 const int8_t min_sample_val = 0x80;
@@ -43,7 +43,7 @@ const int sample_size = 1;
 
 #else
 
-const ALLEGRO_AUDIO_DEPTH audio_depth = ALLEGRO_AUDIO_DEPTH_INT16;
+const A5O_AUDIO_DEPTH audio_depth = A5O_AUDIO_DEPTH_INT16;
 typedef int16_t* audio_buffer_t;
 const int16_t sample_center = 0;
 const int16_t min_sample_val = 0x8000;
@@ -73,13 +73,13 @@ const unsigned int playback_samples_per_fragment = 4096;
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_AUDIO_RECORDER *r;
-   ALLEGRO_AUDIO_STREAM *s;
+   A5O_AUDIO_RECORDER *r;
+   A5O_AUDIO_STREAM *s;
    
-   ALLEGRO_EVENT_QUEUE *q;
-   ALLEGRO_DISPLAY *d;
-   ALLEGRO_FILE *fp = NULL;
-   ALLEGRO_PATH *tmp_path = NULL;
+   A5O_EVENT_QUEUE *q;
+   A5O_DISPLAY *d;
+   A5O_FILE *fp = NULL;
+   A5O_PATH *tmp_path = NULL;
       
    int prev = 0;
    bool is_recording = false;
@@ -114,14 +114,14 @@ int main(int argc, char **argv)
     * file.
     */
    r = al_create_audio_recorder(1000, samples_per_fragment, frequency,
-      audio_depth, ALLEGRO_CHANNEL_CONF_1);
+      audio_depth, A5O_CHANNEL_CONF_1);
    if (!r) {
       abort_example("Unable to create audio recorder");
    }
    
    s = al_create_audio_stream(playback_fragment_count,
       playback_samples_per_fragment, frequency, audio_depth,
-      ALLEGRO_CHANNEL_CONF_1);      
+      A5O_CHANNEL_CONF_1);      
    if (!s) {
       abort_example("Unable to create audio stream");
    }
@@ -134,8 +134,8 @@ int main(int argc, char **argv)
    
    /* Note: the following two options are referring to pixel samples, and have
     * nothing to do with audio samples. */
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLES, 8, A5O_SUGGEST);
    
    d = al_create_display(320, 256);
    if (!d) {
@@ -152,11 +152,11 @@ int main(int argc, char **argv)
    al_start_audio_recorder(r);
    
    while (true) {
-      ALLEGRO_EVENT e;
+      A5O_EVENT e;
 
       al_wait_for_event(q, &e);
        
-      if (e.type == ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT) {
+      if (e.type == A5O_EVENT_AUDIO_RECORDER_FRAGMENT) {
          /* We received an incoming fragment from the microphone. In this
           * example, the recorder is constantly recording even when we aren't
           * saving to disk. The display is updated every time a new fragment
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
           * are coming in faster than we can update the screen, then it will be
           * a problem.
           */          
-         ALLEGRO_AUDIO_RECORDER_EVENT *re = al_get_audio_recorder_event(&e);
+         A5O_AUDIO_RECORDER_EVENT *re = al_get_audio_recorder_event(&e);
          audio_buffer_t input = (audio_buffer_t) re->buffer;
          int sample_count = re->samples; 
          const int R = sample_count / 320;
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
             
          al_flip_display();
       }
-      else if (e.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+      else if (e.type == A5O_EVENT_AUDIO_STREAM_FRAGMENT) {
          /* This event is received when we are playing back the audio clip.
           * See ex_saw.c for an example dedicated to playing streams.
           */
@@ -258,10 +258,10 @@ int main(int argc, char **argv)
             }
          }
       }      
-      else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (e.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (e.type == ALLEGRO_EVENT_KEY_CHAR) {
+      else if (e.type == A5O_EVENT_KEY_CHAR) {
          if (e.keyboard.unichar == 27) {
             /* pressed ESC */
             break;

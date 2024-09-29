@@ -40,7 +40,7 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 /* For waitable timers */
 #define _WIN32_WINNT 0x0501
@@ -53,21 +53,21 @@
 #include "allegro5/internal/aintern_bitmap.h"
 
 
-#ifdef ALLEGRO_CFG_XINPUT
+#ifdef A5O_CFG_XINPUT
 
 /* Don't compile this lot if xinput isn't supported. */
 
-#ifndef ALLEGRO_WINDOWS
+#ifndef A5O_WINDOWS
 #error something is wrong with the makefile
 #endif
 
-#ifdef ALLEGRO_MINGW32
+#ifdef A5O_MINGW32
    #undef MAKEFOURCC
 #endif
 
 #include <stdio.h>
 
-ALLEGRO_DEBUG_CHANNEL("wjoyall")
+A5O_DEBUG_CHANNEL("wjoyall")
 
 #include "allegro5/joystick.h"
 #include "allegro5/internal/aintern_joystick.h"
@@ -78,15 +78,15 @@ static bool joyall_init_joystick(void);
 static void joyall_exit_joystick(void);
 static bool joyall_reconfigure_joysticks(void);
 static int joyall_get_num_joysticks(void);
-static ALLEGRO_JOYSTICK *joyall_get_joystick(int num);
-static void joyall_release_joystick(ALLEGRO_JOYSTICK *joy);
-static void joyall_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
-static const char *joyall_get_name(ALLEGRO_JOYSTICK *joy);
-static bool joyall_get_active(ALLEGRO_JOYSTICK *joy);
+static A5O_JOYSTICK *joyall_get_joystick(int num);
+static void joyall_release_joystick(A5O_JOYSTICK *joy);
+static void joyall_get_joystick_state(A5O_JOYSTICK *joy, A5O_JOYSTICK_STATE *ret_state);
+static const char *joyall_get_name(A5O_JOYSTICK *joy);
+static bool joyall_get_active(A5O_JOYSTICK *joy);
 
 
 /* the driver vtable */
-ALLEGRO_JOYSTICK_DRIVER _al_joydrv_windows_all =
+A5O_JOYSTICK_DRIVER _al_joydrv_windows_all =
 {
    AL_JOY_TYPE_WINDOWS_ALL,
    "",
@@ -104,7 +104,7 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_windows_all =
 };
 
 /* Mutex to protect state access. XXX is this needed? */
-static ALLEGRO_MUTEX  *joyall_mutex = NULL;
+static A5O_MUTEX  *joyall_mutex = NULL;
 
 static bool ok_xi = false;
 static bool ok_di = false;
@@ -121,12 +121,12 @@ static void joyall_setup_joysticks(void)
       num_xinput = _al_joydrv_xinput.num_joysticks();
 
    for (index = 0; index < num_xinput; index++) {
-      ALLEGRO_JOYSTICK *joystick = _al_joydrv_xinput.get_joystick(index);
+      A5O_JOYSTICK *joystick = _al_joydrv_xinput.get_joystick(index);
       joystick->driver = &_al_joydrv_xinput;
    }
 
    for (index = 0; index < num_dinput; index++) {
-      ALLEGRO_JOYSTICK *joystick = _al_joydrv_directx.get_joystick(index);
+      A5O_JOYSTICK *joystick = _al_joydrv_directx.get_joystick(index);
       joystick->driver = &_al_joydrv_directx;
    }
 }
@@ -181,7 +181,7 @@ static int joyall_get_num_joysticks(void)
    return ret;
 }
 
-static ALLEGRO_JOYSTICK *joyall_get_joystick(int num)
+static A5O_JOYSTICK *joyall_get_joystick(int num)
 {
    int num_xinput = 0;
    int num_dinput = 0;
@@ -200,7 +200,7 @@ static ALLEGRO_JOYSTICK *joyall_get_joystick(int num)
    return NULL;
 }
 
-static void joyall_release_joystick(ALLEGRO_JOYSTICK *joy)
+static void joyall_release_joystick(A5O_JOYSTICK *joy)
 {
    /* Forward to the driver's function. Here it's OK to use joy
     * since the get_joystick function returns a
@@ -211,20 +211,20 @@ static void joyall_release_joystick(ALLEGRO_JOYSTICK *joy)
    }
 }
 
-static void joyall_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
+static void joyall_get_joystick_state(A5O_JOYSTICK *joy, A5O_JOYSTICK_STATE *ret_state)
 {
    joy->driver->get_joystick_state(joy, ret_state);
 }
 
-static const char *joyall_get_name(ALLEGRO_JOYSTICK *joy)
+static const char *joyall_get_name(A5O_JOYSTICK *joy)
 {
    return joy->driver->get_name(joy);
 }
 
-static bool joyall_get_active(ALLEGRO_JOYSTICK *joy)
+static bool joyall_get_active(A5O_JOYSTICK *joy)
 {
    return joy->driver->get_active(joy);
 }
 
 
-#endif /* #ifdef ALLEGRO_CFG_XINPUT */
+#endif /* #ifdef A5O_CFG_XINPUT */

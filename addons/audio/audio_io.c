@@ -9,7 +9,7 @@
 #include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("audio")
+A5O_DEBUG_CHANNEL("audio")
 
 
 #define MAX_EXTENSION_LENGTH  (32)
@@ -18,24 +18,24 @@ typedef struct ACODEC_TABLE ACODEC_TABLE;
 struct ACODEC_TABLE
 {
    char              ext[MAX_EXTENSION_LENGTH];
-   ALLEGRO_SAMPLE *  (*loader)(const char *filename);
-   bool              (*saver)(const char *filename, ALLEGRO_SAMPLE *spl);
-   ALLEGRO_AUDIO_STREAM *(*stream_loader)(const char *filename,
+   A5O_SAMPLE *  (*loader)(const char *filename);
+   bool              (*saver)(const char *filename, A5O_SAMPLE *spl);
+   A5O_AUDIO_STREAM *(*stream_loader)(const char *filename,
                         size_t buffer_count, unsigned int samples);
                         
-   ALLEGRO_SAMPLE *  (*fs_loader)(ALLEGRO_FILE *fp);
-   bool              (*fs_saver)(ALLEGRO_FILE *fp, ALLEGRO_SAMPLE *spl);
-   ALLEGRO_AUDIO_STREAM *(*fs_stream_loader)(ALLEGRO_FILE *fp,
+   A5O_SAMPLE *  (*fs_loader)(A5O_FILE *fp);
+   bool              (*fs_saver)(A5O_FILE *fp, A5O_SAMPLE *spl);
+   A5O_AUDIO_STREAM *(*fs_stream_loader)(A5O_FILE *fp,
                         size_t buffer_count, unsigned int samples);
 
-   bool              (*identifier)(ALLEGRO_FILE *fp);
+   bool              (*identifier)(A5O_FILE *fp);
 };
 
 
 /* globals */
 static bool acodec_inited = false;
 static _AL_VECTOR acodec_table = _AL_VECTOR_INITIALIZER(ACODEC_TABLE);
-static ALLEGRO_AUDIO_STREAM *global_stream;
+static A5O_AUDIO_STREAM *global_stream;
 
 
 static void acodec_shutdown(void)
@@ -64,7 +64,7 @@ static ACODEC_TABLE *find_acodec_table_entry(const char *ext)
 }
 
 
-static ACODEC_TABLE *find_acodec_table_entry_for_file(ALLEGRO_FILE *f)
+static ACODEC_TABLE *find_acodec_table_entry_for_file(A5O_FILE *f)
 {
    ACODEC_TABLE *ent;
    unsigned i;
@@ -74,7 +74,7 @@ static ACODEC_TABLE *find_acodec_table_entry_for_file(ALLEGRO_FILE *f)
       if (ent->identifier) {
          int64_t pos = al_ftell(f);
          bool identified = ent->identifier(f);
-         al_fseek(f, pos, ALLEGRO_SEEK_SET);
+         al_fseek(f, pos, A5O_SEEK_SET);
          if (identified)
             return ent;
       }
@@ -113,7 +113,7 @@ static ACODEC_TABLE *add_acodec_table_entry(const char *ext)
 /* Function: al_register_sample_loader
  */
 bool al_register_sample_loader(const char *ext,
-   ALLEGRO_SAMPLE *(*loader)(const char *filename))
+   A5O_SAMPLE *(*loader)(const char *filename))
 {
    ACODEC_TABLE *ent;
 
@@ -140,7 +140,7 @@ bool al_register_sample_loader(const char *ext,
 /* Function: al_register_sample_loader_f
  */
 bool al_register_sample_loader_f(const char *ext,
-   ALLEGRO_SAMPLE *(*loader)(ALLEGRO_FILE* fp))
+   A5O_SAMPLE *(*loader)(A5O_FILE* fp))
 {
    ACODEC_TABLE *ent;
 
@@ -167,7 +167,7 @@ bool al_register_sample_loader_f(const char *ext,
 /* Function: al_register_sample_saver
  */
 bool al_register_sample_saver(const char *ext,
-   bool (*saver)(const char *filename, ALLEGRO_SAMPLE *spl))
+   bool (*saver)(const char *filename, A5O_SAMPLE *spl))
 {
    ACODEC_TABLE *ent;
 
@@ -194,7 +194,7 @@ bool al_register_sample_saver(const char *ext,
 /* Function: al_register_sample_saver_f
  */
 bool al_register_sample_saver_f(const char *ext,
-   bool (*saver)(ALLEGRO_FILE* fp, ALLEGRO_SAMPLE *spl))
+   bool (*saver)(A5O_FILE* fp, A5O_SAMPLE *spl))
 {
    ACODEC_TABLE *ent;
 
@@ -221,7 +221,7 @@ bool al_register_sample_saver_f(const char *ext,
 /* Function: al_register_audio_stream_loader
  */
 bool al_register_audio_stream_loader(const char *ext,
-   ALLEGRO_AUDIO_STREAM *(*stream_loader)(const char *filename,
+   A5O_AUDIO_STREAM *(*stream_loader)(const char *filename,
       size_t buffer_count, unsigned int samples))
 {
    ACODEC_TABLE *ent;
@@ -249,7 +249,7 @@ bool al_register_audio_stream_loader(const char *ext,
 /* Function: al_register_audio_stream_loader_f
  */
 bool al_register_audio_stream_loader_f(const char *ext,
-   ALLEGRO_AUDIO_STREAM *(*stream_loader)(ALLEGRO_FILE* fp,
+   A5O_AUDIO_STREAM *(*stream_loader)(A5O_FILE* fp,
       size_t buffer_count, unsigned int samples))
 {
    ACODEC_TABLE *ent;
@@ -277,7 +277,7 @@ bool al_register_audio_stream_loader_f(const char *ext,
 /* Function: al_register_sample_identifier
  */
 bool al_register_sample_identifier(const char *ext,
-   bool (*identifier)(ALLEGRO_FILE* fp))
+   bool (*identifier)(A5O_FILE* fp))
 {
    ACODEC_TABLE *ent;
 
@@ -303,7 +303,7 @@ bool al_register_sample_identifier(const char *ext,
 
 /* Function: al_load_sample
  */
-ALLEGRO_SAMPLE *al_load_sample(const char *filename)
+A5O_SAMPLE *al_load_sample(const char *filename)
 {
    const char *ext;
    ACODEC_TABLE *ent;
@@ -313,7 +313,7 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
    if (!ext) {
       ext = strrchr(filename, '.');
       if (ext == NULL) {
-         ALLEGRO_ERROR("Unable to determine extension for %s.\n", filename);
+         A5O_ERROR("Unable to determine extension for %s.\n", filename);
          return NULL;
       }
    }
@@ -323,7 +323,7 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
       return (ent->loader)(filename);
    }
    else {
-      ALLEGRO_ERROR("No handler for audio file extension %s - "
+      A5O_ERROR("No handler for audio file extension %s - "
          "therefore not trying to load %s.\n", ext, filename);
    }
 
@@ -333,7 +333,7 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
 
 /* Function: al_load_sample_f
  */
-ALLEGRO_SAMPLE *al_load_sample_f(ALLEGRO_FILE* fp, const char *ident)
+A5O_SAMPLE *al_load_sample_f(A5O_FILE* fp, const char *ident)
 {
    ACODEC_TABLE *ent;
 
@@ -345,7 +345,7 @@ ALLEGRO_SAMPLE *al_load_sample_f(ALLEGRO_FILE* fp, const char *ident)
       return (ent->fs_loader)(fp);
    }
    else {
-      ALLEGRO_ERROR("No handler for audio file extension %s.\n", ident);
+      A5O_ERROR("No handler for audio file extension %s.\n", ident);
    }
 
    return NULL;
@@ -354,7 +354,7 @@ ALLEGRO_SAMPLE *al_load_sample_f(ALLEGRO_FILE* fp, const char *ident)
 
 /* Function: al_load_audio_stream
  */
-ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
+A5O_AUDIO_STREAM *al_load_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    const char *ext;
@@ -365,7 +365,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
    if (!ext) {
       ext = strrchr(filename, '.');
       if (ext == NULL) {
-         ALLEGRO_ERROR("Unable to determine extension for %s.\n", filename);
+         A5O_ERROR("Unable to determine extension for %s.\n", filename);
          return NULL;
       }
    }
@@ -375,7 +375,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
       return (ent->stream_loader)(filename, buffer_count, samples);
    }
    else {
-      ALLEGRO_ERROR("No handler for audio file extension %s - "
+      A5O_ERROR("No handler for audio file extension %s - "
          "therefore not trying to load %s.\n", ext, filename);
    }
 
@@ -385,7 +385,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
 
 /* Function: al_load_audio_stream_f
  */
-ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident,
+A5O_AUDIO_STREAM *al_load_audio_stream_f(A5O_FILE* fp, const char *ident,
    size_t buffer_count, unsigned int samples)
 {
    ACODEC_TABLE *ent;
@@ -398,7 +398,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident
       return (ent->fs_stream_loader)(fp, buffer_count, samples);
    }
    else {
-      ALLEGRO_ERROR("No handler for audio file extension %s.\n", ident);
+      A5O_ERROR("No handler for audio file extension %s.\n", ident);
    }
 
    return NULL;
@@ -407,21 +407,21 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident
 
 /* Function: al_play_audio_stream
  */
-ALLEGRO_AUDIO_STREAM *al_play_audio_stream(const char *filename)
+A5O_AUDIO_STREAM *al_play_audio_stream(const char *filename)
 {
    ASSERT(filename);
    if (!al_get_default_mixer()) {
-      ALLEGRO_ERROR("No default mixer\n!");
+      A5O_ERROR("No default mixer\n!");
       return NULL;
    }
    al_destroy_audio_stream(global_stream);
    global_stream = al_load_audio_stream(filename, 4, 2048);
    if (!global_stream) {
-      ALLEGRO_ERROR("Could not play audio stream: %s.\n", filename);
+      A5O_ERROR("Could not play audio stream: %s.\n", filename);
       return NULL;
    }
    if (!al_attach_audio_stream_to_mixer(global_stream, al_get_default_mixer())) {
-      ALLEGRO_ERROR("Could not attach stream to mixer\n");
+      A5O_ERROR("Could not attach stream to mixer\n");
       return NULL;
    }
    return global_stream;
@@ -430,22 +430,22 @@ ALLEGRO_AUDIO_STREAM *al_play_audio_stream(const char *filename)
 
 /* Function: al_play_audio_stream_f
  */
-ALLEGRO_AUDIO_STREAM *al_play_audio_stream_f(ALLEGRO_FILE *fp, const char *ident)
+A5O_AUDIO_STREAM *al_play_audio_stream_f(A5O_FILE *fp, const char *ident)
 {
    ASSERT(fp);
    ASSERT(ident);
    if (!al_get_default_mixer()) {
-      ALLEGRO_ERROR("No default mixer\n!");
+      A5O_ERROR("No default mixer\n!");
       return NULL;
    }
    al_destroy_audio_stream(global_stream);
    global_stream = al_load_audio_stream_f(fp, ident, 4, 2048);
    if (!global_stream) {
-      ALLEGRO_ERROR("Could not play audio stream.\n");
+      A5O_ERROR("Could not play audio stream.\n");
       return NULL;
    }
    if (!al_attach_audio_stream_to_mixer(global_stream, al_get_default_mixer())) {
-      ALLEGRO_ERROR("Could not attach stream to mixer\n");
+      A5O_ERROR("Could not attach stream to mixer\n");
       return NULL;
    }
    return global_stream;
@@ -454,7 +454,7 @@ ALLEGRO_AUDIO_STREAM *al_play_audio_stream_f(ALLEGRO_FILE *fp, const char *ident
 
 /* Function: al_save_sample
  */
-bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
+bool al_save_sample(const char *filename, A5O_SAMPLE *spl)
 {
    const char *ext;
    ACODEC_TABLE *ent;
@@ -462,7 +462,7 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
    ASSERT(filename);
    ext = strrchr(filename, '.');
    if (ext == NULL) {
-      ALLEGRO_ERROR("Unable to determine extension for %s.\n", filename);
+      A5O_ERROR("Unable to determine extension for %s.\n", filename);
       return false;
    }
 
@@ -471,7 +471,7 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
       return (ent->saver)(filename, spl);
    }
    else {
-      ALLEGRO_ERROR("No handler for audio file extension %s - "
+      A5O_ERROR("No handler for audio file extension %s - "
          "therefore not trying to load %s.\n", ext, filename);
    }
 
@@ -481,7 +481,7 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
 
 /* Function: al_save_sample_f
  */
-bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
+bool al_save_sample_f(A5O_FILE *fp, const char *ident, A5O_SAMPLE *spl)
 {
    ACODEC_TABLE *ent;
 
@@ -493,7 +493,7 @@ bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
       return (ent->fs_saver)(fp, spl);
    }
    else {
-      ALLEGRO_ERROR("No handler for audio file extension %s.\n", ident);
+      A5O_ERROR("No handler for audio file extension %s.\n", ident);
    }
 
    return false;
@@ -502,7 +502,7 @@ bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
 
 /* Function: al_identify_sample_f
  */
-char const *al_identify_sample_f(ALLEGRO_FILE *fp)
+char const *al_identify_sample_f(A5O_FILE *fp)
 {
    ACODEC_TABLE *h = find_acodec_table_entry_for_file(fp);
    if (!h)
@@ -516,7 +516,7 @@ char const *al_identify_sample_f(ALLEGRO_FILE *fp)
 char const *al_identify_sample(char const *filename)
 {
    char const *ext;
-   ALLEGRO_FILE *fp = al_fopen(filename, "rb");
+   A5O_FILE *fp = al_fopen(filename, "rb");
    if (!fp)
       return NULL;
    ext = al_identify_sample_f(fp);

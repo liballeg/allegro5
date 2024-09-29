@@ -35,26 +35,26 @@
 
 #include "common.c"
 
-static ALLEGRO_FONT *font, *font_ms;
-static ALLEGRO_BITMAP *bitmap_normal;
-static ALLEGRO_BITMAP *bitmap_filter;
-static ALLEGRO_BITMAP *bitmap_normal_ms;
-static ALLEGRO_BITMAP *bitmap_filter_ms;
+static A5O_FONT *font, *font_ms;
+static A5O_BITMAP *bitmap_normal;
+static A5O_BITMAP *bitmap_filter;
+static A5O_BITMAP *bitmap_normal_ms;
+static A5O_BITMAP *bitmap_filter_ms;
 static float bitmap_x[8], bitmap_y[8];
 static float bitmap_t;
 
 
-static ALLEGRO_BITMAP *create_bitmap(void)
+static A5O_BITMAP *create_bitmap(void)
 {
    const int checkers_size = 8;
    const int bitmap_size = 24;
-   ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_LOCKED_REGION *locked;
+   A5O_BITMAP *bitmap;
+   A5O_LOCKED_REGION *locked;
    int x, y, p;
    unsigned char *rgba;
 
    bitmap = al_create_bitmap(bitmap_size, bitmap_size);
-   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, 0);
+   locked = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ABGR_8888, 0);
    rgba = locked->data;
    p = locked->pitch;
    for (y = 0; y < bitmap_size; y++) {
@@ -76,29 +76,29 @@ static void bitmap_move(void)
 
    bitmap_t++;
    for (i = 0; i < 8; i++) {
-      float a = 2 * ALLEGRO_PI * i / 16;
-      float s = sin((bitmap_t + i * 40) / 180 * ALLEGRO_PI);
+      float a = 2 * A5O_PI * i / 16;
+      float s = sin((bitmap_t + i * 40) / 180 * A5O_PI);
       s *= 90;
       bitmap_x[i] = 100 + s * cos(a);
       bitmap_y[i] = 100 + s * sin(a);
    }
 }
 
-static void draw(ALLEGRO_BITMAP *bitmap, int y, char const *text)
+static void draw(A5O_BITMAP *bitmap, int y, char const *text)
 {
    int i;
 
    al_draw_text(font_ms, al_map_rgb(0, 0, 0), 0, y, 0, text);
 
    for (i = 0; i < 16; i++) {
-      float a = 2 * ALLEGRO_PI * i / 16;
-      ALLEGRO_COLOR c = al_color_hsv(i * 360 / 16, 1, 1);
+      float a = 2 * A5O_PI * i / 16;
+      A5O_COLOR c = al_color_hsv(i * 360 / 16, 1, 1);
       al_draw_line(150 + cos(a) * 10, y + 100 + sin(a) * 10,
          150 + cos(a) * 90, y + 100 + sin(a) * 90, c, 3);
    }
 
    for (i = 0; i < 8; i++) {
-      float a = 2 * ALLEGRO_PI * i / 16;
+      float a = 2 * A5O_PI * i / 16;
       int s = al_get_bitmap_width(bitmap);
       al_draw_rotated_bitmap(bitmap, s / 2, s / 2,
          50 + bitmap_x[i], y + bitmap_y[i], a, 0);
@@ -107,10 +107,10 @@ static void draw(ALLEGRO_BITMAP *bitmap, int y, char const *text)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display, *ms_display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_BITMAP *memory;
+   A5O_DISPLAY *display, *ms_display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
+   A5O_BITMAP *memory;
    char title[1024];
    bool quit = false;
    bool redraw = true;
@@ -126,12 +126,12 @@ int main(int argc, char **argv)
 
    al_install_keyboard();
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    memory = create_bitmap();
 
    /* Create the normal display. */
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_REQUIRE);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 0, A5O_REQUIRE);
+   al_set_new_display_option(A5O_SAMPLES, 0, A5O_SUGGEST);
    display = al_create_display(300, 450);
    if (!display) {
       abort_example("Error creating display\n");
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
    al_set_window_title(display, "Normal");
 
    /* Create bitmaps for the normal display. */
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
    bitmap_filter = al_clone_bitmap(memory);
    al_set_new_bitmap_flags(0);
    bitmap_normal = al_clone_bitmap(memory);
@@ -151,18 +151,18 @@ int main(int argc, char **argv)
       wx = 160;
 
    /* Create the multi-sampling display. */
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_REQUIRE);
+   al_set_new_display_option(A5O_SAMPLES, 4, A5O_SUGGEST);
    ms_display = al_create_display(300, 450);
    if (!ms_display) {
       abort_example("Multisampling not available.\n");
    }
    sprintf(title, "Multisampling (%dx)", al_get_display_option(
-      ms_display, ALLEGRO_SAMPLES));
+      ms_display, A5O_SAMPLES));
    al_set_window_title(ms_display, title);
 
    /* Create bitmaps for the multi-sampling display. */
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
    bitmap_filter_ms = al_clone_bitmap(memory);
    al_set_new_bitmap_flags(0);
    bitmap_normal_ms = al_clone_bitmap(memory);
@@ -185,21 +185,21 @@ int main(int argc, char **argv)
 
    al_start_timer(timer);
    while (!quit) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       /* Check for ESC key or close button event and quit in either case. */
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             quit = true;
             break;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                quit = true;
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             bitmap_move();
             redraw = true;
             break;

@@ -20,7 +20,7 @@
 
 // apple's cross-compiler already adds the symbols for the "extern __inline__"
 // declared variants, so the ones here are duplicates and the linker dies
-#ifndef ALLEGRO_IPHONE
+#ifndef A5O_IPHONE
 
 #define AL_INLINE(type, name, args, code)    \
    extern type name args; \
@@ -29,8 +29,8 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 
-#ifdef ALLEGRO_INTERNAL_HEADER
-   #include ALLEGRO_INTERNAL_HEADER
+#ifdef A5O_INTERNAL_HEADER
+   #include A5O_INTERNAL_HEADER
 #endif
 
 /* not used now */

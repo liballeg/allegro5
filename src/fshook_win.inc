@@ -15,7 +15,7 @@
 
 #include <windows.h>
 
-#if defined(ALLEGRO_MSVC)
+#if defined(A5O_MSVC)
 
 #define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
 
@@ -259,6 +259,6 @@ static int _tclosedir(_TDIR* dirp)
   return rc;
 }
 
-#endif /* ALLEGRO_MSVC */
+#endif /* A5O_MSVC */
 
 /* vim: set ft=c sts=3 sw=3 et: */

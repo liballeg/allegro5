@@ -6,12 +6,12 @@
 
 static void go(void)
 {
-   ALLEGRO_DISPLAY *d1, *d2;
-   ALLEGRO_BITMAP *b1, *b2;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *d1, *d2;
+   A5O_BITMAP *b1, *b2;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
 
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+   al_set_new_display_flags(A5O_FULLSCREEN);
 
    al_set_new_display_adapter(0);
    d1 = al_create_display(640, 480);
@@ -39,8 +39,8 @@ static void go(void)
    while (1) {
       if (!al_is_event_queue_empty(queue)) {
          al_get_next_event(queue, &event);
-	 if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-	    if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+	 if (event.type == A5O_EVENT_KEY_DOWN) {
+	    if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
 	       break;
 	    }
 	 }

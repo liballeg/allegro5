@@ -16,7 +16,7 @@
 
 #include "common.c"
 
-#define PI                    (ALLEGRO_PI)
+#define PI                    (A5O_PI)
 #define TWOPI                 (2.0 * PI)
 #define SAMPLES_PER_BUFFER    (1024)
 #define STREAM_FREQUENCY      (44100)
@@ -47,11 +47,11 @@ static void sawtooth(float *buf, size_t samples, double t,
 
 
 /* globals */
-ALLEGRO_FONT *font_gui;
-ALLEGRO_AUDIO_STREAM *streams[5];
+A5O_FONT *font_gui;
+A5O_AUDIO_STREAM *streams[5];
 
 bool saving = false;
-ALLEGRO_FILE *save_fp = NULL;
+A5O_FILE *save_fp = NULL;
 
 
 static void generate_wave(Waveform type, float *buf, size_t samples, double t,
@@ -142,7 +142,7 @@ static void sawtooth(float *buf, size_t samples, double t,
 
 static void mixer_pp_callback(void *buf, unsigned int samples, void *userdata)
 {
-   ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)userdata;
+   A5O_MIXER *mixer = (A5O_MIXER *)userdata;
    int nch;
    int sample_size;
 
@@ -150,10 +150,10 @@ static void mixer_pp_callback(void *buf, unsigned int samples, void *userdata)
       return;
 
    switch (al_get_mixer_channels(mixer)) {
-      case ALLEGRO_CHANNEL_CONF_1:
+      case A5O_CHANNEL_CONF_1:
          nch = 1;
          break;
-      case ALLEGRO_CHANNEL_CONF_2:
+      case A5O_CHANNEL_CONF_2:
          nch = 2;
          break;
       default:
@@ -330,14 +330,14 @@ private:
    SaveButton save_button;
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, A5O_DISPLAY *display);
    virtual ~Prog() {}
    void run();
-   void handle_event(const ALLEGRO_EVENT & event);
+   void handle_event(const A5O_EVENT & event);
 };
 
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display) :
    d(Dialog(theme, display, 30, 26)),
    save_button(SaveButton())
 {
@@ -376,16 +376,16 @@ void Prog::run()
 }
 
 
-void Prog::handle_event(const ALLEGRO_EVENT & event)
+void Prog::handle_event(const A5O_EVENT & event)
 {
-   if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
-      ALLEGRO_AUDIO_STREAM *stream;
+   if (event.type == A5O_EVENT_AUDIO_STREAM_FRAGMENT) {
+      A5O_AUDIO_STREAM *stream;
       Group *group;
       void *buf;
       float gain;
       float pan;
 
-      stream = (ALLEGRO_AUDIO_STREAM *) event.any.source;
+      stream = (A5O_AUDIO_STREAM *) event.any.source;
       buf = al_get_audio_stream_fragment(stream);
       if (!buf) {
          /* This is a normal condition that you must deal with. */
@@ -405,7 +405,7 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
       else
          group = NULL;
 
-      ALLEGRO_ASSERT(group);
+      A5O_ASSERT(group);
 
       if (group) {
          group->generate((float *) buf, SAMPLES_PER_BUFFER);
@@ -426,7 +426,7 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
    (void)argc;
    (void)argv;
 
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
    al_init_ttf_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(800, 600);
    if (!display) {
       abort_example("Unable to create display\n");
@@ -468,9 +468,9 @@ int main(int argc, char *argv[])
    unsigned samples = SAMPLES_PER_BUFFER;
    unsigned freq = STREAM_FREQUENCY;
    void *buf;
-   ALLEGRO_AUDIO_DEPTH depth = ALLEGRO_AUDIO_DEPTH_FLOAT32;
-   ALLEGRO_CHANNEL_CONF ch = ALLEGRO_CHANNEL_CONF_1;
-   ALLEGRO_MIXER *mixer = al_get_default_mixer();
+   A5O_AUDIO_DEPTH depth = A5O_AUDIO_DEPTH_FLOAT32;
+   A5O_CHANNEL_CONF ch = A5O_CHANNEL_CONF_1;
+   A5O_MIXER *mixer = al_get_default_mixer();
 
    for (int i = 0; i < 5; i++) {
       streams[i] = al_create_audio_stream(buffers, samples, freq, depth, ch);

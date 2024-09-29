@@ -16,7 +16,7 @@
  *      See readme.txt for copyright information.
  */
 
-#define ALLEGRO_USE_CONSOLE
+#define A5O_USE_CONSOLE
 
 #include <stdio.h>
 #include <string.h>
@@ -272,8 +272,8 @@ exit_error:
 
 static void usage(void)
 {
-   fprintf(stderr, "\nMacOS X application bundle fixer utility for Allegro " ALLEGRO_VERSION_STR "\n"
-      "By Angelo Mottola, " ALLEGRO_DATE_STR "\n\n"
+   fprintf(stderr, "\nMacOS X application bundle fixer utility for Allegro " A5O_VERSION_STR "\n"
+      "By Angelo Mottola, " A5O_DATE_STR "\n\n"
       "Usage: fixbundle exename [-m] [-o bundlename] [-v version] [-V long_version]\n"
       "\t\t[-e] [[-d datafile] [[palette] [-{16,32,48,128}] icon] ...]\n"
       "\twhere icon is either a datafile bitmap or a RLE sprite object, either\n"

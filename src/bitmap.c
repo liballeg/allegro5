@@ -28,15 +28,15 @@
 #include "allegro5/internal/aintern_shader.h"
 #include "allegro5/internal/aintern_system.h"
 
-ALLEGRO_DEBUG_CHANNEL("bitmap")
+A5O_DEBUG_CHANNEL("bitmap")
 
 
 /* Creates a memory bitmap.
  */
-static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
+static A5O_BITMAP *create_memory_bitmap(A5O_DISPLAY *current_display,
    int w, int h, int format, int flags)
 {
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    int pitch;
 
    if (_al_pixel_format_is_video_only(format)) {
@@ -56,8 +56,8 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
    /* If this is really a video bitmap, we add it to the list of to
     * be converted bitmaps.
     */
-   bitmap->_flags = flags | ALLEGRO_MEMORY_BITMAP;
-   bitmap->_flags &= ~ALLEGRO_VIDEO_BITMAP;
+   bitmap->_flags = flags | A5O_MEMORY_BITMAP;
+   bitmap->_flags &= ~A5O_VIDEO_BITMAP;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->pitch = pitch;
@@ -84,7 +84,7 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
 
 
 
-static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
+static void destroy_memory_bitmap(A5O_BITMAP *bmp)
 {
    _al_unregister_convert_bitmap(bmp);
 
@@ -95,12 +95,12 @@ static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
+A5O_BITMAP *_al_create_bitmap_params(A5O_DISPLAY *current_display,
    int w, int h, int format, int flags, int depth, int samples)
 {
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_BITMAP **back;
+   A5O_SYSTEM *system = al_get_system_driver();
+   A5O_BITMAP *bitmap;
+   A5O_BITMAP **back;
    bool result;
    /* Reject bitmaps with negative dimensions.
     * Also reject bitmaps where a calculation pixel_size*w*h would overflow
@@ -108,17 +108,17 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
     * Overflow calc based on https://stackoverflow.com/a/1514309/231929
     */
    if (w < 0 || h < 0 || (h > 0 && (int64_t) w > (INT_MAX/4) / (int64_t) h)) {
-      ALLEGRO_WARN("Rejecting %dx%d bitmap\n", w, h);
+      A5O_WARN("Rejecting %dx%d bitmap\n", w, h);
       return NULL;
    }
 
-   if ((flags & ALLEGRO_MEMORY_BITMAP) ||
+   if ((flags & A5O_MEMORY_BITMAP) ||
          !current_display ||
          !current_display->vt ||
          current_display->vt->create_bitmap == NULL ||
          _al_vector_size(&system->displays) < 1)
    {
-      if (flags & ALLEGRO_VIDEO_BITMAP)
+      if (flags & A5O_VIDEO_BITMAP)
          return NULL;
 
       return create_memory_bitmap(current_display, w, h, format, flags);
@@ -129,7 +129,7 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    bitmap = current_display->vt->create_bitmap(current_display, w, h,
       format, flags);
    if (!bitmap) {
-      ALLEGRO_ERROR("failed to create display bitmap\n");
+      A5O_ERROR("failed to create display bitmap\n");
       return NULL;
    }
 
@@ -149,8 +149,8 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
-   bitmap->_flags |= ALLEGRO_VIDEO_BITMAP;
-   bitmap->dirty = !(bitmap->_flags & ALLEGRO_NO_PRESERVE_TEXTURE);
+   bitmap->_flags |= A5O_VIDEO_BITMAP;
+   bitmap->dirty = !(bitmap->_flags & A5O_NO_PRESERVE_TEXTURE);
    bitmap->_depth = depth;
    bitmap->_samples = samples;
    bitmap->use_bitmap_blender = false;
@@ -166,9 +166,9 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
 
    if (!result) {
       al_destroy_bitmap(bitmap);
-      if (flags & ALLEGRO_VIDEO_BITMAP)
+      if (flags & A5O_VIDEO_BITMAP)
          return NULL;
-      /* With ALLEGRO_CONVERT_BITMAP, just use a memory bitmap instead if
+      /* With A5O_CONVERT_BITMAP, just use a memory bitmap instead if
       * video failed.
       */
       return create_memory_bitmap(current_display, w, h, format, flags);
@@ -185,9 +185,9 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
 
 /* Function: al_create_bitmap
  */
-ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
+A5O_BITMAP *al_create_bitmap(int w, int h)
 {
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
 
    bitmap = _al_create_bitmap_params(al_get_current_display(), w, h,
       al_get_new_bitmap_format(), al_get_new_bitmap_flags(),
@@ -203,7 +203,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
 /* Function: al_destroy_bitmap
  */
-void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
+void al_destroy_bitmap(A5O_BITMAP *bitmap)
 {
    if (!bitmap) {
       return;
@@ -213,7 +213,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
     * before it is destroyed, but maintain the current display.
     */
    if (bitmap == al_get_target_bitmap()) {
-      ALLEGRO_DISPLAY *display = al_get_current_display();
+      A5O_DISPLAY *display = al_get_current_display();
       if (display)
          al_set_target_bitmap(al_get_backbuffer(display));
       else
@@ -225,8 +225,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    _al_unregister_destructor(_al_dtor_list, bitmap->dtor_item);
 
    if (!al_is_sub_bitmap(bitmap)) {
-      ALLEGRO_DISPLAY* disp = _al_get_bitmap_display(bitmap);
-      if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) {
+      A5O_DISPLAY* disp = _al_get_bitmap_display(bitmap);
+      if (al_get_bitmap_flags(bitmap) & A5O_MEMORY_BITMAP) {
          destroy_memory_bitmap(bitmap);
          return;
       }
@@ -252,20 +252,20 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_convert_mask_to_alpha
  */
-void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
+void al_convert_mask_to_alpha(A5O_BITMAP *bitmap, A5O_COLOR mask_color)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int x, y;
-   ALLEGRO_COLOR pixel;
-   ALLEGRO_COLOR alpha_pixel;
-   ALLEGRO_STATE state;
+   A5O_COLOR pixel;
+   A5O_COLOR alpha_pixel;
+   A5O_STATE state;
 
-   if (!(lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
-      ALLEGRO_ERROR("Couldn't lock bitmap.");
+   if (!(lr = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ANY, 0))) {
+      A5O_ERROR("Couldn't lock bitmap.");
       return;
    }
 
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+   al_store_state(&state, A5O_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bitmap);
 
    alpha_pixel = al_map_rgba(0, 0, 0, 0);
@@ -273,7 +273,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
    for (y = 0; y < bitmap->h; y++) {
       for (x = 0; x < bitmap->w; x++) {
          pixel = al_get_pixel(bitmap, x, y);
-         if (memcmp(&pixel, &mask_color, sizeof(ALLEGRO_COLOR)) == 0) {
+         if (memcmp(&pixel, &mask_color, sizeof(A5O_COLOR)) == 0) {
             al_put_pixel(x, y, alpha_pixel);
          }
       }
@@ -288,7 +288,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
 
 /* Function: al_get_bitmap_width
  */
-int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_width(A5O_BITMAP *bitmap)
 {
    return bitmap->w;
 }
@@ -297,7 +297,7 @@ int al_get_bitmap_width(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_height
  */
-int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_height(A5O_BITMAP *bitmap)
 {
    return bitmap->h;
 }
@@ -306,7 +306,7 @@ int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_format
  */
-int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_format(A5O_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_format;
@@ -315,7 +315,7 @@ int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 }
 
 
-int _al_get_bitmap_memory_format(ALLEGRO_BITMAP *bitmap)
+int _al_get_bitmap_memory_format(A5O_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_memory_format;
@@ -327,7 +327,7 @@ int _al_get_bitmap_memory_format(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_flags
  */
-int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_flags(A5O_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_flags;
@@ -336,7 +336,7 @@ int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 }
 
 
-ALLEGRO_DISPLAY *_al_get_bitmap_display(ALLEGRO_BITMAP *bitmap)
+A5O_DISPLAY *_al_get_bitmap_display(A5O_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_display;
@@ -347,7 +347,7 @@ ALLEGRO_DISPLAY *_al_get_bitmap_display(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_depth
  */
-int al_get_bitmap_depth(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_depth(A5O_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_depth;
@@ -358,7 +358,7 @@ int al_get_bitmap_depth(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_samples
  */
-int al_get_bitmap_samples(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_samples(A5O_BITMAP *bitmap)
 {
    if (bitmap->parent)
       return bitmap->parent->_samples;
@@ -368,10 +368,10 @@ int al_get_bitmap_samples(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_blend_color
  */
-ALLEGRO_COLOR al_get_bitmap_blend_color(void)
+A5O_COLOR al_get_bitmap_blend_color(void)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   ALLEGRO_BLENDER *b;
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BLENDER *b;
 
    ASSERT(bitmap);
 
@@ -395,8 +395,8 @@ void al_get_bitmap_blender(int *op, int *src, int *dst)
  */
 void al_get_separate_bitmap_blender(int *op, int *src, int *dst, int *alpha_op, int *alpha_src, int *alpha_dst)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   ALLEGRO_BLENDER *b;
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BLENDER *b;
 
    ASSERT(bitmap);
 
@@ -429,10 +429,10 @@ void al_get_separate_bitmap_blender(int *op, int *src, int *dst, int *alpha_op, 
 
 /* Function: al_set_bitmap_blend_color
  */
-void al_set_bitmap_blend_color(ALLEGRO_COLOR col)
+void al_set_bitmap_blend_color(A5O_COLOR col)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   ALLEGRO_BLENDER *b;
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BLENDER *b;
 
    ASSERT(bitmap);
 
@@ -444,7 +444,7 @@ void al_set_bitmap_blend_color(ALLEGRO_COLOR col)
  */
 void al_set_bitmap_blender(int op, int src, int dest)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
 
    ASSERT(bitmap);
 
@@ -455,8 +455,8 @@ void al_set_bitmap_blender(int op, int src, int dest)
  */
 void al_set_separate_bitmap_blender(int op, int src, int dst, int alpha_op, int alpha_src, int alpha_dst)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   ALLEGRO_BLENDER *b;
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BLENDER *b;
 
    ASSERT(bitmap);
 
@@ -474,7 +474,7 @@ void al_set_separate_bitmap_blender(int op, int src, int dst, int alpha_op, int 
  */
 void al_reset_bitmap_blender(void)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
 
    ASSERT(bitmap);
 
@@ -486,7 +486,7 @@ void al_reset_bitmap_blender(void)
  */
 void al_set_clipping_rectangle(int x, int y, int width, int height)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
 
    ASSERT(bitmap);
 
@@ -527,7 +527,7 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
  */
 void al_reset_clipping_rectangle(void)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
 
    if (bitmap) {
       int w = al_get_bitmap_width(bitmap);
@@ -542,7 +542,7 @@ void al_reset_clipping_rectangle(void)
  */
 void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   A5O_BITMAP *bitmap = al_get_target_bitmap();
 
    ASSERT(bitmap);
 
@@ -556,10 +556,10 @@ void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 
 /* Function: al_create_sub_bitmap
  */
-ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
+A5O_BITMAP *al_create_sub_bitmap(A5O_BITMAP *parent,
    int x, int y, int w, int h)
 {
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
 
    if (parent->parent) {
       x += parent->xofs;
@@ -575,7 +575,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
     * directly. */
    bitmap->_format = 0;
    bitmap->_flags = 0;
-   bitmap->_display = (ALLEGRO_DISPLAY*)0x1;
+   bitmap->_display = (A5O_DISPLAY*)0x1;
    bitmap->_wrap_u = 0;
    bitmap->_wrap_v = 0;
 
@@ -605,7 +605,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 
 /* Function: al_reparent_bitmap
  */
-void al_reparent_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *parent,
+void al_reparent_bitmap(A5O_BITMAP *bitmap, A5O_BITMAP *parent,
    int x, int y, int w, int h)
 {
    ASSERT(bitmap->parent);
@@ -630,7 +630,7 @@ void al_reparent_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *parent,
 
 /* Function: al_is_sub_bitmap
  */
-bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
+bool al_is_sub_bitmap(A5O_BITMAP *bitmap)
 {
    return (bitmap->parent != NULL);
 }
@@ -638,7 +638,7 @@ bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_parent_bitmap
  */
-ALLEGRO_BITMAP *al_get_parent_bitmap(ALLEGRO_BITMAP *bitmap)
+A5O_BITMAP *al_get_parent_bitmap(A5O_BITMAP *bitmap)
 {
    ASSERT(bitmap);
    return bitmap->parent;
@@ -647,7 +647,7 @@ ALLEGRO_BITMAP *al_get_parent_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_x
  */
-int al_get_bitmap_x(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_x(A5O_BITMAP *bitmap)
 {
    ASSERT(bitmap);
    return bitmap->xofs;
@@ -656,17 +656,17 @@ int al_get_bitmap_x(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_bitmap_y
  */
-int al_get_bitmap_y(ALLEGRO_BITMAP *bitmap)
+int al_get_bitmap_y(A5O_BITMAP *bitmap)
 {
    ASSERT(bitmap);
    return bitmap->yofs;
 }
 
 
-static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
+static bool transfer_bitmap_data(A5O_BITMAP *src, A5O_BITMAP *dst)
 {
-   ALLEGRO_LOCKED_REGION *dst_region;
-   ALLEGRO_LOCKED_REGION *src_region;
+   A5O_LOCKED_REGION *dst_region;
+   A5O_LOCKED_REGION *src_region;
    int src_format = al_get_bitmap_format(src);
    int dst_format = al_get_bitmap_format(dst);
    bool src_compressed = _al_pixel_format_is_compressed(src_format);
@@ -677,19 +677,19 @@ static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
    if (src_compressed && dst_compressed && src_format == dst_format) {
       int block_width = al_get_pixel_block_width(src_format);
       int block_height = al_get_pixel_block_height(src_format);
-      if (!(src_region = al_lock_bitmap_blocked(src, ALLEGRO_LOCK_READONLY)))
+      if (!(src_region = al_lock_bitmap_blocked(src, A5O_LOCK_READONLY)))
          return false;
 
-      if (!(dst_region = al_lock_bitmap_blocked(dst, ALLEGRO_LOCK_WRITEONLY))) {
+      if (!(dst_region = al_lock_bitmap_blocked(dst, A5O_LOCK_WRITEONLY))) {
          al_unlock_bitmap(src);
          return false;
       }
       copy_w = _al_get_least_multiple(copy_w, block_width);
       copy_h = _al_get_least_multiple(copy_h, block_height);
-      ALLEGRO_DEBUG("Taking fast clone path.\n");
+      A5O_DEBUG("Taking fast clone path.\n");
    }
    else {
-      int lock_format = ALLEGRO_PIXEL_FORMAT_ANY;
+      int lock_format = A5O_PIXEL_FORMAT_ANY;
       /* Go through a non-compressed intermediate */
       if (src_compressed && !dst_compressed) {
          lock_format = dst_format;
@@ -698,10 +698,10 @@ static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
          lock_format = src_format;
       }
 
-      if (!(src_region = al_lock_bitmap(src, lock_format, ALLEGRO_LOCK_READONLY)))
+      if (!(src_region = al_lock_bitmap(src, lock_format, A5O_LOCK_READONLY)))
          return false;
 
-      if (!(dst_region = al_lock_bitmap(dst, lock_format, ALLEGRO_LOCK_WRITEONLY))) {
+      if (!(dst_region = al_lock_bitmap(dst, lock_format, A5O_LOCK_WRITEONLY))) {
          al_unlock_bitmap(src);
          return false;
       }
@@ -790,9 +790,9 @@ void _al_convert_bitmap_data(
 
 /* Function: al_clone_bitmap
  */
-ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
+A5O_BITMAP *al_clone_bitmap(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP *clone;
+   A5O_BITMAP *clone;
    ASSERT(bitmap);
 
    clone = al_create_bitmap(bitmap->w, bitmap->h);
@@ -808,14 +808,14 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_backup_dirty_bitmap
  */
-void al_backup_dirty_bitmap(ALLEGRO_BITMAP *bitmap)
+void al_backup_dirty_bitmap(A5O_BITMAP *bitmap)
 {
    if (bitmap->vt && bitmap->vt->backup_dirty_bitmap)
       bitmap->vt->backup_dirty_bitmap(bitmap);
 }
 
 
-void _al_get_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP *wrap_u, ALLEGRO_BITMAP_WRAP *wrap_v)
+void _al_get_bitmap_wrap(A5O_BITMAP *bitmap, A5O_BITMAP_WRAP *wrap_u, A5O_BITMAP_WRAP *wrap_v)
 {
    ASSERT(bitmap);
    ASSERT(wrap_u);

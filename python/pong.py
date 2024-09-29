@@ -45,12 +45,12 @@ class Player(Pallet):
         self.keyup, self.keydown = keyup, keydown
 
     def handle_event(self, ev):
-        if ev.type == ALLEGRO_EVENT_KEY_DOWN:
+        if ev.type == A5O_EVENT_KEY_DOWN:
             if ev.keyboard.keycode == self.keyup:
                 self.moving = -1
             elif ev.keyboard.keycode == self.keydown:
                 self.moving = 1
-        elif ev.type == ALLEGRO_EVENT_KEY_UP:
+        elif ev.type == A5O_EVENT_KEY_UP:
             if (ev.keyboard.keycode == self.keyup and self.moving == -1) or\
                 (ev.keyboard.keycode == self.keydown and self.moving == 1):
                 self.moving = 0
@@ -64,7 +64,7 @@ class AI(Pallet):
 
     def handle_event(self, ev):
         #Only fire on a timer event
-        if ev.type == ALLEGRO_EVENT_TIMER:
+        if ev.type == A5O_EVENT_TIMER:
             #Calculate the target y location according to the difficulty level
             if self.difficulty == 1:
                 target_y = self.ball.y + self.ball.size / 2
@@ -165,12 +165,12 @@ def main():
     #Initialisation
     difficulty = int(input("What difficulty do you want to play on? " +
         "Input: 0 for two-player mode, 1-4 for AI difficulty setting.\n"))
-    al_install_system(ALLEGRO_VERSION_INT, None)
+    al_install_system(A5O_VERSION_INT, None)
 
     w, h = 800, 600
     #Make lines draw smoother
-    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST)
-    al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST)
+    al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST)
+    al_set_new_display_option(A5O_SAMPLES, 4, A5O_SUGGEST)
     display = al_create_display(w, h)
 
     al_init_primitives_addon()
@@ -188,13 +188,13 @@ def main():
     players = []
     players.append(Player(0, h / 2 - pallet_h / 2,
         pallet_w, pallet_h, pallet_speed,
-        ALLEGRO_KEY_W, ALLEGRO_KEY_S, al_map_rgb_f(1.0, 0.0, 0.0)))
+        A5O_KEY_W, A5O_KEY_S, al_map_rgb_f(1.0, 0.0, 0.0)))
     ball = Ball(w / 2, h / 2, ball_speed, ball_size, players,
         al_map_rgb_f(0, 1.0, 0))
     if not difficulty:
         players.append(Player(w - pallet_w, h / 2 - pallet_h / 2,
             pallet_w, pallet_h,
-         pallet_speed, ALLEGRO_KEY_UP, ALLEGRO_KEY_DOWN,
+         pallet_speed, A5O_KEY_UP, A5O_KEY_DOWN,
          al_map_rgb_f(0.0, 0.0, 1.0)))
     else:
         players.append(AI(w - pallet_w, h / 2 - pallet_h / 2, pallet_w,
@@ -243,20 +243,20 @@ def main():
                 upgrade.draw()
             if not finished:
                 al_draw_text(font, al_map_rgb_f(1, 1, 1), w / 2, 10,
-                    ALLEGRO_ALIGN_CENTRE, "Player 1: use W and S to move, " +
+                    A5O_ALIGN_CENTRE, "Player 1: use W and S to move, " +
                     "Player 2: use the up and down arrow keys.")
             else:
                 al_draw_text(font, al_map_rgb_f(1, 1, 1), w / 2, 10,
-                    ALLEGRO_ALIGN_CENTRE, "Press R to reset, ESC to exit.")
+                    A5O_ALIGN_CENTRE, "Press R to reset, ESC to exit.")
             al_draw_text(font, al_map_rgb_f(1, 1, 1), w / 2, h - 20,
-                ALLEGRO_ALIGN_CENTRE, "{0} - {1}".format(*score))
+                A5O_ALIGN_CENTRE, "{0} - {1}".format(*score))
             al_flip_display()
             need_redraw = False
 
-        ev = ALLEGRO_EVENT()
+        ev = A5O_EVENT()
         al_wait_for_event(queue, byref(ev))
 
-        if ev.type == ALLEGRO_EVENT_TIMER:
+        if ev.type == A5O_EVENT_TIMER:
             for player in players:
                 player.update()
             ball.update()
@@ -273,12 +273,12 @@ def main():
                 upgrades.append(Upgrade(w / 2, h / 2, ball_speed,
                     players, upgrade_types[i][0], upgrade_types[i][1]))
             need_redraw = True
-        elif (ev.type == ALLEGRO_EVENT_KEY_DOWN and
-                ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) or\
-                ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE:
+        elif (ev.type == A5O_EVENT_KEY_DOWN and
+                ev.keyboard.keycode == A5O_KEY_ESCAPE) or\
+                ev.type == A5O_EVENT_DISPLAY_CLOSE:
             break
-        elif ev.type == ALLEGRO_EVENT_KEY_DOWN and\
-                ev.keyboard.keycode == ALLEGRO_KEY_R:
+        elif ev.type == A5O_EVENT_KEY_DOWN and\
+                ev.keyboard.keycode == A5O_KEY_R:
             ball.x = w / 2
             ball.y = h / 2
             ball.speed = ball_speed

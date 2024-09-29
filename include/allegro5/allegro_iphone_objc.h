@@ -11,8 +11,8 @@
  */
 
 
-#ifndef A5_IPHONE_ALLEGRO_OBJC_H
-#define A5_IPHONE_ALLEGRO_OBJC_H
+#ifndef A5_IPHONE_A5O_OBJC_H
+#define A5_IPHONE_A5O_OBJC_H
 
 /*
  *  Public Objective-C iPhone-related API
@@ -22,11 +22,11 @@
 extern "C" {
 #endif
 
-AL_FUNC(UIWindow *, al_iphone_get_window,            (ALLEGRO_DISPLAY *d));
-AL_FUNC(UIView *,   al_iphone_get_view,              (ALLEGRO_DISPLAY *d));
+AL_FUNC(UIWindow *, al_iphone_get_window,            (A5O_DISPLAY *d));
+AL_FUNC(UIView *,   al_iphone_get_view,              (A5O_DISPLAY *d));
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* A5_IPHONE_ALLEGRO_OBJC_H */
+#endif /* A5_IPHONE_A5O_OBJC_H */

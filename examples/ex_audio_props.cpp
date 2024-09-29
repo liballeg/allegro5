@@ -14,9 +14,9 @@
 
 #include "common.c"
 
-ALLEGRO_FONT *font_gui;
-ALLEGRO_SAMPLE *sample;
-ALLEGRO_SAMPLE_INSTANCE *sample_inst;
+A5O_FONT *font_gui;
+A5O_SAMPLE *sample;
+A5O_SAMPLE_INSTANCE *sample_inst;
 
 class Prog {
 private:
@@ -38,12 +38,12 @@ private:
    Label zero_label;
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display, unsigned int instance_len);
+   Prog(const Theme & theme, A5O_DISPLAY *display, unsigned int instance_len);
    void run();
    void update_properties();
 };
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display, unsigned int instance_len) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display, unsigned int instance_len) :
    d(Dialog(theme, display, 40, 20)),
    length_label(Label("Length")),
    length_slider(HSlider(instance_len, instance_len)),
@@ -114,7 +114,7 @@ void Prog::update_properties()
    if (pan_button.get_pushed())
       pan = pan_slider.get_cur_value() / 1000.0f - 1.0f;
    else
-      pan = ALLEGRO_AUDIO_PAN_NONE;
+      pan = A5O_AUDIO_PAN_NONE;
    al_set_sample_instance_pan(sample_inst, pan);
 
    speed = speed_slider.get_cur_value() / 1000.0f;
@@ -124,9 +124,9 @@ void Prog::update_properties()
    al_set_sample_instance_length(sample_inst, length);
 
    if (bidir_button.get_pushed())
-      al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_BIDIR);
+      al_set_sample_instance_playmode(sample_inst, A5O_PLAYMODE_BIDIR);
    else
-      al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_LOOP);
+      al_set_sample_instance_playmode(sample_inst, A5O_PLAYMODE_LOOP);
 
    al_set_sample_instance_playing(sample_inst, play_button.get_pushed());
 
@@ -139,7 +139,7 @@ void Prog::update_properties()
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
    const char *filename;
 
    if (argc >= 2) {
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
       abort_example("Could not load sample from '%s'!\n", filename);
    }
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display\n");
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
 
    /* Loop the sample. */
    sample_inst = al_create_sample_instance(sample);
-   al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(sample_inst, A5O_PLAYMODE_LOOP);
    al_attach_sample_instance_to_mixer(sample_inst, al_get_default_mixer());
    al_play_sample_instance(sample_inst);
 

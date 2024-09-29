@@ -18,9 +18,9 @@
 static volatile float rms_l = 0.0;
 static volatile float rms_r = 0.0;
 
-static ALLEGRO_DISPLAY *display;
-static ALLEGRO_BITMAP *dbuf;
-static ALLEGRO_BITMAP *bmp;
+static A5O_DISPLAY *display;
+static A5O_BITMAP *dbuf;
+static A5O_BITMAP *bmp;
 static float theta;
 
 static void update_meter(void *buf, unsigned int samples, void *data)
@@ -69,19 +69,19 @@ static void draw(void)
    }
 
    al_set_target_bitmap(dbuf);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
    al_draw_filled_rectangle(0, 0, al_get_bitmap_width(dbuf), al_get_bitmap_height(dbuf),
       al_map_rgba_f(0.8, 0.3, 0.1, 0.06));
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    al_draw_tinted_scaled_rotated_bitmap(bmp,
       al_map_rgba_f(0.8, 0.3, 0.1, 0.2),
       sw/2.0, sh/2.0, dx, dy - disp, scale, scale, theta, 0);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    al_set_target_backbuffer(display);
    al_draw_bitmap(dbuf, 0, 0, 0);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
    al_draw_line(10, dh - db_l, 10, dh, al_map_rgb_f(1, 0.6, 0.2), 6);
    al_draw_line(20, dh - db_r, 20, dh, al_map_rgb_f(1, 0.6, 0.2), 6);
 
@@ -92,8 +92,8 @@ static void draw(void)
 
 static void main_loop(void)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    bool redraw = true;
 
    queue = al_create_event_queue();
@@ -113,11 +113,11 @@ static void main_loop(void)
          continue;
       }
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
    }
@@ -128,9 +128,9 @@ static void main_loop(void)
 int main(int argc, char **argv)
 {
    const char *filename = "../demos/cosmic_protector/data/sfx/title_music.ogg";
-   ALLEGRO_VOICE *voice;
-   ALLEGRO_MIXER *mixer;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_VOICE *voice;
+   A5O_MIXER *mixer;
+   A5O_AUDIO_STREAM *stream;
 
    if (argc > 1) {
       filename = argv[1];
@@ -163,14 +163,14 @@ int main(int argc, char **argv)
       abort_example("Could not init sound.\n");
    }
 
-   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
-      ALLEGRO_CHANNEL_CONF_2);
+   voice = al_create_voice(44100, A5O_AUDIO_DEPTH_INT16,
+      A5O_CHANNEL_CONF_2);
    if (!voice) {
       abort_example("Could not create voice.\n");
    }
 
-   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-      ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32,
+      A5O_CHANNEL_CONF_2);
    if (!mixer) {
       abort_example("Could not create mixer.\n");
    }
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
       abort_example("Could not load '%s'\n", filename);
    }
 
-   al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);
+   al_set_audio_stream_playmode(stream, A5O_PLAYMODE_LOOP);
    al_attach_audio_stream_to_mixer(stream, mixer);
 
    al_set_mixer_postprocess_callback(mixer, update_meter, NULL);

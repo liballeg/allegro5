@@ -25,8 +25,8 @@ char *default_files[] = {NULL, "../demos/skater/data/menu/skate2.ogg"};
 int main(int argc, char **argv)
 {
    int i;
-   ALLEGRO_VOICE*  voice;
-   ALLEGRO_MIXER*  mixer;
+   A5O_VOICE*  voice;
+   A5O_MIXER*  mixer;
    bool loop = false;
    int arg_start = 1;
 
@@ -54,18 +54,18 @@ int main(int argc, char **argv)
       abort_example("Could not init sound!\n");
    }
 
-   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
-                           ALLEGRO_CHANNEL_CONF_2);
+   voice = al_create_voice(44100, A5O_AUDIO_DEPTH_INT16,
+                           A5O_CHANNEL_CONF_2);
    if (!voice) {
-      abort_example("Could not create ALLEGRO_VOICE.\n");
+      abort_example("Could not create A5O_VOICE.\n");
    }
    log_printf("Voice created.\n");
 
 #ifndef BYPASS_MIXER
-   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-                           ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32,
+                           A5O_CHANNEL_CONF_2);
    if (!mixer) {
-      abort_example("Could not create ALLEGRO_MIXER.\n");
+      abort_example("Could not create A5O_MIXER.\n");
    }
    log_printf("Mixer created.\n");
 
@@ -76,11 +76,11 @@ int main(int argc, char **argv)
 
    for (i = arg_start; i < argc; ++i)
    {
-      ALLEGRO_AUDIO_STREAM* stream;
+      A5O_AUDIO_STREAM* stream;
       const char*     filename = argv[i];
       bool playing = true;
-      ALLEGRO_EVENT event;
-      ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
+      A5O_EVENT event;
+      A5O_EVENT_QUEUE* queue = al_create_event_queue();
 
       stream = al_load_audio_stream(filename, 4, 2048);
       if (!stream) {
@@ -90,13 +90,13 @@ int main(int argc, char **argv)
          }
       }
       if (!stream) {
-         log_printf("Could not create an ALLEGRO_AUDIO_STREAM from '%s'!\n",
+         log_printf("Could not create an A5O_AUDIO_STREAM from '%s'!\n",
                  filename);
          continue;
       }
       log_printf("Stream created from '%s'.\n", filename);
       if (loop) {
-         al_set_audio_stream_playmode(stream, loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
+         al_set_audio_stream_playmode(stream, loop ? A5O_PLAYMODE_LOOP : A5O_PLAYMODE_ONCE);
       }
       
       al_register_event_source(queue, al_get_audio_stream_event_source(stream));
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
       log_printf("Playing %s ... Waiting for stream to finish ", filename);
       do {
          al_wait_for_event(queue, &event);
-         if(event.type == ALLEGRO_EVENT_AUDIO_STREAM_FINISHED)
+         if(event.type == A5O_EVENT_AUDIO_STREAM_FINISHED)
             playing = false;
       } while (playing);
       log_printf("\n");

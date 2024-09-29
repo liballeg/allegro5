@@ -9,7 +9,7 @@
 #include "framework.h"
 
 /* Default values of some config varables */
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 int fullscreen = 1;
 int controller_id = 1;
 #else
@@ -19,7 +19,7 @@ int controller_id = 0;
 int bit_depth = 32;
 int screen_width = 640;
 int screen_height = 480;
-int screen_orientation = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+int screen_orientation = A5O_DISPLAY_ORIENTATION_0_DEGREES;
 int window_width = 640;
 int window_height = 480;
 int screen_samples = 1;
@@ -40,7 +40,7 @@ char config_path[DEMO_PATH_LENGTH + 1];
 char data_path[DEMO_PATH_LENGTH + 1];
 DATA_ENTRY *demo_data;
 
-ALLEGRO_DISPLAY *screen;
+A5O_DISPLAY *screen;
 
 char *GameError;
 
@@ -71,7 +71,7 @@ const char *demo_error(int id)
 }
 
 
-int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
+int get_config_int(const A5O_CONFIG *cfg, const char *section,
 		   const char *name, int def)
 {
    const char *v = al_get_config_value(cfg, section, name);
@@ -80,7 +80,7 @@ int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
 }
 
 
-void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
+void set_config_int(A5O_CONFIG *cfg, const char *section, const char *name,
 		    int val)
 {
    char buf[32];
@@ -95,7 +95,7 @@ void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
  */
 void read_global_config(const char *config)
 {
-   ALLEGRO_CONFIG *c = al_load_config_file(config);
+   A5O_CONFIG *c = al_load_config_file(config);
    if (!c) c = al_create_config();
 
    fullscreen = get_config_int(c, "GFX", "fullscreen", fullscreen);
@@ -132,7 +132,7 @@ void read_global_config(const char *config)
 
 void write_global_config(const char *config)
 {
-   ALLEGRO_CONFIG *c = al_load_config_file(config);
+   A5O_CONFIG *c = al_load_config_file(config);
    if (!c) c = al_create_config();
 
    set_config_int(c, "GFX", "fullscreen", fullscreen);
@@ -188,13 +188,13 @@ int change_gfx_mode(void)
 
    /* Select appropriate (fullscreen or windowed) gfx mode driver. */
    if (fullscreen == 0) {
-      flags |= ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
+      flags |= A5O_WINDOWED | A5O_RESIZABLE;
       screen_width = window_width;
       screen_height = window_height;
    } else if (fullscreen == 1) {
-      flags |= ALLEGRO_FULLSCREEN_WINDOW;
+      flags |= A5O_FULLSCREEN_WINDOW;
    } else {
-      flags |= ALLEGRO_FULLSCREEN;
+      flags |= A5O_FULLSCREEN;
    }
    
    if (screen) {
@@ -204,19 +204,19 @@ int change_gfx_mode(void)
    al_set_new_display_flags(flags);
    
    // May be a good idea, but need to add a border to textures for it.
-   // al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   // al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
    
    if (screen_samples > 1) {
-      al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-      al_set_new_display_option(ALLEGRO_SAMPLES, screen_samples, ALLEGRO_SUGGEST);
+      al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST);
+      al_set_new_display_option(A5O_SAMPLES, screen_samples, A5O_SUGGEST);
    }
    else {
-      al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_SUGGEST);
-      al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
+      al_set_new_display_option(A5O_SAMPLE_BUFFERS, 0, A5O_SUGGEST);
+      al_set_new_display_option(A5O_SAMPLES, 0, A5O_SUGGEST);
    }
    
-   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
-                             ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SUPPORTED_ORIENTATIONS,
+                             A5O_DISPLAY_ORIENTATION_LANDSCAPE, A5O_SUGGEST);
 
    /* Attempt to set the selected colour depth and gfx mode. */
    screen = al_create_display(screen_width, screen_height);
@@ -227,7 +227,7 @@ int change_gfx_mode(void)
    
    screen_width = al_get_display_width(screen);
    screen_height = al_get_display_height(screen);
-   screen_orientation = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+   screen_orientation = A5O_DISPLAY_ORIENTATION_90_DEGREES;
    
    al_register_event_source(event_queue, al_get_display_event_source(screen));
 
@@ -328,29 +328,29 @@ void unload_data(void)
 }
 
 
-void demo_textout(const ALLEGRO_FONT *f, const char *s, int x, int y,
-                  ALLEGRO_COLOR color)
+void demo_textout(const A5O_FONT *f, const char *s, int x, int y,
+                  A5O_COLOR color)
 {
    demo_textprintf(f, x, y, color, "%s", s);
 }
 
 
-void demo_textout_right(const ALLEGRO_FONT *f, const char *s, int x, int y,
-                  ALLEGRO_COLOR color)
+void demo_textout_right(const A5O_FONT *f, const char *s, int x, int y,
+                  A5O_COLOR color)
 {
    demo_textprintf_right(f, x, y, color, "%s", s);
 }
 
 
-void demo_textout_centre(const ALLEGRO_FONT *f, const char *s, int x, int y,
-                  ALLEGRO_COLOR color)
+void demo_textout_centre(const A5O_FONT *f, const char *s, int x, int y,
+                  A5O_COLOR color)
 {
    demo_textprintf_centre(f, x, y, color, "%s", s);
 }
 
 
-void demo_textprintf_centre(const ALLEGRO_FONT *font, int x, int y,
-                     ALLEGRO_COLOR col, const char *format, ...)
+void demo_textprintf_centre(const A5O_FONT *font, int x, int y,
+                     A5O_COLOR col, const char *format, ...)
 {
    char buf[512];
 
@@ -364,8 +364,8 @@ void demo_textprintf_centre(const ALLEGRO_FONT *font, int x, int y,
 }
 
 
-void demo_textprintf_right(const ALLEGRO_FONT *font, int x, int y,
-                     ALLEGRO_COLOR col, const char *format, ...)
+void demo_textprintf_right(const A5O_FONT *font, int x, int y,
+                     A5O_COLOR col, const char *format, ...)
 {
    char buf[512];
 
@@ -379,8 +379,8 @@ void demo_textprintf_right(const ALLEGRO_FONT *font, int x, int y,
 }
 
 
-void demo_textprintf(const ALLEGRO_FONT *font, int x, int y,
-                     ALLEGRO_COLOR col, const char *format, ...)
+void demo_textprintf(const A5O_FONT *font, int x, int y,
+                     A5O_COLOR col, const char *format, ...)
 {
    char buf[512];
 
@@ -393,8 +393,8 @@ void demo_textprintf(const ALLEGRO_FONT *font, int x, int y,
    demo_textprintf_ex(font, x, y, col, 0, "%s", buf);
 }
 
-void demo_textprintf_ex(const ALLEGRO_FONT *font, int x, int y,
-                     ALLEGRO_COLOR col, int align, const char *format, ...)
+void demo_textprintf_ex(const A5O_FONT *font, int x, int y,
+                     A5O_COLOR col, int align, const char *format, ...)
 {
    char buf[512];
 
@@ -406,21 +406,21 @@ void demo_textprintf_ex(const ALLEGRO_FONT *font, int x, int y,
 
    switch (align) {
       case 0:
-         al_draw_textf(font, col, x, y, ALLEGRO_ALIGN_LEFT, "%s", buf);
+         al_draw_textf(font, col, x, y, A5O_ALIGN_LEFT, "%s", buf);
          break;
       case 1:
-         al_draw_textf(font, col, x, y, ALLEGRO_ALIGN_RIGHT, "%s", buf);
+         al_draw_textf(font, col, x, y, A5O_ALIGN_RIGHT, "%s", buf);
          break;
       case 2:
-         al_draw_textf(font, col, x, y, ALLEGRO_ALIGN_CENTRE, "%s", buf);
+         al_draw_textf(font, col, x, y, A5O_ALIGN_CENTRE, "%s", buf);
          break;
    };
 
 }
 
 
-void shadow_textprintf(ALLEGRO_FONT *font, int x, int y,
-                     ALLEGRO_COLOR col, int align, const char *format, ...)
+void shadow_textprintf(A5O_FONT *font, int x, int y,
+                     A5O_COLOR col, int align, const char *format, ...)
 {
    char buf[512];
 

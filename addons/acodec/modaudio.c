@@ -12,10 +12,10 @@
 #include "acodec.h"
 
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
+A5O_DEBUG_CHANNEL("acodec")
 
 
-bool _al_identify_it(ALLEGRO_FILE *f)
+bool _al_identify_it(A5O_FILE *f)
 {
    uint8_t x[4];
    if (al_fread(f, x, 4) < 4)
@@ -25,7 +25,7 @@ bool _al_identify_it(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_669(ALLEGRO_FILE *f)
+bool _al_identify_669(A5O_FILE *f)
 {
    uint8_t x[2];
    if (al_fread(f, x, 2) < 2)
@@ -35,7 +35,7 @@ bool _al_identify_669(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_amf(ALLEGRO_FILE *f)
+bool _al_identify_amf(A5O_FILE *f)
 {
    uint8_t x[3];
    if (al_fread(f, x, 3) < 3)
@@ -45,7 +45,7 @@ bool _al_identify_amf(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_asy(ALLEGRO_FILE *f)
+bool _al_identify_asy(A5O_FILE *f)
 {
    uint8_t x[24];
    if (al_fread(f, x, 24) < 24)
@@ -55,7 +55,7 @@ bool _al_identify_asy(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_mtm(ALLEGRO_FILE *f)
+bool _al_identify_mtm(A5O_FILE *f)
 {
    uint8_t x[3];
    if (al_fread(f, x, 3) < 3)
@@ -65,7 +65,7 @@ bool _al_identify_mtm(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_okt(ALLEGRO_FILE *f)
+bool _al_identify_okt(A5O_FILE *f)
 {
    uint8_t x[8];
    if (al_fread(f, x, 8) < 8)
@@ -75,7 +75,7 @@ bool _al_identify_okt(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_psm(ALLEGRO_FILE *f)
+bool _al_identify_psm(A5O_FILE *f)
 {
    uint8_t x[4];
    if (al_fread(f, x, 4) < 4)
@@ -85,10 +85,10 @@ bool _al_identify_psm(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_ptm(ALLEGRO_FILE *f)
+bool _al_identify_ptm(A5O_FILE *f)
 {
    uint8_t x[4];
-   if (!al_fseek(f, 0x2C, ALLEGRO_SEEK_CUR))
+   if (!al_fseek(f, 0x2C, A5O_SEEK_CUR))
       return false;
    if (al_fread(f, x, 4) < 4)
       return false;
@@ -97,7 +97,7 @@ bool _al_identify_ptm(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_riff(ALLEGRO_FILE *f)
+bool _al_identify_riff(A5O_FILE *f)
 {
    const char riff_fmts[][4] = {
       "AM  ", "AMFF", "DSMF"
@@ -107,7 +107,7 @@ bool _al_identify_riff(ALLEGRO_FILE *f)
       return false;
    if (memcmp(x, "RIFF", 4) != 0)
       return false;
-   if (!al_fseek(f, 4, ALLEGRO_SEEK_CUR))
+   if (!al_fseek(f, 4, A5O_SEEK_CUR))
       return false;
    if (al_fread(f, x, 4) < 4)
       return false;
@@ -118,13 +118,13 @@ bool _al_identify_riff(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_stm(ALLEGRO_FILE *f)
+bool _al_identify_stm(A5O_FILE *f)
 {
    const char stm_fmts[][8] = {
       "!Scream!", "BMOD2STM", "WUZAMOD!"
    };
    uint8_t x[10];
-   if (!al_fseek(f, 20, ALLEGRO_SEEK_CUR))
+   if (!al_fseek(f, 20, A5O_SEEK_CUR))
       return false;
    if (al_fread(f, x, 10) < 8)
       return false;
@@ -137,7 +137,7 @@ bool _al_identify_stm(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_mod(ALLEGRO_FILE *f)
+bool _al_identify_mod(A5O_FILE *f)
 {
    const char mod_sigs[][4] = {
       "M.K.", "M!K!", "M&K!", "N.T.",
@@ -146,7 +146,7 @@ bool _al_identify_mod(ALLEGRO_FILE *f)
       "OKTA", "16CN", "32CN"
    };
    uint8_t x[4];
-   if (!al_fseek(f, 0x438, ALLEGRO_SEEK_CUR))
+   if (!al_fseek(f, 0x438, A5O_SEEK_CUR))
       return false;
    if (al_fread(f, x, 4) < 4)
       return false;
@@ -163,10 +163,10 @@ bool _al_identify_mod(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_s3m(ALLEGRO_FILE *f)
+bool _al_identify_s3m(A5O_FILE *f)
 {
    uint8_t x[4];
-   if (!al_fseek(f, 0x2C, ALLEGRO_SEEK_CUR))
+   if (!al_fseek(f, 0x2C, A5O_SEEK_CUR))
       return false;
    if (al_fread(f, x, 4) < 4)
       return false;
@@ -175,7 +175,7 @@ bool _al_identify_s3m(ALLEGRO_FILE *f)
    return false;
 }
 
-bool _al_identify_xm(ALLEGRO_FILE *f)
+bool _al_identify_xm(A5O_FILE *f)
 {
    uint8_t x[16];
    if (al_fread(f, x, 16) < 16)

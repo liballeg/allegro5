@@ -6,17 +6,17 @@
 #include "allegro5/internal/aintern_xfullscreen.h"
 #include "allegro5/internal/aintern_xsystem.h"
 
-ALLEGRO_DEBUG_CHANNEL("display")
+A5O_DEBUG_CHANNEL("display")
 
-/* globals - this might be better in ALLEGRO_SYSTEM_XGLX */
-_ALLEGRO_XGLX_MMON_INTERFACE _al_xglx_mmon_interface;
+/* globals - this might be better in A5O_SYSTEM_XGLX */
+_A5O_XGLX_MMON_INTERFACE _al_xglx_mmon_interface;
 
 /* generic multi-head x */
-int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
+int _al_xsys_mheadx_get_default_adapter(A5O_SYSTEM_XGLX *s)
 {
    int i;
  
-   ALLEGRO_DEBUG("mhead get default adapter\n");
+   A5O_DEBUG("mhead get default adapter\n");
    
    if (ScreenCount(s->x11display) == 1)
       return 0;
@@ -29,18 +29,18 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    Screen *focus_screen;
 
    if (!XGetInputFocus(s->x11display, &focus, &revert_to)) {
-      ALLEGRO_ERROR("XGetInputFocus failed!");
+      A5O_ERROR("XGetInputFocus failed!");
       _al_mutex_unlock(&s->lock);
       return 0;
    }
    
    if (focus == None) {
-      ALLEGRO_ERROR("XGetInputFocus returned None!\n");
+      A5O_ERROR("XGetInputFocus returned None!\n");
       _al_mutex_unlock(&s->lock);
       return 0;
    }
    else if (focus == PointerRoot) {
-      ALLEGRO_DEBUG("XGetInputFocus returned PointerRoot.\n");
+      A5O_DEBUG("XGetInputFocus returned PointerRoot.\n");
       /* XXX TEST THIS >:( */
       Window root, child;
       int root_x, root_y;
@@ -48,7 +48,7 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
       unsigned int mask;
       
       if (XQueryPointer(s->x11display, focus, &root, &child, &root_x, &root_y, &win_x, &win_y, &mask) == False) {
-         ALLEGRO_ERROR("XQueryPointer failed :(");
+         A5O_ERROR("XQueryPointer failed :(");
          _al_mutex_unlock(&s->lock);
          return 0;
       }
@@ -56,7 +56,7 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
       focus = root;
    }
    else {
-      ALLEGRO_DEBUG("XGetInputFocus returned %i!\n", (int)focus);
+      A5O_DEBUG("XGetInputFocus returned %i!\n", (int)focus);
    }
    
    XGetWindowAttributes(s->x11display, focus, &attr);
@@ -76,10 +76,10 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
 }
 
 /* in pure multi-head mode, allegro's virtual adapters map directly to X Screens. */
-int _al_xsys_mheadx_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+int _al_xsys_mheadx_get_xscreen(A5O_SYSTEM_XGLX *s, int adapter)
 {
    (void)s;
-   ALLEGRO_DEBUG("mhead get screen %i\n", adapter);
+   A5O_DEBUG("mhead get screen %i\n", adapter);
    return adapter;
 }
 
@@ -88,7 +88,7 @@ Returns the parent window of "window" (i.e. the ancestor of window
 that is a direct child of the root, or window itself if it is a direct child).
 If window is the root window, returns window.
 */
-static Window get_toplevel_parent(ALLEGRO_SYSTEM_XGLX *s, Window window)
+static Window get_toplevel_parent(A5O_SYSTEM_XGLX *s, Window window)
 {
    Window parent;
    Window root;
@@ -100,7 +100,7 @@ static Window get_toplevel_parent(ALLEGRO_SYSTEM_XGLX *s, Window window)
        * for some reason 'window' isn't valid when the mouse happens
        * to be over the windeco when this is called.. */
       if (0 == XQueryTree(s->x11display, window, &root, &parent, &children, &num_children)) {
-         ALLEGRO_ERROR("XQueryTree error\n");
+         A5O_ERROR("XQueryTree error\n");
          return None;
       }
       if (children) { /* must test for NULL */
@@ -118,7 +118,7 @@ static Window get_toplevel_parent(ALLEGRO_SYSTEM_XGLX *s, Window window)
 }
 
 /* used for xinerama and pure xrandr modes */
-void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y)
+void _al_xsys_get_active_window_center(A5O_SYSTEM_XGLX *s, int *x, int *y)
 {
    Window focus;
    int revert_to = 0;
@@ -126,13 +126,13 @@ void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y)
    _al_mutex_lock(&s->lock);
    
    if (!XGetInputFocus(s->x11display, &focus, &revert_to)) {
-      ALLEGRO_ERROR("XGetInputFocus failed!\n");
+      A5O_ERROR("XGetInputFocus failed!\n");
       _al_mutex_unlock(&s->lock);
       return;
    }
    
    if (focus == None || focus == PointerRoot) {
-      ALLEGRO_DEBUG("XGetInputFocus returned special window, selecting default root!\n");
+      A5O_DEBUG("XGetInputFocus returned special window, selecting default root!\n");
       focus = DefaultRootWindow(s->x11display);
    }
    else {
@@ -144,12 +144,12 @@ void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y)
       focus = get_toplevel_parent(s, focus);
    }
    
-   ALLEGRO_DEBUG("XGetInputFocus returned %i\n", (int)focus);
+   A5O_DEBUG("XGetInputFocus returned %i\n", (int)focus);
    
    XWindowAttributes attr;
    
    if (XGetWindowAttributes(s->x11display, focus, &attr) == 0) {
-      ALLEGRO_ERROR("XGetWindowAttributes failed :(\n");
+      A5O_ERROR("XGetWindowAttributes failed :(\n");
       _al_mutex_unlock(&s->lock);
       return;
    }
@@ -158,7 +158,7 @@ void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y)
    
    /* check the center of the window with focus
     * might be a bit more useful than just checking the top left */
-   ALLEGRO_DEBUG("focus geom: %ix%i %ix%i\n", attr.x, attr.y, attr.width, attr.height);
+   A5O_DEBUG("focus geom: %ix%i %ix%i\n", attr.x, attr.y, attr.width, attr.height);
    *x = (attr.x + (attr.x + attr.width)) / 2;
    *y = (attr.y + (attr.y + attr.height)) / 2;  
 }
@@ -169,9 +169,9 @@ void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y)
  *
  */
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
 
-static void xinerama_init(ALLEGRO_SYSTEM_XGLX *s)
+static void xinerama_init(A5O_SYSTEM_XGLX *s)
 {
    int event_base = 0;
    int error_base = 0;
@@ -186,36 +186,36 @@ static void xinerama_init(ALLEGRO_SYSTEM_XGLX *s)
    if (XineramaQueryExtension(s->x11display, &event_base, &error_base)) {
       int minor_version = 0, major_version = 0;
       int status = XineramaQueryVersion(s->x11display, &major_version, &minor_version);
-      ALLEGRO_INFO("Xinerama version: %i.%i\n", major_version, minor_version);
+      A5O_INFO("Xinerama version: %i.%i\n", major_version, minor_version);
 
       if (status && !XineramaIsActive(s->x11display)) {
-         ALLEGRO_WARN("Xinerama is not active\n");
+         A5O_WARN("Xinerama is not active\n");
       }
       else {
          s->xinerama_screen_info = XineramaQueryScreens(s->x11display, &s->xinerama_screen_count);
          if (!s->xinerama_screen_info) {
-            ALLEGRO_ERROR("Xinerama failed to query screens.\n");
+            A5O_ERROR("Xinerama failed to query screens.\n");
          }
          else {
             s->xinerama_available = 1;
-            ALLEGRO_INFO("Xinerama is active\n");
+            A5O_INFO("Xinerama is active\n");
          }
       }
    }
 
    if (!s->xinerama_available) {
-      ALLEGRO_WARN("Xinerama extension is not available.\n");
+      A5O_WARN("Xinerama extension is not available.\n");
    }
 
    _al_mutex_unlock(&s->lock);
 }
 
-static void xinerama_exit(ALLEGRO_SYSTEM_XGLX *s)
+static void xinerama_exit(A5O_SYSTEM_XGLX *s)
 {
    if (!s->xinerama_available)
       return;
 
-   ALLEGRO_DEBUG("xfullscreen: xinerama exit.\n");
+   A5O_DEBUG("xfullscreen: xinerama exit.\n");
    if (s->xinerama_screen_info)
       XFree(s->xinerama_screen_info);
 
@@ -224,17 +224,17 @@ static void xinerama_exit(ALLEGRO_SYSTEM_XGLX *s)
    s->xinerama_screen_info = NULL;
 }
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#ifdef A5O_XWINDOWS_WITH_XF86VIDMODE
 
-static void xinerama_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
+static void xinerama_get_display_offset(A5O_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
-   ALLEGRO_ASSERT(adapter >= 0 && adapter < s->xinerama_screen_count);
+   A5O_ASSERT(adapter >= 0 && adapter < s->xinerama_screen_count);
    *x = s->xinerama_screen_info[adapter].x_org;
    *y = s->xinerama_screen_info[adapter].y_org;
-   ALLEGRO_DEBUG("xinerama dpy off %ix%i\n", *x, *y);
+   A5O_DEBUG("xinerama dpy off %ix%i\n", *x, *y);
 }
 
-static bool xinerama_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
+static bool xinerama_get_monitor_info(A5O_SYSTEM_XGLX *s, int adapter, A5O_MONITOR_INFO *mi)
 {
    if (adapter < 0 || adapter >= s->xinerama_screen_count)
       return false;
@@ -246,7 +246,7 @@ static bool xinerama_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEG
    return true;
 }
 
-static ALLEGRO_DISPLAY_MODE *xinerama_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int i, ALLEGRO_DISPLAY_MODE *mode)
+static A5O_DISPLAY_MODE *xinerama_get_mode(A5O_SYSTEM_XGLX *s, int adapter, int i, A5O_DISPLAY_MODE *mode)
 {
    if (adapter < 0 || adapter >= s->xinerama_screen_count)
       return NULL;
@@ -262,39 +262,39 @@ static ALLEGRO_DISPLAY_MODE *xinerama_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapt
    return mode;
 }
 
-static int xinerama_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
+static int xinerama_get_default_adapter(A5O_SYSTEM_XGLX *s)
 {
    int center_x = 0, center_y = 0;
-   ALLEGRO_DEBUG("xinerama get default adapter\n");
+   A5O_DEBUG("xinerama get default adapter\n");
    
    _al_xsys_get_active_window_center(s, &center_x, &center_y);
-   ALLEGRO_DEBUG("xinerama got active center: %ix%i\n", center_x, center_y);
+   A5O_DEBUG("xinerama got active center: %ix%i\n", center_x, center_y);
    
    int i;
    for (i = 0; i < s->xinerama_screen_count; i++) {
       if (center_x >= s->xinerama_screen_info[i].x_org && center_x <= s->xinerama_screen_info[i].x_org + s->xinerama_screen_info[i].width &&
          center_y >= s->xinerama_screen_info[i].y_org && center_y <= s->xinerama_screen_info[i].y_org + s->xinerama_screen_info[i].height)
       {
-         ALLEGRO_DEBUG("center is inside (%i) %ix%i %ix%i\n", i, s->xinerama_screen_info[i].x_org, s->xinerama_screen_info[i].y_org, s->xinerama_screen_info[i].width, s->xinerama_screen_info[i].height);
+         A5O_DEBUG("center is inside (%i) %ix%i %ix%i\n", i, s->xinerama_screen_info[i].x_org, s->xinerama_screen_info[i].y_org, s->xinerama_screen_info[i].width, s->xinerama_screen_info[i].height);
          return i;
       }
    }
    
-   ALLEGRO_DEBUG("xinerama returning default 0\n");
+   A5O_DEBUG("xinerama returning default 0\n");
    return 0;
 }
 
 /* similar to multi-head x, but theres only one X Screen, so we return 0 always */
-static int xinerama_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static int xinerama_get_xscreen(A5O_SYSTEM_XGLX *s, int adapter)
 {
    (void)s;
    (void)adapter;
    return 0;
 }
 
-#endif /* ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
+#endif /* A5O_XWINDOWS_WITH_XF86VIDMODE */
 
-#endif /* ALLEGRO_XWINDOWS_WITH_XINERAMA */
+#endif /* A5O_XWINDOWS_WITH_XINERAMA */
 
 
 
@@ -304,12 +304,12 @@ static int xinerama_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
  *
  */
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#ifdef A5O_XWINDOWS_WITH_XF86VIDMODE
 
 // XXX retest under multi-head!
-static int xfvm_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static int xfvm_get_num_modes(A5O_SYSTEM_XGLX *s, int adapter)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       if (adapter < 0 || adapter > s->xinerama_screen_count)
          return 0;
@@ -329,11 +329,11 @@ static int xfvm_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    return s->xfvm_screen[adapter].mode_count;
 }
 
-static ALLEGRO_DISPLAY_MODE *xfvm_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int i, ALLEGRO_DISPLAY_MODE *mode)
+static A5O_DISPLAY_MODE *xfvm_get_mode(A5O_SYSTEM_XGLX *s, int adapter, int i, A5O_DISPLAY_MODE *mode)
 {
    int denom;
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    /* TwinView gives us one large screen via xfvm, and no way to
     * properly change modes on individual monitors, so we want to query
     * xinerama for the lone mode. */
@@ -360,12 +360,12 @@ static ALLEGRO_DISPLAY_MODE *xfvm_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, 
    return mode;
 }
 
-static bool xfvm_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w, int h, int format, int refresh_rate)
+static bool xfvm_set_mode(A5O_SYSTEM_XGLX *s, A5O_DISPLAY_XGLX *d, int w, int h, int format, int refresh_rate)
 {
    int mode_idx = -1;
    int adapter = _al_xglx_get_adapter(s, d, false);
    
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       /* at least pretend we set a mode if its the current mode */
@@ -381,20 +381,20 @@ static bool xfvm_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w
       return false;
    
    if (!XF86VidModeSwitchToMode(s->x11display, adapter, s->xfvm_screen[adapter].modes[mode_idx])) {
-      ALLEGRO_ERROR("xfullscreen: XF86VidModeSwitchToMode failed\n");
+      A5O_ERROR("xfullscreen: XF86VidModeSwitchToMode failed\n");
       return false;
    }
 
    return true;
 }
 
-static void xfvm_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
+static void xfvm_store_video_mode(A5O_SYSTEM_XGLX *s)
 {
    int n;
 
-   ALLEGRO_DEBUG("xfullscreen: xfvm_store_video_mode\n");
+   A5O_DEBUG("xfullscreen: xfvm_store_video_mode\n");
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       return;
@@ -414,19 +414,19 @@ static void xfvm_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 
       int j;
       for (j = 0; j <  s->xfvm_screen[i].mode_count; j++) {
-         ALLEGRO_DEBUG("xfvm: screen[%d] mode[%d] = (%d, %d)\n",
+         A5O_DEBUG("xfvm: screen[%d] mode[%d] = (%d, %d)\n",
             i, j, s->xfvm_screen[i].modes[j]->hdisplay, s->xfvm_screen[i].modes[j]->vdisplay);
       }
-      ALLEGRO_INFO("xfvm: screen[%d] original mode = (%d, %d)\n",
+      A5O_INFO("xfvm: screen[%d] original mode = (%d, %d)\n",
          i, s->xfvm_screen[i].original_mode->hdisplay, s->xfvm_screen[i].original_mode->vdisplay);
    }
 }
 
-static void xfvm_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static void xfvm_restore_video_mode(A5O_SYSTEM_XGLX *s, int adapter)
 {
    Bool ok;
    
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       return;
@@ -437,12 +437,12 @@ static void xfvm_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
       return;
 
    ASSERT(s->xfvm_screen[adapter].original_mode);
-   ALLEGRO_DEBUG("xfullscreen: xfvm_restore_video_mode (%d, %d)\n",
+   A5O_DEBUG("xfullscreen: xfvm_restore_video_mode (%d, %d)\n",
       s->xfvm_screen[adapter].original_mode->hdisplay, s->xfvm_screen[adapter].original_mode->vdisplay);
 
    ok = XF86VidModeSwitchToMode(s->x11display, adapter, s->xfvm_screen[adapter].original_mode);
    if (!ok) {
-      ALLEGRO_ERROR("xfullscreen: XF86VidModeSwitchToMode failed\n");
+      A5O_ERROR("xfullscreen: XF86VidModeSwitchToMode failed\n");
    }
 
    if (s->mouse_grab_display) {
@@ -457,11 +457,11 @@ static void xfvm_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    XFlush(s->gfxdisplay);
 }
 
-static void xfvm_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
+static void xfvm_get_display_offset(A5O_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
    int tmp_x = 0, tmp_y = 0;
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available) {
       xinerama_get_display_offset(s, adapter, &tmp_x, &tmp_y);
    } //else 
@@ -480,12 +480,12 @@ static void xfvm_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x,
    *x = tmp_x;
    *y = tmp_y;
    
-   ALLEGRO_DEBUG("xfvm dpy off %ix%i\n", *x, *y);
+   A5O_DEBUG("xfvm dpy off %ix%i\n", *x, *y);
 }
 
-static int xfvm_get_num_adapters(ALLEGRO_SYSTEM_XGLX *s)
+static int xfvm_get_num_adapters(A5O_SYSTEM_XGLX *s)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available) {
       return s->xinerama_screen_count;
    }
@@ -493,9 +493,9 @@ static int xfvm_get_num_adapters(ALLEGRO_SYSTEM_XGLX *s)
    return s->xfvm_screen_count;
 }
 
-static bool xfvm_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
+static bool xfvm_get_monitor_info(A5O_SYSTEM_XGLX *s, int adapter, A5O_MONITOR_INFO *mi)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available) {
       return xinerama_get_monitor_info(s, adapter, mi);
    }
@@ -522,11 +522,11 @@ static bool xfvm_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_M
    return true;
 }
 
-static int xfvm_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
+static int xfvm_get_default_adapter(A5O_SYSTEM_XGLX *s)
 {
-   ALLEGRO_DEBUG("xfvm get default adapter\n");
+   A5O_DEBUG("xfvm get default adapter\n");
    
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available) {
       return xinerama_get_default_adapter(s);
    }
@@ -535,11 +535,11 @@ static int xfvm_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    return _al_xsys_mheadx_get_default_adapter(s);
 }
 
-static int xfvm_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static int xfvm_get_xscreen(A5O_SYSTEM_XGLX *s, int adapter)
 {
-   ALLEGRO_DEBUG("xfvm get xscreen for adapter %i\n", adapter);
+   A5O_DEBUG("xfvm get xscreen for adapter %i\n", adapter);
    
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available) {
       return xinerama_get_xscreen(s, adapter);
    }
@@ -548,13 +548,13 @@ static int xfvm_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    return _al_xsys_mheadx_get_xscreen(s, adapter);
 }
 
-static void xfvm_post_setup(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *d)
+static void xfvm_post_setup(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *d)
 {
    int x = 0, y = 0;
    XWindowAttributes xwa;
    
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       return;
@@ -571,13 +571,13 @@ static void xfvm_post_setup(ALLEGRO_SYSTEM_XGLX *s,
    x = xwa.x - x;
    y = xwa.y - y;
    
-   ALLEGRO_DEBUG("xfvm set view port: %ix%i\n", x, y);
+   A5O_DEBUG("xfvm set view port: %ix%i\n", x, y);
    
    XF86VidModeSetViewPort(s->x11display, adapter, x, y);
 }
 
 
-static void xfvm_init(ALLEGRO_SYSTEM_XGLX *s)
+static void xfvm_init(A5O_SYSTEM_XGLX *s)
 {
    int event_base = 0;
    int error_base = 0;
@@ -592,24 +592,24 @@ static void xfvm_init(ALLEGRO_SYSTEM_XGLX *s)
    if (XF86VidModeQueryExtension(s->x11display, &event_base, &error_base)) {
       int minor_version = 0, major_version = 0;
       int status = XF86VidModeQueryVersion(s->x11display, &major_version, &minor_version);
-      ALLEGRO_INFO("XF86VidMode version: %i.%i\n", major_version, minor_version);
+      A5O_INFO("XF86VidMode version: %i.%i\n", major_version, minor_version);
 
       if (!status) {
-         ALLEGRO_WARN("XF86VidMode not available, XF86VidModeQueryVersion failed.\n");
+         A5O_WARN("XF86VidMode not available, XF86VidModeQueryVersion failed.\n");
       }
       else {
          // I don't actually know what versions are required here, just going to assume any is ok for now.
-         ALLEGRO_INFO("XF86VidMode %i.%i is active\n", major_version, minor_version);
+         A5O_INFO("XF86VidMode %i.%i is active\n", major_version, minor_version);
          s->xfvm_available = 1;
       }
    }
    else {
-      ALLEGRO_WARN("XF86VidMode extension is not available.\n");
+      A5O_WARN("XF86VidMode extension is not available.\n");
    }
 
    if (s->xfvm_available) {
       int num_screens;
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
       /* This is some fun stuff right here, if XRANDR is available, we can't use the xinerama screen count
        * and we really want the xrandr init in xglx_initialize to come last so it overrides xf86vm if available
        * and I really don't want to add more XRRQuery* or #ifdefs here.
@@ -635,18 +635,18 @@ static void xfvm_init(ALLEGRO_SYSTEM_XGLX *s)
          num_screens = ScreenCount(s->x11display);
       }
 
-      ALLEGRO_DEBUG("XF86VidMode Got %d screens.\n", num_screens);
+      A5O_DEBUG("XF86VidMode Got %d screens.\n", num_screens);
       s->xfvm_screen_count = num_screens;
 
       s->xfvm_screen = al_calloc(num_screens, sizeof(*s->xfvm_screen));
       if (!s->xfvm_screen) {
-         ALLEGRO_ERROR("XF86VidMode: failed to allocate screen array.\n");
+         A5O_ERROR("XF86VidMode: failed to allocate screen array.\n");
          s->xfvm_available = 0;
       }
       else {
          int i;
          for (i = 0; i < num_screens; i++) {
-            ALLEGRO_DEBUG("XF86VidMode GetAllModeLines on screen %d.\n", i);
+            A5O_DEBUG("XF86VidMode GetAllModeLines on screen %d.\n", i);
             if (!XF86VidModeGetAllModeLines(s->x11display, i, &(s->xfvm_screen[i].mode_count), &(s->xfvm_screen[i].modes))) {
                /* XXX what to do here? */
             }
@@ -669,10 +669,10 @@ static void xfvm_init(ALLEGRO_SYSTEM_XGLX *s)
    _al_mutex_unlock(&s->lock);
 }
 
-static void xfvm_exit(ALLEGRO_SYSTEM_XGLX *s)
+static void xfvm_exit(A5O_SYSTEM_XGLX *s)
 {
    int adapter;
-   ALLEGRO_DEBUG("xfullscreen: XFVM exit\n");
+   A5O_DEBUG("xfullscreen: XFVM exit\n");
 
    for (adapter = 0; adapter < s->xfvm_screen_count; adapter++) {
       if (s->xfvm_screen[adapter].mode_count > 0) {
@@ -689,14 +689,14 @@ static void xfvm_exit(ALLEGRO_SYSTEM_XGLX *s)
       s->xfvm_screen[adapter].modes = NULL;
       s->xfvm_screen[adapter].original_mode = NULL;
 
-      ALLEGRO_DEBUG("xfullscreen: XFVM freed adapter %d.\n", adapter);
+      A5O_DEBUG("xfullscreen: XFVM freed adapter %d.\n", adapter);
    }
 
    al_free(s->xfvm_screen);
    s->xfvm_screen = NULL;
 }
 
-#endif /* ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
+#endif /* A5O_XWINDOWS_WITH_XF86VIDMODE */
 
 
 
@@ -706,10 +706,10 @@ static void xfvm_exit(ALLEGRO_SYSTEM_XGLX *s)
  *
  */
 
-static bool init_mmon_interface(ALLEGRO_SYSTEM_XGLX *s)
+static bool init_mmon_interface(A5O_SYSTEM_XGLX *s)
 {
    if (s->x11display == NULL) {
-      ALLEGRO_WARN("Not connected to X server.\n");
+      A5O_WARN("Not connected to X server.\n");
       return false;
    }
 
@@ -723,15 +723,15 @@ static bool init_mmon_interface(ALLEGRO_SYSTEM_XGLX *s)
     * incase there are multiple screens.
     */
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    xinerama_init(s);
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#ifdef A5O_XWINDOWS_WITH_XF86VIDMODE
    xfvm_init(s);
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+#ifdef A5O_XWINDOWS_WITH_XRANDR
    _al_xsys_xrandr_init(s);
 #endif
 
@@ -743,27 +743,27 @@ static bool init_mmon_interface(ALLEGRO_SYSTEM_XGLX *s)
    return true;
 }
 
-void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s)
+void _al_xsys_mmon_exit(A5O_SYSTEM_XGLX *s)
 {
    if (!s->mmon_interface_inited)
       return;
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    xinerama_exit(s);
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#ifdef A5O_XWINDOWS_WITH_XF86VIDMODE
    xfvm_exit(s);
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+#ifdef A5O_XWINDOWS_WITH_XRANDR
    _al_xsys_xrandr_exit(s);
 #endif
 
    s->mmon_interface_inited = false;
 }
 
-int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+int _al_xglx_get_num_display_modes(A5O_SYSTEM_XGLX *s, int adapter)
 {
    if (!init_mmon_interface(s))
       return 0;
@@ -781,8 +781,8 @@ int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    return _al_xglx_mmon_interface.get_num_display_modes(s, adapter);
 }
 
-ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int index,
-   ALLEGRO_DISPLAY_MODE *mode)
+A5O_DISPLAY_MODE *_al_xglx_get_display_mode(A5O_SYSTEM_XGLX *s, int adapter, int index,
+   A5O_DISPLAY_MODE *mode)
 {
    if (!init_mmon_interface(s))
       return NULL;
@@ -801,7 +801,7 @@ ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(ALLEGRO_SYSTEM_XGLX *s, int adap
    return _al_xglx_mmon_interface.get_display_mode(s, adapter, index, mode);
 }
 
-int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, int h, int format, int refresh_rate)
+int _al_xglx_fullscreen_select_mode(A5O_SYSTEM_XGLX *s, int adapter, int w, int h, int format, int refresh_rate)
 {
    int i;
    int n;
@@ -817,7 +817,7 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
       return -1;
 
    /* Find all modes with correct parameters. */
-   ALLEGRO_DISPLAY_MODE mode = {0, 0, 0, 0};
+   A5O_DISPLAY_MODE mode = {0, 0, 0, 0};
    int possible_modes[n];
    int possible_count = 0;
    for (i = 0; i < n; i++) {
@@ -838,7 +838,7 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
    int best_mode = possible_modes[0];
    _al_xglx_get_display_mode(s, adapter, best_mode, &mode);
    for (i = 1; i < possible_count; i++) {
-      ALLEGRO_DISPLAY_MODE mode2;
+      A5O_DISPLAY_MODE mode2;
       if (!_al_xglx_get_display_mode(s, adapter, possible_modes[i], &mode2))  {
          continue;
       }
@@ -848,13 +848,13 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
       }
    }
 
-   ALLEGRO_INFO("best mode [%d] = (%d, %d)\n", best_mode, mode.width, mode.height);
+   A5O_INFO("best mode [%d] = (%d, %d)\n", best_mode, mode.width, mode.height);
 
    return best_mode;
 }
 
-bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *d, int w, int h, int format, int refresh_rate)
+bool _al_xglx_fullscreen_set_mode(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *d, int w, int h, int format, int refresh_rate)
 {
    if (!init_mmon_interface(s))
       return false;
@@ -865,8 +865,8 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    return _al_xglx_mmon_interface.set_mode(s, d, w, h, format, refresh_rate);
 }
 
-void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *d)
+void _al_xglx_fullscreen_to_display(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *d)
 {
    if (!init_mmon_interface(s))
       return;
@@ -878,7 +878,7 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    
 }
 
-void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
+void _al_xglx_store_video_mode(A5O_SYSTEM_XGLX *s)
 {
    if (!init_mmon_interface(s))
       return;
@@ -889,7 +889,7 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
    _al_xglx_mmon_interface.store_mode(s);
 }
 
-void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+void _al_xglx_restore_video_mode(A5O_SYSTEM_XGLX *s, int adapter)
 {
    if (!init_mmon_interface(s))
       return;
@@ -900,7 +900,7 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    _al_xglx_mmon_interface.restore_mode(s, adapter);
 }
 
-void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
+void _al_xglx_get_display_offset(A5O_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
    if (!init_mmon_interface(s))
       return;
@@ -911,7 +911,7 @@ void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, in
    _al_xglx_mmon_interface.get_display_offset(s, adapter, x, y);
 }
 
-bool _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *info)
+bool _al_xglx_get_monitor_info(A5O_SYSTEM_XGLX *s, int adapter, A5O_MONITOR_INFO *info)
 {
    if (!init_mmon_interface(s))
       return false;
@@ -929,7 +929,7 @@ bool _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONI
    return _al_xglx_mmon_interface.get_monitor_info(s, adapter, info);
 }
 
-int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s)
+int _al_xglx_get_num_video_adapters(A5O_SYSTEM_XGLX *s)
 {
    if (!init_mmon_interface(s))
       return 0;
@@ -940,9 +940,9 @@ int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s)
    return _al_xglx_mmon_interface.get_num_adapters(s);
 }
 
-int _al_xglx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
+int _al_xglx_get_default_adapter(A5O_SYSTEM_XGLX *s)
 {
-   ALLEGRO_DEBUG("get default adapter\n");
+   A5O_DEBUG("get default adapter\n");
    
    if (!init_mmon_interface(s))
       return 0;
@@ -953,9 +953,9 @@ int _al_xglx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    return _al_xglx_mmon_interface.get_default_adapter(s);
 }
 
-int _al_xglx_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+int _al_xglx_get_xscreen(A5O_SYSTEM_XGLX *s, int adapter)
 {
-   ALLEGRO_DEBUG("get xscreen\n");
+   A5O_DEBUG("get xscreen\n");
    
    if (!init_mmon_interface(s))
       return 0;
@@ -966,7 +966,7 @@ int _al_xglx_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    return _al_xglx_mmon_interface.get_xscreen(s, adapter);
 }
 
-int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool recalc)
+int _al_xglx_get_adapter(A5O_SYSTEM_XGLX *s, A5O_DISPLAY_XGLX *d, bool recalc)
 {
    if (!init_mmon_interface(s))
       return 0;
@@ -980,9 +980,9 @@ int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool r
    return _al_xglx_mmon_interface.get_adapter(s, d);
 }
 
-void _al_xglx_handle_mmon_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e)
+void _al_xglx_handle_mmon_event(A5O_SYSTEM_XGLX *s, A5O_DISPLAY_XGLX *d, XEvent *e)
 {
-   ALLEGRO_DEBUG("got event %i\n", e->type);
+   A5O_DEBUG("got event %i\n", e->type);
    // if we haven't setup the mmon interface, just bail
    if (!s->mmon_interface_inited)
       return;

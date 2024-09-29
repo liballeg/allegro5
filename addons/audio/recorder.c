@@ -7,31 +7,31 @@
 #include "allegro5/internal/aintern_audio_cfg.h"
 #include "allegro5/internal/aintern.h"
 
-ALLEGRO_DEBUG_CHANNEL("audio")
+A5O_DEBUG_CHANNEL("audio")
 
-ALLEGRO_STATIC_ASSERT(recorder,
-   sizeof(ALLEGRO_AUDIO_RECORDER_EVENT) <= sizeof(ALLEGRO_EVENT));
+A5O_STATIC_ASSERT(recorder,
+   sizeof(A5O_AUDIO_RECORDER_EVENT) <= sizeof(A5O_EVENT));
 
 
 /* Function: al_create_audio_recorder
  */
-ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(size_t fragment_count,
+A5O_AUDIO_RECORDER *al_create_audio_recorder(size_t fragment_count,
    unsigned int samples, unsigned int frequency,
-   ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
+   A5O_AUDIO_DEPTH depth, A5O_CHANNEL_CONF chan_conf)
 {
    size_t i;
 
-   ALLEGRO_AUDIO_RECORDER *r;
+   A5O_AUDIO_RECORDER *r;
    ASSERT(_al_kcm_driver);
    
    if (!_al_kcm_driver->allocate_recorder) {
-      ALLEGRO_ERROR("Audio driver does not support recording.\n");
+      A5O_ERROR("Audio driver does not support recording.\n");
       return false;
    }
    
    r = al_calloc(1, sizeof(*r));
    if (!r) {
-      ALLEGRO_ERROR("Unable to allocate memory for ALLEGRO_AUDIO_RECORDER\n");
+      A5O_ERROR("Unable to allocate memory for A5O_AUDIO_RECORDER\n");
       return false;
    }
    
@@ -46,7 +46,7 @@ ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(size_t fragment_count,
    r->fragments = al_malloc(r->fragment_count * sizeof(uint8_t *));
    if (!r->fragments) {
       al_free(r);
-      ALLEGRO_ERROR("Unable to allocate memory for ALLEGRO_AUDIO_RECORDER fragments\n");
+      A5O_ERROR("Unable to allocate memory for A5O_AUDIO_RECORDER fragments\n");
       return false;
    }
 
@@ -60,13 +60,13 @@ ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(size_t fragment_count,
          }
          al_free(r->fragments);
 
-         ALLEGRO_ERROR("Unable to allocate memory for ALLEGRO_AUDIO_RECORDER fragments\n");
+         A5O_ERROR("Unable to allocate memory for A5O_AUDIO_RECORDER fragments\n");
          return false;
       }
    }
 
    if (_al_kcm_driver->allocate_recorder(r)) {
-      ALLEGRO_ERROR("Failed to allocate recorder from driver\n");
+      A5O_ERROR("Failed to allocate recorder from driver\n");
       return false;
    }
   
@@ -86,9 +86,9 @@ ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(size_t fragment_count,
 
 /* Function: al_start_audio_recorder
  */
-bool al_start_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
+bool al_start_audio_recorder(A5O_AUDIO_RECORDER *r)
 {
-   ALLEGRO_ASSERT(r);
+   A5O_ASSERT(r);
    
    al_lock_mutex(r->mutex);
    r->is_recording = true;
@@ -100,7 +100,7 @@ bool al_start_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
 
 /* Function: al_stop_audio_recorder
  */
-void al_stop_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
+void al_stop_audio_recorder(A5O_AUDIO_RECORDER *r)
 {
    al_lock_mutex(r->mutex);
    if (r->is_recording) {
@@ -112,7 +112,7 @@ void al_stop_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
 
 /* Function: al_is_audio_recorder_recording
  */
-bool al_is_audio_recorder_recording(ALLEGRO_AUDIO_RECORDER *r)
+bool al_is_audio_recorder_recording(A5O_AUDIO_RECORDER *r)
 {
    bool is_recording;
    
@@ -125,22 +125,22 @@ bool al_is_audio_recorder_recording(ALLEGRO_AUDIO_RECORDER *r)
 
 /* Function: al_get_audio_recorder_event
  */
-ALLEGRO_AUDIO_RECORDER_EVENT *al_get_audio_recorder_event(ALLEGRO_EVENT *event)
+A5O_AUDIO_RECORDER_EVENT *al_get_audio_recorder_event(A5O_EVENT *event)
 {
-   ASSERT(event->any.type == ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT);
-   return (ALLEGRO_AUDIO_RECORDER_EVENT *) event;
+   ASSERT(event->any.type == A5O_EVENT_AUDIO_RECORDER_FRAGMENT);
+   return (A5O_AUDIO_RECORDER_EVENT *) event;
 }
 
 /* Function: al_get_audio_recorder_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_audio_recorder_event_source(ALLEGRO_AUDIO_RECORDER *r)
+A5O_EVENT_SOURCE *al_get_audio_recorder_event_source(A5O_AUDIO_RECORDER *r)
 {
    return &r->source;
 }
 
 /* Function: al_destroy_audio_recorder
  */
-void al_destroy_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
+void al_destroy_audio_recorder(A5O_AUDIO_RECORDER *r)
 {
    size_t i;
 

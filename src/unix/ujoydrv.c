@@ -24,7 +24,7 @@
 
 
 _AL_BEGIN_JOYSTICK_DRIVER_LIST
-#if defined ALLEGRO_HAVE_LINUX_INPUT_H && (defined ALLEGRO_WITH_XWINDOWS || defined ALLEGRO_RASPBERRYPI)
-   { _ALLEGRO_JOYDRV_LINUX,   &_al_joydrv_linux,   true  },
+#if defined A5O_HAVE_LINUX_INPUT_H && (defined A5O_WITH_XWINDOWS || defined A5O_RASPBERRYPI)
+   { _A5O_JOYDRV_LINUX,   &_al_joydrv_linux,   true  },
 #endif
 _AL_END_JOYSTICK_DRIVER_LIST

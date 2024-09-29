@@ -19,7 +19,7 @@
 
 #include "iio.h"
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 typedef int DWORD;
 
@@ -58,34 +58,34 @@ typedef struct {
 
 #define DDPF_FOURCC 0x4
 
-ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
+A5O_BITMAP *_al_load_dds_f(A5O_FILE *f, int flags)
 {
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
    DDS_HEADER header;
    DWORD magic;
    size_t num_read;
    int w, h, fourcc, format, block_width, block_height, block_size;
-   ALLEGRO_STATE state;
-   ALLEGRO_LOCKED_REGION *lr = NULL;
+   A5O_STATE state;
+   A5O_LOCKED_REGION *lr = NULL;
    int ii;
    char* bitmap_data;
    (void)flags;
 
    magic = al_fread32le(f);
    if (magic != 0x20534444) {
-      ALLEGRO_ERROR("Invalid DDS magic number.\n");
+      A5O_ERROR("Invalid DDS magic number.\n");
       return NULL;
    }
 
    num_read = al_fread(f, &header, sizeof(DDS_HEADER));
    if (num_read != DDS_HEADER_SIZE) {
-      ALLEGRO_ERROR("Wrong DDS header size. Got %d, expected %d.\n",
+      A5O_ERROR("Wrong DDS header size. Got %d, expected %d.\n",
          (int)num_read, DDS_HEADER_SIZE);
       return NULL;
    }
 
    if (!(header.ddspf.dwFlags & DDPF_FOURCC)) {
-      ALLEGRO_ERROR("Only compressed DDS formats supported.\n");
+      A5O_ERROR("Only compressed DDS formats supported.\n");
       return NULL;
    }
 
@@ -95,16 +95,16 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
 
    switch (fourcc) {
       case FOURCC('D', 'X', 'T', '1'):
-         format = ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1;
+         format = A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1;
          break;
       case FOURCC('D', 'X', 'T', '3'):
-         format = ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3;
+         format = A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3;
          break;
       case FOURCC('D', 'X', 'T', '5'):
-         format = ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5;
+         format = A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5;
          break;
       default:
-         ALLEGRO_ERROR("Invalid pixel format.\n");
+         A5O_ERROR("Invalid pixel format.\n");
          return NULL;
    }
 
@@ -112,31 +112,31 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    block_height = al_get_pixel_block_height(format);
    block_size = al_get_pixel_block_size(format);
 
-   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_store_state(&state, A5O_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
    al_set_new_bitmap_format(format);
    bmp = al_create_bitmap(w, h);
    if (!bmp) {
-      ALLEGRO_ERROR("Failed to create bitmap.\n");
+      A5O_ERROR("Failed to create bitmap.\n");
       goto FAIL;
    }
 
    if (al_get_bitmap_format(bmp) != format) {
-      ALLEGRO_ERROR("Created a bad bitmap.\n");
+      A5O_ERROR("Created a bad bitmap.\n");
       goto FAIL;
    }
 
-   lr = al_lock_bitmap_blocked(bmp, ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap_blocked(bmp, A5O_LOCK_WRITEONLY);
 
    if (!lr) {
       switch (format) {
-         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:
-         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:
-         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:
-            ALLEGRO_ERROR("Could not lock the bitmap (probably the support for locking this format has not been enabled).\n");
+         case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:
+         case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:
+         case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:
+            A5O_ERROR("Could not lock the bitmap (probably the support for locking this format has not been enabled).\n");
             break;
          default:
-            ALLEGRO_ERROR("Could not lock the bitmap.\n");
+            A5O_ERROR("Could not lock the bitmap.\n");
       }
       return NULL;
    }
@@ -147,7 +147,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
       size_t pitch = (size_t)((w + block_width - 1) / block_width * block_size);
       num_read = al_fread(f, bitmap_data, pitch);
       if (num_read != pitch) {
-         ALLEGRO_ERROR("DDS file too short.\n");
+         A5O_ERROR("DDS file too short.\n");
          goto FAIL;
       }
       bitmap_data += lr->pitch;
@@ -165,15 +165,15 @@ RESET:
    return bmp;
 }
 
-ALLEGRO_BITMAP *_al_load_dds(const char *filename, int flags)
+A5O_BITMAP *_al_load_dds(const char *filename, int flags)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *f;
+   A5O_BITMAP *bmp;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable open %s for reading.\n", filename);
+      A5O_ERROR("Unable open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -184,7 +184,7 @@ ALLEGRO_BITMAP *_al_load_dds(const char *filename, int flags)
    return bmp;
 }
 
-bool _al_identify_dds(ALLEGRO_FILE *f)
+bool _al_identify_dds(A5O_FILE *f)
 {
    uint8_t x[4];
    uint32_t y;

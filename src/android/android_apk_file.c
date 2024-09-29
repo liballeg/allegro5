@@ -4,25 +4,25 @@
 
 #define streq(a, b)  (0 == strcmp(a, b))
 
-ALLEGRO_DEBUG_CHANNEL("android")
+A5O_DEBUG_CHANNEL("android")
 
 
-typedef struct ALLEGRO_FILE_APK ALLEGRO_FILE_APK;
+typedef struct A5O_FILE_APK A5O_FILE_APK;
 
-struct ALLEGRO_FILE_APK
+struct A5O_FILE_APK
 {
    jobject apk;
    bool error_indicator;
 };
 
 
-static ALLEGRO_FILE_APK *cast_stream(ALLEGRO_FILE *f)
+static A5O_FILE_APK *cast_stream(A5O_FILE *f)
 {
-   return (ALLEGRO_FILE_APK *)al_get_file_userdata(f);
+   return (A5O_FILE_APK *)al_get_file_userdata(f);
 }
 
 
-static void apk_set_errno(ALLEGRO_FILE_APK *fp)
+static void apk_set_errno(A5O_FILE_APK *fp)
 {
    al_set_errno(-1);
 
@@ -43,7 +43,7 @@ static jobject APK_openRead(const char *filename)
    jnienv = _al_android_get_jnienv();
    ctor = _jni_call(jnienv, jclass, GetMethodID,
       _al_android_apk_stream_class(), "<init>",
-      "(L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroActivity;Ljava/lang/String;)V");
+      "(L" A5O_ANDROID_PACKAGE_NAME_SLASH "/AllegroActivity;Ljava/lang/String;)V");
    str = (*jnienv)->NewStringUTF(jnienv, filename);
 
    ref = _jni_call(jnienv, jobject, NewObject, _al_android_apk_stream_class(),
@@ -115,7 +115,7 @@ static long APK_size(jobject apk_stream)
 
 static void *file_apk_fopen(const char *filename, const char *mode)
 {
-   ALLEGRO_FILE_APK *fp;
+   A5O_FILE_APK *fp;
    jobject apk;
 
    if (streq(mode, "r") || streq(mode, "rb"))
@@ -142,9 +142,9 @@ static void *file_apk_fopen(const char *filename, const char *mode)
 }
 
 
-static bool file_apk_fclose(ALLEGRO_FILE *f)
+static bool file_apk_fclose(A5O_FILE *f)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
    bool ret;
 
    ret = APK_close(fp->apk);
@@ -155,9 +155,9 @@ static bool file_apk_fclose(ALLEGRO_FILE *f)
 }
 
 
-static size_t file_apk_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
+static size_t file_apk_fread(A5O_FILE *f, void *buf, size_t buf_size)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
    int n;
 
    if (buf_size == 0)
@@ -172,7 +172,7 @@ static size_t file_apk_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
 }
 
 
-static size_t file_apk_fwrite(ALLEGRO_FILE *f, const void *buf,
+static size_t file_apk_fwrite(A5O_FILE *f, const void *buf,
    size_t buf_size)
 {
    // Not supported
@@ -183,7 +183,7 @@ static size_t file_apk_fwrite(ALLEGRO_FILE *f, const void *buf,
 }
 
 
-static bool file_apk_fflush(ALLEGRO_FILE *f)
+static bool file_apk_fflush(A5O_FILE *f)
 {
    // Not supported
    (void)f;
@@ -191,24 +191,24 @@ static bool file_apk_fflush(ALLEGRO_FILE *f)
 }
 
 
-static int64_t file_apk_ftell(ALLEGRO_FILE *f)
+static int64_t file_apk_ftell(A5O_FILE *f)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
    return APK_tell(fp->apk);
 }
 
 
-static bool file_apk_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
+static bool file_apk_seek(A5O_FILE *f, int64_t offset, int whence)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
    long base;
 
    switch (whence) {
-      case ALLEGRO_SEEK_SET:
+      case A5O_SEEK_SET:
          base = 0;
          break;
 
-      case ALLEGRO_SEEK_CUR:
+      case A5O_SEEK_CUR:
          base = APK_tell(fp->apk);
          if (base < 0) {
             apk_set_errno(fp);
@@ -216,7 +216,7 @@ static bool file_apk_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
          }
          break;
 
-      case ALLEGRO_SEEK_END:
+      case A5O_SEEK_END:
          base = APK_size(fp->apk);
          if (base < 0) {
             apk_set_errno(fp);
@@ -238,46 +238,46 @@ static bool file_apk_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
 }
 
 
-static bool file_apk_feof(ALLEGRO_FILE *f)
+static bool file_apk_feof(A5O_FILE *f)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
    jboolean res = _jni_callBooleanMethodV(_al_android_get_jnienv(), fp->apk,
       "eof", "()Z");
    return res;
 }
 
 
-static int file_apk_ferror(ALLEGRO_FILE *f)
+static int file_apk_ferror(A5O_FILE *f)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
 
    return (fp->error_indicator) ? 1 : 0;
 }
 
 
-static const char *file_apk_ferrmsg(ALLEGRO_FILE *f)
+static const char *file_apk_ferrmsg(A5O_FILE *f)
 {
    (void)f;
    return "";
 }
 
 
-static void file_apk_fclearerr(ALLEGRO_FILE *f)
+static void file_apk_fclearerr(A5O_FILE *f)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
 
    fp->error_indicator = false;
 }
 
 
-static off_t file_apk_fsize(ALLEGRO_FILE *f)
+static off_t file_apk_fsize(A5O_FILE *f)
 {
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
+   A5O_FILE_APK *fp = cast_stream(f);
    return APK_size(fp->apk);
 }
 
 
-static const ALLEGRO_FILE_INTERFACE file_apk_vtable =
+static const A5O_FILE_INTERFACE file_apk_vtable =
 {
    file_apk_fopen,
    file_apk_fclose,
@@ -295,7 +295,7 @@ static const ALLEGRO_FILE_INTERFACE file_apk_vtable =
 };
 
 
-const ALLEGRO_FILE_INTERFACE *_al_get_apk_file_vtable(void)
+const A5O_FILE_INTERFACE *_al_get_apk_file_vtable(void)
 {
    return &file_apk_vtable;
 }

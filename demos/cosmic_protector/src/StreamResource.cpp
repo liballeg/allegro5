@@ -22,7 +22,7 @@ bool StreamResource::load(void)
    }
 
    al_set_audio_stream_playing(stream, false);
-   al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);
+   al_set_audio_stream_playmode(stream, A5O_PLAYMODE_LOOP);
    al_attach_audio_stream_to_mixer(stream, al_get_default_mixer());
 
    return true;

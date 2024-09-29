@@ -1,1 +1,1 @@
-/* #undef ALLEGRO_CFG_TTF_FREETYPE */
+/* #undef A5O_CFG_TTF_FREETYPE */

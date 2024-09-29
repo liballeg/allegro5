@@ -7,32 +7,32 @@
 #include "common.c"
 
 typedef struct BITMAP_TYPE {
-   ALLEGRO_BITMAP* bmp;
-   ALLEGRO_BITMAP* clone;
-   ALLEGRO_BITMAP* decomp;
-   ALLEGRO_BITMAP* lock_clone;
-   ALLEGRO_PIXEL_FORMAT format;
+   A5O_BITMAP* bmp;
+   A5O_BITMAP* clone;
+   A5O_BITMAP* decomp;
+   A5O_BITMAP* lock_clone;
+   A5O_PIXEL_FORMAT format;
    const char* name;
 } BITMAP_TYPE;
 
 int main(int argc, char **argv)
 {
    const char *filename;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_FONT *font;
-   ALLEGRO_BITMAP *bkg;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_FONT *font;
+   A5O_BITMAP *bkg;
    bool redraw = true;
    int ii;
    int cur_bitmap = 0;
    bool compare = false;
    #define NUM_BITMAPS 4
    BITMAP_TYPE bitmaps[NUM_BITMAPS] = {
-      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_ANY,       "Uncompressed"},
-      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1, "DXT1"},
-      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3, "DXT3"},
-      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5, "DXT5"},
+      {NULL, NULL, NULL, NULL, A5O_PIXEL_FORMAT_ANY,       "Uncompressed"},
+      {NULL, NULL, NULL, NULL, A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1, "DXT1"},
+      {NULL, NULL, NULL, NULL, A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3, "DXT3"},
+      {NULL, NULL, NULL, NULL, A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5, "DXT5"},
    };
 
    if (argc > 1) {
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
       log_printf("%s clone time: %f sec\n", bitmaps[ii].name, t1 - t0);
 
       /* Decompress */
-      al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY);
+      al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY);
       t0 = al_get_time();
       bitmaps[ii].decomp = al_clone_bitmap(bitmaps[ii].bmp);
       t1 = al_get_time();
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
          /* Lock and unlock it, hopefully causing a no-op operation */
          al_lock_bitmap_region_blocked(bitmaps[ii].lock_clone,
             16 / block_width, 16 / block_height, 64 / block_width,
-            64 / block_height, ALLEGRO_LOCK_READWRITE);
+            64 / block_height, A5O_LOCK_READWRITE);
 
          al_unlock_bitmap(bitmaps[ii].lock_clone);
       }
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
       abort_example("data/bkg.png not found or failed to load\n");
    }
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY);
    font = al_create_builtin_font();
    timer = al_create_timer(1.0 / 30);
    queue = al_create_event_queue();
@@ -134,31 +134,31 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             goto EXIT;
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             redraw = true;
             break;
-         case ALLEGRO_EVENT_KEY_DOWN:
+         case A5O_EVENT_KEY_DOWN:
             switch (event.keyboard.keycode) {
-               case ALLEGRO_KEY_LEFT:
+               case A5O_KEY_LEFT:
                   cur_bitmap = (cur_bitmap - 1 + NUM_BITMAPS) % NUM_BITMAPS;
                   break;
-               case ALLEGRO_KEY_RIGHT:
+               case A5O_KEY_RIGHT:
                   cur_bitmap = (cur_bitmap + 1) % NUM_BITMAPS;
                   break;
-               case ALLEGRO_KEY_SPACE:
+               case A5O_KEY_SPACE:
                   compare = true;
                   break;
-               case ALLEGRO_KEY_ESCAPE:
+               case A5O_KEY_ESCAPE:
                   goto EXIT;
             }
             break;
-         case ALLEGRO_EVENT_KEY_UP:
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+         case A5O_EVENT_KEY_UP:
+            if (event.keyboard.keycode == A5O_KEY_SPACE) {
                compare = false;
             }
             break;
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          al_draw_bitmap(bkg, 0, 0, 0);
-         al_draw_textf(font, al_map_rgb_f(1, 1, 1), 5, 5, ALLEGRO_ALIGN_LEFT,
+         al_draw_textf(font, al_map_rgb_f(1, 1, 1), 5, 5, A5O_ALIGN_LEFT,
             "SPACE to compare. Arrows to switch. Format: %s", bitmaps[idx].name);
          al_draw_bitmap(bitmaps[idx].bmp, 0, 20, 0);
          al_draw_bitmap(bitmaps[idx].clone, w, 20, 0);

@@ -13,7 +13,7 @@
  *      See LICENSE.txt for copyright information.
  */
 
-#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
+#if defined(A5O_MSVC) || defined(A5O_BCC32)
    #define THREAD_LOCAL_QUALIFIER __declspec(thread)
 #else
    #define THREAD_LOCAL_QUALIFIER __thread

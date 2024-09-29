@@ -66,10 +66,10 @@ To receive input, you need to initialise some subsystems like
 
 ## Opening a window
 
-[al_create_display] will open a window and return an [ALLEGRO_DISPLAY].
+[al_create_display] will open a window and return an [A5O_DISPLAY].
 
 To clear the display, call [al_clear_to_color].  Use [al_map_rgba] or
-[al_map_rgba_f] to obtain an [ALLEGRO_COLOR] parameter.
+[al_map_rgba_f] to obtain an [A5O_COLOR] parameter.
 
 Drawing operations are performed on a backbuffer.  To make the operations
 visible, call [al_flip_display].
@@ -78,7 +78,7 @@ visible, call [al_flip_display].
 
 To load an image from disk, you need to have initialised the image I/O
 addon with [al_init_image_addon].  Then use [al_load_bitmap], which returns an
-[ALLEGRO_BITMAP].
+[A5O_BITMAP].
 
 Use [al_draw_bitmap], [al_draw_scaled_bitmap] or
 [al_draw_scaled_rotated_bitmap] to draw the image to the backbuffer.
@@ -109,11 +109,11 @@ usual input event sources can be retrieved with [al_get_keyboard_event_source],
 [al_get_mouse_event_source] and [al_get_joystick_event_source].
 
 Events can be retrieved with [al_wait_for_event] or [al_get_next_event].
-Check the event type and other fields of [ALLEGRO_EVENT] to react to the
+Check the event type and other fields of [A5O_EVENT] to react to the
 input.
 
 Displays are also event sources, which emit events when they are resized.
-You'll need to set the ALLEGRO_RESIZABLE flag with [al_set_new_display_flags]
+You'll need to set the A5O_RESIZABLE flag with [al_set_new_display_flags]
 before creating the display, then register the display with an event queue.
 When you get a resize event, call [al_acknowledge_resize].
 
@@ -166,20 +166,20 @@ mentioned above only sets up a default mixer and a number of sample instances
 but you don't need to use it.
 
 Instead, to get a "direct connection" to the sound system you would use an
-[ALLEGRO_VOICE] (but depending on the platform only one such voice is guaranteed
+[A5O_VOICE] (but depending on the platform only one such voice is guaranteed
 to be available and it might require a specific format of audio data). Therefore
-all sound can be first routed through an [ALLEGRO_MIXER] which is connected to
+all sound can be first routed through an [A5O_MIXER] which is connected to
 such a voice (or another mixer) and will mix together all sample data fed to it.
 
 You can then directly stream real-time sample data to a mixer or a voice using
-an [ALLEGRO_AUDIO_STREAM] or play complete sounds using an [ALLEGRO_SAMPLE_INSTANCE].
-The latter simply points to an [ALLEGRO_SAMPLE] and will stream it for you.
+an [A5O_AUDIO_STREAM] or play complete sounds using an [A5O_SAMPLE_INSTANCE].
+The latter simply points to an [A5O_SAMPLE] and will stream it for you.
 
 ## Unstable API
 
 Some of Allegro's API is marked as unstable, which means that in future versions
 of Allegro it may change or even be removed entirely! If you want to experiment
-with the unstable API, define `ALLEGRO_UNSTABLE` macro before including Allegro's
+with the unstable API, define `A5O_UNSTABLE` macro before including Allegro's
 headers.
 
 Note that when you define that macro, the version check performed by

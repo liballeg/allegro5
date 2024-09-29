@@ -26,15 +26,15 @@
 
 
 /* the active haptic driver */
-static ALLEGRO_HAPTIC_DRIVER *haptic_driver = NULL;
+static A5O_HAPTIC_DRIVER *haptic_driver = NULL;
 
 
 /* Function: al_install_haptic
  */
 bool al_install_haptic(void)
 {
-   ALLEGRO_SYSTEM *sysdrv;
-   ALLEGRO_HAPTIC_DRIVER *hapdrv;
+   A5O_SYSTEM *sysdrv;
+   A5O_HAPTIC_DRIVER *hapdrv;
 
    if (haptic_driver)
       return true;
@@ -81,7 +81,7 @@ bool al_is_haptic_installed(void)
 
 /* Function: al_is_joystick_haptic
  */
-bool al_is_joystick_haptic(ALLEGRO_JOYSTICK *dev)
+bool al_is_joystick_haptic(A5O_JOYSTICK *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -92,7 +92,7 @@ bool al_is_joystick_haptic(ALLEGRO_JOYSTICK *dev)
 
 /* Function: al_is_mouse_haptic
  */
-bool al_is_mouse_haptic(ALLEGRO_MOUSE *dev)
+bool al_is_mouse_haptic(A5O_MOUSE *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -103,7 +103,7 @@ bool al_is_mouse_haptic(ALLEGRO_MOUSE *dev)
 
 /* Function: al_is_keyboard_haptic
  */
-bool al_is_keyboard_haptic(ALLEGRO_KEYBOARD *dev)
+bool al_is_keyboard_haptic(A5O_KEYBOARD *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -114,7 +114,7 @@ bool al_is_keyboard_haptic(ALLEGRO_KEYBOARD *dev)
 
 /* Function: al_is_display_haptic
  */
-bool al_is_display_haptic(ALLEGRO_DISPLAY *dev)
+bool al_is_display_haptic(A5O_DISPLAY *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -124,7 +124,7 @@ bool al_is_display_haptic(ALLEGRO_DISPLAY *dev)
 
 /* Function: al_is_touch_input_haptic
  */
-bool al_is_touch_input_haptic(ALLEGRO_TOUCH_INPUT *dev)
+bool al_is_touch_input_haptic(A5O_TOUCH_INPUT *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -134,7 +134,7 @@ bool al_is_touch_input_haptic(ALLEGRO_TOUCH_INPUT *dev)
 
 /* Function: al_get_haptic_from_joystick
  */
-ALLEGRO_HAPTIC *al_get_haptic_from_joystick(ALLEGRO_JOYSTICK *dev)
+A5O_HAPTIC *al_get_haptic_from_joystick(A5O_JOYSTICK *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -145,7 +145,7 @@ ALLEGRO_HAPTIC *al_get_haptic_from_joystick(ALLEGRO_JOYSTICK *dev)
 
 /* Function: al_get_haptic_from_mouse
  */
-ALLEGRO_HAPTIC *al_get_haptic_from_mouse(ALLEGRO_MOUSE *dev)
+A5O_HAPTIC *al_get_haptic_from_mouse(A5O_MOUSE *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -156,7 +156,7 @@ ALLEGRO_HAPTIC *al_get_haptic_from_mouse(ALLEGRO_MOUSE *dev)
 
 /* Function: al_get_haptic_from_keyboard
  */
-ALLEGRO_HAPTIC *al_get_haptic_from_keyboard(ALLEGRO_KEYBOARD *dev)
+A5O_HAPTIC *al_get_haptic_from_keyboard(A5O_KEYBOARD *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -167,7 +167,7 @@ ALLEGRO_HAPTIC *al_get_haptic_from_keyboard(ALLEGRO_KEYBOARD *dev)
 
 /* Function: al_get_haptic_from_display
  */
-ALLEGRO_HAPTIC *al_get_haptic_from_display(ALLEGRO_DISPLAY *dev)
+A5O_HAPTIC *al_get_haptic_from_display(A5O_DISPLAY *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -178,7 +178,7 @@ ALLEGRO_HAPTIC *al_get_haptic_from_display(ALLEGRO_DISPLAY *dev)
 
 /* Function: al_get_haptic_from_touch_input
  */
-ALLEGRO_HAPTIC *al_get_haptic_from_touch_input(ALLEGRO_TOUCH_INPUT *dev)
+A5O_HAPTIC *al_get_haptic_from_touch_input(A5O_TOUCH_INPUT *dev)
 {
    ASSERT(dev);
    ASSERT(haptic_driver);
@@ -189,7 +189,7 @@ ALLEGRO_HAPTIC *al_get_haptic_from_touch_input(ALLEGRO_TOUCH_INPUT *dev)
 
 /* Function: al_is_haptic_active
  */
-bool al_is_haptic_active(ALLEGRO_HAPTIC *hap)
+bool al_is_haptic_active(A5O_HAPTIC *hap)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -200,7 +200,7 @@ bool al_is_haptic_active(ALLEGRO_HAPTIC *hap)
 
 /* Function: al_get_haptic_capabilities
  */
-int al_get_haptic_capabilities(ALLEGRO_HAPTIC *hap)
+int al_get_haptic_capabilities(A5O_HAPTIC *hap)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -210,14 +210,14 @@ int al_get_haptic_capabilities(ALLEGRO_HAPTIC *hap)
 
 /* Function: al_is_haptic_capable
  */ 
-bool al_is_haptic_capable(ALLEGRO_HAPTIC * hap, int query) {
+bool al_is_haptic_capable(A5O_HAPTIC * hap, int query) {
   int capabilities = al_get_haptic_capabilities(hap);
   return (capabilities & query) == query;
 }
 
 /* Function: al_get_haptic_gain
  */
-double al_get_haptic_gain(ALLEGRO_HAPTIC *hap)
+double al_get_haptic_gain(A5O_HAPTIC *hap)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -228,7 +228,7 @@ double al_get_haptic_gain(ALLEGRO_HAPTIC *hap)
 
 /* Function: al_set_haptic_gain
  */
-bool al_set_haptic_gain(ALLEGRO_HAPTIC *hap, double gain)
+bool al_set_haptic_gain(A5O_HAPTIC *hap, double gain)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -238,7 +238,7 @@ bool al_set_haptic_gain(ALLEGRO_HAPTIC *hap, double gain)
 
 /* Function: al_get_haptic_autocenter
  */
-double al_get_haptic_autocenter(ALLEGRO_HAPTIC *hap)
+double al_get_haptic_autocenter(A5O_HAPTIC *hap)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -249,7 +249,7 @@ double al_get_haptic_autocenter(ALLEGRO_HAPTIC *hap)
 
 /* Function: al_set_haptic_autocenter
  */
-bool al_set_haptic_autocenter(ALLEGRO_HAPTIC *hap, double intensity)
+bool al_set_haptic_autocenter(A5O_HAPTIC *hap, double intensity)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -261,7 +261,7 @@ bool al_set_haptic_autocenter(ALLEGRO_HAPTIC *hap, double intensity)
 
 /* Function: al_get_max_haptic_effects
  */
-int al_get_max_haptic_effects(ALLEGRO_HAPTIC *hap)
+int al_get_max_haptic_effects(A5O_HAPTIC *hap)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -272,7 +272,7 @@ int al_get_max_haptic_effects(ALLEGRO_HAPTIC *hap)
 
 /* Function: al_is_haptic_effect_ok
  */
-bool al_is_haptic_effect_ok(ALLEGRO_HAPTIC *hap, ALLEGRO_HAPTIC_EFFECT *effect)
+bool al_is_haptic_effect_ok(A5O_HAPTIC *hap, A5O_HAPTIC_EFFECT *effect)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -283,8 +283,8 @@ bool al_is_haptic_effect_ok(ALLEGRO_HAPTIC *hap, ALLEGRO_HAPTIC_EFFECT *effect)
 
 /* Function: al_upload_haptic_effect
  */
-bool al_upload_haptic_effect(ALLEGRO_HAPTIC *hap,
-   ALLEGRO_HAPTIC_EFFECT *effect, ALLEGRO_HAPTIC_EFFECT_ID *id)
+bool al_upload_haptic_effect(A5O_HAPTIC *hap,
+   A5O_HAPTIC_EFFECT *effect, A5O_HAPTIC_EFFECT_ID *id)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
@@ -295,7 +295,7 @@ bool al_upload_haptic_effect(ALLEGRO_HAPTIC *hap,
 
 /* Function: al_play_haptic_effect
  */
-bool al_play_haptic_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loop)
+bool al_play_haptic_effect(A5O_HAPTIC_EFFECT_ID *id, int loop)
 {
    ASSERT(haptic_driver);
    ASSERT(id);
@@ -306,8 +306,8 @@ bool al_play_haptic_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loop)
 
 /* Function: al_upload_and_play_haptic_effect
  */
-bool al_upload_and_play_haptic_effect(ALLEGRO_HAPTIC *hap,
-   ALLEGRO_HAPTIC_EFFECT *effect, ALLEGRO_HAPTIC_EFFECT_ID *id, int loop)
+bool al_upload_and_play_haptic_effect(A5O_HAPTIC *hap,
+   A5O_HAPTIC_EFFECT *effect, A5O_HAPTIC_EFFECT_ID *id, int loop)
 {
    ASSERT(hap);
    ASSERT(effect);
@@ -327,7 +327,7 @@ bool al_upload_and_play_haptic_effect(ALLEGRO_HAPTIC *hap,
 
 /* Function: al_stop_haptic_effect
  */
-bool al_stop_haptic_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
+bool al_stop_haptic_effect(A5O_HAPTIC_EFFECT_ID *id)
 {
    ASSERT(id);
 
@@ -337,7 +337,7 @@ bool al_stop_haptic_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
 
 /* Function: al_is_haptic_effect_playing
  */
-bool al_is_haptic_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
+bool al_is_haptic_effect_playing(A5O_HAPTIC_EFFECT_ID *id)
 {
    ASSERT(id);
 
@@ -346,21 +346,21 @@ bool al_is_haptic_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
 
 /* Function: al_get_haptic_effect_duration
  */
-double al_get_haptic_effect_duration(ALLEGRO_HAPTIC_EFFECT * effect)
+double al_get_haptic_effect_duration(A5O_HAPTIC_EFFECT * effect)
 {
   return effect->replay.delay + effect->replay.length;
 }
 
 /* Function: al_rumble_haptic
  */
-bool al_rumble_haptic(ALLEGRO_HAPTIC *hap,
-   double intensity, double duration, ALLEGRO_HAPTIC_EFFECT_ID *id)
+bool al_rumble_haptic(A5O_HAPTIC *hap,
+   double intensity, double duration, A5O_HAPTIC_EFFECT_ID *id)
 {
-   ALLEGRO_HAPTIC_EFFECT effect;
+   A5O_HAPTIC_EFFECT effect;
    ASSERT(hap);
    ASSERT(id);
 
-   effect.type = ALLEGRO_HAPTIC_RUMBLE;
+   effect.type = A5O_HAPTIC_RUMBLE;
    effect.data.rumble.strong_magnitude = intensity;
    effect.data.rumble.weak_magnitude = intensity;
    effect.replay.delay = 0.0;
@@ -371,7 +371,7 @@ bool al_rumble_haptic(ALLEGRO_HAPTIC *hap,
 
 /* Function: al_release_haptic_effect
  */
-bool al_release_haptic_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
+bool al_release_haptic_effect(A5O_HAPTIC_EFFECT_ID *id)
 {
    ASSERT(haptic_driver);
    ASSERT(id);
@@ -382,7 +382,7 @@ bool al_release_haptic_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
 
 /* Function: al_release_haptic
  */
-bool al_release_haptic(ALLEGRO_HAPTIC *haptic)
+bool al_release_haptic(A5O_HAPTIC *haptic)
 {
    ASSERT(haptic_driver);
    ASSERT(haptic);

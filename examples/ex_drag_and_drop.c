@@ -15,7 +15,7 @@
  *
  *      See readme.txt for copyright information.
  */
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
@@ -28,15 +28,15 @@
 // We only accept up to 25 lines of text or files at a time.
 typedef struct Cell {
    char *rows[25];
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
 } Cell;
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_FONT *font;
    bool done = false;
    bool redraw = true;
    int xdiv = 3;
@@ -63,14 +63,14 @@ int main(int argc, char **argv)
    al_init_font_addon();
    al_init_ttf_addon();
    init_platform_specific();
-   ALLEGRO_MONITOR_INFO info;
+   A5O_MONITOR_INFO info;
    al_get_monitor_info(0, &info);
    // Make the window half as wide as the desktop and 4:3 aspect
    int w = (info.x2 - info.x1) / 2;
    int h = w * 3 / 4;
 
    // Turn on drag/drop support
-   al_set_new_display_flags(ALLEGRO_DRAG_AND_DROP);
+   al_set_new_display_flags(A5O_DRAG_AND_DROP);
    display = al_create_display(w, h);
    if (!display) {
       abort_example("Error creating display.\n");
@@ -96,21 +96,21 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       int fh = al_get_font_line_height(font);
 
       if (redraw && al_is_event_queue_empty(queue)) {
          // draw a grid with the dropped text rows or files
-         ALLEGRO_COLOR c1 = al_color_name("gainsboro");
-         ALLEGRO_COLOR c2 = al_color_name("orange");
+         A5O_COLOR c1 = al_color_name("gainsboro");
+         A5O_COLOR c2 = al_color_name("orange");
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          for (int y = 0; y < ydiv; y++) {
             for (int x = 0; x < xdiv; x++) {
                int gx = x * w / xdiv;
                int gy = y * h / ydiv;
                if (grid[x + y * xdiv].bitmap) {
-                  ALLEGRO_BITMAP *bmp = grid[x + y * xdiv].bitmap;
+                  A5O_BITMAP *bmp = grid[x + y * xdiv].bitmap;
                   float bw = al_get_bitmap_width(bmp);
                   float bh = al_get_bitmap_height(bmp);
                   float s = w / xdiv / bw;
@@ -137,21 +137,21 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
                done = true;
             }
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             redraw = true;
             break;
 
-         case ALLEGRO_EVENT_DROP:
+         case A5O_EVENT_DROP:
             drop_x = event.drop.x;
             drop_y = event.drop.y;
             int col = drop_x * xdiv / w;

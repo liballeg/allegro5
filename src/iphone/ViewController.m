@@ -4,7 +4,7 @@
 
 #include "allegroAppDelegate.h"
 
-ALLEGRO_DEBUG_CHANNEL("iphone");
+A5O_DEBUG_CHANNEL("iphone");
 
 @implementation ViewController
 
@@ -19,7 +19,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone");
 
 - (void)viewDidLoad
 {
-    ALLEGRO_DEBUG("Loading view controller.\n");
+    A5O_DEBUG("Loading view controller.\n");
     display = NULL;
 }
 
@@ -30,7 +30,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone");
 
 - (BOOL)shouldAutorotate
 {
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)display;
    if (display == NULL)
       return YES;
    if (d->extra->adapter != 0) {
@@ -61,33 +61,33 @@ typedef enum {
 - (NSUInteger)supportedInterfaceOrientations
 {
    if (!display) return UIInterfaceOrientationMaskAll;
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)display;
    if (d->extra->adapter != 0) return UIInterfaceOrientationMaskAll;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
-   int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
+   A5O_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
+   int supported = options->settings[A5O_SUPPORTED_ORIENTATIONS];
    int mask = 0;
 
    switch (supported) {
       default:
-      case ALLEGRO_DISPLAY_ORIENTATION_ALL:
+      case A5O_DISPLAY_ORIENTATION_ALL:
          mask = UIInterfaceOrientationMaskAll;
          break;
-      case ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT:
+      case A5O_DISPLAY_ORIENTATION_PORTRAIT:
          mask = UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
          break;
-      case ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE:
+      case A5O_DISPLAY_ORIENTATION_LANDSCAPE:
          mask = UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight;
          break;
-      case ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES:
+      case A5O_DISPLAY_ORIENTATION_0_DEGREES:
          mask = UIInterfaceOrientationMaskPortrait;
          break;
-      case ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES:
+      case A5O_DISPLAY_ORIENTATION_90_DEGREES:
          mask = UIInterfaceOrientationMaskLandscapeRight;
          break;
-      case ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES:
+      case A5O_DISPLAY_ORIENTATION_180_DEGREES:
          mask = UIInterfaceOrientationMaskPortraitUpsideDown;
          break;
-      case ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES:
+      case A5O_DISPLAY_ORIENTATION_270_DEGREES:
          mask = UIInterfaceOrientationMaskLandscapeLeft;
          break;
    }
@@ -97,7 +97,7 @@ typedef enum {
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)display;
    if (display == NULL)
       return YES;
    if (d->extra->adapter != 0) {

@@ -86,9 +86,9 @@ function(add_our_library target framework_name sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
     add_library(${target} ${sources})
     target_include_directories(${target} INTERFACE $<INSTALL_INTERFACE:include>)
-    list(APPEND ALLEGRO_TARGETS "${target}")
-    list(REMOVE_DUPLICATES ALLEGRO_TARGETS)
-    set(ALLEGRO_TARGETS "${ALLEGRO_TARGETS}" CACHE INTERNAL "internal")
+    list(APPEND A5O_TARGETS "${target}")
+    list(REMOVE_DUPLICATES A5O_TARGETS)
+    set(A5O_TARGETS "${A5O_TARGETS}" CACHE INTERNAL "internal")
 
     if(MSVC)
         # Compile with multiple processors
@@ -119,21 +119,21 @@ function(add_our_library target framework_name sources extra_flags link_with)
     endif()
 
     if(NOT BUILD_SHARED_LIBS)
-        set(static_flag "-DALLEGRO_STATICLINK")
+        set(static_flag "-DA5O_STATICLINK")
     endif(NOT BUILD_SHARED_LIBS)
     
     if(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} -DA5O_LIB_BUILD"
             LINK_FLAGS "${extra_link_flags}"
-            VERSION ${ALLEGRO_VERSION}
-            SOVERSION ${ALLEGRO_SOVERSION}
+            VERSION ${A5O_VERSION}
+            SOVERSION ${A5O_SOVERSION}
             )
     else(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} -DA5O_LIB_BUILD"
             )
         set_property(GLOBAL APPEND PROPERTY JNI_LIBS ${target})
     endif(NOT ANDROID)
@@ -153,7 +153,7 @@ function(add_our_library target framework_name sources extra_flags link_with)
         set_target_properties(${target}
             PROPERTIES
             PREFIX ""
-            SUFFIX -${ALLEGRO_SOVERSION}.dll
+            SUFFIX -${A5O_SOVERSION}.dll
             IMPORT_SUFFIX ${CMAKE_IMPORT_LIBRARY_SUFFIX}
             )
     endif()
@@ -302,10 +302,10 @@ function(add_our_executable nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${OPTS_SRCS})
     target_link_libraries(${nm} ${OPTS_LIBS})
     if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
-        list(APPEND OPTS_DEFINES ALLEGRO_POPUP_EXAMPLES)
+        list(APPEND OPTS_DEFINES A5O_POPUP_EXAMPLES)
     endif()
     if(NOT BUILD_SHARED_LIBS)
-        list(APPEND OPTS_DEFINES ALLEGRO_STATICLINK)
+        list(APPEND OPTS_DEFINES A5O_STATICLINK)
     endif()
     
     foreach(d ${OPTS_DEFINES})

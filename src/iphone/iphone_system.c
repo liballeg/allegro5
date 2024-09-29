@@ -2,25 +2,25 @@
 #include <allegro5/platform/aintiphone.h>
 #include <allegro5/platform/aintunix.h>
 
-ALLEGRO_DEBUG_CHANNEL("iphone")
+A5O_DEBUG_CHANNEL("iphone")
 
-ALLEGRO_SYSTEM_IPHONE *iphone;
-static ALLEGRO_SYSTEM_INTERFACE *vt;
+A5O_SYSTEM_IPHONE *iphone;
+static A5O_SYSTEM_INTERFACE *vt;
 
-extern ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex;
+extern A5O_MUTEX *_al_iphone_display_hotplug_mutex;
 
 /* al_init will call this. */
-ALLEGRO_SYSTEM *iphone_initialize(int flags)
+A5O_SYSTEM *iphone_initialize(int flags)
 {
     (void)flags;
     iphone = al_calloc(1, sizeof *iphone);
     
-    ALLEGRO_SYSTEM *sys = &iphone->system;
+    A5O_SYSTEM *sys = &iphone->system;
 
     iphone->mutex = al_create_mutex();
     iphone->cond = al_create_cond();
     sys->vt = _al_get_iphone_system_interface();
-    _al_vector_init(&sys->displays, sizeof (ALLEGRO_DISPLAY_IPHONE *));
+    _al_vector_init(&sys->displays, sizeof (A5O_DISPLAY_IPHONE *));
 
     _al_unix_init_time();
     _al_iphone_init_path();
@@ -38,7 +38,7 @@ static void iphone_shutdown_system(void)
  */
 void _al_iphone_await_termination(void)
 {
-    ALLEGRO_INFO("Application awaiting termination.\n");
+    A5O_INFO("Application awaiting termination.\n");
     al_lock_mutex(iphone->mutex);
     while (!iphone->has_shutdown) {
         al_wait_cond(iphone->cond, iphone->mutex);
@@ -46,7 +46,7 @@ void _al_iphone_await_termination(void)
     al_unlock_mutex(iphone->mutex);
 }
 
-static ALLEGRO_DISPLAY_INTERFACE *iphone_get_display_driver(void)
+static A5O_DISPLAY_INTERFACE *iphone_get_display_driver(void)
 {
     return _al_get_iphone_display_interface();
 }
@@ -56,7 +56,7 @@ static int iphone_get_num_video_adapters(void)
    return _al_iphone_get_num_video_adapters();
 }
 
-static bool iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool iphone_get_monitor_info(int adapter, A5O_MONITOR_INFO *info)
 {
    int w, h;
    _al_iphone_get_screen_size(adapter, &w, &h);
@@ -75,14 +75,14 @@ static bool iphone_get_cursor_position(int *ret_x, int *ret_y)
    return false;
 }
 
-ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
+A5O_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
 {
     if (vt)
        return vt;
     
     vt = al_calloc(1, sizeof *vt);
     
-    vt->id = ALLEGRO_SYSTEM_ID_IPHONE;
+    vt->id = A5O_SYSTEM_ID_IPHONE;
     vt->initialize = iphone_initialize;
     vt->get_display_driver = iphone_get_display_driver;
     vt->get_keyboard_driver = _al_get_iphone_keyboard_driver;
@@ -107,7 +107,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
  */
 void _al_register_system_interfaces(void)
 {
-    ALLEGRO_SYSTEM_INTERFACE **add;
+    A5O_SYSTEM_INTERFACE **add;
     
     add = _al_vector_alloc_back(&_al_system_interfaces);
     *add = _al_get_iphone_system_interface();

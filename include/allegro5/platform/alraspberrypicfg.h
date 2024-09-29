@@ -20,10 +20,10 @@
 #include <sys/types.h>
 
 /* Describe this platform.  */
-#define ALLEGRO_PLATFORM_STR  "RaspberryPi"
+#define A5O_PLATFORM_STR  "RaspberryPi"
 
-#define ALLEGRO_EXTRA_HEADER "allegro5/platform/alraspberrypi.h"
-#define ALLEGRO_INTERNAL_HEADER "allegro5/platform/aintraspberrypi.h"
-#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
+#define A5O_EXTRA_HEADER "allegro5/platform/alraspberrypi.h"
+#define A5O_INTERNAL_HEADER "allegro5/platform/aintraspberrypi.h"
+#define A5O_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
 
-#define ALLEGRO_EXCLUDE_GLX
+#define A5O_EXCLUDE_GLX

@@ -39,8 +39,8 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
 
-static ALLEGRO_MOUSE_STATE mouse_state;
-static ALLEGRO_MOUSE the_mouse;
+static A5O_MOUSE_STATE mouse_state;
+static A5O_MOUSE the_mouse;
 static bool installed = false;
 
 // The raw versions of z/w in the mouse_state. They are related to them by a scaling constant.
@@ -50,7 +50,7 @@ static int raw_mouse_w = 0;
 
 static bool init_mouse(void)
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
 
    if (installed)
       return false;
@@ -66,7 +66,7 @@ static bool init_mouse(void)
    _al_event_source_init(&the_mouse.es);
 
 #if 0
-   if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) {
+   if (al_get_new_display_flags() & A5O_FULLSCREEN) {
       RAWINPUTDEVICE rid[1];
       rid[0].usUsagePage = 0x01; 
       rid[0].usUsage = 0x02; 
@@ -99,9 +99,9 @@ static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z, int w, float pressure,
                                  int dx, int dy, int dz, int dw,
                                  unsigned int button,
-                                 ALLEGRO_DISPLAY *source)
+                                 A5O_DISPLAY *source)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.es))
       return;
@@ -125,7 +125,7 @@ static void generate_mouse_event(unsigned int type,
 }
 
 
-static ALLEGRO_MOUSE* get_mouse(void)
+static A5O_MOUSE* get_mouse(void)
 {
    return &the_mouse;
 }
@@ -149,11 +149,11 @@ static unsigned int get_num_axes(void)
 }
 
 
-static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
+static bool set_mouse_xy(A5O_DISPLAY *disp, int x, int y)
 {
    int dx, dy;
    POINT pt;
-   ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
+   A5O_DISPLAY_WIN *win_disp = (void*)disp;
 
    if (!installed)
       return false;
@@ -166,7 +166,7 @@ static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
       mouse_state.y = y;
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_WARPED,
+         A5O_EVENT_MOUSE_WARPED,
          mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
          dx, dy, 0, 0,
          0, (void*)win_disp);
@@ -195,7 +195,7 @@ static bool set_mouse_axis(int which, int val)
          mouse_state.z = val;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            A5O_EVENT_MOUSE_AXES,
             mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
             0, 0, dz, 0,
             0, mouse_state.display);
@@ -214,7 +214,7 @@ static bool set_mouse_axis(int which, int val)
          mouse_state.w = val;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            A5O_EVENT_MOUSE_AXES,
             mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
             0, 0, 0, dw,
             0, mouse_state.display);
@@ -227,7 +227,7 @@ static bool set_mouse_axis(int which, int val)
 }
 
 
-static void get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
+static void get_mouse_state(A5O_MOUSE_STATE *ret_state)
 {
    _al_event_source_lock(&the_mouse.es);
    *ret_state = mouse_state;
@@ -238,7 +238,7 @@ static void get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 /* the driver vtable */
 #define MOUSE_WINAPI AL_ID('W','A','P','I')
 
-static ALLEGRO_MOUSE_DRIVER mousedrv_winapi =
+static A5O_MOUSE_DRIVER mousedrv_winapi =
 {
    MOUSE_WINAPI,
    "",
@@ -262,7 +262,7 @@ _AL_DRIVER_INFO _al_mouse_driver_list[] =
 };
 
 
-void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_leave(A5O_DISPLAY_WIN *win_disp)
 {
    /* The state should be updated even if the mouse is not installed so that
     * it will be correct if the mouse is installed later.
@@ -273,14 +273,14 @@ void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_disp)
    if (!installed)
       return;
 
-   generate_mouse_event(ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY,
+   generate_mouse_event(A5O_EVENT_MOUSE_LEAVE_DISPLAY,
       mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       0, (void*)win_disp);
 }
 
 
-void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_enter(A5O_DISPLAY_WIN *win_disp)
 {
    /* The state should be updated even if the mouse is not installed so that
     * it will be correct if the mouse is installed later.
@@ -290,14 +290,14 @@ void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_disp)
    if (!installed)
       return;
 
-   generate_mouse_event(ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY,
+   generate_mouse_event(A5O_EVENT_MOUSE_ENTER_DISPLAY,
       mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       0, (void*)win_disp);
 }
 
 
-void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_move(int x, int y, bool abs, A5O_DISPLAY_WIN *win_disp)
 {
    int dx, dy;
    int oldx, oldy;
@@ -322,7 +322,7 @@ void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_
    }
 
    if (oldx != mouse_state.x || oldy != mouse_state.y) {
-      generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+      generate_mouse_event(A5O_EVENT_MOUSE_AXES,
          mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
          dx, dy, 0, 0,
          0, (void*)win_disp);
@@ -330,7 +330,7 @@ void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_
 }
 
 
-void _al_win_mouse_handle_wheel(int raw_dz, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_wheel(int raw_dz, bool abs, A5O_DISPLAY_WIN *win_disp)
 {
    int d;
    int new_z;
@@ -349,14 +349,14 @@ void _al_win_mouse_handle_wheel(int raw_dz, bool abs, ALLEGRO_DISPLAY_WIN *win_d
    d = new_z - mouse_state.z;
    mouse_state.z = new_z;
 
-   generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+   generate_mouse_event(A5O_EVENT_MOUSE_AXES,
       mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, d, 0,
       0, (void*)win_disp);
 }
 
 
-void _al_win_mouse_handle_hwheel(int raw_dw, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_hwheel(int raw_dw, bool abs, A5O_DISPLAY_WIN *win_disp)
 {
    int d;
    int new_w;
@@ -375,7 +375,7 @@ void _al_win_mouse_handle_hwheel(int raw_dw, bool abs, ALLEGRO_DISPLAY_WIN *win_
    d = new_w - mouse_state.w;
    mouse_state.w = new_w;
 
-   generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+   generate_mouse_event(A5O_EVENT_MOUSE_AXES,
       mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, d,
       0, (void*)win_disp);
@@ -384,10 +384,10 @@ void _al_win_mouse_handle_hwheel(int raw_dw, bool abs, ALLEGRO_DISPLAY_WIN *win_
 
 
 void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs,
-                                 ALLEGRO_DISPLAY_WIN *win_disp)
+                                 A5O_DISPLAY_WIN *win_disp)
 {
-   int type = down ? ALLEGRO_EVENT_MOUSE_BUTTON_DOWN
-                   : ALLEGRO_EVENT_MOUSE_BUTTON_UP;
+   int type = down ? A5O_EVENT_MOUSE_BUTTON_DOWN
+                   : A5O_EVENT_MOUSE_BUTTON_UP;
 
    if (!installed)
       return;

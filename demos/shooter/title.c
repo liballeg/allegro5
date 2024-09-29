@@ -46,7 +46,7 @@ static int text_width;
 CREDIT_NAME *credit_name = NULL;
 
 static CREDIT_NAME *credits = NULL;
-static ALLEGRO_CONFIG *text;
+static A5O_CONFIG *text;
 
 
 /* reads credit info from various places */

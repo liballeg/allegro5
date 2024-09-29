@@ -4,7 +4,7 @@
  *    By Peter Wang.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
@@ -23,8 +23,8 @@
 #define MAX_POLYGONS 8
 
 typedef struct {
-   ALLEGRO_USTR   *name;
-   ALLEGRO_BITMAP *bitmap[2];
+   A5O_USTR   *name;
+   A5O_BITMAP *bitmap[2];
 } Bitmap;
 
 typedef enum {
@@ -33,8 +33,8 @@ typedef enum {
 } BmpType;
 
 typedef struct {
-   ALLEGRO_USTR   *name;
-   ALLEGRO_TRANSFORM transform;
+   A5O_USTR   *name;
+   A5O_TRANSFORM transform;
 } Transform;
 
 typedef struct {
@@ -42,23 +42,23 @@ typedef struct {
    int            y;
    int            w;
    int            h;
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
 } LockRegion;
 
 typedef struct {
-   ALLEGRO_USTR   *name;
-   ALLEGRO_FONT   *font;
+   A5O_USTR   *name;
+   A5O_FONT   *font;
 } NamedFont;
 
 int               argc;
 char              **argv;
-ALLEGRO_DISPLAY   *display;
-ALLEGRO_BITMAP    *membuf;
+A5O_DISPLAY   *display;
+A5O_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
 LockRegion        lock_region;
 Transform         transforms[MAX_TRANS];
 NamedFont         fonts[MAX_FONTS];
-ALLEGRO_VERTEX    vertices[MAX_VERTICES];
+A5O_VERTEX    vertices[MAX_VERTICES];
 float             simple_vertices[2 * MAX_VERTICES];
 int               num_simple_vertices;
 int               vertex_counts[MAX_POLYGONS];
@@ -141,11 +141,11 @@ static char const *bmp_type_to_string(BmpType bmp_type)
    return "error";
 }
 
-static ALLEGRO_BITMAP *create_fallback_bitmap(void)
+static A5O_BITMAP *create_fallback_bitmap(void)
 {
-   ALLEGRO_BITMAP *bmp = al_create_bitmap(256, 256);
-   ALLEGRO_FONT *builtin_font = al_create_builtin_font();
-   ALLEGRO_STATE state;
+   A5O_BITMAP *bmp = al_create_bitmap(256, 256);
+   A5O_FONT *builtin_font = al_create_builtin_font();
+   A5O_STATE state;
 
    if (!bmp) {
       fatal_error("couldn't create a backup bitmap");
@@ -153,7 +153,7 @@ static ALLEGRO_BITMAP *create_fallback_bitmap(void)
    if (!builtin_font) {
       fatal_error("couldn't create a builtin font");
    }
-   al_store_state(&state, ALLEGRO_STATE_BITMAP);
+   al_store_state(&state, A5O_STATE_BITMAP);
    al_set_target_bitmap(bmp);
    al_clear_to_color(al_map_rgb_f(0.5, 0, 0));
    al_draw_text(builtin_font, al_map_rgb_f(1, 1, 1), 0, 0, 0, "fallback");
@@ -163,9 +163,9 @@ static ALLEGRO_BITMAP *create_fallback_bitmap(void)
    return bmp;
 }
 
-static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename, int flags)
+static A5O_BITMAP *load_relative_bitmap(char const *filename, int flags)
 {
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
 
    bmp = al_load_bitmap_flags(filename, flags);
    if (!bmp) {
@@ -175,11 +175,11 @@ static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename, int flags)
    return bmp;
 }
 
-static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section,
+static void load_bitmaps(A5O_CONFIG const *cfg, const char *section,
    BmpType bmp_type, int flags)
 {
    int i = 0;
-   ALLEGRO_CONFIG_ENTRY *iter;
+   A5O_CONFIG_ENTRY *iter;
    char const *key;
    char const *value;
 
@@ -200,7 +200,7 @@ static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section,
    num_global_bitmaps = i;
 }
 
-static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name, BmpType bmp_type)
+static A5O_BITMAP **reserve_local_bitmap(const char *name, BmpType bmp_type)
 {
    int i;
 
@@ -235,21 +235,21 @@ static void unload_data(void)
    num_global_bitmaps = 0;
 }
 
-static void set_target_reset(ALLEGRO_BITMAP *target)
+static void set_target_reset(A5O_BITMAP *target)
 {
-   ALLEGRO_TRANSFORM ident;
+   A5O_TRANSFORM ident;
 
    al_set_target_bitmap(target);
    al_clear_to_color(al_map_rgb(0, 0, 0));
    al_reset_clipping_rectangle();
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    al_identity_transform(&ident);
    al_use_transform(&ident);
    al_orthographic_transform(&ident, 0, 0, -1, al_get_bitmap_width(target), al_get_bitmap_height(target), 1);
    al_use_projection_transform(&ident);
 }
 
-static char const *resolve_var(ALLEGRO_CONFIG const *cfg, char const *section,
+static char const *resolve_var(A5O_CONFIG const *cfg, char const *section,
    char const *v)
 {
    char const *vv = al_get_config_value(cfg, section, v);
@@ -263,7 +263,7 @@ static bool get_bool(char const *value)
       : atoi(value);
 }
 
-static ALLEGRO_COLOR get_color(char const *value)
+static A5O_COLOR get_color(char const *value)
 {
    int r, g, b, a;
    float rf, gf, bf;
@@ -277,8 +277,8 @@ static ALLEGRO_COLOR get_color(char const *value)
    return al_color_name(value);
 }
 
-static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type,
-   ALLEGRO_BITMAP *target)
+static A5O_BITMAP *get_bitmap(char const *value, BmpType bmp_type,
+   A5O_BITMAP *target)
 {
    int i;
 
@@ -299,50 +299,50 @@ static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type,
 
 static int get_load_bitmap_flag(char const *value)
 {
-   if (streq(value, "ALLEGRO_NO_PREMULTIPLIED_ALPHA"))
-      return ALLEGRO_NO_PREMULTIPLIED_ALPHA;
-   if (streq(value, "ALLEGRO_KEEP_INDEX"))
-      return ALLEGRO_KEEP_INDEX;
+   if (streq(value, "A5O_NO_PREMULTIPLIED_ALPHA"))
+      return A5O_NO_PREMULTIPLIED_ALPHA;
+   if (streq(value, "A5O_KEEP_INDEX"))
+      return A5O_KEEP_INDEX;
    return atoi(value);
 }
 
 static int get_draw_bitmap_flag(char const *value)
 {
-   if (streq(value, "ALLEGRO_FLIP_HORIZONTAL"))
-      return ALLEGRO_FLIP_HORIZONTAL;
-   if (streq(value, "ALLEGRO_FLIP_VERTICAL"))
-      return ALLEGRO_FLIP_VERTICAL;
-   if (streq(value, "ALLEGRO_FLIP_VERTICAL|ALLEGRO_FLIP_HORIZONTAL"))
-      return ALLEGRO_FLIP_VERTICAL|ALLEGRO_FLIP_HORIZONTAL;
-   if (streq(value, "ALLEGRO_FLIP_HORIZONTAL|ALLEGRO_FLIP_VERTICAL"))
-      return ALLEGRO_FLIP_HORIZONTAL|ALLEGRO_FLIP_VERTICAL;
+   if (streq(value, "A5O_FLIP_HORIZONTAL"))
+      return A5O_FLIP_HORIZONTAL;
+   if (streq(value, "A5O_FLIP_VERTICAL"))
+      return A5O_FLIP_VERTICAL;
+   if (streq(value, "A5O_FLIP_VERTICAL|A5O_FLIP_HORIZONTAL"))
+      return A5O_FLIP_VERTICAL|A5O_FLIP_HORIZONTAL;
+   if (streq(value, "A5O_FLIP_HORIZONTAL|A5O_FLIP_VERTICAL"))
+      return A5O_FLIP_HORIZONTAL|A5O_FLIP_VERTICAL;
    return atoi(value);
 }
 
 static int get_blender_op(char const *value)
 {
-   return streq(value, "ALLEGRO_ADD") ? ALLEGRO_ADD
-      : streq(value, "ALLEGRO_DEST_MINUS_SRC") ? ALLEGRO_DEST_MINUS_SRC
-      : streq(value, "ALLEGRO_SRC_MINUS_DEST") ? ALLEGRO_SRC_MINUS_DEST
+   return streq(value, "A5O_ADD") ? A5O_ADD
+      : streq(value, "A5O_DEST_MINUS_SRC") ? A5O_DEST_MINUS_SRC
+      : streq(value, "A5O_SRC_MINUS_DEST") ? A5O_SRC_MINUS_DEST
       : atoi(value);
 }
 
 static int get_blend_factor(char const *value)
 {
-   return streq(value, "ALLEGRO_ZERO") ? ALLEGRO_ZERO
-      : streq(value, "ALLEGRO_ONE") ? ALLEGRO_ONE
-      : streq(value, "ALLEGRO_ALPHA") ? ALLEGRO_ALPHA
-      : streq(value, "ALLEGRO_INVERSE_ALPHA") ? ALLEGRO_INVERSE_ALPHA
-      : streq(value, "ALLEGRO_SRC_COLOR") ? ALLEGRO_SRC_COLOR
-      : streq(value, "ALLEGRO_DEST_COLOR") ? ALLEGRO_DEST_COLOR
-      : streq(value, "ALLEGRO_INVERSE_SRC_COLOR") ? ALLEGRO_INVERSE_SRC_COLOR
-      : streq(value, "ALLEGRO_INVERSE_DEST_COLOR") ? ALLEGRO_INVERSE_DEST_COLOR
-      : streq(value, "ALLEGRO_CONST_COLOR") ? ALLEGRO_CONST_COLOR
-      : streq(value, "ALLEGRO_INVERSE_CONST_COLOR") ? ALLEGRO_INVERSE_CONST_COLOR
+   return streq(value, "A5O_ZERO") ? A5O_ZERO
+      : streq(value, "A5O_ONE") ? A5O_ONE
+      : streq(value, "A5O_ALPHA") ? A5O_ALPHA
+      : streq(value, "A5O_INVERSE_ALPHA") ? A5O_INVERSE_ALPHA
+      : streq(value, "A5O_SRC_COLOR") ? A5O_SRC_COLOR
+      : streq(value, "A5O_DEST_COLOR") ? A5O_DEST_COLOR
+      : streq(value, "A5O_INVERSE_SRC_COLOR") ? A5O_INVERSE_SRC_COLOR
+      : streq(value, "A5O_INVERSE_DEST_COLOR") ? A5O_INVERSE_DEST_COLOR
+      : streq(value, "A5O_CONST_COLOR") ? A5O_CONST_COLOR
+      : streq(value, "A5O_INVERSE_CONST_COLOR") ? A5O_INVERSE_CONST_COLOR
       : atoi(value);
 }
 
-static ALLEGRO_TRANSFORM *get_transform(const char *name)
+static A5O_TRANSFORM *get_transform(const char *name)
 {
    int i;
 
@@ -363,36 +363,36 @@ static ALLEGRO_TRANSFORM *get_transform(const char *name)
 
 static int get_pixel_format(char const *v)
 {
-   int format = streq(v, "ALLEGRO_PIXEL_FORMAT_ANY") ? ALLEGRO_PIXEL_FORMAT_ANY
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ARGB_8888") ? ALLEGRO_PIXEL_FORMAT_ARGB_8888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBA_8888") ? ALLEGRO_PIXEL_FORMAT_RGBA_8888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ARGB_4444") ? ALLEGRO_PIXEL_FORMAT_ARGB_4444
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGB_888") ? ALLEGRO_PIXEL_FORMAT_RGB_888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGB_565") ? ALLEGRO_PIXEL_FORMAT_RGB_565
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGB_555") ? ALLEGRO_PIXEL_FORMAT_RGB_555
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBA_5551") ? ALLEGRO_PIXEL_FORMAT_RGBA_5551
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ARGB_1555") ? ALLEGRO_PIXEL_FORMAT_ARGB_1555
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_8888") ? ALLEGRO_PIXEL_FORMAT_ABGR_8888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_XBGR_8888") ? ALLEGRO_PIXEL_FORMAT_XBGR_8888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_BGR_888") ? ALLEGRO_PIXEL_FORMAT_BGR_888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_BGR_565") ? ALLEGRO_PIXEL_FORMAT_BGR_565
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_BGR_555") ? ALLEGRO_PIXEL_FORMAT_BGR_555
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBX_8888") ? ALLEGRO_PIXEL_FORMAT_RGBX_8888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_XRGB_8888") ? ALLEGRO_PIXEL_FORMAT_XRGB_8888
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_F32") ? ALLEGRO_PIXEL_FORMAT_ABGR_F32
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE") ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBA_4444") ? ALLEGRO_PIXEL_FORMAT_RGBA_4444
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1") ? ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3") ? ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3
-      : streq(v, "ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5") ? ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5
+   int format = streq(v, "A5O_PIXEL_FORMAT_ANY") ? A5O_PIXEL_FORMAT_ANY
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_NO_ALPHA") ? A5O_PIXEL_FORMAT_ANY_NO_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_WITH_ALPHA") ? A5O_PIXEL_FORMAT_ANY_WITH_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_15_NO_ALPHA") ? A5O_PIXEL_FORMAT_ANY_15_NO_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_16_NO_ALPHA") ? A5O_PIXEL_FORMAT_ANY_16_NO_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_16_WITH_ALPHA") ? A5O_PIXEL_FORMAT_ANY_16_WITH_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA") ? A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA") ? A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA") ? A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA
+      : streq(v, "A5O_PIXEL_FORMAT_ARGB_8888") ? A5O_PIXEL_FORMAT_ARGB_8888
+      : streq(v, "A5O_PIXEL_FORMAT_RGBA_8888") ? A5O_PIXEL_FORMAT_RGBA_8888
+      : streq(v, "A5O_PIXEL_FORMAT_ARGB_4444") ? A5O_PIXEL_FORMAT_ARGB_4444
+      : streq(v, "A5O_PIXEL_FORMAT_RGB_888") ? A5O_PIXEL_FORMAT_RGB_888
+      : streq(v, "A5O_PIXEL_FORMAT_RGB_565") ? A5O_PIXEL_FORMAT_RGB_565
+      : streq(v, "A5O_PIXEL_FORMAT_RGB_555") ? A5O_PIXEL_FORMAT_RGB_555
+      : streq(v, "A5O_PIXEL_FORMAT_RGBA_5551") ? A5O_PIXEL_FORMAT_RGBA_5551
+      : streq(v, "A5O_PIXEL_FORMAT_ARGB_1555") ? A5O_PIXEL_FORMAT_ARGB_1555
+      : streq(v, "A5O_PIXEL_FORMAT_ABGR_8888") ? A5O_PIXEL_FORMAT_ABGR_8888
+      : streq(v, "A5O_PIXEL_FORMAT_XBGR_8888") ? A5O_PIXEL_FORMAT_XBGR_8888
+      : streq(v, "A5O_PIXEL_FORMAT_BGR_888") ? A5O_PIXEL_FORMAT_BGR_888
+      : streq(v, "A5O_PIXEL_FORMAT_BGR_565") ? A5O_PIXEL_FORMAT_BGR_565
+      : streq(v, "A5O_PIXEL_FORMAT_BGR_555") ? A5O_PIXEL_FORMAT_BGR_555
+      : streq(v, "A5O_PIXEL_FORMAT_RGBX_8888") ? A5O_PIXEL_FORMAT_RGBX_8888
+      : streq(v, "A5O_PIXEL_FORMAT_XRGB_8888") ? A5O_PIXEL_FORMAT_XRGB_8888
+      : streq(v, "A5O_PIXEL_FORMAT_ABGR_F32") ? A5O_PIXEL_FORMAT_ABGR_F32
+      : streq(v, "A5O_PIXEL_FORMAT_ABGR_8888_LE") ? A5O_PIXEL_FORMAT_ABGR_8888_LE
+      : streq(v, "A5O_PIXEL_FORMAT_RGBA_4444") ? A5O_PIXEL_FORMAT_RGBA_4444
+      : streq(v, "A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1") ? A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1
+      : streq(v, "A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3") ? A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3
+      : streq(v, "A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5") ? A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5
       : -1;
    if (format == -1)
       fatal_error("invalid format: %s", v);
@@ -401,16 +401,16 @@ static int get_pixel_format(char const *v)
 
 static int get_lock_bitmap_flags(char const *v)
 {
-   return streq(v, "ALLEGRO_LOCK_READWRITE") ? ALLEGRO_LOCK_READWRITE
-      : streq(v, "ALLEGRO_LOCK_READONLY") ? ALLEGRO_LOCK_READONLY
-      : streq(v, "ALLEGRO_LOCK_WRITEONLY") ? ALLEGRO_LOCK_WRITEONLY
+   return streq(v, "A5O_LOCK_READWRITE") ? A5O_LOCK_READWRITE
+      : streq(v, "A5O_LOCK_READONLY") ? A5O_LOCK_READONLY
+      : streq(v, "A5O_LOCK_WRITEONLY") ? A5O_LOCK_WRITEONLY
       : atoi(v);
 }
 
 static int get_bitmap_flags(char const *v)
 {
-   return streq(v, "ALLEGRO_MEMORY_BITMAP") ? ALLEGRO_MEMORY_BITMAP
-      : streq(v, "ALLEGRO_VIDEO_BITMAP") ? ALLEGRO_VIDEO_BITMAP
+   return streq(v, "A5O_MEMORY_BITMAP") ? A5O_MEMORY_BITMAP
+      : streq(v, "A5O_VIDEO_BITMAP") ? A5O_VIDEO_BITMAP
       : atoi(v);
 }
 
@@ -418,7 +418,7 @@ static void fill_lock_region(LockRegion *lr, float alphafactor, bool blended)
 {
    int x, y;
    float r, g, b, a;
-   ALLEGRO_COLOR c;
+   A5O_COLOR c;
 
    for (y = 0; y < lr->h; y++) {
       for (x = 0; x < lr->w; x++) {
@@ -441,25 +441,25 @@ static void fill_lock_region(LockRegion *lr, float alphafactor, bool blended)
 
 static int get_load_font_flags(char const *v)
 {
-   return streq(v, "ALLEGRO_NO_PREMULTIPLIED_ALPHA") ? ALLEGRO_NO_PREMULTIPLIED_ALPHA
-      : streq(v, "ALLEGRO_TTF_NO_KERNING") ? ALLEGRO_TTF_NO_KERNING
-      : streq(v, "ALLEGRO_TTF_MONOCHROME") ? ALLEGRO_TTF_MONOCHROME
+   return streq(v, "A5O_NO_PREMULTIPLIED_ALPHA") ? A5O_NO_PREMULTIPLIED_ALPHA
+      : streq(v, "A5O_TTF_NO_KERNING") ? A5O_TTF_NO_KERNING
+      : streq(v, "A5O_TTF_MONOCHROME") ? A5O_TTF_MONOCHROME
       : atoi(v);
 }
 
-static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
+static void load_fonts(A5O_CONFIG const *cfg, const char *section)
 {
 #define MAXBUF    80
 
    int i = 0;
-   ALLEGRO_CONFIG_ENTRY *iter;
+   A5O_CONFIG_ENTRY *iter;
    char const *key;
    char arg[14][MAXBUF];
 
    key = al_get_first_config_entry(cfg, section, &iter);
    while (key && i < MAX_FONTS) {
       char const *stmt = al_get_config_value(cfg, section, key);
-      ALLEGRO_FONT *font = NULL;
+      A5O_FONT *font = NULL;
       bool load_stmt = false;
 
       if (SCAN("al_load_font", 3)) {
@@ -498,7 +498,7 @@ static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
 #undef MAXBUF
 }
 
-static ALLEGRO_FONT *get_font(char const *name)
+static A5O_FONT *get_font(char const *name)
 {
    int i;
 
@@ -516,20 +516,20 @@ static ALLEGRO_FONT *get_font(char const *name)
 
 static int get_font_align(char const *value)
 {
-   return streq(value, "ALLEGRO_ALIGN_LEFT") ? ALLEGRO_ALIGN_LEFT
-      : streq(value, "ALLEGRO_ALIGN_CENTRE") ? ALLEGRO_ALIGN_CENTRE
-      : streq(value, "ALLEGRO_ALIGN_RIGHT") ? ALLEGRO_ALIGN_RIGHT
-      : streq(value, "ALLEGRO_ALIGN_INTEGER") ? ALLEGRO_ALIGN_INTEGER
-      : streq(value, "ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER")
-         ? ALLEGRO_ALIGN_LEFT | ALLEGRO_ALIGN_INTEGER
-      : streq(value, "ALLEGRO_ALIGN_RIGHT|ALLEGRO_ALIGN_INTEGER")
-         ? ALLEGRO_ALIGN_RIGHT | ALLEGRO_ALIGN_INTEGER
-      : streq(value, "ALLEGRO_ALIGN_CENTRE|ALLEGRO_ALIGN_INTEGER")
-         ? ALLEGRO_ALIGN_CENTRE | ALLEGRO_ALIGN_INTEGER
+   return streq(value, "A5O_ALIGN_LEFT") ? A5O_ALIGN_LEFT
+      : streq(value, "A5O_ALIGN_CENTRE") ? A5O_ALIGN_CENTRE
+      : streq(value, "A5O_ALIGN_RIGHT") ? A5O_ALIGN_RIGHT
+      : streq(value, "A5O_ALIGN_INTEGER") ? A5O_ALIGN_INTEGER
+      : streq(value, "A5O_ALIGN_LEFT|A5O_ALIGN_INTEGER")
+         ? A5O_ALIGN_LEFT | A5O_ALIGN_INTEGER
+      : streq(value, "A5O_ALIGN_RIGHT|A5O_ALIGN_INTEGER")
+         ? A5O_ALIGN_RIGHT | A5O_ALIGN_INTEGER
+      : streq(value, "A5O_ALIGN_CENTRE|A5O_ALIGN_INTEGER")
+         ? A5O_ALIGN_CENTRE | A5O_ALIGN_INTEGER
       : atoi(value);
 }
 
-static void set_config_int(ALLEGRO_CONFIG *cfg, char const *section,
+static void set_config_int(A5O_CONFIG *cfg, char const *section,
    char const *var, int value)
 {
    char buf[40];
@@ -537,7 +537,7 @@ static void set_config_int(ALLEGRO_CONFIG *cfg, char const *section,
    al_set_config_value(cfg, section, var, buf);
 }
 
-static void set_config_float(ALLEGRO_CONFIG *cfg, char const *section,
+static void set_config_float(A5O_CONFIG *cfg, char const *section,
    char const *var, float value)
 {
    char buf[40];
@@ -545,7 +545,7 @@ static void set_config_float(ALLEGRO_CONFIG *cfg, char const *section,
    al_set_config_value(cfg, section, var, buf);
 }
 
-static void fill_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
+static void fill_vertices(A5O_CONFIG const *cfg, char const *name)
 {
 #define MAXBUF    80
 
@@ -577,7 +577,7 @@ static void fill_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
 #undef MAXBUF
 }
 
-static void fill_simple_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
+static void fill_simple_vertices(A5O_CONFIG const *cfg, char const *name)
 {
 #define MAXBUF    80
 
@@ -605,7 +605,7 @@ static void fill_simple_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
 #undef MAXBUF
 }
 
-static void fill_vertex_counts(ALLEGRO_CONFIG const *cfg, char const *name)
+static void fill_vertex_counts(A5O_CONFIG const *cfg, char const *name)
 {
 #define MAXBUF    80
 
@@ -632,32 +632,32 @@ static void fill_vertex_counts(ALLEGRO_CONFIG const *cfg, char const *name)
 
 static int get_prim_type(char const *value)
 {
-   return streq(value, "ALLEGRO_PRIM_POINT_LIST") ? ALLEGRO_PRIM_POINT_LIST
-      : streq(value, "ALLEGRO_PRIM_LINE_LIST") ? ALLEGRO_PRIM_LINE_LIST
-      : streq(value, "ALLEGRO_PRIM_LINE_STRIP") ? ALLEGRO_PRIM_LINE_STRIP
-      : streq(value, "ALLEGRO_PRIM_LINE_LOOP") ? ALLEGRO_PRIM_LINE_LOOP
-      : streq(value, "ALLEGRO_PRIM_TRIANGLE_LIST") ? ALLEGRO_PRIM_TRIANGLE_LIST
-      : streq(value, "ALLEGRO_PRIM_TRIANGLE_STRIP") ? ALLEGRO_PRIM_TRIANGLE_STRIP
-      : streq(value, "ALLEGRO_PRIM_TRIANGLE_FAN") ? ALLEGRO_PRIM_TRIANGLE_FAN
+   return streq(value, "A5O_PRIM_POINT_LIST") ? A5O_PRIM_POINT_LIST
+      : streq(value, "A5O_PRIM_LINE_LIST") ? A5O_PRIM_LINE_LIST
+      : streq(value, "A5O_PRIM_LINE_STRIP") ? A5O_PRIM_LINE_STRIP
+      : streq(value, "A5O_PRIM_LINE_LOOP") ? A5O_PRIM_LINE_LOOP
+      : streq(value, "A5O_PRIM_TRIANGLE_LIST") ? A5O_PRIM_TRIANGLE_LIST
+      : streq(value, "A5O_PRIM_TRIANGLE_STRIP") ? A5O_PRIM_TRIANGLE_STRIP
+      : streq(value, "A5O_PRIM_TRIANGLE_FAN") ? A5O_PRIM_TRIANGLE_FAN
       : atoi(value);
 }
 
 static int get_line_join(char const *value)
 {
-   return streq(value, "ALLEGRO_LINE_JOIN_NONE") ? ALLEGRO_LINE_JOIN_NONE
-      : streq(value, "ALLEGRO_LINE_JOIN_BEVEL") ? ALLEGRO_LINE_JOIN_BEVEL
-      : streq(value, "ALLEGRO_LINE_JOIN_ROUND") ? ALLEGRO_LINE_JOIN_ROUND
-      : streq(value, "ALLEGRO_LINE_JOIN_MITER") ? ALLEGRO_LINE_JOIN_MITER
+   return streq(value, "A5O_LINE_JOIN_NONE") ? A5O_LINE_JOIN_NONE
+      : streq(value, "A5O_LINE_JOIN_BEVEL") ? A5O_LINE_JOIN_BEVEL
+      : streq(value, "A5O_LINE_JOIN_ROUND") ? A5O_LINE_JOIN_ROUND
+      : streq(value, "A5O_LINE_JOIN_MITER") ? A5O_LINE_JOIN_MITER
       : atoi(value);
 }
 
 static int get_line_cap(char const *value)
 {
-   return streq(value, "ALLEGRO_LINE_CAP_NONE") ? ALLEGRO_LINE_CAP_NONE
-      : streq(value, "ALLEGRO_LINE_CAP_SQUARE") ? ALLEGRO_LINE_CAP_SQUARE
-      : streq(value, "ALLEGRO_LINE_CAP_ROUND") ? ALLEGRO_LINE_CAP_ROUND
-      : streq(value, "ALLEGRO_LINE_CAP_TRIANGLE") ? ALLEGRO_LINE_CAP_TRIANGLE
-      : streq(value, "ALLEGRO_LINE_CAP_CLOSED") ? ALLEGRO_LINE_CAP_CLOSED
+   return streq(value, "A5O_LINE_CAP_NONE") ? A5O_LINE_CAP_NONE
+      : streq(value, "A5O_LINE_CAP_SQUARE") ? A5O_LINE_CAP_SQUARE
+      : streq(value, "A5O_LINE_CAP_ROUND") ? A5O_LINE_CAP_ROUND
+      : streq(value, "A5O_LINE_CAP_TRIANGLE") ? A5O_LINE_CAP_TRIANGLE
+      : streq(value, "A5O_LINE_CAP_CLOSED") ? A5O_LINE_CAP_CLOSED
       : atoi(value);
 }
 
@@ -667,9 +667,9 @@ static int get_line_cap(char const *value)
 #define FNV_OFFSET_BASIS   2166136261UL
 #define FNV_PRIME          16777619
 
-static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
+static uint32_t hash_bitmap(A5O_BITMAP *bmp)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int x, y, w, h;
    uint32_t hash;
 
@@ -677,8 +677,8 @@ static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
    h = al_get_bitmap_height(bmp);
    hash = FNV_OFFSET_BASIS;
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-      ALLEGRO_LOCK_READONLY);
+   lr = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ABGR_8888_LE,
+      A5O_LOCK_READONLY);
 
    for (y = 0; y < h; y++) {
       /* Oops, I unintentially committed the first version of this with signed
@@ -710,14 +710,14 @@ static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
 #define SIG_LEN   (SIG_GRID * SIG_GRID)
 #define SIG_LENZ  (SIG_LEN + 1)
 
-static int patch_intensity(ALLEGRO_BITMAP *bmp, int cx, int cy)
+static int patch_intensity(A5O_BITMAP *bmp, int cx, int cy)
 {
    float sum = 0.0;
    int x, y;
 
    for (y = -3; y <= 3; y++) {
       for (x = -3; x <= 3; x++) {
-         ALLEGRO_COLOR c = al_get_pixel(bmp, cx + x, cy + y);
+         A5O_COLOR c = al_get_pixel(bmp, cx + x, cy + y);
          sum += c.r + c.g + c.b;
       }
    }
@@ -739,14 +739,14 @@ static int base64_decode(char c)
    return -1;
 }
 
-static void compute_signature(ALLEGRO_BITMAP *bmp, char sig[SIG_LENZ])
+static void compute_signature(A5O_BITMAP *bmp, char sig[SIG_LENZ])
 {
    int w = al_get_bitmap_width(bmp);
    int h = al_get_bitmap_height(bmp);
    int x, y;
    int n = 0;
 
-   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
 
    for (y = 0; y < SIG_GRID; y++) {
       for (x = 0; x < SIG_GRID; x++) {
@@ -785,8 +785,8 @@ static bool similar_signatures(char const sig1[SIG_LEN], char const sig2[SIG_LEN
    return ((float)correct / SIG_LEN) > 0.95;
 }
 
-static bool check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
-   ALLEGRO_BITMAP *bmp, BmpType bmp_type)
+static bool check_hash(A5O_CONFIG const *cfg, char const *testname,
+   A5O_BITMAP *bmp, BmpType bmp_type)
 {
    char const *bt = bmp_type_to_string(bmp_type);
    char hash[16];
@@ -840,17 +840,17 @@ static bool check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    return false;
 }
 
-static double bitmap_dissimilarity(ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2)
+static double bitmap_dissimilarity(A5O_BITMAP *bmp1, A5O_BITMAP *bmp2)
 {
-   ALLEGRO_LOCKED_REGION *lr1;
-   ALLEGRO_LOCKED_REGION *lr2;
+   A5O_LOCKED_REGION *lr1;
+   A5O_LOCKED_REGION *lr2;
    int x, y, w, h;
    double sqerr = 0.0;
 
-   lr1 = al_lock_bitmap(bmp1, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
-      ALLEGRO_LOCK_READONLY);
-   lr2 = al_lock_bitmap(bmp2, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
-      ALLEGRO_LOCK_READONLY);
+   lr1 = al_lock_bitmap(bmp1, A5O_PIXEL_FORMAT_RGBA_8888,
+      A5O_LOCK_READONLY);
+   lr2 = al_lock_bitmap(bmp2, A5O_PIXEL_FORMAT_RGBA_8888,
+      A5O_LOCK_READONLY);
 
    w = al_get_bitmap_width(bmp1);
    h = al_get_bitmap_height(bmp1);
@@ -871,9 +871,9 @@ static double bitmap_dissimilarity(ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2)
    return sqrt(sqerr / (w*h*4.0));
 }
 
-static bool check_similarity(ALLEGRO_CONFIG const *cfg,
+static bool check_similarity(A5O_CONFIG const *cfg,
    char const *testname,
-   ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2, BmpType bmp_type, bool reliable)
+   A5O_BITMAP *bmp1, A5O_BITMAP *bmp2, BmpType bmp_type, bool reliable)
 {
    char const *bt = bmp_type_to_string(bmp_type);
    double rms = bitmap_dissimilarity(bmp1, bmp2);
@@ -941,8 +941,8 @@ static bool check_similarity(ALLEGRO_CONFIG const *cfg,
    }
 }
 
-static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
-   ALLEGRO_BITMAP *target, int bmp_type, bool reliable, bool do_check_hash)
+static bool do_test(A5O_CONFIG *cfg, char const *testname,
+   A5O_BITMAP *target, int bmp_type, bool reliable, bool do_check_hash)
 {
 #define MAXBUF    80
 
@@ -1039,7 +1039,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
 
       if (SCANLVAL("al_clone_bitmap", 1)) {
-         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         A5O_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = al_clone_bitmap(B(0));
          continue;
       }
@@ -1135,24 +1135,24 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
 
       if (SCANLVAL("al_create_bitmap", 2)) {
-         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         A5O_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = al_create_bitmap(I(0), I(1));
          continue;
       }
 
       if (SCANLVAL("al_create_sub_bitmap", 5)) {
-         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         A5O_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = al_create_sub_bitmap(B(0), I(1), I(2), I(3), I(4));
          continue;
       }
 
       if (SCANLVAL("al_load_bitmap", 1)) {
-         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         A5O_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = load_relative_bitmap(V(0), 0);
          continue;
       }
       if (SCANLVAL("al_load_bitmap_flags", 2)) {
-         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         A5O_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = load_relative_bitmap(V(0), get_load_bitmap_flag(V(1)));
          continue;
       }
@@ -1207,14 +1207,14 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
       /* Conversion */
       if (SCAN("al_convert_bitmap", 1)) {
-         ALLEGRO_BITMAP *bmp = B(0);
+         A5O_BITMAP *bmp = B(0);
          al_convert_bitmap(bmp);
          continue;
       }
 
       /* Locking */
       if (SCAN("al_lock_bitmap", 3)) {
-         ALLEGRO_BITMAP *bmp = B(0);
+         A5O_BITMAP *bmp = B(0);
          lock_region.x = 0;
          lock_region.y = 0;
          lock_region.w = al_get_bitmap_width(bmp);
@@ -1225,7 +1225,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          continue;
       }
       if (SCAN("al_lock_bitmap_region", 7)) {
-         ALLEGRO_BITMAP *bmp = B(0);
+         A5O_BITMAP *bmp = B(0);
          lock_region.x = I(1);
          lock_region.y = I(2);
          lock_region.w = I(3);
@@ -1513,7 +1513,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          continue;
       }
       if (SCANLVAL("al_color_lab", 3)) {
-         ALLEGRO_COLOR rgb = al_color_lab(F(0), F(1), F(2));
+         A5O_COLOR rgb = al_color_lab(F(0), F(1), F(2));
          char hex[100];
          sprintf(hex, "%f/%f/%f", rgb.r, rgb.g, rgb.b);
          al_set_config_value(cfg, testname, lval, hex);
@@ -1523,7 +1523,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       fatal_error("statement didn't scan: %s", stmt);
    }
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    bool good;
    if (do_check_hash) {
@@ -1536,7 +1536,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
    total_tests++;
 
    if (save_outputs && (!save_on_failure || !good)) {
-      ALLEGRO_USTR *filename = al_ustr_newf("%s [%s].png", testname,
+      A5O_USTR *filename = al_ustr_newf("%s [%s].png", testname,
          bmp_type_to_string(bmp_type));
       al_save_bitmap(al_cstr(filename), target);
       al_ustr_free(filename);
@@ -1575,7 +1575,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 #undef MAXBUF
 }
 
-static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
+static void sw_hw_test(A5O_CONFIG *cfg, char const *testname)
 {
    bool reliable = true;
    char const *hw_only_str = al_get_config_value(cfg, testname, "hw_only");
@@ -1590,7 +1590,7 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
       return;
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    if (!hw_only) {
       reliable = do_test(cfg, testname, membuf, SW, true, true);
    }
@@ -1598,7 +1598,7 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
    if (sw_only) return;
 
    if (display) {
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
       do_test(cfg, testname, al_get_backbuffer(display), HW, reliable, hw_only);
    } else if (hw_only) {
       printf("WARNING: Skipping hardware-only test due to the --no-display flag: %s\n",
@@ -1607,20 +1607,20 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
    }
 }
 
-static bool section_exists(ALLEGRO_CONFIG const *cfg, char const *section)
+static bool section_exists(A5O_CONFIG const *cfg, char const *section)
 {
-   ALLEGRO_CONFIG_ENTRY *iter;
+   A5O_CONFIG_ENTRY *iter;
 
    return al_get_first_config_entry(cfg, section, &iter) != NULL;
 }
 
 static void merge_config_sections(
-   ALLEGRO_CONFIG *targ_cfg, char const *targ_section,
-   ALLEGRO_CONFIG const *src_cfg, char const *src_section)
+   A5O_CONFIG *targ_cfg, char const *targ_section,
+   A5O_CONFIG const *src_cfg, char const *src_section)
 {
    char const *key;
    char const *value;
-   ALLEGRO_CONFIG_ENTRY *iter;
+   A5O_CONFIG_ENTRY *iter;
 
    value = al_get_config_value(src_cfg, src_section, "extend");
    if (value) {
@@ -1641,10 +1641,10 @@ static void merge_config_sections(
    }
 }
 
-static void run_test(ALLEGRO_CONFIG const *cfg, char const *section)
+static void run_test(A5O_CONFIG const *cfg, char const *section)
 {
    char const *extend;
-   ALLEGRO_CONFIG *cfg2;
+   A5O_CONFIG *cfg2;
 
    if (!section_exists(cfg, section)) {
       fatal_error("section not found: %s", section);
@@ -1660,9 +1660,9 @@ static void run_test(ALLEGRO_CONFIG const *cfg, char const *section)
    al_destroy_config(cfg2);
 }
 
-static void run_matching_tests(ALLEGRO_CONFIG const *cfg, const char *prefix)
+static void run_matching_tests(A5O_CONFIG const *cfg, const char *prefix)
 {
-   ALLEGRO_CONFIG_SECTION *iter;
+   A5O_CONFIG_SECTION *iter;
    char const *section;
 
    for (section = al_get_first_config_section(cfg, &iter);
@@ -1674,9 +1674,9 @@ static void run_matching_tests(ALLEGRO_CONFIG const *cfg, const char *prefix)
    }
 }
 
-static void partial_tests(ALLEGRO_CONFIG const *cfg, int n)
+static void partial_tests(A5O_CONFIG const *cfg, int n)
 {
-   ALLEGRO_USTR *name = al_ustr_new("");
+   A5O_USTR *name = al_ustr_new("");
 
    while (n > 0) {
       /* Automatically prepend "test" for convenience. */
@@ -1713,7 +1713,7 @@ static bool has_suffix(char const *s, char const *suf)
 
 static void process_ini_files(void)
 {
-   ALLEGRO_CONFIG *cfg;
+   A5O_CONFIG *cfg;
    int n;
 
    while (argc > 0) {
@@ -1729,12 +1729,12 @@ static void process_ini_files(void)
       argc--;
       argv++;
 
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-      load_bitmaps(cfg, "bitmaps", SW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+      load_bitmaps(cfg, "bitmaps", SW, A5O_NO_PREMULTIPLIED_ALPHA);
 
       if (display) {
-         al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-         load_bitmaps(cfg, "bitmaps", HW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+         al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
+         load_bitmaps(cfg, "bitmaps", HW, A5O_NO_PREMULTIPLIED_ALPHA);
       }
 
       load_fonts(cfg, "fonts");
@@ -1824,24 +1824,24 @@ int main(int _argc, char *_argv[])
          verbose++;
       }
       else if (streq(opt, "--force-opengl-1.2")) {
-         ALLEGRO_CONFIG *cfg = al_get_system_config();
+         A5O_CONFIG *cfg = al_get_system_config();
          al_set_config_value(cfg, "opengl", "force_opengl_version", "1.2");
-         display_flags |= ALLEGRO_OPENGL;
+         display_flags |= A5O_OPENGL;
       }
       else if (streq(opt, "--force-opengl-2.0")) {
-         ALLEGRO_CONFIG *cfg = al_get_system_config();
+         A5O_CONFIG *cfg = al_get_system_config();
          al_set_config_value(cfg, "opengl", "force_opengl_version", "2.0");
-         display_flags |= ALLEGRO_OPENGL;
+         display_flags |= A5O_OPENGL;
       }
       else if (streq(opt, "--force-opengl")) {
-         display_flags |= ALLEGRO_OPENGL;
+         display_flags |= A5O_OPENGL;
       }
       else if (streq(opt, "--force-d3d")) {
          /* Don't try this at home. */
-         display_flags |= ALLEGRO_DIRECT3D_INTERNAL;
+         display_flags |= A5O_DIRECT3D_INTERNAL;
       }
       else if (streq(opt, "--use-shaders")) {
-         display_flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+         display_flags |= A5O_PROGRAMMABLE_PIPELINE;
       }
       else if (streq(opt, "-h") || streq(opt, "--help")) {
          printf("Usage:\n%s%s", _argv[0], help_str);
@@ -1860,7 +1860,7 @@ int main(int _argc, char *_argv[])
       }
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
 
    if (want_display) {
       membuf = al_create_bitmap(

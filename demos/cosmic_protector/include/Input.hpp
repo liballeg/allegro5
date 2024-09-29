@@ -9,7 +9,7 @@ public:
    Input();
    ~Input();
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
    void draw(void);
    bool button_pressed(int x, int y, int w, int h, bool check_if_controls_at_top = true);
 #endif
@@ -25,15 +25,15 @@ public:
    bool load(void);
    void* get(void);
 private:
-   ALLEGRO_KEYBOARD_STATE kbdstate;
-   ALLEGRO_JOYSTICK_STATE joystate;
-   ALLEGRO_JOYSTICK *joystick;
+   A5O_KEYBOARD_STATE kbdstate;
+   A5O_JOYSTICK_STATE joystate;
+   A5O_JOYSTICK *joystick;
 
-   ALLEGRO_EVENT_QUEUE *input_queue;
+   A5O_EVENT_QUEUE *input_queue;
 
    bool joypad_u, joypad_d, joypad_l, joypad_r, joypad_b, joypad_esc;
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
    struct Touch {
       int id;
       int x;

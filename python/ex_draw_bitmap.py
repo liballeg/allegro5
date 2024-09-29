@@ -112,11 +112,11 @@ def change_size(size):
    if example.bitmap:
       al_destroy_bitmap(example.bitmap)
    al_set_new_bitmap_flags(
-      ALLEGRO_MEMORY_BITMAP if example.use_memory_bitmaps else 0)
+      A5O_MEMORY_BITMAP if example.use_memory_bitmaps else 0)
    example.bitmap = al_create_bitmap(size, size)
    example.bitmap_size = size
    al_set_target_bitmap(example.bitmap)
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white)
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO, example.white)
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0))
    bw = al_get_bitmap_width(example.mysha)
    bh = al_get_bitmap_height(example.mysha)
@@ -163,22 +163,22 @@ def redraw():
     tint = example.white
 
     if example.blending == 0:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
+        al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA)
         tint = example.half_white
     elif example.blending == 1:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE)
+        al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE)
         tint = example.dark
     elif example.blending == 2:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO)
+        al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO)
         tint = example.red
     elif example.blending == 3:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white)
+        al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO, example.white)
 
     for i in range(example.sprite_count):
         s = example.sprites[i]
         al_draw_tinted_bitmap(example.bitmap, tint, s.x, s.y, 0)
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
+    al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA)
     if example.show_help:
         for i in range(5):
             al_draw_text(example.font, example.white, 0, h - 5 * fh + i * fh, 0, text[i])
@@ -193,9 +193,9 @@ def redraw():
         binfo[example.blending].encode("utf8"))
 
     f1, f2 = get_fps()
-    al_draw_textf(example.font, example.white, w, 0, ALLEGRO_ALIGN_RIGHT, "%s",
+    al_draw_textf(example.font, example.white, w, 0, A5O_ALIGN_RIGHT, "%s",
         ("FPS: %4d +- %-4d" % (f1, f2)).encode("utf8"))
-    al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "%s",
+    al_draw_textf(example.font, example.white, w, fh, A5O_ALIGN_RIGHT, "%s",
         ("%4d / sec" % int(1.0 / example.direct_speed_measure)).encode("utf8"))
 
 def main():
@@ -204,7 +204,7 @@ def main():
     need_redraw = True
     example.show_help = True
 
-    if not al_install_system(ALLEGRO_VERSION_INT, None):
+    if not al_install_system(A5O_VERSION_INT, None):
         abort_example("Failed to init Allegro.\n")
         sys.exit(1)
 
@@ -216,7 +216,7 @@ def main():
 
     al_get_num_video_adapters()
    
-    info = ALLEGRO_MONITOR_INFO()
+    info = A5O_MONITOR_INFO()
     al_get_monitor_info(0, byref(info))
     if info.x2 - info.x1 < w:
         w = info.x2 - info.x1
@@ -260,7 +260,7 @@ def main():
     al_start_timer(timer)
 
     while not done:
-        event = ALLEGRO_EVENT()
+        event = A5O_EVENT()
 
         if need_redraw and al_is_event_queue_empty(queue):
             t = -al_get_time()
@@ -274,39 +274,39 @@ def main():
 
         al_wait_for_event(queue, byref(event))
 
-        if event.type == ALLEGRO_EVENT_KEY_CHAR:
-            if event.keyboard.keycode == ALLEGRO_KEY_ESCAPE:
+        if event.type == A5O_EVENT_KEY_CHAR:
+            if event.keyboard.keycode == A5O_KEY_ESCAPE:
                done = True
-            elif event.keyboard.keycode == ALLEGRO_KEY_UP:
+            elif event.keyboard.keycode == A5O_KEY_UP:
                add_sprites(1)
-            elif event.keyboard.keycode == ALLEGRO_KEY_DOWN:
+            elif event.keyboard.keycode == A5O_KEY_DOWN:
                remove_sprites(1)
-            elif event.keyboard.keycode == ALLEGRO_KEY_LEFT:
+            elif event.keyboard.keycode == A5O_KEY_LEFT:
                change_size(example.bitmap_size - 1)
-            elif event.keyboard.keycode == ALLEGRO_KEY_RIGHT:
+            elif event.keyboard.keycode == A5O_KEY_RIGHT:
                change_size(example.bitmap_size + 1)
-            elif event.keyboard.keycode == ALLEGRO_KEY_F1:
+            elif event.keyboard.keycode == A5O_KEY_F1:
                example.show_help ^= 1
-            elif event.keyboard.keycode == ALLEGRO_KEY_SPACE:
+            elif event.keyboard.keycode == A5O_KEY_SPACE:
                example.use_memory_bitmaps ^= 1
                change_size(example.bitmap_size)
-            elif event.keyboard.keycode == ALLEGRO_KEY_B:
+            elif event.keyboard.keycode == A5O_KEY_B:
                example.blending += 1
                if example.blending == 4:
                   example.blending = 0
-        elif event.type == ALLEGRO_EVENT_DISPLAY_CLOSE:
+        elif event.type == A5O_EVENT_DISPLAY_CLOSE:
             done = True
 
-        elif event.type == ALLEGRO_EVENT_TIMER:
+        elif event.type == A5O_EVENT_TIMER:
             update()
             need_redraw = True
 
-        elif event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+        elif event.type == A5O_EVENT_MOUSE_BUTTON_DOWN:
             example.mouse_down = True
             example.last_x = event.mouse.x
             example.last_y = event.mouse.y
 
-        elif event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+        elif event.type == A5O_EVENT_MOUSE_BUTTON_UP:
             fh = al_get_font_line_height(example.font)
             example.mouse_down = False
             if event.mouse.x < 40 and event.mouse.y >= h - fh * 5:
@@ -321,7 +321,7 @@ def main():
                 if button == 4:
                     example.show_help ^= 1
 
-        elif event.type == ALLEGRO_EVENT_MOUSE_AXES:
+        elif event.type == A5O_EVENT_MOUSE_AXES:
             if example.mouse_down:
                 dx = event.mouse.x - example.last_x
                 dy = event.mouse.y - example.last_y

@@ -8,7 +8,7 @@
 #include "allegro5/allegro_iphone.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-ALLEGRO_DEBUG_CHANNEL("iphone")
+A5O_DEBUG_CHANNEL("iphone")
 
 void _al_iphone_run_user_main(void);
 
@@ -19,7 +19,7 @@ static bool disconnect_wait = false;
 static UIScreen *airplay_screen = NULL;
 static bool airplay_connected = false;
 
-ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex = NULL;
+A5O_MUTEX *_al_iphone_display_hotplug_mutex = NULL;
 
 /* Screen handling */
 @interface iphone_screen : NSObject
@@ -30,14 +30,14 @@ ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex = NULL;
    UIWindow *window;
    ViewController *vc;
    EAGLView *view;
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
 }
 @end
 
 @implementation iphone_screen
 @end
 
-void _al_iphone_disconnect(ALLEGRO_DISPLAY *display)
+void _al_iphone_disconnect(A5O_DISPLAY *display)
 {
    (void)display;
 
@@ -46,9 +46,9 @@ void _al_iphone_disconnect(ALLEGRO_DISPLAY *display)
 
 static NSMutableArray *iphone_screens;
 
-static int iphone_get_adapter(ALLEGRO_DISPLAY *display)
+static int iphone_get_adapter(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)display;
    return d->extra->adapter;
 }
 
@@ -72,13 +72,13 @@ static iphone_screen *iphone_get_screen_by_adapter(int adapter)
    return ret;
 }
 
-static iphone_screen *iphone_get_screen(ALLEGRO_DISPLAY *display)
+static iphone_screen *iphone_get_screen(A5O_DISPLAY *display)
 {
    int adapter = iphone_get_adapter(display);
    return iphone_get_screen_by_adapter(adapter);
 }
 
-bool _al_iphone_is_display_connected(ALLEGRO_DISPLAY *display)
+bool _al_iphone_is_display_connected(A5O_DISPLAY *display)
 {
    iphone_screen *scr = iphone_get_screen(display);
    return scr && (scr->display == display);
@@ -103,9 +103,9 @@ static void iphone_remove_screen(UIScreen *screen)
    al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
-void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
+void _al_iphone_destroy_screen(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)display;
 
    if (d->extra->adapter == 0) {
       global_delegate->main_display = NULL;
@@ -141,7 +141,7 @@ static void iphone_create_screens(void)
 
 /* Function: al_iphone_get_window
  */
-UIWindow *al_iphone_get_window(ALLEGRO_DISPLAY *display)
+UIWindow *al_iphone_get_window(A5O_DISPLAY *display)
 {
    al_lock_mutex(_al_iphone_display_hotplug_mutex);
    iphone_screen *scr = iphone_get_screen(display);
@@ -155,7 +155,7 @@ UIWindow *al_iphone_get_window(ALLEGRO_DISPLAY *display)
 
 /* Function: al_iphone_get_view
  */
-UIView *al_iphone_get_view(ALLEGRO_DISPLAY *display)
+UIView *al_iphone_get_view(A5O_DISPLAY *display)
 {
    iphone_screen *scr = iphone_get_screen(display);
    if (scr == NULL) {
@@ -168,34 +168,34 @@ static int iphone_orientation_to_allegro(UIDeviceOrientation orientation)
 {
    switch (orientation) {
       case UIDeviceOrientationPortrait:
-         return ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+         return A5O_DISPLAY_ORIENTATION_0_DEGREES;
 
       case UIDeviceOrientationPortraitUpsideDown:
-         return ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+         return A5O_DISPLAY_ORIENTATION_180_DEGREES;
 
       case UIDeviceOrientationLandscapeRight:
-         return ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+         return A5O_DISPLAY_ORIENTATION_90_DEGREES;
 
       case UIDeviceOrientationLandscapeLeft:
-         return ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+         return A5O_DISPLAY_ORIENTATION_270_DEGREES;
 
       case UIDeviceOrientationFaceUp:
-         return ALLEGRO_DISPLAY_ORIENTATION_FACE_UP;
+         return A5O_DISPLAY_ORIENTATION_FACE_UP;
 
       case UIDeviceOrientationFaceDown:
-         return ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN;
+         return A5O_DISPLAY_ORIENTATION_FACE_DOWN;
 
       default:
-         return ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+         return A5O_DISPLAY_ORIENTATION_UNKNOWN;
    }
 }
 
-static void iphone_send_orientation_event(ALLEGRO_DISPLAY* display, int orientation)
+static void iphone_send_orientation_event(A5O_DISPLAY* display, int orientation)
 {
    _al_event_source_lock(&display->es);
    if (_al_event_source_needs_to_generate_event(&display->es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_ORIENTATION;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_ORIENTATION;
       event.display.timestamp = al_get_time();
       event.display.source = display;
       event.display.orientation = orientation;
@@ -205,7 +205,7 @@ static void iphone_send_orientation_event(ALLEGRO_DISPLAY* display, int orientat
 }
 
 
-void _al_iphone_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
+void _al_iphone_acknowledge_drawing_halt(A5O_DISPLAY *display)
 {
    (void)display;
    waiting_for_program_halt = false;
@@ -217,23 +217,23 @@ void al_iphone_set_statusbar_orientation(int o)
 {
    UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
 
-   if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT)
+   if (o == A5O_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT)
       orientation = UIInterfaceOrientationPortrait;
-   else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN)
+   else if (o == A5O_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN)
       orientation = UIInterfaceOrientationPortraitUpsideDown;
-   else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT)
+   else if (o == A5O_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT)
       orientation = UIInterfaceOrientationLandscapeRight;
-   else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT)
+   else if (o == A5O_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT)
       orientation = UIInterfaceOrientationLandscapeLeft;
 
    [app setStatusBarOrientation:orientation animated:NO];
 }
 
-bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
+bool _al_iphone_add_view(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   A5O_DISPLAY_IPHONE *d = (A5O_DISPLAY_IPHONE *)display;
    
-   d->extra = al_calloc(1, sizeof(ALLEGRO_DISPLAY_IPHONE_EXTRA));
+   d->extra = al_calloc(1, sizeof(A5O_DISPLAY_IPHONE_EXTRA));
    int adapter = al_get_new_display_adapter();
    if (adapter < 0)
       adapter = 0;
@@ -272,25 +272,25 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
     *
     * But to stay compatible with how things worked at first we still support the
     * 6-orientations way as well - but only if the display has a sole supported
-    * orientation of ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES.
+    * orientation of A5O_DISPLAY_ORIENTATION_0_DEGREES.
     */
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
-   int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
-   if (supported == ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
+   A5O_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
+   int supported = options->settings[A5O_SUPPORTED_ORIENTATIONS];
+   if (supported == A5O_DISPLAY_ORIENTATION_0_DEGREES) {
       [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
    }
    
    return true;
 }
 
-void _al_iphone_make_view_current(ALLEGRO_DISPLAY *display)
+void _al_iphone_make_view_current(A5O_DISPLAY *display)
 {
    iphone_screen *scr = iphone_get_screen(display);
    if (scr)
       [scr->view make_current];
 }
 
-void _al_iphone_recreate_framebuffer(ALLEGRO_DISPLAY *display)
+void _al_iphone_recreate_framebuffer(A5O_DISPLAY *display)
 {
    iphone_screen *scr = iphone_get_screen(display);
    if (scr) {
@@ -303,14 +303,14 @@ void _al_iphone_recreate_framebuffer(ALLEGRO_DISPLAY *display)
    }
 }
 
-void _al_iphone_flip_view(ALLEGRO_DISPLAY *display)
+void _al_iphone_flip_view(A5O_DISPLAY *display)
 {
    iphone_screen *scr = iphone_get_screen(display);
    if (scr)
       [scr->view flip];
 }
 
-void _al_iphone_reset_framebuffer(ALLEGRO_DISPLAY *display)
+void _al_iphone_reset_framebuffer(A5O_DISPLAY *display)
 {
    iphone_screen *scr = iphone_get_screen(display);
    if (scr)
@@ -362,12 +362,12 @@ void _al_iphone_get_screen_size(int adapter, int *w, int *h)
    }
 }
 
-int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
+int _al_iphone_get_orientation(A5O_DISPLAY *display)
 {
    if (display) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
-      int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
-      if (supported != ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
+      A5O_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
+      int supported = options->settings[A5O_SUPPORTED_ORIENTATIONS];
+      if (supported != A5O_DISPLAY_ORIENTATION_0_DEGREES) {
          iphone_screen *scr = iphone_get_screen(display);
          UIInterfaceOrientation o = scr->vc.interfaceOrientation;
          UIDeviceOrientation od = (int)o; /* They are compatible. */
@@ -380,7 +380,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    if (NULL != device)
       return iphone_orientation_to_allegro([device orientation]);
    else
-      return ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+      return A5O_DISPLAY_ORIENTATION_UNKNOWN;
 }
 
 @implementation allegroAppDelegate
@@ -402,7 +402,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
-   ALLEGRO_INFO("App launched.\n");
+   A5O_INFO("App launched.\n");
 
    global_delegate = self;
    app = application;
@@ -424,19 +424,19 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 /* This may never get called on iOS 4 */
 - (void)applicationWillTerminate:(UIApplication *)application {
     (void)application;
-    ALLEGRO_EVENT event;
-    ALLEGRO_DISPLAY *d = main_display;
-    ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
+    A5O_EVENT event;
+    A5O_DISPLAY *d = main_display;
+    A5O_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     iphone->wants_shutdown = true;
     
-    ALLEGRO_INFO("Terminating.\n");
+    A5O_INFO("Terminating.\n");
    
    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 
     _al_event_source_lock(&d->es);
     
     if (_al_event_source_needs_to_generate_event(&d->es)) {
-        event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+        event.display.type = A5O_EVENT_DISPLAY_CLOSE;
         event.display.timestamp = al_get_time();
         _al_event_source_emit_event(&d->es, &event);
     }
@@ -450,16 +450,16 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-   ALLEGRO_DISPLAY *d = main_display;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *d = main_display;
+   A5O_EVENT event;
    
    (void)application;
     
-   ALLEGRO_INFO("Application becoming inactive.\n");
+   A5O_INFO("Application becoming inactive.\n");
 
    _al_event_source_lock(&d->es);
    if (_al_event_source_needs_to_generate_event(&d->es)) {
-       event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+       event.display.type = A5O_EVENT_DISPLAY_SWITCH_OUT;
        event.display.timestamp = al_current_time();
        _al_event_source_emit_event(&d->es, &event);
    }
@@ -467,19 +467,19 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    ALLEGRO_DISPLAY *d = main_display;
-   ALLEGRO_EVENT event;
+    A5O_DISPLAY *d = main_display;
+   A5O_EVENT event;
    
    (void)application;
     
-    ALLEGRO_INFO("Application becoming active.\n");
+    A5O_INFO("Application becoming active.\n");
 
    if (!d)
       return;
 
     _al_event_source_lock(&d->es);
     if (_al_event_source_needs_to_generate_event(&d->es)) {
-        event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+        event.display.type = A5O_EVENT_DISPLAY_SWITCH_IN;
         event.display.timestamp = al_current_time();
         _al_event_source_emit_event(&d->es, &event);
     }
@@ -487,18 +487,18 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-   ALLEGRO_DISPLAY *d = main_display;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *d = main_display;
+   A5O_EVENT event;
    
    (void)application;
     
-   ALLEGRO_INFO("Application entering background.\n");
+   A5O_INFO("Application entering background.\n");
 
    waiting_for_program_halt = true;
 
    _al_event_source_lock(&d->es);
    if (_al_event_source_needs_to_generate_event(&d->es)) {
-       event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
+       event.display.type = A5O_EVENT_DISPLAY_HALT_DRAWING;
        event.display.timestamp = al_current_time();
        _al_event_source_emit_event(&d->es, &event);
    }
@@ -511,16 +511,16 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-   ALLEGRO_DISPLAY *d = main_display;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *d = main_display;
+   A5O_EVENT event;
    
    (void)application;
     
-   ALLEGRO_INFO("Application coming back to foreground.\n");
+   A5O_INFO("Application coming back to foreground.\n");
 
    _al_event_source_lock(&d->es);
    if (_al_event_source_needs_to_generate_event(&d->es)) {
-       event.display.type = ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING;
+       event.display.type = A5O_EVENT_DISPLAY_RESUME_DRAWING;
        event.display.timestamp = al_current_time();
        _al_event_source_emit_event(&d->es, &event);
    }
@@ -531,8 +531,8 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
  * it and otherwise things simply don't work (the screen just stays black).
  */
 - (void)add_view:(NSValue *)value {
-   ALLEGRO_DISPLAY *d = [value pointerValue];
-   ALLEGRO_DISPLAY_IPHONE *disp = (ALLEGRO_DISPLAY_IPHONE *)d;
+   A5O_DISPLAY *d = [value pointerValue];
+   A5O_DISPLAY_IPHONE *disp = (A5O_DISPLAY_IPHONE *)d;
 
    int adapter = iphone_get_adapter(d);
    if (adapter == 0) {
@@ -590,14 +590,14 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 {
    airplay_screen = [aNotification object];
 
-   ALLEGRO_DISPLAY *display = main_display;
+   A5O_DISPLAY *display = main_display;
    
    if (!display) return;
 
    _al_event_source_lock(&display->es);
    if (_al_event_source_needs_to_generate_event(&display->es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_CONNECTED;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_CONNECTED;
       event.display.timestamp = al_get_time();
       event.display.source = display;
       _al_event_source_emit_event(&display->es, &event);
@@ -607,9 +607,9 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
  
 - (void)handleScreenDisconnectNotification:(NSNotification*)aNotification
 {
-   ALLEGRO_DISPLAY *display = main_display;
-   ALLEGRO_DISPLAY_IPHONE *idisplay = (ALLEGRO_DISPLAY_IPHONE *)display;
-   ALLEGRO_DISPLAY_IPHONE_EXTRA *extra;
+   A5O_DISPLAY *display = main_display;
+   A5O_DISPLAY_IPHONE *idisplay = (A5O_DISPLAY_IPHONE *)display;
+   A5O_DISPLAY_IPHONE_EXTRA *extra;
 
    if (!display) return;
 
@@ -620,8 +620,8 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 
    _al_event_source_lock(&display->es);
    if (_al_event_source_needs_to_generate_event(&display->es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_DISCONNECTED;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_DISCONNECTED;
       event.display.timestamp = al_get_time();
       event.display.source = display;
       _al_event_source_emit_event(&display->es, &event);

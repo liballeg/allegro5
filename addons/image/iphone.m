@@ -7,20 +7,20 @@
 
 #include "iio.h"
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
-static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
+static A5O_BITMAP *really_load_image(char *buffer, int size, int flags)
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-   ALLEGRO_BITMAP *bmp = NULL;
+   A5O_BITMAP *bmp = NULL;
    void *pixels = NULL;
    /* Note: buffer is now owned (and later freed) by the data object. */
    NSData *nsdata = [NSData dataWithBytesNoCopy:buffer length:size];
    UIImage *uiimage = [UIImage imageWithData:nsdata];
    int w = uiimage.size.width;
    int h = uiimage.size.height;
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & A5O_NO_PREMULTIPLIED_ALPHA);
 
    /* Now we need to draw the image into a memory buffer. */
    pixels = al_malloc(w * h * 4);
@@ -57,8 +57,8 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
    /* Then create a bitmap out of the memory buffer. */
    bmp = al_create_bitmap(w, h);
    if (!bmp) goto done;
-   ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
-      ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+   A5O_LOCKED_REGION *lock = al_lock_bitmap(bmp,
+      A5O_PIXEL_FORMAT_ABGR_8888, A5O_LOCK_WRITEONLY);
 
    if (!premul) {
       for (int i = 0; i < h; i++) {
@@ -98,15 +98,15 @@ done:
 }
 
 
-ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f, int flags)
+A5O_BITMAP *_al_iphone_load_image_f(A5O_FILE *f, int flags)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_ASSERT(f);
+   A5O_BITMAP *bmp;
+   A5O_ASSERT(f);
     
    int64_t size = al_fsize(f);
    if (size <= 0) {
       // TODO: Read from stream until we have the whole image
-      ALLEGRO_ERROR("Unable to determine file size.\n");
+      A5O_ERROR("Unable to determine file size.\n");
       return NULL;
    }
    /* Note: This *MUST* be the Apple malloc and not any wrapper, as the
@@ -121,16 +121,16 @@ ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f, int flags)
 }
 
 
-ALLEGRO_BITMAP *_al_iphone_load_image(const char *filename, int flags)
+A5O_BITMAP *_al_iphone_load_image(const char *filename, int flags)
 {
-   ALLEGRO_FILE *fp;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *fp;
+   A5O_BITMAP *bmp;
 
-   ALLEGRO_ASSERT(filename);
+   A5O_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 

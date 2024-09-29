@@ -28,7 +28,7 @@
 #include "allegro5/internal/aintern_list.h"
 
 
-ALLEGRO_DEBUG_CHANNEL("list")
+A5O_DEBUG_CHANNEL("list")
 
 
 /* Definition of list, holds root and size. */
@@ -109,7 +109,7 @@ static _AL_LIST* list_do_create(size_t capacity, size_t extra_item_size)
 
    memory_ptr = (uint8_t*)al_malloc(memory_size);
    if (NULL == memory_ptr) {
-      ALLEGRO_ERROR("Out of memory.");
+      A5O_ERROR("Out of memory.");
       return NULL;
    }
 
@@ -246,7 +246,7 @@ _AL_LIST* _al_list_create_static(size_t capacity)
 {
    if (capacity < 1) {
 
-      ALLEGRO_ERROR("Cannot create static list without any capacity.");
+      A5O_ERROR("Cannot create static list without any capacity.");
       return NULL;
    }
 

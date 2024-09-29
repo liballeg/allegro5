@@ -11,9 +11,9 @@
 #define SAMPLES_PER_BUFFER    1024
 
 
-static void saw(ALLEGRO_AUDIO_STREAM *stream)
+static void saw(A5O_AUDIO_STREAM *stream)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_EVENT_QUEUE *queue;
    int8_t *buf;
    int pitch = 0x10000;
    int val = 0;
@@ -22,7 +22,7 @@ static void saw(ALLEGRO_AUDIO_STREAM *stream)
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_audio_stream_event_source(stream));
-#ifdef ALLEGRO_POPUP_EXAMPLES
+#ifdef A5O_POPUP_EXAMPLES
    if (textlog) {
       al_register_event_source(queue, al_get_native_text_log_event_source(textlog));
    }
@@ -31,11 +31,11 @@ static void saw(ALLEGRO_AUDIO_STREAM *stream)
    log_printf("Generating saw wave...\n");
 
    while (n > 0) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+      if (event.type == A5O_EVENT_AUDIO_STREAM_FRAGMENT) {
          buf = al_get_audio_stream_fragment(stream);
          if (!buf) {
             /* This is a normal condition you must deal with. */
@@ -65,8 +65,8 @@ static void saw(ALLEGRO_AUDIO_STREAM *stream)
          }
       }
 
-#ifdef ALLEGRO_POPUP_EXAMPLES
-      if (event.type == ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE) {
+#ifdef A5O_POPUP_EXAMPLES
+      if (event.type == A5O_EVENT_NATIVE_DIALOG_CLOSE) {
          break;
       }
 #endif
@@ -82,7 +82,7 @@ static void saw(ALLEGRO_AUDIO_STREAM *stream)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_AUDIO_STREAM *stream;
    void *buf;
 
    (void)argc;
@@ -98,10 +98,10 @@ int main(int argc, char **argv)
    al_reserve_samples(0);
 
    stream = al_create_audio_stream(8, SAMPLES_PER_BUFFER, 22050,
-      ALLEGRO_AUDIO_DEPTH_UINT8, ALLEGRO_CHANNEL_CONF_1);
+      A5O_AUDIO_DEPTH_UINT8, A5O_CHANNEL_CONF_1);
    while ((buf = al_get_audio_stream_fragment(stream))) {
-      al_fill_silence(buf, SAMPLES_PER_BUFFER, ALLEGRO_AUDIO_DEPTH_UINT8,
-         ALLEGRO_CHANNEL_CONF_1);
+      al_fill_silence(buf, SAMPLES_PER_BUFFER, A5O_AUDIO_DEPTH_UINT8,
+         A5O_CHANNEL_CONF_1);
       al_set_audio_stream_fragment(stream, buf);
    }
 

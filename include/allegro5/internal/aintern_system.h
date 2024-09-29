@@ -16,34 +16,34 @@
 extern "C" {
 #endif
 
-typedef struct ALLEGRO_SYSTEM_INTERFACE ALLEGRO_SYSTEM_INTERFACE;
+typedef struct A5O_SYSTEM_INTERFACE A5O_SYSTEM_INTERFACE;
 
-struct ALLEGRO_SYSTEM_INTERFACE
+struct A5O_SYSTEM_INTERFACE
 {
-   ALLEGRO_SYSTEM_ID id;
-   ALLEGRO_SYSTEM *(*initialize)(int flags);
-   ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
-   ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
-   ALLEGRO_MOUSE_DRIVER *(*get_mouse_driver)(void);
-   ALLEGRO_TOUCH_INPUT_DRIVER *(*get_touch_input_driver)(void);
-   ALLEGRO_JOYSTICK_DRIVER *(*get_joystick_driver)(void);
-   ALLEGRO_HAPTIC_DRIVER *(*get_haptic_driver)(void);
+   A5O_SYSTEM_ID id;
+   A5O_SYSTEM *(*initialize)(int flags);
+   A5O_DISPLAY_INTERFACE *(*get_display_driver)(void);
+   A5O_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
+   A5O_MOUSE_DRIVER *(*get_mouse_driver)(void);
+   A5O_TOUCH_INPUT_DRIVER *(*get_touch_input_driver)(void);
+   A5O_JOYSTICK_DRIVER *(*get_joystick_driver)(void);
+   A5O_HAPTIC_DRIVER *(*get_haptic_driver)(void);
    int (*get_num_display_modes)(void);
-   ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
+   A5O_DISPLAY_MODE *(*get_display_mode)(int index, A5O_DISPLAY_MODE *mode);
    void (*shutdown_system)(void);
    int (*get_num_video_adapters)(void);
-   bool (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
+   bool (*get_monitor_info)(int adapter, A5O_MONITOR_INFO *info);
    int (*get_monitor_refresh_rate)(int adapter);
    int (*get_monitor_dpi)(int adapter);
-   ALLEGRO_MOUSE_CURSOR *(*create_mouse_cursor)(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus);
-   void (*destroy_mouse_cursor)(ALLEGRO_MOUSE_CURSOR *cursor);
+   A5O_MOUSE_CURSOR *(*create_mouse_cursor)(A5O_BITMAP *bmp, int x_focus, int y_focus);
+   void (*destroy_mouse_cursor)(A5O_MOUSE_CURSOR *cursor);
    bool (*get_cursor_position)(int *ret_x, int *ret_y);
-   bool (*grab_mouse)(ALLEGRO_DISPLAY *display);
+   bool (*grab_mouse)(A5O_DISPLAY *display);
    bool (*ungrab_mouse)(void);
-   ALLEGRO_PATH *(*get_path)(int id);
+   A5O_PATH *(*get_path)(int id);
    bool (*inhibit_screensaver)(bool inhibit);
-   void (*thread_init)(ALLEGRO_THREAD *thread);
-   void (*thread_exit)(ALLEGRO_THREAD *thread);
+   void (*thread_init)(A5O_THREAD *thread);
+   void (*thread_exit)(A5O_THREAD *thread);
    void *(*open_library)(const char *filename);
    void *(*import_symbol)(void *library, const char *symbol);
    void (*close_library)(void *handle);
@@ -51,14 +51,14 @@ struct ALLEGRO_SYSTEM_INTERFACE
    void (*heartbeat_init)(void);
    double (*get_time)(void);
    void (*rest)(double seconds);
-   void (*init_timeout)(ALLEGRO_TIMEOUT *timeout, double seconds);
+   void (*init_timeout)(A5O_TIMEOUT *timeout, double seconds);
 };
 
-struct ALLEGRO_SYSTEM
+struct A5O_SYSTEM
 {
-   ALLEGRO_SYSTEM_INTERFACE *vt;
+   A5O_SYSTEM_INTERFACE *vt;
    _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
-   ALLEGRO_PATH *user_exe_path;
+   A5O_PATH *user_exe_path;
    int mouse_wheel_precision;
    int min_bitmap_size;
    bool installed;

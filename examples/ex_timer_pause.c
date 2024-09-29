@@ -19,11 +19,11 @@ int main(int argc, char **argv)
    const double pre_pause = 2; // how long to wait before pausing
    const double pause = 2;     // how long to pause timer for
 
-   ALLEGRO_TIMER       *timer1  = NULL;
-   ALLEGRO_TIMER       *timer2  = NULL;
-   ALLEGRO_EVENT_QUEUE *queue   = NULL;
+   A5O_TIMER       *timer1  = NULL;
+   A5O_TIMER       *timer2  = NULL;
+   A5O_EVENT_QUEUE *queue   = NULL;
 
-   ALLEGRO_EVENT ev;
+   A5O_EVENT ev;
 
    (void)argc;
    (void)argv;

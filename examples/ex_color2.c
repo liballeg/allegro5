@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_color.h>
@@ -11,15 +11,15 @@
 #define FPS 60
 
 typedef struct {
-   ALLEGRO_COLOR rgb;
+   A5O_COLOR rgb;
    float l, a, b;
 } Color;
 
 struct Example {
-   ALLEGRO_FONT *font;
-   ALLEGRO_BITMAP *lab[512];
-   ALLEGRO_COLOR black;
-   ALLEGRO_COLOR white;
+   A5O_FONT *font;
+   A5O_BITMAP *lab[512];
+   A5O_COLOR black;
+   A5O_COLOR white;
    Color color[2];
    int mx, my;
    int mb; // 1 = clicked, 2 = released, 3 = pressed
@@ -35,15 +35,15 @@ static void draw_lab(int l)
    if (example.lab[l]) return;
 
    example.lab[l] = al_create_bitmap(512, 512);
-   ALLEGRO_LOCKED_REGION *rg = al_lock_bitmap(example.lab[l],
-         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   A5O_LOCKED_REGION *rg = al_lock_bitmap(example.lab[l],
+         A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_WRITEONLY);
    int x, y;
    for (y = 0; y < 512; y++) {
       for (x = 0; x < 512; x++) {
          float a = (x - 511.0 / 2) / (511.0 / 2);
          float b = (y - 511.0 / 2) / (511.0 / 2);
          b = -b;
-         ALLEGRO_COLOR rgb = al_color_lab(l / 511.0, a, b);
+         A5O_COLOR rgb = al_color_lab(l / 511.0, a, b);
          if (!al_is_color_valid(rgb)) {
             rgb = al_map_rgb_f(0, 0, 0);
          }
@@ -117,7 +117,7 @@ static void draw_range(int ci)
          if (rf < 0 || rf > 1 || gf < 0 || gf > 1 || bf < 0 || bf > 1) {
             continue;
          }
-         ALLEGRO_COLOR rgb = {rf, gf, bf, 1};
+         A5O_COLOR rgb = {rf, gf, bf, 1};
          float d = al_color_distance_ciede2000(rgb, example.color[ci].rgb);
          if (d <= 0.05) {
             if (d > 0.04) {
@@ -156,7 +156,7 @@ static void draw_axis(float x, float y, float a, float a2, float l,
       float y2 = y - l * sin(a) * i / (ticks - 1);
       al_draw_line(x2, y2, x2 + tl * cos(a2), y2 - tl * sin(a2), example.white, 1);
       al_draw_textf(example.font, example.white,
-         (int)(x2 + (tl + 2) * cos(a2)), (int)(y2 - (tl + 2) * sin(a2)), ALLEGRO_ALIGN_RIGHT, numformat,
+         (int)(x2 + (tl + 2) * cos(a2)), (int)(y2 - (tl + 2) * sin(a2)), A5O_ALIGN_RIGHT, numformat,
          num1 + i * (num2 - num1) / (ticks - 1));
    }
    float lv = (num - num1) * l / (num2 - num1);
@@ -179,24 +179,24 @@ static void redraw(void)
       float a = example.color[ci].a;
       float b = example.color[ci].b;
 
-      ALLEGRO_COLOR rgb = example.color[ci].rgb;
+      A5O_COLOR rgb = example.color[ci].rgb;
       
       draw_lab((int)(l * 511));
 
       al_draw_bitmap(example.lab[(int)(l * 511)], cx + example.left_x, example.top_y, 0);
 
-      draw_axis(cx + example.left_x, example.top_y + 512.5, 0, ALLEGRO_PI / -2, 512, 16,
+      draw_axis(cx + example.left_x, example.top_y + 512.5, 0, A5O_PI / -2, 512, 16,
          "a*", 11, "%.2f", -1, 1, a);
-      draw_axis(cx + example.left_x - 0.5, example.top_y + 512, ALLEGRO_PI / 2, ALLEGRO_PI,
+      draw_axis(cx + example.left_x - 0.5, example.top_y + 512, A5O_PI / 2, A5O_PI,
          512, 16, "b*", 11, "%.2f", -1, 1, b);
       
       al_draw_textf(example.font, example.white, cx + example.left_x + 36, 8, 0,
          "L*a*b* = %.2f/%.2f/%.2f sRGB = %.2f/%.2f/%.2f",
          l, a, b, rgb.r, rgb.g, rgb.b);
-      draw_axis(cx + example.slider_x - 0.5, example.top_y + 512, ALLEGRO_PI / 2, ALLEGRO_PI,
+      draw_axis(cx + example.slider_x - 0.5, example.top_y + 512, A5O_PI / 2, A5O_PI,
          512, 4, "L*", 3, "%.1f", 0, 1, l);
 
-      ALLEGRO_COLOR c = al_map_rgb_f(rgb.r, rgb.g, rgb.b);
+      A5O_COLOR c = al_map_rgb_f(rgb.r, rgb.g, rgb.b);
       al_draw_filled_rectangle(cx, h - 128, cx + w / 2, h, c);
 
       draw_range(ci);
@@ -220,11 +220,11 @@ static void redraw(void)
    float d2000 = al_color_distance_ciede2000(example.color[0].rgb,
       example.color[1].rgb);
    al_draw_textf(example.font, example.white, w / 2, h - 64,
-      ALLEGRO_ALIGN_CENTER, "dRGB = %.2f", drgb);
+      A5O_ALIGN_CENTER, "dRGB = %.2f", drgb);
    al_draw_textf(example.font, example.white, w / 2, h - 64 + 12,
-      ALLEGRO_ALIGN_CENTER, "dLab = %.2f", dlab);
+      A5O_ALIGN_CENTER, "dLab = %.2f", dlab);
    al_draw_textf(example.font, example.white, w / 2, h - 64 + 24,
-      ALLEGRO_ALIGN_CENTER, "CIEDE2000 = %.2f", d2000);
+      A5O_ALIGN_CENTER, "CIEDE2000 = %.2f", d2000);
 
    al_draw_rectangle(w / 2 - 80, h - 70, w / 2 + 80, h - 24,
       example.white, 4);
@@ -278,9 +278,9 @@ static void update(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
    int w = 1280, h = 720;
    bool done = false;
    bool need_redraw = true;
@@ -320,7 +320,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (need_redraw) {
          redraw();
@@ -331,29 +331,29 @@ int main(int argc, char **argv)
       while (true) {
          al_wait_for_event(queue, &event);
          switch (event.type) {
-            case ALLEGRO_EVENT_KEY_CHAR:
-               if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+            case A5O_EVENT_KEY_CHAR:
+               if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                   done = true;
                break;
 
-            case ALLEGRO_EVENT_MOUSE_AXES:
+            case A5O_EVENT_MOUSE_AXES:
                example.mx = event.mouse.x;
                example.my = event.mouse.y;
                break;
 
-            case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+            case A5O_EVENT_MOUSE_BUTTON_DOWN:
                example.mb = 1;
                break;
 
-            case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+            case A5O_EVENT_MOUSE_BUTTON_UP:
                example.mb = 2;
                break;
 
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            case A5O_EVENT_DISPLAY_CLOSE:
                done = true;
                break;
 
-            case ALLEGRO_EVENT_TIMER:
+            case A5O_EVENT_TIMER:
                update();
                need_redraw = true;
                break;

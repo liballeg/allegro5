@@ -6,19 +6,19 @@
 
 /* Some definitions to smooth out the code in the opengl directory. */
 
-#ifdef ALLEGRO_CFG_OPENGLES
+#ifdef A5O_CFG_OPENGLES
    #define IS_OPENGLES        (true)
 #else
    #define IS_OPENGLES        (false)
 #endif
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
    #define IS_IPHONE          (true)
 #else
    #define IS_IPHONE          (false)
 #endif
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    #define IS_ANDROID         (true)
    #define IS_ANDROID_AND(x)  (x)
 #else
@@ -26,13 +26,13 @@
    #define IS_ANDROID_AND(x)  (false)
 #endif
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
    #define IS_RASPBERRYPI     (true)
 #else
    #define IS_RASPBERRYPI     (false)
 #endif
 
-#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_RASPBERRYPI)
+#if defined(A5O_ANDROID) || defined(A5O_RASPBERRYPI)
    #define UNLESS_ANDROID_OR_RPI(x) (0)
 #else
    #define UNLESS_ANDROID_OR_RPI(x) (x)
@@ -40,9 +40,9 @@
 
 /* Android uses different functions/symbol names depending on ES version */
 #define ANDROID_PROGRAMMABLE_PIPELINE(dpy) \
-   IS_ANDROID_AND(al_get_display_flags(dpy) & ALLEGRO_PROGRAMMABLE_PIPELINE)
+   IS_ANDROID_AND(al_get_display_flags(dpy) & A5O_PROGRAMMABLE_PIPELINE)
 
-#if defined ALLEGRO_CFG_OPENGLES2
+#if defined A5O_CFG_OPENGLES2
 #ifndef GL_EXT_draw_buffers
    #define GL_COLOR_ATTACHMENT0_EXT     GL_COLOR_ATTACHMENT0
 #endif
@@ -64,7 +64,7 @@
    #define glFramebufferRenderbufferEXT glFramebufferRenderbuffer
    #define glDeleteRenderbuffersEXT     glDeleteRenderbuffers
    #define GL_DEPTH_ATTACHMENT_EXT      GL_DEPTH_ATTACHMENT
-#elif defined ALLEGRO_CFG_OPENGLES
+#elif defined A5O_CFG_OPENGLES
    /* Note: This works because all the constants are the same, e.g.
     * GL_FRAMEBUFFER_OES == GL_FRAMEBUFFER_EXT == 0x8D40
     * And so we can use the OpenGL framebuffer extension in the same was

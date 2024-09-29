@@ -6,16 +6,16 @@
 
 #include "common.c"
 
-static void print(ALLEGRO_FONT *myfont, char *message, int x, int y)
+static void print(A5O_FONT *myfont, char *message, int x, int y)
 {
    al_draw_text(myfont, al_map_rgb(0, 0, 0), x+2, y+2, 0, message);
    al_draw_text(myfont, al_map_rgb(255, 255, 255), x, y, 0, message);
 }
 
-static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
+static bool test(A5O_BITMAP *bitmap, A5O_FONT *font, char *message)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    double start_time;
    long frames = 0;
    double fps = 0;
@@ -29,18 +29,18 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
 
    for (;;) {
       if (al_get_next_event(queue, &event)) {
-         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+         if (event.type == A5O_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == A5O_KEY_SPACE) {
                break;
             }
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
                quit = true;
                break;
             }
          }
       }
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 
       /* Clear the backbuffer with red so we can tell if the bitmap does not
        * cover the entire backbuffer.
@@ -55,7 +55,7 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
          al_get_bitmap_height(al_get_target_bitmap()),
          0);
       
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
       /* Note this makes the memory buffer case much slower due to repeated
        * locking of the backbuffer.  Officially you can't use al_lock_bitmap
@@ -78,11 +78,11 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *accelfont;
-   ALLEGRO_FONT *memfont;
-   ALLEGRO_BITMAP *accelbmp;
-   ALLEGRO_BITMAP *membmp;
+   A5O_DISPLAY *display;
+   A5O_FONT *accelfont;
+   A5O_FONT *memfont;
+   A5O_BITMAP *accelbmp;
+   A5O_BITMAP *membmp;
 
    (void)argc;
    (void)argv;
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
       abort_example("mysha.pcx not found\n");
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
 
    memfont = al_load_font("data/font.tga", 0, 0);
    membmp = al_load_bitmap("data/mysha.pcx");

@@ -18,10 +18,10 @@ static struct {
 
 static int cur_res = 0;
 
-static void redraw(ALLEGRO_BITMAP *picture)
+static void redraw(A5O_BITMAP *picture)
 {
-   ALLEGRO_COLOR color;
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_COLOR color;
+   A5O_BITMAP *target = al_get_target_bitmap();
    int w = al_get_bitmap_width(target);
    int h = al_get_bitmap_height(target);
 
@@ -39,10 +39,10 @@ static void redraw(ALLEGRO_BITMAP *picture)
    al_flip_display();
 }
 
-static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
+static void main_loop(A5O_DISPLAY *display, A5O_BITMAP *picture)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    bool can_draw;
    int new_res;
 
@@ -58,21 +58,21 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
       }
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_LOST) {
+      if (event.type == A5O_EVENT_DISPLAY_LOST) {
          log_printf("Display lost\n");
          can_draw = false;
          continue;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_FOUND) {
+      if (event.type == A5O_EVENT_DISPLAY_FOUND) {
          log_printf("Display found\n");
          can_draw = true;
          continue;
       }
-      if (event.type != ALLEGRO_EVENT_KEY_CHAR) {
+      if (event.type != A5O_EVENT_KEY_CHAR) {
          continue;
       }
 
-      if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
 
@@ -80,7 +80,7 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
 
       if (event.keyboard.unichar == '+' ||
             event.keyboard.unichar == ' ' ||
-            event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+            event.keyboard.keycode == A5O_KEY_ENTER) {
          new_res++;
          if (new_res >= NUM_RESOLUTIONS)
             new_res = 0;
@@ -109,8 +109,8 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *picture;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *picture;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -126,8 +126,8 @@ int main(int argc, char **argv)
    	al_set_new_display_adapter(atoi(argv[1]));
    }
 
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN |
-       ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_FULLSCREEN |
+       A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(res[cur_res].w, res[cur_res].h);
    if (!display) {
       abort_example("Error creating display\n");

@@ -15,7 +15,7 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
 
 @private
    EAGLContext *context;
-   ALLEGRO_DISPLAY *allegro_display;
+   A5O_DISPLAY *allegro_display;
 
    /* OpenGL names for the renderbuffer and framebuffers used to render to this view */
    GLuint viewRenderbuffer, viewFramebuffer;
@@ -44,7 +44,7 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
 - (void)make_current;
 - (void)flip;
 - (void)reset_framebuffer;
-- (void)set_allegro_display:(ALLEGRO_DISPLAY *)display;
+- (void)set_allegro_display:(A5O_DISPLAY *)display;
 - (BOOL) createFramebuffer;
 - (void) destroyFramebuffer;
 - (BOOL)orientation_supported:(UIInterfaceOrientation)o;

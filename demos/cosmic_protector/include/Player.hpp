@@ -11,7 +11,7 @@ public:
    bool logic(int step);
    void render_extra(void);
    void render(int offx, int offy);
-   void render(int offx, int offy, ALLEGRO_COLOR tint);
+   void render(int offx, int offy, A5O_COLOR tint);
    bool hit(int damage);
 
    void destroy(void);
@@ -41,11 +41,11 @@ private:
    int invincibleCount;
    int score;
 
-   ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_BITMAP *trans_bitmap;
-   ALLEGRO_BITMAP *trail_bitmap;
-   ALLEGRO_BITMAP *icon;
-   ALLEGRO_BITMAP *highscoreBitmap;
+   A5O_BITMAP *bitmap;
+   A5O_BITMAP *trans_bitmap;
+   A5O_BITMAP *trail_bitmap;
+   A5O_BITMAP *icon;
+   A5O_BITMAP *highscoreBitmap;
 };
 
 #endif // PLAYER_HPP

@@ -66,7 +66,7 @@ void Entity::wrap(void)
       y -= BB_H;
 }
 
-void Entity::render_four(ALLEGRO_COLOR tint)
+void Entity::render_four(A5O_COLOR tint)
 {
    int ox = 0;
    render(0, 0, tint);
@@ -88,7 +88,7 @@ void Entity::render_four(ALLEGRO_COLOR tint)
    }
 }
 
-void Entity::render(int x, int y, ALLEGRO_COLOR c)
+void Entity::render(int x, int y, A5O_COLOR c)
 {
    (void)c; // To use c must override this in a sub-class.
    render(x, y);

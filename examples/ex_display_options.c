@@ -6,8 +6,8 @@
 
 #include "common.c"
 
-ALLEGRO_FONT *font;
-ALLEGRO_COLOR white;
+A5O_FONT *font;
+A5O_COLOR white;
 int font_h;
 int modes_count;
 int options_count;
@@ -21,7 +21,7 @@ int selected_column;
 int selected_mode;
 int selected_option;
 
-#define X(x, m) {#x, ALLEGRO_##x, 0, m, 0}
+#define X(x, m) {#x, A5O_##x, 0, m, 0}
 struct {
     char const *name;
     int option;
@@ -58,7 +58,7 @@ static char const *flag_names[32];
 static void init_flags(void)
 {
    int i;
-   #define X(f) if (1 << i == ALLEGRO_##f) flag_names[i] = #f;
+   #define X(f) if (1 << i == A5O_##f) flag_names[i] = #f;
    for (i = 0; i < 32; i++) {
       X(WINDOWED)
       X(FULLSCREEN)
@@ -81,14 +81,14 @@ static void load_font(void)
    font_h = al_get_font_line_height(font);
 }
 
-static void display_options(ALLEGRO_DISPLAY *display)
+static void display_options(A5O_DISPLAY *display)
 {
    int i, y = 10;
    int x = 10;
    int n = options_count;
    int dw = al_get_display_width(display);
    int dh = al_get_display_height(display);
-   ALLEGRO_COLOR c;
+   A5O_COLOR c;
 
    modes_count = al_get_num_display_modes();
    
@@ -97,7 +97,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
    y += font_h;
    for (i = first_visible_row; i < modes_count + 2 &&
       i < first_visible_row + visible_rows; i++) {
-      ALLEGRO_DISPLAY_MODE mode;
+      A5O_DISPLAY_MODE mode;
       if (i > 1) {
          al_get_display_mode(i - 2, &mode);
       }
@@ -115,11 +115,11 @@ static void display_options(ALLEGRO_DISPLAY *display)
       }
       if (selected_column == 0 && selected_mode == i) {
          c = al_map_rgb_f(1, 1, 0);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
          al_draw_filled_rectangle(x, y, x + 300, y + font_h, c);
       }
       c = al_map_rgb_f(0, 0, 0);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       if ((i == first_visible_row && i > 0) ||
             (i == first_visible_row + visible_rows - 1 &&
             i < modes_count + 1)) {
@@ -137,7 +137,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
    y = 10;
    c = al_map_rgb_f(0.8, 0.8, 1);
    al_draw_textf(font, c, x, y, 0, "Options for new display");
-   al_draw_textf(font, c, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "(current display)");
+   al_draw_textf(font, c, dw - 10, y, A5O_ALIGN_RIGHT, "(current display)");
    y += font_h;
    for (i = 0; i < n; i++) {
       if (selected_column == 1 && selected_option == i) {
@@ -146,18 +146,18 @@ static void display_options(ALLEGRO_DISPLAY *display)
       }
 
       switch (options[i].required) {
-         case ALLEGRO_REQUIRE: c = al_map_rgb_f(0.5, 0, 0); break;
-         case ALLEGRO_SUGGEST: c = al_map_rgb_f(0, 0, 0); break;
-         case ALLEGRO_DONTCARE: c = al_map_rgb_f(0.5, 0.5, 0.5); break;
+         case A5O_REQUIRE: c = al_map_rgb_f(0.5, 0, 0); break;
+         case A5O_SUGGEST: c = al_map_rgb_f(0, 0, 0); break;
+         case A5O_DONTCARE: c = al_map_rgb_f(0.5, 0.5, 0.5); break;
       }
       al_draw_textf(font, c, x, y, 0, "%s: %d (%s)", options[i].name,
          options[i].value,
-            options[i].required == ALLEGRO_REQUIRE ? "required" :
-            options[i].required == ALLEGRO_SUGGEST ? "suggested" :
+            options[i].required == A5O_REQUIRE ? "required" :
+            options[i].required == A5O_SUGGEST ? "suggested" :
             "ignored");
             
       c = al_map_rgb_f(0.9, 0.5, 0.3);
-      al_draw_textf(font, c, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "%d",
+      al_draw_textf(font, c, dw - 10, y, A5O_ALIGN_RIGHT, "%d",
          al_get_display_option(display, options[i].option));
       y += font_h;
    }
@@ -184,7 +184,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
    }
    
    c = al_map_rgb_f(1, 0, 0);
-   al_draw_text(font, c, dw / 2, dh - font_h, ALLEGRO_ALIGN_CENTRE, status);
+   al_draw_text(font, c, dw / 2, dh - font_h, A5O_ALIGN_CENTRE, status);
 }
 
 static void update_ui(void)
@@ -195,9 +195,9 @@ static void update_ui(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
    bool redraw = false;
 
    (void)argc;
@@ -242,12 +242,12 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          if (event.mouse.button == 1) {
             int dw = al_get_display_width(display);
             int y = 10;
@@ -269,7 +269,7 @@ int main(int argc, char **argv)
             }
          }
       }
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
           int f = al_get_display_flags(display);
           if (f != flags) {
               redraw = true;
@@ -277,45 +277,45 @@ int main(int argc, char **argv)
               old_flags |= f;
           }
       }
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+      if (event.type == A5O_EVENT_KEY_CHAR) {
          int change;
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
-         if (event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
+         if (event.keyboard.keycode == A5O_KEY_LEFT) {
             selected_column = 0;
             redraw = true;
          }
-         if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+         if (event.keyboard.keycode == A5O_KEY_RIGHT) {
             selected_column = 1;
             redraw = true;
          }
-         if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
+         if (event.keyboard.keycode == A5O_KEY_UP) {
             if (selected_column == 0) selected_mode -= 1;
             if (selected_column == 1) selected_option -= 1;
             redraw = true;
          }
-         if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_DOWN) {
             if (selected_column == 0) selected_mode += 1;
             if (selected_column == 1) selected_option += 1;
             redraw = true;
          }
-         if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+         if (event.keyboard.keycode == A5O_KEY_ENTER) {
              if (selected_column == 0) {
-                ALLEGRO_DISPLAY_MODE mode;
-                ALLEGRO_DISPLAY *new_display;
+                A5O_DISPLAY_MODE mode;
+                A5O_DISPLAY *new_display;
                 if (selected_mode > 1) {
                     al_get_display_mode(selected_mode - 2, &mode);
-                    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+                    al_set_new_display_flags(A5O_FULLSCREEN);
                 }
                 else if (selected_mode == 1) {
                     mode.width = 800;
                     mode.height = 600;
-                    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+                    al_set_new_display_flags(A5O_FULLSCREEN_WINDOW);
                 }
                 else {
                     mode.width = 800;
                     mode.height = 600;
-                    al_set_new_display_flags(ALLEGRO_WINDOWED);
+                    al_set_new_display_flags(A5O_WINDOWED);
                 }
 
                 al_destroy_font(font);
@@ -349,8 +349,8 @@ int main(int argc, char **argv)
              redraw = true;
          }
          change = 0;
-         if (event.keyboard.keycode == ALLEGRO_KEY_PGUP) change = 1;
-         if (event.keyboard.keycode == ALLEGRO_KEY_PGDN) change = -1;
+         if (event.keyboard.keycode == A5O_KEY_PGUP) change = 1;
+         if (event.keyboard.keycode == A5O_KEY_PGDN) change = -1;
          if (change && selected_column == 1) {
             options[selected_option].value += change;
             if (options[selected_option].value < 0)

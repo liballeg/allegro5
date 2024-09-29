@@ -23,24 +23,24 @@
 #include "allegro5/internal/aintern_transform.h"
 #include <math.h>
 
-/* ALLEGRO_DEBUG_CHANNEL("transformations") */
+/* A5O_DEBUG_CHANNEL("transformations") */
 
 /* Function: al_copy_transform
  */
-void al_copy_transform(ALLEGRO_TRANSFORM *dest, const ALLEGRO_TRANSFORM *src)
+void al_copy_transform(A5O_TRANSFORM *dest, const A5O_TRANSFORM *src)
 {
    ASSERT(src);
    ASSERT(dest);
 
-   memcpy(dest, src, sizeof(ALLEGRO_TRANSFORM));
+   memcpy(dest, src, sizeof(A5O_TRANSFORM));
 }
 
 /* Function: al_use_transform
  */
-void al_use_transform(const ALLEGRO_TRANSFORM *trans)
+void al_use_transform(const A5O_TRANSFORM *trans)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *display;
+   A5O_BITMAP *target = al_get_target_bitmap();
+   A5O_DISPLAY *display;
 
    if (!target)
       return;
@@ -71,16 +71,16 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
 
 /* Function: al_use_projection_transform
  */
-void al_use_projection_transform(const ALLEGRO_TRANSFORM *trans)
+void al_use_projection_transform(const A5O_TRANSFORM *trans)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *display;
+   A5O_BITMAP *target = al_get_target_bitmap();
+   A5O_DISPLAY *display;
 
    if (!target)
       return;
 
    /* Memory bitmaps don't support custom projection transforms */
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP)
+   if (al_get_bitmap_flags(target) & A5O_MEMORY_BITMAP)
       return;
 
    /* Changes to a back buffer should affect the front buffer, and vice versa.
@@ -101,9 +101,9 @@ void al_use_projection_transform(const ALLEGRO_TRANSFORM *trans)
 
 /* Function: al_get_current_transform
  */
-const ALLEGRO_TRANSFORM *al_get_current_transform(void)
+const A5O_TRANSFORM *al_get_current_transform(void)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
 
    if (!target)
       return NULL;
@@ -113,9 +113,9 @@ const ALLEGRO_TRANSFORM *al_get_current_transform(void)
 
 /* Function: al_get_current_projection_transform
  */
-const ALLEGRO_TRANSFORM *al_get_current_projection_transform(void)
+const A5O_TRANSFORM *al_get_current_projection_transform(void)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
 
    if (!target)
       return NULL;
@@ -125,9 +125,9 @@ const ALLEGRO_TRANSFORM *al_get_current_projection_transform(void)
 
 /* Function: al_get_current_inverse_transform
  */
-const ALLEGRO_TRANSFORM *al_get_current_inverse_transform(void)
+const A5O_TRANSFORM *al_get_current_inverse_transform(void)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
 
    if (!target)
       return NULL;
@@ -143,7 +143,7 @@ const ALLEGRO_TRANSFORM *al_get_current_inverse_transform(void)
 
 /* Function: al_identity_transform
  */
-void al_identity_transform(ALLEGRO_TRANSFORM *trans)
+void al_identity_transform(A5O_TRANSFORM *trans)
 {
    ASSERT(trans);
 
@@ -170,7 +170,7 @@ void al_identity_transform(ALLEGRO_TRANSFORM *trans)
 
 /* Function: al_build_transform
  */
-void al_build_transform(ALLEGRO_TRANSFORM *trans, float x, float y,
+void al_build_transform(A5O_TRANSFORM *trans, float x, float y,
    float sx, float sy, float theta)
 {
    float c, s;
@@ -202,7 +202,7 @@ void al_build_transform(ALLEGRO_TRANSFORM *trans, float x, float y,
 
 /* Function: al_build_camera_transform
  */
-void al_build_camera_transform(ALLEGRO_TRANSFORM *trans,
+void al_build_camera_transform(A5O_TRANSFORM *trans,
    float position_x, float position_y, float position_z,
    float look_x, float look_y, float look_z,
    float up_x, float up_y, float up_z)
@@ -270,7 +270,7 @@ void al_build_camera_transform(ALLEGRO_TRANSFORM *trans,
 
 /* Function: al_invert_transform
  */
-void al_invert_transform(ALLEGRO_TRANSFORM *trans)
+void al_invert_transform(A5O_TRANSFORM *trans)
 {
    float det, t;
    ASSERT(trans);
@@ -291,12 +291,12 @@ void al_invert_transform(ALLEGRO_TRANSFORM *trans)
 
 /* Function: al_transpose_transform
  */
-void al_transpose_transform(ALLEGRO_TRANSFORM *trans)
+void al_transpose_transform(A5O_TRANSFORM *trans)
 {
    int i, j;
    ASSERT(trans);
 
-   ALLEGRO_TRANSFORM t = *trans;
+   A5O_TRANSFORM t = *trans;
    for (i = 0; i < 4; i++) {
       for (j = 0; j < 4; j++) {
          trans->m[i][j] = t.m[j][i];
@@ -306,7 +306,7 @@ void al_transpose_transform(ALLEGRO_TRANSFORM *trans)
 
 /* Function: al_check_inverse
  */
-int al_check_inverse(const ALLEGRO_TRANSFORM *trans, float tol)
+int al_check_inverse(const A5O_TRANSFORM *trans, float tol)
 {
    float det, norm, c0, c1, c3;
    ASSERT(trans);
@@ -318,14 +318,14 @@ int al_check_inverse(const ALLEGRO_TRANSFORM *trans, float tol)
    c0 = fabsf(trans->m[0][0]) + fabsf(trans->m[0][1]);
    c1 = fabsf(trans->m[1][0]) + fabsf(trans->m[1][1]);
    c3 = fabsf(trans->m[3][0]) + fabsf(trans->m[3][1]) + 1;
-   norm = _ALLEGRO_MAX(_ALLEGRO_MAX(1, c0), _ALLEGRO_MAX(c1, c3));
+   norm = _A5O_MAX(_A5O_MAX(1, c0), _A5O_MAX(c1, c3));
 
    return det > tol * norm;
 }
 
 /* Function: al_translate_transform
  */
-void al_translate_transform(ALLEGRO_TRANSFORM *trans, float x, float y)
+void al_translate_transform(A5O_TRANSFORM *trans, float x, float y)
 {
    ASSERT(trans);
 
@@ -336,7 +336,7 @@ void al_translate_transform(ALLEGRO_TRANSFORM *trans, float x, float y)
 
 /* Function: al_translate_transform_3d
  */
-void al_translate_transform_3d(ALLEGRO_TRANSFORM *trans, float x, float y,
+void al_translate_transform_3d(A5O_TRANSFORM *trans, float x, float y,
     float z)
 {
    ASSERT(trans);
@@ -349,7 +349,7 @@ void al_translate_transform_3d(ALLEGRO_TRANSFORM *trans, float x, float y,
 
 /* Function: al_rotate_transform
  */
-void al_rotate_transform(ALLEGRO_TRANSFORM *trans, float theta)
+void al_rotate_transform(A5O_TRANSFORM *trans, float theta)
 {
    float c, s;
    float t;
@@ -373,7 +373,7 @@ void al_rotate_transform(ALLEGRO_TRANSFORM *trans, float theta)
 
 /* Function: al_scale_transform
  */
-void al_scale_transform(ALLEGRO_TRANSFORM *trans, float sx, float sy)
+void al_scale_transform(A5O_TRANSFORM *trans, float sx, float sy)
 {
    ASSERT(trans);
 
@@ -390,7 +390,7 @@ void al_scale_transform(ALLEGRO_TRANSFORM *trans, float sx, float sy)
 
 /* Function: al_scale_transform_3d
  */
-void al_scale_transform_3d(ALLEGRO_TRANSFORM *trans, float sx, float sy,
+void al_scale_transform_3d(A5O_TRANSFORM *trans, float sx, float sy,
     float sz)
 {
    ASSERT(trans);
@@ -414,7 +414,7 @@ void al_scale_transform_3d(ALLEGRO_TRANSFORM *trans, float sx, float sy,
 
 /* Function: al_transform_coordinates
  */
-void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y)
+void al_transform_coordinates(const A5O_TRANSFORM *trans, float *x, float *y)
 {
    float t;
    ASSERT(trans);
@@ -429,7 +429,7 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
 
 /* Function: al_transform_coordinates_3d
  */
-void al_transform_coordinates_3d(const ALLEGRO_TRANSFORM *trans,
+void al_transform_coordinates_3d(const A5O_TRANSFORM *trans,
    float *x, float *y, float *z)
 {
    float rx, ry, rz;
@@ -453,7 +453,7 @@ void al_transform_coordinates_3d(const ALLEGRO_TRANSFORM *trans,
 
 /* Function: al_transform_coordinates_4d
  */
-void al_transform_coordinates_4d(const ALLEGRO_TRANSFORM *trans,
+void al_transform_coordinates_4d(const A5O_TRANSFORM *trans,
    float *x, float *y, float *z, float *w)
 {
    float rx, ry, rz, rw;
@@ -480,7 +480,7 @@ void al_transform_coordinates_4d(const ALLEGRO_TRANSFORM *trans,
 
 /* Function: al_transform_coordinates_3d_projective
  */
-void al_transform_coordinates_3d_projective(const ALLEGRO_TRANSFORM *trans,
+void al_transform_coordinates_3d_projective(const A5O_TRANSFORM *trans,
    float *x, float *y, float *z)
 {
    float w = 1;
@@ -492,7 +492,7 @@ void al_transform_coordinates_3d_projective(const ALLEGRO_TRANSFORM *trans,
 
 /* Function: al_compose_transform
  */
-void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
+void al_compose_transform(A5O_TRANSFORM *trans, const A5O_TRANSFORM *other)
 {
    #define E(x, y)                        \
       (other->m[0][y] * trans->m[x][0] +  \
@@ -500,7 +500,7 @@ void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *oth
        other->m[2][y] * trans->m[x][2] +  \
        other->m[3][y] * trans->m[x][3])   \
 
-   const ALLEGRO_TRANSFORM tmp = {{
+   const A5O_TRANSFORM tmp = {{
       { E(0, 0), E(0, 1), E(0, 2), E(0, 3) },
       { E(1, 0), E(1, 1), E(1, 2), E(1, 3) },
       { E(2, 0), E(2, 1), E(2, 2), E(2, 3) },
@@ -512,7 +512,7 @@ void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *oth
    #undef E
 }
 
-bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
+bool _al_transform_is_translation(const A5O_TRANSFORM* trans,
    float *dx, float *dy)
 {
    if (trans->m[0][0] == 1 &&
@@ -538,14 +538,14 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
 
 /* Function: al_orthographic_transform
  */
-void al_orthographic_transform(ALLEGRO_TRANSFORM *trans,
+void al_orthographic_transform(A5O_TRANSFORM *trans,
    float left, float top, float n,
    float right, float bottom, float f)
 {
    float delta_x = right - left;
    float delta_y = top - bottom;
    float delta_z = f - n;
-   ALLEGRO_TRANSFORM tmp;
+   A5O_TRANSFORM tmp;
 
    al_identity_transform(&tmp);
 
@@ -563,13 +563,13 @@ void al_orthographic_transform(ALLEGRO_TRANSFORM *trans,
 
 /* Function: al_rotate_transform_3d
  */
-void al_rotate_transform_3d(ALLEGRO_TRANSFORM *trans,
+void al_rotate_transform_3d(A5O_TRANSFORM *trans,
    float x, float y, float z, float angle)
 {
    double s = sin(angle);
    double c = cos(angle);
    double cc = 1 - c;
-   ALLEGRO_TRANSFORM tmp;
+   A5O_TRANSFORM tmp;
 
    al_identity_transform(&tmp);
 
@@ -599,14 +599,14 @@ void al_rotate_transform_3d(ALLEGRO_TRANSFORM *trans,
 
 /* Function: al_perspective_transform
  */
-void al_perspective_transform(ALLEGRO_TRANSFORM *trans,
+void al_perspective_transform(A5O_TRANSFORM *trans,
    float left, float top, float n,
    float right, float bottom, float f)
 {
    float delta_x = right - left;
    float delta_y = top - bottom;
    float delta_z = f - n;
-   ALLEGRO_TRANSFORM tmp;
+   A5O_TRANSFORM tmp;
 
    al_identity_transform(&tmp);
 
@@ -624,7 +624,7 @@ void al_perspective_transform(ALLEGRO_TRANSFORM *trans,
 
 /* Function: al_horizontal_shear_transform
  */
-void al_horizontal_shear_transform(ALLEGRO_TRANSFORM* trans, float theta)
+void al_horizontal_shear_transform(A5O_TRANSFORM* trans, float theta)
 {
    float s;
    ASSERT(trans);
@@ -638,7 +638,7 @@ void al_horizontal_shear_transform(ALLEGRO_TRANSFORM* trans, float theta)
 
 /* Function: al_vertical_shear_transform
  */
-void al_vertical_shear_transform(ALLEGRO_TRANSFORM* trans, float theta)
+void al_vertical_shear_transform(A5O_TRANSFORM* trans, float theta)
 {
    float s;
    ASSERT(trans);

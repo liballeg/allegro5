@@ -1,10 +1,10 @@
 #include "cosmic_protector.hpp"
 #include "joypad_c.h"
 
-ALLEGRO_VOICE *voice;
-ALLEGRO_MIXER *mixer;
+A5O_VOICE *voice;
+A5O_MIXER *mixer;
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 #include "cosmic_protector_objc.h"
 #endif
 
@@ -68,8 +68,8 @@ int main(int argc, char **argv)
    ResourceManager& rm = ResourceManager::getInstance();
    Player *player = (Player *)rm.getData(RES_PLAYER);
 
-   ALLEGRO_AUDIO_STREAM *title_music = (ALLEGRO_AUDIO_STREAM *)rm.getData(RES_TITLE_MUSIC);
-   ALLEGRO_AUDIO_STREAM *game_music = (ALLEGRO_AUDIO_STREAM *)rm.getData(RES_GAME_MUSIC);
+   A5O_AUDIO_STREAM *title_music = (A5O_AUDIO_STREAM *)rm.getData(RES_TITLE_MUSIC);
+   A5O_AUDIO_STREAM *game_music = (A5O_AUDIO_STREAM *)rm.getData(RES_GAME_MUSIC);
 
    for (;;) {
       if (title_music) {
@@ -99,9 +99,9 @@ int main(int argc, char **argv)
 
       joypad_stop_finding();
 
-      ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
+      A5O_DISPLAY *display = (A5O_DISPLAY *)rm.getData(RES_DISPLAY);
       int o = al_get_display_orientation(display);
-      al_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, o);
+      al_set_display_option(display, A5O_SUPPORTED_ORIENTATIONS, o);
 
       if (game_music) {
          al_set_audio_stream_playing(game_music, true);
@@ -117,14 +117,14 @@ int main(int argc, char **argv)
          al_rewind_audio_stream(game_music);
       }
 
-      al_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE);
+      al_set_display_option(display, A5O_SUPPORTED_ORIENTATIONS, A5O_DISPLAY_ORIENTATION_LANDSCAPE);
 
    }
 
    return 0;
 }
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 void switch_game_out(bool halt)
 {
    if (!isMultitaskingSupported()) {
@@ -132,7 +132,7 @@ void switch_game_out(bool halt)
    }
    if (halt) {
       ResourceManager& rm = ResourceManager::getInstance();
-      ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
+      A5O_DISPLAY *display = (A5O_DISPLAY *)rm.getData(RES_DISPLAY);
       al_acknowledge_drawing_halt(display);
    }
    switched_out = true;

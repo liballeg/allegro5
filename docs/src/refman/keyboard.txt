@@ -6,7 +6,7 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_KEYBOARD_STATE
+## API: A5O_KEYBOARD_STATE
 
 This is a structure that is used to hold a "snapshot" of a keyboard's
 state at a particular instant.  It contains the following publically
@@ -21,127 +21,127 @@ You cannot read the state of keys directly.  Use the function
 
 ## Key codes
 
-The constant ALLEGRO_KEY_MAX is always one higher than
+The constant A5O_KEY_MAX is always one higher than
 the highest key code. So if you want to use the key code as array index
 you can do something like this:
 
 ~~~~c
-bool pressed_keys[ALLEGRO_KEY_MAX];
+bool pressed_keys[A5O_KEY_MAX];
 //...
 pressed_keys[key_code] = true;
 ~~~~
 
 These are the list of key codes used by Allegro, which are returned in
-the event.keyboard.keycode field of the ALLEGRO_KEY_DOWN and
-ALLEGRO_KEY_UP events and which you can pass to [al_key_down]:
+the event.keyboard.keycode field of the A5O_KEY_DOWN and
+A5O_KEY_UP events and which you can pass to [al_key_down]:
 
-    ALLEGRO_KEY_A ... ALLEGRO_KEY_Z
-    ALLEGRO_KEY_0 ... ALLEGRO_KEY_9
-    ALLEGRO_KEY_PAD_0 ... ALLEGRO_KEY_PAD_9
-    ALLEGRO_KEY_F1 ... ALLEGRO_KEY_F12
-    ALLEGRO_KEY_ESCAPE
-    ALLEGRO_KEY_TILDE
-    ALLEGRO_KEY_MINUS
-    ALLEGRO_KEY_EQUALS
-    ALLEGRO_KEY_BACKSPACE
-    ALLEGRO_KEY_TAB
-    ALLEGRO_KEY_OPENBRACE
-    ALLEGRO_KEY_CLOSEBRACE
-    ALLEGRO_KEY_ENTER
-    ALLEGRO_KEY_SEMICOLON
-    ALLEGRO_KEY_QUOTE
-    ALLEGRO_KEY_BACKSLASH
-    ALLEGRO_KEY_BACKSLASH2
-    ALLEGRO_KEY_COMMA
-    ALLEGRO_KEY_FULLSTOP
-    ALLEGRO_KEY_SLASH
-    ALLEGRO_KEY_SPACE
-    ALLEGRO_KEY_INSERT
-    ALLEGRO_KEY_DELETE
-    ALLEGRO_KEY_HOME
-    ALLEGRO_KEY_END
-    ALLEGRO_KEY_PGUP
-    ALLEGRO_KEY_PGDN
-    ALLEGRO_KEY_LEFT
-    ALLEGRO_KEY_RIGHT
-    ALLEGRO_KEY_UP
-    ALLEGRO_KEY_DOWN
-    ALLEGRO_KEY_PAD_SLASH
-    ALLEGRO_KEY_PAD_ASTERISK
-    ALLEGRO_KEY_PAD_MINUS
-    ALLEGRO_KEY_PAD_PLUS
-    ALLEGRO_KEY_PAD_DELETE
-    ALLEGRO_KEY_PAD_ENTER
-    ALLEGRO_KEY_PRINTSCREEN
-    ALLEGRO_KEY_PAUSE
-    ALLEGRO_KEY_ABNT_C1
-    ALLEGRO_KEY_YEN
-    ALLEGRO_KEY_KANA
-    ALLEGRO_KEY_CONVERT
-    ALLEGRO_KEY_NOCONVERT
-    ALLEGRO_KEY_AT
-    ALLEGRO_KEY_CIRCUMFLEX
-    ALLEGRO_KEY_COLON2
-    ALLEGRO_KEY_KANJI
-    ALLEGRO_KEY_LSHIFT
-    ALLEGRO_KEY_RSHIFT
-    ALLEGRO_KEY_LCTRL
-    ALLEGRO_KEY_RCTRL
-    ALLEGRO_KEY_ALT
-    ALLEGRO_KEY_ALTGR
-    ALLEGRO_KEY_LWIN
-    ALLEGRO_KEY_RWIN
-    ALLEGRO_KEY_MENU
-    ALLEGRO_KEY_SCROLLLOCK
-    ALLEGRO_KEY_NUMLOCK
-    ALLEGRO_KEY_CAPSLOCK
-    ALLEGRO_KEY_PAD_EQUALS
-    ALLEGRO_KEY_BACKQUOTE
-    ALLEGRO_KEY_SEMICOLON2
-    ALLEGRO_KEY_COMMAND
+    A5O_KEY_A ... A5O_KEY_Z
+    A5O_KEY_0 ... A5O_KEY_9
+    A5O_KEY_PAD_0 ... A5O_KEY_PAD_9
+    A5O_KEY_F1 ... A5O_KEY_F12
+    A5O_KEY_ESCAPE
+    A5O_KEY_TILDE
+    A5O_KEY_MINUS
+    A5O_KEY_EQUALS
+    A5O_KEY_BACKSPACE
+    A5O_KEY_TAB
+    A5O_KEY_OPENBRACE
+    A5O_KEY_CLOSEBRACE
+    A5O_KEY_ENTER
+    A5O_KEY_SEMICOLON
+    A5O_KEY_QUOTE
+    A5O_KEY_BACKSLASH
+    A5O_KEY_BACKSLASH2
+    A5O_KEY_COMMA
+    A5O_KEY_FULLSTOP
+    A5O_KEY_SLASH
+    A5O_KEY_SPACE
+    A5O_KEY_INSERT
+    A5O_KEY_DELETE
+    A5O_KEY_HOME
+    A5O_KEY_END
+    A5O_KEY_PGUP
+    A5O_KEY_PGDN
+    A5O_KEY_LEFT
+    A5O_KEY_RIGHT
+    A5O_KEY_UP
+    A5O_KEY_DOWN
+    A5O_KEY_PAD_SLASH
+    A5O_KEY_PAD_ASTERISK
+    A5O_KEY_PAD_MINUS
+    A5O_KEY_PAD_PLUS
+    A5O_KEY_PAD_DELETE
+    A5O_KEY_PAD_ENTER
+    A5O_KEY_PRINTSCREEN
+    A5O_KEY_PAUSE
+    A5O_KEY_ABNT_C1
+    A5O_KEY_YEN
+    A5O_KEY_KANA
+    A5O_KEY_CONVERT
+    A5O_KEY_NOCONVERT
+    A5O_KEY_AT
+    A5O_KEY_CIRCUMFLEX
+    A5O_KEY_COLON2
+    A5O_KEY_KANJI
+    A5O_KEY_LSHIFT
+    A5O_KEY_RSHIFT
+    A5O_KEY_LCTRL
+    A5O_KEY_RCTRL
+    A5O_KEY_ALT
+    A5O_KEY_ALTGR
+    A5O_KEY_LWIN
+    A5O_KEY_RWIN
+    A5O_KEY_MENU
+    A5O_KEY_SCROLLLOCK
+    A5O_KEY_NUMLOCK
+    A5O_KEY_CAPSLOCK
+    A5O_KEY_PAD_EQUALS
+    A5O_KEY_BACKQUOTE
+    A5O_KEY_SEMICOLON2
+    A5O_KEY_COMMAND
 
     /* Since: 5.1.1 */
     /* Android only for now */
-    ALLEGRO_KEY_BACK
+    A5O_KEY_BACK
 
     /* Since: 5.1.2 */
     /* Android only for now */
-    ALLEGRO_KEY_VOLUME_UP
-    ALLEGRO_KEY_VOLUME_DOWN
+    A5O_KEY_VOLUME_UP
+    A5O_KEY_VOLUME_DOWN
 
     /* Since: 5.1.6 */
     /* Android only for now */
-    ALLEGRO_KEY_SEARCH
-    ALLEGRO_KEY_DPAD_CENTER
-    ALLEGRO_KEY_BUTTON_X
-    ALLEGRO_KEY_BUTTON_Y
-    ALLEGRO_KEY_DPAD_UP
-    ALLEGRO_KEY_DPAD_DOWN
-    ALLEGRO_KEY_DPAD_LEFT
-    ALLEGRO_KEY_DPAD_RIGHT
-    ALLEGRO_KEY_SELECT
-    ALLEGRO_KEY_START
-    ALLEGRO_KEY_L1
-    ALLEGRO_KEY_R1
+    A5O_KEY_SEARCH
+    A5O_KEY_DPAD_CENTER
+    A5O_KEY_BUTTON_X
+    A5O_KEY_BUTTON_Y
+    A5O_KEY_DPAD_UP
+    A5O_KEY_DPAD_DOWN
+    A5O_KEY_DPAD_LEFT
+    A5O_KEY_DPAD_RIGHT
+    A5O_KEY_SELECT
+    A5O_KEY_START
+    A5O_KEY_L1
+    A5O_KEY_R1
 
 ## Keyboard modifier flags
 
-    ALLEGRO_KEYMOD_SHIFT
-    ALLEGRO_KEYMOD_CTRL
-    ALLEGRO_KEYMOD_ALT
-    ALLEGRO_KEYMOD_LWIN
-    ALLEGRO_KEYMOD_RWIN
-    ALLEGRO_KEYMOD_MENU
-    ALLEGRO_KEYMOD_ALTGR
-    ALLEGRO_KEYMOD_COMMAND
-    ALLEGRO_KEYMOD_SCROLLLOCK
-    ALLEGRO_KEYMOD_NUMLOCK
-    ALLEGRO_KEYMOD_CAPSLOCK
-    ALLEGRO_KEYMOD_INALTSEQ
-    ALLEGRO_KEYMOD_ACCENT1
-    ALLEGRO_KEYMOD_ACCENT2
-    ALLEGRO_KEYMOD_ACCENT3
-    ALLEGRO_KEYMOD_ACCENT4
+    A5O_KEYMOD_SHIFT
+    A5O_KEYMOD_CTRL
+    A5O_KEYMOD_ALT
+    A5O_KEYMOD_LWIN
+    A5O_KEYMOD_RWIN
+    A5O_KEYMOD_MENU
+    A5O_KEYMOD_ALTGR
+    A5O_KEYMOD_COMMAND
+    A5O_KEYMOD_SCROLLLOCK
+    A5O_KEYMOD_NUMLOCK
+    A5O_KEYMOD_CAPSLOCK
+    A5O_KEYMOD_INALTSEQ
+    A5O_KEYMOD_ACCENT1
+    A5O_KEYMOD_ACCENT2
+    A5O_KEYMOD_ACCENT3
+    A5O_KEYMOD_ACCENT4
 
 The event field 'keyboard.modifiers' is a bitfield composed of these constants.
 These indicate the modifier keys which were pressed at the time a character was
@@ -173,11 +173,11 @@ See also: [al_install_keyboard]
 Save the state of the keyboard specified at the time the function
 is called into the structure pointed to by *ret_state*.
 
-See also: [al_key_down], [al_clear_keyboard_state], [ALLEGRO_KEYBOARD_STATE]
+See also: [al_key_down], [al_clear_keyboard_state], [A5O_KEYBOARD_STATE]
 
 ## API: al_clear_keyboard_state
 
-Clear the state of the keyboard, emitting [ALLEGRO_EVENT_KEY_UP] for
+Clear the state of the keyboard, emitting [A5O_EVENT_KEY_UP] for
 each currently pressed key.  The given display is regarded as the one
 which had the keyboard focus when the event occurred.  In case display
 is NULL no event is emitted.  For most keyboard drivers Allegro
@@ -185,9 +185,9 @@ maintains its own state of the keyboard, which might get out of sync
 with the real one.  This function is intended to remedy such situation
 by resetting Allegro's keyboard state to a known default (no key
 pressed).  This is particularly useful in response to
-[ALLEGRO_EVENT_DISPLAY_SWITCH_OUT] events.
+[A5O_EVENT_DISPLAY_SWITCH_OUT] events.
 
-See also: [al_get_keyboard_state], [ALLEGRO_KEYBOARD_STATE]
+See also: [al_get_keyboard_state], [A5O_KEYBOARD_STATE]
 
 Since: 5.2.3
 
@@ -199,7 +199,7 @@ being decided upon.
 Return true if the key specified was held down in the state
 specified.
 
-See also: [ALLEGRO_KEYBOARD_STATE]
+See also: [A5O_KEYBOARD_STATE]
 
 ## API: al_keycode_to_name
 
@@ -217,8 +217,8 @@ See also: [al_set_keyboard_leds]
 
 Overrides the state of the keyboard LED indicators. Set `leds` to a
 combination of the keyboard modifier flags to enable the corresponding LED
-indicators (`ALLEGRO_KEYMOD_NUMLOCK`, `ALLEGRO_KEYMOD_CAPSLOCK` and
-`ALLEGRO_KEYMOD_SCROLLLOCK` are supported) or to -1 to return to default
+indicators (`A5O_KEYMOD_NUMLOCK`, `A5O_KEYMOD_CAPSLOCK` and
+`A5O_KEYMOD_SCROLLLOCK` are supported) or to -1 to return to default
 behavior. False is returned if the current keyboard driver cannot set LED
 indicators.
 
@@ -226,7 +226,7 @@ See also: [al_can_set_keyboard_leds]
 
 ## API: al_get_keyboard_event_source
 
-Retrieve the keyboard event source. All [keyboard events][ALLEGRO_EVENT_KEY_DOWN]
+Retrieve the keyboard event source. All [keyboard events][A5O_EVENT_KEY_DOWN]
 are generated by this event source.
 
 Returns NULL if the keyboard subsystem was not installed.

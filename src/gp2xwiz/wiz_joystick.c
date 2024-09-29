@@ -32,16 +32,16 @@
 #include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/internal/aintern_gp2xwiz.h"
 
-static ALLEGRO_JOYSTICK joy;
+static A5O_JOYSTICK joy;
 
-static ALLEGRO_JOYSTICK_STATE joystate;
-static ALLEGRO_THREAD *wiz_joystick_thread;
+static A5O_JOYSTICK_STATE joystate;
+static A5O_THREAD *wiz_joystick_thread;
 
 const int POLLS_PER_SECOND = 60;
 
 #define BUTTON(x) (buttons & x)
 
-static void joywiz_fill_joystate(ALLEGRO_JOYSTICK_STATE *state)
+static void joywiz_fill_joystate(A5O_JOYSTICK_STATE *state)
 {
 	uint32_t buttons = lc_getbuttons();
 
@@ -81,14 +81,14 @@ static void joywiz_fill_joystate(ALLEGRO_JOYSTICK_STATE *state)
 }
 
 
-static void generate_axis_event(ALLEGRO_JOYSTICK *joy, int stick, int axis, float pos)
+static void generate_axis_event(A5O_JOYSTICK *joy, int stick, int axis, float pos)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&joy->es))
       return;
 
-   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+   event.joystick.type = A5O_EVENT_JOYSTICK_AXIS;
    event.joystick.timestamp = al_get_time();
    event.joystick.stick = stick;
    event.joystick.axis = axis;
@@ -98,9 +98,9 @@ static void generate_axis_event(ALLEGRO_JOYSTICK *joy, int stick, int axis, floa
 }
 
 
-static void generate_button_event(ALLEGRO_JOYSTICK *joy, int button, ALLEGRO_EVENT_TYPE event_type)
+static void generate_button_event(A5O_JOYSTICK *joy, int button, A5O_EVENT_TYPE event_type)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&joy->es))
       return;
@@ -115,10 +115,10 @@ static void generate_button_event(ALLEGRO_JOYSTICK *joy, int button, ALLEGRO_EVE
    _al_event_source_emit_event(&joy->es, &event);
 }
 
-static void *joywiz_thread_proc(ALLEGRO_THREAD *thread, void *unused)
+static void *joywiz_thread_proc(A5O_THREAD *thread, void *unused)
 {
-	ALLEGRO_JOYSTICK_STATE oldstate;
-	memset(&oldstate, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
+	A5O_JOYSTICK_STATE oldstate;
+	memset(&oldstate, 0, sizeof(A5O_JOYSTICK_STATE));
 
 	(void)unused;
 	
@@ -134,11 +134,11 @@ static void *joywiz_thread_proc(ALLEGRO_THREAD *thread, void *unused)
 		}
 		int i;
 		for (i = 0; i < 10; i++) {
-			ALLEGRO_EVENT_TYPE type;
+			A5O_EVENT_TYPE type;
 			if (oldstate.button[i] == 0)
-				type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
+				type = A5O_EVENT_JOYSTICK_BUTTON_DOWN;
 			else
-				type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
+				type = A5O_EVENT_JOYSTICK_BUTTON_UP;
 			if (joystate.button[i] != oldstate.button[i]) {
 				generate_button_event(&joy, i, type);
 			}
@@ -155,7 +155,7 @@ static void joywiz_fill_joy(void)
 	joy.info.num_sticks = 1;
 	joy.info.num_buttons = 10;
 	
-	joy.info.stick[0].flags = ALLEGRO_JOYFLAG_DIGITAL;
+	joy.info.stick[0].flags = A5O_JOYFLAG_DIGITAL;
 	joy.info.stick[0].num_axes = 2;
 	joy.info.stick[0].name = "Wiz D-pad";
 	joy.info.stick[0].axis[0].name = "Left-right axis";
@@ -183,7 +183,7 @@ static bool joywiz_init_joystick(void)
 	
 	_al_event_source_init(&joy.es);
 
-	memset(&joystate, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
+	memset(&joystate, 0, sizeof(A5O_JOYSTICK_STATE));
 
 	wiz_joystick_thread = al_create_thread(joywiz_thread_proc, NULL);
 	if (!wiz_joystick_thread) {
@@ -207,18 +207,18 @@ static int joywiz_get_num_joysticks(void)
 	return 1;
 }
 
-static ALLEGRO_JOYSTICK *joywiz_get_joystick(int num)
+static A5O_JOYSTICK *joywiz_get_joystick(int num)
 {
 	(void)num; /* Only 1 supported now */
 	return &joy;
 }
 
-static void joywiz_release_joystick(ALLEGRO_JOYSTICK *joy)
+static void joywiz_release_joystick(A5O_JOYSTICK *joy)
 {
 	(void)joy;
 }
 
-static void joywiz_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
+static void joywiz_get_joystick_state(A5O_JOYSTICK *joy, A5O_JOYSTICK_STATE *ret_state)
 {
    _al_event_source_lock(&joy->es);
    {
@@ -230,7 +230,7 @@ static void joywiz_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_ST
 
 
 /* the driver vtable */
-ALLEGRO_JOYSTICK_DRIVER _al_joydrv_gp2xwiz =
+A5O_JOYSTICK_DRIVER _al_joydrv_gp2xwiz =
 {
    AL_JOY_TYPE_GP2XWIZ,
    "",

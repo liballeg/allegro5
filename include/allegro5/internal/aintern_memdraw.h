@@ -6,8 +6,8 @@
 #endif
 
 
-void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
-void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, float x, float y, ALLEGRO_COLOR *color);
+void _al_clear_bitmap_by_locking(A5O_BITMAP *bitmap, A5O_COLOR *color);
+void _al_draw_pixel_memory(A5O_BITMAP *bmp, float x, float y, A5O_COLOR *color);
 
 
 #ifdef __cplusplus

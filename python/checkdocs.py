@@ -58,7 +58,7 @@ def add_struct(line):
                 anonymous_enums[line] = 1
             else:
                 sname = mob.group(1)
-                if sname.startswith("_ALLEGRO_gl"):
+                if sname.startswith("_A5O_gl"):
                     return
                 if kind == "typedef":
                     types[sname] = line
@@ -238,9 +238,9 @@ def check_undocumented_functions():
                 if link and not link.startswith("GL") and \
                         not link.startswith("gl") and \
                         not link.startswith("_al_gl") and \
-                        not link.startswith("_ALLEGRO_gl") and \
-                        not link.startswith("_ALLEGRO_GL") and \
-                        not link.startswith("ALLEGRO_"):
+                        not link.startswith("_A5O_gl") and \
+                        not link.startswith("_A5O_GL") and \
+                        not link.startswith("A5O_"):
                     others.append(link)
 
     print("Also leaking:")

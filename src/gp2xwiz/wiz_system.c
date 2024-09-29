@@ -21,11 +21,11 @@
 #include "allegro5/internal/aintern_gp2xwiz.h"
 #include "allegro5/platform/aintwiz.h"
 
-static ALLEGRO_SYSTEM_INTERFACE *gp2xwiz_vt;
+static A5O_SYSTEM_INTERFACE *gp2xwiz_vt;
 
-static ALLEGRO_SYSTEM *gp2xwiz_initialize(int flags)
+static A5O_SYSTEM *gp2xwiz_initialize(int flags)
 {
-   ALLEGRO_SYSTEM_GP2XWIZ *s;
+   A5O_SYSTEM_GP2XWIZ *s;
 
    (void)flags;
 
@@ -33,7 +33,7 @@ static ALLEGRO_SYSTEM *gp2xwiz_initialize(int flags)
 
    s = al_calloc(1, sizeof *s);
 
-   _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY *));
+   _al_vector_init(&s->system.displays, sizeof (A5O_DISPLAY *));
 
    s->system.vt = gp2xwiz_vt;
 
@@ -43,12 +43,12 @@ static ALLEGRO_SYSTEM *gp2xwiz_initialize(int flags)
 static void gp2xwiz_shutdown_system(void)
 {
    /* Close all open displays. */
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
-   ALLEGRO_SYSTEM_GP2XWIZ *sx = (void *)s;
+   A5O_SYSTEM *s = al_get_system_driver();
+   A5O_SYSTEM_GP2XWIZ *sx = (void *)s;
 
    while (_al_vector_size(&s->displays) > 0) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
-      ALLEGRO_DISPLAY *d = *dptr;
+      A5O_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
+      A5O_DISPLAY *d = *dptr;
       al_destroy_display(d);
    }
    _al_vector_free(&s->displays);
@@ -59,27 +59,27 @@ static void gp2xwiz_shutdown_system(void)
 
 }
 
-static ALLEGRO_DISPLAY_INTERFACE *gp2xwiz_get_display_driver(void)
+static A5O_DISPLAY_INTERFACE *gp2xwiz_get_display_driver(void)
 {
-   if (al_get_new_display_flags() & ALLEGRO_OPENGL)
+   if (al_get_new_display_flags() & A5O_OPENGL)
       return _al_display_gp2xwiz_opengl_driver();
    else
       return _al_display_gp2xwiz_framebuffer_driver();
 }
 
-static ALLEGRO_KEYBOARD_DRIVER *gp2xwiz_get_keyboard_driver(void)
+static A5O_KEYBOARD_DRIVER *gp2xwiz_get_keyboard_driver(void)
 {
    //return _al_gp2xwiz_keyboard_driver;
    return NULL;
 }
 
-static ALLEGRO_MOUSE_DRIVER *gp2xwiz_get_mouse_driver(void)
+static A5O_MOUSE_DRIVER *gp2xwiz_get_mouse_driver(void)
 {
    //return _al_gp2xwiz_mouse_driver;
    return NULL;
 }
 
-static ALLEGRO_JOYSTICK_DRIVER *gp2xwiz_get_joystick_driver(void)
+static A5O_JOYSTICK_DRIVER *gp2xwiz_get_joystick_driver(void)
 {
    return _al_joystick_driver_list[0].driver;
 }
@@ -89,7 +89,7 @@ static int gp2xwiz_get_num_video_adapters(void)
    return 1;
 }
 
-static bool gp2xwiz_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool gp2xwiz_get_monitor_info(int adapter, A5O_MONITOR_INFO *info)
 {
    (void)adapter;
    info->x1 = 0;
@@ -120,28 +120,28 @@ static int gp2xwiz_get_num_display_modes(void)
 }
 
 
-static ALLEGRO_DISPLAY_MODE *gp2xwiz_get_display_mode(int index,
-   ALLEGRO_DISPLAY_MODE *mode)
+static A5O_DISPLAY_MODE *gp2xwiz_get_display_mode(int index,
+   A5O_DISPLAY_MODE *mode)
 {
    (void)index;
    ASSERT(index == 0);
    mode->width = 320;
    mode->height = 240;
-   mode->format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+   mode->format = A5O_PIXEL_FORMAT_RGB_565;
    mode->refresh_rate = 60;
    return mode;
 }
 
 
 /* Internal function to get a reference to this driver. */
-ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
+A5O_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
 {
    if (gp2xwiz_vt)
       return gp2xwiz_vt;
 
    gp2xwiz_vt = al_calloc(1, sizeof *gp2xwiz_vt);
 
-   gp2xwiz_vt->id = ALLEGRO_SYSTEM_ID_GP2XWIZ;
+   gp2xwiz_vt->id = A5O_SYSTEM_ID_GP2XWIZ;
    gp2xwiz_vt->initialize = gp2xwiz_initialize;
    gp2xwiz_vt->get_display_driver = gp2xwiz_get_display_driver;
    gp2xwiz_vt->get_keyboard_driver = gp2xwiz_get_keyboard_driver;
@@ -168,7 +168,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
  */
 void _al_register_system_interfaces(void)
 {
-   ALLEGRO_SYSTEM_INTERFACE **add;
+   A5O_SYSTEM_INTERFACE **add;
 
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_gp2xwiz_driver();

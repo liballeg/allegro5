@@ -14,42 +14,42 @@
 #include "allegro5/internal/aintern_xtouch.h"
 #include "allegro5/internal/aintern_xdnd.h"
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
-#define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
-#define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
+#define A5O_SYSTEM_XGLX A5O_SYSTEM_RASPBERRYPI
+#define A5O_DISPLAY_XGLX A5O_DISPLAY_RASPBERRYPI
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("xevents")
+A5O_DEBUG_CHANNEL("xevents")
 
 /* Handle an X11 close button event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
-void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
+void _al_display_xglx_closebutton(A5O_DISPLAY *d, XEvent *xevent)
 {
-   ALLEGRO_EVENT_SOURCE *es = &d->es;
+   A5O_EVENT_SOURCE *es = &d->es;
    (void)xevent;
 
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_CLOSE;
       event.display.timestamp = al_get_time();
       _al_event_source_emit_event(es, &event);
    }
    _al_event_source_unlock(es);
 }
 
-static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
+static void process_x11_event(A5O_SYSTEM_XGLX *s, XEvent event)
 {
    unsigned int i;
-   ALLEGRO_DISPLAY_XGLX *d = NULL;
+   A5O_DISPLAY_XGLX *d = NULL;
 
    /* With many windows, it's bad to loop through them all, but typically
     * we have one or at most two or so.
     */
    for (i = 0; i < _al_vector_size(&s->system.displays); i++) {
-      ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
+      A5O_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
       d = *dptr;
       if (d->window == event.xany.window) {
          break;
@@ -94,7 +94,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          if (_al_display_xglx_handle_drag_and_drop(s, d, &event)) {
             break;
          }
-#ifndef ALLEGRO_RASPBERRYPI
+#ifndef A5O_RASPBERRYPI
          if (event.xclient.message_type == s->XEmbedAtom) {
             const long xtime = event.xclient.data.l[0];
             const long major = event.xclient.data.l[1];
@@ -109,15 +109,15 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             switch (major) {
                case XEMBED_EMBEDDED_NOTIFY:
                   d->embedder_window = data1;
-                  ALLEGRO_INFO("XEmbed begin: embedder window = %ld\n", data1);
+                  A5O_INFO("XEmbed begin: embedder window = %ld\n", data1);
                   break;
                case XEMBED_FOCUS_IN:
-                  ALLEGRO_DEBUG("XEmbed focus in\n");
+                  A5O_DEBUG("XEmbed focus in\n");
                   _al_xwin_display_switch_handler_inner(&d->display, true);
                   _al_xwin_keyboard_switch_handler(&d->display, true);
                   break;
                case XEMBED_FOCUS_OUT:
-                  ALLEGRO_DEBUG("XEmbed focus out\n");
+                  A5O_DEBUG("XEmbed focus out\n");
                   _al_xwin_display_switch_handler_inner(&d->display, false);
                   _al_xwin_keyboard_switch_handler(&d->display, false);
                   break;
@@ -145,21 +145,21 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          _al_cond_signal(&s->resized);
          break;
       case MapNotify:
-         d->display.flags &= ~ALLEGRO_MINIMIZED;
+         d->display.flags &= ~A5O_MINIMIZED;
          d->is_mapped = true;
          _al_cond_signal(&d->mapped);
          break;
       case UnmapNotify:
-         d->display.flags |= ALLEGRO_MINIMIZED;
+         d->display.flags |= A5O_MINIMIZED;
          break;
       case Expose:
-         if (d->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
+         if (d->display.flags & A5O_GENERATE_EXPOSE_EVENTS) {
             _al_xwin_display_expose(&d->display, &event.xexpose);
          }
          break;
       case ReparentNotify:
          if (event.xreparent.parent == RootWindow(s->x11display, d->xscreen)) {
-            ALLEGRO_INFO("XEmbed protocol finished.\n");
+            A5O_INFO("XEmbed protocol finished.\n");
             d->embedder_window = None;
          }
          break;
@@ -186,7 +186,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
 
 void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
 {
-   ALLEGRO_SYSTEM_XGLX *s = arg;
+   A5O_SYSTEM_XGLX *s = arg;
    XEvent event;
    double last_reset_screensaver_time = 0.0;
 

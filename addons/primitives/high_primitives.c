@@ -37,22 +37,22 @@
  */
 
 
-#define ALLEGRO_INTERNAL_UNSTABLE
+#define A5O_INTERNAL_UNSTABLE
 #include "allegro5/allegro_primitives.h"
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
 #include "allegro5/allegro_opengl.h"
 #endif
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/debug.h"
 #include <math.h>
 
-ALLEGRO_DEBUG_CHANNEL("primitives")
+A5O_DEBUG_CHANNEL("primitives")
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #define hypotf(x, y) _hypotf((x), (y))
 #endif
 
-#define LOCAL_VERTEX_CACHE  ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE]
+#define LOCAL_VERTEX_CACHE  A5O_VERTEX vertex_cache[A5O_VERTEX_CACHE_SIZE]
 
 /*
  * Make an estimate of the scale of the current transformation. 
@@ -62,11 +62,11 @@ static float get_scale(void)
 {
 #define DET2D(T) (fabs((T)->m[0][0] * (T)->m[1][1] - (T)->m[0][1] * (T)->m[1][0]))
 
-   const ALLEGRO_TRANSFORM* t = al_get_current_transform();
+   const A5O_TRANSFORM* t = al_get_current_transform();
    float scale_sq = DET2D(t);
-   ALLEGRO_BITMAP* b = al_get_target_bitmap();
+   A5O_BITMAP* b = al_get_target_bitmap();
    if (b) {
-      const ALLEGRO_TRANSFORM* p = al_get_current_projection_transform();
+      const A5O_TRANSFORM* p = al_get_current_projection_transform();
       /* Divide by 4.0f as the screen coordinates range from -1 to 1 on both axes. */
       scale_sq *= DET2D(p) * al_get_bitmap_width(b) * al_get_bitmap_height(b) / 4.0f;
    }
@@ -79,14 +79,14 @@ static float get_scale(void)
 /* Function: al_draw_line
  */
 void al_draw_line(float x1, float y1, float x2, float y2,
-   ALLEGRO_COLOR color, float thickness)
+   A5O_COLOR color, float thickness)
 {
    if (thickness > 0) {
       int ii;
       float tx, ty;
       float len = hypotf(x2 - x1, y2 - y1);
       
-      ALLEGRO_VERTEX vtx[4];
+      A5O_VERTEX vtx[4];
 
       if (len == 0)
          return;
@@ -104,10 +104,10 @@ void al_draw_line(float x1, float y1, float x2, float y2,
          vtx[ii].z = 0;
       }
       
-      al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, 0, 0, 0, 4, A5O_PRIM_TRIANGLE_FAN);
       
    } else {
-      ALLEGRO_VERTEX vtx[2];
+      A5O_VERTEX vtx[2];
          
       vtx[0].x = x1; vtx[0].y = y1;
       vtx[1].x = x2; vtx[1].y = y2;
@@ -117,14 +117,14 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       vtx[0].z = 0;
       vtx[1].z = 0;
       
-      al_draw_prim(vtx, 0, 0, 0, 2, ALLEGRO_PRIM_LINE_LIST);
+      al_draw_prim(vtx, 0, 0, 0, 2, A5O_PRIM_LINE_LIST);
    }
 }
 
 /* Function: al_draw_triangle
  */
 void al_draw_triangle(float x1, float y1, float x2, float y2,
-   float x3, float y3, ALLEGRO_COLOR color, float thickness)
+   float x3, float y3, A5O_COLOR color, float thickness)
 {
    if (thickness > 0) {
       int ii = 0;
@@ -134,12 +134,12 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       float incenter_x, incenter_y;
       float incircle_rad;
       int idx = 0;
-      ALLEGRO_VERTEX vtx[5];
+      A5O_VERTEX vtx[5];
       float x[3] = {x1, x2, x3};
       float y[3] = {y1, y2, y3};
-      ALLEGRO_VERTEX first_inner_vtx;
-      ALLEGRO_VERTEX first_outer_vtx;
-      ALLEGRO_VERTEX ini_vtx;
+      A5O_VERTEX first_inner_vtx;
+      A5O_VERTEX first_outer_vtx;
+      A5O_VERTEX ini_vtx;
       float cross = (x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]);
       
       ini_vtx.x = ini_vtx.y = ini_vtx.z = ini_vtx.u = ini_vtx.v = 0;
@@ -190,7 +190,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
             vtx[ii].z = 0;
          }
          
-         al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+         al_draw_prim(vtx, 0, 0, 0, 4, A5O_PRIM_TRIANGLE_FAN);
          return;
       }
       else if(cross > 0) {
@@ -235,7 +235,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
                vtx[idx++] = outer_vtx;                                     \
                vtx[idx++] = inner_vtx;                                     \
                                                                            \
-               al_draw_prim(vtx, 0, 0, 0, idx, ALLEGRO_PRIM_TRIANGLE_FAN); \
+               al_draw_prim(vtx, 0, 0, 0, idx, A5O_PRIM_TRIANGLE_FAN); \
                                                                            \
                idx = 0;                                                    \
             }
@@ -257,8 +257,8 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
          float tdx = o_dx - i_dx;
          float tdy = o_dy - i_dy;
          
-         ALLEGRO_VERTEX inner_vtx = ini_vtx;
-         ALLEGRO_VERTEX outer_vtx = ini_vtx;
+         A5O_VERTEX inner_vtx = ini_vtx;
+         A5O_VERTEX outer_vtx = ini_vtx;
          
          if(tdx * tdx + tdy * tdy > 16 * thickness * thickness) {
             float x_pos = x[(ii + 1) % 3];
@@ -276,7 +276,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
             float mag_1_2 = hypotf(x1_x2, y1_y2);
             float mag_1_3 = hypotf(x1_x3, y1_y3);
             
-            ALLEGRO_VERTEX next_vtx = ini_vtx;
+            A5O_VERTEX next_vtx = ini_vtx;
             
             x1_x2 *= thickness / 2 / mag_1_2;
             y1_y2 *= thickness / 2 / mag_1_2;
@@ -312,11 +312,11 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       vtx[idx++] = first_outer_vtx;
       vtx[idx++] = first_inner_vtx;
 
-      al_draw_prim(vtx, 0, 0, 0, idx, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, 0, 0, 0, idx, A5O_PRIM_TRIANGLE_FAN);
       
       #undef DRAW
    } else {
-      ALLEGRO_VERTEX vtx[3];
+      A5O_VERTEX vtx[3];
          
       vtx[0].x = x1; vtx[0].y = y1;
       vtx[1].x = x2; vtx[1].y = y2;
@@ -330,16 +330,16 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       vtx[1].z = 0;
       vtx[2].z = 0;
       
-      al_draw_prim(vtx, 0, 0, 0, 3, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vtx, 0, 0, 0, 3, A5O_PRIM_LINE_LOOP);
    }
 }
 
 /* Function: al_draw_filled_triangle
  */
 void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
-   float x3, float y3, ALLEGRO_COLOR color)
+   float x3, float y3, A5O_COLOR color)
 {
-   ALLEGRO_VERTEX vtx[3];
+   A5O_VERTEX vtx[3];
 
    vtx[0].x = x1; vtx[0].y = y1;
    vtx[1].x = x2; vtx[1].y = y2;
@@ -353,19 +353,19 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
    vtx[1].z = 0;
    vtx[2].z = 0;
    
-   al_draw_prim(vtx, 0, 0, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+   al_draw_prim(vtx, 0, 0, 0, 3, A5O_PRIM_TRIANGLE_LIST);
 }
 
 /* Function: al_draw_rectangle
  */
 void al_draw_rectangle(float x1, float y1, float x2, float y2,
-   ALLEGRO_COLOR color, float thickness)
+   A5O_COLOR color, float thickness)
 {
    int ii;
 
    if (thickness > 0) {
       float t = thickness / 2;
-      ALLEGRO_VERTEX vtx[10];
+      A5O_VERTEX vtx[10];
                
       vtx[0].x = x1 - t; vtx[0].y = y1 - t;
       vtx[1].x = x1 + t; vtx[1].y = y1 + t;
@@ -383,9 +383,9 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
          vtx[ii].z = 0;
       }
       
-      al_draw_prim(vtx, 0, 0, 0, 10, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vtx, 0, 0, 0, 10, A5O_PRIM_TRIANGLE_STRIP);
    } else {
-      ALLEGRO_VERTEX vtx[4];
+      A5O_VERTEX vtx[4];
          
       vtx[0].x = x1; vtx[0].y = y1;
       vtx[1].x = x2; vtx[1].y = y1;
@@ -397,16 +397,16 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
          vtx[ii].z = 0;
       }
       
-      al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vtx, 0, 0, 0, 4, A5O_PRIM_LINE_LOOP);
    }
 }
 
 /* Function: al_draw_filled_rectangle
  */
 void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
-   ALLEGRO_COLOR color)
+   A5O_COLOR color)
 {
-   ALLEGRO_VERTEX vtx[4];
+   A5O_VERTEX vtx[4];
    int ii;
 
    vtx[0].x = x1; vtx[0].y = y1;
@@ -419,7 +419,7 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
       vtx[ii].z = 0;
    }
    
-   al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vtx, 0, 0, 0, 4, A5O_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_calculate_arc
@@ -506,7 +506,7 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
 /* Function: al_draw_pieslice
  */
 void al_draw_pieslice(float cx, float cy, float r, float start_theta,
-   float delta_theta, ALLEGRO_COLOR color, float thickness)
+   float delta_theta, A5O_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
@@ -521,16 +521,16 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
    }
    
    if (thickness <= 0) {
-      num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * r));
+      num_segments = fabs(delta_theta / (2 * A5O_PI) * A5O_PRIM_QUALITY * sqrtf(scale * r));
 
       if (num_segments < 2)
          num_segments = 2;
       
-      if (num_segments + 1 >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - 1;
+      if (num_segments + 1 >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = A5O_VERTEX_CACHE_SIZE - 1 - 1;
       }
          
-      al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
+      al_calculate_arc(&(vertex_cache[1].x), sizeof(A5O_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
       vertex_cache[0].x = cx; vertex_cache[0].y = cy;
       
       for (ii = 0; ii < num_segments + 1; ii++) {
@@ -538,14 +538,14 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
          vertex_cache[ii].z = 0;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, A5O_PRIM_LINE_LOOP);
    } else {
       float ht = thickness / 2;
       float inner_side_angle = asinf(ht / (r - ht));
       float outer_side_angle = asinf(ht / (r + ht));
       float central_angle = delta_theta - 2 * inner_side_angle;
-      bool inverted_winding = ((int)(delta_theta / ALLEGRO_PI)) % 2 == 1;
-      float midangle = start_theta + (fmodf(delta_theta + ALLEGRO_PI, 2 * ALLEGRO_PI) - ALLEGRO_PI) / 2;
+      bool inverted_winding = ((int)(delta_theta / A5O_PI)) % 2 == 1;
+      float midangle = start_theta + (fmodf(delta_theta + A5O_PI, 2 * A5O_PI) - A5O_PI) / 2;
       float midpoint_dir_x = cosf(midangle);
       float midpoint_dir_y = sinf(midangle);
       float side_dir_x = cosf(start_theta);
@@ -567,15 +567,15 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
          vertex_cache[0].x = cx + (r - thickness / 2) * cosf(central_start_angle);
          vertex_cache[0].y = cy + (r - thickness / 2) * sinf(central_start_angle);
          
-         num_segments = (inner_side_angle + outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (r + ht));
+         num_segments = (inner_side_angle + outer_side_angle) / (2 * A5O_PI) * A5O_PRIM_QUALITY * sqrtf(scale * (r + ht));
          
          if (num_segments < 2)
             num_segments = 2;
          
-         if (num_segments + extra_vtx >= ALLEGRO_VERTEX_CACHE_SIZE)
-            num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - extra_vtx;
+         if (num_segments + extra_vtx >= A5O_VERTEX_CACHE_SIZE)
+            num_segments = A5O_VERTEX_CACHE_SIZE - 1 - extra_vtx;
            
-         al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r + ht, r + ht, central_start_angle, -(outer_side_angle + inner_side_angle), 0, num_segments);
+         al_calculate_arc(&(vertex_cache[1].x), sizeof(A5O_VERTEX), cx, cy, r + ht, r + ht, central_start_angle, -(outer_side_angle + inner_side_angle), 0, num_segments);
          
          /* Do the tip */
          vtx_id = num_segments + 1 + (inverted_winding ? (1 + (blunt_tip ? 1 : 0)) : 0);
@@ -607,7 +607,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
             vertex_cache[ii].z = 0;
          }
          
-         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
+         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, A5O_PRIM_TRIANGLE_FAN);
          
          /* Mirror the vertices and draw them again */
          for (ii = 0; ii < num_segments + extra_vtx; ii++) {
@@ -616,20 +616,20 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
             vertex_cache[ii].y = 2 * cy + 2 * dot * midpoint_dir_y - vertex_cache[ii].y;
          }
          
-         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
+         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, A5O_PRIM_TRIANGLE_FAN);
       } else {
          /* Apex: 2 vertices if the apex is blunt) */
          int extra_vtx = blunt_tip ? 2 : 1;
          
-         num_segments = (2 * outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (r + ht));
+         num_segments = (2 * outer_side_angle) / (2 * A5O_PI) * A5O_PRIM_QUALITY * sqrtf(scale * (r + ht));
          
          if (num_segments < 2)
             num_segments = 2;
          
-         if (num_segments + extra_vtx >= ALLEGRO_VERTEX_CACHE_SIZE)
-            num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - extra_vtx;
+         if (num_segments + extra_vtx >= A5O_VERTEX_CACHE_SIZE)
+            num_segments = A5O_VERTEX_CACHE_SIZE - 1 - extra_vtx;
            
-         al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r + ht, r + ht, start_theta - outer_side_angle, 2 * outer_side_angle + delta_theta, 0, num_segments);
+         al_calculate_arc(&(vertex_cache[1].x), sizeof(A5O_VERTEX), cx, cy, r + ht, r + ht, start_theta - outer_side_angle, 2 * outer_side_angle + delta_theta, 0, num_segments);
          
          if (blunt_tip) {
             float vx = ht * (side_dir_y - side_dir_x);
@@ -654,7 +654,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
             vertex_cache[ii].z = 0;
          }
          
-         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
+         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, A5O_PRIM_TRIANGLE_FAN);
       }
    }
 }
@@ -662,7 +662,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
 /* Function: al_draw_filled_pieslice
  */
 void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
-   float delta_theta, ALLEGRO_COLOR color)
+   float delta_theta, A5O_COLOR color)
 {
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
@@ -670,16 +670,16 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
    
    ASSERT(r >= 0);
    
-   num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * r));
+   num_segments = fabs(delta_theta / (2 * A5O_PI) * A5O_PRIM_QUALITY * sqrtf(scale * r));
 
    if (num_segments < 2)
       num_segments = 2;
    
-   if (num_segments + 1 >= ALLEGRO_VERTEX_CACHE_SIZE) {
-      num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - 1;
+   if (num_segments + 1 >= A5O_VERTEX_CACHE_SIZE) {
+      num_segments = A5O_VERTEX_CACHE_SIZE - 1 - 1;
    }
       
-   al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
+   al_calculate_arc(&(vertex_cache[1].x), sizeof(A5O_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
    vertex_cache[0].x = cx; vertex_cache[0].y = cy;
    
    for (ii = 0; ii < num_segments + 1; ii++) {
@@ -687,13 +687,13 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
       vertex_cache[ii].z = 0;
    }
    
-   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, A5O_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_draw_ellipse
  */
 void al_draw_ellipse(float cx, float cy, float rx, float ry,
-   ALLEGRO_COLOR color, float thickness)
+   A5O_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
@@ -702,50 +702,50 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ASSERT(ry >= 0);
 
    if (thickness > 0) {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
+      int num_segments = A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
       int ii;
 
       /* In case rx and ry are both 0. */
       if (num_segments < 2)
          return;
 
-      if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 2;
+      if (2 * num_segments >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = (A5O_VERTEX_CACHE_SIZE - 1) / 2;
       }
       
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, 0, ALLEGRO_PI * 2, thickness, num_segments);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(A5O_VERTEX), cx, cy, rx, ry, 0, A5O_PI * 2, thickness, num_segments);
       for (ii = 0; ii < 2 * num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
          
-      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, A5O_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
+      int num_segments = A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
       int ii;
       
       /* In case rx and ry are both 0. */
       if (num_segments < 2)
          return;
 
-      if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+      if (num_segments >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = A5O_VERTEX_CACHE_SIZE - 1;
       }
 
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, num_segments);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(A5O_VERTEX), cx, cy, rx, ry, 0, A5O_PI * 2, 0, num_segments);
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
          
-      al_draw_prim(vertex_cache, 0, 0, 0, num_segments - 1, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments - 1, A5O_PRIM_LINE_LOOP);
    }
 }
 
 /* Function: al_draw_filled_ellipse
  */
 void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
-   ALLEGRO_COLOR color)
+   A5O_COLOR color)
 {
    LOCAL_VERTEX_CACHE;
    int num_segments, ii;
@@ -754,7 +754,7 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
    
-   num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
+   num_segments = A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f);
 
    /* In case rx and ry are both close to 0. If al_calculate_arc is passed
     * 0 or 1 it will assert.
@@ -762,11 +762,11 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    if (num_segments < 2)
       return;
    
-   if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-      num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+   if (num_segments >= A5O_VERTEX_CACHE_SIZE) {
+      num_segments = A5O_VERTEX_CACHE_SIZE - 1;
    }
       
-   al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, num_segments);
+   al_calculate_arc(&(vertex_cache[1].x), sizeof(A5O_VERTEX), cx, cy, rx, ry, 0, A5O_PI * 2, 0, num_segments);
    vertex_cache[0].x = cx; vertex_cache[0].y = cy;
    
    for (ii = 0; ii < num_segments + 1; ii++) {
@@ -774,12 +774,12 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
       vertex_cache[ii].z = 0;
    }
    
-   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, A5O_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_draw_circle
  */
-void al_draw_circle(float cx, float cy, float r, ALLEGRO_COLOR color,
+void al_draw_circle(float cx, float cy, float r, A5O_COLOR color,
    float thickness)
 {
    al_draw_ellipse(cx, cy, r, r, color, thickness);
@@ -787,7 +787,7 @@ void al_draw_circle(float cx, float cy, float r, ALLEGRO_COLOR color,
 
 /* Function: al_draw_filled_circle
  */
-void al_draw_filled_circle(float cx, float cy, float r, ALLEGRO_COLOR color)
+void al_draw_filled_circle(float cx, float cy, float r, A5O_COLOR color)
 {
    al_draw_filled_ellipse(cx, cy, r, r, color);
 }
@@ -795,57 +795,57 @@ void al_draw_filled_circle(float cx, float cy, float r, ALLEGRO_COLOR color)
 /* Function: al_draw_elliptical_arc
  */
 void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_theta,
-   float delta_theta, ALLEGRO_COLOR color, float thickness)
+   float delta_theta, A5O_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
 
    ASSERT(rx >= 0 && ry >= 0);
    if (thickness > 0) {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f));
+      int num_segments = fabs(delta_theta / (2 * A5O_PI) * A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)
          num_segments = 2;
 
-      if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 2;
+      if (2 * num_segments >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = (A5O_VERTEX_CACHE_SIZE - 1) / 2;
       }
 
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, start_theta, delta_theta, thickness, num_segments);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(A5O_VERTEX), cx, cy, rx, ry, start_theta, delta_theta, thickness, num_segments);
       
       for (ii = 0; ii < 2 * num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, A5O_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f));
+      int num_segments = fabs(delta_theta / (2 * A5O_PI) * A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)
          num_segments = 2;
 
-      if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+      if (num_segments >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = A5O_VERTEX_CACHE_SIZE - 1;
       }
       
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, start_theta, delta_theta, 0, num_segments);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(A5O_VERTEX), cx, cy, rx, ry, start_theta, delta_theta, 0, num_segments);
       
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, A5O_PRIM_LINE_STRIP);
    }
 }
 
 /* Function: al_draw_arc
  */
 void al_draw_arc(float cx, float cy, float r, float start_theta,
-   float delta_theta, ALLEGRO_COLOR color, float thickness)
+   float delta_theta, A5O_COLOR color, float thickness)
 {
    al_draw_elliptical_arc(cx, cy, r, r, start_theta, delta_theta, color, thickness);
 }
@@ -853,7 +853,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
 /* Function: al_draw_rounded_rectangle
  */
 void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
-   float rx, float ry, ALLEGRO_COLOR color, float thickness)
+   float rx, float ry, A5O_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
@@ -862,7 +862,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
    ASSERT(ry >= 0);
 
    if (thickness > 0) {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
+      int num_segments = A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
       int ii;
 
       /* In case rx and ry are both 0. */
@@ -871,11 +871,11 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
          return;
       }
 
-      if (8 * num_segments + 2 >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 3) / 8;
+      if (8 * num_segments + 2 >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = (A5O_VERTEX_CACHE_SIZE - 3) / 8;
       }
       
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), 0, 0, rx, ry, 0, ALLEGRO_PI / 2, thickness, num_segments);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(A5O_VERTEX), 0, 0, rx, ry, 0, A5O_PI / 2, thickness, num_segments);
       
       for (ii = 0; ii < 2 * num_segments; ii += 2) {
          vertex_cache[ii + 2 * num_segments + 1].x = x1 + rx - vertex_cache[2 * num_segments - 1 - ii].x;
@@ -907,9 +907,9 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
          vertex_cache[ii].z = 0;
       }
          
-      al_draw_prim(vertex_cache, 0, 0, 0, 8 * num_segments + 2, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 8 * num_segments + 2, A5O_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
+      int num_segments = A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
       int ii;
       
       /* In case rx and ry are both 0. */
@@ -918,11 +918,11 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
          return;
       }
 
-      if (num_segments * 4 >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 4;
+      if (num_segments * 4 >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = (A5O_VERTEX_CACHE_SIZE - 1) / 4;
       }
       
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), 0, 0, rx, ry, 0, ALLEGRO_PI / 2, 0, num_segments + 1);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(A5O_VERTEX), 0, 0, rx, ry, 0, A5O_PI / 2, 0, num_segments + 1);
 
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii + 1 * num_segments].x = x1 + rx - vertex_cache[num_segments - 1 - ii].x;
@@ -944,19 +944,19 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
          vertex_cache[ii].z = 0;
       }
          
-      al_draw_prim(vertex_cache, 0, 0, 0, 4 * num_segments, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 4 * num_segments, A5O_PRIM_LINE_LOOP);
    }
 }
 
 /* Function: al_draw_filled_rounded_rectangle
  */
 void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
-   float rx, float ry, ALLEGRO_COLOR color)
+   float rx, float ry, A5O_COLOR color)
 {
    LOCAL_VERTEX_CACHE;
    int ii;
    float scale = get_scale();
-   int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
+   int num_segments = A5O_PRIM_QUALITY * sqrtf(scale * (rx + ry) / 2.0f) / 4;
 
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
@@ -967,11 +967,11 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
       return;
    }
 
-   if (num_segments * 4 >= ALLEGRO_VERTEX_CACHE_SIZE) {
-      num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 4;
+   if (num_segments * 4 >= A5O_VERTEX_CACHE_SIZE) {
+      num_segments = (A5O_VERTEX_CACHE_SIZE - 1) / 4;
    }
    
-   al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), 0, 0, rx, ry, 0, ALLEGRO_PI / 2, 0, num_segments + 1);
+   al_calculate_arc(&(vertex_cache[0].x), sizeof(A5O_VERTEX), 0, 0, rx, ry, 0, A5O_PI / 2, 0, num_segments + 1);
 
    for (ii = 0; ii < num_segments; ii++) {
       vertex_cache[ii + 1 * num_segments].x = x1 + rx - vertex_cache[num_segments - 1 - ii].x;
@@ -996,7 +996,7 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    /*
    TODO: Doing this as a triangle fan just doesn't sound all that great, perhaps shuffle the vertices somehow to at least make it a strip
    */
-   al_draw_prim(vertex_cache, 0, 0, 0, 4 * num_segments, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vertex_cache, 0, 0, 0, 4 * num_segments, A5O_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_calculate_spline
@@ -1080,45 +1080,45 @@ void al_calculate_spline(float* dest, int stride, const float points[8],
 
 /* Function: al_draw_spline
  */
-void al_draw_spline(const float points[8], ALLEGRO_COLOR color, float thickness)
+void al_draw_spline(const float points[8], A5O_COLOR color, float thickness)
 {
    int ii;
    float scale = get_scale();
    int num_segments = (int)(sqrtf(hypotf(points[2] - points[0], points[3] - points[1]) +
                                   hypotf(points[4] - points[2], points[5] - points[3]) +
                                   hypotf(points[6] - points[4], points[7] - points[5])) *
-                            1.2 * ALLEGRO_PRIM_QUALITY * scale / 10);
+                            1.2 * A5O_PRIM_QUALITY * scale / 10);
    LOCAL_VERTEX_CACHE;
    
    if(num_segments < 2)
       num_segments = 2;
 
    if (thickness > 0) {
-      if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 2;
+      if (2 * num_segments >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = (A5O_VERTEX_CACHE_SIZE - 1) / 2;
       }
          
-      al_calculate_spline(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, thickness, num_segments);
+      al_calculate_spline(&(vertex_cache[0].x), sizeof(A5O_VERTEX), points, thickness, num_segments);
       
       for (ii = 0; ii < 2 * num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, A5O_PRIM_TRIANGLE_STRIP);
    } else {
-      if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-         num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+      if (num_segments >= A5O_VERTEX_CACHE_SIZE) {
+         num_segments = A5O_VERTEX_CACHE_SIZE - 1;
       }
          
-      al_calculate_spline(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, thickness, num_segments);
+      al_calculate_spline(&(vertex_cache[0].x), sizeof(A5O_VERTEX), points, thickness, num_segments);
       
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, A5O_PRIM_LINE_STRIP);
    }
 }
 
@@ -1246,18 +1246,18 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
 
 /* Function: al_draw_ribbon
  */
-void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
+void al_draw_ribbon(const float *points, int points_stride, A5O_COLOR color,
    float thickness, int num_segments)
 {
    LOCAL_VERTEX_CACHE;
    int ii;
 
-   if (num_segments * (thickness > 0 ? 2 : 1) > ALLEGRO_VERTEX_CACHE_SIZE) {
-      ALLEGRO_ERROR("Ribbon has too many segments.\n");
+   if (num_segments * (thickness > 0 ? 2 : 1) > A5O_VERTEX_CACHE_SIZE) {
+      A5O_ERROR("Ribbon has too many segments.\n");
       return;
    }
 
-   al_calculate_ribbon(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, points_stride, thickness, num_segments);
+   al_calculate_ribbon(&(vertex_cache[0].x), sizeof(A5O_VERTEX), points, points_stride, thickness, num_segments);
    
    if (thickness > 0) {
       for (ii = 0; ii < 2 * num_segments; ii++) {
@@ -1265,14 +1265,14 @@ void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
          vertex_cache[ii].z = 0;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, A5O_PRIM_TRIANGLE_STRIP);
    } else {
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, A5O_PRIM_LINE_STRIP);
    }
 }
 

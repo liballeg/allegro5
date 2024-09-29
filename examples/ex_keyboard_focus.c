@@ -1,7 +1,7 @@
 /*
  *    Example program for the Allegro library.
  *
- *    This program tests if the ALLEGRO_KEYBOARD_STATE `display' field
+ *    This program tests if the A5O_KEYBOARD_STATE `display' field
  *    is set correctly to the focused display.
  */
 
@@ -9,10 +9,10 @@
 
 #include "common.c"
 
-static ALLEGRO_DISPLAY *display1;
-static ALLEGRO_DISPLAY *display2;
+static A5O_DISPLAY *display1;
+static A5O_DISPLAY *display2;
 
-static void redraw(ALLEGRO_COLOR color1, ALLEGRO_COLOR color2)
+static void redraw(A5O_COLOR color1, A5O_COLOR color2)
 {
    al_set_target_backbuffer(display1);
    al_clear_to_color(color1);
@@ -25,9 +25,9 @@ static void redraw(ALLEGRO_COLOR color1, ALLEGRO_COLOR color2)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_COLOR black;
-   ALLEGRO_COLOR red;
-   ALLEGRO_KEYBOARD_STATE kbdstate;
+   A5O_COLOR black;
+   A5O_COLOR red;
+   A5O_KEYBOARD_STATE kbdstate;
 
    (void)argc;
    (void)argv;
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 
    while (1) {
       al_get_keyboard_state(&kbdstate);
-      if (al_key_down(&kbdstate, ALLEGRO_KEY_ESCAPE)) {
+      if (al_key_down(&kbdstate, A5O_KEY_ESCAPE)) {
          break;
       }
 

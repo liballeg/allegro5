@@ -1,7 +1,7 @@
 #ifndef __al_included_allegro5_aintern_wunicode_h
 #define __al_included_allegro5_aintern_wunicode_h
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
 
 #include <tchar.h>
 
@@ -10,8 +10,8 @@
 #endif
 
 
-AL_FUNC(wchar_t *, _al_win_ustr_to_utf16, (const ALLEGRO_USTR *u));
-AL_FUNC(char *, _al_win_ustr_to_ansi, (const ALLEGRO_USTR *u));
+AL_FUNC(wchar_t *, _al_win_ustr_to_utf16, (const A5O_USTR *u));
+AL_FUNC(char *, _al_win_ustr_to_ansi, (const A5O_USTR *u));
 AL_FUNC(wchar_t *, _al_win_utf8_to_utf16, (const char *us));
 AL_FUNC(char *, _al_win_utf16_to_utf8, (const wchar_t *ws));
 AL_FUNC(char *, _al_win_utf8_to_ansi, (const char* us));

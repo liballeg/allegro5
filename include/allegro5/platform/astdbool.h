@@ -19,10 +19,10 @@
 #define __al_included_allegro5_astdbool_h
 
 #ifndef __cplusplus
-#  ifdef ALLEGRO_HAVE_STDBOOL_H
+#  ifdef A5O_HAVE_STDBOOL_H
 #     include <stdbool.h>
 #  else
-#     ifndef ALLEGRO_HAVE__BOOL
+#     ifndef A5O_HAVE__BOOL
          typedef unsigned char _Bool;
 #     endif
 #     define bool _Bool

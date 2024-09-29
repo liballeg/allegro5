@@ -20,8 +20,8 @@
 /* #define USE_GTK */
 
 static void
-draw_information(ALLEGRO_DISPLAY *display,
-   ALLEGRO_FONT *font, ALLEGRO_COLOR color);
+draw_information(A5O_DISPLAY *display,
+   A5O_FONT *font, A5O_COLOR color);
 
 static bool use_constraints;
 
@@ -29,9 +29,9 @@ static bool use_constraints;
 extern int
 main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_FONT *font;
    bool done = false;
    bool redraw = true;
    use_constraints = true;
@@ -59,12 +59,12 @@ main(int argc, char **argv)
       abort_example("Failed to init native dialog addon.\n");
    }
 
-   al_set_new_display_flags(ALLEGRO_WINDOWED
+   al_set_new_display_flags(A5O_WINDOWED
 #if defined(USE_GTK) && !defined(_WIN32)
-      | ALLEGRO_GTK_TOPLEVEL
+      | A5O_GTK_TOPLEVEL
 #endif
-      | ALLEGRO_RESIZABLE | ALLEGRO_MAXIMIZED
-      | ALLEGRO_GENERATE_EXPOSE_EVENTS);
+      | A5O_RESIZABLE | A5O_MAXIMIZED
+      | A5O_GENERATE_EXPOSE_EVENTS);
 
    /* creating really small display */
    display = al_create_display(DISPLAY_W / 3, DISPLAY_H / 3);
@@ -85,15 +85,15 @@ main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
 
-   ALLEGRO_COLOR color_1 = al_map_rgb(255, 127, 0);
-   ALLEGRO_COLOR color_2 = al_map_rgb(0, 255, 0);
-   ALLEGRO_COLOR *color = &color_1;
-   ALLEGRO_COLOR color_text = al_map_rgb(0, 0, 0);
+   A5O_COLOR color_1 = al_map_rgb(255, 127, 0);
+   A5O_COLOR color_2 = al_map_rgb(0, 255, 0);
+   A5O_COLOR *color = &color_1;
+   A5O_COLOR color_text = al_map_rgb(0, 0, 0);
 
    font = al_create_builtin_font();
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (redraw && al_is_event_queue_empty(queue)) {
          redraw = false;
@@ -108,13 +108,13 @@ main(int argc, char **argv)
       al_wait_for_event(queue, &event);
 
       switch (event.type) {
-      case ALLEGRO_EVENT_KEY_DOWN:
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      case A5O_EVENT_KEY_DOWN:
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             done = true;
          break;
 
-      case ALLEGRO_EVENT_KEY_UP:
-         if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+      case A5O_EVENT_KEY_UP:
+         if (event.keyboard.keycode == A5O_KEY_SPACE) {
             redraw = true;
 
             if (color == &color_1) {
@@ -140,23 +140,23 @@ main(int argc, char **argv)
 
             al_apply_window_constraints(display, use_constraints);
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+         else if (event.keyboard.keycode == A5O_KEY_ENTER) {
             redraw = true;
             use_constraints = !use_constraints;
             al_apply_window_constraints(display, use_constraints);
          }
          break;
 
-      case ALLEGRO_EVENT_DISPLAY_RESIZE:
+      case A5O_EVENT_DISPLAY_RESIZE:
          al_acknowledge_resize(event.display.source);
          redraw = true;
          break;
 
-      case ALLEGRO_EVENT_DISPLAY_EXPOSE:
+      case A5O_EVENT_DISPLAY_EXPOSE:
          redraw = true;
          break;
 
-      case ALLEGRO_EVENT_DISPLAY_CLOSE:
+      case A5O_EVENT_DISPLAY_CLOSE:
          done = true;
          break;
       } /* switch (event.type) { */
@@ -169,8 +169,8 @@ main(int argc, char **argv)
 
 
 static void
-draw_information(ALLEGRO_DISPLAY *display,
-   ALLEGRO_FONT *font, ALLEGRO_COLOR color)
+draw_information(A5O_DISPLAY *display,
+   A5O_FONT *font, A5O_COLOR color)
 {
    int min_w, min_h, max_w, max_h;
 

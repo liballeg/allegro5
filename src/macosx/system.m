@@ -21,7 +21,7 @@
 #include "allegro5/internal/aintern_osxclipboard.h"
 #include <sys/stat.h>
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
    #error something is wrong with the makefile
 #endif
 
@@ -30,7 +30,7 @@
 #include <mach-o/dyld.h>
 #include <servers/bootstrap.h>
 
-ALLEGRO_DEBUG_CHANNEL("MacOSX")
+A5O_DEBUG_CHANNEL("MacOSX")
 
 /* These are used to warn the dock about the application */
 struct CPSProcessSerNum
@@ -43,15 +43,15 @@ extern OSErr CPSEnableForegroundOperation(struct CPSProcessSerNum *psn, UInt32 _
 extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
 
 
-static ALLEGRO_SYSTEM* osx_sys_init(int flags);
-ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void);
+static A5O_SYSTEM* osx_sys_init(int flags);
+A5O_SYSTEM_INTERFACE *_al_system_osx_driver(void);
 static void osx_sys_exit(void);
 
 
 /* Global variables */
 NSBundle *_al_osx_bundle = NULL;
 static _AL_VECTOR osx_display_modes;
-static ALLEGRO_SYSTEM osx_system;
+static A5O_SYSTEM osx_system;
 
 /* _al_osx_tell_dock:
  *  Tell the dock about us; promote us from a console app to a graphical app
@@ -103,7 +103,7 @@ int _al_osx_bootstrap_ok(void)
 /* osx_sys_init:
  *  Initalizes the MacOS X system driver.
  */
-static ALLEGRO_SYSTEM* osx_sys_init(int flags)
+static A5O_SYSTEM* osx_sys_init(int flags)
 {
    (void)flags;
 
@@ -115,7 +115,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 #endif
    /* Initialise the vt and display list */
    osx_system.vt = _al_system_osx_driver();
-   _al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
+   _al_vector_init(&osx_system.displays, sizeof(A5O_DISPLAY*));
 
    // `_al_osx_tell_dock` is better done after creating a display. Support old behavior for compatability.
    bool do_osx_tell_dock = true;
@@ -132,9 +132,9 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    /* Mark the beginning of time. */
    _al_unix_init_time();
 
-   _al_vector_init(&osx_display_modes, sizeof(ALLEGRO_DISPLAY_MODE));
+   _al_vector_init(&osx_display_modes, sizeof(A5O_DISPLAY_MODE));
 
-   ALLEGRO_DEBUG("system driver initialised.\n");
+   A5O_DEBUG("system driver initialised.\n");
    return &osx_system;
 }
 
@@ -146,7 +146,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 static void osx_sys_exit(void)
 {
    _al_vector_free(&osx_display_modes);
-   ALLEGRO_DEBUG("system driver shutdown.\n");
+   A5O_DEBUG("system driver shutdown.\n");
 }
 
 
@@ -157,8 +157,8 @@ static void osx_sys_exit(void)
  */
 static int _al_osx_get_num_display_modes(void)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras = _al_get_new_display_settings();
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS temp;
+   A5O_EXTRA_DISPLAY_SETTINGS *extras = _al_get_new_display_settings();
+   A5O_EXTRA_DISPLAY_SETTINGS temp;
    int refresh_rate = al_get_new_display_refresh_rate();
    int adapter = al_get_new_display_adapter();
    int depth = 0;
@@ -167,8 +167,8 @@ static int _al_osx_get_num_display_modes(void)
    CFIndex i;
 
    if (extras)
-      depth = extras->settings[ALLEGRO_COLOR_SIZE];
-   memset(&temp, 0, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+      depth = extras->settings[A5O_COLOR_SIZE];
+   memset(&temp, 0, sizeof(A5O_EXTRA_DISPLAY_SETTINGS));
 
    display = CGMainDisplayID();
    /* Get display ID for the requested display */
@@ -190,61 +190,61 @@ static int _al_osx_get_num_display_modes(void)
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    /* Note: modes is owned by OSX and must not be released */
    modes = CGDisplayAvailableModes(display);
-   ALLEGRO_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
+   A5O_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
    for (i = 0; i < CFArrayGetCount(modes); i++) {
-      ALLEGRO_DISPLAY_MODE *mode;
+      A5O_DISPLAY_MODE *mode;
       CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(modes, i);
       CFNumberRef number;
       int value, samples;
 
       number = CFDictionaryGetValue(dict, kCGDisplayBitsPerPixel);
       CFNumberGetValue(number, kCFNumberIntType, &value);
-      ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, value);
+      A5O_INFO("Mode %d has colour depth %d.\n", (int)i, value);
       if (depth && value != depth) {
-         ALLEGRO_WARN("Skipping mode %d (requested colour depth %d).\n", (int)i, depth);
+         A5O_WARN("Skipping mode %d (requested colour depth %d).\n", (int)i, depth);
          continue;
       }
 
       number = CFDictionaryGetValue(dict, kCGDisplayRefreshRate);
       CFNumberGetValue(number, kCFNumberIntType, &value);
-      ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, value);
+      A5O_INFO("Mode %d has colour depth %d.\n", (int)i, value);
       if (refresh_rate && value != refresh_rate) {
-         ALLEGRO_WARN("Skipping mode %d (requested refresh rate %d).\n", (int)i, refresh_rate);
+         A5O_WARN("Skipping mode %d (requested refresh rate %d).\n", (int)i, refresh_rate);
          continue;
       }
 
-      mode = (ALLEGRO_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
+      mode = (A5O_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
       number = CFDictionaryGetValue(dict, kCGDisplayWidth);
       CFNumberGetValue(number, kCFNumberIntType, &mode->width);
       number = CFDictionaryGetValue(dict, kCGDisplayHeight);
       CFNumberGetValue(number, kCFNumberIntType, &mode->height);
       number = CFDictionaryGetValue(dict, kCGDisplayRefreshRate);
       CFNumberGetValue(number, kCFNumberIntType, &mode->refresh_rate);
-      ALLEGRO_INFO("Mode %d is %dx%d@%dHz\n", (int)i, mode->width, mode->height, mode->refresh_rate);
+      A5O_INFO("Mode %d is %dx%d@%dHz\n", (int)i, mode->width, mode->height, mode->refresh_rate);
 
       number = CFDictionaryGetValue(dict, kCGDisplayBitsPerPixel);
-      CFNumberGetValue(number, kCFNumberIntType, &temp.settings[ALLEGRO_COLOR_SIZE]);
+      CFNumberGetValue(number, kCFNumberIntType, &temp.settings[A5O_COLOR_SIZE]);
       number = CFDictionaryGetValue(dict, kCGDisplaySamplesPerPixel);
       CFNumberGetValue(number, kCFNumberIntType, &samples);
       number = CFDictionaryGetValue(dict, kCGDisplayBitsPerSample);
       CFNumberGetValue(number, kCFNumberIntType, &value);
-      ALLEGRO_INFO("Mode %d has %d bits per pixel, %d samples per pixel and %d bits per sample\n",
-                  (int)i, temp.settings[ALLEGRO_COLOR_SIZE], samples, value);
+      A5O_INFO("Mode %d has %d bits per pixel, %d samples per pixel and %d bits per sample\n",
+                  (int)i, temp.settings[A5O_COLOR_SIZE], samples, value);
       if (samples >= 3) {
-         temp.settings[ALLEGRO_RED_SIZE] = value;
-         temp.settings[ALLEGRO_GREEN_SIZE] = value;
-         temp.settings[ALLEGRO_BLUE_SIZE] = value;
+         temp.settings[A5O_RED_SIZE] = value;
+         temp.settings[A5O_GREEN_SIZE] = value;
+         temp.settings[A5O_BLUE_SIZE] = value;
          if (samples == 4)
-            temp.settings[ALLEGRO_ALPHA_SIZE] = value;
+            temp.settings[A5O_ALPHA_SIZE] = value;
       }
       _al_fill_display_settings(&temp);
       mode->format = _al_deduce_color_format(&temp);
    }
 #else
    modes = CGDisplayCopyAllDisplayModes(display, NULL);
-   ALLEGRO_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
+   A5O_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
    for (i = 0; i < CFArrayGetCount(modes); i++) {
-      ALLEGRO_DISPLAY_MODE *amode;
+      A5O_DISPLAY_MODE *amode;
       CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
       CFStringRef pixel_encoding = CGDisplayModeCopyPixelEncoding(mode);
 
@@ -299,35 +299,35 @@ static int _al_osx_get_num_display_modes(void)
 	  CFRelease(pixel_encoding);
 
       /* Check if this mode is ok in terms of depth and refresh rate */
-      ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, bpp);
+      A5O_INFO("Mode %d has colour depth %d.\n", (int)i, bpp);
       if (depth && bpp != depth) {
-         ALLEGRO_WARN("Skipping mode %d (requested colour depth %d).\n", (int)i, depth);
+         A5O_WARN("Skipping mode %d (requested colour depth %d).\n", (int)i, depth);
          continue;
       }
 
       mode_refresh_rate = CGDisplayModeGetRefreshRate(mode);
-      ALLEGRO_INFO("Mode %d has a refresh rate of %d.\n", (int)i, mode_refresh_rate);
+      A5O_INFO("Mode %d has a refresh rate of %d.\n", (int)i, mode_refresh_rate);
       if (refresh_rate && mode_refresh_rate != refresh_rate) {
-         ALLEGRO_WARN("Skipping mode %d (requested refresh rate %d).\n", (int)i, refresh_rate);
+         A5O_WARN("Skipping mode %d (requested refresh rate %d).\n", (int)i, refresh_rate);
          continue;
       }
 
       /* Yes, it's fine */
-      amode = (ALLEGRO_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
+      amode = (A5O_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
       amode->width = CGDisplayModeGetWidth(mode);
       amode->height = CGDisplayModeGetHeight(mode);
       amode->refresh_rate = mode_refresh_rate;
-      ALLEGRO_INFO("Mode %d is %dx%d@%dHz\n", (int)i, amode->width, amode->height, amode->refresh_rate);
+      A5O_INFO("Mode %d is %dx%d@%dHz\n", (int)i, amode->width, amode->height, amode->refresh_rate);
 
-      temp.settings[ALLEGRO_COLOR_SIZE] = bpp;
-      ALLEGRO_INFO("Mode %d has %d bits per pixel, %d samples per pixel and %d bits per sample\n",
-                  (int)i, temp.settings[ALLEGRO_COLOR_SIZE], samples, value);
+      temp.settings[A5O_COLOR_SIZE] = bpp;
+      A5O_INFO("Mode %d has %d bits per pixel, %d samples per pixel and %d bits per sample\n",
+                  (int)i, temp.settings[A5O_COLOR_SIZE], samples, value);
       if (samples >= 3) {
-         temp.settings[ALLEGRO_RED_SIZE] = value;
-         temp.settings[ALLEGRO_GREEN_SIZE] = value;
-         temp.settings[ALLEGRO_BLUE_SIZE] = value;
+         temp.settings[A5O_RED_SIZE] = value;
+         temp.settings[A5O_GREEN_SIZE] = value;
+         temp.settings[A5O_BLUE_SIZE] = value;
          if (samples == 4)
-            temp.settings[ALLEGRO_ALPHA_SIZE] = value;
+            temp.settings[A5O_ALPHA_SIZE] = value;
       }
       _al_fill_display_settings(&temp);
       amode->format = _al_deduce_color_format(&temp);
@@ -343,11 +343,11 @@ static int _al_osx_get_num_display_modes(void)
  * _al_osx_get_num_display_modes:
  *  Gets the number of available display modes
  */
-static ALLEGRO_DISPLAY_MODE *_al_osx_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
+static A5O_DISPLAY_MODE *_al_osx_get_display_mode(int index, A5O_DISPLAY_MODE *mode)
 {
    if ((unsigned)index >= _al_vector_size(&osx_display_modes))
       return NULL;
-   memcpy(mode, _al_vector_ref(&osx_display_modes, index), sizeof(ALLEGRO_DISPLAY_MODE));
+   memcpy(mode, _al_vector_ref(&osx_display_modes, index), sizeof(A5O_DISPLAY_MODE));
    return mode;
 }
 
@@ -365,7 +365,7 @@ static int osx_get_num_video_adapters(void)
    if (screen_list)
       num = [screen_list count];
 
-   ALLEGRO_INFO("Detected %d displays\n", num);
+   A5O_INFO("Detected %d displays\n", num);
    return num;
 }
 
@@ -407,7 +407,7 @@ float _al_osx_get_global_scale_factor(void)
 /* osx_get_monitor_info:
  * Return the details of one monitor
  */
-static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
+static bool osx_get_monitor_info(int adapter, A5O_MONITOR_INFO* info)
 {
    int count = osx_get_num_video_adapters();
    int primary_y = _al_osx_get_primary_screen_y();
@@ -437,7 +437,7 @@ static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->x2 = (int) (rc.origin.x * global_scale_factor + rc.size.width * scale_factor);
       info->y1 = (int) (global_scale_factor * (primary_y - (rc.size.height + rc.origin.y)));
       info->y2 = (int) (info->y1 + scale_factor * rc.size.height);
-      ALLEGRO_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
+      A5O_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
                    adapter, info->x1, info->y1, info->x2, info->y2);
       return true;
    }
@@ -456,7 +456,7 @@ static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->x2 = (int) (rc.origin.x + rc.size.width);
       info->y1 = (int) rc.origin.y;
       info->y2 = (int) (rc.origin.y + rc.size.height);
-      ALLEGRO_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
+      A5O_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
          adapter, info->x1, info->y1, info->x2, info->y2);
       return true;
    }
@@ -502,7 +502,7 @@ static bool osx_inhibit_screensaver(bool inhibit)
    [delegate performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
                               withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
                            waitUntilDone: NO];
-   ALLEGRO_INFO("Stop screensaver\n");
+   A5O_INFO("Stop screensaver\n");
    return true;
 }
 
@@ -510,7 +510,7 @@ static bool osx_inhibit_screensaver(bool inhibit)
  * Create an NSImage from an Allegro bitmap
  * This could definitely be speeded up if necessary.
  */
-NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
+NSImage* NSImageFromAllegroBitmap(A5O_BITMAP* bmp)
 {
    int w = al_get_bitmap_width(bmp);
    int h = al_get_bitmap_height(bmp);
@@ -525,11 +525,11 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
       colorSpaceName:NSDeviceRGBColorSpace
       bytesPerRow: 0 // Calculate yourself
       bitsPerPixel:0 ];// Calculate yourself
-   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
    int x, y;
    for (y = 0; y<h; ++y) {
       for (x = 0; x<w; ++x) {
-         ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
+         A5O_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char* ptr = [rep bitmapData] + y * [rep bytesPerRow] + x * ([rep bitsPerPixel]/8);
          al_unmap_rgba(c, ptr, ptr+1, ptr+2, ptr+3);
          // NSImage should be premultiplied alpha
@@ -555,22 +555,22 @@ static bool osx_get_cursor_position(int *x, int *y)
    return true;
 }
 
-static void osx_thread_init(ALLEGRO_THREAD *thread)
+static void osx_thread_init(A5O_THREAD *thread)
 {
 }
 
-static void osx_thread_exit(ALLEGRO_THREAD *thread)
+static void osx_thread_exit(A5O_THREAD *thread)
 {
 }
 
 /* Internal function to get a reference to this driver. */
-ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
+A5O_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
-   static ALLEGRO_SYSTEM_INTERFACE* vt = NULL;
+   static A5O_SYSTEM_INTERFACE* vt = NULL;
    if (vt == NULL) {
       vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
-      vt->id = ALLEGRO_SYSTEM_ID_MACOSX;
+      vt->id = A5O_SYSTEM_ID_MACOSX;
       vt->initialize = osx_sys_init;
       vt->get_display_driver = _al_osx_get_display_driver;
       vt->get_keyboard_driver = _al_osx_get_keyboard_driver;
@@ -603,38 +603,38 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
  */
 void _al_register_system_interfaces()
 {
-   ALLEGRO_SYSTEM_INTERFACE **add;
+   A5O_SYSTEM_INTERFACE **add;
 
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_osx_driver();
 }
 
 /* Implementation of get_path */
-ALLEGRO_PATH *_al_osx_get_path(int id)
+A5O_PATH *_al_osx_get_path(int id)
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    NSString* ans = nil;
    NSArray* paths = nil;
    NSString *org_name = [[NSString alloc] initWithUTF8String: al_get_org_name()];
    NSString *app_name = [[NSString alloc] initWithUTF8String: al_get_app_name()];
-   ALLEGRO_PATH *path = NULL;
+   A5O_PATH *path = NULL;
 
    switch (id) {
-      case ALLEGRO_RESOURCES_PATH:
+      case A5O_RESOURCES_PATH:
          if (_al_osx_bundle) {
             ans = [_al_osx_bundle resourcePath];
             path = al_create_path_for_directory([ans UTF8String]);
          } else {
             /* Otherwise, return the executable pathname */
-            path = _al_osx_get_path(ALLEGRO_EXENAME_PATH);
+            path = _al_osx_get_path(A5O_EXENAME_PATH);
             al_set_path_filename(path, NULL);
          }
          break;
-      case ALLEGRO_TEMP_PATH:
+      case A5O_TEMP_PATH:
          ans = NSTemporaryDirectory();
          path = al_create_path_for_directory([ans UTF8String]);
          break;
-      case ALLEGRO_USER_DATA_PATH:
+      case A5O_USER_DATA_PATH:
          paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
             NSUserDomainMask,
             YES);
@@ -647,11 +647,11 @@ ALLEGRO_PATH *_al_osx_get_path(int id)
          }
          path = al_create_path_for_directory([ans UTF8String]);
          break;
-      case ALLEGRO_USER_HOME_PATH:
+      case A5O_USER_HOME_PATH:
          ans = NSHomeDirectory();
          path = al_create_path_for_directory([ans UTF8String]);
          break;
-      case ALLEGRO_USER_DOCUMENTS_PATH:
+      case A5O_USER_DOCUMENTS_PATH:
          paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
             NSUserDomainMask,
             YES);
@@ -659,7 +659,7 @@ ALLEGRO_PATH *_al_osx_get_path(int id)
             ans = [paths objectAtIndex: 0];
          path = al_create_path_for_directory([ans UTF8String]);
          break;
-      case ALLEGRO_EXENAME_PATH: {
+      case A5O_EXENAME_PATH: {
          char exepath[PATH_MAX];
          uint32_t size = sizeof(exepath);
          if (_NSGetExecutablePath(exepath, &size) == 0)
@@ -668,7 +668,7 @@ ALLEGRO_PATH *_al_osx_get_path(int id)
          path = al_create_path([ans UTF8String]);
          break;
       }
-      case ALLEGRO_USER_SETTINGS_PATH:
+      case A5O_USER_SETTINGS_PATH:
          paths =
          NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
             NSUserDomainMask,
@@ -703,11 +703,11 @@ void _al_osx_post_quit(void)
    _AL_VECTOR* dpys = &al_get_system_driver()->displays;
    // Iterate through all existing displays
    for (i = 0; i < _al_vector_size(dpys); ++i) {
-      ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
-      ALLEGRO_EVENT_SOURCE* src = &(dpy->es);
+      A5O_DISPLAY* dpy = *(A5O_DISPLAY**) _al_vector_ref(dpys, i);
+      A5O_EVENT_SOURCE* src = &(dpy->es);
       _al_event_source_lock(src);
-      ALLEGRO_EVENT evt;
-      evt.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+      A5O_EVENT evt;
+      evt.type = A5O_EVENT_DISPLAY_CLOSE;
       // Send event
       _al_event_source_emit_event(src, &evt);
       _al_event_source_unlock(src);

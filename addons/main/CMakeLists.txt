@@ -1,18 +1,18 @@
-if(ALLEGRO_MACOSX)
+if(A5O_MACOSX)
     set(MAIN_SOURCES osx_main.m)
-    set(SUPPORT_ALLEGRO_MAIN 1)
-endif(ALLEGRO_MACOSX)
+    set(SUPPORT_A5O_MAIN 1)
+endif(A5O_MACOSX)
 
-if(NOT SUPPORT_ALLEGRO_MAIN)
+if(NOT SUPPORT_A5O_MAIN)
     set(MAIN_SOURCES generic_main.c)
-    set(SUPPORT_ALLEGRO_MAIN 1)
-endif(NOT SUPPORT_ALLEGRO_MAIN)
+    set(SUPPORT_A5O_MAIN 1)
+endif(NOT SUPPORT_A5O_MAIN)
 
 add_our_addon_library(allegro_main
-   AllegroMain-${ALLEGRO_SOVERSION}
+   AllegroMain-${A5O_SOVERSION}
    "${MAIN_SOURCES}"
-   "-DALLEGRO_SRC"
-   "${ALLEGRO_LINK_WITH}"
+   "-DA5O_SRC"
+   "${A5O_LINK_WITH}"
    )
 
 add_addon(main)

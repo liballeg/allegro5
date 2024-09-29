@@ -8,7 +8,7 @@
 #include <string>
 #include <algorithm>
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
@@ -21,10 +21,10 @@ namespace {
    
 class SaveState
 {
-   ALLEGRO_STATE state;
+   A5O_STATE state;
 
 public:
-   SaveState(int save=ALLEGRO_STATE_ALL)
+   SaveState(int save=A5O_STATE_ALL)
    {
       al_store_state(&state, save);
    }
@@ -36,11 +36,11 @@ public:
 
 class UString
 {
-   ALLEGRO_USTR_INFO info;
-   const ALLEGRO_USTR *ustr;
+   A5O_USTR_INFO info;
+   const A5O_USTR *ustr;
 
 public:
-   UString(const ALLEGRO_USTR *s, int first, int end = -1)
+   UString(const A5O_USTR *s, int first, int end = -1)
    {
       if (end == -1)
          end = al_ustr_size(s);
@@ -48,7 +48,7 @@ public:
    }
 
    // Conversion
-   operator const ALLEGRO_USTR *() const
+   operator const A5O_USTR *() const
    {
       return ustr;
    }
@@ -58,7 +58,7 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
-Theme::Theme(const ALLEGRO_FONT *font)
+Theme::Theme(const A5O_FONT *font)
 {
    this->bg = al_map_rgb(255, 255, 255);
    this->fg = al_map_rgb(0, 0, 0);
@@ -97,7 +97,7 @@ bool Widget::contains(int x, int y)
 
 /*---------------------------------------------------------------------------*/
 
-Dialog::Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
+Dialog::Dialog(const Theme & theme, A5O_DISPLAY *display,
       int grid_m, int grid_n):
    theme(theme),
    display(display),
@@ -157,7 +157,7 @@ void Dialog::prepare()
    /* XXX this isn't working right in X.  The mouse position is reported as
     * (0,0) initially, until the mouse pointer is moved.
     */
-   ALLEGRO_MOUSE_STATE mst;
+   A5O_MOUSE_STATE mst;
    al_get_mouse_state(&mst);
    this->check_mouse_over(mst.x, mst.y);
 }
@@ -177,7 +177,7 @@ void Dialog::configure_all()
 
 void Dialog::run_step(bool block)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    if (block) {
       al_wait_for_event(event_queue, NULL);
@@ -185,27 +185,27 @@ void Dialog::run_step(bool block)
 
    while (al_get_next_event(event_queue, &event)) {
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             this->request_quit();
             break;
 
-         case ALLEGRO_EVENT_KEY_CHAR:
+         case A5O_EVENT_KEY_CHAR:
             on_key_down(event.keyboard);
             break;
 
-         case ALLEGRO_EVENT_MOUSE_AXES:
+         case A5O_EVENT_MOUSE_AXES:
             on_mouse_axes(event.mouse);
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+         case A5O_EVENT_MOUSE_BUTTON_DOWN:
             on_mouse_button_down(event.mouse);
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+         case A5O_EVENT_MOUSE_BUTTON_UP:
             on_mouse_button_up(event.mouse);
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_EXPOSE:
+         case A5O_EVENT_DISPLAY_EXPOSE:
             this->request_draw();
             break;
 
@@ -218,14 +218,14 @@ void Dialog::run_step(bool block)
    }
 }
 
-void Dialog::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
+void Dialog::on_key_down(const A5O_KEYBOARD_EVENT & event)
 {
    if (event.display != this->display) {
       return;
    }
 
    // XXX think of something better when we need it
-   if (event.keycode == ALLEGRO_KEY_ESCAPE) {
+   if (event.keycode == A5O_KEY_ESCAPE) {
       this->request_quit();
    }
 
@@ -234,7 +234,7 @@ void Dialog::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
    }
 }
 
-void Dialog::on_mouse_axes(const ALLEGRO_MOUSE_EVENT & event)
+void Dialog::on_mouse_axes(const A5O_MOUSE_EVENT & event)
 {
    const int mx = event.x;
    const int my = event.y;
@@ -275,7 +275,7 @@ void Dialog::check_mouse_over(int mx, int my)
    }
 }
 
-void Dialog::on_mouse_button_down(const ALLEGRO_MOUSE_EVENT & event)
+void Dialog::on_mouse_button_down(const A5O_MOUSE_EVENT & event)
 {
    if (event.button != 1)
       return;
@@ -303,7 +303,7 @@ void Dialog::on_mouse_button_down(const ALLEGRO_MOUSE_EVENT & event)
    }
 }
 
-void Dialog::on_mouse_button_up(const ALLEGRO_MOUSE_EVENT & event)
+void Dialog::on_mouse_button_up(const A5O_MOUSE_EVENT & event)
 {
    if (event.button != 1)
       return;
@@ -361,7 +361,7 @@ const Theme & Dialog::get_theme() const
    return this->theme;
 }
 
-void Dialog::register_event_source(ALLEGRO_EVENT_SOURCE *source)
+void Dialog::register_event_source(A5O_EVENT_SOURCE *source)
 {
    al_register_event_source(this->event_queue, source);
 }
@@ -383,16 +383,16 @@ void Label::draw()
 {
    const Theme & theme = this->dialog->get_theme();
    SaveState state;
-   ALLEGRO_COLOR fg = theme.fg;
+   A5O_COLOR fg = theme.fg;
 
    if (is_disabled()) {
       fg = al_map_rgb(64, 64, 64);
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    if (centred) {
       al_draw_text(theme.font, fg, (this->x1 + this->x2 + 1)/2,
-         this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
+         this->y1, A5O_ALIGN_CENTRE, this->text.c_str());
    }
    else {
       al_draw_text(theme.font, fg, this->x1, this->y1, 0, this->text.c_str());
@@ -444,8 +444,8 @@ void Button::on_mouse_button_up(int mx, int my)
 void Button::draw()
 {
    const Theme & theme = this->dialog->get_theme();
-   ALLEGRO_COLOR fg;
-   ALLEGRO_COLOR bg;
+   A5O_COLOR fg;
+   A5O_COLOR bg;
    SaveState state;
    double y;
 
@@ -466,7 +466,7 @@ void Button::draw()
       this->x2, this->y2, bg);
    al_draw_rectangle(this->x1 + 0.5, this->y1 + 0.5,
       this->x2 - 0.5, this->y2 - 0.5, fg, 0);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
    /* Center the text vertically in the button, taking the font size
     * into consideration.
@@ -474,7 +474,7 @@ void Button::draw()
    y = (this->y1 + this->y2 - al_get_font_line_height(theme.font) - 1) / 2;
 
    al_draw_text(theme.font, fg, (this->x1 + this->x2 + 1)/2,
-      y, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
+      y, A5O_ALIGN_CENTRE, this->text.c_str());
 }
 
 bool Button::get_pushed()
@@ -532,20 +532,20 @@ bool List::want_key_focus()
    return !is_disabled();
 }
 
-void List::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
+void List::on_key_down(const A5O_KEYBOARD_EVENT & event)
 {
    if (is_disabled())
       return;
 
    switch (event.keycode) {
-      case ALLEGRO_KEY_DOWN:
+      case A5O_KEY_DOWN:
          if (selected_item < items.size() - 1) {
             selected_item++;
             dialog->request_draw();
          }
          break;
 
-      case ALLEGRO_KEY_UP:
+      case A5O_KEY_UP:
          if (selected_item > 0) {
             selected_item--;
             dialog->request_draw();
@@ -574,7 +574,7 @@ void List::draw()
 {
    const Theme & theme = dialog->get_theme();
    SaveState state;
-   ALLEGRO_COLOR bg = theme.bg;
+   A5O_COLOR bg = theme.bg;
 
    if (is_disabled()) {
       bg = al_map_rgb(64, 64, 64);
@@ -582,7 +582,7 @@ void List::draw()
 
    al_draw_filled_rectangle(x1 + 1, y1 + 1, x2 - 1, y2 - 1, bg);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    const int font_height = al_get_font_line_height(theme.font);
    for (unsigned i = 0; i < items.size(); i++) {
       int yi = y1 + i * font_height;
@@ -652,7 +652,7 @@ void VSlider::on_mouse_button_hold(int mx, int my)
 void VSlider::draw()
 {
    const Theme & theme = dialog->get_theme();
-   ALLEGRO_COLOR bg = theme.fg;
+   A5O_COLOR bg = theme.fg;
    float left = x1 + 0.5, top = y1 + 0.5;
    float right = x2 + 0.5, bottom = y2 + 0.5;
    SaveState state;
@@ -717,7 +717,7 @@ void HSlider::draw()
    const Theme & theme = dialog->get_theme();
    const int cy = (y1 + y2) / 2;
    SaveState state;
-   ALLEGRO_COLOR bg = theme.bg;
+   A5O_COLOR bg = theme.bg;
 
    if (is_disabled()) {
       bg = al_map_rgb(64, 64, 64);
@@ -778,33 +778,33 @@ void TextEntry::lost_key_focus()
    dialog->request_draw();
 }
 
-void TextEntry::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
+void TextEntry::on_key_down(const A5O_KEYBOARD_EVENT & event)
 {
    if (is_disabled())
       return;
 
    switch (event.keycode) {
-      case ALLEGRO_KEY_LEFT:
+      case A5O_KEY_LEFT:
          al_ustr_prev(text, &cursor_pos);
          break;
 
-      case ALLEGRO_KEY_RIGHT:
+      case A5O_KEY_RIGHT:
          al_ustr_next(text, &cursor_pos);
          break;
 
-      case ALLEGRO_KEY_HOME:
+      case A5O_KEY_HOME:
          cursor_pos = 0;
          break;
 
-      case ALLEGRO_KEY_END:
+      case A5O_KEY_END:
          cursor_pos = al_ustr_size(text);
          break;
 
-      case ALLEGRO_KEY_DELETE:
+      case A5O_KEY_DELETE:
          al_ustr_remove_chr(text, cursor_pos);
          break;
 
-      case ALLEGRO_KEY_BACKSPACE:
+      case A5O_KEY_BACKSPACE:
          if (al_ustr_prev(text, &cursor_pos))
             al_ustr_remove_chr(text, cursor_pos);
          break;
@@ -847,7 +847,7 @@ void TextEntry::draw()
 {
    const Theme & theme = dialog->get_theme();
    SaveState state;
-   ALLEGRO_COLOR bg = theme.bg;
+   A5O_COLOR bg = theme.bg;
 
    if (is_disabled()) {
       bg = al_map_rgb(64, 64, 64);
@@ -855,7 +855,7 @@ void TextEntry::draw()
 
    al_draw_filled_rectangle(x1, y1, x2, y2, bg);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
    if (!focused) {
       al_draw_ustr(theme.font, theme.fg, x1, y1, 0, UString(text, left_pos));

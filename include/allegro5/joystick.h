@@ -26,7 +26,7 @@
 /* internal values */
 #define _AL_MAX_JOYSTICK_AXES	   3
 #define _AL_MAX_JOYSTICK_STICKS    16
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #define _AL_MAX_JOYSTICK_BUTTONS   36
 #else
 #define _AL_MAX_JOYSTICK_BUTTONS   32
@@ -34,17 +34,17 @@
 
 
 
-/* Type: ALLEGRO_JOYSTICK
+/* Type: A5O_JOYSTICK
  */
-typedef struct ALLEGRO_JOYSTICK ALLEGRO_JOYSTICK;
+typedef struct A5O_JOYSTICK A5O_JOYSTICK;
 
 
 
-/* Type: ALLEGRO_JOYSTICK_STATE
+/* Type: A5O_JOYSTICK_STATE
  */
-typedef struct ALLEGRO_JOYSTICK_STATE ALLEGRO_JOYSTICK_STATE;
+typedef struct A5O_JOYSTICK_STATE A5O_JOYSTICK_STATE;
 
-struct ALLEGRO_JOYSTICK_STATE
+struct A5O_JOYSTICK_STATE
 {
    struct {
       float axis[_AL_MAX_JOYSTICK_AXES];        /* -1.0 to 1.0 */
@@ -53,12 +53,12 @@ struct ALLEGRO_JOYSTICK_STATE
 };
 
 
-/* Enum: ALLEGRO_JOYFLAGS
+/* Enum: A5O_JOYFLAGS
  */
-enum ALLEGRO_JOYFLAGS
+enum A5O_JOYFLAGS
 {
-   ALLEGRO_JOYFLAG_DIGITAL  = 0x01,
-   ALLEGRO_JOYFLAG_ANALOGUE = 0x02
+   A5O_JOYFLAG_DIGITAL  = 0x01,
+   A5O_JOYFLAG_ANALOGUE = 0x02
 };
 
 
@@ -69,24 +69,24 @@ AL_FUNC(bool,           al_is_joystick_installed, (void));
 AL_FUNC(bool,           al_reconfigure_joysticks, (void));
 
 AL_FUNC(int,            al_get_num_joysticks,   (void));
-AL_FUNC(ALLEGRO_JOYSTICK *, al_get_joystick,    (int joyn));
-AL_FUNC(void,           al_release_joystick,    (ALLEGRO_JOYSTICK *));
-AL_FUNC(bool,           al_get_joystick_active, (ALLEGRO_JOYSTICK *));
-AL_FUNC(const char*,    al_get_joystick_name,   (ALLEGRO_JOYSTICK *));
+AL_FUNC(A5O_JOYSTICK *, al_get_joystick,    (int joyn));
+AL_FUNC(void,           al_release_joystick,    (A5O_JOYSTICK *));
+AL_FUNC(bool,           al_get_joystick_active, (A5O_JOYSTICK *));
+AL_FUNC(const char*,    al_get_joystick_name,   (A5O_JOYSTICK *));
 
-AL_FUNC(int,            al_get_joystick_num_sticks, (ALLEGRO_JOYSTICK *));
-AL_FUNC(int, al_get_joystick_stick_flags, (ALLEGRO_JOYSTICK *, int stick)); /* junk? */
-AL_FUNC(const char*,    al_get_joystick_stick_name, (ALLEGRO_JOYSTICK *, int stick));
+AL_FUNC(int,            al_get_joystick_num_sticks, (A5O_JOYSTICK *));
+AL_FUNC(int, al_get_joystick_stick_flags, (A5O_JOYSTICK *, int stick)); /* junk? */
+AL_FUNC(const char*,    al_get_joystick_stick_name, (A5O_JOYSTICK *, int stick));
 
-AL_FUNC(int,            al_get_joystick_num_axes,   (ALLEGRO_JOYSTICK *, int stick));
-AL_FUNC(const char*,    al_get_joystick_axis_name,  (ALLEGRO_JOYSTICK *, int stick, int axis));
+AL_FUNC(int,            al_get_joystick_num_axes,   (A5O_JOYSTICK *, int stick));
+AL_FUNC(const char*,    al_get_joystick_axis_name,  (A5O_JOYSTICK *, int stick, int axis));
 
-AL_FUNC(int,            al_get_joystick_num_buttons,  (ALLEGRO_JOYSTICK *));
-AL_FUNC(const char*,    al_get_joystick_button_name,  (ALLEGRO_JOYSTICK *, int buttonn));
+AL_FUNC(int,            al_get_joystick_num_buttons,  (A5O_JOYSTICK *));
+AL_FUNC(const char*,    al_get_joystick_button_name,  (A5O_JOYSTICK *, int buttonn));
 
-AL_FUNC(void,           al_get_joystick_state,  (ALLEGRO_JOYSTICK *, ALLEGRO_JOYSTICK_STATE *ret_state));
+AL_FUNC(void,           al_get_joystick_state,  (A5O_JOYSTICK *, A5O_JOYSTICK_STATE *ret_state));
 
-AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_joystick_event_source, (void));
+AL_FUNC(A5O_EVENT_SOURCE *, al_get_joystick_event_source, (void));
 
 #ifdef __cplusplus
    }

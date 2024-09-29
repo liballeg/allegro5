@@ -6,7 +6,7 @@
 
 #include <string>
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_primitives.h"
@@ -18,9 +18,9 @@
 
 struct Haptic
 {
-   ALLEGRO_HAPTIC *haptic;
-   ALLEGRO_HAPTIC_EFFECT effect;
-   ALLEGRO_HAPTIC_EFFECT_ID id;
+   A5O_HAPTIC *haptic;
+   A5O_HAPTIC_EFFECT effect;
+   A5O_HAPTIC_EFFECT_ID id;
    const char *name;
    bool playing;
 };
@@ -29,8 +29,8 @@ struct Haptic
 
 static Haptic haptics[EX_MAX_HAPTICS];
 static int num_haptics = 0;
-static ALLEGRO_EVENT_QUEUE * joystick_queue;
-static ALLEGRO_TIMER * update_timer = NULL;
+static A5O_EVENT_QUEUE * joystick_queue;
+static A5O_TIMER * update_timer = NULL;
 
 static void release_all_haptics() {
    for (int i = 0; i < num_haptics; i++) {    
@@ -41,7 +41,7 @@ static void release_all_haptics() {
 
 static void get_all_haptics() {
    num_haptics = 0;
-   ALLEGRO_DISPLAY * display = al_get_current_display();
+   A5O_DISPLAY * display = al_get_current_display();
 
    if (al_is_display_haptic(display)) {
       haptics[num_haptics].haptic = al_get_haptic_from_display(display);
@@ -56,7 +56,7 @@ static void get_all_haptics() {
       num_haptics < EX_MAX_HAPTICS && i < al_get_num_joysticks();
       i++)
    {
-      ALLEGRO_JOYSTICK *joy = al_get_joystick(i);
+      A5O_JOYSTICK *joy = al_get_joystick(i);
       if (al_is_joystick_haptic(joy)) {
          haptics[num_haptics].haptic = al_get_haptic_from_joystick(joy);
          if (haptics[num_haptics].haptic) {
@@ -78,24 +78,24 @@ struct CapacityName
 
 static const CapacityName capname[] =
 {
-   {ALLEGRO_HAPTIC_RUMBLE, "ALLEGRO_HAPTIC_RUMBLE"},
-   {ALLEGRO_HAPTIC_PERIODIC, "ALLEGRO_HAPTIC_PERIODIC"},
-   {ALLEGRO_HAPTIC_CONSTANT, "ALLEGRO_HAPTIC_CONSTANT"},
-   {ALLEGRO_HAPTIC_SPRING, "ALLEGRO_HAPTIC_SPRING"},
-   {ALLEGRO_HAPTIC_FRICTION, "ALLEGRO_HAPTIC_FRICTION"},
-   {ALLEGRO_HAPTIC_DAMPER, "ALLEGRO_HAPTIC_DAMPER"},
-   {ALLEGRO_HAPTIC_INERTIA, "ALLEGRO_HAPTIC_INERTIA"},
-   {ALLEGRO_HAPTIC_RAMP, "ALLEGRO_HAPTIC_RAMP"},
-   {ALLEGRO_HAPTIC_SQUARE, "ALLEGRO_HAPTIC_SQUARE"},
-   {ALLEGRO_HAPTIC_TRIANGLE, "ALLEGRO_HAPTIC_TRIANGLE"},
-   {ALLEGRO_HAPTIC_SINE, "ALLEGRO_HAPTIC_SINE"},
-   {ALLEGRO_HAPTIC_SAW_UP, "ALLEGRO_HAPTIC_SAW_UP"},
-   {ALLEGRO_HAPTIC_SAW_DOWN, "ALLEGRO_HAPTIC_SAW_DOWN"},
-   {ALLEGRO_HAPTIC_CUSTOM, "ALLEGRO_HAPTIC_CUSTOM"},
-   {ALLEGRO_HAPTIC_GAIN, "ALLEGRO_HAPTIC_GAIN"},
-   {ALLEGRO_HAPTIC_ANGLE, "ALLEGRO_HAPTIC_ANGLE"},
-   {ALLEGRO_HAPTIC_RADIUS, "ALLEGRO_HAPTIC_RADIUS"},
-   {ALLEGRO_HAPTIC_AZIMUTH, "ALLEGRO_HAPTIC_AZIMUTH"}
+   {A5O_HAPTIC_RUMBLE, "A5O_HAPTIC_RUMBLE"},
+   {A5O_HAPTIC_PERIODIC, "A5O_HAPTIC_PERIODIC"},
+   {A5O_HAPTIC_CONSTANT, "A5O_HAPTIC_CONSTANT"},
+   {A5O_HAPTIC_SPRING, "A5O_HAPTIC_SPRING"},
+   {A5O_HAPTIC_FRICTION, "A5O_HAPTIC_FRICTION"},
+   {A5O_HAPTIC_DAMPER, "A5O_HAPTIC_DAMPER"},
+   {A5O_HAPTIC_INERTIA, "A5O_HAPTIC_INERTIA"},
+   {A5O_HAPTIC_RAMP, "A5O_HAPTIC_RAMP"},
+   {A5O_HAPTIC_SQUARE, "A5O_HAPTIC_SQUARE"},
+   {A5O_HAPTIC_TRIANGLE, "A5O_HAPTIC_TRIANGLE"},
+   {A5O_HAPTIC_SINE, "A5O_HAPTIC_SINE"},
+   {A5O_HAPTIC_SAW_UP, "A5O_HAPTIC_SAW_UP"},
+   {A5O_HAPTIC_SAW_DOWN, "A5O_HAPTIC_SAW_DOWN"},
+   {A5O_HAPTIC_CUSTOM, "A5O_HAPTIC_CUSTOM"},
+   {A5O_HAPTIC_GAIN, "A5O_HAPTIC_GAIN"},
+   {A5O_HAPTIC_ANGLE, "A5O_HAPTIC_ANGLE"},
+   {A5O_HAPTIC_RADIUS, "A5O_HAPTIC_RADIUS"},
+   {A5O_HAPTIC_AZIMUTH, "A5O_HAPTIC_AZIMUTH"}
 };
 
 #define EX_START_TYPES   0
@@ -260,16 +260,16 @@ class Prog: public CanStopAndPlay
    Haptic *show_haptic;
 
  public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, A5O_DISPLAY *display);
    void run();
    void update();
    void update_controls(Haptic *dev);
    virtual void on_play();
    virtual void on_stop();
-   void get_envelope(ALLEGRO_HAPTIC_ENVELOPE *envelope);
+   void get_envelope(A5O_HAPTIC_ENVELOPE *envelope);
 };
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display) :
    d(Dialog(theme, display, 20, 40)),
    device_list(0),
    type_list(0),
@@ -461,12 +461,12 @@ void Prog::update()
       }
    }
    
-   ALLEGRO_EVENT e;
+   A5O_EVENT e;
    
    /* Check for hot plugging*/
    while(al_get_next_event(joystick_queue, &e)) {
      /* clear, reconfigure and fetch haptics again. */
-     if (e.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
+     if (e.type == A5O_EVENT_JOYSTICK_CONFIGURATION) {
        al_reconfigure_joysticks(); 
        release_all_haptics();
        get_all_haptics();
@@ -530,18 +530,18 @@ void Prog::update_controls(Haptic *dev)
    }
 
    /* Gain capability */
-   gain_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_GAIN));
-   gain_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_GAIN));
+   gain_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_GAIN));
+   gain_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_GAIN));
    
    /* Autocenter capability */
-   autocenter_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_AUTOCENTER));
-   autocenter_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_AUTOCENTER));
+   autocenter_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_AUTOCENTER));
+   autocenter_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_AUTOCENTER));
    
 
    /* Envelope related capabilities and sliders. */
-   envelope = TEST_CAP(cap, ALLEGRO_HAPTIC_PERIODIC) ||
-      TEST_CAP(cap, ALLEGRO_HAPTIC_CONSTANT) ||
-      TEST_CAP(cap, ALLEGRO_HAPTIC_RAMP);
+   envelope = TEST_CAP(cap, A5O_HAPTIC_PERIODIC) ||
+      TEST_CAP(cap, A5O_HAPTIC_CONSTANT) ||
+      TEST_CAP(cap, A5O_HAPTIC_RAMP);
 
    envelope_label.set_disabled(!envelope);
    attack_level_slider.set_disabled(!envelope);
@@ -554,18 +554,18 @@ void Prog::update_controls(Haptic *dev)
    fade_length_label.set_disabled(!envelope);
 
    /* Coordinate related capabilities. */
-   angle_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_ANGLE));
-   angle_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_ANGLE));
-   radius_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_RADIUS));
-   radius_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_RADIUS));
-   azimuth_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_AZIMUTH));
-   azimuth_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_AZIMUTH));
+   angle_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_ANGLE));
+   angle_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_ANGLE));
+   radius_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_RADIUS));
+   radius_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_RADIUS));
+   azimuth_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_AZIMUTH));
+   azimuth_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_AZIMUTH));
 
    /* Condition effect related capabilities. */
-   condition = TEST_CAP(cap, ALLEGRO_HAPTIC_DAMPER) ||
-      TEST_CAP(cap, ALLEGRO_HAPTIC_FRICTION) ||
-      TEST_CAP(cap, ALLEGRO_HAPTIC_INERTIA) ||
-      TEST_CAP(cap, ALLEGRO_HAPTIC_SPRING);
+   condition = TEST_CAP(cap, A5O_HAPTIC_DAMPER) ||
+      TEST_CAP(cap, A5O_HAPTIC_FRICTION) ||
+      TEST_CAP(cap, A5O_HAPTIC_INERTIA) ||
+      TEST_CAP(cap, A5O_HAPTIC_SPRING);
 
    condition_effect_label.set_disabled(!condition);
    right_coeff_slider.set_disabled(!condition);
@@ -582,19 +582,19 @@ void Prog::update_controls(Haptic *dev)
    deadband_label.set_disabled(!condition);
 
    /* Constant effect related capabilities. */
-   constant_effect_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_CONSTANT));
-   level_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_CONSTANT));
-   level_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_CONSTANT));
+   constant_effect_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_CONSTANT));
+   level_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_CONSTANT));
+   level_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_CONSTANT));
 
    /* Ramp effect capabilities. */
-   ramp_effect_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_RAMP));
-   start_level_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_RAMP));
-   start_level_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_RAMP));
-   end_level_slider.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_RAMP));
-   end_level_label.set_disabled(!TEST_CAP(cap, ALLEGRO_HAPTIC_RAMP));
+   ramp_effect_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_RAMP));
+   start_level_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_RAMP));
+   start_level_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_RAMP));
+   end_level_slider.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_RAMP));
+   end_level_label.set_disabled(!TEST_CAP(cap, A5O_HAPTIC_RAMP));
 
    /* Period effect capabilities. */
-   periodic = TEST_CAP(cap, ALLEGRO_HAPTIC_PERIODIC);
+   periodic = TEST_CAP(cap, A5O_HAPTIC_PERIODIC);
    waveform_label.set_disabled(!periodic);
    waveform_list.set_disabled(!periodic);
    periodic_effect_label.set_disabled(!periodic);
@@ -667,7 +667,7 @@ static double slider_to_angle(const HSlider & slider)
    return value / max;
 }
 
-void Prog::get_envelope(ALLEGRO_HAPTIC_ENVELOPE *envelope)
+void Prog::get_envelope(A5O_HAPTIC_ENVELOPE *envelope)
 {
    if (!envelope)
       return;
@@ -725,7 +725,7 @@ void Prog::on_play()
       return;
    }
 
-   if ((wavetype < 0) && (type == ALLEGRO_HAPTIC_PERIODIC)) {
+   if ((wavetype < 0) && (type == A5O_HAPTIC_PERIODIC)) {
       message_label.set_text("Unknown Wave Form!");
       log_printf("Unknown wave type: %d on %s\n", wavetype, haptic->name);
       return;
@@ -740,11 +740,11 @@ void Prog::on_play()
    haptic->effect.direction.azimuth = slider_to_angle(angle_slider);
 
    switch (type) {
-      case ALLEGRO_HAPTIC_RUMBLE:
+      case A5O_HAPTIC_RUMBLE:
          haptic->effect.data.rumble.strong_magnitude = slider_to_magnitude(strong_magnitude_slider);
          haptic->effect.data.rumble.weak_magnitude = slider_to_magnitude(weak_magnitude_slider);
          break;
-      case ALLEGRO_HAPTIC_PERIODIC:
+      case A5O_HAPTIC_PERIODIC:
          get_envelope(&haptic->effect.data.periodic.envelope);
          haptic->effect.data.periodic.waveform = wavetype;
          haptic->effect.data.periodic.magnitude = slider_to_magnitude(magnitude_slider);
@@ -754,20 +754,20 @@ void Prog::on_play()
          haptic->effect.data.periodic.custom_len = 0;
          haptic->effect.data.periodic.custom_data = NULL;
          break;
-      case ALLEGRO_HAPTIC_CONSTANT:
+      case A5O_HAPTIC_CONSTANT:
          get_envelope(&haptic->effect.data.constant.envelope);
          haptic->effect.data.constant.level = slider_to_magnitude(level_slider);
          break;
-      case ALLEGRO_HAPTIC_RAMP:
+      case A5O_HAPTIC_RAMP:
          get_envelope(&haptic->effect.data.ramp.envelope);
          haptic->effect.data.ramp.start_level = slider_to_magnitude(start_level_slider);
          haptic->effect.data.ramp.end_level = slider_to_magnitude(end_level_slider);
          break;
 
-      case ALLEGRO_HAPTIC_SPRING:
-      case ALLEGRO_HAPTIC_FRICTION:
-      case ALLEGRO_HAPTIC_DAMPER:
-      case ALLEGRO_HAPTIC_INERTIA:  /* fall through. */
+      case A5O_HAPTIC_SPRING:
+      case A5O_HAPTIC_FRICTION:
+      case A5O_HAPTIC_DAMPER:
+      case A5O_HAPTIC_INERTIA:  /* fall through. */
          haptic->effect.data.condition.right_saturation = slider_to_magnitude(right_saturation_slider);
          haptic->effect.data.condition.left_saturation = slider_to_magnitude(left_saturation_slider);
          haptic->effect.data.condition.right_coeff = slider_to_magnitude(right_coeff_slider);
@@ -829,8 +829,8 @@ void Prog::on_stop()
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
 
    (void)argc;
    (void)argv;
@@ -849,7 +849,7 @@ int main(int argc, char *argv[])
    al_init_font_addon();
    al_init_ttf_addon();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(800, 600);
    if (!display) {
       abort_example("Unable to create display\n");

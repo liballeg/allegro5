@@ -14,11 +14,11 @@
 #include "acodec.h"
 #include "helper.h"
 
-#ifndef ALLEGRO_CFG_ACODEC_OPUS
-   #error configuration problem, ALLEGRO_CFG_ACODEC_OPUS not set
+#ifndef A5O_CFG_ACODEC_OPUS
+   #error configuration problem, A5O_CFG_ACODEC_OPUS not set
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
+A5O_DEBUG_CHANNEL("acodec")
 
 #include <opus/opusfile.h>
 
@@ -26,7 +26,7 @@ typedef struct AL_OP_DATA AL_OP_DATA;
 
 struct AL_OP_DATA {
    OggOpusFile *of;
-   ALLEGRO_FILE *file;
+   A5O_FILE *file;
    int channels;
    int bitstream;
    double loop_start;
@@ -34,7 +34,7 @@ struct AL_OP_DATA {
 };
 
 /* dynamic loading support (Windows only currently) */
-#ifdef ALLEGRO_CFG_ACODEC_OPUSFILE_DLL
+#ifdef A5O_CFG_ACODEC_OPUSFILE_DLL
 static void *op_dll = NULL;
 static bool op_virgin = true;
 #endif
@@ -51,7 +51,7 @@ static struct
 } lib;
 
 
-#ifdef ALLEGRO_CFG_ACODEC_OPUSFILE_DLL
+#ifdef A5O_CFG_ACODEC_OPUSFILE_DLL
 static void shutdown_dynlib(void)
 {
    if (op_dll) {
@@ -65,7 +65,7 @@ static void shutdown_dynlib(void)
 
 static bool init_dynlib(void)
 {
-#ifdef ALLEGRO_CFG_ACODEC_OPUSFILE_DLL
+#ifdef A5O_CFG_ACODEC_OPUSFILE_DLL
    if (op_dll) {
       return true;
    }
@@ -76,9 +76,9 @@ static bool init_dynlib(void)
 
    op_virgin = false;
 
-   op_dll = _al_open_library(ALLEGRO_CFG_ACODEC_OPUSFILE_DLL);
+   op_dll = _al_open_library(A5O_CFG_ACODEC_OPUSFILE_DLL);
    if (!op_dll) {
-      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_OPUSFILE_DLL "\n");
+      A5O_WARN("Could not load " A5O_CFG_ACODEC_OPUSFILE_DLL "\n");
       return false;
    }
 
@@ -89,7 +89,7 @@ static bool init_dynlib(void)
       {                                                                       \
          lib.x = _al_import_symbol(op_dll, #x);                               \
          if (lib.x == 0) {                                                    \
-            ALLEGRO_ERROR("undefined symbol in lib structure: " #x "\n");     \
+            A5O_ERROR("undefined symbol in lib structure: " #x "\n");     \
             return false;                                                     \
          }                                                                    \
       } while(0)
@@ -129,9 +129,9 @@ static int seek_callback(void *stream, opus_int64 offset, int whence)
    AL_OP_DATA *op = (AL_OP_DATA *)stream;
 
    switch(whence) {
-      case SEEK_SET: whence = ALLEGRO_SEEK_SET; break;
-      case SEEK_CUR: whence = ALLEGRO_SEEK_CUR; break;
-      case SEEK_END: whence = ALLEGRO_SEEK_END; break;
+      case SEEK_SET: whence = A5O_SEEK_SET; break;
+      case SEEK_CUR: whence = A5O_SEEK_CUR; break;
+      case SEEK_END: whence = A5O_SEEK_END; break;
    }
 
    if (!al_fseek(op->file, offset, whence)) {
@@ -171,16 +171,16 @@ static OpusFileCallbacks callbacks = {
 };
 
 
-ALLEGRO_SAMPLE *_al_load_ogg_opus(const char *filename)
+A5O_SAMPLE *_al_load_ogg_opus(const char *filename)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_SAMPLE *spl;
+   A5O_FILE *f;
+   A5O_SAMPLE *spl;
    ASSERT(filename);
 
-   ALLEGRO_INFO("Loading sample %s.\n", filename);
+   A5O_INFO("Loading sample %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -192,7 +192,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus(const char *filename)
 }
 
 
-ALLEGRO_SAMPLE *_al_load_ogg_opus_f(ALLEGRO_FILE *file)
+A5O_SAMPLE *_al_load_ogg_opus_f(A5O_FILE *file)
 {
    /* Note: decoding library can return 16-bit or floating-point output,
     * both using native endian ordering. (TODO: Implement float output,
@@ -202,7 +202,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus_f(ALLEGRO_FILE *file)
    const int packet_size = 5760; /* suggestion for size to read at a time */
    OggOpusFile *of;
    opus_int16 *buffer;
-   ALLEGRO_SAMPLE *sample;
+   A5O_SAMPLE *sample;
    int channels;
    long rate;
    ogg_int64_t total_samples;
@@ -219,7 +219,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus_f(ALLEGRO_FILE *file)
    op.file = file;
    of = lib.op_open_callbacks(&op, &callbacks, NULL, 0, NULL);
    if (!of) {
-      ALLEGRO_ERROR("Audio file does not appear to be an Ogg bitstream.\n");
+      A5O_ERROR("Audio file does not appear to be an Ogg bitstream.\n");
       return NULL;
    }
 
@@ -229,11 +229,11 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus_f(ALLEGRO_FILE *file)
    total_samples = lib.op_pcm_total(of, bitstream);
    total_size = total_samples * channels * word_size;
 
-   ALLEGRO_DEBUG("channels %d\n", channels);
-   ALLEGRO_DEBUG("word_size %d\n", word_size);
-   ALLEGRO_DEBUG("rate %ld\n", rate);
-   ALLEGRO_DEBUG("total_samples %ld\n", (long)total_samples);
-   ALLEGRO_DEBUG("total_size %ld\n", (long)total_size);
+   A5O_DEBUG("channels %d\n", channels);
+   A5O_DEBUG("word_size %d\n", word_size);
+   A5O_DEBUG("rate %ld\n", rate);
+   A5O_DEBUG("total_samples %ld\n", (long)total_samples);
+   A5O_DEBUG("total_size %ld\n", (long)total_size);
 
    buffer = al_malloc(total_size);
    if (!buffer) {
@@ -242,7 +242,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus_f(ALLEGRO_FILE *file)
 
    pos = 0;
    while (pos < total_samples) {
-      const int read_size = _ALLEGRO_MIN(packet_size, total_samples - pos);
+      const int read_size = _A5O_MIN(packet_size, total_samples - pos);
       ASSERT(pos + read_size <= total_samples);
 
       /* XXX error handling */
@@ -267,7 +267,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_opus_f(ALLEGRO_FILE *file)
 }
 
 
-static bool ogg_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
+static bool ogg_stream_seek(A5O_AUDIO_STREAM *stream, double time)
 {
    AL_OP_DATA *extra = (AL_OP_DATA *) stream->extra;
 
@@ -278,7 +278,7 @@ static bool ogg_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 }
 
 
-static bool ogg_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
+static bool ogg_stream_rewind(A5O_AUDIO_STREAM *stream)
 {
    AL_OP_DATA *extra = (AL_OP_DATA *) stream->extra;
 
@@ -286,7 +286,7 @@ static bool ogg_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-static double ogg_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
+static double ogg_stream_get_position(A5O_AUDIO_STREAM *stream)
 {
    AL_OP_DATA *extra = (AL_OP_DATA *) stream->extra;
 
@@ -294,7 +294,7 @@ static double ogg_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-static double ogg_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
+static double ogg_stream_get_length(A5O_AUDIO_STREAM *stream)
 {
    AL_OP_DATA *extra = (AL_OP_DATA *) stream->extra;
 
@@ -302,7 +302,7 @@ static double ogg_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-static bool ogg_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, double end)
+static bool ogg_stream_set_loop(A5O_AUDIO_STREAM *stream, double start, double end)
 {
    AL_OP_DATA *extra = (AL_OP_DATA *) stream->extra;
 
@@ -314,7 +314,7 @@ static bool ogg_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, doub
 
 
 /* To be called when stream is destroyed */
-static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
+static void ogg_stream_close(A5O_AUDIO_STREAM *stream)
 {
    AL_OP_DATA *extra = (AL_OP_DATA *) stream->extra;
 
@@ -328,7 +328,7 @@ static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t ogg_stream_update(A5O_AUDIO_STREAM *stream, void *data,
                                 size_t buf_size)
 {
    AL_OP_DATA *extra = (AL_OP_DATA *) stream->extra;
@@ -346,7 +346,7 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    double btime = ((double)buf_size / (word_size * channels)) / rate;
    long read;
 
-   if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > extra->loop_end) {
+   if (stream->spl.loop != _A5O_PLAYMODE_STREAM_ONCE && ctime + btime > extra->loop_end) {
       read_length = (extra->loop_end - ctime) * rate * word_size * channels;
       if (read_length < 0)
          return 0;
@@ -369,17 +369,17 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 }
 
 
-ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream(const char *filename,
+A5O_AUDIO_STREAM *_al_load_ogg_opus_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
-   ALLEGRO_INFO("Loading stream %s.\n", filename);
+   A5O_INFO("Loading stream %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -392,7 +392,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream(const char *filename,
 }
 
 
-ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
+A5O_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(A5O_FILE *file,
    size_t buffer_count, unsigned int samples)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
@@ -403,7 +403,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
    long total_size;
    int bitstream;
    AL_OP_DATA* extra;
-   ALLEGRO_AUDIO_STREAM* stream;
+   A5O_AUDIO_STREAM* stream;
 
    if (!init_dynlib()) {
       return NULL;
@@ -411,7 +411,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
 
    extra = al_malloc(sizeof(AL_OP_DATA));
    if (extra == NULL) {
-      ALLEGRO_ERROR("Failed to allocate AL_OP_DATA struct.\n");
+      A5O_ERROR("Failed to allocate AL_OP_DATA struct.\n");
       return NULL;
    }
 
@@ -419,7 +419,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
 
    of = lib.op_open_callbacks(extra, &callbacks, NULL, 0, NULL);
    if (!of) {
-      ALLEGRO_ERROR("ogg: Input does not appear to be an Ogg bitstream.\n");
+      A5O_ERROR("ogg: Input does not appear to be an Ogg bitstream.\n");
       return NULL;
    }
 
@@ -435,11 +435,11 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
    total_size = total_samples * channels * word_size;
 
 
-   ALLEGRO_DEBUG("channels %d\n", channels);
-   ALLEGRO_DEBUG("word_size %d\n", word_size);
-   ALLEGRO_DEBUG("rate %ld\n", rate);
-   ALLEGRO_DEBUG("total_samples %ld\n", total_samples);
-   ALLEGRO_DEBUG("total_size %ld\n", total_size);
+   A5O_DEBUG("channels %d\n", channels);
+   A5O_DEBUG("word_size %d\n", word_size);
+   A5O_DEBUG("rate %ld\n", rate);
+   A5O_DEBUG("total_samples %ld\n", total_samples);
+   A5O_DEBUG("total_size %ld\n", total_size);
 
    stream = al_create_audio_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
@@ -467,14 +467,14 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
 }
 
 
-bool _al_identify_ogg_opus(ALLEGRO_FILE *f)
+bool _al_identify_ogg_opus(A5O_FILE *f)
 {
    uint8_t x[10];
    if (al_fread(f, x, 4) < 4)
       return false;
    if (memcmp(x, "OggS", 4) != 0)
       return false;
-   if (!al_fseek(f, 22, ALLEGRO_SEEK_CUR))
+   if (!al_fseek(f, 22, A5O_SEEK_CUR))
       return false;
    if (al_fread(f, x, 10) < 10)
       return false;

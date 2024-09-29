@@ -1,4 +1,4 @@
-set(ALLEGRO_SRC_FILES
+set(A5O_SRC_FILES
     src/allegro.c
     src/bitmap.c
     src/bitmap_draw.c
@@ -54,7 +54,7 @@ set(ALLEGRO_SRC_FILES
     src/misc/vector.c
     )
 
-set(ALLEGRO_SRC_WIN_FILES
+set(A5O_SRC_WIN_FILES
     src/win/wclipboard.c
     src/win/whapall.c
     src/win/whapdrv.c
@@ -76,7 +76,7 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wxthread.c
     )
 
-set(ALLEGRO_SRC_D3D_FILES
+set(A5O_SRC_D3D_FILES
     src/win/d3d_bmp.cpp
     src/win/d3d_disp.cpp
     src/win/d3d_display_formats.cpp
@@ -85,7 +85,7 @@ set(ALLEGRO_SRC_D3D_FILES
     src/win/d3d_d3dx9.cpp
     )
 
-set(ALLEGRO_SRC_OPENGL_FILES
+set(A5O_SRC_OPENGL_FILES
     src/opengl/extensions.c
     src/opengl/ogl_bitmap.c
     src/opengl/ogl_display.c
@@ -97,11 +97,11 @@ set(ALLEGRO_SRC_OPENGL_FILES
     src/opengl/ogl_shader.c
     )
 
-set(ALLEGRO_SRC_WGL_FILES
+set(A5O_SRC_WGL_FILES
     src/win/wgl_disp.c
     )
 
-set(ALLEGRO_SRC_UNIX_FILES
+set(A5O_SRC_UNIX_FILES
     src/unix/udrvlist.c
     src/unix/ufdwatch.c
     src/unix/ugfxdrv.c
@@ -114,7 +114,7 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/uxthread.c
     )
 
-set(ALLEGRO_SRC_X_FILES
+set(A5O_SRC_X_FILES
     src/x/xclipboard.c
     src/x/xcursor.c
     src/x/xdisplay.c
@@ -132,7 +132,7 @@ set(ALLEGRO_SRC_X_FILES
     src/linux/ljoynu.c
     )
 
-set(ALLEGRO_SRC_MACOSX_FILES
+set(A5O_SRC_MACOSX_FILES
     src/macosx/hidjoy.m
     src/macosx/hidjoy-10.4.m
     src/macosx/hidman.m
@@ -146,7 +146,7 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/unix/uxthread.c
     )
 
-set(ALLEGRO_SRC_IPHONE_FILES
+set(A5O_SRC_IPHONE_FILES
     src/iphone/allegroAppDelegate.m
     src/iphone/EAGLView.m
     src/iphone/ViewController.m
@@ -163,7 +163,7 @@ set(ALLEGRO_SRC_IPHONE_FILES
     src/unix/uxthread.c
     )
 
-set(ALLEGRO_SRC_ANDROID_FILES
+set(A5O_SRC_ANDROID_FILES
    src/unix/ufdwatch.c
    src/unix/utime.c
    src/unix/uxthread.c
@@ -183,7 +183,7 @@ set(ALLEGRO_SRC_ANDROID_FILES
    src/android/android_apk_fs.c
 )
 
-set(ALLEGRO_SRC_RASPBERRYPI_FILES
+set(A5O_SRC_RASPBERRYPI_FILES
    src/unix/utime.c
    src/unix/uxthread.c
    src/linux/lkeybdnu.c
@@ -199,7 +199,7 @@ set(ALLEGRO_SRC_RASPBERRYPI_FILES
    src/raspberrypi/pidisplay.c
    )
 
-set(ALLEGRO_SRC_SDL_FILES
+set(A5O_SRC_SDL_FILES
    src/sdl/sdl_system.c
    src/sdl/sdl_time.c
    src/sdl/sdl_thread.c
@@ -211,7 +211,7 @@ set(ALLEGRO_SRC_SDL_FILES
    src/sdl/sdl_event_hack.c
    )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_FILES
+set(A5O_INCLUDE_A5O_FILES
     include/allegro5/allegro5.h
     include/allegro5/allegro.h
     include/allegro5/alcompat.h
@@ -258,20 +258,20 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/allegro_opengl.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
+set(A5O_INCLUDE_A5O_INLINE_FILES
     include/allegro5/inline/fmaths.inl
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
+set(A5O_INCLUDE_A5O_INTERNAL_FILES
     # Only files which need to be installed.
     include/allegro5/internal/alconfig.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
+set(A5O_INCLUDE_A5O_OPENGL_FILES
     include/allegro5/opengl/gl_ext.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
+set(A5O_INCLUDE_A5O_OPENGL_GLEXT_FILES
     include/allegro5/opengl/GLext/gl_ext_alias.h
     include/allegro5/opengl/GLext/gl_ext_defs.h
     include/allegro5/opengl/GLext/glx_ext_alias.h
@@ -286,7 +286,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
     include/allegro5/opengl/GLext/wgl_ext_list.h
    )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
+set(A5O_INCLUDE_A5O_PLATFORM_FILES
     # Only files which need to be installed.
     include/allegro5/platform/alandroid.h
     include/allegro5/platform/alandroidcfg.h
@@ -308,26 +308,26 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/allegro_sdl_config.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
+set(A5O_INCLUDE_A5O_WINDOWS_FILES
     include/allegro5/allegro_windows.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_MACOSX_FILES
+set(A5O_INCLUDE_A5O_MACOSX_FILES
     include/allegro5/allegro_osx.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_IPHONE_FILES
+set(A5O_INCLUDE_A5O_IPHONE_FILES
     include/allegro5/allegro_iphone.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES
+set(A5O_INCLUDE_A5O_ANDROID_FILES
     include/allegro5/allegro_android.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
+set(A5O_INCLUDE_A5O_PLATFORM_FILES_GENERATED
     include/allegro5/platform/alplatf.h
     )
 
-set(ALLEGRO_INCLUDE_ALLEGRO_X_FILES
+set(A5O_INCLUDE_A5O_X_FILES
     include/allegro5/allegro_x.h
     )

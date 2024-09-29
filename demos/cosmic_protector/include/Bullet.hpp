@@ -10,7 +10,7 @@ public:
       int lifetime, int damage, int bitmapID, Entity *shooter);
    ~Bullet(void);
 protected:
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    float speed;
    float angle;
    int lifetime;

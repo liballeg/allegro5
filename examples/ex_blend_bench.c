@@ -32,9 +32,9 @@ static char const *names[] = {
    "", "Plain blit", "Scaled blit", "Rotated blit"
 };
 
-ALLEGRO_DISPLAY *display;
+A5O_DISPLAY *display;
 
-static void step(enum Mode mode, ALLEGRO_BITMAP *b2)
+static void step(enum Mode mode, A5O_BITMAP *b2)
 {
    switch (mode) {
       case ALL: break;
@@ -46,7 +46,7 @@ static void step(enum Mode mode, ALLEGRO_BITMAP *b2)
          break;
       case ROTATE_BLIT:
          al_draw_scaled_rotated_bitmap(b2, 10, 10, 10, 10, 2.0, 2.0,
-            ALLEGRO_PI/30, 0);
+            A5O_PI/30, 0);
          break;
    }
 }
@@ -62,14 +62,14 @@ static double current_clock(void)
 
 static bool do_test(enum Mode mode)
 {
-   ALLEGRO_STATE state;
-   ALLEGRO_BITMAP *b1;
-   ALLEGRO_BITMAP *b2;
+   A5O_STATE state;
+   A5O_BITMAP *b1;
+   A5O_BITMAP *b2;
    int REPEAT;
    double t0, t1;
    int i;
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
 
    b1 = al_load_bitmap("data/mysha.pcx");
    if (!b1) {
@@ -84,13 +84,13 @@ static bool do_test(enum Mode mode)
    }
 
    al_set_target_bitmap(b1);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    step(mode, b2);
 
    /* Display the blended bitmap to the screen so we can see something. */
-   al_store_state(&state, ALLEGRO_STATE_ALL);
+   al_store_state(&state, A5O_STATE_ALL);
    al_set_target_backbuffer(display);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    al_draw_bitmap(b1, 0, 0, 0);
    al_flip_display();
    al_restore_state(&state);

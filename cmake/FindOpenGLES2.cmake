@@ -24,13 +24,13 @@ find_package_handle_standard_args(OPENGLES2 DEFAULT_MSG
 
 set(OPENGLES2_LIBRARIES ${OPENGLES2_gl_LIBRARY} ${OPENGLES2_egl_LIBRARY})
 
-if(ALLEGRO_RASPBERRYPI)
+if(A5O_RASPBERRYPI)
     if(EXISTS "/opt/vc/lib/libbrcmGLESv2.so")
         set(OPENGLES2_LIBRARIES "/opt/vc/lib/libbrcmGLESv2.so;/opt/vc/lib/libbrcmEGL.so;/opt/vc/lib/libbcm_host.so")
     else()
         set(OPENGLES2_LIBRARIES "/opt/vc/lib/libGLESv2.so;/opt/vc/lib/libEGL.so;/opt/vc/lib/libbcm_host.so")
     endif()
-endif(ALLEGRO_RASPBERRYPI)
+endif(A5O_RASPBERRYPI)
 
 mark_as_advanced(OPENGLES2_INCLUDE_DIR)
 mark_as_advanced(OPENGLES2_gl_LIBRARY)

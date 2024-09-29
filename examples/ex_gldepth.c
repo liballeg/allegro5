@@ -23,8 +23,8 @@ double angle_speed = 5.0;
 double dist_speed = 1.0;
 
 GLuint tex;
-ALLEGRO_BITMAP *bmp;
-bool key[ALLEGRO_KEY_MAX];
+A5O_BITMAP *bmp;
+bool key[A5O_KEY_MAX];
 
 static void set_camera_position(void)
 {
@@ -42,14 +42,14 @@ static void set_camera_position(void)
 
 static void keyboard(void)
 {
-   if(key[ALLEGRO_KEY_LEFT])  camera.yangle += angle_speed;
-   if(key[ALLEGRO_KEY_RIGHT]) camera.yangle -= angle_speed;
+   if(key[A5O_KEY_LEFT])  camera.yangle += angle_speed;
+   if(key[A5O_KEY_RIGHT]) camera.yangle -= angle_speed;
 
-   if(key[ALLEGRO_KEY_UP])   camera.xangle += angle_speed;
-   if(key[ALLEGRO_KEY_DOWN]) camera.xangle -= angle_speed;
+   if(key[A5O_KEY_UP])   camera.xangle += angle_speed;
+   if(key[A5O_KEY_DOWN]) camera.xangle -= angle_speed;
 
-   if(key[ALLEGRO_KEY_PGUP]) camera.dist -= dist_speed;
-   if(key[ALLEGRO_KEY_PGDN]) camera.dist += dist_speed;
+   if(key[A5O_KEY_PGUP]) camera.dist -= dist_speed;
+   if(key[A5O_KEY_PGDN]) camera.dist += dist_speed;
 }
 
 
@@ -136,10 +136,10 @@ static void draw(void)
 
 
 
-static void setup_textures(ALLEGRO_DISPLAY *display)
+static void setup_textures(A5O_DISPLAY *display)
 {
-   ALLEGRO_BITMAP *tmp_bmp;
-   ALLEGRO_FONT *font;
+   A5O_BITMAP *tmp_bmp;
+   A5O_FONT *font;
    int w, h, depth;
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
@@ -159,7 +159,7 @@ static void setup_textures(ALLEGRO_DISPLAY *display)
                          0, 0, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
                          0, 0, w, h, 0);
 
-   depth = al_get_display_option(display, ALLEGRO_DEPTH_SIZE);
+   depth = al_get_display_option(display, A5O_DEPTH_SIZE);
    if (!depth)
       al_draw_textf(font, al_map_rgb(255, 0, 0), 0, 5, 0, "No Z-buffer!");
    else
@@ -178,10 +178,10 @@ static void setup_textures(ALLEGRO_DISPLAY *display)
 
 int main(void)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
+   A5O_EVENT event;
 
    if(!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -191,8 +191,8 @@ int main(void)
    al_init_font_addon();
    al_install_keyboard();
 
-   al_set_new_display_flags(ALLEGRO_OPENGL);
-   al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
+   al_set_new_display_flags(A5O_OPENGL);
+   al_set_new_display_option(A5O_DEPTH_SIZE, 16, A5O_SUGGEST);
    display = al_create_display(640, 480);
    if(!display) {
       abort_example("Could not create display.\n");
@@ -214,20 +214,20 @@ int main(void)
    while(true) {
       al_wait_for_event(queue, &event);
       switch(event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             goto done;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if(event.keyboard.keycode == A5O_KEY_ESCAPE)
                goto done;
             key[event.keyboard.keycode] = true;
             break;
          
-         case ALLEGRO_EVENT_KEY_UP:
+         case A5O_EVENT_KEY_UP:
             key[event.keyboard.keycode] = false;
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             keyboard();
             if(al_is_event_queue_empty(queue)) {
                set_camera_position();

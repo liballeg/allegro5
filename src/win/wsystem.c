@@ -28,14 +28,14 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_wunicode.h"
 
-#if defined ALLEGRO_CFG_OPENGL
+#if defined A5O_CFG_OPENGL
    #include "allegro5/allegro_opengl.h"
 #endif
 
 #include <windows.h>
 #include <mmsystem.h>
 
-ALLEGRO_DEBUG_CHANNEL("system")
+A5O_DEBUG_CHANNEL("system")
 
 
 /* FIXME: should we check for psapi _WIN32_IE and shlobj?
@@ -52,13 +52,13 @@ ALLEGRO_DEBUG_CHANNEL("system")
 
 bool _al_win_disable_screensaver = false;
 
-static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
+static A5O_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
 
-static ALLEGRO_SYSTEM_WIN *_al_win_system;
+static A5O_SYSTEM_WIN *_al_win_system;
 
 /* This is mostly here for _al_display_d3d_driver, which is stateful. */
-static ALLEGRO_MUTEX* win_mutex;
+static A5O_MUTEX* win_mutex;
 
 /* _WinMain:
  *  Entry point for Windows GUI programs, hooked by a macro in alwin.h,
@@ -185,7 +185,7 @@ static void set_dpi_awareness(void)
 
 
 /* Create a new system object. */
-static ALLEGRO_SYSTEM *win_initialize(int flags)
+static A5O_SYSTEM *win_initialize(int flags)
 {
    (void)flags;
 
@@ -201,7 +201,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
    _al_win_init_window();
 
-   _al_vector_init(&_al_win_system->system.displays, sizeof (ALLEGRO_SYSTEM_WIN *));
+   _al_vector_init(&_al_win_system->system.displays, sizeof (A5O_SYSTEM_WIN *));
 
    _al_win_system->system.vt = vt;
 
@@ -213,20 +213,20 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
 static void win_shutdown(void)
 {
-   ALLEGRO_SYSTEM *s;
+   A5O_SYSTEM *s;
    ASSERT(vt);
 
    /* Close all open displays. */
    s = al_get_system_driver();
    while (_al_vector_size(&s->displays) > 0) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
-      ALLEGRO_DISPLAY *d = *dptr;
+      A5O_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
+      A5O_DISPLAY *d = *dptr;
       al_destroy_display(d);
    }
 
    _al_vector_free(&s->displays);
 
-#ifdef ALLEGRO_CFG_D3D
+#ifdef A5O_CFG_D3D
    _al_d3d_shutdown_display();
 #endif
 
@@ -248,12 +248,12 @@ static void win_shutdown(void)
 }
 
 
-static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
+static A5O_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    const int flags = al_get_new_display_flags();
-   ALLEGRO_SYSTEM *sys = al_get_system_driver();
-   ALLEGRO_CONFIG *sys_cfg = al_get_system_config();
-   ALLEGRO_SYSTEM_WIN *syswin = (ALLEGRO_SYSTEM_WIN *)sys;
+   A5O_SYSTEM *sys = al_get_system_driver();
+   A5O_CONFIG *sys_cfg = al_get_system_config();
+   A5O_SYSTEM_WIN *syswin = (A5O_SYSTEM_WIN *)sys;
    const char *s;
 
    /* Look up the toggle_mouse_grab_key binding.  This isn't such a great place
@@ -267,27 +267,27 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
          syswin->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
             &syswin->toggle_mouse_grab_modifiers);
          if (syswin->toggle_mouse_grab_keycode) {
-            ALLEGRO_DEBUG("Toggle mouse grab key: '%s'\n", binding);
+            A5O_DEBUG("Toggle mouse grab key: '%s'\n", binding);
          }
          else {
-            ALLEGRO_WARN("Cannot parse key binding '%s'\n", binding);
+            A5O_WARN("Cannot parse key binding '%s'\n", binding);
          }
       }
    }
 
    /* Programmatic selection. */
-#ifdef ALLEGRO_CFG_D3D
-   if (flags & ALLEGRO_DIRECT3D_INTERNAL) {
+#ifdef A5O_CFG_D3D
+   if (flags & A5O_DIRECT3D_INTERNAL) {
       al_lock_mutex(win_mutex);
-      ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+      A5O_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
       al_unlock_mutex(win_mutex);
       if (iface == NULL)
-         ALLEGRO_WARN("Direct3D graphics driver not available.\n");
+         A5O_WARN("Direct3D graphics driver not available.\n");
       return iface;
    }
 #endif
-#ifdef ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
+#ifdef A5O_CFG_OPENGL
+   if (flags & A5O_OPENGL) {
       return _al_display_wgl_driver();
    }
 #endif
@@ -298,54 +298,54 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
     */
    s = al_get_config_value(sys_cfg, "graphics", "driver");
    if (s) {
-      ALLEGRO_DEBUG("Configuration value graphics.driver = %s\n", s);
+      A5O_DEBUG("Configuration value graphics.driver = %s\n", s);
       if (0 == _al_stricmp(s, "DIRECT3D") || 0 == _al_stricmp(s, "D3D")) {
-#ifdef ALLEGRO_CFG_D3D
+#ifdef A5O_CFG_D3D
          al_lock_mutex(win_mutex);
-         ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+         A5O_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
          al_unlock_mutex(win_mutex);
          if (iface != NULL) {
-            al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
+            al_set_new_display_flags(flags | A5O_DIRECT3D_INTERNAL);
             return iface;
          }
 #endif
       }
       else if (0 == _al_stricmp(s, "OPENGL")) {
-#ifdef ALLEGRO_CFG_OPENGL
-         al_set_new_display_flags(flags | ALLEGRO_OPENGL);
+#ifdef A5O_CFG_OPENGL
+         al_set_new_display_flags(flags | A5O_OPENGL);
          return _al_display_wgl_driver();
 #endif
       }
       else if (0 != _al_stricmp(s, "DEFAULT")) {
-         ALLEGRO_WARN("Graphics driver selection unrecognised: %s\n", s);
+         A5O_WARN("Graphics driver selection unrecognised: %s\n", s);
       }
    }
 
    /* Automatic graphics driver selection. */
    /* XXX is implicitly setting new_display_flags the desired behaviour? */
-#ifdef ALLEGRO_CFG_D3D
+#ifdef A5O_CFG_D3D
    {
       al_lock_mutex(win_mutex);
-      ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+      A5O_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
       al_unlock_mutex(win_mutex);
       if (iface != NULL) {
-         al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
+         al_set_new_display_flags(flags | A5O_DIRECT3D_INTERNAL);
          return iface;
       }
    }
 #endif
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    {
-      al_set_new_display_flags(flags | ALLEGRO_OPENGL);
+      al_set_new_display_flags(flags | A5O_OPENGL);
       return _al_display_wgl_driver();
    }
 #endif
-   ALLEGRO_WARN("No graphics driver available.\n");
+   A5O_WARN("No graphics driver available.\n");
    return NULL;
 }
 
 /* FIXME: use the list */
-static ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
+static A5O_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
 {
    return _al_keyboard_driver_list[0].driver;
 }
@@ -357,11 +357,11 @@ static ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
 static bool win_configured_joystick_driver_is(const char * name)
 {
    const char * driver;
-   ALLEGRO_CONFIG * sysconf = al_get_system_config();
+   A5O_CONFIG * sysconf = al_get_system_config();
    if (!sysconf) return false;
    driver = al_get_config_value(sysconf, "joystick", "driver");
    if (!driver) return false;
-   ALLEGRO_DEBUG("Configuration value joystick.driver = %s\n", driver);
+   A5O_DEBUG("Configuration value joystick.driver = %s\n", driver);
    return (0 == _al_stricmp(driver, name));
 }
 
@@ -385,54 +385,54 @@ static bool win_use_directinput(void)
 
 /* By default the combined xinput/directinput driver is used unless directinput
  * or xinput exclusive is set.*/
-static ALLEGRO_JOYSTICK_DRIVER *win_get_joystick_driver(void)
+static A5O_JOYSTICK_DRIVER *win_get_joystick_driver(void)
 {
    if (win_use_directinput()) {
-      ALLEGRO_DEBUG("Selected DirectInput joystick driver.\n");
+      A5O_DEBUG("Selected DirectInput joystick driver.\n");
       return &_al_joydrv_directx;
    }
    
   if (win_use_xinput()) {
-#ifdef ALLEGRO_CFG_XINPUT
-      ALLEGRO_DEBUG("Selected XInput joystick driver.\n");
+#ifdef A5O_CFG_XINPUT
+      A5O_DEBUG("Selected XInput joystick driver.\n");
       return &_al_joydrv_xinput;
 #else            
-      ALLEGRO_WARN("XInput joystick driver not supported.\n");
+      A5O_WARN("XInput joystick driver not supported.\n");
 #endif
    }
 
-#ifdef ALLEGRO_CFG_XINPUT
-      ALLEGRO_DEBUG("Selected combined XInput/DirectInput joystick driver.\n");
+#ifdef A5O_CFG_XINPUT
+      A5O_DEBUG("Selected combined XInput/DirectInput joystick driver.\n");
       return &_al_joydrv_windows_all;
 #else
-      ALLEGRO_WARN("Combined XInput/DirectInput joystick driver not supported. Usign DirectInput in stead.\n");
+      A5O_WARN("Combined XInput/DirectInput joystick driver not supported. Usign DirectInput in stead.\n");
       return &_al_joydrv_directx;
 #endif
 }
 
 /* By default the combined haptic driver is used unless directinput or
  * xinput exclusive is set in the configuration.*/
-static ALLEGRO_HAPTIC_DRIVER *win_get_haptic_driver(void)
+static A5O_HAPTIC_DRIVER *win_get_haptic_driver(void)
 {
    if (win_use_directinput()) {
-      ALLEGRO_DEBUG("Selected DirectInput haptic driver.\n");
+      A5O_DEBUG("Selected DirectInput haptic driver.\n");
       return &_al_hapdrv_directx;
    }
    
   if (win_use_xinput()) {
-#ifdef ALLEGRO_CFG_XINPUT
-      ALLEGRO_DEBUG("Selected XInput haptic driver.\n");
+#ifdef A5O_CFG_XINPUT
+      A5O_DEBUG("Selected XInput haptic driver.\n");
       return &_al_hapdrv_xinput;
 #else            
-      ALLEGRO_WARN("XInput haptic driver not supported.\n");
+      A5O_WARN("XInput haptic driver not supported.\n");
 #endif
    }
 
-#ifdef ALLEGRO_CFG_XINPUT
-      ALLEGRO_DEBUG("Selected combined XInput/DirectInput haptic driver.\n");
+#ifdef A5O_CFG_XINPUT
+      A5O_DEBUG("Selected combined XInput/DirectInput haptic driver.\n");
       return &_al_hapdrv_windows_all;
 #else
-      ALLEGRO_WARN("Combined XInput/DirectInput haptic driver not supported. Using DirectInput in stead.\n");
+      A5O_WARN("Combined XInput/DirectInput haptic driver not supported. Using DirectInput in stead.\n");
       return &_al_hapdrv_directx;
 #endif
 }
@@ -444,31 +444,31 @@ static int win_get_num_display_modes(void)
    int refresh_rate = al_get_new_display_refresh_rate();
    int flags = al_get_new_display_flags();
 
-#if defined ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
+#if defined A5O_CFG_OPENGL
+   if (flags & A5O_OPENGL) {
       return _al_wgl_get_num_display_modes(format, refresh_rate, flags);
    }
 #endif
-#if defined ALLEGRO_CFG_D3D
+#if defined A5O_CFG_D3D
    return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
 #endif
 
    return 0;
 }
 
-static ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index,
-   ALLEGRO_DISPLAY_MODE *mode)
+static A5O_DISPLAY_MODE *win_get_display_mode(int index,
+   A5O_DISPLAY_MODE *mode)
 {
    int format = _al_deduce_color_format(_al_get_new_display_settings());
    int refresh_rate = al_get_new_display_refresh_rate();
    int flags = al_get_new_display_flags();
 
-#if defined ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
+#if defined A5O_CFG_OPENGL
+   if (flags & A5O_OPENGL) {
       return _al_wgl_get_display_mode(index, format, refresh_rate, flags, mode);
    }
 #endif
-#if defined ALLEGRO_CFG_D3D
+#if defined A5O_CFG_D3D
    return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
 #endif
 
@@ -531,7 +531,7 @@ static int win_get_monitor_refresh_rate(int adapter)
    return dm.dmDisplayFrequency;
 }
 
-static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool win_get_monitor_info(int adapter, A5O_MONITOR_INFO *info)
 {
    DISPLAY_DEVICE dd;
    DEVMODE dm;
@@ -574,7 +574,7 @@ static BOOL CALLBACK monitor_enum_proc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT
    return true;
 }
 
-static HMONITOR win_get_monitor(ALLEGRO_MONITOR_INFO *info)
+static HMONITOR win_get_monitor(A5O_MONITOR_INFO *info)
 {
    HMONITOR h_monitor;
    RECT rect;
@@ -591,7 +591,7 @@ static HMONITOR win_get_monitor(ALLEGRO_MONITOR_INFO *info)
 
 static int win_get_monitor_dpi(int adapter)
 {
-   ALLEGRO_MONITOR_INFO info;
+   A5O_MONITOR_INFO info;
    HMODULE shcore_dll = _al_win_safe_load_library("shcore.dll");
    UINT dpi_hori;
    UINT dpi_vert;
@@ -634,10 +634,10 @@ static bool win_get_cursor_position(int *ret_x, int *ret_y)
    return true;
 }
 
-static bool win_grab_mouse(ALLEGRO_DISPLAY *display)
+static bool win_grab_mouse(A5O_DISPLAY *display)
 {
-   ALLEGRO_SYSTEM_WIN *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_WIN *win_disp = (void *)display;
+   A5O_SYSTEM_WIN *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_WIN *win_disp = (void *)display;
    RECT rect;
 
    GetWindowRect(win_disp->window, &rect);
@@ -651,19 +651,19 @@ static bool win_grab_mouse(ALLEGRO_DISPLAY *display)
 
 static bool win_ungrab_mouse(void)
 {
-   ALLEGRO_SYSTEM_WIN *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_WIN *system = (void *)al_get_system_driver();
 
    ClipCursor(NULL);
    system->mouse_grab_display = NULL;
    return true;
 }
 
-static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
+static A5O_MOUSE_DRIVER *win_get_mouse_driver(void)
 {
    return _al_mouse_driver_list[0].driver;
 }
 
-static ALLEGRO_TOUCH_INPUT_DRIVER *win_get_touch_input_driver(void)
+static A5O_TOUCH_INPUT_DRIVER *win_get_touch_input_driver(void)
 {
    return _al_touch_input_driver_list[0].driver;
 }
@@ -671,17 +671,17 @@ static ALLEGRO_TOUCH_INPUT_DRIVER *win_get_touch_input_driver(void)
 /* _al_win_get_path:
  *  Returns full path to various system and user diretories
  */
-ALLEGRO_PATH *_al_win_get_path(int id)
+A5O_PATH *_al_win_get_path(int id)
 {
    char path[MAX_PATH];
    wchar_t pathw[MAX_PATH];
-   ALLEGRO_USTR *pathu;
+   A5O_USTR *pathu;
    uint32_t csidl = 0;
    HRESULT ret = 0;
-   ALLEGRO_PATH *cisdl_path = NULL;
+   A5O_PATH *cisdl_path = NULL;
 
    switch (id) {
-      case ALLEGRO_TEMP_PATH: {
+      case A5O_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
 
          DWORD ret = GetTempPathW(MAX_PATH, pathw);
@@ -696,7 +696,7 @@ ALLEGRO_PATH *_al_win_get_path(int id)
 
       } break;
 
-      case ALLEGRO_RESOURCES_PATH: { /* where the program is in */
+      case A5O_RESOURCES_PATH: { /* where the program is in */
          HANDLE process = GetCurrentProcess();
          char *ptr;
 
@@ -716,20 +716,20 @@ ALLEGRO_PATH *_al_win_get_path(int id)
          return al_create_path_for_directory(path);
       } break;
 
-      case ALLEGRO_USER_DATA_PATH: /* CSIDL_APPDATA */
-      case ALLEGRO_USER_SETTINGS_PATH:
+      case A5O_USER_DATA_PATH: /* CSIDL_APPDATA */
+      case A5O_USER_SETTINGS_PATH:
          csidl = CSIDL_APPDATA;
          break;
 
-      case ALLEGRO_USER_HOME_PATH: /* CSIDL_PROFILE */
+      case A5O_USER_HOME_PATH: /* CSIDL_PROFILE */
          csidl = CSIDL_PROFILE;
          break;
 
-      case ALLEGRO_USER_DOCUMENTS_PATH: /* CSIDL_PERSONAL */
+      case A5O_USER_DOCUMENTS_PATH: /* CSIDL_PERSONAL */
          csidl = CSIDL_PERSONAL;
          break;
 
-      case ALLEGRO_EXENAME_PATH: { /* full path to the exe including its name */
+      case A5O_EXENAME_PATH: { /* full path to the exe including its name */
          HANDLE process = GetCurrentProcess();
 
          GetModuleFileNameExW(process, NULL, pathw, MAX_PATH);
@@ -794,17 +794,17 @@ static HMODULE load_library_at_path(const TCHAR *path_str)
     * on Vista.
     */
    char* upath_str = _twin_tchar_to_utf8(path_str);
-   ALLEGRO_DEBUG("Calling LoadLibrary %s\n", upath_str);
+   A5O_DEBUG("Calling LoadLibrary %s\n", upath_str);
    lib = LoadLibrary(path_str);
    if (lib) {
-      ALLEGRO_INFO("Loaded %s\n", upath_str);
+      A5O_INFO("Loaded %s\n", upath_str);
    }
    else {
       DWORD error = GetLastError();
       HRESULT hr = HRESULT_FROM_WIN32(error);
       /* XXX do something with it */
       (void)hr;
-      ALLEGRO_WARN("Failed to load %s (error: %ld)\n", upath_str, error);
+      A5O_WARN("Failed to load %s (error: %ld)\n", upath_str, error);
    }
    al_free(upath_str);
    return lib;
@@ -819,9 +819,9 @@ static bool is_build_config_name(const char *s)
       || 0 == strcmp(s, "Profile"));
 }
 
-static ALLEGRO_PATH *maybe_parent_dir(const ALLEGRO_PATH *path)
+static A5O_PATH *maybe_parent_dir(const A5O_PATH *path)
 {
-   ALLEGRO_PATH *path2;
+   A5O_PATH *path2;
 
    if (!path)
       return NULL;
@@ -833,7 +833,7 @@ static ALLEGRO_PATH *maybe_parent_dir(const ALLEGRO_PATH *path)
    if (path2) {
       al_drop_path_tail(path2);
       al_set_path_filename(path2, NULL);
-      ALLEGRO_DEBUG("Also searching %s\n", al_path_cstr(path2, '\\'));
+      A5O_DEBUG("Also searching %s\n", al_path_cstr(path2, '\\'));
    }
 
    return path2;
@@ -846,8 +846,8 @@ static ALLEGRO_PATH *maybe_parent_dir(const ALLEGRO_PATH *path)
  */
 HMODULE _al_win_safe_load_library(const char *filename)
 {
-   ALLEGRO_PATH *path1 = NULL;
-   ALLEGRO_PATH *path2 = NULL;
+   A5O_PATH *path1 = NULL;
+   A5O_PATH *path2 = NULL;
    TCHAR buf[MAX_PATH];
    const TCHAR *other_dirs[3];
    HMODULE lib = NULL;
@@ -859,7 +859,7 @@ HMODULE _al_win_safe_load_library(const char *filename)
     * library from the current directory.  This leads to less surprises when
     * running example programs.
     */
-#if defined(ALLEGRO_MSVC)
+#if defined(A5O_MSVC)
    msvc_only = true;
 #endif
 
@@ -869,7 +869,7 @@ HMODULE _al_win_safe_load_library(const char *filename)
     */
 
    if (al_is_system_installed()) {
-      path1 = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+      path1 = al_get_standard_path(A5O_RESOURCES_PATH);
    }
    else if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
       char* tmp = _twin_tchar_to_utf8(buf);
@@ -888,12 +888,12 @@ HMODULE _al_win_safe_load_library(const char *filename)
    al_free(tfilename);
    if (PathFindOnPath(buf, other_dirs)) {
       char* tmp = _twin_tchar_to_utf8(buf);
-      ALLEGRO_DEBUG("PathFindOnPath found: %s\n", tmp);
+      A5O_DEBUG("PathFindOnPath found: %s\n", tmp);
       al_free(tmp);
       lib = load_library_at_path(buf);
    }
    else {
-      ALLEGRO_WARN("PathFindOnPath failed to find %s\n", filename);
+      A5O_WARN("PathFindOnPath failed to find %s\n", filename);
    }
    al_free((void*) other_dirs[0]);
    al_free((void*) other_dirs[1]);
@@ -920,13 +920,13 @@ static void win_close_library(void *library)
    FreeLibrary(library);
 }
 
-static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
+static A5O_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
 
    vt = al_calloc(1, sizeof *vt);
 
-   vt->id = ALLEGRO_SYSTEM_ID_WINDOWS;
+   vt->id = A5O_SYSTEM_ID_WINDOWS;
    vt->initialize = win_initialize;
    vt->get_display_driver = win_get_display_driver;
    vt->get_keyboard_driver = win_get_keyboard_driver;
@@ -960,7 +960,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 
 void _al_register_system_interfaces()
 {
-   ALLEGRO_SYSTEM_INTERFACE **add;
+   A5O_SYSTEM_INTERFACE **add;
 
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_win_driver();

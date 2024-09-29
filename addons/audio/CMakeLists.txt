@@ -37,24 +37,24 @@ endfunction()
 # The platform conditions are not really necessary but prevent confusing the
 # user, e.g. it's pretty weird to get a warning about missing DSound on Unix.
 
-if(WANT_OSS AND ALLEGRO_UNIX)
+if(WANT_OSS AND A5O_UNIX)
     include(AllegroFindOSS)
     if(OSS_FOUND)
         set(SUPPORT_OSS 1)
     endif(OSS_FOUND)
-endif(WANT_OSS AND ALLEGRO_UNIX)
+endif(WANT_OSS AND A5O_UNIX)
 
 if(SUPPORT_OSS)
-    set(ALLEGRO_CFG_KCM_OSS 1)
+    set(A5O_CFG_KCM_OSS 1)
     list(APPEND AUDIO_SOURCES oss.c)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OSS)
 
-if(ALLEGRO_UNIX)
+if(A5O_UNIX)
     audio_summary(" - OSS" SUPPORT_OSS)
 endif()
 
-if(WANT_PULSEAUDIO AND ALLEGRO_UNIX)
+if(WANT_PULSEAUDIO AND A5O_UNIX)
     pkg_check_modules(PULSEAUDIO libpulse-simple)
     if(PULSEAUDIO_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${PULSEAUDIO_INCLUDE_DIRS})
@@ -78,10 +78,10 @@ if(WANT_PULSEAUDIO AND ALLEGRO_UNIX)
             message("WARNING: PulseAudio compile test failed, disabling support")
         endif()
     endif(PULSEAUDIO_FOUND)
-endif(WANT_PULSEAUDIO AND ALLEGRO_UNIX)
+endif(WANT_PULSEAUDIO AND A5O_UNIX)
 
 if(SUPPORT_PULSEAUDIO)
-    set(ALLEGRO_CFG_KCM_PULSEAUDIO 1)
+    set(A5O_CFG_KCM_PULSEAUDIO 1)
     list(APPEND AUDIO_SOURCES pulseaudio.c)
     list(APPEND AUDIO_LIBRARIES ${PULSEAUDIO_LIBRARIES})
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${PULSEAUDIO_INCLUDE_DIRS})
@@ -89,26 +89,26 @@ if(SUPPORT_PULSEAUDIO)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_PULSEAUDIO)
 
-if(ALLEGRO_UNIX)
+if(A5O_UNIX)
     audio_summary(" - PulseAudio" SUPPORT_PULSEAUDIO)
 endif()
 
-if(WANT_ALSA AND ALLEGRO_UNIX)
+if(WANT_ALSA AND A5O_UNIX)
     pkg_check_modules(ALSA alsa)
     if(ALSA_FOUND)
         set(SUPPORT_ALSA 1)
     endif(ALSA_FOUND)
-endif(WANT_ALSA AND ALLEGRO_UNIX)
+endif(WANT_ALSA AND A5O_UNIX)
 
 if(SUPPORT_ALSA)
-    set(ALLEGRO_CFG_KCM_ALSA 1)
+    set(A5O_CFG_KCM_ALSA 1)
     list(APPEND AUDIO_SOURCES alsa.c)
     list(APPEND AUDIO_LIBRARIES ${ALSA_LIBRARIES})
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${ALSA_INCLUDE_DIRS})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_ALSA)
 
-if(ALLEGRO_UNIX)
+if(A5O_UNIX)
     audio_summary(" - ALSA" SUPPORT_ALSA)
 endif()
 
@@ -120,7 +120,7 @@ if(WANT_DSOUND AND WIN32)
 endif(WANT_DSOUND AND WIN32)
 
 if(SUPPORT_DSOUND)
-    set(ALLEGRO_CFG_KCM_DSOUND 1)
+    set(A5O_CFG_KCM_DSOUND 1)
     list(APPEND AUDIO_SOURCES dsound.cpp)
     list(APPEND AUDIO_LIBRARIES ${DSOUND_LIBRARIES})
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${DSOUND_INCLUDE_DIR})
@@ -147,7 +147,7 @@ if(WANT_AQUEUE AND MACOSX)
 endif(WANT_AQUEUE AND MACOSX)
 
 if(SUPPORT_AQUEUE)
-    set(ALLEGRO_CFG_KCM_AQUEUE 1)
+    set(A5O_CFG_KCM_AQUEUE 1)
     list(APPEND AUDIO_SOURCES aqueue.m)
     list(APPEND AUDIO_LIBRARIES ${AUDIO_TOOLBOX_LIB})
     set(SUPPORT_AUDIO 1)
@@ -166,7 +166,7 @@ if(WANT_OPENAL)
 endif(WANT_OPENAL)
 
 if(SUPPORT_OPENAL)
-    set(ALLEGRO_CFG_KCM_OPENAL 1)
+    set(A5O_CFG_KCM_OPENAL 1)
     list(APPEND AUDIO_SOURCES openal.c)
     list(APPEND AUDIO_LIBRARIES ${OPENAL_LIBRARY})
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENAL_INCLUDE_DIR})
@@ -183,7 +183,7 @@ if(WANT_OPENSL)
 endif(WANT_OPENSL)
 
 if(SUPPORT_OPENSL)
-    set(ALLEGRO_CFG_KCM_OPENSL 1)
+    set(A5O_CFG_KCM_OPENSL 1)
     list(APPEND AUDIO_SOURCES opensl.c)
     list(APPEND AUDIO_LIBRARIES ${OPENSL_LIBRARY})
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENSL_INCLUDE_DIR})
@@ -192,13 +192,13 @@ endif(SUPPORT_OPENSL)
 
 audio_summary(" - OpenSL" SUPPORT_OPENSL)
 
-if(ALLEGRO_SDL)
-    set(ALLEGRO_CFG_KCM_SDL 1)
+if(A5O_SDL)
+    set(A5O_CFG_KCM_SDL 1)
     list(APPEND AUDIO_SOURCES sdl_audio.c)
     list(APPEND AUDIO_LIBRARIES ${SDL2_LIBRARIES} )
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIR})
     set(SUPPORT_AUDIO 1)
-endif(ALLEGRO_SDL)
+endif(A5O_SDL)
 
 configure_file(
     allegro5/internal/aintern_audio_cfg.h.cmake
@@ -213,10 +213,10 @@ endif(NOT SUPPORT_AUDIO)
 include_directories(SYSTEM ${AUDIO_INCLUDE_DIRECTORIES})
 link_directories(${AUDIO_LINK_DIRECTORIES})
 add_our_addon_library(allegro_audio
-    AllegroAudio-${ALLEGRO_SOVERSION}
+    AllegroAudio-${A5O_SOVERSION}
     "${AUDIO_SOURCES};${AUDIO_INCLUDE_FILES}"
-    "-DALLEGRO_KCM_AUDIO_SRC"
-    "${ALLEGRO_LINK_WITH};${AUDIO_LIBRARIES}"
+    "-DA5O_KCM_AUDIO_SRC"
+    "${A5O_LINK_WITH};${AUDIO_LIBRARIES}"
     )
 
 install_our_headers(${AUDIO_INCLUDE_FILES})

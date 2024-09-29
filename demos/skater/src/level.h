@@ -26,7 +26,7 @@ extern struct LevelState *BorrowState(struct Level *);
 extern void ReturnState(struct Level *, struct LevelState *);
 extern void FreeState(struct LevelState *);
 
-extern ALLEGRO_BITMAP *ObtainBitmap(const char *name);
-extern ALLEGRO_SAMPLE *ObtainSample(const char *name);
+extern A5O_BITMAP *ObtainBitmap(const char *name);
+extern A5O_SAMPLE *ObtainSample(const char *name);
 
 #endif

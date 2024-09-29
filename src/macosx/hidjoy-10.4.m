@@ -22,27 +22,27 @@
 #import <IOKit/hid/IOHIDUsageTables.h>
 
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
 #error something is wrong with the makefile
 #endif                
 
-ALLEGRO_DEBUG_CHANNEL("MacOSX")
+A5O_DEBUG_CHANNEL("MacOSX")
 
 #define _AL_MAX_JOYSTICKS 8
 
 static bool init_joystick(void);
 static void exit_joystick(void);
 static int num_joysticks(void);
-static ALLEGRO_JOYSTICK* get_joystick(int);
-static void release_joystick(ALLEGRO_JOYSTICK*);
-static void get_joystick_state(ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE*);
+static A5O_JOYSTICK* get_joystick(int);
+static void release_joystick(A5O_JOYSTICK*);
+static void get_joystick_state(A5O_JOYSTICK*, A5O_JOYSTICK_STATE*);
 
 /* OSX HID Joystick
  * Maintains an array of links which connect a HID cookie to 
- * an element in the ALLEGRO_JOYSTICK_STATE structure.
+ * an element in the A5O_JOYSTICK_STATE structure.
  */
 typedef struct {
-   ALLEGRO_JOYSTICK parent;
+   A5O_JOYSTICK parent;
    struct {
       IOHIDElementCookie cookie;
       int* ppressed;
@@ -56,13 +56,13 @@ typedef struct {
       int stick, axis;
    } axis_link[_AL_MAX_JOYSTICK_AXES * _AL_MAX_JOYSTICK_STICKS];
    int num_axis_links;
-   ALLEGRO_JOYSTICK_STATE state;
+   A5O_JOYSTICK_STATE state;
    IOHIDDeviceInterface122** interface;
    IOHIDQueueInterface** queue;
    CFRunLoopSourceRef source;
-} ALLEGRO_JOYSTICK_OSX;
+} A5O_JOYSTICK_OSX;
 
-static ALLEGRO_JOYSTICK_OSX joysticks[_AL_MAX_JOYSTICKS];
+static A5O_JOYSTICK_OSX joysticks[_AL_MAX_JOYSTICKS];
 static unsigned int joystick_count;
 
 /* create_device_iterator:
@@ -113,10 +113,10 @@ static BOOL create_interface(io_object_t device, IOHIDDeviceInterface122*** inte
  */
 static void joystick_callback(void *target, IOReturn result, void *refcon __attribute__((unused)), void *sender)
 {
-   ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) target;
+   A5O_JOYSTICK_OSX* joy = (A5O_JOYSTICK_OSX*) target;
    IOHIDQueueInterface** queue = (IOHIDQueueInterface**) sender;
    AbsoluteTime past = {0,0};
-   ALLEGRO_EVENT_SOURCE *src = al_get_joystick_event_source();
+   A5O_EVENT_SOURCE *src = al_get_joystick_event_source();
    if (src == NULL) {
       return;
    }
@@ -132,11 +132,11 @@ static void joystick_callback(void *target, IOReturn result, void *refcon __attr
                if (*joy->button_link[i].ppressed != newvalue) {
                   *joy->button_link[i].ppressed = newvalue;
                   // emit event
-                  ALLEGRO_EVENT evt;
+                  A5O_EVENT evt;
                   if (newvalue)
-                     evt.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
+                     evt.type = A5O_EVENT_JOYSTICK_BUTTON_DOWN;
                   else
-                     evt.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
+                     evt.type = A5O_EVENT_JOYSTICK_BUTTON_UP;
                   evt.joystick.button = i;
                   _al_event_source_emit_event(src, &evt);
                }
@@ -149,8 +149,8 @@ static void joystick_callback(void *target, IOReturn result, void *refcon __attr
                   joy->axis_link[i].intvalue = newvalue;
                   *joy->axis_link[i].pvalue = (joy->axis_link[i].offset + newvalue) * joy->axis_link[i].multiplier;
                   // emit event
-                  ALLEGRO_EVENT evt;
-                  evt.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+                  A5O_EVENT evt;
+                  evt.type = A5O_EVENT_JOYSTICK_AXIS;
                   evt.joystick.axis = joy->axis_link[i].axis;
                   evt.joystick.pos = *joy->axis_link[i].pvalue;
                   evt.joystick.stick = joy->axis_link[i].stick;
@@ -177,7 +177,7 @@ static void joystick_callback(void *target, IOReturn result, void *refcon __attr
  */
 static void add_device(io_object_t device)
 {
-   ALLEGRO_JOYSTICK_OSX* joy;
+   A5O_JOYSTICK_OSX* joy;
    NSArray* elements = nil;
    int num_buttons = 0;
    BOOL have_x = NO, have_y = NO;
@@ -212,11 +212,11 @@ static void add_device(io_object_t device)
          if (name == nil) {
             name = [NSString stringWithFormat:@"Button %d", (num_buttons+1)];
          }
-         ALLEGRO_INFO("Found button named \"%s\"\n", [name UTF8String]);
+         A5O_INFO("Found button named \"%s\"\n", [name UTF8String]);
          // Say that we want events from this button
          err = (*queue)->addElement(queue, joy->button_link[num_buttons].cookie, 0);
          if (err != 0) {
-            ALLEGRO_WARN("Button named \"%s\" NOT added to event queue\n", [name UTF8String]);
+            A5O_WARN("Button named \"%s\" NOT added to event queue\n", [name UTF8String]);
          } else {
             joy->parent.info.button[num_buttons].name = strdup([name UTF8String]);
             ++num_buttons; 
@@ -237,11 +237,11 @@ static void add_device(io_object_t device)
             if (name == nil) {
                name = @"X-axis";
             }
-            ALLEGRO_INFO("Found X-axis named \"%s\"\n", [name UTF8String]);
+            A5O_INFO("Found X-axis named \"%s\"\n", [name UTF8String]);
             // Say that we want events from this axis
             err = (*queue)->addElement(queue, joy->axis_link[0].cookie, 0);
             if (err != 0) {
-               ALLEGRO_WARN("X-axis named \"%s\" NOT added to event queue\n", [name UTF8String]);
+               A5O_WARN("X-axis named \"%s\" NOT added to event queue\n", [name UTF8String]);
             } else {
                have_x = YES;
                joy->parent.info.stick[0].axis[0].name = strdup([name UTF8String]);
@@ -260,11 +260,11 @@ static void add_device(io_object_t device)
             if (name == nil) {
                name = @"Y-axis";
             }
-            ALLEGRO_INFO("Found Y-axis named \"%s\"\n", [name UTF8String]);
+            A5O_INFO("Found Y-axis named \"%s\"\n", [name UTF8String]);
             // Say that we want events from this axis
             err = (*queue)->addElement(queue, joy->axis_link[1].cookie, 0);
             if (err != 0) {
-               ALLEGRO_WARN("Y-axis named \"%s\" NOT added to event queue\n", [name UTF8String]);
+               A5O_WARN("Y-axis named \"%s\" NOT added to event queue\n", [name UTF8String]);
             } else {
                have_y = YES;
                joy->parent.info.stick[0].axis[1].name = strdup([name UTF8String]);
@@ -285,13 +285,13 @@ static void add_device(io_object_t device)
 }
 
 // FIXME!
-static const char *get_joystick_name(ALLEGRO_JOYSTICK *joy_)
+static const char *get_joystick_name(A5O_JOYSTICK *joy_)
 {  
    (void)joy_;
    return "Joystick";
 }
 
-static bool get_joystick_active(ALLEGRO_JOYSTICK *joy_)
+static bool get_joystick_active(A5O_JOYSTICK *joy_)
 {
    (void)joy_;
    return true;
@@ -302,9 +302,9 @@ static bool reconfigure_joysticks(void)
    return false;
 }
 
-ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void)
+A5O_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void)
 {
-   static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
+   static A5O_JOYSTICK_DRIVER* vt = NULL;
    if (vt == NULL) {
       vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
@@ -349,7 +349,7 @@ static bool init_joystick(void)
       unsigned int i;
       CFRunLoopRef current = CFRunLoopGetCurrent();
       for (i=0; i<joystick_count; ++i) {
-         ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+         A5O_JOYSTICK_OSX* joy = &joysticks[i];
          CFRunLoopAddSource(current,joy->source,kCFRunLoopDefaultMode);
          (*joy->queue)->start(joy->queue);
       }
@@ -369,14 +369,14 @@ static void exit_joystick(void)
       unsigned int i;
       CFRunLoopRef current = CFRunLoopGetCurrent();
       for (i=0; i<joystick_count; ++i) {
-         ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+         A5O_JOYSTICK_OSX* joy = &joysticks[i];
          (*joy->queue)->stop(joy->queue);
          CFRunLoopRemoveSource(current,joy->source,kCFRunLoopDefaultMode);
       }
    });
    unsigned int i;
    for (i=0; i< joystick_count; ++i) {
-      ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+      A5O_JOYSTICK_OSX* joy = &joysticks[i];
       CFRelease(joy->source);
       if (joy->queue) {
          (*joy->queue)->dispose(joy->queue);
@@ -413,11 +413,11 @@ static int num_joysticks(void)
 /* get_joystick:
  * Get a pointer to a joystick structure
  */
-static ALLEGRO_JOYSTICK* get_joystick(int index)
+static A5O_JOYSTICK* get_joystick(int index)
 {
-   ALLEGRO_JOYSTICK* joy = NULL;
+   A5O_JOYSTICK* joy = NULL;
    if (index >= 0 && index < (int) joystick_count) {
-      joy = (ALLEGRO_JOYSTICK *)&joysticks[index];
+      joy = (A5O_JOYSTICK *)&joysticks[index];
    }
    return joy;
 }
@@ -425,7 +425,7 @@ static ALLEGRO_JOYSTICK* get_joystick(int index)
 /* release_joystick:
  * Release a pointer that has been obtained
  */
-static void release_joystick(ALLEGRO_JOYSTICK* joy __attribute__((unused)) )
+static void release_joystick(A5O_JOYSTICK* joy __attribute__((unused)) )
 {
    // No-op
 }
@@ -433,9 +433,9 @@ static void release_joystick(ALLEGRO_JOYSTICK* joy __attribute__((unused)) )
 /* get_joystick_state:
  * Get the current status of a joystick
  */
-static void get_joystick_state(ALLEGRO_JOYSTICK* ajoy, ALLEGRO_JOYSTICK_STATE* state)
+static void get_joystick_state(A5O_JOYSTICK* ajoy, A5O_JOYSTICK_STATE* state)
 {
-   ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) ajoy;
+   A5O_JOYSTICK_OSX* joy = (A5O_JOYSTICK_OSX*) ajoy;
    memcpy(state, &joy->state,sizeof(*state));
 }
 

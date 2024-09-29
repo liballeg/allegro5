@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
@@ -12,22 +12,22 @@
 #define FPS 60
 
 struct Example {
-   ALLEGRO_BITMAP *target_depth;
-   ALLEGRO_BITMAP *target_no_depth;
-   ALLEGRO_BITMAP *target_no_multisample;
-   ALLEGRO_FONT *font;
+   A5O_BITMAP *target_depth;
+   A5O_BITMAP *target_no_depth;
+   A5O_BITMAP *target_no_multisample;
+   A5O_FONT *font;
    double t;
    double direct_speed_measure;
 } example;
 
-static void draw_on_target(ALLEGRO_BITMAP *target)
+static void draw_on_target(A5O_BITMAP *target)
 {
-   ALLEGRO_STATE state;
-   ALLEGRO_TRANSFORM transform;
+   A5O_STATE state;
+   A5O_TRANSFORM transform;
    
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP |
-      ALLEGRO_STATE_TRANSFORM |
-      ALLEGRO_STATE_PROJECTION_TRANSFORM);
+   al_store_state(&state, A5O_STATE_TARGET_BITMAP |
+      A5O_STATE_TRANSFORM |
+      A5O_STATE_PROJECTION_TRANSFORM);
 
    al_set_target_bitmap(target);
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
@@ -41,7 +41,7 @@ static void draw_on_target(ALLEGRO_BITMAP *target)
 
    al_draw_filled_rectangle(-0.75, -0.5, 0.75, 0.5, al_color_name("blue"));
 
-   al_set_render_state(ALLEGRO_DEPTH_TEST, true);
+   al_set_render_state(A5O_DEPTH_TEST, true);
 
    int i, j;
    for (i = 0; i < 24; i++) {
@@ -49,8 +49,8 @@ static void draw_on_target(ALLEGRO_BITMAP *target)
          al_identity_transform(&transform);
          al_translate_transform_3d(&transform, 0, 0, j * 0.01);
          al_rotate_transform_3d(&transform, 0, 1, 0,
-            ALLEGRO_PI * (i / 12.0 + example.t / 2));
-         al_rotate_transform_3d(&transform, 1, 0, 0, ALLEGRO_PI * 0.25);
+            A5O_PI * (i / 12.0 + example.t / 2));
+         al_rotate_transform_3d(&transform, 1, 0, 0, A5O_PI * 0.25);
          al_use_transform(&transform);
          if (j == 0)
             al_draw_filled_rectangle(0, -.5, .5, .5, i % 2 == 0 ?
@@ -61,7 +61,7 @@ static void draw_on_target(ALLEGRO_BITMAP *target)
       }
    }
 
-   al_set_render_state(ALLEGRO_DEPTH_TEST, false);
+   al_set_render_state(A5O_DEPTH_TEST, false);
 
    al_identity_transform(&transform);
    al_use_transform(&transform);
@@ -77,19 +77,19 @@ static void draw_on_target(ALLEGRO_BITMAP *target)
 static void redraw(void)
 {
    double w = 512, h = 512;
-   ALLEGRO_COLOR black = al_color_name("black");
+   A5O_COLOR black = al_color_name("black");
    draw_on_target(example.target_depth);
    draw_on_target(example.target_no_depth);
    draw_on_target(example.target_no_multisample);
 
    al_clear_to_color(al_color_name("green"));
 
-   ALLEGRO_TRANSFORM transform;
+   A5O_TRANSFORM transform;
 
    al_identity_transform(&transform);
    al_use_transform(&transform);
    al_translate_transform(&transform, -128, -128);
-   al_rotate_transform(&transform, example.t * ALLEGRO_PI / 3);
+   al_rotate_transform(&transform, example.t * A5O_PI / 3);
    al_translate_transform(&transform, 512 + 128, 128);
    al_use_transform(&transform);
    al_draw_bitmap(example.target_no_depth, 0, 0, 0);
@@ -98,7 +98,7 @@ static void redraw(void)
    al_identity_transform(&transform);
    al_use_transform(&transform);
    al_translate_transform(&transform, -128, -128);
-   al_rotate_transform(&transform, example.t * ALLEGRO_PI / 3);
+   al_rotate_transform(&transform, example.t * A5O_PI / 3);
    al_translate_transform(&transform, 512 + 128, 256 + 128);
    al_use_transform(&transform);
    al_draw_bitmap(example.target_no_multisample, 0, 0, 0);
@@ -107,7 +107,7 @@ static void redraw(void)
    al_identity_transform(&transform);
    al_use_transform(&transform);
    al_translate_transform(&transform, -256, -256);
-   al_rotate_transform(&transform, example.t * ALLEGRO_PI / 3);
+   al_rotate_transform(&transform, example.t * A5O_PI / 3);
    al_translate_transform(&transform, 256, 256);
    al_use_transform(&transform);
    al_draw_bitmap(example.target_depth, 0, 0, 0);
@@ -122,7 +122,7 @@ static void redraw(void)
    al_identity_transform(&transform);
    al_use_transform(&transform);
    al_draw_textf(example.font, black, w, 0,
-      ALLEGRO_ALIGN_RIGHT, "%.1f FPS", 1.0 / example.direct_speed_measure);
+      A5O_ALIGN_RIGHT, "%.1f FPS", 1.0 / example.direct_speed_measure);
 }
 
 static void update(void)
@@ -132,7 +132,7 @@ static void update(void)
 
 static void init(void)
 {
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
    al_set_new_bitmap_depth(16);
    al_set_new_bitmap_samples(4);
    example.target_depth = al_create_bitmap(512, 512);
@@ -144,9 +144,9 @@ static void init(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
    int w = 512 + 256, h = 512;
    bool done = false;
    bool need_redraw = true;
@@ -169,8 +169,8 @@ int main(int argc, char **argv)
 
    init_platform_specific();
 
-   al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
-   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
+   al_set_new_display_option(A5O_DEPTH_SIZE, 16, A5O_SUGGEST);
+   al_set_new_display_flags(A5O_PROGRAMMABLE_PIPELINE);
 
    display = al_create_display(w, h);
    if (!display) {
@@ -197,7 +197,7 @@ int main(int argc, char **argv)
    double t = -al_get_time();
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (need_redraw) {
          t += al_get_time();
@@ -211,16 +211,16 @@ int main(int argc, char **argv)
       while (true) {
          al_wait_for_event(queue, &event);
          switch (event.type) {
-            case ALLEGRO_EVENT_KEY_CHAR:
-               if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+            case A5O_EVENT_KEY_CHAR:
+               if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                   done = true;
                break;
 
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            case A5O_EVENT_DISPLAY_CLOSE:
                done = true;
                break;
 
-            case ALLEGRO_EVENT_TIMER:
+            case A5O_EVENT_TIMER:
                update();
                need_redraw = true;
                break;

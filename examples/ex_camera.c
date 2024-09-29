@@ -1,4 +1,4 @@
-/* An example demonstrating how to use ALLEGRO_TRANSFORM to represent a 3D
+/* An example demonstrating how to use A5O_TRANSFORM to represent a 3D
  * camera.
  */
 #include <allegro5/allegro.h>
@@ -10,7 +10,7 @@
 
 #include "common.c"
 
-#define pi ALLEGRO_PI
+#define pi A5O_PI
 
 typedef struct {
    float x, y, z;
@@ -33,8 +33,8 @@ typedef struct {
 
    /* keyboard and mouse state */
    int button[10];
-   int key[ALLEGRO_KEY_MAX];
-   int keystate[ALLEGRO_KEY_MAX];
+   int key[A5O_KEY_MAX];
+   int keystate[A5O_KEY_MAX];
    int mouse_dx, mouse_dy;
 
    /* control scheme selection */
@@ -43,13 +43,13 @@ typedef struct {
 
    /* the vertex data */
    int n, v_size;
-   ALLEGRO_VERTEX *v;
+   A5O_VERTEX *v;
 
    /* used to draw some info text */
-   ALLEGRO_FONT *font;
+   A5O_FONT *font;
 
    /* if not NULL the skybox picture to use */
-   ALLEGRO_BITMAP *skybox;
+   A5O_BITMAP *skybox;
 } Example;
 
 Example ex;
@@ -104,7 +104,7 @@ static void vector_iadd(Vector *a, Vector b)
 /* Rotate the camera around the given axis. */
 static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
 {
-   ALLEGRO_TRANSFORM t;
+   A5O_TRANSFORM t;
    al_identity_transform(&t);
    al_rotate_transform_3d(&t, axis.x, axis.y, axis.z, radians);
    al_transform_coordinates_3d(&t, &c->yaxis.x, &c->yaxis.y, &c->yaxis.z);
@@ -190,8 +190,8 @@ static double get_roll(Camera *c)
  */
 static void setup_3d_projection(void)
 {
-   ALLEGRO_TRANSFORM projection;
-   ALLEGRO_DISPLAY *display = al_get_current_display();
+   A5O_TRANSFORM projection;
+   A5O_DISPLAY *display = al_get_current_display();
    double dw = al_get_display_width(display);
    double dh = al_get_display_height(display);
    double f;
@@ -206,7 +206,7 @@ static void setup_3d_projection(void)
 
 /* Adds a new vertex to our scene. */
 static void add_vertex(double x, double y, double z, double u, double v,
-      ALLEGRO_COLOR color)
+      A5O_COLOR color)
 {
    int i = ex.n++;
    if (i >= ex.v_size) {
@@ -226,7 +226,7 @@ static void add_vertex(double x, double y, double z, double u, double v,
 static void add_quad(double x, double y, double z, double u, double v,
    double ux, double uy, double uz, double uu, double uv,
    double vx, double vy, double vz, double vu, double vv,
-   ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
+   A5O_COLOR c1, A5O_COLOR c2)
 {
    add_vertex(x, y, z, u, v, c1);
    add_vertex(x + ux, y + uy, z + uz, u + uu, v + uv, c1);
@@ -241,15 +241,15 @@ static void add_quad(double x, double y, double z, double u, double v,
 static void add_checkerboard(void)
 {
    int x, y;
-   ALLEGRO_COLOR c1 = al_color_name("yellow");
-   ALLEGRO_COLOR c2 = al_color_name("green");
+   A5O_COLOR c1 = al_color_name("yellow");
+   A5O_COLOR c2 = al_color_name("green");
 
    for (y = 0; y < 20; y++) {
       for (x = 0; x < 20; x++) {
          double px = x - 20 * 0.5;
          double py = 0.2;
          double pz = y - 20 * 0.5;
-         ALLEGRO_COLOR c = c1;
+         A5O_COLOR c = c1;
          if ((x + y) & 1) {
             c = c2;
             py -= 0.1;
@@ -268,9 +268,9 @@ static void add_checkerboard(void)
 static void add_skybox(void)
 {
    Vector p = ex.camera.position;
-   ALLEGRO_COLOR c1 = al_color_name("black");
-   ALLEGRO_COLOR c2 = al_color_name("blue");
-   ALLEGRO_COLOR c3 = al_color_name("white");
+   A5O_COLOR c1 = al_color_name("black");
+   A5O_COLOR c2 = al_color_name("blue");
+   A5O_COLOR c3 = al_color_name("white");
 
    double a = 0, b = 0;
    if (ex.skybox) {
@@ -322,10 +322,10 @@ static void draw_scene(void)
 {
    Camera *c = &ex.camera;
    /* We save Allegro's projection so we can restore it for drawing text. */
-   ALLEGRO_TRANSFORM projection = *al_get_current_projection_transform();
-   ALLEGRO_TRANSFORM t;
-   ALLEGRO_COLOR back = al_color_name("black");
-   ALLEGRO_COLOR front = al_color_name("white");
+   A5O_TRANSFORM projection = *al_get_current_projection_transform();
+   A5O_TRANSFORM t;
+   A5O_COLOR back = al_color_name("black");
+   A5O_COLOR front = al_color_name("white");
    int th;
    double pitch, yaw, roll;
 
@@ -333,7 +333,7 @@ static void draw_scene(void)
    al_clear_to_color(back);
 
    /* We use a depth buffer. */
-   al_set_render_state(ALLEGRO_DEPTH_TEST, 1);
+   al_set_render_state(A5O_DEPTH_TEST, 1);
    al_clear_depth_buffer(1);
 
    /* Recreate the entire scene geometry - this is only a very small example
@@ -354,13 +354,13 @@ static void draw_scene(void)
       ex.camera.position.z - ex.camera.zaxis.z,
       ex.camera.yaxis.x, ex.camera.yaxis.y, ex.camera.yaxis.z);
    al_use_transform(&t);
-   al_draw_prim(ex.v, NULL, ex.skybox, 0, ex.n, ALLEGRO_PRIM_TRIANGLE_LIST);
+   al_draw_prim(ex.v, NULL, ex.skybox, 0, ex.n, A5O_PRIM_TRIANGLE_LIST);
 
    /* Restore projection. */
    al_identity_transform(&t);
    al_use_transform(&t);
    al_use_projection_transform(&projection);
-   al_set_render_state(ALLEGRO_DEPTH_TEST, 0);
+   al_set_render_state(A5O_DEPTH_TEST, 0);
 
    /* Draw some text. */
    th = al_get_font_line_height(ex.font);
@@ -402,19 +402,19 @@ static void handle_input(void)
 {
    double x = 0, y = 0;
    double xy;
-   if (ex.key[ALLEGRO_KEY_A] || ex.key[ALLEGRO_KEY_LEFT]) x = -1;
-   if (ex.key[ALLEGRO_KEY_S] || ex.key[ALLEGRO_KEY_DOWN]) y = -1;
-   if (ex.key[ALLEGRO_KEY_D] || ex.key[ALLEGRO_KEY_RIGHT]) x = 1;
-   if (ex.key[ALLEGRO_KEY_W] || ex.key[ALLEGRO_KEY_UP]) y = 1;
+   if (ex.key[A5O_KEY_A] || ex.key[A5O_KEY_LEFT]) x = -1;
+   if (ex.key[A5O_KEY_S] || ex.key[A5O_KEY_DOWN]) y = -1;
+   if (ex.key[A5O_KEY_D] || ex.key[A5O_KEY_RIGHT]) x = 1;
+   if (ex.key[A5O_KEY_W] || ex.key[A5O_KEY_UP]) y = 1;
 
    /* Change field of view with Z/X. */
-   if (ex.key[ALLEGRO_KEY_Z]) {
+   if (ex.key[A5O_KEY_Z]) {
       double m = 20 * pi / 180;
       ex.camera.vertical_field_of_view -= 0.01;
       if (ex.camera.vertical_field_of_view < m)
          ex.camera.vertical_field_of_view = m;
    }
-   if (ex.key[ALLEGRO_KEY_X]) {
+   if (ex.key[A5O_KEY_X]) {
       double m = 120 * pi / 180;
       ex.camera.vertical_field_of_view += 0.01;
       if (ex.camera.vertical_field_of_view > m)
@@ -470,9 +470,9 @@ static void handle_input(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    int redraw = 0;
    bool halt_drawing = false;
    char const *skybox_name = NULL;
@@ -491,10 +491,10 @@ int main(int argc, char **argv)
    al_install_mouse();
 
    al_set_config_value(al_get_system_config(), "osx", "allow_live_resize", "false");
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLES, 8, A5O_SUGGEST);
+   al_set_new_display_option(A5O_DEPTH_SIZE, 16, A5O_SUGGEST);
+   al_set_new_display_flags(A5O_RESIZABLE);
    display = al_create_display(640, 360);
    if (!display) {
       abort_example("Error creating display\n");
@@ -525,58 +525,58 @@ int main(int argc, char **argv)
 
    al_start_timer(timer);
    while (true) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      else if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(display);
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      else if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
-         if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+         if (event.keyboard.keycode == A5O_KEY_SPACE) {
             ex.controls++;
             ex.controls %= 3;
          }
          ex.key[event.keyboard.keycode] = 1;
          ex.keystate[event.keyboard.keycode] = 1;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_UP) {
+      else if (event.type == A5O_EVENT_KEY_UP) {
          /* In case a key gets pressed and immediately released, we will still
           * have set ex.key so it is not lost.
           */
          ex.keystate[event.keyboard.keycode] = 0;
       }
-      else if (event.type == ALLEGRO_EVENT_TIMER) {
+      else if (event.type == A5O_EVENT_TIMER) {
          int i;
          handle_input();
          redraw = 1;
 
          /* Reset keyboard state for keys not held down anymore. */
-         for (i = 0; i < ALLEGRO_KEY_MAX; i++) {
+         for (i = 0; i < A5O_KEY_MAX; i++) {
             if (ex.keystate[i] == 0)
                ex.key[i] = 0;
          }
          ex.mouse_dx = 0;
          ex.mouse_dy = 0;
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          ex.button[event.mouse.button] = 1;
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_UP) {
          ex.button[event.mouse.button] = 0;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
+      else if (event.type == A5O_EVENT_DISPLAY_HALT_DRAWING) {
          halt_drawing = true;
          al_acknowledge_drawing_halt(display);
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING) {
+      else if (event.type == A5O_EVENT_DISPLAY_RESUME_DRAWING) {
          halt_drawing = false;
          al_acknowledge_drawing_resume(display);
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+      else if (event.type == A5O_EVENT_MOUSE_AXES) {
          ex.mouse_dx += event.mouse.dx;
          ex.mouse_dy += event.mouse.dy;
       }

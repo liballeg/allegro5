@@ -1,12 +1,12 @@
 #ifndef __al_included_allegro5_aintern_path_h
 #define __al_included_allegro5_aintern_path_h
 
-struct ALLEGRO_PATH {
-   ALLEGRO_USTR *drive;
-   ALLEGRO_USTR *filename;
-   _AL_VECTOR segments;    /* vector of ALLEGRO_USTR * */
-   ALLEGRO_USTR *basename;
-   ALLEGRO_USTR *full_string;
+struct A5O_PATH {
+   A5O_USTR *drive;
+   A5O_USTR *filename;
+   _AL_VECTOR segments;    /* vector of A5O_USTR * */
+   A5O_USTR *basename;
+   A5O_USTR *full_string;
 };
 
 #endif

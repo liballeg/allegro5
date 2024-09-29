@@ -62,9 +62,9 @@ static void SetAngle(double normalx, double normaly, double *a, int JustDoIt)
 {
    double NewAng = atan2(normalx, -normaly);
 
-   if (JustDoIt || ((NewAng < (ALLEGRO_PI * 0.25f)) && (NewAng >= 0)) ||
-       ((NewAng > (-ALLEGRO_PI * 0.25f)) && (NewAng <= 0)) ||
-       fabs(NewAng - *a) < (ALLEGRO_PI * 0.25f)
+   if (JustDoIt || ((NewAng < (A5O_PI * 0.25f)) && (NewAng >= 0)) ||
+       ((NewAng > (-A5O_PI * 0.25f)) && (NewAng <= 0)) ||
+       fabs(NewAng - *a) < (A5O_PI * 0.25f)
       )
       *a = NewAng;
 }

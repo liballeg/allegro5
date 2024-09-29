@@ -28,9 +28,9 @@
 #include "allegroAppDelegate.h"
 #include <MobileCoreServices/MobileCoreServices.h>
 
-ALLEGRO_DEBUG_CHANNEL("iphone")
+A5O_DEBUG_CHANNEL("iphone")
 
-#ifndef ALLEGRO_IPHONE
+#ifndef A5O_IPHONE
 #error Something is wrong with the makefile
 #endif
 
@@ -40,7 +40,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 #endif
 
 
-static char *iphone_get_clipboard_text(ALLEGRO_DISPLAY *display)
+static char *iphone_get_clipboard_text(A5O_DISPLAY *display)
 {
    const char *utf8;
    NSString *pbtext;
@@ -59,14 +59,14 @@ static char *iphone_get_clipboard_text(ALLEGRO_DISPLAY *display)
    return text;
 }
 
-static bool iphone_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
+static bool iphone_set_clipboard_text(A5O_DISPLAY *display, const char *text)
 {
    NSData *data = [NSData dataWithBytes:text length:strlen(text)];
    [[UIPasteboard generalPasteboard] setData:data forPasteboardType:(NSString *)kUTTypeUTF8PlainText];
    return true;
 }
 
-static bool iphone_has_clipboard_text(ALLEGRO_DISPLAY *display)
+static bool iphone_has_clipboard_text(A5O_DISPLAY *display)
 {
    NSString *pbtext;
 
@@ -75,7 +75,7 @@ static bool iphone_has_clipboard_text(ALLEGRO_DISPLAY *display)
    return (pbtext != nil);
 }
 
-void _al_iphone_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
+void _al_iphone_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt)
 {
    vt->set_clipboard_text = iphone_set_clipboard_text;
    vt->get_clipboard_text = iphone_get_clipboard_text;

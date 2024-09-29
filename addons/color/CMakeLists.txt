@@ -7,10 +7,10 @@ set(COLOR_INCLUDE_FILES
 set_our_header_properties(${COLOR_INCLUDE_FILES})
 
 add_our_addon_library(allegro_color
-    AllegroColor-${ALLEGRO_SOVERSION}
+    AllegroColor-${A5O_SOVERSION}
     "${COLOR_SOURCES};${COLOR_INCLUDE_FILES}"
-    "-DALLEGRO_COLOR_SRC"
-    "${ALLEGRO_LINK_WITH}"
+    "-DA5O_COLOR_SRC"
+    "${A5O_LINK_WITH}"
     )
 
 install_our_headers(${COLOR_INCLUDE_FILES})

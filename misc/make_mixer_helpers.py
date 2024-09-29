@@ -23,7 +23,7 @@ class Depth:
 
 class Depth_f32(Depth):
    def constant(self):
-      return "ALLEGRO_AUDIO_DEPTH_FLOAT32"
+      return "A5O_AUDIO_DEPTH_FLOAT32"
    def index_f32(self, buf, index):
       return interp("#{buf}.f32[ #{index} ]")
    def index_s16(self, buf, index):
@@ -31,7 +31,7 @@ class Depth_f32(Depth):
 
 class Depth_int24(Depth):
    def constant(self):
-      return "ALLEGRO_AUDIO_DEPTH_INT24"
+      return "A5O_AUDIO_DEPTH_INT24"
    def index_f32(self, buf, index):
       return interp("(float) #{buf}.s24[ #{index} ] / ((float)0x7FFFFF + 0.5f)")
    def index_s16(self, buf, index):
@@ -39,7 +39,7 @@ class Depth_int24(Depth):
 
 class Depth_uint24(Depth):
    def constant(self):
-      return "ALLEGRO_AUDIO_DEPTH_UINT24"
+      return "A5O_AUDIO_DEPTH_UINT24"
    def index_f32(self, buf, index):
       return interp("(float) #{buf}.u24[ #{index} ] / ((float)0x7FFFFF + 0.5f) - 1.0f")
    def index_s16(self, buf, index):
@@ -47,7 +47,7 @@ class Depth_uint24(Depth):
 
 class Depth_int16(Depth):
    def constant(self):
-      return "ALLEGRO_AUDIO_DEPTH_INT16"
+      return "A5O_AUDIO_DEPTH_INT16"
    def index_f32(self, buf, index):
       return interp("(float) #{buf}.s16[ #{index} ] / ((float)0x7FFF + 0.5f)")
    def index_s16(self, buf, index):
@@ -55,7 +55,7 @@ class Depth_int16(Depth):
 
 class Depth_uint16(Depth):
    def constant(self):
-      return "ALLEGRO_AUDIO_DEPTH_UINT16"
+      return "A5O_AUDIO_DEPTH_UINT16"
    def index_f32(self, buf, index):
       return interp("(float) #{buf}.u16[ #{index} ] / ((float)0x7FFF + 0.5f) - 1.0f")
    def index_s16(self, buf, index):
@@ -63,7 +63,7 @@ class Depth_uint16(Depth):
 
 class Depth_int8(Depth):
    def constant(self):
-      return "ALLEGRO_AUDIO_DEPTH_INT8"
+      return "A5O_AUDIO_DEPTH_INT8"
    def index_f32(self, buf, index):
       return interp("(float) #{buf}.s8[ #{index} ] / ((float)0x7F + 0.5f)")
    def index_s16(self, buf, index):
@@ -71,7 +71,7 @@ class Depth_int8(Depth):
 
 class Depth_uint8(Depth):
    def constant(self):
-      return "ALLEGRO_AUDIO_DEPTH_UINT8"
+      return "A5O_AUDIO_DEPTH_UINT8"
    def index_f32(self, buf, index):
       return interp("(float) #{buf}.u8[ #{index} ] / ((float)0x7F + 0.5f) - 1.0f")
    def index_s16(self, buf, index):
@@ -92,7 +92,7 @@ def make_point_interpolator(name, fmt):
    static INLINE const void *
       #{name}
       (SAMP_BUF *samp_buf,
-       const ALLEGRO_SAMPLE_INSTANCE *spl,
+       const A5O_SAMPLE_INSTANCE *spl,
        unsigned int maxc)
    {
       unsigned int i0 = spl->pos*maxc;
@@ -123,32 +123,32 @@ def make_linear_interpolator(name, fmt):
    static INLINE const void *
       #{name}
       (SAMP_BUF *samp_buf,
-       const ALLEGRO_SAMPLE_INSTANCE *spl,
+       const A5O_SAMPLE_INSTANCE *spl,
        unsigned int maxc)
    {
       int p0 = spl->pos;
       int p1 = spl->pos+1;
 
       switch (spl->loop) {
-         case ALLEGRO_PLAYMODE_ONCE:
+         case A5O_PLAYMODE_ONCE:
             if (p1 >= spl->spl_data.len)
                p1 = p0;
             break;
-         case ALLEGRO_PLAYMODE_LOOP_ONCE:
-         case ALLEGRO_PLAYMODE_LOOP:
+         case A5O_PLAYMODE_LOOP_ONCE:
+         case A5O_PLAYMODE_LOOP:
             if (p1 >= spl->loop_end)
                p1 = spl->loop_start;
             break;
-         case ALLEGRO_PLAYMODE_BIDIR:
+         case A5O_PLAYMODE_BIDIR:
             if (p1 >= spl->loop_end) {
                p1 = spl->loop_end - 1;
                if (p1 < spl->loop_start)
                   p1 = spl->loop_start;
             }
             break;
-         case _ALLEGRO_PLAYMODE_STREAM_ONCE:
-         case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
-         case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:""" +
+         case _A5O_PLAYMODE_STREAM_ONCE:
+         case _A5O_PLAYMODE_STREAM_LOOP_ONCE:
+         case _A5O_PLAYMODE_STREAM_ONEDIR:""" +
             # For audio streams, sample i+1 may be in the next buffer fragment,
             # which may not even be generated yet.  So we lag by one sample and
             # interpolate between sample i-1 and sample i.
@@ -213,7 +213,7 @@ def make_cubic_interpolator(name, fmt):
    static INLINE const void *
       #{name}
       (SAMP_BUF *samp_buf,
-       const ALLEGRO_SAMPLE_INSTANCE *spl,
+       const A5O_SAMPLE_INSTANCE *spl,
        unsigned int maxc)
    {
       int p0 = spl->pos-1;
@@ -222,7 +222,7 @@ def make_cubic_interpolator(name, fmt):
       int p3 = spl->pos+2;
 
       switch (spl->loop) {
-         case ALLEGRO_PLAYMODE_ONCE:
+         case A5O_PLAYMODE_ONCE:
             if (p0 < 0)
                p0 = 0;
             if (p2 >= spl->spl_data.len)
@@ -230,9 +230,9 @@ def make_cubic_interpolator(name, fmt):
             if (p3 >= spl->spl_data.len)
                p3 = spl->spl_data.len - 1;
             break;
-         case ALLEGRO_PLAYMODE_LOOP_ONCE:
-         case ALLEGRO_PLAYMODE_LOOP:
-         case ALLEGRO_PLAYMODE_BIDIR:
+         case A5O_PLAYMODE_LOOP_ONCE:
+         case A5O_PLAYMODE_LOOP:
+         case A5O_PLAYMODE_BIDIR:
             /* These positions should really wrap/bounce instead of clamping
              * but it's probably unnoticeable.
              */
@@ -243,9 +243,9 @@ def make_cubic_interpolator(name, fmt):
             if (p3 >= spl->loop_end)
                p3 = spl->loop_start;
             break;
-         case _ALLEGRO_PLAYMODE_STREAM_ONCE:
-         case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
-         case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
+         case _A5O_PLAYMODE_STREAM_ONCE:
+         case _A5O_PLAYMODE_STREAM_LOOP_ONCE:
+         case _A5O_PLAYMODE_STREAM_ONEDIR:
             /* Lag by three samples in total. */
             p0 -= 2;
             p1 -= 2;

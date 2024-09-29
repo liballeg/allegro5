@@ -112,11 +112,11 @@ static void load_text(void)
    char buf[256];
    README_SECTION *sec = NULL;
    TEXT_LIST *l, *p;
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
    int inblank = true;
    char *s;
    int i;
-   ALLEGRO_USTR *u = al_ustr_newf("%s/readme.txt", data_path);  
+   A5O_USTR *u = al_ustr_newf("%s/readme.txt", data_path);  
    f = al_fopen(al_cstr(u), "r");
    al_ustr_free(u);
    if (!f) {
@@ -253,10 +253,10 @@ static void sort_credit_list(void)
 
 
 /* helper to open thanks._tx */
-static ALLEGRO_FILE *open_thanks(const char *s)
+static A5O_FILE *open_thanks(const char *s)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_USTR *u = al_ustr_newf("%s/%s", data_path, s);
+   A5O_FILE *f;
+   A5O_USTR *u = al_ustr_newf("%s/%s", data_path, s);
    f = al_fopen(al_cstr(u), "r");
    al_ustr_free(u);
    return f;
@@ -268,7 +268,7 @@ static void load_credits(void)
 {
    char buf[256], *p, *p2;
    CREDIT_NAME *c = NULL;
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
 
    /* parse thanks._tx, guessing at the relative location */
    if ((f = open_thanks("thanks.txt")) == NULL) {
@@ -414,7 +414,7 @@ void draw_credits(void)
 {
    int c, c2;
    int y2;
-   ALLEGRO_COLOR col_back, col_font;
+   A5O_COLOR col_back, col_font;
 
    /* for the text scroller */
    char buf[2] = " ";

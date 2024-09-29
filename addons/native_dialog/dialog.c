@@ -6,11 +6,11 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("native_dialog")
+A5O_DEBUG_CHANNEL("native_dialog")
 
 static bool inited_addon = false;
 
-static _AL_VECTOR make_patterns_and_desc_vec(const ALLEGRO_USTR* patterns_ustr);
+static _AL_VECTOR make_patterns_and_desc_vec(const A5O_USTR* patterns_ustr);
 static void free_patterns_and_desc_vec(_AL_VECTOR *patterns_and_desc_vec);
 
 /* Function: al_init_native_dialog_addon
@@ -19,7 +19,7 @@ bool al_init_native_dialog_addon(void)
 {
    if (!inited_addon) {
       if (!_al_init_native_dialog_addon()) {
-         ALLEGRO_ERROR("_al_init_native_dialog_addon failed.\n");
+         A5O_ERROR("_al_init_native_dialog_addon failed.\n");
          return false;
       }
       inited_addon = true;
@@ -50,13 +50,13 @@ void al_shutdown_native_dialog_addon(void)
 
 /* Function: al_create_native_file_dialog
  */
-ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
+A5O_FILECHOOSER *al_create_native_file_dialog(
    char const *initial_path,
    char const *title,
    char const *patterns,
    int mode)
 {
-   ALLEGRO_NATIVE_DIALOG *fc;
+   A5O_NATIVE_DIALOG *fc;
    fc = al_calloc(1, sizeof *fc);
 
    if (initial_path) {
@@ -70,42 +70,42 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
    fc->dtor_item = _al_register_destructor(_al_dtor_list, "native_dialog", fc,
       (void (*)(void *))al_destroy_native_file_dialog);
 
-   return (ALLEGRO_FILECHOOSER *)fc;
+   return (A5O_FILECHOOSER *)fc;
 }
 
 /* Function: al_show_native_file_dialog
  */
-bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
-   ALLEGRO_FILECHOOSER *dialog)
+bool al_show_native_file_dialog(A5O_DISPLAY *display,
+   A5O_FILECHOOSER *dialog)
 {
-   ALLEGRO_NATIVE_DIALOG *fd = (ALLEGRO_NATIVE_DIALOG *)dialog;
+   A5O_NATIVE_DIALOG *fd = (A5O_NATIVE_DIALOG *)dialog;
    return _al_show_native_file_dialog(display, fd);
 }
 
 /* Function: al_get_native_file_dialog_count
  */
-int al_get_native_file_dialog_count(const ALLEGRO_FILECHOOSER *dialog)
+int al_get_native_file_dialog_count(const A5O_FILECHOOSER *dialog)
 {
-   const ALLEGRO_NATIVE_DIALOG *fc = (const ALLEGRO_NATIVE_DIALOG *)dialog;
+   const A5O_NATIVE_DIALOG *fc = (const A5O_NATIVE_DIALOG *)dialog;
    return fc->fc_path_count;
 }
 
 /* Function: al_get_native_file_dialog_path
  */
 const char *al_get_native_file_dialog_path(
-   const ALLEGRO_FILECHOOSER *dialog, size_t i)
+   const A5O_FILECHOOSER *dialog, size_t i)
 {
-   const ALLEGRO_NATIVE_DIALOG *fc = (const ALLEGRO_NATIVE_DIALOG *)dialog;
+   const A5O_NATIVE_DIALOG *fc = (const A5O_NATIVE_DIALOG *)dialog;
    if (i < fc->fc_path_count)
-      return al_path_cstr(fc->fc_paths[i], ALLEGRO_NATIVE_PATH_SEP);
+      return al_path_cstr(fc->fc_paths[i], A5O_NATIVE_PATH_SEP);
    return NULL;
 }
 
 /* Function: al_destroy_native_file_dialog
  */
-void al_destroy_native_file_dialog(ALLEGRO_FILECHOOSER *dialog)
+void al_destroy_native_file_dialog(A5O_FILECHOOSER *dialog)
 {
-   ALLEGRO_NATIVE_DIALOG *fd = (ALLEGRO_NATIVE_DIALOG *)dialog;
+   A5O_NATIVE_DIALOG *fd = (A5O_NATIVE_DIALOG *)dialog;
    size_t i;
 
    if (!fd)
@@ -126,11 +126,11 @@ void al_destroy_native_file_dialog(ALLEGRO_FILECHOOSER *dialog)
 
 /* Function: al_show_native_message_box
  */
-int al_show_native_message_box(ALLEGRO_DISPLAY *display,
+int al_show_native_message_box(A5O_DISPLAY *display,
    char const *title, char const *heading, char const *text,
    char const *buttons, int flags)
 {
-   ALLEGRO_NATIVE_DIALOG *fc;
+   A5O_NATIVE_DIALOG *fc;
    int r;
 
    ASSERT(title);
@@ -166,11 +166,11 @@ int al_show_native_message_box(ALLEGRO_DISPLAY *display,
  */
 uint32_t al_get_allegro_native_dialog_version(void)
 {
-   return ALLEGRO_VERSION_INT;
+   return A5O_VERSION_INT;
 }
 
 
-static _AL_VECTOR split_patterns(const ALLEGRO_USTR* ustr)
+static _AL_VECTOR split_patterns(const A5O_USTR* ustr)
 {
    int pattern_start = 0;
    int cur_pos = 0;
@@ -184,8 +184,8 @@ static _AL_VECTOR split_patterns(const ALLEGRO_USTR* ustr)
    while (true) {
       int32_t c = al_ustr_get(ustr, cur_pos);
       if (c == -1 || c == ';') {
-         ALLEGRO_USTR_INFO info;
-         const ALLEGRO_USTR *pattern_ustr = al_ref_buffer(&info,
+         A5O_USTR_INFO info;
+         const A5O_USTR *pattern_ustr = al_ref_buffer(&info,
                al_cstr(ustr) + pattern_start, cur_pos - pattern_start);
          if (al_ustr_length(pattern_ustr) > 0) {
             _AL_PATTERN pattern = {
@@ -214,7 +214,7 @@ static _AL_VECTOR split_patterns(const ALLEGRO_USTR* ustr)
 }
 
 
-static _AL_VECTOR make_patterns_and_desc_vec(const ALLEGRO_USTR* patterns_ustr)
+static _AL_VECTOR make_patterns_and_desc_vec(const A5O_USTR* patterns_ustr)
 {
    _AL_VECTOR patterns_and_desc_vec;
    _al_vector_init(&patterns_and_desc_vec, sizeof(_AL_PATTERNS_AND_DESC));
@@ -235,8 +235,8 @@ static _AL_VECTOR make_patterns_and_desc_vec(const ALLEGRO_USTR* patterns_ustr)
          chunk_start = cur_pos + 1;
       }
       else if (c == '\n' || c == -1) {
-         ALLEGRO_USTR_INFO desc_info, real_patterns_info;
-         const ALLEGRO_USTR *ustr;
+         A5O_USTR_INFO desc_info, real_patterns_info;
+         const A5O_USTR *ustr;
          /* Strip trailing whitespace. */
          int desc_end = chunk_start - 1;
          for (; desc_end >= line_start; desc_end--) {

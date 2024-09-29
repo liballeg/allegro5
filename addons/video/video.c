@@ -18,7 +18,7 @@
  *   audio streams or subtitle overlay streams.
  * 
  * - Non audio/video streams. For example something like:
- *   ALLEGRO_USTR *al_get_video_subtitle(float *x, float *y);
+ *   A5O_USTR *al_get_video_subtitle(float *x, float *y);
  * 
  * - Buffering. Right now buffering is hardcoded to a fixed size which
  *   seemed enough for streaming 720p from disk in my tests. Obviously
@@ -46,7 +46,7 @@
 #include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("video")
+A5O_DEBUG_CHANNEL("video")
 
 
 /* globals */
@@ -54,13 +54,13 @@ static bool video_inited = false;
 
 typedef struct VideoHandler {
    const char *extension;
-   ALLEGRO_VIDEO_INTERFACE *vtable;
-   ALLEGRO_VIDEO_IDENTIFIER_FUNCTION identifier;
+   A5O_VIDEO_INTERFACE *vtable;
+   A5O_VIDEO_IDENTIFIER_FUNCTION identifier;
 } VideoHandler;
 
 static _AL_VECTOR handlers = _AL_VECTOR_INITIALIZER(VideoHandler);
 
-static const char* identify_video(ALLEGRO_FILE *f)
+static const char* identify_video(A5O_FILE *f)
 {
    size_t i;
    for (i = 0; i < _al_vector_size(&handlers); i++) {
@@ -72,7 +72,7 @@ static const char* identify_video(ALLEGRO_FILE *f)
    return NULL;
 }
 
-static ALLEGRO_VIDEO_INTERFACE *find_handler(const char *extension)
+static A5O_VIDEO_INTERFACE *find_handler(const char *extension)
 {
    size_t i;
    for (i = 0; i < _al_vector_size(&handlers); i++) {
@@ -84,8 +84,8 @@ static ALLEGRO_VIDEO_INTERFACE *find_handler(const char *extension)
    return NULL;
 }
 
-static void add_handler(const char *extension, ALLEGRO_VIDEO_INTERFACE *vtable,
-                        ALLEGRO_VIDEO_IDENTIFIER_FUNCTION identifier)
+static void add_handler(const char *extension, A5O_VIDEO_INTERFACE *vtable,
+                        A5O_VIDEO_IDENTIFIER_FUNCTION identifier)
 {
    VideoHandler *v = _al_vector_alloc_back(&handlers);
    v->extension = extension;
@@ -95,9 +95,9 @@ static void add_handler(const char *extension, ALLEGRO_VIDEO_INTERFACE *vtable,
 
 /* Function: al_open_video
  */
-ALLEGRO_VIDEO *al_open_video(char const *filename)
+A5O_VIDEO *al_open_video(char const *filename)
 {
-   ALLEGRO_VIDEO *video;
+   A5O_VIDEO *video;
    const char *ext;
    video = al_calloc(1, sizeof *video);
 
@@ -106,13 +106,13 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    if (!ext) {
       ext = strrchr(filename, '.');
       if (!ext) {
-         ALLEGRO_ERROR("Could not identify video %s!\n", filename);
+         A5O_ERROR("Could not identify video %s!\n", filename);
       }
    }
 
    video->vtable = find_handler(ext);
    if (video->vtable == NULL) {
-      ALLEGRO_ERROR("No handler for video extension %s - "
+      A5O_ERROR("No handler for video extension %s - "
          "therefore not trying to load %s.\n", ext, filename);
       al_free(video);
       return NULL;
@@ -122,7 +122,7 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    video->playing = true;
 
    if (!video->vtable->open_video(video)) {
-      ALLEGRO_ERROR("Could not open %s.\n", filename);
+      A5O_ERROR("Could not open %s.\n", filename);
       al_destroy_path(video->filename);
       al_free(video);
       return NULL;
@@ -136,7 +136,7 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
 
 /* Function: al_close_video
  */
-void al_close_video(ALLEGRO_VIDEO *video)
+void al_close_video(A5O_VIDEO *video)
 {
    if (video) {
       video->vtable->close_video(video);
@@ -150,7 +150,7 @@ void al_close_video(ALLEGRO_VIDEO *video)
 
 /* Function: al_get_video_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_video_event_source(ALLEGRO_VIDEO *video)
+A5O_EVENT_SOURCE *al_get_video_event_source(A5O_VIDEO *video)
 {
    ASSERT(video);
    return &video->es;
@@ -158,7 +158,7 @@ ALLEGRO_EVENT_SOURCE *al_get_video_event_source(ALLEGRO_VIDEO *video)
 
 /* Function: al_start_video
  */
-void al_start_video(ALLEGRO_VIDEO *video, ALLEGRO_MIXER *mixer)
+void al_start_video(A5O_VIDEO *video, A5O_MIXER *mixer)
 {
    ASSERT(video);
 
@@ -169,7 +169,7 @@ void al_start_video(ALLEGRO_VIDEO *video, ALLEGRO_MIXER *mixer)
 
 /* Function: al_start_video_with_voice
  */
-void al_start_video_with_voice(ALLEGRO_VIDEO *video, ALLEGRO_VOICE *voice)
+void al_start_video_with_voice(A5O_VIDEO *video, A5O_VOICE *voice)
 {
    ASSERT(video);
 
@@ -180,7 +180,7 @@ void al_start_video_with_voice(ALLEGRO_VIDEO *video, ALLEGRO_VOICE *voice)
 
 /* Function: al_set_video_playing
  */
-void al_set_video_playing(ALLEGRO_VIDEO *video, bool play)
+void al_set_video_playing(A5O_VIDEO *video, bool play)
 {
    ASSERT(video);
 
@@ -192,7 +192,7 @@ void al_set_video_playing(ALLEGRO_VIDEO *video, bool play)
 
 /* Function: al_is_video_playing
  */
-bool al_is_video_playing(ALLEGRO_VIDEO *video)
+bool al_is_video_playing(A5O_VIDEO *video)
 {
    ASSERT(video);
 
@@ -201,7 +201,7 @@ bool al_is_video_playing(ALLEGRO_VIDEO *video)
 
 /* Function: al_get_video_frame
  */
-ALLEGRO_BITMAP *al_get_video_frame(ALLEGRO_VIDEO *video)
+A5O_BITMAP *al_get_video_frame(A5O_VIDEO *video)
 {
    ASSERT(video);
 
@@ -211,20 +211,20 @@ ALLEGRO_BITMAP *al_get_video_frame(ALLEGRO_VIDEO *video)
 
 /* Function: al_get_video_position
  */
-double al_get_video_position(ALLEGRO_VIDEO *video, ALLEGRO_VIDEO_POSITION_TYPE which)
+double al_get_video_position(A5O_VIDEO *video, A5O_VIDEO_POSITION_TYPE which)
 {
    ASSERT(video);
 
-   if (which == ALLEGRO_VIDEO_POSITION_VIDEO_DECODE)
+   if (which == A5O_VIDEO_POSITION_VIDEO_DECODE)
       return video->video_position;
-   if (which == ALLEGRO_VIDEO_POSITION_AUDIO_DECODE)
+   if (which == A5O_VIDEO_POSITION_AUDIO_DECODE)
       return video->audio_position;
    return video->position;
 }
 
 /* Function: al_seek_video
  */
-bool al_seek_video(ALLEGRO_VIDEO *video, double pos_in_seconds)
+bool al_seek_video(A5O_VIDEO *video, double pos_in_seconds)
 {
    ASSERT(video);
 
@@ -233,7 +233,7 @@ bool al_seek_video(ALLEGRO_VIDEO *video, double pos_in_seconds)
 
 /* Function: al_get_video_audio_rate
  */
-double al_get_video_audio_rate(ALLEGRO_VIDEO *video)
+double al_get_video_audio_rate(A5O_VIDEO *video)
 {
    ASSERT(video);
    return video->audio_rate;
@@ -241,7 +241,7 @@ double al_get_video_audio_rate(ALLEGRO_VIDEO *video)
 
 /* Function: al_get_video_fps
  */
-double al_get_video_fps(ALLEGRO_VIDEO *video)
+double al_get_video_fps(A5O_VIDEO *video)
 {
    ASSERT(video);
    return video->fps;
@@ -249,7 +249,7 @@ double al_get_video_fps(ALLEGRO_VIDEO *video)
 
 /* Function: al_get_video_scaled_width
  */
-float al_get_video_scaled_width(ALLEGRO_VIDEO *video)
+float al_get_video_scaled_width(A5O_VIDEO *video)
 {
    ASSERT(video);
    return video->scaled_width;
@@ -257,7 +257,7 @@ float al_get_video_scaled_width(ALLEGRO_VIDEO *video)
 
 /* Function: al_get_video_scaled_height
  */
-float al_get_video_scaled_height(ALLEGRO_VIDEO *video)
+float al_get_video_scaled_height(A5O_VIDEO *video)
 {
    ASSERT(video);
    return video->scaled_height;
@@ -270,12 +270,12 @@ bool al_init_video_addon(void)
    if (video_inited)
       return true;
 
-#ifdef ALLEGRO_CFG_VIDEO_HAVE_OGV
+#ifdef A5O_CFG_VIDEO_HAVE_OGV
    add_handler(".ogv", _al_video_ogv_vtable(), _al_video_identify_ogv);
 #endif
 
    if (_al_vector_size(&handlers) == 0) {
-      ALLEGRO_WARN("No video handlers available!\n");
+      A5O_WARN("No video handlers available!\n");
       return false;
    }
 
@@ -310,13 +310,13 @@ void al_shutdown_video_addon(void)
  */
 uint32_t al_get_allegro_video_version(void)
 {
-   return ALLEGRO_VERSION_INT;
+   return A5O_VERSION_INT;
 }
 
 
 /* Function: al_identify_video_f
  */
-char const *al_identify_video_f(ALLEGRO_FILE *fp)
+char const *al_identify_video_f(A5O_FILE *fp)
 {
    return identify_video(fp);
 }
@@ -327,7 +327,7 @@ char const *al_identify_video_f(ALLEGRO_FILE *fp)
 char const *al_identify_video(char const *filename)
 {
    char const *ext;
-   ALLEGRO_FILE *fp = al_fopen(filename, "rb");
+   A5O_FILE *fp = al_fopen(filename, "rb");
    if (!fp)
       return NULL;
    ext = identify_video(fp);

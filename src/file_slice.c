@@ -27,21 +27,21 @@ enum {
 
 struct SLICE_DATA
 {
-   ALLEGRO_FILE *fp; /* parent file handle */
+   A5O_FILE *fp; /* parent file handle */
    size_t anchor;    /* beginning position relative to parent */
    size_t pos;       /* position relative to anchor */
    size_t size;      /* size of slice relative to anchor */
    int mode;
 };
 
-static bool slice_fclose(ALLEGRO_FILE *f)
+static bool slice_fclose(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    bool ret;
 
    /* seek to end of slice */
    if (slice->mode & SLICE_SEEK_END)
-       ret = al_fseek(slice->fp, slice->anchor + slice->size, ALLEGRO_SEEK_SET);
+       ret = al_fseek(slice->fp, slice->anchor + slice->size, A5O_SEEK_SET);
    else
        ret = true;
 
@@ -50,7 +50,7 @@ static bool slice_fclose(ALLEGRO_FILE *f)
    return ret;
 }
 
-static size_t slice_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
+static size_t slice_fread(A5O_FILE *f, void *ptr, size_t size)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    
@@ -79,7 +79,7 @@ static size_t slice_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
    }
 }
 
-static size_t slice_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
+static size_t slice_fwrite(A5O_FILE *f, const void *ptr, size_t size)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    
@@ -108,30 +108,30 @@ static size_t slice_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
    }
 }
 
-static bool slice_fflush(ALLEGRO_FILE *f)
+static bool slice_fflush(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    
    return al_fflush(slice->fp);
 }
 
-static int64_t slice_ftell(ALLEGRO_FILE *f)
+static int64_t slice_ftell(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    return slice->pos;
 }
 
-static bool slice_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
+static bool slice_fseek(A5O_FILE *f, int64_t offset, int whence)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    
-   if (whence == ALLEGRO_SEEK_SET) {
+   if (whence == A5O_SEEK_SET) {
       offset = slice->anchor + offset;
    }
-   else if (whence == ALLEGRO_SEEK_CUR) {
+   else if (whence == A5O_SEEK_CUR) {
       offset = slice->anchor + slice->pos + offset;
    }
-   else if (whence == ALLEGRO_SEEK_END) {
+   else if (whence == A5O_SEEK_END) {
       offset = slice->anchor + slice->size + offset;
    }
    else {
@@ -147,7 +147,7 @@ static bool slice_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
       }
    }
    
-   if (al_fseek(slice->fp, offset, ALLEGRO_SEEK_SET)) {
+   if (al_fseek(slice->fp, offset, A5O_SEEK_SET)) {
       slice->pos = offset - slice->anchor;
       if (slice->pos > slice->size)
          slice->size = slice->pos;
@@ -157,37 +157,37 @@ static bool slice_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
    return false;
 }
 
-static bool slice_feof(ALLEGRO_FILE *f)
+static bool slice_feof(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    return slice->pos >= slice->size;
 }
 
-static int slice_ferror(ALLEGRO_FILE *f)
+static int slice_ferror(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    return al_ferror(slice->fp);
 }
 
-static const char *slice_ferrmsg(ALLEGRO_FILE *f)
+static const char *slice_ferrmsg(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    return al_ferrmsg(slice->fp);
 }
 
-static void slice_fclearerr(ALLEGRO_FILE *f)
+static void slice_fclearerr(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    al_fclearerr(slice->fp);
 }
 
-static off_t slice_fsize(ALLEGRO_FILE *f)
+static off_t slice_fsize(A5O_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    return slice->size;
 }
 
-static const ALLEGRO_FILE_INTERFACE fi =
+static const A5O_FILE_INTERFACE fi =
 {
    NULL,
    slice_fclose,
@@ -206,7 +206,7 @@ static const ALLEGRO_FILE_INTERFACE fi =
 
 /* Function: al_fopen_slice
  */
-ALLEGRO_FILE *al_fopen_slice(ALLEGRO_FILE *fp, size_t initial_size, const char *mode)
+A5O_FILE *al_fopen_slice(A5O_FILE *fp, size_t initial_size, const char *mode)
 {
    SLICE_DATA *userdata = al_calloc(1, sizeof(*userdata));
    int ch;

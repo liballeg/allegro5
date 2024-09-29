@@ -21,25 +21,25 @@
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/transformations.h"	
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 #include "allegro5/internal/aintern_iphone.h"
 #endif
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include "allegro5/internal/aintern_android.h"
 #endif
 
 #include "ogl_helpers.h"
 
-ALLEGRO_DEBUG_CHANNEL("opengl")
+A5O_DEBUG_CHANNEL("opengl")
 
 /* Helper to set up GL state as we want it. */
-void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
+void _al_ogl_setup_gl(A5O_DISPLAY *d)
 {
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+   A5O_OGL_EXTRAS *ogl = d->ogl_extras;
 
    if (ogl->backbuffer) {
-      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+      A5O_BITMAP *target = al_get_target_bitmap();
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
       /* If we are currently targetting the backbuffer, we need to update the
        * transformations. */
@@ -55,9 +55,9 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 }
 
 
-void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+void _al_ogl_set_target_bitmap(A5O_DISPLAY *display, A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP *target = bitmap;
+   A5O_BITMAP *target = bitmap;
    if (bitmap->parent)
       target = bitmap->parent;
 
@@ -76,8 +76,8 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 }
 
 
-void _al_ogl_unset_target_bitmap(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *target)
+void _al_ogl_unset_target_bitmap(A5O_DISPLAY *display,
+   A5O_BITMAP *target)
 {
    if (!target)
       return;
@@ -87,15 +87,15 @@ void _al_ogl_unset_target_bitmap(ALLEGRO_DISPLAY *display,
 
 /* Function: al_set_current_opengl_context
  */
-void al_set_current_opengl_context(ALLEGRO_DISPLAY *display)
+void al_set_current_opengl_context(A5O_DISPLAY *display)
 {
    ASSERT(display);
 
-   if (!(display->flags & ALLEGRO_OPENGL))
+   if (!(display->flags & A5O_OPENGL))
       return;
 
    if (display) {
-      ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+      A5O_BITMAP *bmp = al_get_target_bitmap();
       if (bmp && _al_get_bitmap_display(bmp) &&
             _al_get_bitmap_display(bmp) != display) {
          al_set_target_bitmap(NULL);
@@ -106,7 +106,7 @@ void al_set_current_opengl_context(ALLEGRO_DISPLAY *display)
 }
 
 
-void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
+void _al_ogl_setup_bitmap_clipping(const A5O_BITMAP *bitmap)
 {
    int x_1, y_1, x_2, y_2, h;
    bool use_scissor = true;
@@ -147,7 +147,7 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
    else {
       glEnable(GL_SCISSOR_TEST);
        
-      #ifdef ALLEGRO_IPHONE
+      #ifdef A5O_IPHONE
       _al_iphone_clip(bitmap, x_1, y_1, x_2, y_2);
       #else
       /* OpenGL is upside down, so must adjust y_2 to the height. */
@@ -157,16 +157,16 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 }
 
 
-ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
+A5O_BITMAP *_al_ogl_get_backbuffer(A5O_DISPLAY *d)
 {
-   return (ALLEGRO_BITMAP *)d->ogl_extras->backbuffer;
+   return (A5O_BITMAP *)d->ogl_extras->backbuffer;
 }
 
 
-bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
+bool _al_ogl_resize_backbuffer(A5O_BITMAP *b, int w, int h)
 {
    int pitch;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = b->extra;
+   A5O_BITMAP_EXTRA_OPENGL *extra = b->extra;
          
    pitch = w * al_get_pixel_size(al_get_bitmap_format(b));
 
@@ -191,22 +191,22 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
 }
 
 
-ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
+A5O_BITMAP* _al_ogl_create_backbuffer(A5O_DISPLAY *disp)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_backbuffer;
-   ALLEGRO_BITMAP *backbuffer;
+   A5O_BITMAP_EXTRA_OPENGL *ogl_backbuffer;
+   A5O_BITMAP *backbuffer;
    int format;
 
-   ALLEGRO_DEBUG("Creating backbuffer\n");
+   A5O_DEBUG("Creating backbuffer\n");
 
    // FIXME: _al_deduce_color_format would work fine if the display paramerers
    // are filled in, for OpenGL ES
    if (IS_OPENGLES) {
-      if (disp->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16) {
-         format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+      if (disp->extra_settings.settings[A5O_COLOR_SIZE] == 16) {
+         format = A5O_PIXEL_FORMAT_RGB_565;
       }
       else {
-         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+         format = A5O_PIXEL_FORMAT_ABGR_8888_LE;
       }
    }
    else {
@@ -216,24 +216,24 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
        */
       if (al_get_pixel_size(format) == 3) {
          /* Or should we use RGBA? Maybe only if not Nvidia cards? */
-         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+         format = A5O_PIXEL_FORMAT_ABGR_8888;
       }
    }
-   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Deduced format %s for backbuffer.\n",
+   A5O_TRACE_CHANNEL_LEVEL("display", 1)("Deduced format %s for backbuffer.\n",
       _al_pixel_format_name(format));
 
    /* Now that the display backbuffer has a format, update extra_settings so
     * the user can query it back.
     */
-   _al_set_color_components(format, &disp->extra_settings, ALLEGRO_REQUIRE);
+   _al_set_color_components(format, &disp->extra_settings, A5O_REQUIRE);
    disp->backbuffer_format = format;
 
-   ALLEGRO_DEBUG("Creating backbuffer bitmap\n");
-   /* Using ALLEGRO_NO_PRESERVE_TEXTURE prevents extra memory being allocated */
+   A5O_DEBUG("Creating backbuffer bitmap\n");
+   /* Using A5O_NO_PRESERVE_TEXTURE prevents extra memory being allocated */
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h,
-      format, ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PRESERVE_TEXTURE);
+      format, A5O_VIDEO_BITMAP | A5O_NO_PRESERVE_TEXTURE);
    if (!backbuffer) {
-      ALLEGRO_DEBUG("Backbuffer bitmap creation failed.\n");
+      A5O_DEBUG("Backbuffer bitmap creation failed.\n");
       return NULL;
    }
 
@@ -247,7 +247,7 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    al_identity_transform(&backbuffer->proj_transform);
    al_orthographic_transform(&backbuffer->proj_transform, 0, 0, -1.0, disp->w, disp->h, 1.0);
 
-   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)(
+   A5O_TRACE_CHANNEL_LEVEL("display", 1)(
       "Created backbuffer bitmap (actual format: %s)\n",
       _al_pixel_format_name(al_get_bitmap_format(backbuffer)));
 
@@ -261,7 +261,7 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 }
 
 
-void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b)
+void _al_ogl_destroy_backbuffer(A5O_BITMAP *b)
 {
    al_destroy_bitmap(b);
 }

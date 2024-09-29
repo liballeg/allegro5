@@ -37,14 +37,14 @@ private:
    int previous[SLIDERS_COUNT];
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, A5O_DISPLAY *display);
    void run();   
 
 private:
    void draw_swatch(float x, float y, float w, float h, float v[3]);
 };
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display) :
    d(Dialog(theme, display, 640, 480))
 {
    for (int i = 0; i < SLIDERS_COUNT; i++) {
@@ -86,7 +86,7 @@ void Prog::run()
                   al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
-                  v[18] /= ALLEGRO_PI * 2;
+                  v[18] /= A5O_PI * 2;
                   break;
                case 1:
                   al_color_hsv_to_rgb(v[3] * 360, v[4], v[5], v + 0, v + 1, v + 2);
@@ -95,7 +95,7 @@ void Prog::run()
                   al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
                   al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[6] /= 360;
-                  v[18] /= ALLEGRO_PI * 2;
+                  v[18] /= A5O_PI * 2;
                   break;
                case 2:
                   al_color_hsl_to_rgb(v[6] * 360, v[7], v[8], v + 0, v + 1, v + 2);
@@ -104,7 +104,7 @@ void Prog::run()
                   al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
                   al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
-                  v[18] /= ALLEGRO_PI * 2;
+                  v[18] /= A5O_PI * 2;
                   break;
                case 3:
                   al_color_yuv_to_rgb(v[9], v[10], v[11], v + 0, v + 1, v + 2);
@@ -118,7 +118,7 @@ void Prog::run()
                   al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
-                  v[18] /= ALLEGRO_PI * 2;
+                  v[18] /= A5O_PI * 2;
                   break;
                case 4:
                   al_color_cmyk_to_rgb(v[12], v[13], v[14], v[15], v + 0, v + 1, v + 2);
@@ -128,10 +128,10 @@ void Prog::run()
                   al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
-                  v[18] /= ALLEGRO_PI * 2;
+                  v[18] /= A5O_PI * 2;
                   break;
                case 5:
-                  al_color_lch_to_rgb(v[16], v[17], v[18] * 2 * ALLEGRO_PI, v + 0, v + 1, v + 2);
+                  al_color_lch_to_rgb(v[16], v[17], v[18] * 2 * A5O_PI, v + 0, v + 1, v + 2);
                   v[0] = clamp(v[0]);
                   v[1] = clamp(v[1]);
                   v[2] = clamp(v[2]);
@@ -141,7 +141,7 @@ void Prog::run()
                   al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
-                  v[18] /= ALLEGRO_PI * 2;
+                  v[18] /= A5O_PI * 2;
                   break;
             }
          }
@@ -156,7 +156,7 @@ void Prog::run()
 
          d.draw();
 
-         ALLEGRO_BITMAP *target = al_get_target_bitmap();
+         A5O_BITMAP *target = al_get_target_bitmap();
          int w = al_get_bitmap_width(target);
          int h = al_get_bitmap_height(target);
          draw_swatch(0, h - 80, w, h, v);
@@ -181,8 +181,8 @@ void Prog::draw_swatch(float x1, float y1, float x2, float y2, float v[3])
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
 
    (void)argc;
    (void)argv;
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
    al_init_ttf_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(720, 480);
    if (!display) {
       abort_example("Unable to create display\n");

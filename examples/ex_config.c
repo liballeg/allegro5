@@ -23,10 +23,10 @@ do {                                      \
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_CONFIG *cfg;
+   A5O_CONFIG *cfg;
    const char *value;
-   ALLEGRO_CONFIG_SECTION *iterator;
-   ALLEGRO_CONFIG_ENTRY *iterator2;
+   A5O_CONFIG_SECTION *iterator;
+   A5O_CONFIG_ENTRY *iterator2;
 
    (void)argc;
    (void)argv;

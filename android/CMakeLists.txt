@@ -7,8 +7,8 @@ else()
    set(AAR_NAME allegro-release.aar)
    set(ASSEMBLE assembleRelease)
 endif()
-set(ALLEGRO_AAR ${LIBRARY_OUTPUT_PATH}/${AAR_NAME})
-set(ALLEGRO_AAR ${ALLEGRO_AAR} PARENT_SCOPE) 
+set(A5O_AAR ${LIBRARY_OUTPUT_PATH}/${AAR_NAME})
+set(A5O_AAR ${A5O_AAR} PARENT_SCOPE) 
 
 if (NOT EXISTS "$ENV{ANDROID_HOME}")
   set(ENV{ANDROID_HOME} "$ENV{HOME}/Android/Sdk")
@@ -62,12 +62,12 @@ foreach(copy ${COPY_FILES})
 endforeach()
 
 add_custom_command(
-    OUTPUT ${ALLEGRO_AAR}
+    OUTPUT ${A5O_AAR}
     DEPENDS ${COPIED_FILES}
     WORKING_DIRECTORY ${PROJECT}
     COMMAND ./gradlew ${ASSEMBLE}
-    COMMAND ${CMAKE_COMMAND} -E copy allegro/build/outputs/aar/${AAR_NAME} ${ALLEGRO_AAR}
+    COMMAND ${CMAKE_COMMAND} -E copy allegro/build/outputs/aar/${AAR_NAME} ${A5O_AAR}
     )
 
 add_custom_target(aar ALL
-    DEPENDS ${ALLEGRO_AAR})
+    DEPENDS ${A5O_AAR})

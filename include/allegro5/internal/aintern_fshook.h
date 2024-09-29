@@ -23,7 +23,7 @@
 #endif
 
 
-extern struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio;
+extern struct A5O_FS_INTERFACE _al_fs_interface_stdio;
 
 
 #ifdef __cplusplus

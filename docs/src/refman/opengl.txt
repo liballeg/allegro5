@@ -17,7 +17,7 @@ structure returned by `al_get_opengl_extension_list`.
 For example:
 
 ~~~~c
-if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multitexture) {
+if (al_get_opengl_extension_list()->A5O_GL_ARB_multitexture) {
    //use it
 }
 ~~~~
@@ -50,7 +50,7 @@ with ARB's Multitexture extension:
 
 ~~~~c
 // define the type of the function
-ALLEGRO_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
+A5O_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
                          (GLenum, GLfloat, GLfloat, GLfloat));
 // declare the function pointer
 MULTI_TEX_FUNC glMultiTexCoord3fARB;
@@ -63,7 +63,7 @@ If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has
 been defined in the OpenGL core library.
 
 > *Note:* Under Windows, OpenGL functions may need a special calling
-convention, so it's best to always use the ALLEGRO_DEFINE_PROC_TYPE
+convention, so it's best to always use the A5O_DEFINE_PROC_TYPE
 macro when declaring function pointer types for OpenGL functions.
 
 Parameters:
@@ -109,7 +109,7 @@ See also: [al_get_opengl_texture_size]
 ## API: al_get_opengl_program_object
 
 Returns the OpenGL program object associated with this shader, if the platform
-is `ALLEGRO_SHADER_GLSL`. Otherwise, returns 0.
+is `A5O_SHADER_GLSL`. Otherwise, returns 0.
 
 ## API: al_get_opengl_fbo
 
@@ -168,10 +168,10 @@ Returns the variant or type of OpenGL used on the running platform. This
 function can be called before creating a display or setting properties for
 new displays. Possible values are:
 
-ALLEGRO_DESKTOP_OPENGL
+A5O_DESKTOP_OPENGL
 :   Regular OpenGL as seen on desktop/laptop computers.
 
-ALLEGRO_OPENGL_ES
+A5O_OPENGL_ES
 :   Trimmed down version of OpenGL used on many small consumer electronic
     devices such as handheld (and sometimes full size) consoles.
 

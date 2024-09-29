@@ -10,13 +10,13 @@
 
 static const int load_total = 100;
 static int load_count = 0;
-static ALLEGRO_BITMAP *bitmaps[100];
-static ALLEGRO_MUTEX *mutex;
+static A5O_BITMAP *bitmaps[100];
+static A5O_MUTEX *mutex;
 
-static void *loading_thread(ALLEGRO_THREAD *thread, void *arg)
+static void *loading_thread(A5O_THREAD *thread, void *arg)
 {
-   ALLEGRO_FONT *font;
-   ALLEGRO_COLOR text;
+   A5O_FONT *font;
+   A5O_COLOR text;
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    text = al_map_rgb_f(255, 255, 255);
@@ -26,8 +26,8 @@ static void *loading_thread(ALLEGRO_THREAD *thread, void *arg)
     */
    load_count = 0;
    while (load_count < load_total) {
-      ALLEGRO_COLOR color;
-      ALLEGRO_BITMAP *bmp;
+      A5O_COLOR color;
+      A5O_BITMAP *bmp;
 
       color = al_map_rgb(rand() % 256, rand() % 256, rand() % 256);
       color.r /= 4;
@@ -60,14 +60,14 @@ static void *loading_thread(ALLEGRO_THREAD *thread, void *arg)
    return arg;
 }
 
-static void print_bitmap_flags(ALLEGRO_BITMAP *bitmap)
+static void print_bitmap_flags(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_USTR *ustr = al_ustr_new("");
-   if (al_get_bitmap_flags(bitmap) & ALLEGRO_VIDEO_BITMAP)
+   A5O_USTR *ustr = al_ustr_new("");
+   if (al_get_bitmap_flags(bitmap) & A5O_VIDEO_BITMAP)
       al_ustr_append_cstr(ustr, " VIDEO");
-   if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)
+   if (al_get_bitmap_flags(bitmap) & A5O_MEMORY_BITMAP)
       al_ustr_append_cstr(ustr, " MEMORY");
-   if (al_get_bitmap_flags(bitmap) & ALLEGRO_CONVERT_BITMAP)
+   if (al_get_bitmap_flags(bitmap) & A5O_CONVERT_BITMAP)
       al_ustr_append_cstr(ustr, " CONVERT");
    
    al_ustr_trim_ws(ustr);
@@ -79,15 +79,15 @@ static void print_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    bool redraw = true;
-   ALLEGRO_FONT *font;
-   ALLEGRO_BITMAP *spin, *spin2;
+   A5O_FONT *font;
+   A5O_BITMAP *spin, *spin2;
    int current_bitmap = 0;
    int loaded_bitmap = 0;
-   ALLEGRO_THREAD *thread;
+   A5O_THREAD *thread;
 
    (void)argc;
    (void)argv;
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
    spin = al_load_bitmap("data/cursor.tga");
    log_printf("default bitmap without display: %p\n", spin);
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
    spin2 = al_load_bitmap("data/cursor.tga");
    log_printf("video bitmap without display: %p\n", spin2);
    
@@ -166,22 +166,22 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
              break;
          }
-      if (event.type == ALLEGRO_EVENT_TIMER)
+      if (event.type == A5O_EVENT_TIMER)
          redraw = true;
 
       if (redraw && al_is_event_queue_empty(queue)) {
          float x = 20, y = 320;
          int i;
-         ALLEGRO_COLOR color = al_map_rgb_f(0, 0, 0);
+         A5O_COLOR color = al_map_rgb_f(0, 0, 0);
          float t = al_current_time();
 
          redraw = false;
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
          
          if (loaded_bitmap < load_total) {
             al_draw_scaled_rotated_bitmap(spin,
-               16, 16, x, y, 1.0, 1.0, t * ALLEGRO_PI * 2, 0);
+               16, 16, x, y, 1.0, 1.0, t * A5O_PI * 2, 0);
          }
          
          al_flip_display();

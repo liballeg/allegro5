@@ -11,14 +11,14 @@
 
 #include <jni.h>
 
-ALLEGRO_DEBUG_CHANNEL("android")
+A5O_DEBUG_CHANNEL("android")
 
-typedef struct ALLEGRO_FS_ENTRY_APK ALLEGRO_FS_ENTRY_APK;
+typedef struct A5O_FS_ENTRY_APK A5O_FS_ENTRY_APK;
 
-struct ALLEGRO_FS_ENTRY_APK
+struct A5O_FS_ENTRY_APK
 {
-   ALLEGRO_FS_ENTRY fs_entry; /* must be first */
-   ALLEGRO_PATH *path;
+   A5O_FS_ENTRY fs_entry; /* must be first */
+   A5O_PATH *path;
    const char *path_cstr;
 
    /* For directory listing. */
@@ -28,15 +28,15 @@ struct ALLEGRO_FS_ENTRY_APK
 };
 
 /* forward declaration */
-static const ALLEGRO_FS_INTERFACE fs_apk_vtable;
+static const A5O_FS_INTERFACE fs_apk_vtable;
 
 /* current working directory */
 /* TODO: free this somewhere */
-static ALLEGRO_USTR *fs_apk_cwd_ustr;
+static A5O_USTR *fs_apk_cwd_ustr;
 
-static ALLEGRO_FILE *fs_apk_open_file(ALLEGRO_FS_ENTRY *fse, const char *mode);
+static A5O_FILE *fs_apk_open_file(A5O_FS_ENTRY *fse, const char *mode);
 
-static ALLEGRO_USTR *get_fake_cwd(void) {
+static A5O_USTR *get_fake_cwd(void) {
    if (!fs_apk_cwd_ustr) {
       fs_apk_cwd_ustr = al_ustr_new("/");
    }
@@ -48,7 +48,7 @@ static bool path_is_absolute(const char *path)
    return (path && path[0] == '/');
 }
 
-static void ensure_trailing_slash(ALLEGRO_USTR *us)
+static void ensure_trailing_slash(A5O_USTR *us)
 {
    int pos = al_ustr_size(us);
    if (al_ustr_prev_get(us, &pos) != '/') {
@@ -56,9 +56,9 @@ static void ensure_trailing_slash(ALLEGRO_USTR *us)
    }
 }
 
-static ALLEGRO_USTR *apply_cwd(const char *path)
+static A5O_USTR *apply_cwd(const char *path)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
 
    if (path_is_absolute(path)) {
       return al_ustr_new(path);
@@ -69,10 +69,10 @@ static ALLEGRO_USTR *apply_cwd(const char *path)
    return us;
 }
 
-static ALLEGRO_FS_ENTRY *fs_apk_create_entry(const char *path)
+static A5O_FS_ENTRY *fs_apk_create_entry(const char *path)
 {
-   ALLEGRO_FS_ENTRY_APK *e;
-   ALLEGRO_USTR *us;
+   A5O_FS_ENTRY_APK *e;
+   A5O_USTR *us;
 
    e = al_calloc(1, sizeof *e);
    if (!e)
@@ -98,8 +98,8 @@ static char *fs_apk_get_current_directory(void)
 
 static bool fs_apk_change_directory(const char *path)
 {
-   ALLEGRO_USTR *us;
-   ALLEGRO_USTR *cwd = get_fake_cwd();
+   A5O_USTR *us;
+   A5O_USTR *cwd = get_fake_cwd();
    
    /* Figure out which directory we are trying to change to. */
    if (path_is_absolute(path))
@@ -128,19 +128,19 @@ static bool fs_apk_make_directory(const char *path)
    return false;
 }
 
-static const char *fs_apk_entry_name(ALLEGRO_FS_ENTRY *fse)
+static const char *fs_apk_entry_name(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_APK *e = (ALLEGRO_FS_ENTRY_APK *)fse;
+   A5O_FS_ENTRY_APK *e = (A5O_FS_ENTRY_APK *)fse;
    return al_path_cstr(e->path, '/');
 }
 
-static bool fs_apk_update_entry(ALLEGRO_FS_ENTRY *fse)
+static bool fs_apk_update_entry(A5O_FS_ENTRY *fse)
 {
    (void)fse;
    return true;
 }
 
-static off_t fs_apk_entry_size(ALLEGRO_FS_ENTRY *fse)
+static off_t fs_apk_entry_size(A5O_FS_ENTRY *fse)
 {
    // Only way to determine the size would be to read the file...
    // we won't do that.
@@ -148,27 +148,27 @@ static off_t fs_apk_entry_size(ALLEGRO_FS_ENTRY *fse)
    return 0;
 }
 
-static uint32_t fs_apk_entry_mode(ALLEGRO_FS_ENTRY *fse)
+static uint32_t fs_apk_entry_mode(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_APK *e = (ALLEGRO_FS_ENTRY_APK *)fse;
-   uint32_t mode = ALLEGRO_FILEMODE_READ;
+   A5O_FS_ENTRY_APK *e = (A5O_FS_ENTRY_APK *)fse;
+   uint32_t mode = A5O_FILEMODE_READ;
    int n = strlen(e->path_cstr);
    if (e->path_cstr[n - 1] == '/')
-      mode |= ALLEGRO_FILEMODE_ISDIR | ALLEGRO_FILEMODE_EXECUTE;
+      mode |= A5O_FILEMODE_ISDIR | A5O_FILEMODE_EXECUTE;
    else
-      mode |= ALLEGRO_FILEMODE_ISFILE;
+      mode |= A5O_FILEMODE_ISFILE;
    return mode;
 }
 
-static time_t fs_apk_entry_mtime(ALLEGRO_FS_ENTRY *fse)
+static time_t fs_apk_entry_mtime(A5O_FS_ENTRY *fse)
 {
    (void)fse;
    return 0;
 }
 
-static bool fs_apk_entry_exists(ALLEGRO_FS_ENTRY *fse)
+static bool fs_apk_entry_exists(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FILE *f = fs_apk_open_file(fse, "r");
+   A5O_FILE *f = fs_apk_open_file(fse, "r");
    if (f) {
       al_fclose(f);
       return true;
@@ -176,22 +176,22 @@ static bool fs_apk_entry_exists(ALLEGRO_FS_ENTRY *fse)
    return false;
 }
 
-static bool fs_apk_remove_entry(ALLEGRO_FS_ENTRY *fse)
+static bool fs_apk_remove_entry(A5O_FS_ENTRY *fse)
 {
    (void)fse;
    return false;
 }
 
-static bool fs_apk_open_directory(ALLEGRO_FS_ENTRY *fse)
+static bool fs_apk_open_directory(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_APK *e = (ALLEGRO_FS_ENTRY_APK *)fse;
+   A5O_FS_ENTRY_APK *e = (A5O_FS_ENTRY_APK *)fse;
 
    JNIEnv *jnienv;
    jnienv = _al_android_get_jnienv();
    jstring jpath = (*jnienv)->NewStringUTF(jnienv, e->path_cstr);
    jstring js = _jni_callStaticObjectMethodV(jnienv,
       _al_android_apk_fs_class(), "list",
-      "(L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroActivity;Ljava/lang/String;)Ljava/lang/String;",
+      "(L" A5O_ANDROID_PACKAGE_NAME_SLASH "/AllegroActivity;Ljava/lang/String;)Ljava/lang/String;",
       _al_android_activity_object(), jpath);
 
    const char *cs = _jni_call(jnienv, const char *, GetStringUTFChars, js, NULL);
@@ -207,11 +207,11 @@ static bool fs_apk_open_directory(ALLEGRO_FS_ENTRY *fse)
    return true;
 }
 
-static ALLEGRO_FS_ENTRY *fs_apk_read_directory(ALLEGRO_FS_ENTRY *fse)
+static A5O_FS_ENTRY *fs_apk_read_directory(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_APK *e = (ALLEGRO_FS_ENTRY_APK *)fse;
-   ALLEGRO_FS_ENTRY *next;
-   ALLEGRO_USTR *tmp;
+   A5O_FS_ENTRY_APK *e = (A5O_FS_ENTRY_APK *)fse;
+   A5O_FS_ENTRY *next;
+   A5O_USTR *tmp;
 
    if (!e->file_list_pos)
       return NULL;
@@ -236,25 +236,25 @@ static ALLEGRO_FS_ENTRY *fs_apk_read_directory(ALLEGRO_FS_ENTRY *fse)
    return next;
 }
 
-static bool fs_apk_close_directory(ALLEGRO_FS_ENTRY *fse)
+static bool fs_apk_close_directory(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_APK *e = (ALLEGRO_FS_ENTRY_APK *)fse;
+   A5O_FS_ENTRY_APK *e = (A5O_FS_ENTRY_APK *)fse;
    al_free(e->file_list);
    e->file_list = NULL;
    e->is_dir_open = false;
    return true;
 }
 
-static void fs_apk_destroy_entry(ALLEGRO_FS_ENTRY *fse)
+static void fs_apk_destroy_entry(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_APK *e = (ALLEGRO_FS_ENTRY_APK *)fse;
+   A5O_FS_ENTRY_APK *e = (A5O_FS_ENTRY_APK *)fse;
    if (e->is_dir_open)
       fs_apk_close_directory(fse);
    al_destroy_path(e->path);
    al_free(e);
 }
 
-static ALLEGRO_FILE *fs_apk_open_file(ALLEGRO_FS_ENTRY *fse, const char *mode)
+static A5O_FILE *fs_apk_open_file(A5O_FS_ENTRY *fse, const char *mode)
 {
    return al_fopen_interface(_al_get_apk_file_vtable(), fs_apk_entry_name(fse),
       mode);
@@ -264,13 +264,13 @@ static bool fs_apk_filename_exists(const char *path)
 {
    bool ret;
 
-   ALLEGRO_FS_ENTRY *e = fs_apk_create_entry(path);
+   A5O_FS_ENTRY *e = fs_apk_create_entry(path);
    ret = fs_apk_entry_exists(e);
    fs_apk_destroy_entry(e);
    return ret;
 }
 
-static const ALLEGRO_FS_INTERFACE fs_apk_vtable =
+static const A5O_FS_INTERFACE fs_apk_vtable =
 {
    fs_apk_create_entry,
    fs_apk_destroy_entry,

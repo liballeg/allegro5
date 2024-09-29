@@ -14,15 +14,15 @@
 
 int frequency[N];
 double samplepos[N];
-ALLEGRO_AUDIO_STREAM *stream[N];
-ALLEGRO_DISPLAY *display;
+A5O_AUDIO_STREAM *stream[N];
+A5O_DISPLAY *display;
 
 float waveform[640], waveform_buffer[640];
 
 static void mainloop(void)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
    float *buf;
    double pitch = 440;
    int i, si;
@@ -32,7 +32,7 @@ static void mainloop(void)
    for (i = 0; i < N; i++) {
       frequency[i] = 22050 * pow(2, i / (double)N);
       stream[i] = al_create_audio_stream(4, SAMPLES_PER_BUFFER, frequency[i],
-         ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_1);
+         A5O_AUDIO_DEPTH_FLOAT32, A5O_CHANNEL_CONF_1);
       if (!stream[i]) {
          abort_example("Could not create stream.\n");
       }
@@ -48,7 +48,7 @@ static void mainloop(void)
       al_register_event_source(queue,
          al_get_audio_stream_event_source(stream[i]));
    }
-#ifdef ALLEGRO_POPUP_EXAMPLES
+#ifdef A5O_POPUP_EXAMPLES
    if (textlog) {
       al_register_event_source(queue, al_get_native_text_log_event_source(textlog));
    }
@@ -64,11 +64,11 @@ static void mainloop(void)
 
    al_start_timer(timer);
    while (n < 60 * frequency[0] / SAMPLES_PER_BUFFER * N) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+      if (event.type == A5O_EVENT_AUDIO_STREAM_FRAGMENT) {
          for (si = 0; si < N; si++) {
             buf = al_get_audio_stream_fragment(stream[si]);
             if (!buf) {
@@ -77,7 +77,7 @@ static void mainloop(void)
 
             for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
                double t = samplepos[si]++ / (double)frequency[si];
-               buf[i] = sin(t * pitch * ALLEGRO_PI * 2) / N;
+               buf[i] = sin(t * pitch * A5O_PI * 2) / N;
             }
 
             if (!al_set_audio_stream_fragment(stream[si], buf)) {
@@ -91,27 +91,27 @@ static void mainloop(void)
          }
       }
       
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          redraw = true;
       }
 
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
 
-#ifdef ALLEGRO_POPUP_EXAMPLES
-      if (event.type == ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE) {
+#ifdef A5O_POPUP_EXAMPLES
+      if (event.type == A5O_EVENT_NATIVE_DIALOG_CLOSE) {
          break;
       }
 #endif
 
       if (redraw &&al_is_event_queue_empty(queue)) {
-         ALLEGRO_COLOR c = al_map_rgb(0, 0, 0);
+         A5O_COLOR c = al_map_rgb(0, 0, 0);
          int i;
          al_clear_to_color(al_map_rgb_f(1, 1, 1));
         

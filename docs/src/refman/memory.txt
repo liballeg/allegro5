@@ -75,7 +75,7 @@ unless overridden with [al_set_memory_interface],
 
 Generally you should use the [al_calloc] macro.
 
-## API: ALLEGRO_MEMORY_INTERFACE
+## API: A5O_MEMORY_INTERFACE
 
 This structure has the following fields.
 
@@ -99,5 +99,5 @@ new functions should be thread safe.
 
 If the pointer is NULL, the default behaviour will be restored.
 
-See also: [ALLEGRO_MEMORY_INTERFACE]
+See also: [A5O_MEMORY_INTERFACE]
 

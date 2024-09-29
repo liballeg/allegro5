@@ -44,7 +44,7 @@ int score;
 /* the main game function */
 static int play_game()
 { 
-   ALLEGRO_TIMER *inc_counter;
+   A5O_TIMER *inc_counter;
    int gameover = 0;
    int cyclenum = 0;
    int redraw = 1;
@@ -59,7 +59,7 @@ static int play_game()
    init_explode();
    init_message();
 
-   #define TIMER_SPEED  ALLEGRO_BPS_TO_SECS(30*(cyclenum+2))
+   #define TIMER_SPEED  A5O_BPS_TO_SECS(30*(cyclenum+2))
 
    inc_counter = al_create_timer(TIMER_SPEED);
    al_start_timer(inc_counter);
@@ -93,7 +93,7 @@ static int play_game()
       }
 
       /* take a screenshot? */
-      if (key[ALLEGRO_KEY_PRINTSCREEN]) {
+      if (key[A5O_KEY_PRINTSCREEN]) {
          static int ss_count = 0;
 
          char fname[80];
@@ -102,19 +102,19 @@ static int play_game()
 
          al_save_bitmap(fname, al_get_backbuffer(screen));
 
-         while (key[ALLEGRO_KEY_PRINTSCREEN])
+         while (key[A5O_KEY_PRINTSCREEN])
             poll_input_wait();
 
          al_set_timer_count(inc_counter, 0);
       }
 
       /* toggle fullscreen window */
-      if (key[ALLEGRO_KEY_F]) {
+      if (key[A5O_KEY_F]) {
          int flags = al_get_display_flags(screen);
-         al_set_display_flag(screen, ALLEGRO_FULLSCREEN_WINDOW,
-            !(flags & ALLEGRO_FULLSCREEN_WINDOW));
+         al_set_display_flag(screen, A5O_FULLSCREEN_WINDOW,
+            !(flags & A5O_FULLSCREEN_WINDOW));
 
-         while (key[ALLEGRO_KEY_F])
+         while (key[A5O_KEY_F])
             poll_input_wait();
       }
 
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
    int w = 0, h = 0;
    int www = FALSE;
    int i, n;
-   int display_flags = ALLEGRO_GENERATE_EXPOSE_EVENTS;
+   int display_flags = A5O_GENERATE_EXPOSE_EVENTS;
 
    srand(time(NULL));
    
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
       }
       else if (strcmp(argv[i], "-fullscreen") == 0) {
          /* if no width is specified, assume fullscreen_window */
-         display_flags |= w ? ALLEGRO_FULLSCREEN : ALLEGRO_FULLSCREEN_WINDOW;
+         display_flags |= w ? A5O_FULLSCREEN : A5O_FULLSCREEN_WINDOW;
       }
       else {
          n = atoi(argv[i]);
@@ -230,10 +230,10 @@ int main(int argc, char *argv[])
 
          if (!w) {
             w = n;
-            if (display_flags & ALLEGRO_FULLSCREEN_WINDOW) {
+            if (display_flags & A5O_FULLSCREEN_WINDOW) {
                /* toggle from fullscreen_window to fullscreen */
-               display_flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
-               display_flags |= ALLEGRO_FULLSCREEN;
+               display_flags &= ~A5O_FULLSCREEN_WINDOW;
+               display_flags |= A5O_FULLSCREEN;
             }
          }
          else if (!h) {
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
    }
    
    if (!w || !h) {
-      if (argc == 1 || (display_flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+      if (argc == 1 || (display_flags & A5O_FULLSCREEN_WINDOW)) {
          w = 640;
          h = 480;
       }
@@ -278,8 +278,8 @@ int main(int argc, char *argv[])
    }
 
    /* set the screen mode */
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLES, 4, A5O_SUGGEST);
 
    al_set_new_display_flags(display_flags);
    screen = al_create_display(w, h);
@@ -294,14 +294,14 @@ int main(int argc, char *argv[])
     * loaded into a video bitmap for the game view. Blech!
     */
    al_init_font_addon();
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    font = al_create_builtin_font();
    if (!font) {
       fprintf(stderr, "Error creating builtin font\n");
       return 1;
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
    font_video = al_create_builtin_font();
    if (!font_video) {
       fprintf(stderr, "Error creating builtin font\n");

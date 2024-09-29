@@ -243,11 +243,11 @@ int update_badguys()
    int dead;
 
    /* testcode: enter clears the level */
-   if ((cheat) && (key[ALLEGRO_KEY_ENTER])) {
+   if ((cheat) && (key[A5O_KEY_ENTER])) {
       shutdown_badguys();
       b = NULL;
 
-      while (key[ALLEGRO_KEY_ENTER])
+      while (key[A5O_KEY_ENTER])
 	 poll_input_wait();
    }
 
@@ -396,7 +396,7 @@ int update_badguys()
 void draw_badguys(int r, int g, int b, int (*project)(float *f, int *i, int c))
 {
    BADGUY *bad = evildudes;
-   ALLEGRO_COLOR c = makecol(r, g, b);
+   A5O_COLOR c = makecol(r, g, b);
    float shape[12];
    int ishape[12];
 

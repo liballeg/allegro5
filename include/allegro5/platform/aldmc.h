@@ -23,29 +23,29 @@
 
 
 /* a static auto config */
-#define ALLEGRO_HAVE_INTTYPES_H
-#define ALLEGRO_HAVE_STDINT_H
+#define A5O_HAVE_INTTYPES_H
+#define A5O_HAVE_STDINT_H
 
 #define LONG_LONG long long
 
 /* describe this platform */
-#ifdef ALLEGRO_STATICLINK
-   #define ALLEGRO_PLATFORM_STR  "DMC.s"
+#ifdef A5O_STATICLINK
+   #define A5O_PLATFORM_STR  "DMC.s"
 #else
-   #define ALLEGRO_PLATFORM_STR  "DMC"
+   #define A5O_PLATFORM_STR  "DMC"
 #endif
 
-#define ALLEGRO_WINDOWS
-#define ALLEGRO_I386
-#define ALLEGRO_LITTLE_ENDIAN
+#define A5O_WINDOWS
+#define A5O_I386
+#define A5O_LITTLE_ENDIAN
 
-#ifdef ALLEGRO_USE_CONSOLE
-   #define ALLEGRO_NO_MAGIC_MAIN
+#ifdef A5O_USE_CONSOLE
+   #define A5O_NO_MAGIC_MAIN
 #endif
 
 
 /* describe how function prototypes look to DMC */
-#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
+#if (defined A5O_STATICLINK) || (defined A5O_SRC)
    #define _AL_DLL
 #else
    #define _AL_DLL   __declspec(dllimport)
@@ -60,7 +60,7 @@
 
 /* Windows specific defines */
 
-#if (defined ALLEGRO_SRC)
+#if (defined A5O_SRC)
 
 #if (!defined S_IRUSR)
    #define S_IRUSR   S_IREAD
@@ -78,8 +78,8 @@ struct _wfinddata_t {
    wchar_t  name[260];           /* may include spaces. */
 };
 
-#endif /* ALLEGRO_SRC */
+#endif /* A5O_SRC */
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alwin.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
+#define A5O_EXTRA_HEADER     "allegro5/platform/alwin.h"
+#define A5O_INTERNAL_HEADER  "allegro5/platform/aintwin.h"

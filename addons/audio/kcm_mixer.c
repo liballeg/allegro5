@@ -16,18 +16,18 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
-ALLEGRO_DEBUG_CHANNEL("audio")
+A5O_DEBUG_CHANNEL("audio")
 
 
 typedef union {
-   float f32[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
-   int16_t s16[ALLEGRO_MAX_CHANNELS];
+   float f32[A5O_MAX_CHANNELS]; /* max: 7.1 */
+   int16_t s16[A5O_MAX_CHANNELS];
    void *ptr;
 } SAMP_BUF;
 
 
 
-static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
+static void maybe_lock_mutex(A5O_MUTEX *mutex)
 {
    if (mutex) {
       al_lock_mutex(mutex);
@@ -35,7 +35,7 @@ static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
 }
 
 
-static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
+static void maybe_unlock_mutex(A5O_MUTEX *mutex)
 {
    if (mutex) {
       al_unlock_mutex(mutex);
@@ -49,11 +49,11 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
  *
  *  Returns a pointer to a statically allocated array.
  */
-static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
-   ALLEGRO_CHANNEL_CONF target, float gain, float pan)
+static float *_al_rechannel_matrix(A5O_CHANNEL_CONF orig,
+   A5O_CHANNEL_CONF target, float gain, float pan)
 {
    /* Max 7.1 (8 channels) for input and output */
-   static float mat[ALLEGRO_MAX_CHANNELS][ALLEGRO_MAX_CHANNELS];
+   static float mat[A5O_MAX_CHANNELS][A5O_MAX_CHANNELS];
 
    size_t dst_chans = al_get_channel_count(target);
    size_t src_chans = al_get_channel_count(orig);
@@ -95,7 +95,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
     * I took that to mean we want:
     *    sqrt(rgain^2 + lgain^2) = 1.0
     */
-   if (pan != ALLEGRO_AUDIO_PAN_NONE) {
+   if (pan != A5O_AUDIO_PAN_NONE) {
       float rgain = sqrt(( pan + 1.0f) / 2.0f);
       float lgain = sqrt((-pan + 1.0f) / 2.0f);
 
@@ -118,13 +118,13 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
 #ifdef DEBUGMODE
    {
       char debug[1024];
-      ALLEGRO_DEBUG("sample matrix:\n");
+      A5O_DEBUG("sample matrix:\n");
       for (i = 0; i < dst_chans; i++) {
          strcpy(debug, "");
          for (j = 0; j < src_chans; j++) {
             sprintf(debug + strlen(debug), " %f", mat[i][j]);
          }
-         ALLEGRO_DEBUG("%s\n", debug);
+         A5O_DEBUG("%s\n", debug);
       }
    }
 #endif
@@ -137,8 +137,8 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
  *  Recompute the mixing matrix for a sample attached to a mixer.
  *  The caller must be holding the mixer mutex.
  */
-void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
-   ALLEGRO_SAMPLE_INSTANCE *spl)
+void _al_kcm_mixer_rejig_sample_matrix(A5O_MIXER *mixer,
+   A5O_SAMPLE_INSTANCE *spl)
 {
    float *mat;
    size_t dst_chans;
@@ -156,7 +156,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
 
    for (i = 0; i < dst_chans; i++) {
       for (j = 0; j < src_chans; j++) {
-         spl->matrix[i*src_chans + j] = mat[i*ALLEGRO_MAX_CHANNELS + j];
+         spl->matrix[i*src_chans + j] = mat[i*A5O_MAX_CHANNELS + j];
       }
    }
 }
@@ -167,14 +167,14 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
  *  allow it to safely continue playing as expected. Returns false if it
  *  should stop being mixed.
  */
-static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
+static bool fix_looped_position(A5O_SAMPLE_INSTANCE *spl)
 {
    bool is_empty;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_AUDIO_STREAM *stream;
 
    /* Looping! Should be mostly self-explanatory */
    switch (spl->loop) {
-      case ALLEGRO_PLAYMODE_LOOP:
+      case A5O_PLAYMODE_LOOP:
          if (spl->loop_end - spl->loop_start != 0) {
             if (spl->step > 0) {
                while (spl->pos >= spl->loop_end) {
@@ -189,7 +189,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          }
          return true;
 
-      case ALLEGRO_PLAYMODE_BIDIR:
+      case A5O_PLAYMODE_BIDIR:
          /* When doing bi-directional looping, you need to do a follow-up
           * check for the opposite direction if a loop occurred, otherwise
           * you could end up misplaced on small, high-step loops.
@@ -214,7 +214,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          }
          return true;
 
-      case ALLEGRO_PLAYMODE_LOOP_ONCE:
+      case A5O_PLAYMODE_LOOP_ONCE:
          if (spl->pos < spl->loop_end && spl->pos >= 0) {
             return true;
          }
@@ -225,7 +225,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          spl->is_playing = false;
          return false;
 
-      case ALLEGRO_PLAYMODE_ONCE:
+      case A5O_PLAYMODE_ONCE:
          if (spl->pos < spl->spl_data.len && spl->pos >= 0) {
             return true;
          }
@@ -236,10 +236,10 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          spl->is_playing = false;
          return false;
 
-      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
-         stream = (ALLEGRO_AUDIO_STREAM *)spl;
+      case _A5O_PLAYMODE_STREAM_ONCE:
+      case _A5O_PLAYMODE_STREAM_LOOP_ONCE:
+      case _A5O_PLAYMODE_STREAM_ONEDIR:
+         stream = (A5O_AUDIO_STREAM *)spl;
          is_empty = false;
          while (spl->pos >= spl->spl_data.len && stream->spl.is_playing && !is_empty) {
             is_empty = !_al_kcm_refill_stream(stream);
@@ -293,9 +293,9 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
 
 #define MAKE_MIXER(NAME, NEXT_SAMPLE_VALUE, TYPE)                             \
 static void NAME(void *source, void **vbuf, unsigned int *samples,            \
-   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)                        \
+   A5O_AUDIO_DEPTH buffer_depth, size_t dest_maxc)                        \
 {                                                                             \
-   ALLEGRO_SAMPLE_INSTANCE *spl = (ALLEGRO_SAMPLE_INSTANCE *)source;          \
+   A5O_SAMPLE_INSTANCE *spl = (A5O_SAMPLE_INSTANCE *)source;          \
    TYPE *buf = *vbuf;                                                         \
    size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);               \
    size_t samples_l = *samples;                                               \
@@ -322,7 +322,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
       s = (TYPE *) NEXT_SAMPLE_VALUE(&samp_buf, spl, maxc);                   \
                                                                               \
       for (c = 0; c < dest_maxc; c++) {                                       \
-         ALLEGRO_STATIC_ASSERT(kcm_mixer, ALLEGRO_MAX_CHANNELS == 8);         \
+         A5O_STATIC_ASSERT(kcm_mixer, A5O_MAX_CHANNELS == 8);         \
          switch (maxc) {                                                      \
             case 8: *buf += s[7] * spl->matrix[c*maxc + 7];                   \
             /* fall through */                                                \
@@ -372,10 +372,10 @@ MAKE_MIXER(read_to_mixer_linear_int16_t_16, linear_spl16, int16_t)
  *  set it to the buffer pointer).
  */
 void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
-   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
+   A5O_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
-   const ALLEGRO_MIXER *mixer;
-   ALLEGRO_MIXER *m = (ALLEGRO_MIXER *)source;
+   const A5O_MIXER *mixer;
+   A5O_MIXER *m = (A5O_MIXER *)source;
    int maxc = al_get_channel_count(m->ss.spl_data.chan_conf);
    int samples_l = *samples;
    int i;
@@ -388,7 +388,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
       al_free(m->ss.spl_data.buffer.ptr);
       m->ss.spl_data.buffer.ptr = al_malloc(samples_l*maxc*al_get_audio_depth_size(m->ss.spl_data.depth));
       if (!m->ss.spl_data.buffer.ptr) {
-         _al_set_error(ALLEGRO_GENERIC_ERROR,
+         _al_set_error(A5O_GENERIC_ERROR,
             "Out of memory allocating mixer buffer");
          m->ss.spl_data.len = 0;
          return;
@@ -403,8 +403,8 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
 
    /* Mix the streams into the mixer buffer. */
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
-      ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
+      A5O_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+      A5O_SAMPLE_INSTANCE *spl = *slot;
       ASSERT(spl->spl_read);
       spl->spl_read(spl, (void **) &mixer->ss.spl_data.buffer.ptr, samples,
          m->ss.spl_data.depth, maxc);
@@ -424,7 +424,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
       unsigned long i = samples_l;
 
       switch (m->ss.spl_data.depth) {
-         case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+         case A5O_AUDIO_DEPTH_FLOAT32: {
             float *p = mixer->ss.spl_data.buffer.f32;
             while (i-- > 0) {
                *p++ *= mixer_gain;
@@ -432,7 +432,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
             break;
          }
 
-         case ALLEGRO_AUDIO_DEPTH_INT16: {
+         case A5O_AUDIO_DEPTH_INT16: {
             int16_t *p = mixer->ss.spl_data.buffer.s16;
             while (i-- > 0) {
                *p++ *= mixer_gain;
@@ -440,11 +440,11 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
             break;
          }
 
-         case ALLEGRO_AUDIO_DEPTH_INT8:
-         case ALLEGRO_AUDIO_DEPTH_INT24:
-         case ALLEGRO_AUDIO_DEPTH_UINT8:
-         case ALLEGRO_AUDIO_DEPTH_UINT16:
-         case ALLEGRO_AUDIO_DEPTH_UINT24:
+         case A5O_AUDIO_DEPTH_INT8:
+         case A5O_AUDIO_DEPTH_INT24:
+         case A5O_AUDIO_DEPTH_UINT8:
+         case A5O_AUDIO_DEPTH_UINT16:
+         case A5O_AUDIO_DEPTH_UINT24:
             /* Unsupported mixer depths. */
             ASSERT(false);
             break;
@@ -456,7 +456,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
     */
    if (*buf) {
       switch (m->ss.spl_data.depth) {
-         case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+         case A5O_AUDIO_DEPTH_FLOAT32: {
             /* We don't need to clamp in the mixer yet. */
             float *lbuf = *buf;
             float *src = mixer->ss.spl_data.buffer.f32;
@@ -467,7 +467,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
             }
             break;
 
-         case ALLEGRO_AUDIO_DEPTH_INT16: {
+         case A5O_AUDIO_DEPTH_INT16: {
             int16_t *lbuf = *buf;
             int16_t *src = mixer->ss.spl_data.buffer.s16;
             while (samples_l-- > 0) {
@@ -483,11 +483,11 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
             break;
          }
 
-         case ALLEGRO_AUDIO_DEPTH_INT8:
-         case ALLEGRO_AUDIO_DEPTH_INT24:
-         case ALLEGRO_AUDIO_DEPTH_UINT8:
-         case ALLEGRO_AUDIO_DEPTH_UINT16:
-         case ALLEGRO_AUDIO_DEPTH_UINT24:
+         case A5O_AUDIO_DEPTH_INT8:
+         case A5O_AUDIO_DEPTH_INT24:
+         case A5O_AUDIO_DEPTH_UINT8:
+         case A5O_AUDIO_DEPTH_UINT16:
+         case A5O_AUDIO_DEPTH_UINT24:
             /* Unsupported mixer depths. */
             ASSERT(false);
             break;
@@ -500,16 +500,16 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
     * Clamp and convert the mixed data for the voice.
     */
    *buf = mixer->ss.spl_data.buffer.ptr;
-   switch (buffer_depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) {
+   switch (buffer_depth & ~A5O_AUDIO_DEPTH_UNSIGNED) {
 
-      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+      case A5O_AUDIO_DEPTH_FLOAT32:
          /* Do we need to clamp? */
          break;
 
-      case ALLEGRO_AUDIO_DEPTH_INT24:
+      case A5O_AUDIO_DEPTH_INT24:
          switch (mixer->ss.spl_data.depth) {
-            case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
-               int32_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+            case A5O_AUDIO_DEPTH_FLOAT32: {
+               int32_t off = ((buffer_depth & A5O_AUDIO_DEPTH_UNSIGNED)
                               ? 0x800000 : 0);
                int32_t *lbuf = mixer->ss.spl_data.buffer.s24;
                float *src = mixer->ss.spl_data.buffer.f32;
@@ -524,26 +524,26 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
                break;
             }
 
-            case ALLEGRO_AUDIO_DEPTH_INT16:
+            case A5O_AUDIO_DEPTH_INT16:
                /* XXX not yet implemented */
                ASSERT(false);
                break;
 
-            case ALLEGRO_AUDIO_DEPTH_INT8:
-            case ALLEGRO_AUDIO_DEPTH_INT24:
-            case ALLEGRO_AUDIO_DEPTH_UINT8:
-            case ALLEGRO_AUDIO_DEPTH_UINT16:
-            case ALLEGRO_AUDIO_DEPTH_UINT24:
+            case A5O_AUDIO_DEPTH_INT8:
+            case A5O_AUDIO_DEPTH_INT24:
+            case A5O_AUDIO_DEPTH_UINT8:
+            case A5O_AUDIO_DEPTH_UINT16:
+            case A5O_AUDIO_DEPTH_UINT24:
                /* Unsupported mixer depths. */
                ASSERT(false);
                break;
          }
          break;
 
-      case ALLEGRO_AUDIO_DEPTH_INT16:
+      case A5O_AUDIO_DEPTH_INT16:
          switch (mixer->ss.spl_data.depth) {
-            case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
-               int16_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+            case A5O_AUDIO_DEPTH_FLOAT32: {
+               int16_t off = ((buffer_depth & A5O_AUDIO_DEPTH_UNSIGNED)
                               ? 0x8000 : 0);
                int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
                float *src = mixer->ss.spl_data.buffer.f32;
@@ -557,9 +557,9 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
                break;
             }
 
-            case ALLEGRO_AUDIO_DEPTH_INT16:
+            case A5O_AUDIO_DEPTH_INT16:
                /* Handle signedness differences. */
-               if (buffer_depth != ALLEGRO_AUDIO_DEPTH_INT16) {
+               if (buffer_depth != A5O_AUDIO_DEPTH_INT16) {
                   int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
                   while (samples_l > 0) {
                      *lbuf++ ^= 0x8000;
@@ -568,11 +568,11 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
                }
                break;
 
-            case ALLEGRO_AUDIO_DEPTH_INT8:
-            case ALLEGRO_AUDIO_DEPTH_INT24:
-            case ALLEGRO_AUDIO_DEPTH_UINT8:
-            case ALLEGRO_AUDIO_DEPTH_UINT16:
-            case ALLEGRO_AUDIO_DEPTH_UINT24:
+            case A5O_AUDIO_DEPTH_INT8:
+            case A5O_AUDIO_DEPTH_INT24:
+            case A5O_AUDIO_DEPTH_UINT8:
+            case A5O_AUDIO_DEPTH_UINT16:
+            case A5O_AUDIO_DEPTH_UINT24:
                /* Unsupported mixer depths. */
                ASSERT(false);
                break;
@@ -580,10 +580,10 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
          break;
 
       /* Ugh, do we really want to support 8-bit output? */
-      case ALLEGRO_AUDIO_DEPTH_INT8:
+      case A5O_AUDIO_DEPTH_INT8:
          switch (mixer->ss.spl_data.depth) {
-            case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
-               int8_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+            case A5O_AUDIO_DEPTH_FLOAT32: {
+               int8_t off = ((buffer_depth & A5O_AUDIO_DEPTH_UNSIGNED)
                               ? 0x80 : 0);
                int8_t *lbuf = mixer->ss.spl_data.buffer.s8;
                float *src = mixer->ss.spl_data.buffer.f32;
@@ -597,25 +597,25 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
                break;
             }
 
-            case ALLEGRO_AUDIO_DEPTH_INT16:
+            case A5O_AUDIO_DEPTH_INT16:
                /* XXX not yet implemented */
                ASSERT(false);
                break;
 
-            case ALLEGRO_AUDIO_DEPTH_INT8:
-            case ALLEGRO_AUDIO_DEPTH_INT24:
-            case ALLEGRO_AUDIO_DEPTH_UINT8:
-            case ALLEGRO_AUDIO_DEPTH_UINT16:
-            case ALLEGRO_AUDIO_DEPTH_UINT24:
+            case A5O_AUDIO_DEPTH_INT8:
+            case A5O_AUDIO_DEPTH_INT24:
+            case A5O_AUDIO_DEPTH_UINT8:
+            case A5O_AUDIO_DEPTH_UINT16:
+            case A5O_AUDIO_DEPTH_UINT24:
                /* Unsupported mixer depths. */
                ASSERT(false);
                break;
          }
          break;
 
-      case ALLEGRO_AUDIO_DEPTH_UINT8:
-      case ALLEGRO_AUDIO_DEPTH_UINT16:
-      case ALLEGRO_AUDIO_DEPTH_UINT24:
+      case A5O_AUDIO_DEPTH_UINT8:
+      case A5O_AUDIO_DEPTH_UINT16:
+      case A5O_AUDIO_DEPTH_UINT24:
          /* Impossible. */
          ASSERT(false);
          break;
@@ -627,11 +627,11 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
 
 /* Function: al_create_mixer
  */
-ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
-   ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
+A5O_MIXER *al_create_mixer(unsigned int freq,
+   A5O_AUDIO_DEPTH depth, A5O_CHANNEL_CONF chan_conf)
 {
-   ALLEGRO_MIXER *mixer;
-   int default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
+   A5O_MIXER *mixer;
+   int default_mixer_quality = A5O_MIXER_QUALITY_LINEAR;
    const char *p;
 
    /* XXX this is in the wrong place */
@@ -639,34 +639,34 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
       "default_mixer_quality");
    if (p && p[0] != '\0') {
       if (!_al_stricmp(p, "point")) {
-         ALLEGRO_INFO("Point sampling\n");
-         default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
+         A5O_INFO("Point sampling\n");
+         default_mixer_quality = A5O_MIXER_QUALITY_POINT;
       }
       else if (!_al_stricmp(p, "linear")) {
-         ALLEGRO_INFO("Linear interpolation\n");
-         default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
+         A5O_INFO("Linear interpolation\n");
+         default_mixer_quality = A5O_MIXER_QUALITY_LINEAR;
       }
       else if (!_al_stricmp(p, "cubic")) {
-         ALLEGRO_INFO("Cubic interpolation\n");
-         default_mixer_quality = ALLEGRO_MIXER_QUALITY_CUBIC;
+         A5O_INFO("Cubic interpolation\n");
+         default_mixer_quality = A5O_MIXER_QUALITY_CUBIC;
       }
    }
 
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
+      _al_set_error(A5O_INVALID_PARAM,
          "Attempted to create mixer with no frequency");
       return NULL;
    }
 
-   if (depth != ALLEGRO_AUDIO_DEPTH_FLOAT32 &&
-         depth != ALLEGRO_AUDIO_DEPTH_INT16) {
-      _al_set_error(ALLEGRO_INVALID_PARAM, "Unsupported mixer depth");
+   if (depth != A5O_AUDIO_DEPTH_FLOAT32 &&
+         depth != A5O_AUDIO_DEPTH_INT16) {
+      _al_set_error(A5O_INVALID_PARAM, "Unsupported mixer depth");
       return NULL;
    }
 
-   mixer = al_calloc(1, sizeof(ALLEGRO_MIXER));
+   mixer = al_calloc(1, sizeof(A5O_MIXER));
    if (!mixer) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Out of memory allocating mixer object");
       return NULL;
    }
@@ -674,7 +674,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
    mixer->ss.is_playing = true;
    mixer->ss.spl_data.free_buf = true;
 
-   mixer->ss.loop = ALLEGRO_PLAYMODE_ONCE;
+   mixer->ss.loop = A5O_PLAYMODE_ONCE;
    /* XXX should we have a specific loop mode? */
    mixer->ss.gain = 1.0f;
    mixer->ss.spl_data.depth     = depth;
@@ -686,7 +686,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
 
    mixer->quality = default_mixer_quality;
 
-   _al_vector_init(&mixer->streams, sizeof(ALLEGRO_SAMPLE_INSTANCE *));
+   _al_vector_init(&mixer->streams, sizeof(A5O_SAMPLE_INSTANCE *));
 
    mixer->dtor_item = _al_kcm_register_destructor("mixer", mixer, (void (*)(void *)) al_destroy_mixer);
 
@@ -696,7 +696,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
 
 /* Function: al_destroy_mixer
  */
-void al_destroy_mixer(ALLEGRO_MIXER *mixer)
+void al_destroy_mixer(A5O_MIXER *mixer)
 {
    if (mixer) {
       _al_kcm_unregister_destructor(mixer->dtor_item);
@@ -705,20 +705,20 @@ void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 }
 
 
-/* This function is ALLEGRO_MIXER aware */
+/* This function is A5O_MIXER aware */
 /* Function: al_attach_sample_instance_to_mixer
  */
-bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
-   ALLEGRO_MIXER *mixer)
+bool al_attach_sample_instance_to_mixer(A5O_SAMPLE_INSTANCE *spl,
+   A5O_MIXER *mixer)
 {
-   ALLEGRO_SAMPLE_INSTANCE **slot;
+   A5O_SAMPLE_INSTANCE **slot;
 
    ASSERT(mixer);
    ASSERT(spl);
 
    /* Already referenced, do not attach. */
    if (spl->parent.u.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to attach a sample that's already attached");
       return false;
    }
@@ -732,7 +732,7 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
       if (mixer->ss.mutex) {
          al_unlock_mutex(mixer->ss.mutex);
       }
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Out of memory allocating attachment pointers");
       return false;
    }
@@ -755,39 +755,39 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
    else {
       switch (mixer->ss.spl_data.depth) {
-         case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+         case A5O_AUDIO_DEPTH_FLOAT32:
             switch (mixer->quality) {
-               case ALLEGRO_MIXER_QUALITY_POINT:
+               case A5O_MIXER_QUALITY_POINT:
                   spl->spl_read = read_to_mixer_point_float_32;
                   break;
-               case ALLEGRO_MIXER_QUALITY_LINEAR:
+               case A5O_MIXER_QUALITY_LINEAR:
                   spl->spl_read = read_to_mixer_linear_float_32;
                   break;
-               case ALLEGRO_MIXER_QUALITY_CUBIC:
+               case A5O_MIXER_QUALITY_CUBIC:
                   spl->spl_read = read_to_mixer_cubic_float_32;
                   break;
             }
             break;
 
-         case ALLEGRO_AUDIO_DEPTH_INT16:
+         case A5O_AUDIO_DEPTH_INT16:
             switch (mixer->quality) {
-               case ALLEGRO_MIXER_QUALITY_POINT:
+               case A5O_MIXER_QUALITY_POINT:
                   spl->spl_read = read_to_mixer_point_int16_t_16;
                   break;
-               case ALLEGRO_MIXER_QUALITY_CUBIC:
-                  ALLEGRO_WARN("Falling back to linear interpolation\n");
+               case A5O_MIXER_QUALITY_CUBIC:
+                  A5O_WARN("Falling back to linear interpolation\n");
                   /* fallthrough */
-               case ALLEGRO_MIXER_QUALITY_LINEAR:
+               case A5O_MIXER_QUALITY_LINEAR:
                   spl->spl_read = read_to_mixer_linear_int16_t_16;
                   break;
             }
             break;
 
-         case ALLEGRO_AUDIO_DEPTH_INT8:
-         case ALLEGRO_AUDIO_DEPTH_INT24:
-         case ALLEGRO_AUDIO_DEPTH_UINT8:
-         case ALLEGRO_AUDIO_DEPTH_UINT16:
-         case ALLEGRO_AUDIO_DEPTH_UINT24:
+         case A5O_AUDIO_DEPTH_INT8:
+         case A5O_AUDIO_DEPTH_INT24:
+         case A5O_AUDIO_DEPTH_UINT8:
+         case A5O_AUDIO_DEPTH_UINT16:
+         case A5O_AUDIO_DEPTH_UINT24:
             /* Unsupported mixer depths. */
             ASSERT(false);
             break;
@@ -807,7 +807,7 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
 
 /* Function: al_attach_audio_stream_to_mixer
  */
-bool al_attach_audio_stream_to_mixer(ALLEGRO_AUDIO_STREAM *stream, ALLEGRO_MIXER *mixer)
+bool al_attach_audio_stream_to_mixer(A5O_AUDIO_STREAM *stream, A5O_MIXER *mixer)
 {
    ASSERT(mixer);
    ASSERT(stream);
@@ -818,26 +818,26 @@ bool al_attach_audio_stream_to_mixer(ALLEGRO_AUDIO_STREAM *stream, ALLEGRO_MIXER
 
 /* Function: al_attach_mixer_to_mixer
  */
-bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
+bool al_attach_mixer_to_mixer(A5O_MIXER *stream, A5O_MIXER *mixer)
 {
    ASSERT(mixer);
    ASSERT(stream);
    ASSERT(mixer != stream);
 
    if (mixer->ss.spl_data.frequency != stream->ss.spl_data.frequency) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to attach a mixer with different frequencies");
       return false;
    }
 
    if (mixer->ss.spl_data.depth != stream->ss.spl_data.depth) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Mixers of different audio depths cannot be attached to one another");
       return false;
    }
 
    if (mixer->ss.spl_data.chan_conf != stream->ss.spl_data.chan_conf) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Mixers of different channel configurations cannot be attached to one another");
       return false;
    }
@@ -848,7 +848,7 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
 
 /* Function: al_set_mixer_postprocess_callback
  */
-bool al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
+bool al_set_mixer_postprocess_callback(A5O_MIXER *mixer,
    void (*pp_callback)(void *buf, unsigned int samples, void *data),
    void *pp_callback_userdata)
 {
@@ -867,7 +867,7 @@ bool al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
 
 /* Function: al_get_mixer_frequency
  */
-unsigned int al_get_mixer_frequency(const ALLEGRO_MIXER *mixer)
+unsigned int al_get_mixer_frequency(const A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 
@@ -877,7 +877,7 @@ unsigned int al_get_mixer_frequency(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_get_mixer_channels
  */
-ALLEGRO_CHANNEL_CONF al_get_mixer_channels(const ALLEGRO_MIXER *mixer)
+A5O_CHANNEL_CONF al_get_mixer_channels(const A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 
@@ -887,7 +887,7 @@ ALLEGRO_CHANNEL_CONF al_get_mixer_channels(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_get_mixer_depth
  */
-ALLEGRO_AUDIO_DEPTH al_get_mixer_depth(const ALLEGRO_MIXER *mixer)
+A5O_AUDIO_DEPTH al_get_mixer_depth(const A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 
@@ -897,7 +897,7 @@ ALLEGRO_AUDIO_DEPTH al_get_mixer_depth(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_get_mixer_quality
  */
-ALLEGRO_MIXER_QUALITY al_get_mixer_quality(const ALLEGRO_MIXER *mixer)
+A5O_MIXER_QUALITY al_get_mixer_quality(const A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 
@@ -907,7 +907,7 @@ ALLEGRO_MIXER_QUALITY al_get_mixer_quality(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_get_mixer_gain
  */
-float al_get_mixer_gain(const ALLEGRO_MIXER *mixer)
+float al_get_mixer_gain(const A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 
@@ -917,7 +917,7 @@ float al_get_mixer_gain(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_get_mixer_playing
  */
-bool al_get_mixer_playing(const ALLEGRO_MIXER *mixer)
+bool al_get_mixer_playing(const A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 
@@ -927,7 +927,7 @@ bool al_get_mixer_playing(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_get_mixer_attached
  */
-bool al_get_mixer_attached(const ALLEGRO_MIXER *mixer)
+bool al_get_mixer_attached(const A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 
@@ -936,7 +936,7 @@ bool al_get_mixer_attached(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_mixer_has_attachments
  */
-bool al_mixer_has_attachments(const ALLEGRO_MIXER* mixer)
+bool al_mixer_has_attachments(const A5O_MIXER* mixer)
 {
    ASSERT(mixer);
 
@@ -946,7 +946,7 @@ bool al_mixer_has_attachments(const ALLEGRO_MIXER* mixer)
 
 /* Function: al_set_mixer_frequency
  */
-bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned int val)
+bool al_set_mixer_frequency(A5O_MIXER *mixer, unsigned int val)
 {
    ASSERT(mixer);
 
@@ -954,7 +954,7 @@ bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned int val)
     * to anything.
     */
    if (mixer->ss.parent.u.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
             "Attempted to change the frequency of an attached mixer");
       return false;
    }
@@ -966,7 +966,7 @@ bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned int val)
 
 /* Function: al_set_mixer_quality
  */
-bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY new_quality)
+bool al_set_mixer_quality(A5O_MIXER *mixer, A5O_MIXER_QUALITY new_quality)
 {
    bool ret;
    ASSERT(mixer);
@@ -981,7 +981,7 @@ bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY new_qualit
       ret = true;
    }
    else {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to change the quality of a mixer with attachments");
       ret = false;
    }
@@ -994,7 +994,7 @@ bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY new_qualit
 
 /* Function: al_set_mixer_gain
  */
-bool al_set_mixer_gain(ALLEGRO_MIXER *mixer, float new_gain)
+bool al_set_mixer_gain(A5O_MIXER *mixer, float new_gain)
 {
    int i;
    ASSERT(mixer);
@@ -1005,7 +1005,7 @@ bool al_set_mixer_gain(ALLEGRO_MIXER *mixer, float new_gain)
       mixer->ss.gain = new_gain;
 
       for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+         A5O_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
          _al_kcm_mixer_rejig_sample_matrix(mixer, *slot);
       }
    }
@@ -1018,7 +1018,7 @@ bool al_set_mixer_gain(ALLEGRO_MIXER *mixer, float new_gain)
 
 /* Function: al_set_mixer_playing
  */
-bool al_set_mixer_playing(ALLEGRO_MIXER *mixer, bool val)
+bool al_set_mixer_playing(A5O_MIXER *mixer, bool val)
 {
    ASSERT(mixer);
 
@@ -1029,7 +1029,7 @@ bool al_set_mixer_playing(ALLEGRO_MIXER *mixer, bool val)
 
 /* Function: al_detach_mixer
  */
-bool al_detach_mixer(ALLEGRO_MIXER *mixer)
+bool al_detach_mixer(A5O_MIXER *mixer)
 {
    ASSERT(mixer);
 

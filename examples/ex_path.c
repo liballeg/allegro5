@@ -5,9 +5,9 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_PATH *dyn = NULL;
-   ALLEGRO_PATH *tostring = NULL;
-   ALLEGRO_PATH *cloned = NULL;
+   A5O_PATH *dyn = NULL;
+   A5O_PATH *tostring = NULL;
+   A5O_PATH *cloned = NULL;
    
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
    open_log();
 
    if (argc < 2) {
-      ALLEGRO_PATH *exe = al_create_path(argv[0]);
+      A5O_PATH *exe = al_create_path(argv[0]);
       if (exe) {
          log_printf("This example needs to be run from the command line.\nUsage1: %s <path>\n", al_get_path_filename(exe));
          al_destroy_path(exe);
@@ -73,12 +73,12 @@ int main(int argc, char **argv)
          al_destroy_path(cloned);
       }
       else {
-         log_printf("failed to clone ALLEGRO_PATH :(\n");
+         log_printf("failed to clone A5O_PATH :(\n");
          al_destroy_path(dyn);
       }
    }
    else {
-      log_printf("failed to create new ALLEGRO_PATH for cloning...");
+      log_printf("failed to create new A5O_PATH for cloning...");
    }
 
 done:

@@ -21,10 +21,10 @@
 
 /* Function: al_create_mouse_cursor
  */
-ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
+A5O_MOUSE_CURSOR *al_create_mouse_cursor(A5O_BITMAP *bmp,
    int x_focus, int y_focus)
 {
-   ALLEGRO_SYSTEM *sysdrv = al_get_system_driver();
+   A5O_SYSTEM *sysdrv = al_get_system_driver();
    ASSERT(bmp);
 
    ASSERT(sysdrv->vt->create_mouse_cursor);
@@ -34,9 +34,9 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
 
 /* Function: al_destroy_mouse_cursor
  */
-void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
+void al_destroy_mouse_cursor(A5O_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_SYSTEM *sysdrv;
+   A5O_SYSTEM *sysdrv;
 
    if (!cursor) {
       return;
@@ -51,7 +51,7 @@ void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 
 /* Function: al_set_mouse_cursor
  */
-bool al_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor)
+bool al_set_mouse_cursor(A5O_DISPLAY *display, A5O_MOUSE_CURSOR *cursor)
 {
    if (!cursor) {
       return false;
@@ -68,18 +68,18 @@ bool al_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor)
 
 /* Function: al_set_system_mouse_cursor
  */
-bool al_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+bool al_set_system_mouse_cursor(A5O_DISPLAY *display,
+   A5O_SYSTEM_MOUSE_CURSOR cursor_id)
 {
-   /* XXX should you be able to set ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE? */
-   ASSERT(cursor_id > ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE);
-   ASSERT(cursor_id < ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS);
+   /* XXX should you be able to set A5O_SYSTEM_MOUSE_CURSOR_NONE? */
+   ASSERT(cursor_id > A5O_SYSTEM_MOUSE_CURSOR_NONE);
+   ASSERT(cursor_id < A5O_NUM_SYSTEM_MOUSE_CURSORS);
    ASSERT(display);
 
-   if (cursor_id <= ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE) {
+   if (cursor_id <= A5O_SYSTEM_MOUSE_CURSOR_NONE) {
       return false;
    }
-   if (cursor_id > ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS) {
+   if (cursor_id > A5O_NUM_SYSTEM_MOUSE_CURSORS) {
       return false;
    }
    if (!display) {
@@ -93,7 +93,7 @@ bool al_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 
 /* Function: al_show_mouse_cursor
  */
-bool al_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+bool al_show_mouse_cursor(A5O_DISPLAY *display)
 {
    if (display) {
       ASSERT(display->vt->show_mouse_cursor);
@@ -106,7 +106,7 @@ bool al_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 
 /* Function: al_hide_mouse_cursor
  */
-bool al_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+bool al_hide_mouse_cursor(A5O_DISPLAY *display)
 {
    if (display) {
       ASSERT(display->vt->hide_mouse_cursor);

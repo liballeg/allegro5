@@ -45,21 +45,21 @@
 #include "allegro5/internal/aintern_shader.h"
 #include "allegro5/internal/aintern_tls.h"
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include "allegro5/internal/aintern_android.h"
 #endif
 
-#if defined(ALLEGRO_MINGW32) && !defined(ALLEGRO_CFG_DLL_TLS)
+#if defined(A5O_MINGW32) && !defined(A5O_CFG_DLL_TLS)
    /*
     * MinGW < 4.2.1 doesn't have builtin thread local storage, so we
     * must use the Windows API.
     */
    #if __GNUC__ < 4
-      #define ALLEGRO_CFG_DLL_TLS
+      #define A5O_CFG_DLL_TLS
    #elif __GNUC__ == 4 && __GNUC_MINOR__ < 2
-      #define ALLEGRO_CFG_DLL_TLS
+      #define A5O_CFG_DLL_TLS
    #elif __GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ < 1
-      #define ALLEGRO_CFG_DLL_TLS
+      #define A5O_CFG_DLL_TLS
    #endif
 #endif
 
@@ -74,16 +74,16 @@ typedef struct thread_local_state {
    int new_window_y;
    int new_bitmap_depth;
    int new_bitmap_samples;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS new_display_settings;
+   A5O_EXTRA_DISPLAY_SETTINGS new_display_settings;
 
    /* Current display */
-   ALLEGRO_DISPLAY *current_display;
+   A5O_DISPLAY *current_display;
 
    /* Target bitmap */
-   ALLEGRO_BITMAP *target_bitmap;
+   A5O_BITMAP *target_bitmap;
 
    /* Blender */
-   ALLEGRO_BLENDER current_blender;
+   A5O_BLENDER current_blender;
 
    /* Bitmap parameters */
    int new_bitmap_format;
@@ -92,8 +92,8 @@ typedef struct thread_local_state {
    int new_bitmap_wrap_v;
 
    /* Files */
-   const ALLEGRO_FILE_INTERFACE *new_file_interface;
-   const ALLEGRO_FS_INTERFACE *fs_interface;
+   const A5O_FILE_INTERFACE *new_file_interface;
+   const A5O_FS_INTERFACE *fs_interface;
 
    /* Error code */
    int allegro_errno;
@@ -101,9 +101,9 @@ typedef struct thread_local_state {
    /* Title to use for a new window/display.
     * This is a static buffer for API reasons.
     */
-   char new_window_title[ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE + 1];
+   char new_window_title[A5O_NEW_WINDOW_TITLE_MAX_SIZE + 1];
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    JNIEnv *jnienv;
 #endif
 
@@ -114,23 +114,23 @@ typedef struct thread_local_state {
 
 typedef struct INTERNAL_STATE {
    thread_local_state tls;
-   ALLEGRO_BLENDER stored_blender;
-   ALLEGRO_TRANSFORM stored_transform;
-   ALLEGRO_TRANSFORM stored_projection_transform;
+   A5O_BLENDER stored_blender;
+   A5O_TRANSFORM stored_transform;
+   A5O_TRANSFORM stored_projection_transform;
    int flags;
 } INTERNAL_STATE;
 
-ALLEGRO_STATIC_ASSERT(tls, sizeof(ALLEGRO_STATE) > sizeof(INTERNAL_STATE));
+A5O_STATIC_ASSERT(tls, sizeof(A5O_STATE) > sizeof(INTERNAL_STATE));
 
 
-static void initialize_blender(ALLEGRO_BLENDER *b)
+static void initialize_blender(A5O_BLENDER *b)
 {
-   b->blend_op = ALLEGRO_ADD;
-   b->blend_source = ALLEGRO_ONE,
-   b->blend_dest = ALLEGRO_INVERSE_ALPHA;
-   b->blend_alpha_op = ALLEGRO_ADD;
-   b->blend_alpha_source = ALLEGRO_ONE;
-   b->blend_alpha_dest = ALLEGRO_INVERSE_ALPHA;
+   b->blend_op = A5O_ADD;
+   b->blend_source = A5O_ONE,
+   b->blend_dest = A5O_INVERSE_ALPHA;
+   b->blend_alpha_op = A5O_ADD;
+   b->blend_alpha_source = A5O_ONE;
+   b->blend_alpha_dest = A5O_INVERSE_ALPHA;
    b->blend_color = al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -139,18 +139,18 @@ static void initialize_tls_values(thread_local_state *tls)
 {
    memset(tls, 0, sizeof *tls);
 
-   tls->new_display_adapter = ALLEGRO_DEFAULT_DISPLAY_ADAPTER;
+   tls->new_display_adapter = A5O_DEFAULT_DISPLAY_ADAPTER;
    tls->new_window_x = INT_MAX;
    tls->new_window_y = INT_MAX;
 
    initialize_blender(&tls->current_blender);
-   tls->new_bitmap_flags = ALLEGRO_CONVERT_BITMAP;
-   tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
-   tls->new_bitmap_wrap_u = ALLEGRO_BITMAP_WRAP_DEFAULT;
-   tls->new_bitmap_wrap_v = ALLEGRO_BITMAP_WRAP_DEFAULT;
+   tls->new_bitmap_flags = A5O_CONVERT_BITMAP;
+   tls->new_bitmap_format = A5O_PIXEL_FORMAT_ANY_WITH_ALPHA;
+   tls->new_bitmap_wrap_u = A5O_BITMAP_WRAP_DEFAULT;
+   tls->new_bitmap_wrap_v = A5O_BITMAP_WRAP_DEFAULT;
    tls->new_file_interface = &_al_file_interface_stdio;
    tls->fs_interface = &_al_fs_interface_stdio;
-   memset(tls->new_window_title, 0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE + 1);
+   memset(tls->new_window_title, 0, A5O_NEW_WINDOW_TITLE_MAX_SIZE + 1);
 
    _al_fill_display_settings(&tls->new_display_settings);
 }
@@ -158,13 +158,13 @@ static void initialize_tls_values(thread_local_state *tls)
 // FIXME: The TLS implementation below only works for dynamic linking
 // right now - instead of using DllMain we should simply initialize
 // on first request.
-#ifdef ALLEGRO_STATICLINK
-   #undef ALLEGRO_CFG_DLL_TLS
+#ifdef A5O_STATICLINK
+   #undef A5O_CFG_DLL_TLS
 #endif
 
-#if defined(ALLEGRO_CFG_DLL_TLS)
+#if defined(A5O_CFG_DLL_TLS)
    #include "tls_dll.inc"
-#elif defined(ALLEGRO_MACOSX) || defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID) || defined(ALLEGRO_RASPBERRYPI)
+#elif defined(A5O_MACOSX) || defined(A5O_IPHONE) || defined(A5O_ANDROID) || defined(A5O_RASPBERRYPI)
    #include "tls_pthread.inc"
 #else
    #include "tls_native.inc"
@@ -182,17 +182,17 @@ void _al_reinitialize_tls_values(void)
 
 
 
-void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
+void _al_set_new_display_settings(A5O_EXTRA_DISPLAY_SETTINGS *settings)
 {
    thread_local_state *tls;
    if ((tls = tls_get()) == NULL)
       return;
-   memmove(&tls->new_display_settings, settings, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   memmove(&tls->new_display_settings, settings, sizeof(A5O_EXTRA_DISPLAY_SETTINGS));
 }
 
 
 
-ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
+A5O_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 {
    thread_local_state *tls;
 
@@ -297,7 +297,7 @@ void al_set_new_display_adapter(int adapter)
       return;
 
    if (adapter < 0) {
-      tls->new_display_adapter = ALLEGRO_DEFAULT_DISPLAY_ADAPTER;
+      tls->new_display_adapter = A5O_DEFAULT_DISPLAY_ADAPTER;
    }
    tls->new_display_adapter = adapter;
 }
@@ -311,7 +311,7 @@ int al_get_new_display_adapter(void)
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
-      return ALLEGRO_DEFAULT_DISPLAY_ADAPTER;
+      return A5O_DEFAULT_DISPLAY_ADAPTER;
    return tls->new_display_adapter;
 }
 
@@ -354,7 +354,7 @@ void al_get_new_window_position(int *x, int *y)
 /* Make the given display current, without changing the target bitmap.
  * This is used internally to change the current display transiently.
  */
-bool _al_set_current_display_only(ALLEGRO_DISPLAY *display)
+bool _al_set_current_display_only(A5O_DISPLAY *display)
 {
    thread_local_state *tls;
 
@@ -383,7 +383,7 @@ bool _al_set_current_display_only(ALLEGRO_DISPLAY *display)
 
 /* Function: al_get_current_display
  */
-ALLEGRO_DISPLAY *al_get_current_display(void)
+A5O_DISPLAY *al_get_current_display(void)
 {
    thread_local_state *tls;
 
@@ -396,13 +396,13 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
 
 /* Function: al_set_target_bitmap
  */
-void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
+void al_set_target_bitmap(A5O_BITMAP *bitmap)
 {
    thread_local_state *tls;
-   ALLEGRO_DISPLAY *old_display;
-   ALLEGRO_DISPLAY *new_display;
-   ALLEGRO_SHADER *old_shader;
-   ALLEGRO_SHADER *new_shader;
+   A5O_DISPLAY *old_display;
+   A5O_DISPLAY *new_display;
+   A5O_SHADER *old_shader;
+   A5O_SHADER *new_shader;
    bool same_shader;
    int bitmap_flags = bitmap ? al_get_bitmap_flags(bitmap) : 0;
 
@@ -432,7 +432,7 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
       new_display = NULL;
       new_shader = NULL;
    }
-   else if (bitmap_flags & ALLEGRO_MEMORY_BITMAP) {
+   else if (bitmap_flags & A5O_MEMORY_BITMAP) {
       /* Setting a memory bitmap doesn't change the rendering context. */
       new_display = old_display;
       new_shader = NULL;
@@ -470,7 +470,7 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
    tls->target_bitmap = bitmap;
 
    if (bitmap &&
-         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
+         !(bitmap_flags & A5O_MEMORY_BITMAP) &&
          new_display &&
          new_display->vt &&
          new_display->vt->set_target_bitmap)
@@ -493,7 +493,7 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_set_target_backbuffer
  */
-void al_set_target_backbuffer(ALLEGRO_DISPLAY *display)
+void al_set_target_backbuffer(A5O_DISPLAY *display)
 {
    al_set_target_bitmap(al_get_backbuffer(display));
 }
@@ -502,7 +502,7 @@ void al_set_target_backbuffer(ALLEGRO_DISPLAY *display)
 
 /* Function: al_get_target_bitmap
  */
-ALLEGRO_BITMAP *al_get_target_bitmap(void)
+A5O_BITMAP *al_get_target_bitmap(void)
 {
    thread_local_state *tls;
 
@@ -524,7 +524,7 @@ void al_set_blender(int op, int src, int dst)
 
 /* Function: al_set_blend_color
 */
-void al_set_blend_color(ALLEGRO_COLOR color)
+void al_set_blend_color(A5O_COLOR color)
 {
    thread_local_state *tls;
 
@@ -541,14 +541,14 @@ void al_set_separate_blender(int op, int src, int dst,
    int alpha_op, int alpha_src, int alpha_dst)
 {
    thread_local_state *tls;
-   ALLEGRO_BLENDER *b;
+   A5O_BLENDER *b;
 
-   ASSERT(op >= 0 && op < ALLEGRO_NUM_BLEND_OPERATIONS);
-   ASSERT(src >= 0 && src < ALLEGRO_NUM_BLEND_MODES);
-   ASSERT(dst >= 0 && src < ALLEGRO_NUM_BLEND_MODES);
-   ASSERT(alpha_op >= 0 && alpha_op < ALLEGRO_NUM_BLEND_OPERATIONS);
-   ASSERT(alpha_src >= 0 && alpha_src < ALLEGRO_NUM_BLEND_MODES);
-   ASSERT(alpha_dst >= 0 && alpha_dst < ALLEGRO_NUM_BLEND_MODES);
+   ASSERT(op >= 0 && op < A5O_NUM_BLEND_OPERATIONS);
+   ASSERT(src >= 0 && src < A5O_NUM_BLEND_MODES);
+   ASSERT(dst >= 0 && src < A5O_NUM_BLEND_MODES);
+   ASSERT(alpha_op >= 0 && alpha_op < A5O_NUM_BLEND_OPERATIONS);
+   ASSERT(alpha_src >= 0 && alpha_src < A5O_NUM_BLEND_MODES);
+   ASSERT(alpha_dst >= 0 && alpha_dst < A5O_NUM_BLEND_MODES);
 
    if ((tls = tls_get()) == NULL)
       return;
@@ -576,7 +576,7 @@ void al_get_blender(int *op, int *src, int *dst)
 
 /* Function: al_get_blend_color
 */
-ALLEGRO_COLOR al_get_blend_color(void)
+A5O_COLOR al_get_blend_color(void)
 {
    thread_local_state *tls;
 
@@ -593,7 +593,7 @@ void al_get_separate_blender(int *op, int *src, int *dst,
    int *alpha_op, int *alpha_src, int *alpha_dst)
 {
    thread_local_state *tls;
-   ALLEGRO_BLENDER *b;
+   A5O_BLENDER *b;
 
    if ((tls = tls_get()) == NULL)
       return;
@@ -689,7 +689,7 @@ int al_get_new_bitmap_flags(void)
 
 /* Function: al_store_state
  */
-void al_store_state(ALLEGRO_STATE *state, int flags)
+void al_store_state(A5O_STATE *state, int flags)
 {
    thread_local_state *tls;
    INTERNAL_STATE *stored;
@@ -702,7 +702,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
 
 #define _STORE(x) (stored->tls.x = tls->x)
 
-   if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
+   if (flags & A5O_STATE_NEW_DISPLAY_PARAMETERS) {
       _STORE(new_display_flags);
       _STORE(new_display_refresh_rate);
       _STORE(new_display_adapter);
@@ -713,40 +713,40 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
                        sizeof(stored->tls.new_window_title));
    }
 
-   if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
+   if (flags & A5O_STATE_NEW_BITMAP_PARAMETERS) {
       _STORE(new_bitmap_format);
       _STORE(new_bitmap_flags);
       _STORE(new_bitmap_wrap_u);
       _STORE(new_bitmap_wrap_v);
    }
 
-   if (flags & ALLEGRO_STATE_DISPLAY) {
+   if (flags & A5O_STATE_DISPLAY) {
       _STORE(current_display);
    }
 
-   if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
+   if (flags & A5O_STATE_TARGET_BITMAP) {
       _STORE(target_bitmap);
    }
 
-   if (flags & ALLEGRO_STATE_BLENDER) {
+   if (flags & A5O_STATE_BLENDER) {
       stored->stored_blender = tls->current_blender;
    }
 
-   if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
+   if (flags & A5O_STATE_NEW_FILE_INTERFACE) {
       _STORE(new_file_interface);
       _STORE(fs_interface);
    }
 
-   if (flags & ALLEGRO_STATE_TRANSFORM) {
-      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   if (flags & A5O_STATE_TRANSFORM) {
+      A5O_BITMAP *target = al_get_target_bitmap();
       if (!target)
          al_identity_transform(&stored->stored_transform);
       else
          stored->stored_transform = target->transform;
    }
 
-   if (flags & ALLEGRO_STATE_PROJECTION_TRANSFORM) {
-      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   if (flags & A5O_STATE_PROJECTION_TRANSFORM) {
+      A5O_BITMAP *target = al_get_target_bitmap();
       if (target) {
          stored->stored_projection_transform = target->proj_transform;
       }
@@ -759,7 +759,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
 
 /* Function: al_restore_state
  */
-void al_restore_state(ALLEGRO_STATE const *state)
+void al_restore_state(A5O_STATE const *state)
 {
    thread_local_state *tls;
    INTERNAL_STATE *stored;
@@ -773,7 +773,7 @@ void al_restore_state(ALLEGRO_STATE const *state)
 
 #define _RESTORE(x) (tls->x = stored->tls.x)
 
-   if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
+   if (flags & A5O_STATE_NEW_DISPLAY_PARAMETERS) {
       _RESTORE(new_display_flags);
       _RESTORE(new_display_refresh_rate);
       _RESTORE(new_display_adapter);
@@ -784,44 +784,44 @@ void al_restore_state(ALLEGRO_STATE const *state)
                        sizeof(tls->new_window_title));
    }
 
-   if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
+   if (flags & A5O_STATE_NEW_BITMAP_PARAMETERS) {
       _RESTORE(new_bitmap_format);
       _RESTORE(new_bitmap_flags);
       _RESTORE(new_bitmap_wrap_u);
       _RESTORE(new_bitmap_wrap_v);
    }
 
-   if (flags & ALLEGRO_STATE_DISPLAY) {
+   if (flags & A5O_STATE_DISPLAY) {
       if (tls->current_display != stored->tls.current_display) {
          _al_set_current_display_only(stored->tls.current_display);
          ASSERT(tls->current_display == stored->tls.current_display);
       }
    }
 
-   if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
+   if (flags & A5O_STATE_TARGET_BITMAP) {
       if (tls->target_bitmap != stored->tls.target_bitmap) {
          al_set_target_bitmap(stored->tls.target_bitmap);
          ASSERT(tls->target_bitmap == stored->tls.target_bitmap);
       }
    }
 
-   if (flags & ALLEGRO_STATE_BLENDER) {
+   if (flags & A5O_STATE_BLENDER) {
       tls->current_blender = stored->stored_blender;
    }
 
-   if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
+   if (flags & A5O_STATE_NEW_FILE_INTERFACE) {
       _RESTORE(new_file_interface);
       _RESTORE(fs_interface);
    }
 
-   if (flags & ALLEGRO_STATE_TRANSFORM) {
-      ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   if (flags & A5O_STATE_TRANSFORM) {
+      A5O_BITMAP *bitmap = al_get_target_bitmap();
       if (bitmap)
          al_use_transform(&stored->stored_transform);
    }
 
-   if (flags & ALLEGRO_STATE_PROJECTION_TRANSFORM) {
-      ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   if (flags & A5O_STATE_PROJECTION_TRANSFORM) {
+      A5O_BITMAP *bitmap = al_get_target_bitmap();
       if (bitmap)
          al_use_projection_transform(&stored->stored_projection_transform);
    }
@@ -837,7 +837,7 @@ void al_restore_state(ALLEGRO_STATE const *state)
  * tries to load a configuration file before the system has been
  * initialised. Should probably rethink the logic here...
  */
-const ALLEGRO_FILE_INTERFACE *al_get_new_file_interface(void)
+const A5O_FILE_INTERFACE *al_get_new_file_interface(void)
 {
    thread_local_state *tls;
 
@@ -858,7 +858,7 @@ const ALLEGRO_FILE_INTERFACE *al_get_new_file_interface(void)
 
 /* Function: al_set_new_file_interface
  */
-void al_set_new_file_interface(const ALLEGRO_FILE_INTERFACE *file_interface)
+void al_set_new_file_interface(const A5O_FILE_INTERFACE *file_interface)
 {
    thread_local_state *tls;
 
@@ -871,7 +871,7 @@ void al_set_new_file_interface(const ALLEGRO_FILE_INTERFACE *file_interface)
 
 /* Function: al_get_fs_interface
  */
-const ALLEGRO_FS_INTERFACE *al_get_fs_interface(void)
+const A5O_FS_INTERFACE *al_get_fs_interface(void)
 {
    thread_local_state *tls;
 
@@ -888,7 +888,7 @@ const ALLEGRO_FS_INTERFACE *al_get_fs_interface(void)
 
 /* Function: al_set_fs_interface
  */
-void al_set_fs_interface(const ALLEGRO_FS_INTERFACE *fs_interface)
+void al_set_fs_interface(const A5O_FS_INTERFACE *fs_interface)
 {
    thread_local_state *tls;
 
@@ -955,7 +955,7 @@ SETTER(new_bitmap_samples, samples)
 
 /* Function: al_get_bitmap_wrap
  */
-void al_get_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP *u, ALLEGRO_BITMAP_WRAP *v)
+void al_get_new_bitmap_wrap(A5O_BITMAP_WRAP *u, A5O_BITMAP_WRAP *v)
 {
    ASSERT(u);
    ASSERT(v);
@@ -970,7 +970,7 @@ void al_get_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP *u, ALLEGRO_BITMAP_WRAP *v)
 
 /* Function: al_set_new_bitmap_wrap
  */
-void al_set_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v)
+void al_set_new_bitmap_wrap(A5O_BITMAP_WRAP u, A5O_BITMAP_WRAP v)
 {
    thread_local_state *tls;
    if ((tls = tls_get()) == NULL)
@@ -979,7 +979,7 @@ void al_set_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP u, ALLEGRO_BITMAP_WRAP v)
    tls->new_bitmap_wrap_v = v;
 }
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 JNIEnv *_al_android_get_jnienv(void)
 GETTER(jnienv, 0)
 

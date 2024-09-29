@@ -25,9 +25,9 @@
 
 #include <jni.h>
 
-ALLEGRO_DEBUG_CHANNEL("clipboard")
+A5O_DEBUG_CHANNEL("clipboard")
 
-static bool android_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
+static bool android_set_clipboard_text(A5O_DISPLAY *display, const char *text)
 {
    JNIEnv * env = (JNIEnv *)_al_android_get_jnienv();
    jstring jtext= _jni_call(env, jstring, NewStringUTF, text);
@@ -36,7 +36,7 @@ static bool android_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *tex
                                  "setClipboardText", "(Ljava/lang/String;)Z", jtext);
 }
 
-static char *android_get_clipboard_text(ALLEGRO_DISPLAY *display)
+static char *android_get_clipboard_text(A5O_DISPLAY *display)
 {
    JNIEnv * env = (JNIEnv *)_al_android_get_jnienv();
    jobject jtext = _jni_callObjectMethod(env, _al_android_activity_object(), "getClipboardText", "()Ljava/lang/String;");
@@ -52,7 +52,7 @@ static char *android_get_clipboard_text(ALLEGRO_DISPLAY *display)
    return text;
 }
 
-static bool android_has_clipboard_text(ALLEGRO_DISPLAY *display)
+static bool android_has_clipboard_text(A5O_DISPLAY *display)
 {
    JNIEnv * env = (JNIEnv *)_al_android_get_jnienv();
    (void) display;
@@ -61,7 +61,7 @@ static bool android_has_clipboard_text(ALLEGRO_DISPLAY *display)
 }
 
 
-void _al_android_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
+void _al_android_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt)
 {
    vt->set_clipboard_text = android_set_clipboard_text;
    vt->get_clipboard_text = android_get_clipboard_text;

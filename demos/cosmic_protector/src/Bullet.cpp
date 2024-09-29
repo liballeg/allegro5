@@ -45,7 +45,7 @@ Bullet::Bullet(float x, float y, float radius, float speed, float angle,
    sina = sin(angle);
 
    ResourceManager& rm = ResourceManager::getInstance();
-   bitmap = (ALLEGRO_BITMAP *)rm.getData(bitmapID);
+   bitmap = (A5O_BITMAP *)rm.getData(bitmapID);
 
    isDestructable = false;
 }

@@ -1,6 +1,6 @@
 /* <Core> */
 
-#ifdef _ALLEGRO_GL_VERSION_1_2
+#ifdef _A5O_GL_VERSION_1_2
 AGL_API(void, BlendColor, (GLclampf, GLclampf, GLclampf, GLclampf))
 AGL_API(void, BlendEquation, (GLenum))
 AGL_API(void, DrawRangeElements, (GLenum, GLuint, GLuint, GLsizei, GLenum, const GLvoid *))
@@ -18,7 +18,7 @@ AGL_API(void, TexSubImage3D, (GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsiz
 AGL_API(void, CopyTexSubImage3D, (GLenum, GLint, GLint, GLint, GLint, GLint, GLint, GLsizei, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_imaging
+#if defined _A5O_GL_ARB_imaging
 AGL_API(void, ConvolutionFilter1D, (GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid *))
 AGL_API(void, ConvolutionFilter2D, (GLenum, GLenum, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *))
 AGL_API(void, ConvolutionParameterf, (GLenum, GLenum, GLfloat))
@@ -44,7 +44,7 @@ AGL_API(void, ResetHistogram, (GLenum))
 AGL_API(void, ResetMinmax, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_VERSION_1_3
+#if defined _A5O_GL_VERSION_1_3
 AGL_API(void, ActiveTexture, (GLenum))
 AGL_API(void, ClientActiveTexture, (GLenum))
 AGL_API(void, MultiTexCoord1d, (GLenum, GLdouble))
@@ -93,7 +93,7 @@ AGL_API(void, CompressedTexSubImage1D, (GLenum, GLint, GLint, GLsizei, GLenum, G
 AGL_API(void, GetCompressedTexImage, (GLenum, GLint, GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_VERSION_1_4
+#if defined _A5O_GL_VERSION_1_4
 AGL_API(void, BlendFuncSeparate, (GLenum, GLenum, GLenum, GLenum))
 AGL_API(void, FogCoordf, (GLfloat))
 AGL_API(void, FogCoordfv, (const GLfloat *))
@@ -142,7 +142,7 @@ AGL_API(void, WindowPos3sv, (const GLshort *))
 #endif
 
 	
-#if defined _ALLEGRO_GL_VERSION_1_5
+#if defined _A5O_GL_VERSION_1_5
 AGL_API(void, BindBuffer, (GLenum, GLuint))
 AGL_API(void, DeleteBuffers, (GLsizei, const GLuint *))
 AGL_API(void, GenBuffers, (GLsizei, GLuint *))
@@ -165,7 +165,7 @@ AGL_API(void, GetQueryObjectuiv, (GLuint, GLenum, GLuint *))
 #endif
 
 
-#if defined _ALLEGRO_GL_VERSION_2_0
+#if defined _A5O_GL_VERSION_2_0
 AGL_API(void, BlendEquationSeparate, (GLenum, GLenum))
 AGL_API(GLuint, CreateProgram, (void))
 AGL_API(GLuint, CreateShader, (GLenum))
@@ -268,7 +268,7 @@ AGL_API(void, StencilMaskSeparate, (GLenum, GLuint))
 #endif
 
 
-#if defined _ALLEGRO_GL_VERSION_2_1
+#if defined _A5O_GL_VERSION_2_1
 AGL_API(void, UniformMatrix2x3fv, (GLint, GLsizei, GLboolean, const GLfloat *))
 AGL_API(void, UniformMatrix3x2fv, (GLint, GLsizei, GLboolean, const GLfloat *))
 AGL_API(void, UniformMatrix2x4fv, (GLint, GLsizei, GLboolean, const GLfloat *))
@@ -277,7 +277,7 @@ AGL_API(void, UniformMatrix3x4fv, (GLint, GLsizei, GLboolean, const GLfloat *))
 AGL_API(void, UniformMatrix4x3fv, (GLint, GLsizei, GLboolean, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_VERSION_3_0
+#if defined _A5O_GL_VERSION_3_0
 /* OpenGL 3.0 also reuses entry points from these extensions: */
 /* ARB_framebuffer_object */
 /* ARB_map_buffer_range */
@@ -343,7 +343,7 @@ AGL_API(const GLubyte *, GetStringi, (GLenum, GLuint))
 #endif
 
 
-#if defined _ALLEGRO_GL_VERSION_3_1
+#if defined _A5O_GL_VERSION_3_1
 /* OpenGL 3.1 also reuses entry points from these extensions: */
 /* ARB_copy_buffer */
 /* ARB_uniform_buffer_object */
@@ -353,7 +353,7 @@ AGL_API(void, TexBuffer, (GLenum, GLenum, GLuint))
 AGL_API(void, PrimitiveRestartIndex, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_VERSION_3_2
+#if defined _A5O_GL_VERSION_3_2
 /* OpenGL 3.2 also reuses entry points from these extensions: */
 /* ARB_draw_elements_base_vertex */
 /* ARB_provoking_vertex */
@@ -365,7 +365,7 @@ AGL_API(void, ProgramParameteri, (GLuint program, GLenum pname, GLint value))
 AGL_API(void, FramebufferTexture, (GLenum target, GLenum attachment, GLuint texture, GLint level))
 #endif
 
-#if defined _ALLEGRO_GL_VERSION_3_3
+#if defined _A5O_GL_VERSION_3_3
 /* OpenGL 3.3 also reuses entry points from these extensions: */
 /* ARB_blend_func_extended */
 /* ARB_sampler_objects */
@@ -378,7 +378,7 @@ AGL_API(void, FramebufferTexture, (GLenum target, GLenum attachment, GLuint text
 /* ARB_vertex_type_2_10_10_10_rev */
 #endif
 
-#if defined _ALLEGRO_GL_VERSION_4_3
+#if defined _A5O_GL_VERSION_4_3
 AGL_API(void, ClearBufferData, (GLenum target, GLenum internalformat, GLenum format, GLenum type, const void *data))
 AGL_API(void, ClearBufferSubData, (GLenum target, GLenum internalformat, GLintptr offset, GLsizeiptr size, GLenum format, GLenum type, const void *data))
 AGL_API(void, DispatchCompute, (GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z))
@@ -428,7 +428,7 @@ AGL_API(void, GetObjectPtrLabel, (const void *ptr, GLsizei bufSize, GLsizei *len
 /* </Core> */
 /* <ARB> */
 
-#ifdef _ALLEGRO_GL_ARB_multitexture
+#ifdef _A5O_GL_ARB_multitexture
 AGL_API(void, ActiveTextureARB, (GLenum))
 AGL_API(void, ClientActiveTextureARB, (GLenum))
 AGL_API(void, MultiTexCoord1dARB, (GLenum, GLdouble))
@@ -465,18 +465,18 @@ AGL_API(void, MultiTexCoord4sARB, (GLenum, GLshort, GLshort, GLshort, GLshort))
 AGL_API(void, MultiTexCoord4svARB, (GLenum, const GLshort *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_transpose_matrix
+#if defined _A5O_GL_ARB_transpose_matrix
 AGL_API(void, LoadTransposeMatrixfARB, (const GLfloat *))
 AGL_API(void, LoadTransposeMatrixdARB, (const GLdouble *))
 AGL_API(void, MultTransposeMatrixfARB, (const GLfloat *))
 AGL_API(void, MultTransposeMatrixdARB, (const GLdouble *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_multisample
+#if defined _A5O_GL_ARB_multisample
 AGL_API(void, SampleCoverageARB, (GLclampf, GLboolean))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_texture_compression
+#if defined _A5O_GL_ARB_texture_compression
 AGL_API(void, CompressedTexImage3DARB, (GLenum, GLint, GLenum, GLsizei, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *))
 AGL_API(void, CompressedTexImage2DARB, (GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *))
 AGL_API(void, CompressedTexImage1DARB, (GLenum, GLint, GLenum, GLsizei, GLint, GLsizei, const GLvoid *))
@@ -486,12 +486,12 @@ AGL_API(void, CompressedTexSubImage1DARB, (GLenum, GLint, GLint, GLsizei, GLenum
 AGL_API(void, GetCompressedTexImageARB, (GLenum, GLint, GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_point_parameters
+#if defined _A5O_GL_ARB_point_parameters
 AGL_API(void, PointParameterfARB, (GLenum, GLfloat))
 AGL_API(void, PointParameterfvARB, (GLenum, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_vertex_blend
+#if defined _A5O_GL_ARB_vertex_blend
 AGL_API(void, WeightbvARB, (GLint, const GLbyte *))
 AGL_API(void, WeightsvARB, (GLint, const GLshort *))
 AGL_API(void, WeightivARB, (GLint, const GLint *))
@@ -504,7 +504,7 @@ AGL_API(void, WeightPointerARB, (GLint, GLenum, GLsizei, const GLvoid *))
 AGL_API(void, VertexBlendARB, (GLint))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_matrix_palette
+#if defined _A5O_GL_ARB_matrix_palette
 AGL_API(void, CurrentPaletteMatrixARB, (GLint))
 AGL_API(void, MatrixIndexubvARB, (GLint, const GLubyte *))
 AGL_API(void, MatrixIndexusvARB, (GLint, const GLushort *))
@@ -512,7 +512,7 @@ AGL_API(void, MatrixIndexuivARB, (GLint, const GLuint *))
 AGL_API(void, MatrixIndexPointerARB, (GLint, GLenum, GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_window_pos
+#if defined _A5O_GL_ARB_window_pos
 AGL_API(void, WindowPos2dARB, (GLdouble, GLdouble))
 AGL_API(void, WindowPos2dvARB, (const GLdouble *))
 AGL_API(void, WindowPos2fARB, (GLfloat, GLfloat))
@@ -531,7 +531,7 @@ AGL_API(void, WindowPos3sARB, (GLshort, GLshort, GLshort))
 AGL_API(void, WindowPos3svARB, (const GLshort *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_vertex_program
+#if defined _A5O_GL_ARB_vertex_program
 AGL_API(void, VertexAttrib1dARB, (GLuint, GLdouble))
 AGL_API(void, VertexAttrib1dvARB, (GLuint, const GLdouble *))
 AGL_API(void, VertexAttrib1fARB, (GLuint, GLfloat))
@@ -596,7 +596,7 @@ AGL_API(void, GetVertexAttribPointervARB, (GLuint, GLenum, GLvoid* *))
 AGL_API(GLboolean, IsProgramARB, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_vertex_buffer_object
+#if defined _A5O_GL_ARB_vertex_buffer_object
 AGL_API(void, BindBufferARB, (GLenum, GLuint))
 AGL_API(void, DeleteBuffersARB, (GLsizei, const GLuint *))
 AGL_API(void, GenBuffersARB, (GLsizei, GLuint *))
@@ -610,7 +610,7 @@ AGL_API(void, GetBufferParameterivARB, (GLenum, GLenum, GLint *))
 AGL_API(void, GetBufferPointervARB, (GLenum, GLenum, GLvoid* *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_occlusion_query
+#if defined _A5O_GL_ARB_occlusion_query
 AGL_API(void, GenQueriesARB, (GLsizei, GLuint *))
 AGL_API(void, DeleteQueriesARB, (GLsizei, const GLuint *))
 AGL_API(GLboolean, IsQueryARB, (GLuint))
@@ -621,7 +621,7 @@ AGL_API(void, GetQueryObjectivARB, (GLuint, GLenum, GLint *))
 AGL_API(void, GetQueryObjectuivARB, (GLuint, GLenum, GLuint *))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_shader_objects
+#if defined _A5O_GL_ARB_shader_objects
 AGL_API(void, DeleteObjectARB, (GLhandleARB))
 AGL_API(GLhandleARB, GetHandleARB, (GLenum))
 AGL_API(void, DetachObjectARB, (GLhandleARB, GLhandleARB))
@@ -663,7 +663,7 @@ AGL_API(void, GetUniformivARB, (GLhandleARB, GLint, GLint *))
 AGL_API(void, GetShaderSourceARB, (GLhandleARB, GLsizei, GLsizei *, GLcharARB *))
 #endif
 
-#ifdef _ALLEGRO_GL_ARB_vertex_shader
+#ifdef _A5O_GL_ARB_vertex_shader
 #ifndef GL_ARB_vertex_program
 AGL_API(void, VertexAttrib1fARB, (GLuint, GLfloat))
 AGL_API(void, VertexAttrib1sARB, (GLuint, GLshort))
@@ -716,20 +716,20 @@ AGL_API(void, GetVertexAttribPointervARB, (GLuint, GLenum, GLvoid **))
 #endif
 #endif
 
-#if defined _ALLEGRO_GL_ARB_draw_buffers
+#if defined _A5O_GL_ARB_draw_buffers
 AGL_API(void, DrawBuffersARB, (GLsizei n, const GLenum *bufs))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_color_buffer_float
+#if defined _A5O_GL_ARB_color_buffer_float
 AGL_API(void, ClampColorARB, (GLenum, GLenum clamp))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_draw_instanced
+#if defined _A5O_GL_ARB_draw_instanced
 AGL_API(void, DrawArraysInstancedARB, (GLenum, GLint, GLsizei, GLsizei))
 AGL_API(void, DrawElementsInstancedARB, (GLenum, GLsizei, GLenum, const GLvoid *, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_framebuffer_object
+#if defined _A5O_GL_ARB_framebuffer_object
 AGL_API(GLboolean, IsRenderbuffer, (GLuint))
 AGL_API(void, BindRenderbuffer, (GLenum, GLuint))
 AGL_API(void, DeleteRenderbuffers, (GLsizei, const GLuint *))
@@ -752,34 +752,34 @@ AGL_API(void, RenderbufferStorageMultisample, (GLenum, GLsizei, GLenum, GLsizei,
 AGL_API(void, FramebufferTextureLayer, (GLenum, GLenum, GLuint, GLint, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_geometry_shader4
+#if defined _A5O_GL_ARB_geometry_shader4
 AGL_API(void, ProgramParameteriARB, (GLuint, GLenum, GLint))
 AGL_API(void, FramebufferTextureARB, (GLenum, GLenum, GLuint, GLint))
 AGL_API(void, FramebufferTextureLayerARB, (GLenum, GLenum, GLuint, GLint, GLint))
 AGL_API(void, FramebufferTextureFaceARB, (GLenum, GLenum, GLuint, GLint, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_instanced_arrays
+#if defined _A5O_GL_ARB_instanced_arrays
 AGL_API(void, VertexAttribDivisor, (GLuint, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_map_buffer_range
+#if defined _A5O_GL_ARB_map_buffer_range
 AGL_API(void, MapBufferRange, (GLenum, GLintptr, GLsizeiptr, GLbitfield))
 AGL_API(void, FlushMappedBufferRange, (GLenum, GLintptr, GLsizeiptr))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_texture_buffer_object
+#if defined _A5O_GL_ARB_texture_buffer_object
 AGL_API(void, TexBufferARB, (GLenum, GLenum, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_vertex_array_object
+#if defined _A5O_GL_ARB_vertex_array_object
 AGL_API(void, BindVertexArray, (GLuint))
 AGL_API(void, DeleteVertexArrays, (GLsizei, const GLuint *))
 AGL_API(void, GenVertexArrays, (GLsizei, GLuint *))
 AGL_API(GLboolean, IsVertexArray, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_uniform_buffer_object
+#if defined _A5O_GL_ARB_uniform_buffer_object
 AGL_API(void, GetUniformIndices, (GLuint, GLsizei, const GLchar* *, GLuint *))
 AGL_API(void, GetActiveUniformsiv, (GLuint, GLsizei, const GLuint *, GLenum, GLint *))
 AGL_API(void, GetActiveUniformName, (GLuint, GLuint, GLsizei, GLsizei *, GLchar *))
@@ -789,23 +789,23 @@ AGL_API(void, GetActiveUniformBlockName, (GLuint, GLuint, GLsizei, GLsizei *, GL
 AGL_API(void, UniformBlockBinding, (GLuint, GLuint, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_copy_buffer
+#if defined _A5O_GL_ARB_copy_buffer
 AGL_API(void, CopyBufferSubData, (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr))
 #endif
 
 
-#if defined _ALLEGRO_GL_ARB_draw_elements_base_vertex
+#if defined _A5O_GL_ARB_draw_elements_base_vertex
 AGL_API(void, DrawElementsBaseVertex, (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLint basevertex))
 AGL_API(void, DrawRangeElementsBaseVertex, (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, GLint basevertex))
 AGL_API(void, DrawElementsInstancedBaseVertex, (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLsizei primcount, GLint basevertex))
 AGL_API(void, MultiDrawElementsBaseVertex, (GLenum mode, const GLsizei *count, GLenum type, const GLvoid* *indices, GLsizei primcount, const GLint *basevertex))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_provoking_vertex
+#if defined _A5O_GL_ARB_provoking_vertex
 AGL_API(void, ProvokingVertex, (GLenum mode))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_sync
+#if defined _A5O_GL_ARB_sync
 AGL_API(GLsync, FenceSync, (GLenum condition, GLbitfield flags))
 AGL_API(GLboolean, IsSync, (GLsync sync))
 AGL_API(void, DeleteSync, (GLsync sync))
@@ -815,25 +815,25 @@ AGL_API(void, GetInteger64v, (GLenum pname, GLint64 *params))
 AGL_API(void, GetSynciv, (GLsync sync, GLenum pname, GLsizei bufSize, GLsizei *length, GLint *values))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_texture_multisample
+#if defined _A5O_GL_ARB_texture_multisample
 AGL_API(void, TexImage2DMultisample, (GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations))
 AGL_API(void, TexImage3DMultisample, (GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations))
 AGL_API(void, GetMultisamplefv, (GLenum pname, GLuint index, GLfloat *val))
 AGL_API(void, SampleMaski, (GLuint index, GLbitfield mask))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_draw_buffers_blend
+#if defined _A5O_GL_ARB_draw_buffers_blend
 AGL_API(void, BlendEquationi, (GLuint buf, GLenum mode))
 AGL_API(void, BlendEquationSeparatei, (GLuint buf, GLenum modeRGB, GLenum modeAlpha))
 AGL_API(void, BlendFunci, (GLuint buf, GLenum src, GLenum dst))
 AGL_API(void, BlendFuncSeparatei, (GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_sample_shading
+#if defined _A5O_GL_ARB_sample_shading
 AGL_API(void, MinSampleShading, (GLclampf value))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_shading_language_include
+#if defined _A5O_GL_ARB_shading_language_include
 AGL_API(void, NamedStringARB, (GLenum type, GLint namelen, const GLchar *name, GLint stringlen, const GLchar *string))
 AGL_API(void, DeleteNamedStringARB, (GLint namelen, const GLchar *name))
 AGL_API(void, CompileShaderIncludeARB, (GLuint shader, GLsizei count, const GLchar* *path, const GLint *length))
@@ -842,12 +842,12 @@ AGL_API(void, GetNamedStringARB, (GLint namelen, const GLchar *name, GLsizei buf
 AGL_API(void, GetNamedStringivARB, (GLint namelen, const GLchar *name, GLenum pname, GLint *params))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_blend_func_extended
+#if defined _A5O_GL_ARB_blend_func_extended
 AGL_API(void, BindFragDataLocationIndexed, (GLuint program, GLuint colorNumber, GLuint index, const GLchar *name))
 AGL_API(GLint, GetFragDataIndex, (GLuint program, const GLchar *name))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_sampler_objects
+#if defined _A5O_GL_ARB_sampler_objects
 AGL_API(void, GenSamplers, (GLsizei count, GLuint *samplers))
 AGL_API(void, DeleteSamplers, (GLsizei count, const GLuint *samplers))
 AGL_API(GLboolean, IsSampler, (GLuint sampler))
@@ -864,13 +864,13 @@ AGL_API(void, GetSamplerParameterfv, (GLuint sampler, GLenum pname, GLfloat *par
 AGL_API(void, GetSamplerParameterIfv, (GLuint sampler, GLenum pname, GLfloat *params))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_timer_query
+#if defined _A5O_GL_ARB_timer_query
 AGL_API(void, QueryCounter, (GLuint id, GLenum target))
 AGL_API(void, GetQueryObjecti64v, (GLuint id, GLenum pname, GLint64 *params))
 AGL_API(void, GetQueryObjectui64v, (GLuint id, GLenum pname, GLuint64 *params))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_vertex_type_2_10_10_10_rev
+#if defined _A5O_GL_ARB_vertex_type_2_10_10_10_rev
 AGL_API(void, VertexP2ui, (GLenum type, GLuint value))
 AGL_API(void, VertexP2uiv, (GLenum type, const GLuint *value))
 AGL_API(void, VertexP3ui, (GLenum type, GLuint value))
@@ -911,12 +911,12 @@ AGL_API(void, VertexAttribP4ui, (GLuint index, GLenum type, GLboolean normalized
 AGL_API(void, VertexAttribP4uiv, (GLuint index, GLenum type, GLboolean normalized, const GLuint *value))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_draw_indirect
+#if defined _A5O_GL_ARB_draw_indirect
 AGL_API(void, DrawArraysIndirect, (GLenum mode, const GLvoid *indirect))
 AGL_API(void, DrawElementsIndirect, (GLenum mode, GLenum type, const GLvoid *indirect))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_gpu_shader_fp64
+#if defined _A5O_GL_ARB_gpu_shader_fp64
 AGL_API(void, Uniform1d, (GLint location, GLdouble x))
 AGL_API(void, Uniform2d, (GLint location, GLdouble x, GLdouble y))
 AGL_API(void, Uniform3d, (GLint location, GLdouble x, GLdouble y, GLdouble z))
@@ -954,7 +954,7 @@ AGL_API(void, ProgramUniformMatrix4x2dvEXT, (GLuint program, GLint location, GLs
 AGL_API(void, ProgramUniformMatrix4x3dvEXT, (GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_shader_subroutine
+#if defined _A5O_GL_ARB_shader_subroutine
 AGL_API(GLint, GetSubroutineUniformLocation, (GLuint program, GLenum shadertype, const GLchar *name))
 AGL_API(GLuint, GetSubroutineIndex, (GLuint program, GLenum shadertype, const GLchar *name))
 AGL_API(void, GetActiveSubroutineUniformiv, (GLuint program, GLenum shadertype, GLuint index, GLenum pname, GLint *values))
@@ -965,12 +965,12 @@ AGL_API(void, GetUniformSubroutineuiv, (GLenum shadertype, GLint location, GLuin
 AGL_API(void, GetProgramStageiv, (GLuint program, GLenum shadertype, GLenum pname, GLint *values))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_tessellation_shader
+#if defined _A5O_GL_ARB_tessellation_shader
 AGL_API(void, PatchParameteri, (GLenum pname, GLint value))
 AGL_API(void, PatchParameterfv, (GLenum pname, const GLfloat *values))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_transform_feedback2
+#if defined _A5O_GL_ARB_transform_feedback2
 AGL_API(void, BindTransformFeedback, (GLenum target, GLuint id))
 AGL_API(void, DeleteTransformFeedbacks, (GLsizei n, const GLuint *ids))
 AGL_API(void, GenTransformFeedbacks, (GLsizei n, GLuint *ids))
@@ -980,7 +980,7 @@ AGL_API(void, ResumeTransformFeedback, (void))
 AGL_API(void, DrawTransformFeedback, (GLenum mode, GLuint id))
 #endif
 
-#if defined _ALLEGRO_GL_ARB_transform_feedback3
+#if defined _A5O_GL_ARB_transform_feedback3
 AGL_API(void, DrawTransformFeedbackStream, (GLenum mode, GLuint id, GLuint stream))
 AGL_API(void, BeginQueryIndexed, (GLenum target, GLuint index, GLuint id))
 AGL_API(void, EndQueryIndexed, (GLenum target, GLuint index))
@@ -991,30 +991,30 @@ AGL_API(void, GetQueryIndexediv, (GLenum target, GLuint index, GLenum pname, GLi
 /* </ARB> */
 
 
-#if defined _ALLEGRO_GL_EXT_blend_color
+#if defined _A5O_GL_EXT_blend_color
 AGL_API(void, BlendColorEXT, (GLclampf, GLclampf, GLclampf, GLclampf))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_polygon_offset
+#if defined _A5O_GL_EXT_polygon_offset
 AGL_API(void, PolygonOffsetEXT, (GLfloat, GLfloat))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_texture3D
+#if defined _A5O_GL_EXT_texture3D
 AGL_API(void, TexImage3DEXT, (GLenum, GLint, GLenum, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *))
 AGL_API(void, TexSubImage3DEXT, (GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_texture_filter4
+#if defined _A5O_GL_SGIS_texture_filter4
 AGL_API(void, GetTexFilterFuncSGIS, (GLenum, GLenum, GLfloat *))
 AGL_API(void, TexFilterFuncSGIS, (GLenum, GLenum, GLsizei, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_subtexture
+#if defined _A5O_GL_EXT_subtexture
 AGL_API(void, TexSubImage1DEXT, (GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const GLvoid *))
 AGL_API(void, TexSubImage2DEXT, (GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_copy_texture
+#if defined _A5O_GL_EXT_copy_texture
 AGL_API(void, CopyTexImage1DEXT, (GLenum, GLint, GLenum, GLint, GLint, GLsizei, GLint))
 AGL_API(void, CopyTexImage2DEXT, (GLenum, GLint, GLenum, GLint, GLint, GLsizei, GLsizei, GLint))
 AGL_API(void, CopyTexSubImage1DEXT, (GLenum, GLint, GLint, GLint, GLint, GLsizei))
@@ -1022,7 +1022,7 @@ AGL_API(void, CopyTexSubImage2DEXT, (GLenum, GLint, GLint, GLint, GLint, GLint, 
 AGL_API(void, CopyTexSubImage3DEXT, (GLenum, GLint, GLint, GLint, GLint, GLint, GLint, GLsizei, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_histogram
+#if defined _A5O_GL_EXT_histogram
 AGL_API(void, GetHistogramEXT, (GLenum, GLboolean, GLenum, GLenum, GLvoid *))
 AGL_API(void, GetHistogramParameterfvEXT, (GLenum, GLenum, GLfloat *))
 AGL_API(void, GetHistogramParameterivEXT, (GLenum, GLenum, GLint *))
@@ -1035,7 +1035,7 @@ AGL_API(void, ResetHistogramEXT, (GLenum))
 AGL_API(void, ResetMinmaxEXT, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_convolution
+#if defined _A5O_GL_EXT_convolution
 AGL_API(void, ConvolutionFilter1DEXT, (GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid *))
 AGL_API(void, ConvolutionFilter2DEXT, (GLenum, GLenum, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *))
 AGL_API(void, ConvolutionParameterfEXT, (GLenum, GLenum, GLfloat))
@@ -1051,7 +1051,7 @@ AGL_API(void, GetSeparableFilterEXT, (GLenum, GLenum, GLenum, GLvoid *, GLvoid *
 AGL_API(void, SeparableFilter2DEXT, (GLenum, GLenum, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_SGI_color_table
+#if defined _A5O_GL_SGI_color_table
 AGL_API(void, ColorTableSGI, (GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid *))
 AGL_API(void, ColorTableParameterfvSGI, (GLenum, GLenum, const GLfloat *))
 AGL_API(void, ColorTableParameterivSGI, (GLenum, GLenum, const GLint *))
@@ -1061,11 +1061,11 @@ AGL_API(void, GetColorTableParameterfvSGI, (GLenum, GLenum, GLfloat *))
 AGL_API(void, GetColorTableParameterivSGI, (GLenum, GLenum, GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_pixel_texture
+#if defined _A5O_GL_SGIX_pixel_texture
 AGL_API(void, PixelTexGenSGIX, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_pixel_texture
+#if defined _A5O_GL_SGIS_pixel_texture
 AGL_API(void, PixelTexGenParameteriSGIS, (GLenum, GLint))
 AGL_API(void, PixelTexGenParameterivSGIS, (GLenum, const GLint *))
 AGL_API(void, PixelTexGenParameterfSGIS, (GLenum, GLfloat))
@@ -1074,12 +1074,12 @@ AGL_API(void, GetPixelTexGenParameterivSGIS, (GLenum, GLint *))
 AGL_API(void, GetPixelTexGenParameterfvSGIS, (GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_texture4D
+#if defined _A5O_GL_SGIS_texture4D
 AGL_API(void, TexImage4DSGIS, (GLenum, GLint, GLenum, GLsizei, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *))
 AGL_API(void, TexSubImage4DSGIS, (GLenum, GLint, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_texture_object
+#if defined _A5O_GL_EXT_texture_object
 AGL_API(GLboolean, AreTexturesResidentEXT, (GLsizei, const GLuint *, GLboolean *))
 AGL_API(void, BindTextureEXT, (GLenum, GLuint))
 AGL_API(void, DeleteTexturesEXT, (GLsizei, const GLuint *))
@@ -1088,22 +1088,22 @@ AGL_API(GLboolean, IsTextureEXT, (GLuint))
 AGL_API(void, PrioritizeTexturesEXT, (GLsizei, const GLuint *, const GLclampf *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_detail_texture
+#if defined _A5O_GL_SGIS_detail_texture
 AGL_API(void, DetailTexFuncSGIS, (GLenum, GLsizei, const GLfloat *))
 AGL_API(void, GetDetailTexFuncSGIS, (GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_sharpen_texture
+#if defined _A5O_GL_SGIS_sharpen_texture
 AGL_API(void, SharpenTexFuncSGIS, (GLenum, GLsizei, const GLfloat *))
 AGL_API(void, GetSharpenTexFuncSGIS, (GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_multisample
+#if defined _A5O_GL_SGIS_multisample
 AGL_API(void, SampleMaskSGIS, (GLclampf, GLboolean))
 AGL_API(void, SamplePatternSGIS, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_vertex_array
+#if defined _A5O_GL_EXT_vertex_array
 AGL_API(void, ArrayElementEXT, (GLint))
 AGL_API(void, ColorPointerEXT, (GLint, GLenum, GLsizei, GLsizei, const GLvoid *))
 AGL_API(void, DrawArraysEXT, (GLenum, GLint, GLsizei))
@@ -1115,28 +1115,28 @@ AGL_API(void, TexCoordPointerEXT, (GLint, GLenum, GLsizei, GLsizei, const GLvoid
 AGL_API(void, VertexPointerEXT, (GLint, GLenum, GLsizei, GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_blend_minmax
+#if defined _A5O_GL_EXT_blend_minmax
 AGL_API(void, BlendEquationEXT, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_sprite
+#if defined _A5O_GL_SGIX_sprite
 AGL_API(void, SpriteParameterfSGIX, (GLenum, GLfloat))
 AGL_API(void, SpriteParameterfvSGIX, (GLenum, const GLfloat *))
 AGL_API(void, SpriteParameteriSGIX, (GLenum, GLint))
 AGL_API(void, SpriteParameterivSGIX, (GLenum, const GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_point_parameters
+#if defined _A5O_GL_EXT_point_parameters
 AGL_API(void, PointParameterfEXT, (GLenum, GLfloat))
 AGL_API(void, PointParameterfvEXT, (GLenum, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_point_parameters
+#if defined _A5O_GL_SGIS_point_parameters
 AGL_API(void, PointParameterfSGIS, (GLenum, GLfloat))
 AGL_API(void, PointParameterfvSGIS, (GLenum, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_instruments
+#if defined _A5O_GL_SGIX_instruments
 AGL_API(GLint, GetInstrumentsSGIX, (void))
 AGL_API(void, InstrumentsBufferSGIX, (GLsizei, GLint *))
 AGL_API(GLint, PollInstrumentsSGIX, (GLint *))
@@ -1145,35 +1145,35 @@ AGL_API(void, StartInstrumentsSGIX, (void))
 AGL_API(void, StopInstrumentsSGIX, (GLint))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_framezoom
+#if defined _A5O_GL_SGIX_framezoom
 AGL_API(void, FrameZoomSGIX, (GLint))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_tag_sample_buffer
+#if defined _A5O_GL_SGIX_tag_sample_buffer
 AGL_API(void, TagSampleBufferSGIX, (void))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_polynomial_ffd
+#if defined _A5O_GL_SGIX_polynomial_ffd
 AGL_API(void, DeformationMap3dSGIX, (GLenum, GLdouble, GLdouble, GLint, GLint, GLdouble, GLdouble, GLint, GLint, GLdouble, GLdouble, GLint, GLint, const GLdouble *))
 AGL_API(void, DeformationMap3fSGIX, (GLenum, GLfloat, GLfloat, GLint, GLint, GLfloat, GLfloat, GLint, GLint, GLfloat, GLfloat, GLint, GLint, const GLfloat *))
 AGL_API(void, DeformSGIX, (GLbitfield))
 AGL_API(void, LoadIdentityDeformationMapSGIX, (GLbitfield))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_reference_plane
+#if defined _A5O_GL_SGIX_reference_plane
 AGL_API(void, ReferencePlaneSGIX, (const GLdouble *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_flush_raster
+#if defined _A5O_GL_SGIX_flush_raster
 AGL_API(void, FlushRasterSGIX, (void))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_fog_function
+#if defined _A5O_GL_SGIS_fog_function
 AGL_API(void, FogFuncSGIS, (GLsizei, const GLfloat *))
 AGL_API(void, GetFogFuncSGIS, (GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_HP_image_transform
+#if defined _A5O_GL_HP_image_transform
 AGL_API(void, ImageTransformParameteriHP, (GLenum, GLenum, GLint))
 AGL_API(void, ImageTransformParameterfHP, (GLenum, GLenum, GLfloat))
 AGL_API(void, ImageTransformParameterivHP, (GLenum, GLenum, const GLint *))
@@ -1182,25 +1182,25 @@ AGL_API(void, GetImageTransformParameterivHP, (GLenum, GLenum, GLint *))
 AGL_API(void, GetImageTransformParameterfvHP, (GLenum, GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_color_subtable
+#if defined _A5O_GL_EXT_color_subtable
 #ifndef GL_EXT_paletted_texture
 AGL_API(void, ColorSubTableEXT, (GLenum, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *))
 #endif
 AGL_API(void, CopyColorSubTableEXT, (GLenum, GLsizei, GLint, GLint, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_PGI_misc_hints
+#if defined _A5O_GL_PGI_misc_hints
 AGL_API(void, HintPGI, (GLenum, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_paletted_texture
+#if defined _A5O_GL_EXT_paletted_texture
 AGL_API(void, ColorTableEXT, (GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid *))
 AGL_API(void, GetColorTableEXT, (GLenum, GLenum, GLenum, GLvoid *))
 AGL_API(void, GetColorTableParameterivEXT, (GLenum, GLenum, GLint *))
 AGL_API(void, GetColorTableParameterfvEXT, (GLenum, GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_list_priority
+#if defined _A5O_GL_SGIX_list_priority
 AGL_API(void, GetListParameterfvSGIX, (GLuint, GLenum, GLfloat *))
 AGL_API(void, GetListParameterivSGIX, (GLuint, GLenum, GLint *))
 AGL_API(void, ListParameterfSGIX, (GLuint, GLenum, GLfloat))
@@ -1209,25 +1209,25 @@ AGL_API(void, ListParameteriSGIX, (GLuint, GLenum, GLint))
 AGL_API(void, ListParameterivSGIX, (GLuint, GLenum, const GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_index_material
+#if defined _A5O_GL_EXT_index_material
 AGL_API(void, IndexMaterialEXT, (GLenum, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_index_func
+#if defined _A5O_GL_EXT_index_func
 AGL_API(void, IndexFuncEXT, (GLenum, GLclampf))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_compiled_vertex_array
+#if defined _A5O_GL_EXT_compiled_vertex_array
 AGL_API(void, LockArraysEXT, (GLint, GLsizei))
 AGL_API(void, UnlockArraysEXT, (void))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_cull_vertex
+#if defined _A5O_GL_EXT_cull_vertex
 AGL_API(void, CullParameterdvEXT, (GLenum, GLdouble *))
 AGL_API(void, CullParameterfvEXT, (GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_fragment_lighting
+#if defined _A5O_GL_SGIX_fragment_lighting
 AGL_API(void, FragmentColorMaterialSGIX, (GLenum, GLenum))
 AGL_API(void, FragmentLightfSGIX, (GLenum, GLenum, GLfloat))
 AGL_API(void, FragmentLightfvSGIX, (GLenum, GLenum, const GLfloat *))
@@ -1248,17 +1248,17 @@ AGL_API(void, GetFragmentMaterialivSGIX, (GLenum, GLenum, GLint *))
 AGL_API(void, LightEnviSGIX, (GLenum, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_draw_range_elements
+#if defined _A5O_GL_EXT_draw_range_elements
 AGL_API(void, DrawRangeElementsEXT, (GLenum, GLuint, GLuint, GLsizei, GLenum, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_light_texture
+#if defined _A5O_GL_EXT_light_texture
 AGL_API(void, ApplyTextureEXT, (GLenum))
 AGL_API(void, TextureLightEXT, (GLenum))
 AGL_API(void, TextureMaterialEXT, (GLenum, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_async
+#if defined _A5O_GL_SGIX_async
 AGL_API(void, AsyncMarkerSGIX, (GLuint))
 AGL_API(GLint, FinishAsyncSGIX, (GLuint *))
 AGL_API(GLint, PollAsyncSGIX, (GLuint *))
@@ -1267,21 +1267,21 @@ AGL_API(void, DeleteAsyncMarkersSGIX, (GLuint, GLsizei))
 AGL_API(GLboolean, IsAsyncMarkerSGIX, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_INTEL_parallel_arrays
+#if defined _A5O_GL_INTEL_parallel_arrays
 AGL_API(void, VertexPointervINTEL, (GLint, GLenum, const GLvoid* *))
 AGL_API(void, NormalPointervINTEL, (GLenum, const GLvoid* *))
 AGL_API(void, ColorPointervINTEL, (GLint, GLenum, const GLvoid* *))
 AGL_API(void, TexCoordPointervINTEL, (GLint, GLenum, const GLvoid* *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_pixel_transform
+#if defined _A5O_GL_EXT_pixel_transform
 AGL_API(void, PixelTransformParameteriEXT, (GLenum, GLenum, GLint))
 AGL_API(void, PixelTransformParameterfEXT, (GLenum, GLenum, GLfloat))
 AGL_API(void, PixelTransformParameterivEXT, (GLenum, GLenum, const GLint *))
 AGL_API(void, PixelTransformParameterfvEXT, (GLenum, GLenum, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_secondary_color
+#if defined _A5O_GL_EXT_secondary_color
 AGL_API(void, SecondaryColor3bEXT, (GLbyte, GLbyte, GLbyte))
 AGL_API(void, SecondaryColor3bvEXT, (const GLbyte *))
 AGL_API(void, SecondaryColor3dEXT, (GLdouble, GLdouble, GLdouble))
@@ -1301,16 +1301,16 @@ AGL_API(void, SecondaryColor3usvEXT, (const GLushort *))
 AGL_API(void, SecondaryColorPointerEXT, (GLint, GLenum, GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_texture_perturb_normal
+#if defined _A5O_GL_EXT_texture_perturb_normal
 AGL_API(void, TextureNormalEXT, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_multi_draw_arrays
+#if defined _A5O_GL_EXT_multi_draw_arrays
 AGL_API(void, MultiDrawArraysEXT, (GLenum, GLint *, GLsizei *, GLsizei))
 AGL_API(void, MultiDrawElementsEXT, (GLenum, const GLsizei *, GLenum, const GLvoid* *, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_fog_coord
+#if defined _A5O_GL_EXT_fog_coord
 AGL_API(void, FogCoordfEXT, (GLfloat))
 AGL_API(void, FogCoordfvEXT, (const GLfloat *))
 AGL_API(void, FogCoorddEXT, (GLdouble))
@@ -1318,7 +1318,7 @@ AGL_API(void, FogCoorddvEXT, (const GLdouble *))
 AGL_API(void, FogCoordPointerEXT, (GLenum, GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_coordinate_frame
+#if defined _A5O_GL_EXT_coordinate_frame
 AGL_API(void, Tangent3bEXT, (GLbyte, GLbyte, GLbyte))
 AGL_API(void, Tangent3bvEXT, (const GLbyte *))
 AGL_API(void, Tangent3dEXT, (GLdouble, GLdouble, GLdouble))
@@ -1343,11 +1343,11 @@ AGL_API(void, TangentPointerEXT, (GLenum, GLsizei, const GLvoid *))
 AGL_API(void, BinormalPointerEXT, (GLenum, GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_SUNX_constant_data
+#if defined _A5O_GL_SUNX_constant_data
 AGL_API(void, FinishTextureSUNX, (void))
 #endif
 
-#if defined _ALLEGRO_GL_SUN_global_alpha
+#if defined _A5O_GL_SUN_global_alpha
 AGL_API(void, GlobalAlphaFactorbSUN, (GLbyte))
 AGL_API(void, GlobalAlphaFactorsSUN, (GLshort))
 AGL_API(void, GlobalAlphaFactoriSUN, (GLint))
@@ -1358,7 +1358,7 @@ AGL_API(void, GlobalAlphaFactorusSUN, (GLushort))
 AGL_API(void, GlobalAlphaFactoruiSUN, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_SUN_triangle_list
+#if defined _A5O_GL_SUN_triangle_list
 AGL_API(void, ReplacementCodeuiSUN, (GLuint))
 AGL_API(void, ReplacementCodeusSUN, (GLushort))
 AGL_API(void, ReplacementCodeubSUN, (GLubyte))
@@ -1368,7 +1368,7 @@ AGL_API(void, ReplacementCodeubvSUN, (const GLubyte *))
 AGL_API(void, ReplacementCodePointerSUN, (GLenum, GLsizei, const GLvoid* *))
 #endif
 
-#if defined _ALLEGRO_GL_SUN_vertex
+#if defined _A5O_GL_SUN_vertex
 AGL_API(void, Color4ubVertex2fSUN, (GLubyte, GLubyte, GLubyte, GLubyte, GLfloat, GLfloat))
 AGL_API(void, Color4ubVertex2fvSUN, (const GLubyte *, const GLfloat *))
 AGL_API(void, Color4ubVertex3fSUN, (GLubyte, GLubyte, GLubyte, GLubyte, GLfloat, GLfloat, GLfloat))
@@ -1411,26 +1411,26 @@ AGL_API(void, ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN, (GLuint, GL
 AGL_API(void, ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN, (const GLuint *, const GLfloat *, const GLfloat *, const GLfloat *, const GLfloat *))
 #endif
 	
-#if defined _ALLEGRO_GL_EXT_blend_func_separate
+#if defined _A5O_GL_EXT_blend_func_separate
 AGL_API(void, BlendFuncSeparateEXT, (GLenum, GLenum, GLenum, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_INGR_blend_func_separate
+#if defined _A5O_GL_INGR_blend_func_separate
 AGL_API(void, BlendFuncSeparateINGR, (GLenum, GLenum, GLenum, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_vertex_weighting
+#if defined _A5O_GL_EXT_vertex_weighting
 AGL_API(void, VertexWeightfEXT, (GLfloat))
 AGL_API(void, VertexWeightfvEXT, (const GLfloat *))
 AGL_API(void, VertexWeightPointerEXT, (GLsizei, GLenum, GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_vertex_array_range
+#if defined _A5O_GL_NV_vertex_array_range
 AGL_API(void, FlushVertexArrayRangeNV, (void))
 AGL_API(void, VertexArrayRangeNV, (GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_register_combiners
+#if defined _A5O_GL_NV_register_combiners
 AGL_API(void, CombinerParameterfvNV, (GLenum, const GLfloat *))
 AGL_API(void, CombinerParameterfNV, (GLenum, GLfloat))
 AGL_API(void, CombinerParameterivNV, (GLenum, const GLint *))
@@ -1446,11 +1446,11 @@ AGL_API(void, GetFinalCombinerInputParameterfvNV, (GLenum, GLenum, GLfloat *))
 AGL_API(void, GetFinalCombinerInputParameterivNV, (GLenum, GLenum, GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_MESA_resize_buffers
+#if defined _A5O_GL_MESA_resize_buffers
 AGL_API(void, ResizeBuffersMESA, (void))
 #endif
 
-#if defined _ALLEGRO_GL_MESA_window_pos
+#if defined _A5O_GL_MESA_window_pos
 AGL_API(void, WindowPos2dMESA, (GLdouble, GLdouble))
 AGL_API(void, WindowPos2dvMESA, (const GLdouble *))
 AGL_API(void, WindowPos2fMESA, (GLfloat, GLfloat))
@@ -1477,7 +1477,7 @@ AGL_API(void, WindowPos4sMESA, (GLshort, GLshort, GLshort, GLshort))
 AGL_API(void, WindowPos4svMESA, (const GLshort *))
 #endif
 
-#if defined _ALLEGRO_GL_IBM_multimode_draw_arrays
+#if defined _A5O_GL_IBM_multimode_draw_arrays
 AGL_API(void, MultiModeDrawArraysIBM, (GLenum, const GLint *, const GLsizei *, GLsizei, GLint))
 AGL_API(void, MultiModeDrawElementsIBM, (const GLenum *, const GLsizei *, GLenum, const GLvoid* *, GLsizei, GLint))
 #endif
@@ -1493,24 +1493,24 @@ AGL_API(void, TexCoordPointerListIBM, (GLint, GLenum, GLint, const GLvoid* *, GL
 AGL_API(void, VertexPointerListIBM, (GLint, GLenum, GLint, const GLvoid* *, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_3DFX_tbuffer
+#if defined _A5O_GL_3DFX_tbuffer
 AGL_API(void, TbufferMask3DFX, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_multisample
+#if defined _A5O_GL_EXT_multisample
 AGL_API(void, SampleMaskEXT, (GLclampf, GLboolean))
 AGL_API(void, SamplePatternEXT, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_SGIS_texture_color_mask
+#if defined _A5O_GL_SGIS_texture_color_mask
 AGL_API(void, TextureColorMaskSGIS, (GLboolean, GLboolean, GLboolean, GLboolean))
 #endif
 
-#if defined _ALLEGRO_GL_SGIX_igloo_interface
+#if defined _A5O_GL_SGIX_igloo_interface
 AGL_API(void, IglooInterfaceSGIX, (GLenum, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_fence
+#if defined _A5O_GL_NV_fence
 AGL_API(void, DeleteFencesNV, (GLsizei, const GLuint *))
 AGL_API(void, GenFencesNV, (GLsizei, GLuint *))
 AGL_API(GLboolean, IsFenceNV, (GLuint))
@@ -1520,7 +1520,7 @@ AGL_API(void, FinishFenceNV, (GLuint))
 AGL_API(void, SetFenceNV, (GLuint, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_NV_evaluators
+#if defined _A5O_GL_NV_evaluators
 AGL_API(void, MapControlPointsNV, (GLenum, GLuint, GLenum, GLsizei, GLsizei, GLint, GLint, GLboolean, const GLvoid *))
 AGL_API(void, MapParameterivNV, (GLenum, GLenum, const GLint *))
 AGL_API(void, MapParameterfvNV, (GLenum, GLenum, const GLfloat *))
@@ -1532,12 +1532,12 @@ AGL_API(void, GetMapAttribParameterfvNV, (GLenum, GLuint, GLenum, GLfloat *))
 AGL_API(void, EvalMapsNV, (GLenum, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_NV_register_combiners2
+#if defined _A5O_GL_NV_register_combiners2
 AGL_API(void, CombinerStageParameterfvNV, (GLenum, GLenum, const GLfloat *))
 AGL_API(void, GetCombinerStageParameterfvNV, (GLenum, GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_vertex_program
+#if defined _A5O_GL_NV_vertex_program
 AGL_API(GLboolean, AreProgramsResidentNV, (GLsizei, const GLuint *, GLboolean *))
 AGL_API(void, BindProgramNV, (GLenum, GLuint))
 AGL_API(void, DeleteProgramsNV, (GLsizei, const GLuint *))
@@ -1604,14 +1604,14 @@ AGL_API(void, VertexAttribs4svNV, (GLuint, GLsizei, const GLshort *))
 AGL_API(void, VertexAttribs4ubvNV, (GLuint, GLsizei, const GLubyte *))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_envmap_bumpmap
+#if defined _A5O_GL_ATI_envmap_bumpmap
 AGL_API(void, TexBumpParameterivATI, (GLenum, const GLint *))
 AGL_API(void, TexBumpParameterfvATI, (GLenum, const GLfloat *))
 AGL_API(void, GetTexBumpParameterivATI, (GLenum, GLint *))
 AGL_API(void, GetTexBumpParameterfvATI, (GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_fragment_shader
+#if defined _A5O_GL_ATI_fragment_shader
 AGL_API(GLuint, GenFragmentShadersATI, (GLuint))
 AGL_API(void, BindFragmentShaderATI, (GLuint))
 AGL_API(void, DeleteFragmentShaderATI, (GLuint))
@@ -1628,12 +1628,12 @@ AGL_API(void, AlphaFragmentOp3ATI, (GLenum, GLuint, GLuint, GLuint, GLuint, GLui
 AGL_API(void, SetFragmentShaderConstantATI, (GLuint, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_pn_triangles
+#if defined _A5O_GL_ATI_pn_triangles
 AGL_API(void, PNTrianglesiATI, (GLenum, GLint))
 AGL_API(void, PNTrianglesfATI, (GLenum, GLfloat))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_vertex_array_object
+#if defined _A5O_GL_ATI_vertex_array_object
 AGL_API(GLuint, NewObjectBufferATI, (GLsizei, const GLvoid *, GLenum))
 AGL_API(GLboolean, IsObjectBufferATI, (GLuint))
 AGL_API(void, UpdateObjectBufferATI, (GLuint, GLuint, GLsizei, const GLvoid *, GLenum))
@@ -1648,7 +1648,7 @@ AGL_API(void, GetVariantArrayObjectfvATI, (GLuint, GLenum, GLfloat *))
 AGL_API(void, GetVariantArrayObjectivATI, (GLuint, GLenum, GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_vertex_shader
+#if defined _A5O_GL_EXT_vertex_shader
 AGL_API(void, BeginVertexShaderEXT, (void))
 AGL_API(void, EndVertexShaderEXT, (void))
 AGL_API(void, BindVertexShaderEXT, (GLuint))
@@ -1693,7 +1693,7 @@ AGL_API(void, GetLocalConstantIntegervEXT, (GLuint, GLenum, GLint *))
 AGL_API(void, GetLocalConstantFloatvEXT, (GLuint, GLenum, GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_vertex_streams
+#if defined _A5O_GL_ATI_vertex_streams
 AGL_API(void, VertexStream1sATI, (GLenum, GLshort))
 AGL_API(void, VertexStream1svATI, (GLenum, const GLshort *))
 AGL_API(void, VertexStream1iATI, (GLenum, GLint))
@@ -1741,17 +1741,17 @@ AGL_API(void, VertexBlendEnviATI, (GLenum, GLint))
 AGL_API(void, VertexBlendEnvfATI, (GLenum, GLfloat))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_element_array
+#if defined _A5O_GL_ATI_element_array
 AGL_API(void, ElementPointerATI, (GLenum, const GLvoid *))
 AGL_API(void, DrawElementArrayATI, (GLenum, GLsizei))
 AGL_API(void, DrawRangeElementArrayATI, (GLenum, GLuint, GLuint, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_SUN_mesh_array
+#if defined _A5O_GL_SUN_mesh_array
 AGL_API(void, DrawMeshArraysSUN, (GLenum, GLint, GLsizei, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_NV_occlusion_query
+#if defined _A5O_GL_NV_occlusion_query
 AGL_API(void, GenOcclusionQueriesNV, (GLsizei, GLuint *))
 AGL_API(void, DeleteOcclusionQueriesNV, (GLsizei, const GLuint *))
 AGL_API(GLboolean, IsOcclusionQueryNV, (GLuint))
@@ -1761,16 +1761,16 @@ AGL_API(void, GetOcclusionQueryivNV, (GLuint, GLenum, GLint *))
 AGL_API(void, GetOcclusionQueryuivNV, (GLuint, GLenum, GLuint *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_point_sprite
+#if defined _A5O_GL_NV_point_sprite
 AGL_API(void, PointParameteriNV, (GLenum, GLint))
 AGL_API(void, PointParameterivNV, (GLenum, const GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_stencil_two_side
+#if defined _A5O_GL_EXT_stencil_two_side
 AGL_API(void, ActiveStencilFaceEXT, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_element_array
+#if defined _A5O_GL_APPLE_element_array
 AGL_API(void, ElementPointerAPPLE, (GLenum, const GLvoid *))
 AGL_API(void, DrawElementArrayAPPLE, (GLenum, GLint, GLsizei))
 AGL_API(void, DrawRangeElementArrayAPPLE, (GLenum, GLuint, GLuint, GLint, GLsizei))
@@ -1778,7 +1778,7 @@ AGL_API(void, MultiDrawElementArrayAPPLE, (GLenum, const GLint *, const GLsizei 
 AGL_API(void, MultiDrawRangeElementArrayAPPLE, (GLenum, GLuint, GLuint, const GLint *, const GLsizei *, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_fence
+#if defined _A5O_GL_APPLE_fence
 AGL_API(void, GenFencesAPPLE, (GLsizei, GLuint *))
 AGL_API(void, DeleteFencesAPPLE, (GLsizei, const GLuint *))
 AGL_API(void, SetFenceAPPLE, (GLuint))
@@ -1789,24 +1789,24 @@ AGL_API(GLboolean, TestObjectAPPLE, (GLenum, GLuint))
 AGL_API(void, FinishObjectAPPLE, (GLenum, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_vertex_array_object
+#if defined _A5O_GL_APPLE_vertex_array_object
 AGL_API(void, BindVertexArrayAPPLE, (GLuint))
 AGL_API(void, DeleteVertexArraysAPPLE, (GLsizei, const GLuint *))
 AGL_API(void, GenVertexArraysAPPLE, (GLsizei, const GLuint *))
 AGL_API(GLboolean, IsVertexArrayAPPLE, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_vertex_array_range
+#if defined _A5O_GL_APPLE_vertex_array_range
 AGL_API(void, VertexArrayRangeAPPLE, (GLsizei, GLvoid *))
 AGL_API(void, FlushVertexArrayRangeAPPLE, (GLsizei, GLvoid *))
 AGL_API(void, VertexArrayParameteriAPPLE, (GLenum, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_draw_buffers
+#if defined _A5O_GL_ATI_draw_buffers
 AGL_API(void, DrawBuffersATI, (GLsizei, const GLenum *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_fragment_program
+#if defined _A5O_GL_NV_fragment_program
 AGL_API(void, ProgramNamedParameter4fNV, (GLuint, GLsizei, const GLubyte *, GLfloat, GLfloat, GLfloat, GLfloat))
 AGL_API(void, ProgramNamedParameter4dNV, (GLuint, GLsizei, const GLubyte *, GLdouble, GLdouble, GLdouble, GLdouble))
 AGL_API(void, ProgramNamedParameter4fvNV, (GLuint, GLsizei, const GLubyte *, const GLfloat *))
@@ -1815,7 +1815,7 @@ AGL_API(void, GetProgramNamedParameterfvNV, (GLuint, GLsizei, const GLubyte *, G
 AGL_API(void, GetProgramNamedParameterdvNV, (GLuint, GLsizei, const GLubyte *, GLdouble *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_half_float
+#if defined _A5O_GL_NV_half_float
 AGL_API(void, Vertex2hNV, (GLhalfNV, GLhalfNV))
 AGL_API(void, Vertex2hvNV, (const GLhalfNV *))
 AGL_API(void, Vertex3hNV, (GLhalfNV, GLhalfNV, GLhalfNV))
@@ -1864,33 +1864,33 @@ AGL_API(void, VertexAttribs3hvNV, (GLuint, GLsizei, const GLhalfNV *))
 AGL_API(void, VertexAttribs4hvNV, (GLuint, GLsizei, const GLhalfNV *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_pixel_data_range
+#if defined _A5O_GL_NV_pixel_data_range
 AGL_API(void, PixelDataRangeNV, (GLenum, GLsizei, GLvoid *))
 AGL_API(void, FlushPixelDataRangeNV, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_NV_primitive_restart
+#if defined _A5O_GL_NV_primitive_restart
 AGL_API(void, PrimitiveRestartNV, (void))
 AGL_API(void, PrimitiveRestartIndexNV, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_map_object_buffer
+#if defined _A5O_GL_ATI_map_object_buffer
 AGL_API(GLvoid*, MapObjectBufferATI, (GLuint))
 AGL_API(void, UnmapObjectBufferATI, (GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_separate_stencil
+#if defined _A5O_GL_ATI_separate_stencil
 AGL_API(void, StencilOpSeparateATI, (GLenum, GLenum, GLenum, GLenum))
 AGL_API(void, StencilFuncSeparateATI, (GLenum, GLenum, GLint, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_ATI_vertex_attrib_array_object
+#if defined _A5O_GL_ATI_vertex_attrib_array_object
 AGL_API(void, VertexAttribArrayObjectATI, (GLuint, GLint, GLenum, GLboolean, GLsizei, GLuint, GLuint))
 AGL_API(void, GetVertexAttribArrayObjectfvATI, (GLuint, GLenum, GLfloat *))
 AGL_API(void, GetVertexAttribArrayObjectivATI, (GLuint, GLenum, GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_OES_byte_coordinates
+#if defined _A5O_GL_OES_byte_coordinates
 AGL_API(void, Vertex2bOES, ( GLbyte, GLbyte ))
 AGL_API(void, Vertex3bOES, ( GLbyte, GLbyte, GLbyte ))
 AGL_API(void, Vertex4bOES, ( GLbyte, GLbyte, GLbyte, GLbyte ))
@@ -1915,7 +1915,7 @@ AGL_API(void, MultiTexCoord3bvOES, ( GLenum texture, const GLbyte * ))
 AGL_API(void, MultiTexCoord4bvOES, ( GLenum texture, const GLbyte * ))
 #endif
 
-#if defined _ALLEGRO_GL_OES_fixed_point
+#if defined _A5O_GL_OES_fixed_point
 AGL_API(void, Vertex2xOES, (GLfixed, GLfixed))
 AGL_API(void, Vertex3xOES, (GLfixed, GLfixed, GLfixed))
 AGL_API(void, Vertex4xOES, (GLfixed, GLfixed, GLfixed, GLfixed))
@@ -2021,7 +2021,7 @@ AGL_API(void, PassThroughxOES, (GLfixed))
 AGL_API(void, GetFixedvOES, (GLenum, GLfixed *))
 #endif
 
-#if defined _ALLEGRO_GL_OES_single_precision
+#if defined _A5O_GL_OES_single_precision
 AGL_API(void, DepthRangefOES, (GLclampf, GLclampf))
 AGL_API(void, FrustumfOES, (GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat))
 AGL_API(void, OrthofOES, (GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat))
@@ -2030,21 +2030,21 @@ AGL_API(void, GetClipPlanefOES, (GLenum, GLfloat*))
 AGL_API(void, ClearDepthfOES, (GLclampd))
 #endif
 
-#if defined _ALLEGRO_GL_OES_query_matrix
+#if defined _A5O_GL_OES_query_matrix
 AGL_API(GLbitfield, QueryMatrixxOES, (GLfixed [16], GLint [16] ))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_depth_bounds_test
+#if defined _A5O_GL_EXT_depth_bounds_test
 AGL_API(void, DepthBoundsEXT, (GLclampd, GLclampd))
 #endif
 
 
-#if defined _ALLEGRO_GL_EXT_blend_equation_separate
+#if defined _A5O_GL_EXT_blend_equation_separate
 AGL_API(void, BlendEquationSeparateEXT, (GLenum, GLenum))
 #endif
 
 
-#if defined _ALLEGRO_GL_EXT_framebuffer_object
+#if defined _A5O_GL_EXT_framebuffer_object
 AGL_API(GLboolean, IsRenderbufferEXT, (GLuint))
 AGL_API(void, BindRenderbufferEXT, (GLenum, GLuint))
 AGL_API(void, DeleteRenderbuffersEXT, (GLsizei, const GLuint *))
@@ -2064,44 +2064,44 @@ AGL_API(void, GetFramebufferAttachmentParameterivEXT, (GLenum, GLenum, GLenum, G
 AGL_API(void, GenerateMipmapEXT, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_GREMEDY_string_marker
+#if defined _A5O_GL_GREMEDY_string_marker
 AGL_API(void, StringMarkerGREMEDY, (GLsizei, const GLvoid *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_stencil_clear_tag
+#if defined _A5O_GL_EXT_stencil_clear_tag
 AGL_API(void, StencilClearTagEXT, (GLsizei, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_framebuffer_blit
+#if defined _A5O_GL_EXT_framebuffer_blit
 AGL_API(void, BlitFramebufferEXT, (GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_framebuffer_multisample
+#if defined _A5O_GL_EXT_framebuffer_multisample
 AGL_API(void, RenderbufferStorageMultisampleEXT, (GLenum, GLsizei, GLenum, GLsizei, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_timer_query
+#if defined _A5O_GL_EXT_timer_query
 AGL_API(void, GetQueryObjecti64vEXT, (GLuint, GLenum, GLint64EXT *))
 AGL_API(void, GetQueryObjectui64vEXT, (GLuint, GLenum, GLuint64EXT *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_gpu_program_parameters
+#if defined _A5O_GL_EXT_gpu_program_parameters
 AGL_API(void, ProgramEnvParameters4fvEXT, (GLenum, GLuint, GLsizei, const GLfloat *))
 AGL_API(void, ProgramLocalParameters4fvEXT, (GLenum, GLuint, GLsizei, const GLfloat *))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_flush_buffer_range
+#if defined _A5O_GL_APPLE_flush_buffer_range
 AGL_API(void, BufferParameteriAPPLE, (GLenum, GLenum, GLint))
 AGL_API(void, FlushMappedBufferRangeAPPLE, (GLenum, GLintptr, GLsizeiptr))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_bindable_uniform
+#if defined _A5O_GL_EXT_bindable_uniform
 AGL_API(void,     UniformBufferEXT, (GLuint, GLint, GLuint))
 AGL_API(GLint,    GetUniformBufferSizeEXT, (GLuint, GLint))
 AGL_API(GLintptr, GetUniformOffsetEXT, (GLuint program, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_draw_buffers2
+#if defined _A5O_GL_EXT_draw_buffers2
 AGL_API(void, ColorMaskIndexedEXT, (GLuint, GLboolean, GLboolean, GLboolean, GLboolean))
 AGL_API(void, GetBooleanIndexedvEXT, (GLenum, GLuint, GLboolean *))
 AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLint *))
@@ -2110,21 +2110,21 @@ AGL_API(void, DisableIndexedEXT, (GLenum, GLuint))
 AGL_API(GLboolean, IsEnabledIndexedEXT, (GLenum, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_draw_instanced
+#if defined _A5O_GL_EXT_draw_instanced
 AGL_API(void, DrawArraysInstancedEXT, (GLenum, GLint, GLsizei, GLsizei))
 AGL_API(void, DrawElementsInstancedEXT, (GLenum, GLsizei, GLenum, const GLvoid *, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_geometry_shader4
+#if defined _A5O_GL_EXT_geometry_shader4
 AGL_API(void, ProgramParameteriEXT, (GLuint, GLenum, GLint))
 AGL_API(void, FramebufferTextureEXT, (GLenum, GLenum, GLuint, GLint))
-#if !defined _ALLEGRO_GL_EXT_texture_array
+#if !defined _A5O_GL_EXT_texture_array
 AGL_API(void, FramebufferTextureLayerEXT, (GLenum, GLenum, GLuint, GLint, GLint))
 #endif
 AGL_API(void, FramebufferTextureFaceEXT, (GLenum, GLenum, GLuint, GLint, GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_gpu_shader4
+#if defined _A5O_GL_EXT_gpu_shader4
 AGL_API(void, VertexAttribI1iEXT, (GLuint, GLint))
 AGL_API(void, VertexAttribI2iEXT, (GLuint, GLint, GLint))
 AGL_API(void, VertexAttribI3iEXT, (GLuint, GLint, GLint, GLint))
@@ -2161,15 +2161,15 @@ AGL_API(void, BindFragDataLocationEXT, (GLuint, GLuint, const GLchar *))
 AGL_API(GLint, GetFragDataLocationEXT, (GLuint, const GLchar *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_texture_array
+#if defined _A5O_GL_EXT_texture_array
 AGL_API(void, FramebufferTextureLayerEXT, (GLenum, GLenum, GLuint, GLint, GLint))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_texture_buffer_object
+#if defined _A5O_GL_EXT_texture_buffer_object
 AGL_API(void, TexBufferEXT, (GLenum, GLenum, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_texture_integer
+#if defined _A5O_GL_texture_integer
 AGL_API(void, ClearColorIiEXT,        (GLint,  GLint,  GLint,  GLint))
 AGL_API(void, ClearColorIuiEXT,       (GLuint, GLuint, GLuint, GLuint))
 AGL_API(void, TexParameterIivEXT,     (GLenum, GLenum, GLint *))
@@ -2178,27 +2178,27 @@ AGL_API(void, GetTexParameterIivEXT,  (GLenum, GLenum, GLint *))
 AGL_API(void, GetTexParameterIiuvEXT, (GLenum, GLenum, GLuint *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_depth_buffer_float
+#if defined _A5O_GL_NV_depth_buffer_float
 AGL_API(void, DepthRangedNV,  (GLdouble, GLdouble))
 AGL_API(void, ClearDepthdNV,  (GLdouble))
 AGL_API(void, DepthBoundsdNV, (GLdouble, GLdouble))
 #endif
 
-#if defined _ALLEGRO_GL_NV_framebuffer_multisample_coverage
+#if defined _A5O_GL_NV_framebuffer_multisample_coverage
 AGL_API(void, RenderbufferStorageMultsampleCoverageNV, (GLenum, GLsizei, GLsizei, GLenum, GLsizei, GLsizei))
 #endif
 
-#if defined _ALLEGRO_GL_NV_geometry_program4
+#if defined _A5O_GL_NV_geometry_program4
 AGL_API(void, ProgramVertexLimitNV, (GLenum, GLint))
-#if !defined _ALLEGRO_GL_EXT_geometry_shader4
+#if !defined _A5O_GL_EXT_geometry_shader4
 AGL_API(void, FramebufferTextureEXT,      (GLenum, GLenum, GLuint, GLint))
-#if !defined _ALLEGRO_GL_EXT_texture_array
+#if !defined _A5O_GL_EXT_texture_array
 AGL_API(void, FramebufferTextureLayerEXT, (GLenum, GLenum, GLuint, GLint, GLint))
 #endif
 #endif
 #endif
 
-#if defined _ALLEGRO_GL_NV_gpu_program4
+#if defined _A5O_GL_NV_gpu_program4
 AGL_API(void, ProgramLocalParameterI4iNV,    (GLenum, GLuint, GLint, GLint, GLint, GLint))
 AGL_API(void, ProgramLocalParameterI4ivNV,   (GLenum, GLuint, const GLint *))
 AGL_API(void, ProgramLocalParametersI4ivNV,  (GLenum, GLuint, GLsizei, const GLint *))
@@ -2217,8 +2217,8 @@ AGL_API(void, GetProgramEnvParameterIivNV,   (GLenum, GLuint, GLint *))
 AGL_API(void, GetProgramEnvParameterIuivNV,  (GLenum, GLuint, GLuint *))
 #endif
 
-#if defined _ALLEGRO_GL_NV_parameter_buffer_object
-#if !defined _ALLEGRO_GL_NV_transform_feedback
+#if defined _A5O_GL_NV_parameter_buffer_object
+#if !defined _A5O_GL_NV_transform_feedback
 AGL_API(void, BindBufferRangeNV, (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr))
 AGL_API(void, BindBufferOffsetNV,(GLenum, GLuint, GLuint, GLintptr))
 AGL_API(void, BindBufferBaseNV,  (GLenum, GLuint, GLuint))
@@ -2226,12 +2226,12 @@ AGL_API(void, BindBufferBaseNV,  (GLenum, GLuint, GLuint))
 AGL_API(void, ProgramBufferParametersfvNV,  (GLenum, GLuint, GLuint, GLsizei, const GLfloat *))
 AGL_API(void, ProgramBufferParametersIivNV, (GLenum, GLuint, GLuint, GLsizei, const GLint *))
 AGL_API(void, ProgramBufferParametersIuivNV,(GLenum, GLuint, GLuint, GLuint, const GLuint *))
-#if !defined _ALLEGRO_GL_EXT_draw_buffers2
+#if !defined _A5O_GL_EXT_draw_buffers2
 AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLboolean *))
 #endif
 #endif
 
-#if defined _ALLEGRO_GL_NV_transform_feedback
+#if defined _A5O_GL_NV_transform_feedback
 AGL_API(void, BindBufferRangeNV, (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr))
 AGL_API(void, BindBufferOffsetNV,(GLenum, GLuint, GLuint, GLintptr))
 AGL_API(void, BindBufferBaseNV,  (GLenum, GLuint, GLuint))
@@ -2243,14 +2243,14 @@ AGL_API(GLint, GetVaryingLocationNV, (GLuint, const GLchar *))
 AGL_API(void, GetActiveVaryingNV,    (GLuint, GLuint, GLsizei, GLsizei *, GLsizei *, GLenum *, GLchar *))
 AGL_API(void, ActiveVaryingNV,       (GLuint, const GLchar *))
 AGL_API(void, GetTransformFeedbackVaryingNV, (GLuint, GLuint, GLint *))
-#if !defined _ALLEGRO_GL_EXT_draw_buffers2
+#if !defined _A5O_GL_EXT_draw_buffers2
 AGL_API(void, GetBooleanIndexedvEXT, (GLenum, GLuint, GLboolean *))
 /*AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLint *))*/
 #endif
 #endif
 
-#if defined _ALLEGRO_GL_NV_vertex_program4
-#ifndef _ALLEGRO_GL_EXT_gpu_shader4
+#if defined _A5O_GL_NV_vertex_program4
+#ifndef _A5O_GL_EXT_gpu_shader4
 AGL_API(void, VertexAttribI1iEXT, (GLuint, GLint))
 AGL_API(void, VertexAttribI2iEXT, (GLuint, GLint, GLint))
 AGL_API(void, VertexAttribI3iEXT, (GLuint, GLint, GLint, GLint))
@@ -2277,16 +2277,16 @@ AGL_API(void, GetVertexAttribIuivEXT, (GLuint, GLenum, GLint *))
 #endif
 #endif
 
-#if defined _ALLEGRO_GL_GREMEDY_frame_terminator
+#if defined _A5O_GL_GREMEDY_frame_terminator
 AGL_API(void, FrameTerminatorGREMEDY, (void))
 #endif
 
-#if defined _ALLEGRO_GL_NV_conditional_render
+#if defined _A5O_GL_NV_conditional_render
 AGL_API(void, BeginConditionalRenderNV, (GLuint, GLenum))
 AGL_API(void, EndConditionalRenderNV, (void))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_transform_feedback
+#if defined _A5O_GL_EXT_transform_feedback
 AGL_API(void, BeginTransformFeedbackEXT, (GLenum))
 AGL_API(void, EndTransformFeedbackEXT, (void))
 AGL_API(void, BindBufferRangeEXT, (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr))
@@ -2296,7 +2296,7 @@ AGL_API(void, TransformFeedbackVaryingsEXT, (GLuint, GLsizei, const GLint *, GLe
 AGL_API(void, GetTransformFeedbackVaryingEXT, (GLuint, GLuint, GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_direct_state_access
+#if defined _A5O_GL_EXT_direct_state_access
 AGL_API(void, ClientAttribDefaultEXT, (GLbitfield))
 AGL_API(void, PushClientAttribDefaultEXT, (GLbitfield))
 AGL_API(void, MatrixLoadfEXT, (GLenum, const GLfloat *))
@@ -2485,13 +2485,13 @@ AGL_API(void, TextureRenderbufferEXT, (GLuint, GLenum, GLuint))
 AGL_API(void, MultiTexRenderbufferEXT, (GLenum, GLenum, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_NV_explicit_multisample
+#if defined _A5O_GL_NV_explicit_multisample
 AGL_API(void, GetMultisamplefvNV, (GLenum, GLuint, GLfloat *))
 AGL_API(void, SampleMaskIndexedNV, (GLuint, GLbitfield))
 AGL_API(void, TexRenderbufferNV, (GLenum, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_NV_transform_feedback2
+#if defined _A5O_GL_NV_transform_feedback2
 AGL_API(void, BindTransformFeedbackNV, (GLenum, GLuint))
 AGL_API(void, DeleteTransformFeedbacksNV, (GLsizei, const GLuint *))
 AGL_API(void, GenTransformFeedbacksNV, (GLsizei, GLuint *))
@@ -2501,7 +2501,7 @@ AGL_API(void, ResumeTransformFeedbackNV, (void))
 AGL_API(void, DrawTransformFeedbackNV, (GLenum, GLuint))
 #endif
 
-#if defined _ALLEGRO_GL_AMD_performance_monitor
+#if defined _A5O_GL_AMD_performance_monitor
 AGL_API(void, GetPerfMonitorGroupsAMD, (GLint *, GLsizei, GLuint *))
 AGL_API(void, GetPerfMonitorCountersAMD, (GLuint, GLint *, GLint *, GLsizei, GLuint *))
 AGL_API(void, GetPerfMonitorGroupStringAMD, (GLuint, GLsizei, GLsizei *, GLchar *))
@@ -2515,28 +2515,28 @@ AGL_API(void, EndPerfMonitorAMD, (GLuint))
 AGL_API(void, GetPerfMonitorCounterDataAMD, (GLuint, GLenum, GLsizei, GLuint *, GLint *))
 #endif
 
-#if defined _ALLEGRO_GL_AMD_vertex_shader_tesselator
+#if defined _A5O_GL_AMD_vertex_shader_tesselator
 AGL_API(void, TessellationFactorAMD, (GLfloat))
 AGL_API(void, TessellationModeAMD, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_provoking_vertex
+#if defined _A5O_GL_EXT_provoking_vertex
 AGL_API(void, ProvokingVertexEXT, (GLenum))
 #endif
 
-#if defined _ALLEGRO_GL_AMD_draw_buffers_blend
+#if defined _A5O_GL_AMD_draw_buffers_blend
 AGL_API(void, BlendFuncIndexedAMD, (GLuint buf, GLenum src, GLenum dst))
 AGL_API(void, BlendFuncSeparateIndexedAMD, (GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha))
 AGL_API(void, BlendEquationIndexedAMD, (GLuint buf, GLenum mode))
 AGL_API(void, BlendEquationSeparateIndexedAMD, (GLuint buf, GLenum modeRGB, GLenum modeAlpha))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_texture_range
+#if defined _A5O_GL_APPLE_texture_range
 AGL_API(void, TextureRangeAPPLE, (GLenum target, GLsizei length, const GLvoid *pointer))
 AGL_API(void, GetTexParameterPointervAPPLE, (GLenum target, GLenum pname, GLvoid* *params))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_vertex_program_evaluators
+#if defined _A5O_GL_APPLE_vertex_program_evaluators
 AGL_API(void, EnableVertexAttribAPPLE, (GLuint index, GLenum pname))
 AGL_API(void, DisableVertexAttribAPPLE, (GLuint index, GLenum pname))
 AGL_API(GLboolean, IsVertexAttribEnabledAPPLE, (GLuint index, GLenum pname))
@@ -2546,13 +2546,13 @@ AGL_API(void, MapVertexAttrib2dAPPLE, (GLuint index, GLuint size, GLdouble u1, G
 AGL_API(void, MapVertexAttrib2fAPPLE, (GLuint index, GLuint size, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder, GLfloat v1, GLfloat v2, GLint vstride, GLint vorder, const GLfloat *points))
 #endif
 
-#if defined _ALLEGRO_GL_APPLE_object_purgeable
+#if defined _A5O_GL_APPLE_object_purgeable
 AGL_API(GLenum, ObjectPurgeableAPPLE, (GLenum objectType, GLuint name, GLenum option))
 AGL_API(GLenum, ObjectUnpurgeableAPPLE, (GLenum objectType, GLuint name, GLenum option))
 AGL_API(void, GetObjectParameterivAPPLE, (GLenum objectType, GLuint name, GLenum pname, GLint *params))
 #endif
 
-#if defined _ALLEGRO_GL_NV_video_capture
+#if defined _A5O_GL_NV_video_capture
 AGL_API(void, BeginVideoCaptureNV, (GLuint video_capture_slot))
 AGL_API(void, BindVideoCaptureStreamBufferNV, (GLuint video_capture_slot, GLuint stream, GLenum frame_region, GLintptrARB offset))
 AGL_API(void, BindVideoCaptureStreamTextureNV, (GLuint video_capture_slot, GLuint stream, GLenum frame_region, GLenum target, GLuint texture))
@@ -2567,13 +2567,13 @@ AGL_API(void, VideoCaptureStreamParameterfvNV, (GLuint video_capture_slot, GLuin
 AGL_API(void, VideoCaptureStreamParameterdvNV, (GLuint video_capture_slot, GLuint stream, GLenum pname, const GLdouble *params))
 #endif
 
-#if defined _ALLEGRO_GL_EXT_separate_shader_objects
+#if defined _A5O_GL_EXT_separate_shader_objects
 AGL_API(void, UseShaderProgramEXT, (GLenum type, GLuint program))
 AGL_API(void, ActiveProgramEXT, (GLuint program))
 AGL_API(GLuint, CreateShaderProgramEXT, (GLenum type, const GLchar *string))
 #endif
 
-#if defined _ALLEGRO_GL_NV_shader_buffer_load
+#if defined _A5O_GL_NV_shader_buffer_load
 AGL_API(void, MakeBufferResidentNV, (GLenum target, GLenum access))
 AGL_API(void, MakeBufferNonResidentNV, (GLenum target))
 AGL_API(GLboolean, IsBufferResidentNV, (GLenum target))
@@ -2590,7 +2590,7 @@ AGL_API(void, ProgramUniformui64NV, (GLuint program, GLint location, GLuint64EXT
 AGL_API(void, ProgramUniformui64vNV, (GLuint program, GLint location, GLsizei count, const GLuint64EXT *value))
 #endif
 
-#if defined _ALLEGRO_GL_NV_vertex_buffer_unified_memory
+#if defined _A5O_GL_NV_vertex_buffer_unified_memory
 AGL_API(void, BufferAddressRangeNV, (GLenum pname, GLuint index, GLuint64EXT address, GLsizeiptr length))
 AGL_API(void, VertexFormatNV, (GLint size, GLenum type, GLsizei stride))
 AGL_API(void, NormalFormatNV, (GLenum type, GLsizei stride))
@@ -2605,6 +2605,6 @@ AGL_API(void, VertexAttribIFormatNV, (GLuint index, GLint size, GLenum type, GLs
 AGL_API(void, GetIntegerui64i_vNV, (GLenum value, GLuint index, GLuint64EXT *result))
 #endif
 
-#if defined _ALLEGRO_GL_NV_texture_barrier
+#if defined _A5O_GL_NV_texture_barrier
 AGL_API(void, TextureBarrierNV, (void))
 #endif

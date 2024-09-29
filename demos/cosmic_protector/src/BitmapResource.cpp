@@ -10,8 +10,8 @@ void BitmapResource::destroy(void)
 
 bool BitmapResource::load(void)
 {
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
    bitmap = al_load_bitmap(filename.c_str());
    if (!bitmap)
       debug_message("Error loading bitmap %s\n", filename.c_str());

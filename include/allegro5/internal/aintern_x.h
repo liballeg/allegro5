@@ -3,7 +3,7 @@
 
 #include <X11/Xlib.h>
 
-typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
-typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
+typedef struct A5O_SYSTEM_XGLX A5O_SYSTEM_XGLX;
+typedef struct A5O_DISPLAY_XGLX A5O_DISPLAY_XGLX;
 
 #endif

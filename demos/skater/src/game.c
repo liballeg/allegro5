@@ -25,7 +25,7 @@ struct Level *Lvl = NULL;
 struct LevelState *LvlState = NULL;
 double LeftWindow = -120, RightWindow = 120;
 double Pusher = 0;
-static ALLEGRO_COLOR cloud_color;
+static A5O_COLOR cloud_color;
 
 #define PLAYER_STRENGTH 0.14f
 
@@ -49,11 +49,11 @@ static int continueid(void)
 int CurrentID;
 
 /* background stuff */
-ALLEGRO_BITMAP *water;
-ALLEGRO_SAMPLE_INSTANCE *WaterVoice, *WaterVoice2;
-ALLEGRO_SAMPLE *WaveNoise = NULL;
+A5O_BITMAP *water;
+A5O_SAMPLE_INSTANCE *WaterVoice, *WaterVoice2;
+A5O_SAMPLE *WaveNoise = NULL;
 
-ALLEGRO_BITMAP *cloud;
+A5O_BITMAP *cloud;
 al_fixed *TanTable = NULL;
 int CalibRes = 0;
 
@@ -68,7 +68,7 @@ double CloudX;
 char *load_game_resources(const char *data_path)
 {
    int c;
-   ALLEGRO_PATH *path;
+   A5O_PATH *path;
 
    printf("load_game_resources\n");
    path = al_create_path_for_directory(data_path);
@@ -148,14 +148,14 @@ static void GenericInit(void)
    }
 
    WaterVoice = al_create_sample_instance(WaveNoise);
-   al_set_sample_instance_playmode(WaterVoice, ALLEGRO_PLAYMODE_BIDIR);
+   al_set_sample_instance_playmode(WaterVoice, A5O_PLAYMODE_BIDIR);
    al_set_sample_instance_gain(WaterVoice, 0.5);
    al_attach_sample_instance_to_mixer(WaterVoice, al_get_default_mixer());
    al_play_sample_instance(WaterVoice);
 
    WaterVoice2 = al_create_sample_instance(WaveNoise);
    al_set_sample_instance_playmode(WaterVoice2,
-                      ALLEGRO_PLAYMODE_BIDIR);
+                      A5O_PLAYMODE_BIDIR);
    al_set_sample_instance_gain(WaterVoice2, 0.25);
    al_attach_sample_instance_to_mixer(WaterVoice2, al_get_default_mixer());
    al_play_sample_instance(WaterVoice2);
@@ -213,7 +213,7 @@ static void DrawClouds(void)
    }
 }
 
-static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
+static void set_v(A5O_VERTEX *vt, double x, double y, double u, double v)
 {
    vt->x = x;
    vt->y = y;
@@ -225,10 +225,10 @@ static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
 
 static void GameDraw(void)
 {
-   ALLEGRO_BITMAP *ch;
+   A5O_BITMAP *ch;
    double depth;
-   ALLEGRO_VERTEX Points[4];
-   ALLEGRO_TRANSFORM transform;
+   A5O_VERTEX Points[4];
+   A5O_TRANSFORM transform;
    int chw, chh;
    float w;
    
@@ -251,7 +251,7 @@ static void GameDraw(void)
          if (depth > -261 && depth < -5.0f) {
             int d = ((int)(depth * 65536)) & (256 * 65536 - 1);
             y1 = lowy;
-            index = (d / 65536.0 - 1.0) * ALLEGRO_PI * 2 * 8 / 128.0f;
+            index = (d / 65536.0 - 1.0) * A5O_PI * 2 * 8 / 128.0f;
 
             y2 = c / 4.0 - 125.0f * sin(index + WaveY) / depth;
 
@@ -264,7 +264,7 @@ static void GameDraw(void)
                set_v(Points + 2, w, y1, u - depth * 4, depth + 5);
                set_v(Points + 3, 0, y1, u + depth * 4, depth + 5);
 
-               al_draw_prim(Points, NULL, water, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+               al_draw_prim(Points, NULL, water, 0, 4, A5O_PRIM_TRIANGLE_FAN);
             }
          }
          c--;
@@ -320,7 +320,7 @@ static void GameDraw(void)
       (PlayerPos[0] - ScrollPos[0]) + w / 2,
       (PlayerPos[1] - ScrollPos[1]) + 480.0 / 2,
       1, 1, PlayerPos[2],
-      KeyFlags & KEYFLAG_FLIP ? ALLEGRO_FLIP_HORIZONTAL : 0);
+      KeyFlags & KEYFLAG_FLIP ? A5O_FLIP_HORIZONTAL : 0);
 
    DrawLevelForeground(Lvl);
    
@@ -362,9 +362,9 @@ static int GameUpdate(void)
    if ((PlayerPos[1] - ScrollPos[1]) > 80)
       ScrollPos[1] = PlayerPos[1] - 80;
 
-   if ((KeyFlags & KEYFLAG_FLIP) ^ (((PlayerPos[2] < ALLEGRO_PI * 0.5f)
+   if ((KeyFlags & KEYFLAG_FLIP) ^ (((PlayerPos[2] < A5O_PI * 0.5f)
                                      && (PlayerPos[2] >
-                                         -ALLEGRO_PI * 0.5f)) ? 0 : KEYFLAG_FLIP)
+                                         -A5O_PI * 0.5f)) ? 0 : KEYFLAG_FLIP)
       ) {
       if (LeftWindow < 0)
          LeftWindow++;
@@ -454,7 +454,7 @@ static int GameUpdate(void)
       EPtr = EPtr->Next;
    }
 
-   return key_pressed(ALLEGRO_KEY_ESCAPE) ? DEMO_STATE_MAIN_MENU : CurrentID;
+   return key_pressed(A5O_KEY_ESCAPE) ? DEMO_STATE_MAIN_MENU : CurrentID;
 }
 
 void destroy_game()

@@ -42,11 +42,11 @@ option provides that information.  You can combine it with `--libs` as well:
 Most build systems will allow you to call pkg-config in a similar way to the
 shell.  For example, a very basic Makefile might look like this:
 
-    ALLEGRO_LIBRARIES := allegro-5 allegro_image-5
-    ALLEGRO_FLAGS := $(shell pkg-config --cflags --libs $(ALLEGRO_LIBRARIES))
+    A5O_LIBRARIES := allegro-5 allegro_image-5
+    A5O_FLAGS := $(shell pkg-config --cflags --libs $(A5O_LIBRARIES))
 
     mygame: mygame.c
-	    $(CC) -o $@ $^ $(ALLEGRO_FLAGS)
+	    $(CC) -o $@ $^ $(A5O_FLAGS)
 
 
 Historical note

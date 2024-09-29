@@ -16,7 +16,7 @@ bool Explosion::logic(int step)
 void Explosion::render(int offx, int offy)
 {
    ResourceManager& rm = ResourceManager::getInstance();
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    int bitmapIndex;
 
    if (big)
@@ -24,7 +24,7 @@ void Explosion::render(int offx, int offy)
    else
       bitmapIndex = RES_SMALLEXPLOSION0 + currFrame;
 
-   bitmap = (ALLEGRO_BITMAP *)rm.getData(bitmapIndex);
+   bitmap = (A5O_BITMAP *)rm.getData(bitmapIndex);
 
    al_draw_rotated_bitmap(bitmap, radius, radius, offx + x, offy + y, 0, 0);
 }

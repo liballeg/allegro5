@@ -8,7 +8,7 @@ class Entity {
 public:
    virtual bool logic(int step);
    virtual void render(int offx = 0, int offy = 0) = 0;
-   virtual void render(int x, int y, ALLEGRO_COLOR c);
+   virtual void render(int x, int y, A5O_COLOR c);
 
    virtual void spawn(void);
    virtual bool hit(int damage);
@@ -29,7 +29,7 @@ public:
    Entity *getAllCollision(void);
    void explode(void);
    
-   void render_four(ALLEGRO_COLOR tint);
+   void render_four(A5O_COLOR tint);
 
    Entity(void);
    virtual ~Entity(void) {};

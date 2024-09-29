@@ -96,7 +96,7 @@ extern "C" {
 
    Parameters:
       FPS *fps     - a pointer to an FPS object
-      ALLEGRO_BITMAP *bmp  - destination bitmap
+      A5O_BITMAP *bmp  - destination bitmap
       FONT *font   - the font used for printing the fps
       int x, y     - position of the fps text on the destination bitmap
       int color    - the color of the fps text
@@ -110,8 +110,8 @@ extern "C" {
    Example:
       draw_fps(fps, screen, font, 100, 50, makecol(123,234,213), "FPS = %d");
 */
-   void draw_fps(FPS * fps, ALLEGRO_FONT * font, int x, int y,
-		 ALLEGRO_COLOR color, char *format);
+   void draw_fps(FPS * fps, A5O_FONT * font, int x, int y,
+		 A5O_COLOR color, char *format);
 
 
 #ifdef __cplusplus

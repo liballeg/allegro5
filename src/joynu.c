@@ -19,7 +19,7 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 #include <stdio.h>
 
@@ -33,16 +33,16 @@
 
 
 /* the active joystick driver */
-static ALLEGRO_JOYSTICK_DRIVER *new_joystick_driver = NULL;
-static ALLEGRO_EVENT_SOURCE es;
+static A5O_JOYSTICK_DRIVER *new_joystick_driver = NULL;
+static A5O_EVENT_SOURCE es;
 
 
 /* Function: al_install_joystick
  */
 bool al_install_joystick(void)
 {
-   ALLEGRO_SYSTEM *sysdrv;
-   ALLEGRO_JOYSTICK_DRIVER *joydrv;
+   A5O_SYSTEM *sysdrv;
+   A5O_JOYSTICK_DRIVER *joydrv;
 
    if (new_joystick_driver)
       return true;
@@ -113,7 +113,7 @@ bool al_reconfigure_joysticks(void)
 
 /* Function: al_get_joystick_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(void)
+A5O_EVENT_SOURCE *al_get_joystick_event_source(void)
 {
    if (!new_joystick_driver)
       return NULL;
@@ -122,7 +122,7 @@ ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(void)
 
 
 
-void _al_generate_joystick_event(ALLEGRO_EVENT *event)
+void _al_generate_joystick_event(A5O_EVENT *event)
 {
    ASSERT(new_joystick_driver);
 
@@ -149,7 +149,7 @@ int al_get_num_joysticks(void)
 
 /* Function: al_get_joystick
  */
-ALLEGRO_JOYSTICK * al_get_joystick(int num)
+A5O_JOYSTICK * al_get_joystick(int num)
 {
    ASSERT(new_joystick_driver);
    ASSERT(num >= 0);
@@ -161,7 +161,7 @@ ALLEGRO_JOYSTICK * al_get_joystick(int num)
 
 /* Function: al_release_joystick
  */
-void al_release_joystick(ALLEGRO_JOYSTICK *joy)
+void al_release_joystick(A5O_JOYSTICK *joy)
 {
    ASSERT(new_joystick_driver);
    ASSERT(joy);
@@ -173,7 +173,7 @@ void al_release_joystick(ALLEGRO_JOYSTICK *joy)
 
 /* Function: al_get_joystick_active
  */
-bool al_get_joystick_active(ALLEGRO_JOYSTICK *joy)
+bool al_get_joystick_active(A5O_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -184,7 +184,7 @@ bool al_get_joystick_active(ALLEGRO_JOYSTICK *joy)
 
 /* Function: al_get_joystick_name
  */
-const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
+const char *al_get_joystick_name(A5O_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -195,7 +195,7 @@ const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 
 /* Function: al_get_joystick_num_sticks
  */
-int al_get_joystick_num_sticks(ALLEGRO_JOYSTICK *joy)
+int al_get_joystick_num_sticks(A5O_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -206,7 +206,7 @@ int al_get_joystick_num_sticks(ALLEGRO_JOYSTICK *joy)
 
 /* Function: al_get_joystick_stick_flags
  */
-int al_get_joystick_stick_flags(ALLEGRO_JOYSTICK *joy, int stick)
+int al_get_joystick_stick_flags(A5O_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -221,7 +221,7 @@ int al_get_joystick_stick_flags(ALLEGRO_JOYSTICK *joy, int stick)
 
 /* Function: al_get_joystick_stick_name
  */
-const char *al_get_joystick_stick_name(ALLEGRO_JOYSTICK *joy, int stick)
+const char *al_get_joystick_stick_name(A5O_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -236,7 +236,7 @@ const char *al_get_joystick_stick_name(ALLEGRO_JOYSTICK *joy, int stick)
 
 /* Function: al_get_joystick_num_axes
  */
-int al_get_joystick_num_axes(ALLEGRO_JOYSTICK *joy, int stick)
+int al_get_joystick_num_axes(A5O_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
 
@@ -250,7 +250,7 @@ int al_get_joystick_num_axes(ALLEGRO_JOYSTICK *joy, int stick)
 
 /* Function: al_get_joystick_axis_name
  */
-const char *al_get_joystick_axis_name(ALLEGRO_JOYSTICK *joy, int stick, int axis)
+const char *al_get_joystick_axis_name(A5O_JOYSTICK *joy, int stick, int axis)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -267,7 +267,7 @@ const char *al_get_joystick_axis_name(ALLEGRO_JOYSTICK *joy, int stick, int axis
 
 /* Function: al_get_joystick_num_buttons
  */
-int al_get_joystick_num_buttons(ALLEGRO_JOYSTICK *joy)
+int al_get_joystick_num_buttons(A5O_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -278,7 +278,7 @@ int al_get_joystick_num_buttons(ALLEGRO_JOYSTICK *joy)
 
 /* Function: al_get_joystick_button_name
  */
-const char *al_get_joystick_button_name(ALLEGRO_JOYSTICK *joy, int button)
+const char *al_get_joystick_button_name(A5O_JOYSTICK *joy, int button)
 {
    ASSERT(joy);
    ASSERT(button >= 0);
@@ -293,7 +293,7 @@ const char *al_get_joystick_button_name(ALLEGRO_JOYSTICK *joy, int button)
 
 /* Function: al_get_joystick_state
  */
-void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
+void al_get_joystick_state(A5O_JOYSTICK *joy, A5O_JOYSTICK_STATE *ret_state)
 {
    ASSERT(new_joystick_driver);
    ASSERT(joy);
@@ -306,7 +306,7 @@ void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_st
 
 uint32_t _al_get_joystick_compat_version(void)
 {
-   ALLEGRO_CONFIG *system_config = al_get_system_config();
+   A5O_CONFIG *system_config = al_get_system_config();
    const char* compat_version = al_get_config_value(system_config, "compatibility", "joystick_version");
    if (!compat_version || strlen(compat_version) == 0)
       return al_get_allegro_version();

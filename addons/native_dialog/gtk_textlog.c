@@ -24,14 +24,14 @@
 
 
 typedef struct {
-   ALLEGRO_NATIVE_DIALOG   *dialog;
+   A5O_NATIVE_DIALOG   *dialog;
 } Msg;
 
 
-static void emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
+static void emit_close_event(A5O_NATIVE_DIALOG *textlog, bool keypress)
 {
-   ALLEGRO_EVENT event;
-   event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
+   A5O_EVENT event;
+   event.user.type = A5O_EVENT_NATIVE_DIALOG_CLOSE;
    event.user.timestamp = al_get_time();
    event.user.data1 = (intptr_t)textlog;
    event.user.data2 = (intptr_t)keypress;
@@ -41,11 +41,11 @@ static void emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
 static gboolean textlog_delete(GtkWidget *w, GdkEvent *gevent,
    gpointer userdata)
 {
-   ALLEGRO_NATIVE_DIALOG *textlog = userdata;
+   A5O_NATIVE_DIALOG *textlog = userdata;
    (void)w;
    (void)gevent;
 
-   if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE)) {
+   if (!(textlog->flags & A5O_TEXTLOG_NO_CLOSE)) {
       emit_close_event(textlog, false);
    }
 
@@ -56,7 +56,7 @@ static gboolean textlog_delete(GtkWidget *w, GdkEvent *gevent,
 static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
     gpointer userdata)
 {
-   ALLEGRO_NATIVE_DIALOG *textlog = userdata;
+   A5O_NATIVE_DIALOG *textlog = userdata;
    (void)w;
 
    if (gevent->keyval == GDK_KEY_Escape) {
@@ -68,7 +68,7 @@ static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
 
 static void textlog_destroy(GtkWidget *w, gpointer data)
 {
-   ALLEGRO_NATIVE_DIALOG *nd = data;
+   A5O_NATIVE_DIALOG *nd = data;
    (void)w;
 
    ASSERT(nd->async_queue);
@@ -79,7 +79,7 @@ static void textlog_destroy(GtkWidget *w, gpointer data)
 static gboolean create_native_text_log(gpointer data)
 {
    Msg *msg = data;
-   ALLEGRO_NATIVE_DIALOG *textlog = msg->dialog;
+   A5O_NATIVE_DIALOG *textlog = msg->dialog;
    GtkCssProvider *css_provider;
    GtkStyleContext *context;
 
@@ -88,7 +88,7 @@ static gboolean create_native_text_log(gpointer data)
    gtk_window_set_default_size(GTK_WINDOW(top), 640, 480);
    gtk_window_set_title(GTK_WINDOW(top), al_cstr(textlog->title));
 
-   if (textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE) {
+   if (textlog->flags & A5O_TEXTLOG_NO_CLOSE) {
       gtk_window_set_deletable(GTK_WINDOW(top), false);
    }
    else {
@@ -103,7 +103,7 @@ static gboolean create_native_text_log(gpointer data)
    GtkWidget *view = gtk_text_view_new();
    gtk_text_view_set_editable(GTK_TEXT_VIEW(view), false);
    gtk_widget_set_name(GTK_WIDGET(view), "native_text_log");
-   if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
+   if (textlog->flags & A5O_TEXTLOG_MONOSPACE) {
       css_provider = gtk_css_provider_new();
       gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(css_provider),
                                       "#native_text_log {\n"
@@ -126,7 +126,7 @@ static gboolean create_native_text_log(gpointer data)
 }
 
 /* [user thread] */
-bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+bool _al_open_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
    Msg msg;
 
@@ -149,7 +149,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 /* [gtk thread] */
 static gboolean do_append_native_text_log(gpointer data)
 {
-   ALLEGRO_NATIVE_DIALOG *textlog = data;
+   A5O_NATIVE_DIALOG *textlog = data;
    al_lock_mutex(textlog->tl_text_mutex);
 
    GtkTextView *tv = GTK_TEXT_VIEW(textlog->tl_textview);
@@ -173,7 +173,7 @@ static gboolean do_append_native_text_log(gpointer data)
 }
 
 /* [user thread] */
-void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+void _al_append_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
    if (textlog->tl_have_pending)
       return;
@@ -185,7 +185,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 /* [gtk thread] */
 static gboolean do_close_native_text_log(gpointer data)
 {
-   ALLEGRO_NATIVE_DIALOG *textlog = data;
+   A5O_NATIVE_DIALOG *textlog = data;
 
    /* Delay closing until appends are completed. */
    if (textlog->tl_have_pending) {
@@ -202,7 +202,7 @@ static gboolean do_close_native_text_log(gpointer data)
 }
 
 /* [user thread] */
-void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+void _al_close_native_text_log(A5O_NATIVE_DIALOG *textlog)
 {
    gdk_threads_add_timeout(0, do_close_native_text_log, textlog);
 

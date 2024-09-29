@@ -1,6 +1,6 @@
 #include "d3d.h"
 
-ALLEGRO_DEBUG_CHANNEL("d3d")
+A5O_DEBUG_CHANNEL("d3d")
 
 struct DEPTH_STENCIL_DESC {
    int d;
@@ -46,11 +46,11 @@ void _al_d3d_destroy_display_format_list(void)
 
 void _al_d3d_generate_display_format_list(void)
 {
-   static bool fullscreen = !(al_get_new_display_flags() & ALLEGRO_FULLSCREEN); /* stop warning */
+   static bool fullscreen = !(al_get_new_display_flags() & A5O_FULLSCREEN); /* stop warning */
    static int adapter = ~al_get_new_display_adapter(); /* stop warning */
    int i;
 
-   if (!_al_vector_is_empty(&eds_list) && (fullscreen == (bool)(al_get_new_display_flags() & ALLEGRO_FULLSCREEN))
+   if (!_al_vector_is_empty(&eds_list) && (fullscreen == (bool)(al_get_new_display_flags() & A5O_FULLSCREEN))
          && (adapter == al_get_new_display_adapter())) {
       return;
    }
@@ -58,12 +58,12 @@ void _al_d3d_generate_display_format_list(void)
      _al_d3d_destroy_display_format_list();
    }
 
-   fullscreen = (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) != 0;
+   fullscreen = (al_get_new_display_flags() & A5O_FULLSCREEN) != 0;
    adapter = al_get_new_display_adapter();
    if (adapter < 0)
       adapter = 0;
 
-   _al_vector_init(&eds_list, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS *));
+   _al_vector_init(&eds_list, sizeof(A5O_EXTRA_DISPLAY_SETTINGS *));
 
    /* Loop through each bit combination of:
     * bit 0: 16/32 bit
@@ -74,8 +74,8 @@ void _al_d3d_generate_display_format_list(void)
       int format_num = !!(i & 1);
       int single_buffer = !!(i & 2);
       int vsync = !!(i & 4);
-      int allegro_format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
-      if (format_num == 1) allegro_format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+      int allegro_format = A5O_PIXEL_FORMAT_XRGB_8888;
+      if (format_num == 1) allegro_format = A5O_PIXEL_FORMAT_RGB_565;
       D3DFORMAT d3d_format = (D3DFORMAT)_al_pixel_format_to_d3d(allegro_format);
 
      /* Count available multisample quality levels. */
@@ -93,62 +93,62 @@ void _al_d3d_generate_display_format_list(void)
                depth_stencil_formats[j].format, d3d_format)) {
             DEPTH_STENCIL_DESC *ds = depth_stencil_formats + j;
             for (int k = 0; k < (int)quality_levels + 1; k++) {
-               ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, **peds;
-               peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_al_vector_alloc_back(&eds_list);
-               eds = *peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)al_malloc(sizeof *eds);               
-               memset(eds->settings, 0, sizeof(int) * ALLEGRO_DISPLAY_OPTIONS_COUNT);
+               A5O_EXTRA_DISPLAY_SETTINGS *eds, **peds;
+               peds = (A5O_EXTRA_DISPLAY_SETTINGS **)_al_vector_alloc_back(&eds_list);
+               eds = *peds = (A5O_EXTRA_DISPLAY_SETTINGS *)al_malloc(sizeof *eds);               
+               memset(eds->settings, 0, sizeof(int) * A5O_DISPLAY_OPTIONS_COUNT);
 
-               eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+               eds->settings[A5O_COMPATIBLE_DISPLAY] = 1;
 
                if (format_num == 0) {
-                  eds->settings[ALLEGRO_RED_SIZE] = 8;
-                  eds->settings[ALLEGRO_GREEN_SIZE] = 8;
-                  eds->settings[ALLEGRO_BLUE_SIZE] = 8;
-                  eds->settings[ALLEGRO_RED_SHIFT] = 16;
-                  eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
-                  eds->settings[ALLEGRO_BLUE_SHIFT] = 0;
-                  eds->settings[ALLEGRO_COLOR_SIZE] = 32;
+                  eds->settings[A5O_RED_SIZE] = 8;
+                  eds->settings[A5O_GREEN_SIZE] = 8;
+                  eds->settings[A5O_BLUE_SIZE] = 8;
+                  eds->settings[A5O_RED_SHIFT] = 16;
+                  eds->settings[A5O_GREEN_SHIFT] = 8;
+                  eds->settings[A5O_BLUE_SHIFT] = 0;
+                  eds->settings[A5O_COLOR_SIZE] = 32;
                }
                else if (format_num == 1) {
-                  eds->settings[ALLEGRO_RED_SIZE] = 5;
-                  eds->settings[ALLEGRO_GREEN_SIZE] = 6;
-                  eds->settings[ALLEGRO_BLUE_SIZE] = 5;
-                  eds->settings[ALLEGRO_RED_SHIFT] = 11;
-                  eds->settings[ALLEGRO_GREEN_SHIFT] = 5;
-                  eds->settings[ALLEGRO_BLUE_SHIFT] = 0;
-                  eds->settings[ALLEGRO_COLOR_SIZE] = 16;
+                  eds->settings[A5O_RED_SIZE] = 5;
+                  eds->settings[A5O_GREEN_SIZE] = 6;
+                  eds->settings[A5O_BLUE_SIZE] = 5;
+                  eds->settings[A5O_RED_SHIFT] = 11;
+                  eds->settings[A5O_GREEN_SHIFT] = 5;
+                  eds->settings[A5O_BLUE_SHIFT] = 0;
+                  eds->settings[A5O_COLOR_SIZE] = 16;
                }
 
                if (single_buffer) {
-                  eds->settings[ALLEGRO_SINGLE_BUFFER] = 1;
-                  eds->settings[ALLEGRO_UPDATE_DISPLAY_REGION] = 1;
+                  eds->settings[A5O_SINGLE_BUFFER] = 1;
+                  eds->settings[A5O_UPDATE_DISPLAY_REGION] = 1;
                }
 
                if (vsync) {
-                  eds->settings[ALLEGRO_VSYNC] = 1;
+                  eds->settings[A5O_VSYNC] = 1;
                }
 
-               eds->settings[ALLEGRO_DEPTH_SIZE] = ds->d;
-               eds->settings[ALLEGRO_STENCIL_SIZE] = ds->s;
+               eds->settings[A5O_DEPTH_SIZE] = ds->d;
+               eds->settings[A5O_STENCIL_SIZE] = ds->s;
                
                if (k > 1) {
-                  eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 1;
+                  eds->settings[A5O_SAMPLE_BUFFERS] = 1;
                   // TODO: Is it ok to use the quality level here?
-                  eds->settings[ALLEGRO_SAMPLES] = k;
+                  eds->settings[A5O_SAMPLES] = k;
                }
             }
          }
       }
       
    }
-   ALLEGRO_INFO("found %d format combinations\n", (int)_al_vector_size(&eds_list));
+   A5O_INFO("found %d format combinations\n", (int)_al_vector_size(&eds_list));
 }
 
-void _al_d3d_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
+void _al_d3d_score_display_settings(A5O_EXTRA_DISPLAY_SETTINGS *ref)
 {
    for (int i = 0; i < (int)_al_vector_size(&eds_list); i++) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, **peds;
-      peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_al_vector_ref(&eds_list, i);
+      A5O_EXTRA_DISPLAY_SETTINGS *eds, **peds;
+      peds = (A5O_EXTRA_DISPLAY_SETTINGS **)_al_vector_ref(&eds_list, i);
       eds = *peds;
       eds->score = _al_score_display_settings(eds, ref);
       eds->index = i;
@@ -160,8 +160,8 @@ void _al_d3d_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
 /* Helper function for sorting pixel formats by index */
 static int d3d_display_list_resorter(const void *p0, const void *p1)
 {
-   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f0 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p0);
-   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f1 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p1);
+   const A5O_EXTRA_DISPLAY_SETTINGS *f0 = *((A5O_EXTRA_DISPLAY_SETTINGS **)p0);
+   const A5O_EXTRA_DISPLAY_SETTINGS *f1 = *((A5O_EXTRA_DISPLAY_SETTINGS **)p1);
 
    if (!f0)
       return 1;
@@ -183,9 +183,9 @@ void _al_d3d_resort_display_settings(void)
    qsort(eds_list._items, eds_list._size, eds_list._itemsize, d3d_display_list_resorter);
 }
 
-ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_d3d_get_display_settings(int i)
+A5O_EXTRA_DISPLAY_SETTINGS *_al_d3d_get_display_settings(int i)
 {
    if (i < (int)_al_vector_size(&eds_list))
-      return *(ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_al_vector_ref(&eds_list, i);
+      return *(A5O_EXTRA_DISPLAY_SETTINGS **)_al_vector_ref(&eds_list, i);
    return NULL;
 }

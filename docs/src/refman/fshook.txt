@@ -10,26 +10,26 @@ These functions allow access to the filesystem. This can either be the real
 filesystem like your harddrive, or a virtual filesystem like a .zip archive (or
 whatever else you or an addon makes it do).
 
-## API: ALLEGRO_FS_ENTRY
+## API: A5O_FS_ENTRY
 
 Opaque filesystem entry object.
 Represents a file or a directory (check with [al_get_fs_entry_mode]).
 There are no user accessible member variables.
 
-## API: ALLEGRO_FILE_MODE
+## API: A5O_FILE_MODE
 
 Filesystem modes/types
 
-* ALLEGRO_FILEMODE_READ - Readable
-* ALLEGRO_FILEMODE_WRITE - Writable
-* ALLEGRO_FILEMODE_EXECUTE - Executable
-* ALLEGRO_FILEMODE_HIDDEN - Hidden
-* ALLEGRO_FILEMODE_ISFILE - Regular file
-* ALLEGRO_FILEMODE_ISDIR - Directory
+* A5O_FILEMODE_READ - Readable
+* A5O_FILEMODE_WRITE - Writable
+* A5O_FILEMODE_EXECUTE - Executable
+* A5O_FILEMODE_HIDDEN - Hidden
+* A5O_FILEMODE_ISFILE - Regular file
+* A5O_FILEMODE_ISDIR - Directory
 
 ## API: al_create_fs_entry
 
-Creates an [ALLEGRO_FS_ENTRY] object pointing to path on the filesystem.
+Creates an [A5O_FS_ENTRY] object pointing to path on the filesystem.
 'path' can be a file or a directory and must not be NULL.
 
 ## API: al_destroy_fs_entry
@@ -44,7 +44,7 @@ Does nothing if passed NULL.
 Returns the entry's filename path.
 Note that the filesystem encoding may not be known and the conversion to UTF-8
 could in very rare cases cause this to return an invalid path. Therefore it's
-always safest to access the file over its [ALLEGRO_FS_ENTRY] and not the path.
+always safest to access the file over its [A5O_FS_ENTRY] and not the path.
 
 On success returns a read only string which you must not modify or
 destroy. Returns NULL on failure.
@@ -70,7 +70,7 @@ See also: [al_get_errno], [al_get_fs_entry_atime], [al_get_fs_entry_ctime],
 Returns the entry's mode flags, i.e. permissions and whether the entry
 refers to a file or directory.
 
-See also: [al_get_errno], [ALLEGRO_FILE_MODE]
+See also: [al_get_errno], [A5O_FILE_MODE]
 
 ## API: al_get_fs_entry_atime
 
@@ -128,7 +128,7 @@ See also: [al_filename_exists]
 ## API: al_filename_exists
 
 Check if the path exists on the filesystem, without creating an
-[ALLEGRO_FS_ENTRY] object explicitly.
+[A5O_FS_ENTRY] object explicitly.
 
 See also: [al_fs_entry_exists]
 
@@ -204,7 +204,7 @@ See also: [al_get_errno]
 
 ### API: al_open_fs_entry
 
-Open an [ALLEGRO_FILE] handle to a filesystem entry, for the given access mode.
+Open an [A5O_FILE] handle to a filesystem entry, for the given access mode.
 This is like calling [al_fopen] with the name of the filesystem entry, but uses
 the appropriate file interface, not whatever was set with the latest call to
 [al_set_new_file_interface].
@@ -213,15 +213,15 @@ Returns the handle on success, NULL on error.
 
 See also: [al_fopen]
 
-### API: ALLEGRO_FOR_EACH_FS_ENTRY_RESULT
+### API: A5O_FOR_EACH_FS_ENTRY_RESULT
 
 Return values for the callbacks of [al_for_each_fs_entry] and
 for that function itself.
 
-* ALLEGRO_FOR_EACH_FS_ENTRY_ERROR - An error ocurred.
-* ALLEGRO_FOR_EACH_FS_ENTRY_OK - Continue normally and recurse into directories.
-* ALLEGRO_FOR_EACH_FS_ENTRY_SKIP - Continue but do NOT recusively descend.
-* ALLEGRO_FOR_EACH_FS_ENTRY_STOP - Stop iterating and return.
+* A5O_FOR_EACH_FS_ENTRY_ERROR - An error ocurred.
+* A5O_FOR_EACH_FS_ENTRY_OK - Continue normally and recurse into directories.
+* A5O_FOR_EACH_FS_ENTRY_SKIP - Continue but do NOT recusively descend.
+* A5O_FOR_EACH_FS_ENTRY_STOP - Stop iterating and return.
 
 See also: [al_for_each_fs_entry]
 
@@ -229,43 +229,43 @@ Since: 5.1.9
 
 ### API: al_for_each_fs_entry
 
-This function takes the [ALLEGRO_FS_ENTRY] `dir`, which should
+This function takes the [A5O_FS_ENTRY] `dir`, which should
 represent a directory, and  looks for any other file system entries
 that are in it. This function will then call the callback function `callback`
 once for every filesystem entry in the directory `dir`.
 
-The callback `callback` must be of type `int callback(ALLEGRO_FS_ENTRY *
+The callback `callback` must be of type `int callback(A5O_FS_ENTRY *
 entry, void * extra)`. The `callback` will be called with a pointer
-to an [ALLEGRO_FS_ENTRY] that matches one file or directory in `dir`,
+to an [A5O_FS_ENTRY] that matches one file or directory in `dir`,
 and the pointer passed in the `extra` parameter to [al_for_each_fs_entry].
 
-When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_STOP` or
-`ALLEGRO_FOR_EACH_FS_ENTRY_ERROR`, iteration will stop immediately
+When `callback` returns `A5O_FOR_EACH_FS_ENTRY_STOP` or
+`A5O_FOR_EACH_FS_ENTRY_ERROR`, iteration will stop immediately
 and [al_for_each_fs_entry]  will return the value the `callback` returned.
 
-When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_OK` iteration will continue
-normally, and if the [ALLEGRO_FS_ENTRY] parameter of `callback`
+When `callback` returns `A5O_FOR_EACH_FS_ENTRY_OK` iteration will continue
+normally, and if the [A5O_FS_ENTRY] parameter of `callback`
 is a directory, [al_for_each_fs_entry] will call itself
 on that directory. Therefore the function will recusively descend into that
 directory.
 
-However, when `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_SKIP` iteration
+However, when `callback` returns `A5O_FOR_EACH_FS_ENTRY_SKIP` iteration
 will continue, but [al_for_each_fs_entry] will NOT recurse into the
-[ALLEGRO_FS_ENTRY] parameter of `callback` even if it is a directory.
+[A5O_FS_ENTRY] parameter of `callback` even if it is a directory.
 
 This function will skip any files or directories named `.` or `..`
 which may exist on certain platforms and may signify the current and the
 parent directory. The `callback` will not be called for files
 or directories with such a name.
 
-Returns ALLEGRO_FOR_EACH_FS_ENTRY_OK if successful, or
-ALLEGRO_FOR_EACH_FS_ENTRY_ERROR if something went wrong in
+Returns A5O_FOR_EACH_FS_ENTRY_OK if successful, or
+A5O_FOR_EACH_FS_ENTRY_ERROR if something went wrong in
 processing the directory. In that case it will use [al_set_errno] to indicate
 the type of error which occurred. This function returns
-ALLEGRO_FOR_EACH_FS_ENTRY_STOP in case iteration was stopped by making
+A5O_FOR_EACH_FS_ENTRY_STOP in case iteration was stopped by making
 `callback` return that value. In this case, [al_set_errno] will not be used.
 
-See also: [ALLEGRO_FOR_EACH_FS_ENTRY_RESULT]
+See also: [A5O_FOR_EACH_FS_ENTRY_RESULT]
 
 Since: 5.1.9
 
@@ -277,26 +277,26 @@ the local filesystem but inside some file archive, you can provide your own
 set of functions (or use an addon which does this for you, for example our
 physfs addon allows access to the most common archive formats).
 
-### API: ALLEGRO_FS_INTERFACE
+### API: A5O_FS_INTERFACE
 
 The available functions you can provide for a filesystem. They are:
 
 ~~~
-   ALLEGRO_FS_ENTRY *  fs_create_entry   (const char *path);
-   void                fs_destroy_entry  (ALLEGRO_FS_ENTRY *e);
-   const char *        fs_entry_name     (ALLEGRO_FS_ENTRY *e);
-   bool                fs_update_entry   (ALLEGRO_FS_ENTRY *e);
-   uint32_t            fs_entry_mode     (ALLEGRO_FS_ENTRY *e);
-   time_t              fs_entry_atime    (ALLEGRO_FS_ENTRY *e);
-   time_t              fs_entry_mtime    (ALLEGRO_FS_ENTRY *e);
-   time_t              fs_entry_ctime    (ALLEGRO_FS_ENTRY *e);
-   off_t               fs_entry_size     (ALLEGRO_FS_ENTRY *e);
-   bool                fs_entry_exists   (ALLEGRO_FS_ENTRY *e);
-   bool                fs_remove_entry   (ALLEGRO_FS_ENTRY *e);
+   A5O_FS_ENTRY *  fs_create_entry   (const char *path);
+   void                fs_destroy_entry  (A5O_FS_ENTRY *e);
+   const char *        fs_entry_name     (A5O_FS_ENTRY *e);
+   bool                fs_update_entry   (A5O_FS_ENTRY *e);
+   uint32_t            fs_entry_mode     (A5O_FS_ENTRY *e);
+   time_t              fs_entry_atime    (A5O_FS_ENTRY *e);
+   time_t              fs_entry_mtime    (A5O_FS_ENTRY *e);
+   time_t              fs_entry_ctime    (A5O_FS_ENTRY *e);
+   off_t               fs_entry_size     (A5O_FS_ENTRY *e);
+   bool                fs_entry_exists   (A5O_FS_ENTRY *e);
+   bool                fs_remove_entry   (A5O_FS_ENTRY *e);
 
-   bool                fs_open_directory (ALLEGRO_FS_ENTRY *e);
-   ALLEGRO_FS_ENTRY *  fs_read_directory (ALLEGRO_FS_ENTRY *e);
-   bool                fs_close_directory(ALLEGRO_FS_ENTRY *e);
+   bool                fs_open_directory (A5O_FS_ENTRY *e);
+   A5O_FS_ENTRY *  fs_read_directory (A5O_FS_ENTRY *e);
+   bool                fs_close_directory(A5O_FS_ENTRY *e);
 
    bool                fs_filename_exists(const char *path);
    bool                fs_remove_filename(const char *path);
@@ -304,26 +304,26 @@ The available functions you can provide for a filesystem. They are:
    bool                fs_change_directory(const char *path);
    bool                fs_make_directory(const char *path);
 
-   ALLEGRO_FILE *      fs_open_file(ALLEGRO_FS_ENTRY *e);
+   A5O_FILE *      fs_open_file(A5O_FS_ENTRY *e);
 ~~~
 
 ### API: al_set_fs_interface
 
-Set the [ALLEGRO_FS_INTERFACE] table for the calling thread.
+Set the [A5O_FS_INTERFACE] table for the calling thread.
 
 See also: [al_set_standard_fs_interface], [al_store_state],
 [al_restore_state].
 
 ### API: al_set_standard_fs_interface
 
-Return the [ALLEGRO_FS_INTERFACE] table to the default, for the calling
+Return the [A5O_FS_INTERFACE] table to the default, for the calling
 thread.
 
 See also: [al_set_fs_interface].
 
 ### API: al_get_fs_interface
 
-Return a pointer to the [ALLEGRO_FS_INTERFACE] table in effect
+Return a pointer to the [A5O_FS_INTERFACE] table in effect
 for the calling thread.
 
 See also: [al_store_state], [al_restore_state].

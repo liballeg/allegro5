@@ -16,7 +16,7 @@
  *      See readme.txt for copyright information.
  */
 
-#define ALLEGRO_INTERNAL_UNSTABLE
+#define A5O_INTERNAL_UNSTABLE
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -30,27 +30,27 @@
 /*
 The vertex cache allows for bulk transformation of vertices, for faster run speeds
 */
-#define LOCAL_VERTEX_CACHE  ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE]
+#define LOCAL_VERTEX_CACHE  A5O_VERTEX vertex_cache[A5O_VERTEX_CACHE_SIZE]
 
-static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX* dest, const ALLEGRO_VERTEX_DECL* decl)
+static void convert_vtx(A5O_BITMAP* texture, const char* src, A5O_VERTEX* dest, const A5O_VERTEX_DECL* decl)
 {
-   ALLEGRO_VERTEX_ELEMENT* e;
+   A5O_VERTEX_ELEMENT* e;
    if(!decl) {
-      *dest = *((ALLEGRO_VERTEX*)src);
+      *dest = *((A5O_VERTEX*)src);
       return;
    }
-   e = &decl->elements[ALLEGRO_PRIM_POSITION];
+   e = &decl->elements[A5O_PRIM_POSITION];
    if(e->attribute) {
       switch(e->storage) {
-         case ALLEGRO_PRIM_FLOAT_2:
-         case ALLEGRO_PRIM_FLOAT_3:
+         case A5O_PRIM_FLOAT_2:
+         case A5O_PRIM_FLOAT_3:
          {
             float *ptr = (float*)(src + e->offset);
             dest->x = *(ptr);
             dest->y = *(ptr + 1);
             break;
          }
-         case ALLEGRO_PRIM_SHORT_2:
+         case A5O_PRIM_SHORT_2:
          {
             short *ptr = (short*)(src + e->offset);
             dest->x = (float)*(ptr);
@@ -63,20 +63,20 @@ static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX
       dest->y = 0;
    }
 
-   e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+   e = &decl->elements[A5O_PRIM_TEX_COORD];
    if(!e->attribute)
-      e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+      e = &decl->elements[A5O_PRIM_TEX_COORD_PIXEL];
    if(e->attribute) {
       switch(e->storage) {
-         case ALLEGRO_PRIM_FLOAT_2:
-         case ALLEGRO_PRIM_FLOAT_3:
+         case A5O_PRIM_FLOAT_2:
+         case A5O_PRIM_FLOAT_3:
          {
             float *ptr = (float*)(src + e->offset);
             dest->u = *(ptr);
             dest->v = *(ptr + 1);
             break;
          }
-         case ALLEGRO_PRIM_SHORT_2:
+         case A5O_PRIM_SHORT_2:
          {
             short *ptr = (short*)(src + e->offset);
             dest->u = (float)*(ptr);
@@ -84,7 +84,7 @@ static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX
             break;
          }
       }
-      if(texture && e->attribute == ALLEGRO_PRIM_TEX_COORD) {
+      if(texture && e->attribute == A5O_PRIM_TEX_COORD) {
          dest->u *= (float)al_get_bitmap_width(texture);
          dest->v *= (float)al_get_bitmap_height(texture);
       }
@@ -93,29 +93,29 @@ static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX
       dest->v = 0;
    }
 
-   e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
+   e = &decl->elements[A5O_PRIM_COLOR_ATTR];
    if(e->attribute) {
-      dest->color = *(ALLEGRO_COLOR*)(src + e->offset);
+      dest->color = *(A5O_COLOR*)(src + e->offset);
    } else {
       dest->color = al_map_rgba_f(1,1,1,1);
    }
 }
 
-int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
+int _al_draw_prim_soft(A5O_BITMAP* texture, const void* vtxs, const A5O_VERTEX_DECL* decl, int start, int end, int type)
 {
    LOCAL_VERTEX_CACHE;
    int num_primitives;
    int num_vtx;
    int use_cache;
-   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   const ALLEGRO_TRANSFORM* global_trans = al_get_current_transform();
+   int stride = decl ? decl->stride : (int)sizeof(A5O_VERTEX);
+   const A5O_TRANSFORM* global_trans = al_get_current_transform();
    
    num_primitives = 0;
    num_vtx = end - start;
-   use_cache = num_vtx < ALLEGRO_VERTEX_CACHE_SIZE;
+   use_cache = num_vtx < A5O_VERTEX_CACHE_SIZE;
 
    if (texture)
-      al_lock_bitmap(texture, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+      al_lock_bitmap(texture, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
       
    if (use_cache) {
       int ii;
@@ -134,7 +134,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
    al_transform_coordinates(global_trans, &v.x, &v.y);            \
     
    switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
+      case A5O_PRIM_LINE_LIST: {
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx - 1; ii += 2) {
@@ -143,7 +143,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          } else {
             int ii;
             for (ii = start; ii < end - 1; ii += 2) {
-               ALLEGRO_VERTEX v1, v2;
+               A5O_VERTEX v1, v2;
                SET_VERTEX(v1, ii);
                SET_VERTEX(v2, ii + 1);
                
@@ -153,7 +153,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          num_primitives = num_vtx / 2;
          break;
       };
-      case ALLEGRO_PRIM_LINE_STRIP: {
+      case A5O_PRIM_LINE_STRIP: {
          if (use_cache) {
             int ii;
             for (ii = 1; ii < num_vtx; ii++) {
@@ -162,7 +162,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          } else {
             int ii;
             int idx = 1;
-            ALLEGRO_VERTEX vtx[2];
+            A5O_VERTEX vtx[2];
             SET_VERTEX(vtx[0], start);
             for (ii = start + 1; ii < end; ii++) {
                SET_VERTEX(vtx[idx], ii)
@@ -173,7 +173,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          num_primitives = num_vtx - 1;
          break;
       };
-      case ALLEGRO_PRIM_LINE_LOOP: {
+      case A5O_PRIM_LINE_LOOP: {
          if (use_cache) {
             int ii;
             for (ii = 1; ii < num_vtx; ii++) {
@@ -183,7 +183,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          } else {
             int ii;
             int idx = 1;
-            ALLEGRO_VERTEX vtx[2];
+            A5O_VERTEX vtx[2];
             SET_VERTEX(vtx[0], start);
             for (ii = start + 1; ii < end; ii++) {
                SET_VERTEX(vtx[idx], ii)
@@ -196,7 +196,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          num_primitives = num_vtx;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+      case A5O_PRIM_TRIANGLE_LIST: {
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx - 2; ii += 3) {
@@ -205,7 +205,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          } else {
             int ii;
             for (ii = start; ii < end - 2; ii += 3) {
-               ALLEGRO_VERTEX v1, v2, v3;
+               A5O_VERTEX v1, v2, v3;
                SET_VERTEX(v1, ii);
                SET_VERTEX(v2, ii + 1);
                SET_VERTEX(v3, ii + 2);
@@ -216,7 +216,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          num_primitives = num_vtx / 3;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+      case A5O_PRIM_TRIANGLE_STRIP: {
          if (use_cache) {
             int ii;
             for (ii = 2; ii < num_vtx; ii++) {
@@ -225,7 +225,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          } else {
             int ii;
             int idx = 2;
-            ALLEGRO_VERTEX vtx[3];
+            A5O_VERTEX vtx[3];
             SET_VERTEX(vtx[0], start);
             SET_VERTEX(vtx[1], start + 1);
             for (ii = start + 2; ii < end; ii++) {
@@ -238,7 +238,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+      case A5O_PRIM_TRIANGLE_FAN: {
          if (use_cache) {
             int ii;
             for (ii = 1; ii < num_vtx; ii++) {
@@ -247,8 +247,8 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          } else {
             int ii;
             int idx = 1;
-            ALLEGRO_VERTEX v0;
-            ALLEGRO_VERTEX vtx[2];
+            A5O_VERTEX v0;
+            A5O_VERTEX vtx[2];
             SET_VERTEX(v0, start);
             SET_VERTEX(vtx[0], start + 1);
             for (ii = start + 1; ii < end; ii++) {
@@ -260,7 +260,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_POINT_LIST: {
+      case A5O_PRIM_POINT_LIST: {
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx; ii++) {
@@ -269,7 +269,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          } else {
             int ii;
             for (ii = start; ii < end; ii++) {
-               ALLEGRO_VERTEX v;
+               A5O_VERTEX v;
                SET_VERTEX(v, ii);
 
                _al_point_2d(texture, &v);
@@ -287,7 +287,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
 #undef SET_VERTEX
 }
 
-int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
+int _al_draw_prim_indexed_soft(A5O_BITMAP* texture, const void* vtxs, const A5O_VERTEX_DECL* decl,
    const int* indices, int num_vtx, int type)
 {
    LOCAL_VERTEX_CACHE;
@@ -295,8 +295,8 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
    int use_cache;
    int min_idx, max_idx;
    int ii;
-   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   const ALLEGRO_TRANSFORM* global_trans = al_get_current_transform();
+   int stride = decl ? decl->stride : (int)sizeof(A5O_VERTEX);
+   const A5O_TRANSFORM* global_trans = al_get_current_transform();
 
    num_primitives = 0;   
    use_cache = 1;
@@ -313,12 +313,12 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
       else if (min_idx > indices[ii])
          min_idx = idx;
    }
-   if (max_idx - min_idx >= ALLEGRO_VERTEX_CACHE_SIZE) {
+   if (max_idx - min_idx >= A5O_VERTEX_CACHE_SIZE) {
       use_cache = 0;
    }
 
    if (texture)
-      al_lock_bitmap(texture, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+      al_lock_bitmap(texture, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
       
    if (use_cache) {
       int ii;
@@ -334,7 +334,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
    al_transform_coordinates(global_trans, &v.x, &v.y);            \
     
    switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
+      case A5O_PRIM_LINE_LIST: {
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx - 1; ii += 2) {
@@ -349,7 +349,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
                int idx1 = indices[ii];
                int idx2 = indices[ii + 1];
                
-               ALLEGRO_VERTEX v1, v2;
+               A5O_VERTEX v1, v2;
                SET_VERTEX(v1, idx1);
                SET_VERTEX(v2, idx2);
                
@@ -359,7 +359,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          num_primitives = num_vtx / 2;
          break;
       };
-      case ALLEGRO_PRIM_LINE_STRIP: {
+      case A5O_PRIM_LINE_STRIP: {
          if (use_cache) {
             int ii;
             for (ii = 1; ii < num_vtx; ii++) {
@@ -371,7 +371,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          } else {
             int ii;
             int idx = 1;
-            ALLEGRO_VERTEX vtx[2];
+            A5O_VERTEX vtx[2];
             SET_VERTEX(vtx[0], indices[0]);
             for (ii = 1; ii < num_vtx; ii++) {
                SET_VERTEX(vtx[idx], indices[ii])
@@ -382,7 +382,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          num_primitives = num_vtx - 1;
          break;
       };
-      case ALLEGRO_PRIM_LINE_LOOP: {
+      case A5O_PRIM_LINE_LOOP: {
          if (use_cache) {
             int ii;
             int idx1, idx2;
@@ -400,7 +400,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          } else {
             int ii;
             int idx = 1;
-            ALLEGRO_VERTEX vtx[2];
+            A5O_VERTEX vtx[2];
             SET_VERTEX(vtx[0], indices[0]);
             for (ii = 1; ii < num_vtx; ii++) {
                SET_VERTEX(vtx[idx], indices[ii])
@@ -413,7 +413,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          num_primitives = num_vtx;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+      case A5O_PRIM_TRIANGLE_LIST: {
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx - 2; ii += 3) {
@@ -429,7 +429,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
                int idx2 = indices[ii + 1];
                int idx3 = indices[ii + 2];
                
-               ALLEGRO_VERTEX v1, v2, v3;
+               A5O_VERTEX v1, v2, v3;
                SET_VERTEX(v1, idx1);
                SET_VERTEX(v2, idx2);
                SET_VERTEX(v3, idx3);
@@ -440,7 +440,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          num_primitives = num_vtx / 3;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+      case A5O_PRIM_TRIANGLE_STRIP: {
          if (use_cache) {
             int ii;
             for (ii = 2; ii < num_vtx; ii++) {
@@ -452,7 +452,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          } else {
             int ii;
             int idx = 2;
-            ALLEGRO_VERTEX vtx[3];
+            A5O_VERTEX vtx[3];
             SET_VERTEX(vtx[0], indices[0]);
             SET_VERTEX(vtx[1], indices[1]);
             for (ii = 2; ii < num_vtx; ii ++) {
@@ -465,7 +465,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+      case A5O_PRIM_TRIANGLE_FAN: {
          if (use_cache) {
             int ii;
             int idx0 = indices[0] - min_idx;
@@ -477,8 +477,8 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          } else {
             int ii;
             int idx = 1;
-            ALLEGRO_VERTEX v0;
-            ALLEGRO_VERTEX vtx[2];
+            A5O_VERTEX v0;
+            A5O_VERTEX vtx[2];
             SET_VERTEX(v0, indices[0]);
             SET_VERTEX(vtx[0], indices[1]);
             for (ii = 2; ii < num_vtx; ii ++) {
@@ -490,7 +490,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          num_primitives = num_vtx - 2;
          break;
       };
-      case ALLEGRO_PRIM_POINT_LIST: {
+      case A5O_PRIM_POINT_LIST: {
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx; ii++) {
@@ -500,7 +500,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
          } else {
             int ii;
             for (ii = 0; ii < num_vtx; ii++) {
-               ALLEGRO_VERTEX v;
+               A5O_VERTEX v;
                SET_VERTEX(v, indices[ii]);
 
                _al_point_2d(texture, &v);
@@ -521,8 +521,8 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
 /* Function: al_draw_soft_triangle
  */
 void al_draw_soft_triangle(
-   ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
-   void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+   A5O_VERTEX* v1, A5O_VERTEX* v2, A5O_VERTEX* v3, uintptr_t state,
+   void (*init)(uintptr_t, A5O_VERTEX*, A5O_VERTEX*, A5O_VERTEX*),
    void (*first)(uintptr_t, int, int, int, int),
    void (*step)(uintptr_t, int),
    void (*draw)(uintptr_t, int, int, int))

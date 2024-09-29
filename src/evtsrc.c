@@ -26,22 +26,22 @@
 #include "allegro5/internal/aintern_system.h"
 
 
-ALLEGRO_STATIC_ASSERT(evtsrc,
-   sizeof(ALLEGRO_EVENT_SOURCE_REAL) <= sizeof(ALLEGRO_EVENT_SOURCE));
+A5O_STATIC_ASSERT(evtsrc,
+   sizeof(A5O_EVENT_SOURCE_REAL) <= sizeof(A5O_EVENT_SOURCE));
 
 
 
 /* Internal function: _al_event_source_init
  *  Initialise an event source structure.
  */
-void _al_event_source_init(ALLEGRO_EVENT_SOURCE *es)
+void _al_event_source_init(A5O_EVENT_SOURCE *es)
 {
-   ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+   A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
    memset(es, 0, sizeof(*es));
    _AL_MARK_MUTEX_UNINITED(this->mutex);
    _al_mutex_init(&this->mutex);
-   _al_vector_init(&this->queues, sizeof(ALLEGRO_EVENT_QUEUE *));
+   _al_vector_init(&this->queues, sizeof(A5O_EVENT_QUEUE *));
    this->data = 0;
 }
 
@@ -52,13 +52,13 @@ void _al_event_source_init(ALLEGRO_EVENT_SOURCE *es)
  *  automatically unregisters the event source from all the event
  *  queues it is currently registered with.
  */
-void _al_event_source_free(ALLEGRO_EVENT_SOURCE *es)
+void _al_event_source_free(A5O_EVENT_SOURCE *es)
 {
-   ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+   A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
    /* Unregister from all queues. */
    while (!_al_vector_is_empty(&this->queues)) {
-      ALLEGRO_EVENT_QUEUE **slot = _al_vector_ref_back(&this->queues);
+      A5O_EVENT_QUEUE **slot = _al_vector_ref_back(&this->queues);
       al_unregister_event_source(*slot, es);
    }
 
@@ -72,9 +72,9 @@ void _al_event_source_free(ALLEGRO_EVENT_SOURCE *es)
 /* Internal function: _al_event_source_lock
  *  Lock the event source.  See below for when you should call this function.
  */
-void _al_event_source_lock(ALLEGRO_EVENT_SOURCE *es)
+void _al_event_source_lock(A5O_EVENT_SOURCE *es)
 {
-   ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+   A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
    _al_mutex_lock(&this->mutex);
 }
@@ -84,9 +84,9 @@ void _al_event_source_lock(ALLEGRO_EVENT_SOURCE *es)
 /* Internal function: _al_event_source_unlock
  *  Unlock the event source.
  */
-void _al_event_source_unlock(ALLEGRO_EVENT_SOURCE *es)
+void _al_event_source_unlock(A5O_EVENT_SOURCE *es)
 {
-   ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+   A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
    _al_mutex_unlock(&this->mutex);
 }
@@ -99,15 +99,15 @@ void _al_event_source_unlock(ALLEGRO_EVENT_SOURCE *es)
  *  event source a chance to remember which queues it is registered
  *  to.
  */
-void _al_event_source_on_registration_to_queue(ALLEGRO_EVENT_SOURCE *es,
-   ALLEGRO_EVENT_QUEUE *queue)
+void _al_event_source_on_registration_to_queue(A5O_EVENT_SOURCE *es,
+   A5O_EVENT_QUEUE *queue)
 {
    _al_event_source_lock(es);
    {
-      ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+      A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
       /* Add the queue to the source's list.  */
-      ALLEGRO_EVENT_QUEUE **slot = _al_vector_alloc_back(&this->queues);
+      A5O_EVENT_QUEUE **slot = _al_vector_alloc_back(&this->queues);
       *slot = queue;
    }
    _al_event_source_unlock(es);
@@ -119,12 +119,12 @@ void _al_event_source_on_registration_to_queue(ALLEGRO_EVENT_SOURCE *es,
  *  This function is called by al_unregister_event_source() when an
  *  event source is unregistered from a queue.
  */
-void _al_event_source_on_unregistration_from_queue(ALLEGRO_EVENT_SOURCE *es,
-   ALLEGRO_EVENT_QUEUE *queue)
+void _al_event_source_on_unregistration_from_queue(A5O_EVENT_SOURCE *es,
+   A5O_EVENT_QUEUE *queue)
 {
    _al_event_source_lock(es);
    {
-      ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+      A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
       _al_vector_find_and_delete(&this->queues, &queue);
    }
@@ -145,9 +145,9 @@ void _al_event_source_on_unregistration_from_queue(ALLEGRO_EVENT_SOURCE *es,
  *
  *  [runs in background threads]
  */
-bool _al_event_source_needs_to_generate_event(ALLEGRO_EVENT_SOURCE *es)
+bool _al_event_source_needs_to_generate_event(A5O_EVENT_SOURCE *es)
 {
-   ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+   A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
    /* We don't consider pausing of event queues, but it does not seem worth
     * optimising for.
@@ -167,9 +167,9 @@ bool _al_event_source_needs_to_generate_event(ALLEGRO_EVENT_SOURCE *es)
  *
  *  [runs in background threads]
  */
-void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *es, ALLEGRO_EVENT *event)
+void _al_event_source_emit_event(A5O_EVENT_SOURCE *es, A5O_EVENT *event)
 {
-   ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
+   A5O_EVENT_SOURCE_REAL *this = (A5O_EVENT_SOURCE_REAL *)es;
 
    event->any.source = es;
 
@@ -179,7 +179,7 @@ void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *es, ALLEGRO_EVENT *event)
    {
       size_t num_queues = _al_vector_size(&this->queues);
       unsigned int i;
-      ALLEGRO_EVENT_QUEUE **slot;
+      A5O_EVENT_QUEUE **slot;
 
       for (i = 0; i < num_queues; i++) {
          slot = _al_vector_ref(&this->queues, i);
@@ -192,7 +192,7 @@ void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *es, ALLEGRO_EVENT *event)
 
 /* Function: al_init_user_event_source
  */
-void al_init_user_event_source(ALLEGRO_EVENT_SOURCE *src)
+void al_init_user_event_source(A5O_EVENT_SOURCE *src)
 {
    ASSERT(src);
 
@@ -203,7 +203,7 @@ void al_init_user_event_source(ALLEGRO_EVENT_SOURCE *src)
 
 /* Function: al_destroy_user_event_source
  */
-void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
+void al_destroy_user_event_source(A5O_EVENT_SOURCE *src)
 {
    if (src) {
       _al_event_source_free(src);
@@ -214,8 +214,8 @@ void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
 
 /* Function: al_emit_user_event
  */
-bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
-   ALLEGRO_EVENT *event, void (*dtor)(ALLEGRO_USER_EVENT *))
+bool al_emit_user_event(A5O_EVENT_SOURCE *src,
+   A5O_EVENT *event, void (*dtor)(A5O_USER_EVENT *))
 {
    size_t num_queues;
    bool rc;
@@ -224,7 +224,7 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
    ASSERT(event);
 
    if (dtor) {
-      ALLEGRO_USER_EVENT_DESCRIPTOR *descr = al_malloc(sizeof(*descr));
+      A5O_USER_EVENT_DESCRIPTOR *descr = al_malloc(sizeof(*descr));
       descr->refcount = 0;
       descr->dtor = dtor;
       event->user.__internal__descr = descr;
@@ -235,7 +235,7 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
 
    _al_event_source_lock(src);
    {
-      ALLEGRO_EVENT_SOURCE_REAL *rsrc = (ALLEGRO_EVENT_SOURCE_REAL *)src;
+      A5O_EVENT_SOURCE_REAL *rsrc = (A5O_EVENT_SOURCE_REAL *)src;
 
       num_queues = _al_vector_size(&rsrc->queues);
       if (num_queues > 0) {
@@ -261,9 +261,9 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
 
 /* Function: al_set_event_source_data
  */
-void al_set_event_source_data(ALLEGRO_EVENT_SOURCE *source, intptr_t data)
+void al_set_event_source_data(A5O_EVENT_SOURCE *source, intptr_t data)
 {
-   ALLEGRO_EVENT_SOURCE_REAL *const rsource = (ALLEGRO_EVENT_SOURCE_REAL *)source;
+   A5O_EVENT_SOURCE_REAL *const rsource = (A5O_EVENT_SOURCE_REAL *)source;
    rsource->data = data;
 }
 
@@ -271,9 +271,9 @@ void al_set_event_source_data(ALLEGRO_EVENT_SOURCE *source, intptr_t data)
 
 /* Function: al_get_event_source_data
  */
-intptr_t al_get_event_source_data(const ALLEGRO_EVENT_SOURCE *source)
+intptr_t al_get_event_source_data(const A5O_EVENT_SOURCE *source)
 {
-   const ALLEGRO_EVENT_SOURCE_REAL *const rsource = (ALLEGRO_EVENT_SOURCE_REAL *)source;
+   const A5O_EVENT_SOURCE_REAL *const rsource = (A5O_EVENT_SOURCE_REAL *)source;
    return rsource->data;
 }
 

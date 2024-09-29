@@ -40,7 +40,7 @@ Once done, press "Configure" again.
 *Note:*
 As of the time this is written, CMake has a bug that causes the DLLs in
 MSVC 10 to be named incorrectly. To work around this, generate MSVC 9 projects
-instead.  You may need to uncomment the line "#define ALLEGRO_HAVE_STDINT_H"
+instead.  You may need to uncomment the line "#define A5O_HAVE_STDINT_H"
 in alplatf.h.  Alternatively, use nmake instead of project files.
 
 9. Open up the project solution with the MSVC IDE and start building.

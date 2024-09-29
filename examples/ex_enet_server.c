@@ -185,9 +185,9 @@ static ENetHost* create_server(int port)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    double last_time; // time of last update
    double cur_time;  // time of this update
    srand(time(NULL));
@@ -223,7 +223,7 @@ int main(int argc, char **argv)
    {
       al_wait_for_event(queue, &event); // Wait for and get an event.
 
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          cur_time = al_get_time();
          update_players(server, cur_time - last_time);
          last_time = cur_time;

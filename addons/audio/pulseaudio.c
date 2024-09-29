@@ -24,7 +24,7 @@
 #include <pulse/mainloop.h>
 #include <stdlib.h>
 
-ALLEGRO_DEBUG_CHANNEL("PulseAudio")
+A5O_DEBUG_CHANNEL("PulseAudio")
 
 enum PULSEAUDIO_VOICE_STATUS {
    PV_IDLE,
@@ -39,17 +39,17 @@ typedef struct PULSEAUDIO_VOICE
    unsigned int buffer_size_in_frames;
    unsigned int frame_size_in_bytes;
 
-   ALLEGRO_THREAD *poll_thread;
+   A5O_THREAD *poll_thread;
    /* status_cond and status are protected by voice->mutex.
     * Using another mutex introduces a deadlock if waiting for a change in
     * status (while holding voice->mutex, acquired by a higher layer)
     * and the background thread tries to acquire voice->mutex as well.
     */
-   ALLEGRO_COND *status_cond;
+   A5O_COND *status_cond;
    enum PULSEAUDIO_VOICE_STATUS status;
 
    // direct buffer (non-streaming):
-   ALLEGRO_MUTEX *buffer_mutex;  
+   A5O_MUTEX *buffer_mutex;  
    char *buffer;
    char *buffer_end;
 } PULSEAUDIO_VOICE;
@@ -59,7 +59,7 @@ static _AL_LIST* output_device_list;
 #define DEFAULT_BUFFER_SIZE   1024
 #define MIN_BUFFER_SIZE       128
 
-static unsigned int get_buffer_size(const ALLEGRO_CONFIG *config)
+static unsigned int get_buffer_size(const A5O_CONFIG *config)
 {
    if (config) {
       const char *val = al_get_config_value(config,
@@ -79,7 +79,7 @@ static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
-   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
    al_free(device);
@@ -102,7 +102,7 @@ static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
 
    int iden_len = strlen(i->name) + 1;
    int name_len = strlen(i->description) + 1;
-   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+   A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)al_malloc(sizeof(A5O_AUDIO_DEVICE));
    device->identifier = (void*)al_malloc(iden_len);
    device->name = (char*)al_malloc(name_len);
 
@@ -140,7 +140,7 @@ static int pulseaudio_open(void)
       /* Don't block or it will hang if there is no server to connect to. */
       const int blocking = 0;
       if (pa_mainloop_iterate(mainloop, blocking, NULL) < 0) {
-         ALLEGRO_ERROR("pa_mainloop_iterate failed\n");
+         A5O_ERROR("pa_mainloop_iterate failed\n");
          pa_context_disconnect(c);
          pa_context_unref(c);
          pa_mainloop_free(mainloop);
@@ -148,11 +148,11 @@ static int pulseaudio_open(void)
       }
       pa_context_state_t s = pa_context_get_state(c);
       if (s == PA_CONTEXT_READY) {
-         ALLEGRO_DEBUG("PA_CONTEXT_READY\n");
+         A5O_DEBUG("PA_CONTEXT_READY\n");
          break;
       }
       if (s == PA_CONTEXT_FAILED) {
-         ALLEGRO_ERROR("PA_CONTEXT_FAILED\n");
+         A5O_ERROR("PA_CONTEXT_FAILED\n");
          pa_context_disconnect(c);
          pa_context_unref(c);
          pa_mainloop_free(mainloop);
@@ -184,9 +184,9 @@ static void pulseaudio_close(void)
    _al_list_destroy(output_device_list);
 }
 
-static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
+static void *pulseaudio_update(A5O_THREAD *self, void *data)
 {
-   ALLEGRO_VOICE *voice = data;
+   A5O_VOICE *voice = data;
    PULSEAUDIO_VOICE *pv = voice->extra;
    (void)self;
 
@@ -228,7 +228,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
                len = pv->buffer_end - data;
                pv->buffer = voice->attached_stream->spl_data.buffer.ptr;
                voice->attached_stream->pos = 0;
-               if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
+               if (voice->attached_stream->loop == A5O_PLAYMODE_ONCE) {
                   al_lock_mutex(voice->mutex);
                   pv->status = PV_STOPPING;
                   al_broadcast_cond(pv->status_cond);
@@ -256,7 +256,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
    return NULL;
 }
 
-static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
+static int pulseaudio_allocate_voice(A5O_VOICE *voice)
 {
    PULSEAUDIO_VOICE *pv = al_malloc(sizeof(PULSEAUDIO_VOICE));
    pa_sample_spec ss;
@@ -265,18 +265,18 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
    ss.channels = al_get_channel_count(voice->chan_conf);
    ss.rate = voice->frequency;
 
-   if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
+   if (voice->depth == A5O_AUDIO_DEPTH_UINT8)
       ss.format = PA_SAMPLE_U8;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+   else if (voice->depth == A5O_AUDIO_DEPTH_INT16)
       ss.format = PA_SAMPLE_S16NE;
 #if PA_API_VERSION > 11
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT24)
+   else if (voice->depth == A5O_AUDIO_DEPTH_INT24)
       ss.format = PA_SAMPLE_S24NE;
 #endif
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+   else if (voice->depth == A5O_AUDIO_DEPTH_FLOAT32)
       ss.format = PA_SAMPLE_FLOAT32NE;
    else {
-      ALLEGRO_ERROR("Unsupported PulseAudio sound format.\n");
+      A5O_ERROR("Unsupported PulseAudio sound format.\n");
       al_free(pv);
       return 1;
    }
@@ -322,7 +322,7 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
    return 0;
 }
 
-static void pulseaudio_deallocate_voice(ALLEGRO_VOICE *voice)
+static void pulseaudio_deallocate_voice(A5O_VOICE *voice)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
 
@@ -344,13 +344,13 @@ static void pulseaudio_deallocate_voice(ALLEGRO_VOICE *voice)
    al_free(pv);
 }
 
-static int pulseaudio_load_voice(ALLEGRO_VOICE *voice, const void *data)
+static int pulseaudio_load_voice(A5O_VOICE *voice, const void *data)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
    (void)data;
 
-   if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
-      ALLEGRO_INFO("Backwards playing not supported by the driver.\n");
+   if (voice->attached_stream->loop == A5O_PLAYMODE_BIDIR) {
+      A5O_INFO("Backwards playing not supported by the driver.\n");
       return 1;
    }
 
@@ -363,12 +363,12 @@ static int pulseaudio_load_voice(ALLEGRO_VOICE *voice, const void *data)
    return 0;
 }
 
-static void pulseaudio_unload_voice(ALLEGRO_VOICE *voice)
+static void pulseaudio_unload_voice(A5O_VOICE *voice)
 {
    (void) voice;
 }
 
-static int pulseaudio_start_voice(ALLEGRO_VOICE *voice)
+static int pulseaudio_start_voice(A5O_VOICE *voice)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;   
    int ret;
@@ -387,7 +387,7 @@ static int pulseaudio_start_voice(ALLEGRO_VOICE *voice)
    return ret;
 }
 
-static int pulseaudio_stop_voice(ALLEGRO_VOICE *voice)
+static int pulseaudio_stop_voice(A5O_VOICE *voice)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
 
@@ -405,18 +405,18 @@ static int pulseaudio_stop_voice(ALLEGRO_VOICE *voice)
    return 0;
 }
 
-static bool pulseaudio_voice_is_playing(const ALLEGRO_VOICE *voice)
+static bool pulseaudio_voice_is_playing(const A5O_VOICE *voice)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
    return (pv->status == PV_PLAYING);
 }
 
-static unsigned int pulseaudio_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int pulseaudio_get_voice_position(const A5O_VOICE *voice)
 {
    return voice->attached_stream->pos;
 }
 
-static int pulseaudio_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
+static int pulseaudio_set_voice_position(A5O_VOICE *voice, unsigned int pos)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
 
@@ -439,17 +439,17 @@ typedef struct PULSEAUDIO_RECORDER {
    pa_buffer_attr ba;
 } PULSEAUDIO_RECORDER;
 
-static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
+static void *pulse_audio_update_recorder(A5O_THREAD *t, void *data)
 {
-   ALLEGRO_AUDIO_RECORDER *r = (ALLEGRO_AUDIO_RECORDER *) data;
+   A5O_AUDIO_RECORDER *r = (A5O_AUDIO_RECORDER *) data;
    PULSEAUDIO_RECORDER *pa = (PULSEAUDIO_RECORDER *) r->extra;
-   ALLEGRO_EVENT user_event;
+   A5O_EVENT user_event;
    uint8_t *null_buffer;
    unsigned int fragment_i = 0;
    
    null_buffer = al_malloc(1024);
    if (!null_buffer) {
-      ALLEGRO_ERROR("Unable to create buffer for draining PulseAudio.\n");
+      A5O_ERROR("Unable to create buffer for draining PulseAudio.\n");
       return NULL;
    }
    
@@ -464,10 +464,10 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
          pa_simple_read(pa->s, null_buffer, 1024, NULL);
       }
       else {
-         ALLEGRO_AUDIO_RECORDER_EVENT *e;
+         A5O_AUDIO_RECORDER_EVENT *e;
          al_unlock_mutex(r->mutex);
          if (pa_simple_read(pa->s, r->fragments[fragment_i], r->fragment_size, NULL) >= 0) {
-            user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+            user_event.user.type = A5O_EVENT_AUDIO_RECORDER_FRAGMENT;
             e = al_get_audio_recorder_event(&user_event);
             e->buffer = r->fragments[fragment_i];
             e->samples = r->samples;           
@@ -484,31 +484,31 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
    return NULL;
 };
 
-static int pulseaudio_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+static int pulseaudio_allocate_recorder(A5O_AUDIO_RECORDER *r)
 {
    PULSEAUDIO_RECORDER *pa;
    
    pa = al_calloc(1, sizeof(*pa));
    if (!pa) {
-     ALLEGRO_ERROR("Unable to allocate memory for PULSEAUDIO_RECORDER.\n");
+     A5O_ERROR("Unable to allocate memory for PULSEAUDIO_RECORDER.\n");
      return 1;
    }
    
    pa->ss.channels = al_get_channel_count(r->chan_conf);
    pa->ss.rate = r->frequency;
 
-   if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT8) 
+   if (r->depth == A5O_AUDIO_DEPTH_UINT8) 
       pa->ss.format = PA_SAMPLE_U8;
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+   else if (r->depth == A5O_AUDIO_DEPTH_INT16)
       pa->ss.format = PA_SAMPLE_S16NE;
 #if PA_API_VERSION > 11
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT24)
+   else if (r->depth == A5O_AUDIO_DEPTH_INT24)
       pa->ss.format = PA_SAMPLE_S24NE;
 #endif
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+   else if (r->depth == A5O_AUDIO_DEPTH_FLOAT32)
       pa->ss.format = PA_SAMPLE_FLOAT32NE;
    else {
-      ALLEGRO_ERROR("Unsupported PulseAudio sound format (depth).\n");
+      A5O_ERROR("Unsupported PulseAudio sound format (depth).\n");
       al_free(pa);
       return 1;
    }
@@ -527,7 +527,7 @@ static int pulseaudio_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    
    pa->s = pa_simple_new(NULL, al_get_app_name(), PA_STREAM_RECORD, NULL, "Allegro Audio Recorder", &pa->ss, NULL, &pa->ba, NULL);
    if (!pa->s) {
-      ALLEGRO_ERROR("pa_simple_new() failed.\n");
+      A5O_ERROR("pa_simple_new() failed.\n");
       al_free(pa);
       return 1;
    }
@@ -538,7 +538,7 @@ static int pulseaudio_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    return 0;   
 };
 
-static void pulseaudio_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+static void pulseaudio_deallocate_recorder(A5O_AUDIO_RECORDER *r)
 {
    PULSEAUDIO_RECORDER *pa = (PULSEAUDIO_RECORDER *) r->extra;
    
@@ -551,7 +551,7 @@ static _AL_LIST* pulseaudio_get_output_devices(void)
    return output_device_list;
 }
 
-ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
+A5O_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
 {
    "PulseAudio",
 

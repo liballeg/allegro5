@@ -4,7 +4,7 @@
  *       From left to right you should see Red, Green, Blue gradients.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include "allegro5/allegro.h"
 
 #include "common.c"
@@ -16,9 +16,9 @@ enum Mode
    MODE_BACKBUFFER
 };
 
-static void fill(ALLEGRO_BITMAP *bitmap, int lock_flags)
+static void fill(A5O_BITMAP *bitmap, int lock_flags)
 {
-   ALLEGRO_LOCKED_REGION *locked;
+   A5O_LOCKED_REGION *locked;
    uint8_t *ptr;
    int i, j;
 
@@ -30,7 +30,7 @@ static void fill(ALLEGRO_BITMAP *bitmap, int lock_flags)
     * chances of uncovering bugs.
     */
    locked = al_lock_bitmap_region(bitmap, 193, 65, 3*127, 127,
-      ALLEGRO_PIXEL_FORMAT_RGB_565, lock_flags);
+      A5O_PIXEL_FORMAT_RGB_565, lock_flags);
    if (!locked)
       return;
 
@@ -69,7 +69,7 @@ static void fill(ALLEGRO_BITMAP *bitmap, int lock_flags)
           * In READWRITE mode the light blue background should should through
           * the stipple pattern.
           */
-         if ((lock_flags & ALLEGRO_LOCK_WRITEONLY) || (j + i) % 2 == 1) {
+         if ((lock_flags & A5O_LOCK_WRITEONLY) || (j + i) % 2 == 1) {
             col = ((red/8) << 11) | ((green/4) << 5) | (blue/8);
             *cptr = col;
          }
@@ -79,21 +79,21 @@ static void fill(ALLEGRO_BITMAP *bitmap, int lock_flags)
    al_unlock_bitmap(bitmap);
 }
 
-static void draw(ALLEGRO_DISPLAY *display, enum Mode mode, int lock_flags)
+static void draw(A5O_DISPLAY *display, enum Mode mode, int lock_flags)
 {
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
 
    /* Create the bitmap to lock, or use the display backbuffer. */
    if (mode == MODE_VIDEO) {
       log_printf("Locking video bitmap");
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
       bitmap = al_create_bitmap(3*256, 256);
    }
    else if (mode == MODE_MEMORY) {
       log_printf("Locking memory bitmap");
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
       bitmap = al_create_bitmap(3*256, 256);
    }
    else {
@@ -104,7 +104,7 @@ static void draw(ALLEGRO_DISPLAY *display, enum Mode mode, int lock_flags)
       abort_example("Error creating bitmap");
    }
 
-   if (lock_flags & ALLEGRO_LOCK_WRITEONLY) {
+   if (lock_flags & A5O_LOCK_WRITEONLY) {
       log_printf(" in write-only mode\n");
    }
    else {
@@ -141,16 +141,16 @@ static enum Mode cycle_mode(enum Mode mode)
 
 static int toggle_writeonly(int lock_flags)
 {
-   return lock_flags ^ ALLEGRO_LOCK_WRITEONLY;
+   return lock_flags ^ A5O_LOCK_WRITEONLY;
 }
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *events;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *events;
+   A5O_EVENT event;
    enum Mode mode = MODE_VIDEO;
-   int lock_flags = ALLEGRO_LOCK_WRITEONLY;
+   int lock_flags = A5O_LOCK_WRITEONLY;
    bool redraw = true;
 
    (void)argc;
@@ -190,8 +190,8 @@ int main(int argc, char **argv)
       }
 
       al_wait_for_event(events, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
          if (event.keyboard.unichar == ' ') {
             mode = cycle_mode(mode);
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
             redraw = true;
          }
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          if (event.mouse.button == 1) {
             if (event.mouse.x < al_get_display_width(display) / 2) {
                mode = cycle_mode(mode);

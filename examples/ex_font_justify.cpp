@@ -14,8 +14,8 @@
 
 #include "common.c"
 
-ALLEGRO_FONT *font;
-ALLEGRO_FONT *font_gui;
+A5O_FONT *font;
+A5O_FONT *font_gui;
 
 class Prog {
 private:
@@ -28,12 +28,12 @@ private:
    HSlider diff_slider;
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, A5O_DISPLAY *display);
    void run();
    void draw_text();
 };
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display) :
    d(Dialog(theme, display, 10, 20)),
    text_label(Label("Text")),
    width_label(Label("Width")),
@@ -70,7 +70,7 @@ void Prog::run()
 
 void Prog::draw_text()
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
    const int cx = al_get_bitmap_width(target) / 2;
    const int x1 = cx - width_slider.get_cur_value() / 2;
    const int x2 = cx + width_slider.get_cur_value() / 2;
@@ -78,7 +78,7 @@ void Prog::draw_text()
    const int th = al_get_font_line_height(font);
 
    al_draw_justified_text(font, al_map_rgb_f(1, 1, 1), x1, x2, 50, diff,
-      ALLEGRO_ALIGN_INTEGER, text_entry.get_text());
+      A5O_ALIGN_INTEGER, text_entry.get_text());
 
    al_draw_rectangle(x1, 50, x2, 50 + th, al_map_rgb(0, 0, 255), 0);
 
@@ -88,7 +88,7 @@ void Prog::draw_text()
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
 
    (void)argc;
    (void)argv;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
    al_init_ttf_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display\n");

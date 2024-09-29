@@ -55,7 +55,7 @@ int main(int argc, char **argv)
       d_open_input(argv[1]);
 
       while (d_getline(line)) {
-         if (d_match(line, "#define ALLEGRO_VERSION_STR *\"([^\"]*)\"")) {
+         if (d_match(line, "#define A5O_VERSION_STR *\"([^\"]*)\"")) {
             version = d_submatch(1);
             break;
          }

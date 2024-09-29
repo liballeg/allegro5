@@ -24,16 +24,16 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("audio")
+A5O_DEBUG_CHANNEL("audio")
 
 
-static ALLEGRO_VOICE *allegro_voice = NULL;
-static ALLEGRO_MIXER *allegro_mixer = NULL;
-static ALLEGRO_MIXER *default_mixer = NULL;
+static A5O_VOICE *allegro_voice = NULL;
+static A5O_MIXER *allegro_mixer = NULL;
+static A5O_MIXER *default_mixer = NULL;
 
 
 typedef struct AUTO_SAMPLE {
-   ALLEGRO_SAMPLE_INSTANCE *instance;
+   A5O_SAMPLE_INSTANCE *instance;
    int id;
    bool locked;
 } AUTO_SAMPLE;
@@ -42,8 +42,8 @@ static _AL_VECTOR auto_samples = _AL_VECTOR_INITIALIZER(AUTO_SAMPLE);
 
 
 static bool create_default_mixer(void);
-static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data,
-      float gain, float pan, float speed, ALLEGRO_PLAYMODE loop);
+static bool do_play_sample(A5O_SAMPLE_INSTANCE *spl, A5O_SAMPLE *data,
+      float gain, float pan, float speed, A5O_PLAYMODE loop);
 static void free_sample_vector(void);
 
 
@@ -51,10 +51,10 @@ static int string_to_depth(const char *s)
 {
    // FIXME: fill in the rest
    if (!_al_stricmp(s, "int16")) {
-      return ALLEGRO_AUDIO_DEPTH_INT16;
+      return A5O_AUDIO_DEPTH_INT16;
    }
    else {
-      return ALLEGRO_AUDIO_DEPTH_FLOAT32;
+      return A5O_AUDIO_DEPTH_FLOAT32;
    }
 }
 
@@ -63,11 +63,11 @@ static int string_to_depth(const char *s)
 static bool create_default_mixer(void)
 {
    int voice_frequency = 44100;
-   int voice_depth = ALLEGRO_AUDIO_DEPTH_INT16;
+   int voice_depth = A5O_AUDIO_DEPTH_INT16;
    int mixer_frequency = 44100;
-   int mixer_depth = ALLEGRO_AUDIO_DEPTH_FLOAT32;
+   int mixer_depth = A5O_AUDIO_DEPTH_FLOAT32;
 
-   ALLEGRO_CONFIG *config = al_get_system_config();
+   A5O_CONFIG *config = al_get_system_config();
    const char *p;
    p = al_get_config_value(config, "audio", "primary_voice_frequency");
    if (p && p[0] != '\0') {
@@ -88,18 +88,18 @@ static bool create_default_mixer(void)
 
    if (!allegro_voice) {
       allegro_voice = al_create_voice(voice_frequency, voice_depth,
-         ALLEGRO_CHANNEL_CONF_2);
+         A5O_CHANNEL_CONF_2);
       if (!allegro_voice) {
-         ALLEGRO_ERROR("al_create_voice failed\n");
+         A5O_ERROR("al_create_voice failed\n");
          goto Error;
       }
    }
 
    if (!allegro_mixer) {
       allegro_mixer = al_create_mixer(mixer_frequency, mixer_depth,
-         ALLEGRO_CHANNEL_CONF_2);
+         A5O_CHANNEL_CONF_2);
       if (!allegro_mixer) {
-         ALLEGRO_ERROR("al_create_voice failed\n");
+         A5O_ERROR("al_create_voice failed\n");
          goto Error;
       }
    }
@@ -108,7 +108,7 @@ static bool create_default_mixer(void)
    al_detach_mixer(allegro_mixer);
 
    if (!al_attach_mixer_to_voice(allegro_mixer, allegro_voice)) {
-      ALLEGRO_ERROR("al_attach_mixer_to_voice failed\n");
+      A5O_ERROR("al_attach_mixer_to_voice failed\n");
       goto Error;
    }
 
@@ -132,22 +132,22 @@ Error:
 
 /* Function: al_create_sample
  */
-ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
-   unsigned int freq, ALLEGRO_AUDIO_DEPTH depth,
-   ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf)
+A5O_SAMPLE *al_create_sample(void *buf, unsigned int samples,
+   unsigned int freq, A5O_AUDIO_DEPTH depth,
+   A5O_CHANNEL_CONF chan_conf, bool free_buf)
 {
-   ALLEGRO_SAMPLE *spl;
+   A5O_SAMPLE *spl;
 
    ASSERT(buf);
 
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid sample frequency");
+      _al_set_error(A5O_INVALID_PARAM, "Invalid sample frequency");
       return NULL;
    }
 
    spl = al_calloc(1, sizeof(*spl));
    if (!spl) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Out of memory allocating sample data object");
       return NULL;
    }
@@ -171,7 +171,7 @@ ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
 static void stop_sample_instances_helper(void *object, void (*func)(void *),
    void *userdata)
 {
-   ALLEGRO_SAMPLE_INSTANCE *splinst = object;
+   A5O_SAMPLE_INSTANCE *splinst = object;
 
    /* This is ugly. */
    if (func == (void (*)(void *)) al_destroy_sample_instance
@@ -185,7 +185,7 @@ static void stop_sample_instances_helper(void *object, void (*func)(void *),
 
 /* Function: al_destroy_sample
  */
-void al_destroy_sample(ALLEGRO_SAMPLE *spl)
+void al_destroy_sample(A5O_SAMPLE *spl)
 {
    if (spl) {
       _al_kcm_foreach_destructor(stop_sample_instances_helper,
@@ -228,11 +228,11 @@ bool al_reserve_samples(int reserve_samples)
          slot->instance = al_create_sample_instance(NULL);
          slot->locked = false;
          if (!slot->instance) {
-            ALLEGRO_ERROR("al_create_sample failed\n");
+            A5O_ERROR("al_create_sample failed\n");
             goto Error;
          }
          if (!al_attach_sample_instance_to_mixer(slot->instance, default_mixer)) {
-            ALLEGRO_ERROR("al_attach_mixer_to_sample failed\n");
+            A5O_ERROR("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
       }
@@ -257,7 +257,7 @@ bool al_reserve_samples(int reserve_samples)
 
 /* Function: al_get_default_mixer
  */
-ALLEGRO_MIXER *al_get_default_mixer(void)
+A5O_MIXER *al_get_default_mixer(void)
 {
    return default_mixer;
 }
@@ -265,7 +265,7 @@ ALLEGRO_MIXER *al_get_default_mixer(void)
 
 /* Function: al_set_default_mixer
  */
-bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
+bool al_set_default_mixer(A5O_MIXER *mixer)
 {
    ASSERT(mixer != NULL);
 
@@ -285,11 +285,11 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
 
          slot->instance = al_create_sample_instance(NULL);
          if (!slot->instance) {
-            ALLEGRO_ERROR("al_create_sample failed\n");
+            A5O_ERROR("al_create_sample failed\n");
             goto Error;
          }
          if (!al_attach_sample_instance_to_mixer(slot->instance, default_mixer)) {
-            ALLEGRO_ERROR("al_attach_mixer_to_sample failed\n");
+            A5O_ERROR("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
       }      
@@ -320,7 +320,7 @@ bool al_restore_default_mixer(void)
 
 /* Function: al_get_default_voice
  */
-ALLEGRO_VOICE *al_get_default_voice(void)
+A5O_VOICE *al_get_default_voice(void)
 {
    return allegro_voice;
 }
@@ -328,7 +328,7 @@ ALLEGRO_VOICE *al_get_default_voice(void)
 
 /* Function: al_set_default_voice
  */
-void al_set_default_voice(ALLEGRO_VOICE *voice)
+void al_set_default_voice(A5O_VOICE *voice)
 {
    if (allegro_voice) {
       al_destroy_voice(allegro_voice);
@@ -339,8 +339,8 @@ void al_set_default_voice(ALLEGRO_VOICE *voice)
 
 /* Function: al_play_sample
  */
-bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
-   ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id)
+bool al_play_sample(A5O_SAMPLE *spl, float gain, float pan, float speed,
+   A5O_PLAYMODE loop, A5O_SAMPLE_ID *ret_id)
 {
    static int next_id = 0;
    unsigned int i;
@@ -372,11 +372,11 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
 }
 
 
-static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
-   ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, ALLEGRO_PLAYMODE loop)
+static bool do_play_sample(A5O_SAMPLE_INSTANCE *splinst,
+   A5O_SAMPLE *spl, float gain, float pan, float speed, A5O_PLAYMODE loop)
 {
    if (!al_set_sample(splinst, spl)) {
-      ALLEGRO_ERROR("al_set_sample failed\n");
+      A5O_ERROR("al_set_sample failed\n");
       return false;
    }
 
@@ -388,7 +388,7 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
    }
 
    if (!al_play_sample_instance(splinst)) {
-      ALLEGRO_ERROR("al_play_sample_instance failed\n");
+      A5O_ERROR("al_play_sample_instance failed\n");
       return false;
    }
 
@@ -398,7 +398,7 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
 
 /* Function: al_stop_sample
  */
-void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
+void al_stop_sample(A5O_SAMPLE_ID *spl_id)
 {
    AUTO_SAMPLE *slot;
 
@@ -414,7 +414,7 @@ void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
 
 /* Function: al_lock_sample_id
  */
-ALLEGRO_SAMPLE_INSTANCE* al_lock_sample_id(ALLEGRO_SAMPLE_ID *spl_id)
+A5O_SAMPLE_INSTANCE* al_lock_sample_id(A5O_SAMPLE_ID *spl_id)
 {
    AUTO_SAMPLE *slot;
 
@@ -432,7 +432,7 @@ ALLEGRO_SAMPLE_INSTANCE* al_lock_sample_id(ALLEGRO_SAMPLE_ID *spl_id)
 
 /* Function: al_unlock_sample_id
  */
-void al_unlock_sample_id(ALLEGRO_SAMPLE_ID *spl_id)
+void al_unlock_sample_id(A5O_SAMPLE_ID *spl_id)
 {
    AUTO_SAMPLE *slot;
 
@@ -461,7 +461,7 @@ void al_stop_samples(void)
 
 /* Function: al_get_sample_frequency
  */
-unsigned int al_get_sample_frequency(const ALLEGRO_SAMPLE *spl)
+unsigned int al_get_sample_frequency(const A5O_SAMPLE *spl)
 {
    ASSERT(spl);
 
@@ -471,7 +471,7 @@ unsigned int al_get_sample_frequency(const ALLEGRO_SAMPLE *spl)
 
 /* Function: al_get_sample_length
  */
-unsigned int al_get_sample_length(const ALLEGRO_SAMPLE *spl)
+unsigned int al_get_sample_length(const A5O_SAMPLE *spl)
 {
    ASSERT(spl);
 
@@ -481,7 +481,7 @@ unsigned int al_get_sample_length(const ALLEGRO_SAMPLE *spl)
 
 /* Function: al_get_sample_depth
  */
-ALLEGRO_AUDIO_DEPTH al_get_sample_depth(const ALLEGRO_SAMPLE *spl)
+A5O_AUDIO_DEPTH al_get_sample_depth(const A5O_SAMPLE *spl)
 {
    ASSERT(spl);
 
@@ -491,7 +491,7 @@ ALLEGRO_AUDIO_DEPTH al_get_sample_depth(const ALLEGRO_SAMPLE *spl)
 
 /* Function: al_get_sample_channels
  */
-ALLEGRO_CHANNEL_CONF al_get_sample_channels(const ALLEGRO_SAMPLE *spl)
+A5O_CHANNEL_CONF al_get_sample_channels(const A5O_SAMPLE *spl)
 {
    ASSERT(spl);
 
@@ -501,7 +501,7 @@ ALLEGRO_CHANNEL_CONF al_get_sample_channels(const ALLEGRO_SAMPLE *spl)
 
 /* Function: al_get_sample_data
  */
-void *al_get_sample_data(const ALLEGRO_SAMPLE *spl)
+void *al_get_sample_data(const A5O_SAMPLE *spl)
 {
    ASSERT(spl);
 

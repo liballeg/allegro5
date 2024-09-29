@@ -5,10 +5,10 @@
 
 #include <stdio.h>
 
-ALLEGRO_DEBUG_CHANNEL("keyboard")
+A5O_DEBUG_CHANNEL("keyboard")
 
-static ALLEGRO_KEYBOARD the_keyboard;
-static ALLEGRO_KEYBOARD_STATE the_state;
+static A5O_KEYBOARD the_keyboard;
+static A5O_KEYBOARD_STATE the_state;
 
 static bool android_init_keyboard(void)
 {
@@ -23,7 +23,7 @@ static void android_exit_keyboard(void)
 }
 
 
-static ALLEGRO_KEYBOARD *android_get_keyboard(void)
+static A5O_KEYBOARD *android_get_keyboard(void)
 {
     return &the_keyboard;
 }
@@ -37,14 +37,14 @@ static bool android_set_keyboard_leds(int leds)
 static char const *android_keycode_to_name(int keycode)
 {
    static bool created = false;
-   static char names[ALLEGRO_KEY_MAX][5];
+   static char names[A5O_KEY_MAX][5];
 
-   ASSERT(keycode >= 0 && keycode < ALLEGRO_KEY_MAX);
+   ASSERT(keycode >= 0 && keycode < A5O_KEY_MAX);
 
    if (!created) {
       int i;
       created = true;
-      for (i = 0; i < ALLEGRO_KEY_MAX; i++) {
+      for (i = 0; i < A5O_KEY_MAX; i++) {
          snprintf(names[i], 5, "%d", i);
       }
    }
@@ -52,7 +52,7 @@ static char const *android_keycode_to_name(int keycode)
    return names[keycode];
 }
 
-static void android_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
+static void android_get_keyboard_state(A5O_KEYBOARD_STATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.es);
    {
@@ -70,7 +70,7 @@ static void android_clear_keyboard_state(void)
    _al_event_source_unlock(&the_keyboard.es);
 }
 
-static ALLEGRO_KEYBOARD_DRIVER android_keyboard_driver = {
+static A5O_KEYBOARD_DRIVER android_keyboard_driver = {
     AL_ID('A','N','D','R'),
     "",
     "",
@@ -84,20 +84,20 @@ static ALLEGRO_KEYBOARD_DRIVER android_keyboard_driver = {
     android_clear_keyboard_state
 };
 
-ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void)
+A5O_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void)
 {
     return &android_keyboard_driver;
 }
 
-static void android_keyboard_handle_event(ALLEGRO_DISPLAY *display,
-   int scancode, int unichar, ALLEGRO_EVENT_TYPE event_type)
+static void android_keyboard_handle_event(A5O_DISPLAY *display,
+   int scancode, int unichar, A5O_EVENT_TYPE event_type)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    ASSERT(display != NULL);
    ASSERT(scancode > 0);
 
-   if (event_type == ALLEGRO_EVENT_KEY_UP) {
+   if (event_type == A5O_EVENT_KEY_UP) {
       _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, scancode);
    }
    else {
@@ -114,7 +114,7 @@ static void android_keyboard_handle_event(ALLEGRO_DISPLAY *display,
       event.keyboard.keycode = scancode;
       event.keyboard.unichar = unichar;
       event.keyboard.modifiers = 0;
-      event.keyboard.repeat = event_type == ALLEGRO_EVENT_KEY_CHAR;
+      event.keyboard.repeat = event_type == A5O_EVENT_KEY_CHAR;
 
       _al_event_source_emit_event(&the_keyboard.es, &event);
    }
@@ -128,15 +128,15 @@ JNI_FUNC(void, KeyListener, nativeOnKeyDown, (JNIEnv *env, jobject obj,
    (void)env;
    (void)obj;
 
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
    ASSERT(system != NULL);
 
-   ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
-   ALLEGRO_DISPLAY *display = *dptr;
+   A5O_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
+   A5O_DISPLAY *display = *dptr;
    ASSERT(display != NULL);
 
    android_keyboard_handle_event(display, scancode, unichar,
-      ALLEGRO_EVENT_KEY_DOWN);
+      A5O_EVENT_KEY_DOWN);
 }
 
 JNI_FUNC(void, KeyListener, nativeOnKeyUp, (JNIEnv *env, jobject obj,
@@ -145,14 +145,14 @@ JNI_FUNC(void, KeyListener, nativeOnKeyUp, (JNIEnv *env, jobject obj,
    (void)env;
    (void)obj;
 
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
    ASSERT(system != NULL);
 
-   ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
-   ALLEGRO_DISPLAY *display = *dptr;
+   A5O_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
+   A5O_DISPLAY *display = *dptr;
    ASSERT(display != NULL);
 
-   android_keyboard_handle_event(display, scancode, 0, ALLEGRO_EVENT_KEY_UP);
+   android_keyboard_handle_event(display, scancode, 0, A5O_EVENT_KEY_UP);
 }
 
 JNI_FUNC(void, KeyListener, nativeOnKeyChar, (JNIEnv *env, jobject obj,
@@ -161,15 +161,15 @@ JNI_FUNC(void, KeyListener, nativeOnKeyChar, (JNIEnv *env, jobject obj,
    (void)env;
    (void)obj;
 
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
    ASSERT(system != NULL);
 
-   ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
-   ALLEGRO_DISPLAY *display = *dptr;
+   A5O_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
+   A5O_DISPLAY *display = *dptr;
    ASSERT(display != NULL);
 
    android_keyboard_handle_event(display, scancode, unichar,
-      ALLEGRO_EVENT_KEY_CHAR);
+      A5O_EVENT_KEY_CHAR);
 }
 
 JNI_FUNC(void, KeyListener, nativeOnJoystickButton, (JNIEnv *env, jobject obj,

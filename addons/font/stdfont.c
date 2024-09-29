@@ -19,7 +19,7 @@
 #include "allegro5/allegro_font.h"
 
 
-ALLEGRO_DEBUG_CHANNEL("font")
+A5O_DEBUG_CHANNEL("font")
 
 
 /* Adapted from Allegro4 "font.c" (removed unnecessary height and width
@@ -373,7 +373,7 @@ static const int builtin_rom_font_8x8_ranges_count =
 
 
 
-static void put_pixel_abgr8888_le(ALLEGRO_LOCKED_REGION *region,
+static void put_pixel_abgr8888_le(A5O_LOCKED_REGION *region,
    int x, int y, uint32_t pixel)
 {
    uint32_t *target = (uint32_t *) ((uint8_t *)region->data
@@ -385,24 +385,24 @@ static void put_pixel_abgr8888_le(ALLEGRO_LOCKED_REGION *region,
 
 
 /* decodes the binary data and creates a bitmap containing the glyps from it */
-static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
+static A5O_BITMAP *create_builtin_font_sheet(void)
 {
    const int glyph_count = sizeof(builtin_rom_font_8x8) / 8;
    const int glyphs_per_row = 32;
    const int alloc_rows = (glyph_count + glyphs_per_row - 1) / glyphs_per_row;
 
-   ALLEGRO_STATE state;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_STATE state;
+   A5O_BITMAP *bmp;
+   A5O_LOCKED_REGION *lr;
    int i, j, k;
 
    al_store_state(&state,
-      ALLEGRO_STATE_NEW_BITMAP_PARAMETERS |
-      ALLEGRO_STATE_TARGET_BITMAP);
+      A5O_STATE_NEW_BITMAP_PARAMETERS |
+      A5O_STATE_TARGET_BITMAP);
 
    /* putting pixels is much faster on a memory bitmap */
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    /* create bitmap onto which to render the glyphs */
    bmp = al_create_bitmap(glyphs_per_row * 8 + glyphs_per_row + 1,
@@ -411,7 +411,7 @@ static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
       al_set_target_bitmap(bmp);
       al_clear_to_color(al_map_rgba(255, 255, 0, 255));
       lr = al_lock_bitmap(bmp,
-         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_READWRITE);
+         A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_READWRITE);
 
       /* decode and render glyph pixels */
       for (i = 0; i < glyph_count; i++) {
@@ -432,7 +432,7 @@ static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
       al_unlock_bitmap(bmp);
    }
    else {
-      ALLEGRO_ERROR("Unable to create bitmap.\n");
+      A5O_ERROR("Unable to create bitmap.\n");
    }
 
    al_restore_state(&state);
@@ -444,10 +444,10 @@ static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
 
 /* Function: al_create_builtin_font
  */
-ALLEGRO_FONT *al_create_builtin_font(void)
+A5O_FONT *al_create_builtin_font(void)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_FONT *font;
+   A5O_BITMAP *bmp;
+   A5O_FONT *font;
 
    bmp = create_builtin_font_sheet();
    if (!bmp)

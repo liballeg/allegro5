@@ -7,13 +7,13 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_EVENT_QUEUE *events;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bitmap;
+   A5O_EVENT_QUEUE *events;
+   A5O_EVENT event;
    bool down = false;
    int down_x = 0, down_y = 0;
-   ALLEGRO_TIMER *timer;
+   A5O_TIMER *timer;
 
    (void)argc;
    (void)argv;
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_FRAMELESS);
+   al_set_new_display_flags(A5O_FRAMELESS);
    display = al_create_display(300, 200);
    if (!display) {
       abort_example("Error creating display\n");
@@ -50,26 +50,26 @@ int main(int argc, char **argv)
 
    for (;;) {
       al_wait_for_event(events, &event);
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          if (event.mouse.button == 1 && event.mouse.x) {
             down = true;
             down_x = event.mouse.x;
             down_y = event.mouse.y;
          }
          if (event.mouse.button == 2) {
-            al_set_display_flag(display, ALLEGRO_FRAMELESS,
-               !(al_get_display_flags(display) & ALLEGRO_FRAMELESS));
+            al_set_display_flag(display, A5O_FRAMELESS,
+               !(al_get_display_flags(display) & A5O_FRAMELESS));
          }
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_UP) {
          if (event.mouse.button == 1) {
             down = false;
          }
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+      else if (event.type == A5O_EVENT_MOUSE_AXES) {
          if (down) {
             int cx, cy;
             if (al_get_mouse_cursor_position(&cx, &cy)) {
@@ -77,11 +77,11 @@ int main(int argc, char **argv)
             }
          }
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-	    event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      else if (event.type == A5O_EVENT_KEY_DOWN &&
+	    event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_TIMER) {
+      else if (event.type == A5O_EVENT_TIMER) {
          al_draw_bitmap(bitmap, 0, 0, 0);
          al_flip_display();
       }

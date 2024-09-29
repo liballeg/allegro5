@@ -23,7 +23,7 @@
 #include <float.h>
 #include <math.h>
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #define hypotf(x, y) _hypotf((x), (y))
 #endif
 
@@ -35,7 +35,7 @@
  */
 float _al_prim_get_scale(void)
 {
-   const ALLEGRO_TRANSFORM* t = al_get_current_transform();
+   const A5O_TRANSFORM* t = al_get_current_transform();
    return (hypotf(t->m[0][0], t->m[0][1]) + hypotf(t->m[1][0], t->m[1][1])) / 2;
 }
 
@@ -163,12 +163,12 @@ bool _al_prim_are_points_equal(const float* point_a, const float* point_b)
 /*
  *
  */
-void _al_prim_cache_init(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALLEGRO_COLOR color)
+void _al_prim_cache_init(A5O_PRIM_VERTEX_CACHE* cache, int prim_type, A5O_COLOR color)
 {
    _al_prim_cache_init_ex(cache, prim_type, color, NULL);
 }
 
-void _al_prim_cache_init_ex(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALLEGRO_COLOR color, void* user_data)
+void _al_prim_cache_init_ex(A5O_PRIM_VERTEX_CACHE* cache, int prim_type, A5O_COLOR color, void* user_data)
 {
    cache->size      = 0;
    cache->current   = cache->buffer;
@@ -177,22 +177,22 @@ void _al_prim_cache_init_ex(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALL
    cache->user_data = user_data;
 }
 
-void _al_prim_cache_term(ALLEGRO_PRIM_VERTEX_CACHE* cache)
+void _al_prim_cache_term(A5O_PRIM_VERTEX_CACHE* cache)
 {
    _al_prim_cache_flush(cache);
 }
 
-void _al_prim_cache_flush(ALLEGRO_PRIM_VERTEX_CACHE* cache)
+void _al_prim_cache_flush(A5O_PRIM_VERTEX_CACHE* cache)
 {
    if (cache->size == 0)
       return;
 
-   if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_TRIANGLE)
-      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_TRIANGLE_LIST);
-   else if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP)
-      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_LINE_STRIP);
+   if (cache->prim_type == A5O_PRIM_VERTEX_CACHE_TRIANGLE)
+      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, A5O_PRIM_TRIANGLE_LIST);
+   else if (cache->prim_type == A5O_PRIM_VERTEX_CACHE_LINE_STRIP)
+      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, A5O_PRIM_LINE_STRIP);
 
-   if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP)
+   if (cache->prim_type == A5O_PRIM_VERTEX_CACHE_LINE_STRIP)
    {
       cache->buffer[0] = *(cache->current - 1);
       cache->current   = cache->buffer + 1;
@@ -205,9 +205,9 @@ void _al_prim_cache_flush(ALLEGRO_PRIM_VERTEX_CACHE* cache)
    }
 }
 
-void _al_prim_cache_push_triangle(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* v0, const float* v1, const float* v2)
+void _al_prim_cache_push_triangle(A5O_PRIM_VERTEX_CACHE* cache, const float* v0, const float* v1, const float* v2)
 {
-   if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 3))
+   if (cache->size >= (A5O_VERTEX_CACHE_SIZE - 3))
       _al_prim_cache_flush(cache);
 
    cache->current->x     = v0[0];
@@ -236,9 +236,9 @@ void _al_prim_cache_push_triangle(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float*
    //al_draw_triangle(v0[0], v0[1], v1[0], v1[1], v2[0], v2[1], cache->color, 1.0f);
 }
 
-void _al_prim_cache_push_point(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* v)
+void _al_prim_cache_push_point(A5O_PRIM_VERTEX_CACHE* cache, const float* v)
 {
-   if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 1))
+   if (cache->size >= (A5O_VERTEX_CACHE_SIZE - 1))
       _al_prim_cache_flush(cache);
 
    cache->current->x     = v[0];

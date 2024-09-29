@@ -2,7 +2,7 @@
 #include <allegro5/allegro.h>
 #import "ViewController.h"
 
-struct ALLEGRO_DISPLAY_IPHONE_EXTRA {
+struct A5O_DISPLAY_IPHONE_EXTRA {
    bool failed;
    ViewController *vc;
    UIWindow *window;
@@ -15,7 +15,7 @@ struct ALLEGRO_DISPLAY_IPHONE_EXTRA {
 @interface allegroAppDelegate : NSObject <UIApplicationDelegate,
    UIAccelerometerDelegate> {
 @public
-   ALLEGRO_DISPLAY *main_display;
+   A5O_DISPLAY *main_display;
 }
 
 + (void)run:(int)argc:(char **)argv;

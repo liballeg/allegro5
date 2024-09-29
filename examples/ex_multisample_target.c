@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
@@ -12,29 +12,29 @@
 #define FPS 60
 
 static struct Example {
-   ALLEGRO_BITMAP *targets[4];
-   ALLEGRO_BITMAP *bitmap_normal;
-   ALLEGRO_BITMAP *bitmap_filter;
-   ALLEGRO_BITMAP *sub;
-   ALLEGRO_FONT *font;
+   A5O_BITMAP *targets[4];
+   A5O_BITMAP *bitmap_normal;
+   A5O_BITMAP *bitmap_filter;
+   A5O_BITMAP *sub;
+   A5O_FONT *font;
    float bitmap_x[8], bitmap_y[8];
    float bitmap_t;
    int step_t, step_x, step_y;
-   ALLEGRO_BITMAP *step[4];
+   A5O_BITMAP *step[4];
    bool update_step;
 } example;
 
-static ALLEGRO_BITMAP *create_bitmap(void)
+static A5O_BITMAP *create_bitmap(void)
 {
    const int checkers_size = 8;
    const int bitmap_size = 24;
-   ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_LOCKED_REGION *locked;
+   A5O_BITMAP *bitmap;
+   A5O_LOCKED_REGION *locked;
    int x, y, p;
    unsigned char *rgba;
 
    bitmap = al_create_bitmap(bitmap_size, bitmap_size);
-   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, 0);
+   locked = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ABGR_8888, 0);
    rgba = locked->data;
    p = locked->pitch;
    for (y = 0; y < bitmap_size; y++) {
@@ -52,8 +52,8 @@ static ALLEGRO_BITMAP *create_bitmap(void)
 
 static void init(void)
 {
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   ALLEGRO_BITMAP *memory = create_bitmap();
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+   A5O_BITMAP *memory = create_bitmap();
    al_set_new_bitmap_flags(0);
 
    al_set_new_bitmap_samples(0);
@@ -64,7 +64,7 @@ static void init(void)
    example.targets[3] = al_create_bitmap(300, 200);
    al_set_new_bitmap_samples(0);
 
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
    example.bitmap_filter = al_clone_bitmap(memory);
    al_set_new_bitmap_flags(0);
    example.bitmap_normal = al_clone_bitmap(memory);
@@ -82,15 +82,15 @@ static void bitmap_move(void)
 
    example.bitmap_t++;
    for (i = 0; i < 8; i++) {
-      float a = 2 * ALLEGRO_PI * i / 16;
-      float s = sin((example.bitmap_t + i * 40) / 180 * ALLEGRO_PI);
+      float a = 2 * A5O_PI * i / 16;
+      float s = sin((example.bitmap_t + i * 40) / 180 * A5O_PI);
       s *= 90;
       example.bitmap_x[i] = 100 + s * cos(a);
       example.bitmap_y[i] = 100 + s * sin(a);
    }
 }
  
-static void draw(char const *text, ALLEGRO_BITMAP *bitmap)
+static void draw(char const *text, A5O_BITMAP *bitmap)
 {
    int i;
 
@@ -99,14 +99,14 @@ static void draw(char const *text, ALLEGRO_BITMAP *bitmap)
    al_draw_text(example.font, al_map_rgb(0, 0, 0), 0, 0, 0, text);
 
    for (i = 0; i < 16; i++) {
-      float a = 2 * ALLEGRO_PI * i / 16;
-      ALLEGRO_COLOR c = al_color_hsv(i * 360 / 16, 1, 1);
+      float a = 2 * A5O_PI * i / 16;
+      A5O_COLOR c = al_color_hsv(i * 360 / 16, 1, 1);
       al_draw_line(100 + cos(a) * 10, 100 + sin(a) * 10,
          100 + cos(a) * 90, 100 + sin(a) * 90, c, 3);
    }
 
    for (i = 0; i < 8; i++) {
-      float a = 2 * ALLEGRO_PI * i / 16;
+      float a = 2 * A5O_PI * i / 16;
       int s = al_get_bitmap_width(bitmap);
       al_draw_rotated_bitmap(bitmap, s / 2, s / 2,
          example.bitmap_x[i], example.bitmap_y[i], a, 0);
@@ -165,9 +165,9 @@ static void update(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
    int w = 20 + 300 + 20 + 300 + 20, h = 20 + 200 + 20 + 200 + 20;
    bool done = false;
    bool need_redraw = true;
@@ -213,7 +213,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (need_redraw) {
          redraw();
@@ -224,16 +224,16 @@ int main(int argc, char **argv)
       while (true) {
          al_wait_for_event(queue, &event);
          switch (event.type) {
-            case ALLEGRO_EVENT_KEY_CHAR:
-               if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+            case A5O_EVENT_KEY_CHAR:
+               if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                   done = true;
                break;
 
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            case A5O_EVENT_DISPLAY_CLOSE:
                done = true;
                break;
 
-            case ALLEGRO_EVENT_TIMER:
+            case A5O_EVENT_TIMER:
                update();
                need_redraw = true;
                break;

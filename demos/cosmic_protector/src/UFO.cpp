@@ -47,7 +47,7 @@ void UFO::render(int offx, int offy)
    render(offx, offy, al_map_rgb(255, 255, 255));
 }
 
-void UFO::render(int offx, int offy, ALLEGRO_COLOR tint)
+void UFO::render(int offx, int offy, A5O_COLOR tint)
 {
    al_draw_tinted_rotated_bitmap(bitmaps[bitmapFrame], tint,
       radius, radius, offx + x, offy + y, 0.0f, 0);
@@ -70,9 +70,9 @@ UFO::UFO(float x, float y, float speed_x, float speed_y) :
    nextShot = (int)(al_get_time() * 1000.0) + SHOT_SPEED;
 
    ResourceManager& rm = ResourceManager::getInstance();
-   bitmaps[0] = (ALLEGRO_BITMAP *)rm.getData(RES_UFO0);
-   bitmaps[1] = (ALLEGRO_BITMAP *)rm.getData(RES_UFO1);
-   bitmaps[2] = (ALLEGRO_BITMAP *)rm.getData(RES_UFO2);
+   bitmaps[0] = (A5O_BITMAP *)rm.getData(RES_UFO0);
+   bitmaps[1] = (A5O_BITMAP *)rm.getData(RES_UFO1);
+   bitmaps[2] = (A5O_BITMAP *)rm.getData(RES_UFO2);
    bitmapFrame = 0;
    bitmapFrameCount = ANIMATION_SPEED;
 }

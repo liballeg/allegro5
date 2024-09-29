@@ -17,7 +17,7 @@
  *      See readme.txt for copyright information.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
@@ -34,11 +34,11 @@ int ScreenW = 800, ScreenH = 600;
 #define ROTATE_SPEED 0.0001f
 Screen Screens[NUM_SCREENS];
 const char *ScreenName[NUM_SCREENS];
-ALLEGRO_FONT* Font;
-ALLEGRO_TRANSFORM Identity;
-ALLEGRO_BITMAP* Buffer;
-ALLEGRO_BITMAP* Texture;
-ALLEGRO_COLOR solid_white;
+A5O_FONT* Font;
+A5O_TRANSFORM Identity;
+A5O_BITMAP* Buffer;
+A5O_BITMAP* Texture;
+A5O_COLOR solid_white;
 
 int Soft = 0;
 int Blend = 1;
@@ -46,7 +46,7 @@ float Speed = ROTATE_SPEED;
 float Theta;
 int Background = 1;
 float Thickness = 0;
-ALLEGRO_TRANSFORM MainTrans;
+A5O_TRANSFORM MainTrans;
 
 enum MODE {
    INIT,
@@ -57,7 +57,7 @@ enum MODE {
 
 typedef struct
 {
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
    short u, v;
    short x, y;
    int junk[6];
@@ -66,21 +66,21 @@ typedef struct
 static void CustomVertexFormatPrimitives(int mode)
 {
    static CUSTOM_VERTEX vtx[4];
-   static ALLEGRO_VERTEX_DECL* decl;
+   static A5O_VERTEX_DECL* decl;
    if (mode == INIT) {
       int ii = 0;
-      ALLEGRO_VERTEX_ELEMENT elems[] = {
-         {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, x)},
-         {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, u)},
-         {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
+      A5O_VERTEX_ELEMENT elems[] = {
+         {A5O_PRIM_POSITION, A5O_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, x)},
+         {A5O_PRIM_TEX_COORD_PIXEL, A5O_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, u)},
+         {A5O_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
          {0, 0, 0}
       };
       decl = al_create_vertex_decl(elems, sizeof(CUSTOM_VERTEX));
 
       for (ii = 0; ii < 4; ii++) {
          float x, y;
-         x = 200 * cosf((float)ii / 4.0f * 2 * ALLEGRO_PI);
-         y = 200 * sinf((float)ii / 4.0f * 2 * ALLEGRO_PI);
+         x = 200 * cosf((float)ii / 4.0f * 2 * A5O_PI);
+         y = 200 * sinf((float)ii / 4.0f * 2 * A5O_PI);
          
          vtx[ii].x = x; vtx[ii].y = y;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
@@ -91,13 +91,13 @@ static void CustomVertexFormatPrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, decl, Texture, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, decl, Texture, 0, 4, A5O_PRIM_TRIANGLE_FAN);
       
       al_use_transform(&Identity);
    }
@@ -105,15 +105,15 @@ static void CustomVertexFormatPrimitives(int mode)
 
 static void TexturePrimitives(int mode)
 {
-   static ALLEGRO_VERTEX vtx[13];
-   static ALLEGRO_VERTEX vtx2[13];
+   static A5O_VERTEX vtx[13];
+   static A5O_VERTEX vtx2[13];
    if (mode == INIT) {
       int ii = 0;
-      ALLEGRO_COLOR color;
+      A5O_COLOR color;
       for (ii = 0; ii < 13; ii++) {
          float x, y;
-         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         x = 200 * cosf((float)ii / 13.0f * 2 * A5O_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * A5O_PI);
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
@@ -132,16 +132,16 @@ static void TexturePrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, 0, Texture, 0, 4, ALLEGRO_PRIM_LINE_LIST);
-      al_draw_prim(vtx, 0, Texture, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
-      al_draw_prim(vtx, 0, Texture, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
-      al_draw_prim(vtx2, 0, Texture, 0, 13, ALLEGRO_PRIM_POINT_LIST);
+      al_draw_prim(vtx, 0, Texture, 0, 4, A5O_PRIM_LINE_LIST);
+      al_draw_prim(vtx, 0, Texture, 4, 9, A5O_PRIM_LINE_STRIP);
+      al_draw_prim(vtx, 0, Texture, 9, 13, A5O_PRIM_LINE_LOOP);
+      al_draw_prim(vtx2, 0, Texture, 0, 13, A5O_PRIM_POINT_LIST);
       
       al_use_transform(&Identity);
    }
@@ -150,18 +150,18 @@ static void TexturePrimitives(int mode)
 
 static void FilledTexturePrimitives(int mode)
 {
-   static ALLEGRO_VERTEX vtx[21];
+   static A5O_VERTEX vtx[21];
    if (mode == INIT) {
       int ii = 0;
       for (ii = 0; ii < 21; ii++) {
          float x, y;
-         ALLEGRO_COLOR color;
+         A5O_COLOR color;
          if (ii % 2 == 0) {
-            x = 150 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
-            y = 150 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+            x = 150 * cosf((float)ii / 20 * 2 * A5O_PI);
+            y = 150 * sinf((float)ii / 20 * 2 * A5O_PI);
          } else {
-            x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
-            y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+            x = 200 * cosf((float)ii / 20 * 2 * A5O_PI);
+            y = 200 * sinf((float)ii / 20 * 2 * A5O_PI);
          }
          
          if (ii == 0) {
@@ -182,15 +182,15 @@ static void FilledTexturePrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
   
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, 0, Texture, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
-      al_draw_prim(vtx, 0, Texture, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
-      al_draw_prim(vtx, 0, Texture, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vtx, 0, Texture, 0, 6, A5O_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, 0, Texture, 7, 13, A5O_PRIM_TRIANGLE_LIST);
+      al_draw_prim(vtx, 0, Texture, 14, 20, A5O_PRIM_TRIANGLE_STRIP);
       
       al_use_transform(&Identity);
    }
@@ -198,18 +198,18 @@ static void FilledTexturePrimitives(int mode)
 
 static void FilledPrimitives(int mode)
 {
-   static ALLEGRO_VERTEX vtx[21];
+   static A5O_VERTEX vtx[21];
    if (mode == INIT) {
       int ii = 0;
       for (ii = 0; ii < 21; ii++) {
          float x, y;
-         ALLEGRO_COLOR color;
+         A5O_COLOR color;
          if (ii % 2 == 0) {
-            x = 150 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
-            y = 150 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+            x = 150 * cosf((float)ii / 20 * 2 * A5O_PI);
+            y = 150 * sinf((float)ii / 20 * 2 * A5O_PI);
          } else {
-            x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
-            y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+            x = 200 * cosf((float)ii / 20 * 2 * A5O_PI);
+            y = 200 * sinf((float)ii / 20 * 2 * A5O_PI);
          }
          
          if (ii == 0) {
@@ -226,15 +226,15 @@ static void FilledPrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, 0, 0, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
-      al_draw_prim(vtx, 0, 0, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
-      al_draw_prim(vtx, 0, 0, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vtx, 0, 0, 0, 6, A5O_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, 0, 0, 7, 13, A5O_PRIM_TRIANGLE_LIST);
+      al_draw_prim(vtx, 0, 0, 14, 20, A5O_PRIM_TRIANGLE_STRIP);
       
       al_use_transform(&Identity);
    }
@@ -242,7 +242,7 @@ static void FilledPrimitives(int mode)
 
 static void IndexedFilledPrimitives(int mode)
 {
-   static ALLEGRO_VERTEX vtx[21];
+   static A5O_VERTEX vtx[21];
    static int indices1[] = {12, 13, 14, 16, 17, 18};
    static int indices2[] = {6, 7, 8, 9, 10, 11};
    static int indices3[] = {0, 1, 2, 3, 4, 5};
@@ -250,13 +250,13 @@ static void IndexedFilledPrimitives(int mode)
       int ii = 0;
       for (ii = 0; ii < 21; ii++) {
          float x, y;
-         ALLEGRO_COLOR color;
+         A5O_COLOR color;
          if (ii % 2 == 0) {
-            x = 150 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
-            y = 150 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+            x = 150 * cosf((float)ii / 20 * 2 * A5O_PI);
+            y = 150 * sinf((float)ii / 20 * 2 * A5O_PI);
          } else {
-            x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
-            y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+            x = 200 * cosf((float)ii / 20 * 2 * A5O_PI);
+            y = 200 * sinf((float)ii / 20 * 2 * A5O_PI);
          }
          
          if (ii == 0) {
@@ -281,15 +281,15 @@ static void IndexedFilledPrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
-      al_draw_indexed_prim(vtx, 0, 0, indices1, 6, ALLEGRO_PRIM_TRIANGLE_LIST);
-      al_draw_indexed_prim(vtx, 0, 0, indices2, 6, ALLEGRO_PRIM_TRIANGLE_STRIP);
-      al_draw_indexed_prim(vtx, 0, 0, indices3, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_indexed_prim(vtx, 0, 0, indices1, 6, A5O_PRIM_TRIANGLE_LIST);
+      al_draw_indexed_prim(vtx, 0, 0, indices2, 6, A5O_PRIM_TRIANGLE_STRIP);
+      al_draw_indexed_prim(vtx, 0, 0, indices3, 6, A5O_PRIM_TRIANGLE_FAN);
       
       al_use_transform(&Identity);
    }
@@ -311,9 +311,9 @@ static void HighPrimitives(int mode)
       };
 
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
@@ -323,10 +323,10 @@ static void HighPrimitives(int mode)
       al_draw_rounded_rectangle(-200, -125, 200, 125, 50, 100, al_map_rgba_f(0.2, 0.2, 0, 1), Thickness);
 
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
-      al_draw_elliptical_arc(-20, 0, 300, 200, -ALLEGRO_PI / 2, -ALLEGRO_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
-      al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
+      al_draw_elliptical_arc(-20, 0, 300, 200, -A5O_PI / 2, -A5O_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
+      al_draw_arc(0, 0, 200, -A5O_PI / 2, A5O_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
-      al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
+      al_draw_pieslice(0, 25, 150, A5O_PI * 3 / 4, -A5O_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
       
       al_use_transform(&Identity);
    }
@@ -341,9 +341,9 @@ static void HighFilledPrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
@@ -351,7 +351,7 @@ static void HighFilledPrimitives(int mode)
       al_draw_filled_rectangle(20, -50, 200, 50, al_map_rgb_f(0.3, 0.2, 0.6));
       al_draw_filled_ellipse(-250, 0, 100, 150, al_map_rgb_f(0.3, 0.3, 0.3));
       al_draw_filled_rounded_rectangle(50, -250, 350, -75, 50, 70, al_map_rgb_f(0.4, 0.2, 0));
-      al_draw_filled_pieslice(200, 125, 50, ALLEGRO_PI / 4, 3 * ALLEGRO_PI / 2, al_map_rgb_f(0.3, 0.3, 0.1));
+      al_draw_filled_pieslice(200, 125, 50, A5O_PI / 4, 3 * A5O_PI / 2, al_map_rgb_f(0.3, 0.3, 0.1));
       
       al_use_transform(&Identity);
    }
@@ -374,9 +374,9 @@ static void TransformationsPrimitives(int mode)
       };
       
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
@@ -386,10 +386,10 @@ static void TransformationsPrimitives(int mode)
       al_draw_rounded_rectangle(-200, -125, 200, 125, 50, 100, al_map_rgba_f(0.2, 0.2, 0, 1), Thickness);
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
-      al_draw_elliptical_arc(-20, 0, 300, 200, -ALLEGRO_PI / 2, -ALLEGRO_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
-      al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
+      al_draw_elliptical_arc(-20, 0, 300, 200, -A5O_PI / 2, -A5O_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
+      al_draw_arc(0, 0, 200, -A5O_PI / 2, A5O_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
-      al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
+      al_draw_pieslice(0, 25, 150, A5O_PI * 3 / 4, -A5O_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
       
       al_use_transform(&Identity);
    }
@@ -397,15 +397,15 @@ static void TransformationsPrimitives(int mode)
 
 static void LowPrimitives(int mode)
 {
-   static ALLEGRO_VERTEX vtx[13];
-   static ALLEGRO_VERTEX vtx2[13];
+   static A5O_VERTEX vtx[13];
+   static A5O_VERTEX vtx2[13];
    if (mode == INIT) {
       int ii = 0;
-      ALLEGRO_COLOR color;
+      A5O_COLOR color;
       for (ii = 0; ii < 13; ii++) {
          float x, y;
-         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         x = 200 * cosf((float)ii / 13.0f * 2 * A5O_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * A5O_PI);
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
@@ -419,16 +419,16 @@ static void LowPrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
-      al_draw_prim(vtx, 0, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
-      al_draw_prim(vtx, 0, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
-      al_draw_prim(vtx2, 0, 0, 0, 13, ALLEGRO_PRIM_POINT_LIST);
+      al_draw_prim(vtx, 0, 0, 0, 4, A5O_PRIM_LINE_LIST);
+      al_draw_prim(vtx, 0, 0, 4, 9, A5O_PRIM_LINE_STRIP);
+      al_draw_prim(vtx, 0, 0, 9, 13, A5O_PRIM_LINE_LOOP);
+      al_draw_prim(vtx2, 0, 0, 0, 13, A5O_PRIM_POINT_LIST);
       
       al_use_transform(&Identity);
    }
@@ -439,15 +439,15 @@ static void IndexedPrimitives(int mode)
    static int indices1[] = {0, 1, 3, 4};
    static int indices2[] = {5, 6, 7, 8};
    static int indices3[] = {9, 10, 11, 12};
-   static ALLEGRO_VERTEX vtx[13];
-   static ALLEGRO_VERTEX vtx2[13];
+   static A5O_VERTEX vtx[13];
+   static A5O_VERTEX vtx2[13];
    if (mode == INIT) {
       int ii = 0;
-      ALLEGRO_COLOR color;
+      A5O_COLOR color;
       for (ii = 0; ii < 13; ii++) {
          float x, y;
-         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         x = 200 * cosf((float)ii / 13.0f * 2 * A5O_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * A5O_PI);
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
@@ -468,16 +468,16 @@ static void IndexedPrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       
       al_use_transform(&MainTrans);
       
-      al_draw_indexed_prim(vtx, 0, 0, indices1, 4, ALLEGRO_PRIM_LINE_LIST);
-      al_draw_indexed_prim(vtx, 0, 0, indices2, 4, ALLEGRO_PRIM_LINE_STRIP);
-      al_draw_indexed_prim(vtx, 0, 0, indices3, 4, ALLEGRO_PRIM_LINE_LOOP);
-      al_draw_indexed_prim(vtx2, 0, 0, indices3, 4, ALLEGRO_PRIM_POINT_LIST);
+      al_draw_indexed_prim(vtx, 0, 0, indices1, 4, A5O_PRIM_LINE_LIST);
+      al_draw_indexed_prim(vtx, 0, 0, indices2, 4, A5O_PRIM_LINE_STRIP);
+      al_draw_indexed_prim(vtx, 0, 0, indices3, 4, A5O_PRIM_LINE_LOOP);
+      al_draw_indexed_prim(vtx2, 0, 0, indices3, 4, A5O_PRIM_POINT_LIST);
       
       al_use_transform(&Identity);
    }
@@ -485,19 +485,19 @@ static void IndexedPrimitives(int mode)
 
 static void VertexBuffers(int mode)
 {
-   static ALLEGRO_VERTEX vtx[13];
-   static ALLEGRO_VERTEX vtx2[13];
-   static ALLEGRO_VERTEX_BUFFER* vbuff;
-   static ALLEGRO_VERTEX_BUFFER* vbuff2;
+   static A5O_VERTEX vtx[13];
+   static A5O_VERTEX vtx2[13];
+   static A5O_VERTEX_BUFFER* vbuff;
+   static A5O_VERTEX_BUFFER* vbuff2;
    static bool no_soft;
    static bool no_soft2;
    if (mode == INIT) {
       int ii = 0;
-      ALLEGRO_COLOR color;
+      A5O_COLOR color;
       for (ii = 0; ii < 13; ii++) {
          float x, y;
-         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         x = 200 * cosf((float)ii / 13.0f * 2 * A5O_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * A5O_PI);
 
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
 
@@ -506,7 +506,7 @@ static void VertexBuffers(int mode)
          vtx[ii].color = color;
          vtx2[ii].color = color;
       }
-      vbuff = al_create_vertex_buffer(0, vtx, 13, ALLEGRO_PRIM_BUFFER_READWRITE);
+      vbuff = al_create_vertex_buffer(0, vtx, 13, A5O_PRIM_BUFFER_READWRITE);
       if (!vbuff) {
          vbuff = al_create_vertex_buffer(0, vtx, 13, 0);
          no_soft = true;
@@ -515,7 +515,7 @@ static void VertexBuffers(int mode)
          no_soft = false;
       }
 
-      vbuff2 = al_create_vertex_buffer(0, vtx2, 13, ALLEGRO_PRIM_BUFFER_READWRITE);
+      vbuff2 = al_create_vertex_buffer(0, vtx2, 13, A5O_PRIM_BUFFER_READWRITE);
       if (!vbuff2) {
          vbuff2 = al_create_vertex_buffer(0, vtx2, 13, 0);
          no_soft2 = true;
@@ -528,23 +528,23 @@ static void VertexBuffers(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 
       al_use_transform(&MainTrans);
 
       if (vbuff && !(Soft && no_soft)) {
-         al_draw_vertex_buffer(vbuff, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
-         al_draw_vertex_buffer(vbuff, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
-         al_draw_vertex_buffer(vbuff, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
+         al_draw_vertex_buffer(vbuff, 0, 0, 4, A5O_PRIM_LINE_LIST);
+         al_draw_vertex_buffer(vbuff, 0, 4, 9, A5O_PRIM_LINE_STRIP);
+         al_draw_vertex_buffer(vbuff, 0, 9, 13, A5O_PRIM_LINE_LOOP);
       }
       else {
          al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Vertex buffers not supported");
       }
 
       if (vbuff2 && !(Soft && no_soft2)) {
-         al_draw_vertex_buffer(vbuff2, 0, 0, 13, ALLEGRO_PRIM_POINT_LIST);
+         al_draw_vertex_buffer(vbuff2, 0, 0, 13, A5O_PRIM_POINT_LIST);
       }
       else {
          al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, 40, 0, "Vertex buffers not supported");
@@ -559,16 +559,16 @@ static void VertexBuffers(int mode)
 
 static void IndexedBuffers(int mode)
 {
-   static ALLEGRO_VERTEX_BUFFER* vbuff;
-   static ALLEGRO_INDEX_BUFFER* ibuff;
+   static A5O_VERTEX_BUFFER* vbuff;
+   static A5O_INDEX_BUFFER* ibuff;
    static bool soft = true;
    if (mode == INIT) {
       int ii;
-      ALLEGRO_COLOR color;
-      ALLEGRO_VERTEX* vtx;
-      int flags = ALLEGRO_PRIM_BUFFER_READWRITE;
+      A5O_COLOR color;
+      A5O_VERTEX* vtx;
+      int flags = A5O_PRIM_BUFFER_READWRITE;
 
-      vbuff = al_create_vertex_buffer(NULL, NULL, 13, ALLEGRO_PRIM_BUFFER_READWRITE);
+      vbuff = al_create_vertex_buffer(NULL, NULL, 13, A5O_PRIM_BUFFER_READWRITE);
       if (vbuff == NULL) {
          vbuff = al_create_vertex_buffer(NULL, NULL, 13, 0);
          soft = false;
@@ -578,12 +578,12 @@ static void IndexedBuffers(int mode)
       ibuff = al_create_index_buffer(sizeof(short), NULL, 8, flags);
 
       if (vbuff) {
-         vtx = al_lock_vertex_buffer(vbuff, 0, 13, ALLEGRO_LOCK_WRITEONLY);
+         vtx = al_lock_vertex_buffer(vbuff, 0, 13, A5O_LOCK_WRITEONLY);
 
          for (ii = 0; ii < 13; ii++) {
             float x, y;
-            x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-            y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+            x = 200 * cosf((float)ii / 13.0f * 2 * A5O_PI);
+            y = 200 * sinf((float)ii / 13.0f * 2 * A5O_PI);
 
             color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
 
@@ -599,7 +599,7 @@ static void IndexedBuffers(int mode)
       if (ibuff) {
          int ii;
          int t = (int)al_get_time();
-         short* indices = al_lock_index_buffer(ibuff, 0, 8, ALLEGRO_LOCK_WRITEONLY);
+         short* indices = al_lock_index_buffer(ibuff, 0, 8, A5O_LOCK_WRITEONLY);
 
          for (ii = 0; ii < 8; ii++) {
             indices[ii] = (t + ii) % 13;
@@ -611,15 +611,15 @@ static void IndexedBuffers(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 
       al_use_transform(&MainTrans);
 
       if(!(Soft && !soft) && vbuff && ibuff) {
-         al_draw_indexed_buffer(vbuff, NULL, ibuff, 0, 4, ALLEGRO_PRIM_LINE_LIST);
-         al_draw_indexed_buffer(vbuff, NULL, ibuff, 4, 8, ALLEGRO_PRIM_LINE_STRIP);
+         al_draw_indexed_buffer(vbuff, NULL, ibuff, 0, 4, A5O_PRIM_LINE_LIST);
+         al_draw_indexed_buffer(vbuff, NULL, ibuff, 4, 8, A5O_PRIM_LINE_STRIP);
       }
       else {
          al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, 0, 0, "Indexed buffers not supported");
@@ -634,10 +634,10 @@ static void IndexedBuffers(int mode)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP* bkg;
-   ALLEGRO_COLOR black;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_BITMAP* bkg;
+   A5O_COLOR black;
+   A5O_EVENT_QUEUE *queue;
    bool use_shader = false;
 
    if (argc > 1) {
@@ -659,7 +659,7 @@ int main(int argc, char **argv)
    init_platform_specific();
    
    if (use_shader) {
-      al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
+      al_set_new_display_flags(A5O_PROGRAMMABLE_PIPELINE);
    }
 
    // Create a window to display things on: 640x480 pixels
@@ -687,7 +687,7 @@ int main(int argc, char **argv)
    
    bkg = al_load_bitmap("data/bkg.png");
 
-   al_set_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP_CLAMP, ALLEGRO_BITMAP_WRAP_MIRROR);
+   al_set_new_bitmap_wrap(A5O_BITMAP_WRAP_CLAMP, A5O_BITMAP_WRAP_MIRROR);
    Texture = al_load_bitmap("data/texture.tga");
    
    // Make and set some color to draw with
@@ -712,17 +712,17 @@ int main(int argc, char **argv)
    int cur_screen = 0;
    bool done = false;
    int clip = 0;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *timer_queue;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *timer_queue;
    int old;
 
-   timer = al_create_timer(ALLEGRO_BPS_TO_SECS(refresh_rate));
+   timer = al_create_timer(A5O_BPS_TO_SECS(refresh_rate));
    al_start_timer(timer);
    timer_queue = al_create_event_queue();
    al_register_event_source(timer_queue, al_get_timer_event_source(timer));
    
    old = al_get_new_bitmap_flags();
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    Buffer = al_create_bitmap(ScreenW, ScreenH);
    al_set_new_bitmap_flags(old);
    
@@ -770,7 +770,7 @@ int main(int argc, char **argv)
       }
       
       while (real_time - game_time >= 0) {
-         ALLEGRO_EVENT key_event;
+         A5O_EVENT key_event;
          double start_time = al_get_time();
          game_time += fixed_timestep;
          
@@ -778,7 +778,7 @@ int main(int argc, char **argv)
          
          while (al_get_next_event(queue, &key_event)) {
             switch (key_event.type) {
-               case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN: {
+               case A5O_EVENT_MOUSE_BUTTON_DOWN: {
                   cur_screen++;
                   if (cur_screen >= NUM_SCREENS) {
                      cur_screen = 0;
@@ -786,72 +786,72 @@ int main(int argc, char **argv)
                   break;
                }
 
-               case ALLEGRO_EVENT_DISPLAY_CLOSE: {
+               case A5O_EVENT_DISPLAY_CLOSE: {
                   done = true;
                   break;
                }
-               case ALLEGRO_EVENT_KEY_CHAR: {
+               case A5O_EVENT_KEY_CHAR: {
                   switch (key_event.keyboard.keycode) {
-                     case ALLEGRO_KEY_ESCAPE: {
+                     case A5O_KEY_ESCAPE: {
                         done = true;
                         break;
                      }
-                     case ALLEGRO_KEY_S: {
+                     case A5O_KEY_S: {
                         Soft = !Soft;
                         time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
-                     case ALLEGRO_KEY_C: {
+                     case A5O_KEY_C: {
                         clip = !clip;
                         time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
-                     case ALLEGRO_KEY_L: {
+                     case A5O_KEY_L: {
                         Blend = !Blend;
                         time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
-                     case ALLEGRO_KEY_B: {
+                     case A5O_KEY_B: {
                         Background = !Background;
                         time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
-                     case ALLEGRO_KEY_LEFT: {
+                     case A5O_KEY_LEFT: {
                         Speed -= ROTATE_SPEED;
                         break;
                      }
-                     case ALLEGRO_KEY_RIGHT: {
+                     case A5O_KEY_RIGHT: {
                         Speed += ROTATE_SPEED;
                         break;
                      }
-                     case ALLEGRO_KEY_PGUP: {
+                     case A5O_KEY_PGUP: {
                         Thickness += 0.5f;
                         if (Thickness < 1.0f)
                            Thickness = 1.0f;
                         break;
                      }
-                     case ALLEGRO_KEY_PGDN: {
+                     case A5O_KEY_PGDN: {
                         Thickness -= 0.5f;
                         if (Thickness < 1.0f)
                            Thickness = 0.0f;
                         break;
                      }
-                     case ALLEGRO_KEY_UP: {
+                     case A5O_KEY_UP: {
                         cur_screen++;
                         if (cur_screen >= NUM_SCREENS) {
                            cur_screen = 0;
                         }
                         break;
                      }
-                     case ALLEGRO_KEY_SPACE: {
+                     case A5O_KEY_SPACE: {
                         Speed = 0;
                         break;
                      }
-                     case ALLEGRO_KEY_DOWN: {
+                     case A5O_KEY_DOWN: {
                         cur_screen--;
                         if (cur_screen < 0) {
                            cur_screen = NUM_SCREENS - 1;
@@ -876,7 +876,7 @@ int main(int argc, char **argv)
       }
       
       if (Background && bkg) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
          al_draw_scaled_bitmap(bkg, 0, 0, al_get_bitmap_width(bkg), al_get_bitmap_height(bkg), 0, 0, ScreenW, ScreenH, 0);
       }
       
@@ -889,13 +889,13 @@ int main(int argc, char **argv)
       al_set_clipping_rectangle(0, 0, ScreenW, ScreenH);
 
       if (Soft == 1) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
          al_set_target_backbuffer(display);
          al_draw_bitmap(Buffer, 0, 0, 0);
       }
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "%s", ScreenName[cur_screen]);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
+      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, A5O_ALIGN_CENTRE, "%s", ScreenName[cur_screen]);
       al_draw_textf(Font, solid_white, 0, 0, 0, "FPS: %f", (float)frames_done / (al_get_time() - time_diff));
       al_draw_textf(Font, solid_white, 0, 20, 0, "Change Screen (Up/Down). Esc to Quit.");
       al_draw_textf(Font, solid_white, 0, 40, 0, "Rotation (Left/Right/Space): %f", Speed);

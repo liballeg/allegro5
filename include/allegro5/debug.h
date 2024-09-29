@@ -31,28 +31,28 @@ AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
 
 AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
 
-#if defined(DEBUGMODE) || defined(ALLEGRO_CFG_RELEASE_LOGGING)
+#if defined(DEBUGMODE) || defined(A5O_CFG_RELEASE_LOGGING)
    /* Must not be used with a trailing semicolon. */
-   #ifdef ALLEGRO_GCC
-      #define ALLEGRO_DEBUG_CHANNEL(x) \
+   #ifdef A5O_GCC
+      #define A5O_DEBUG_CHANNEL(x) \
          static char const *__al_debug_channel __attribute__((unused)) = x;
    #else
-      #define ALLEGRO_DEBUG_CHANNEL(x) \
+      #define A5O_DEBUG_CHANNEL(x) \
          static char const *__al_debug_channel = x;
    #endif
-   #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level)                        \
+   #define A5O_TRACE_CHANNEL_LEVEL(channel, level)                        \
       !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__)         \
       ? (void)0 : _al_trace_suffix
 #else
-   #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : _al_trace_suffix
-   #define ALLEGRO_DEBUG_CHANNEL(x)
+   #define A5O_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : _al_trace_suffix
+   #define A5O_DEBUG_CHANNEL(x)
 #endif
 
-#define ALLEGRO_TRACE_LEVEL(x)   ALLEGRO_TRACE_CHANNEL_LEVEL(__al_debug_channel, x)
-#define ALLEGRO_DEBUG            ALLEGRO_TRACE_LEVEL(0)
-#define ALLEGRO_INFO             ALLEGRO_TRACE_LEVEL(1)
-#define ALLEGRO_WARN             ALLEGRO_TRACE_LEVEL(2)
-#define ALLEGRO_ERROR            ALLEGRO_TRACE_LEVEL(3)
+#define A5O_TRACE_LEVEL(x)   A5O_TRACE_CHANNEL_LEVEL(__al_debug_channel, x)
+#define A5O_DEBUG            A5O_TRACE_LEVEL(0)
+#define A5O_INFO             A5O_TRACE_LEVEL(1)
+#define A5O_WARN             A5O_TRACE_LEVEL(2)
+#define A5O_ERROR            A5O_TRACE_LEVEL(3)
 
 /* Run-time assertions. */
 AL_FUNCPTR(void, _al_user_assert_handler, (char const *expr, char const *file,
@@ -66,12 +66,12 @@ AL_FUNC(void, al_register_trace_handler, (void (*handler)(char const *)));
 #ifdef __clang_analyzer__
    /* Clang doesn't understand _al_user_assert_handler, so we simplify the
     * definition for analysis purposes. */
-   #define ALLEGRO_ASSERT(e) assert(e)
+   #define A5O_ASSERT(e) assert(e)
 #else
    #ifdef NDEBUG
-      #define ALLEGRO_ASSERT(e)	((void)(0 && (e)))
+      #define A5O_ASSERT(e)	((void)(0 && (e)))
    #else
-      #define ALLEGRO_ASSERT(e)                                                  \
+      #define A5O_ASSERT(e)                                                  \
          ((e) ? (void) 0                                                         \
          : (_al_user_assert_handler) ?                                           \
             _al_user_assert_handler(#e, __FILE__, __LINE__, __func__)            \
@@ -80,15 +80,15 @@ AL_FUNC(void, al_register_trace_handler, (void (*handler)(char const *)));
 #endif
 
 /* Compile time assertions. */
-#define ALLEGRO_ASSERT_CONCAT_(a, b)   a##b
-#define ALLEGRO_ASSERT_CONCAT(a, b)    ALLEGRO_ASSERT_CONCAT_(a, b)
-#define ALLEGRO_STATIC_ASSERT(module, e) \
-   struct ALLEGRO_ASSERT_CONCAT(static_assert_##module##_line_, __LINE__) \
+#define A5O_ASSERT_CONCAT_(a, b)   a##b
+#define A5O_ASSERT_CONCAT(a, b)    A5O_ASSERT_CONCAT_(a, b)
+#define A5O_STATIC_ASSERT(module, e) \
+   struct A5O_ASSERT_CONCAT(static_assert_##module##_line_, __LINE__) \
       { unsigned int bf : !!(e); }
 
 /* We are lazy and use just ASSERT while Allegro itself is compiled. */
-#ifdef ALLEGRO_LIB_BUILD
-    #define ASSERT(x) ALLEGRO_ASSERT(x)
+#ifdef A5O_LIB_BUILD
+    #define ASSERT(x) A5O_ASSERT(x)
 #endif
 
 #ifdef __cplusplus

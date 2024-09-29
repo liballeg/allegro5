@@ -14,7 +14,7 @@
  */
 
 
-#ifndef ALLEGRO_UNIX
+#ifndef A5O_UNIX
    #error bad include
 #endif
 

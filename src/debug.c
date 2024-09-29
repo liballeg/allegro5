@@ -21,11 +21,11 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
 #include "allegro5/internal/aintern_wunicode.h"
 #endif
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include <unistd.h>
 #include <android/log.h>
 #endif
@@ -59,8 +59,8 @@ static TRACE_INFO trace_info =
    _AL_MUTEX_UNINITED,
    0,
    7,
-   _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
-   _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
+   _AL_VECTOR_INITIALIZER(A5O_USTR *),
+   _AL_VECTOR_INITIALIZER(A5O_USTR *),
    false
 };
 
@@ -77,7 +77,7 @@ static void delete_string_list(_AL_VECTOR *v)
 {
    while (_al_vector_is_nonempty(v)) {
       int i = _al_vector_size(v) - 1;
-      ALLEGRO_USTR **iter = _al_vector_ref(v, i);
+      A5O_USTR **iter = _al_vector_ref(v, i);
       al_ustr_free(*iter);
       _al_vector_delete_at(v, i);
    }
@@ -87,21 +87,21 @@ static void delete_string_list(_AL_VECTOR *v)
 
 void _al_configure_logging(void)
 {
-   ALLEGRO_CONFIG *config;
+   A5O_CONFIG *config;
    char const *v;
    bool got_all = false;
 
    config = al_get_system_config();
    v = al_get_config_value(config, "trace", "channels");
    if (v) {
-      ALLEGRO_USTR_INFO uinfo;
-      const ALLEGRO_USTR *u = al_ref_cstr(&uinfo, v);
+      A5O_USTR_INFO uinfo;
+      const A5O_USTR *u = al_ref_cstr(&uinfo, v);
       int pos = 0;
 
       while (pos >= 0) {
          int comma = al_ustr_find_chr(u, pos, ',');
          int first;
-         ALLEGRO_USTR *u2, **iter;
+         A5O_USTR *u2, **iter;
          if (comma == -1)
             u2 = al_ustr_dup_substr(u, pos, al_ustr_length(u));
          else
@@ -136,7 +136,7 @@ void _al_configure_logging(void)
    trace_info.level = 9999;
 #endif
 
-   v = getenv("ALLEGRO_TRACE_LEVEL");
+   v = getenv("A5O_TRACE_LEVEL");
    if (!v)
       v = al_get_config_value(config, "trace", "level");
    if (v) {
@@ -175,7 +175,7 @@ void _al_configure_logging(void)
 static void open_trace_file(void)
 {
    if (trace_info.trace_virgin) {
-      const char *s = getenv("ALLEGRO_TRACE");
+      const char *s = getenv("A5O_TRACE");
 
       if (s) {
          if (!strcmp(s, "-")) {
@@ -187,7 +187,7 @@ static void open_trace_file(void)
          }
       }
       else
-#if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID) || defined(__EMSCRIPTEN__)
+#if defined(A5O_IPHONE) || defined(A5O_ANDROID) || defined(__EMSCRIPTEN__)
          /* iPhone and Android don't like us writing files, so we'll be doing
           * something else there by default. */
          trace_info.trace_file = NULL;
@@ -234,7 +234,7 @@ bool _al_trace_prefix(char const *channel, int level,
       goto channel_included;
 
    for (i = 0; i < _al_vector_size(v); i++) {
-      ALLEGRO_USTR **iter = _al_vector_ref(v, i);
+      A5O_USTR **iter = _al_vector_ref(v, i);
       if (!strcmp(al_cstr(*iter), channel))
          goto channel_included;
    }
@@ -246,7 +246,7 @@ channel_included:
    v = &trace_info.excluded;
    if (_al_vector_is_nonempty(v)) {
       for (i = 0; i < _al_vector_size(v); i++) {
-         ALLEGRO_USTR **iter = _al_vector_ref(v, i);
+         A5O_USTR **iter = _al_vector_ref(v, i);
          if (!strcmp(al_cstr(*iter), channel))
             return false;
       }
@@ -264,7 +264,7 @@ channel_included:
    if (level == 2) do_trace("W ");
    if (level == 3) do_trace("E ");
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    {
       char pid_buf[16];
       snprintf(pid_buf, sizeof(pid_buf), "%i: ", gettid());
@@ -272,7 +272,7 @@ channel_included:
    }
 #endif
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    name = strrchr(file, '\\');
 #else
    name = strrchr(file, '/');
@@ -312,15 +312,15 @@ void _al_trace_suffix(const char *msg, ...)
       _al_user_trace_handler(static_trace_buffer);
    }
    else {
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
       (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
          static_trace_buffer);
 #endif
-#if defined(ALLEGRO_IPHONE) || defined(__EMSCRIPTEN__)
+#if defined(A5O_IPHONE) || defined(__EMSCRIPTEN__)
       fprintf(stderr, "%s", static_trace_buffer);
       fflush(stderr);
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
       {
          TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
          OutputDebugString(windows_output);

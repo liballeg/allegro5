@@ -35,7 +35,7 @@
 #include "allegro5/platform/aintwin.h"
 
 
-ALLEGRO_DEBUG_CHANNEL("clipboard")
+A5O_DEBUG_CHANNEL("clipboard")
 
 #ifdef UNICODE
 #define TEXT_FORMAT  CF_UNICODETEXT
@@ -45,16 +45,16 @@ ALLEGRO_DEBUG_CHANNEL("clipboard")
 
 
 /* Get any application owned window handle for clipboard association */
-static HWND get_window_handle(ALLEGRO_DISPLAY *display)
+static HWND get_window_handle(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    if (!win_display)
       return NULL;
 
    return win_display->window;
 }
 
-static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
+static bool win_set_clipboard_text(A5O_DISPLAY *display, const char *text)
 {
    HWND handle = get_window_handle(display);
    HANDLE hMem = NULL;
@@ -64,7 +64,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    LPTSTR dst;
 
    if (!OpenClipboard(handle)) {
-      ALLEGRO_DEBUG("Could not open clipboard for handle %p", handle);
+      A5O_DEBUG("Could not open clipboard for handle %p", handle);
       return false;
    }
 
@@ -77,7 +77,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
 
    if (!hMem) {
       al_free(tstr);
-      ALLEGRO_DEBUG("GlobalAlloc failed to allocate memory for the clipboard data");
+      A5O_DEBUG("GlobalAlloc failed to allocate memory for the clipboard data");
       return false;
    }
 
@@ -90,7 +90,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    EmptyClipboard();
    if (!SetClipboardData(TEXT_FORMAT, hMem)) {
       al_free(tstr);
-      ALLEGRO_DEBUG("Couldn't set clipboard data");
+      A5O_DEBUG("Couldn't set clipboard data");
       return false;
    }
    al_free(tstr);
@@ -98,7 +98,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    return true;
 }
 
-static char *win_get_clipboard_text(ALLEGRO_DISPLAY *display)
+static char *win_get_clipboard_text(A5O_DISPLAY *display)
 {
    char *text;
 
@@ -114,14 +114,14 @@ static char *win_get_clipboard_text(ALLEGRO_DISPLAY *display)
          text = _twin_tchar_to_utf8(tstr);
          GlobalUnlock(hMem);
       } else {
-         ALLEGRO_DEBUG("Couldn't get clipboard data");
+         A5O_DEBUG("Couldn't get clipboard data");
       }
       CloseClipboard();
    }
    return text;
 }
 
-static bool win_has_clipboard_text(ALLEGRO_DISPLAY *display)
+static bool win_has_clipboard_text(A5O_DISPLAY *display)
 {
    if (!IsClipboardFormatAvailable(TEXT_FORMAT))
       return false;
@@ -133,7 +133,7 @@ static bool win_has_clipboard_text(ALLEGRO_DISPLAY *display)
 }
 
 
-void _al_win_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
+void _al_win_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt)
 {
    vt->set_clipboard_text = win_set_clipboard_text;
    vt->get_clipboard_text = win_get_clipboard_text;

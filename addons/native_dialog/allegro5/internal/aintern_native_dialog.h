@@ -7,51 +7,51 @@
 
 typedef struct
 {
-   ALLEGRO_USTR_INFO info;
+   A5O_USTR_INFO info;
    bool is_mime;
    bool is_catchall;
 } _AL_PATTERN;
 
 typedef struct
 {
-   ALLEGRO_USTR_INFO desc;
+   A5O_USTR_INFO desc;
    _AL_VECTOR patterns_vec;
 } _AL_PATTERNS_AND_DESC;
 
-typedef struct ALLEGRO_NATIVE_DIALOG ALLEGRO_NATIVE_DIALOG;
+typedef struct A5O_NATIVE_DIALOG A5O_NATIVE_DIALOG;
 
 /* We could use different structs for the different dialogs. But why
  * bother.
  */
-struct ALLEGRO_NATIVE_DIALOG
+struct A5O_NATIVE_DIALOG
 {
-   ALLEGRO_USTR *title;
+   A5O_USTR *title;
    int flags;
 
    /* Only used by file chooser. */
-   ALLEGRO_PATH *fc_initial_path;
+   A5O_PATH *fc_initial_path;
    size_t fc_path_count;
-   ALLEGRO_PATH **fc_paths;
+   A5O_PATH **fc_paths;
    /* Vector of _AL_PATTERNS_AND_DESC, substrings index into fc_patterns_ustr.
     */
    _AL_VECTOR fc_patterns;
-   ALLEGRO_USTR *fc_patterns_ustr;
+   A5O_USTR *fc_patterns_ustr;
 
    /* Only used by message box. */
-   ALLEGRO_USTR *mb_heading;
-   ALLEGRO_USTR *mb_text;
-   ALLEGRO_USTR *mb_buttons;
+   A5O_USTR *mb_heading;
+   A5O_USTR *mb_text;
+   A5O_USTR *mb_buttons;
    int mb_pressed_button;
 
    /* Only used by text log. */
-   ALLEGRO_THREAD *tl_thread;
-   ALLEGRO_COND *tl_text_cond;
-   ALLEGRO_MUTEX *tl_text_mutex;
-   ALLEGRO_USTR *tl_pending_text;
+   A5O_THREAD *tl_thread;
+   A5O_COND *tl_text_cond;
+   A5O_MUTEX *tl_text_mutex;
+   A5O_USTR *tl_pending_text;
    bool tl_init_error;
    bool tl_done;
    bool tl_have_pending;
-   ALLEGRO_EVENT_SOURCE tl_events;
+   A5O_EVENT_SOURCE tl_events;
    void *tl_textview;
 
    /* Only used by platform implementations. */
@@ -64,22 +64,22 @@ struct ALLEGRO_NATIVE_DIALOG
 
 extern bool _al_init_native_dialog_addon(void);
 extern void _al_shutdown_native_dialog_addon(void);
-extern bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
-   ALLEGRO_NATIVE_DIALOG *fd);
-extern int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
-   ALLEGRO_NATIVE_DIALOG *fd);
-extern bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog);
-extern void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog);
-extern void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog);
+extern bool _al_show_native_file_dialog(A5O_DISPLAY *display,
+   A5O_NATIVE_DIALOG *fd);
+extern int _al_show_native_message_box(A5O_DISPLAY *display,
+   A5O_NATIVE_DIALOG *fd);
+extern bool _al_open_native_text_log(A5O_NATIVE_DIALOG *textlog);
+extern void _al_close_native_text_log(A5O_NATIVE_DIALOG *textlog);
+extern void _al_append_native_text_log(A5O_NATIVE_DIALOG *textlog);
 
-typedef struct ALLEGRO_MENU_ITEM ALLEGRO_MENU_ITEM;
+typedef struct A5O_MENU_ITEM A5O_MENU_ITEM;
 
-struct ALLEGRO_MENU_ITEM
+struct A5O_MENU_ITEM
 {
-   ALLEGRO_MENU *parent;
-   ALLEGRO_MENU *popup;
-   ALLEGRO_USTR *caption;
-   ALLEGRO_BITMAP *icon;
+   A5O_MENU *parent;
+   A5O_MENU *popup;
+   A5O_USTR *caption;
+   A5O_BITMAP *icon;
 
    /* This id is unique. */
    uint16_t unique_id;
@@ -97,16 +97,16 @@ typedef struct _AL_MENU_ID _AL_MENU_ID;
 
 struct _AL_MENU_ID
 {
-   ALLEGRO_MENU *menu;
+   A5O_MENU *menu;
    uint16_t unique_id;
    uint16_t id;
 };
 
-struct ALLEGRO_MENU
+struct A5O_MENU
 {
-   ALLEGRO_EVENT_SOURCE es;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_MENU_ITEM *parent;
+   A5O_EVENT_SOURCE es;
+   A5O_DISPLAY *display;
+   A5O_MENU_ITEM *parent;
    _AL_VECTOR items;
 
    bool is_event_source;
@@ -119,15 +119,15 @@ struct ALLEGRO_MENU
  *   display: the display associated with the menu
  *   unique_id: the unique id associated with the menu item
  *
- *  The function will find the appropriate ALLEGRO_MENU and emit the event.
+ *  The function will find the appropriate A5O_MENU and emit the event.
  */
-extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t unique_id);
+extern bool _al_emit_menu_event(A5O_DISPLAY *display, uint16_t unique_id);
 
-extern bool _al_walk_over_menu(ALLEGRO_MENU *menu, bool (*proc)
-   (ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra),
+extern bool _al_walk_over_menu(A5O_MENU *menu, bool (*proc)
+   (A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra),
    void *extra);
-_AL_MENU_ID *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t unique_id);
-bool _al_find_menu_item_unique(ALLEGRO_MENU *haystack, uint16_t unique_id, ALLEGRO_MENU **menu,
+_AL_MENU_ID *_al_find_parent_menu_by_id(A5O_DISPLAY *display, uint16_t unique_id);
+bool _al_find_menu_item_unique(A5O_MENU *haystack, uint16_t unique_id, A5O_MENU **menu,
    int *index);
 
 /* Platform Specific Functions
@@ -137,9 +137,9 @@ bool _al_find_menu_item_unique(ALLEGRO_MENU *haystack, uint16_t unique_id, ALLEG
  * at all). All of the parameters will be valid.
  */
 
-extern bool _al_init_menu(ALLEGRO_MENU *menu);
-extern bool _al_init_popup_menu(ALLEGRO_MENU *menu);
-extern bool _al_destroy_menu(ALLEGRO_MENU *menu);
+extern bool _al_init_menu(A5O_MENU *menu);
+extern bool _al_init_popup_menu(A5O_MENU *menu);
+extern bool _al_destroy_menu(A5O_MENU *menu);
 
 /* The "int i" parameter represents the indexed location of the item in the
  * item->parent->items vector. This should map up identically to what is displayed
@@ -147,13 +147,13 @@ extern bool _al_destroy_menu(ALLEGRO_MENU *menu);
  * the index may not represent what is seen on screen. If such discrepencies exist,
  * then the platform imlpementation must compensate accordingly. */
 
-extern bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i);
-extern bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i);
-extern bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i);
+extern bool _al_insert_menu_item_at(A5O_MENU_ITEM *item, int i);
+extern bool _al_destroy_menu_item_at(A5O_MENU_ITEM *item, int i);
+extern bool _al_update_menu_item_at(A5O_MENU_ITEM *item, int i);
 
-extern bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
-extern bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
-extern bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
+extern bool _al_show_display_menu(A5O_DISPLAY *display, A5O_MENU *menu);
+extern bool _al_hide_display_menu(A5O_DISPLAY *display, A5O_MENU *menu);
+extern bool _al_show_popup_menu(A5O_DISPLAY *display, A5O_MENU *menu);
 
 /* Returns the height of the display taken up by the menu, so we can resize
  * the display to compensate. Windows only at the moment.*/

@@ -27,7 +27,7 @@ extern "C" {
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
 
-ALLEGRO_PATH *_al_android_get_path(int id);
+A5O_PATH *_al_android_get_path(int id);
 
 #ifdef __cplusplus
 }

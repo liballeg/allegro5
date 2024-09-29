@@ -7,7 +7,7 @@
 int Error, Lines;
 char ErrorText[1024];
 struct Tok Token;
-ALLEGRO_FILE *input = NULL;
+A5O_FILE *input = NULL;
 
 static int my_ungetc_c = -1;
 
@@ -85,7 +85,7 @@ static int my_ungetc_c = -1;
 		\r\r				- 2 line endings
 
 */
-static int my_fgetc(ALLEGRO_FILE * f)
+static int my_fgetc(A5O_FILE * f)
 {
    static int LastChar = '\0';
    int r;

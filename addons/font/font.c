@@ -12,7 +12,7 @@
  *      See readme.txt for copyright information.
  */
 
-#define ALLEGRO_INTERNAL_UNSTABLE
+#define A5O_INTERNAL_UNSTABLE
 
 #include <string.h>
 #include "allegro5/allegro.h"
@@ -26,13 +26,13 @@
 #include "font.h"
 #include <ctype.h>
 
-ALLEGRO_DEBUG_CHANNEL("font")
+A5O_DEBUG_CHANNEL("font")
 
 
 typedef struct
 {
-   ALLEGRO_USTR *extension;
-   ALLEGRO_FONT *(*load_font)(char const *filename, int size, int flags);
+   A5O_USTR *extension;
+   A5O_FONT *(*load_font)(char const *filename, int size, int flags);
 } FONT_HANDLER;
 
 
@@ -52,7 +52,7 @@ static int al_font_404_character = '^';
  *  (mono and color vtable entry)
  *  Returns the height, in pixels of the font.
  */
-static int font_height(const ALLEGRO_FONT *f)
+static int font_height(const A5O_FONT *f)
 {
    ASSERT(f);
    return f->height;
@@ -60,14 +60,14 @@ static int font_height(const ALLEGRO_FONT *f)
 
 
 
-static int font_ascent(const ALLEGRO_FONT *f)
+static int font_ascent(const A5O_FONT *f)
 {
     return font_height(f);
 }
 
 
 
-static int font_descent(const ALLEGRO_FONT *f)
+static int font_descent(const A5O_FONT *f)
 {
     (void)f;
     return 0;
@@ -79,7 +79,7 @@ static int font_descent(const ALLEGRO_FONT *f)
  *  (mono and color vtable entry)
  *  Returns the length, in pixels, of a string as rendered in a font.
  */
-static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text)
+static int length(const A5O_FONT* f, const A5O_USTR *text)
 {
     int ch = 0, w = 0;
     int pos = 0;
@@ -94,8 +94,8 @@ static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text)
 
 
 
-static void color_get_text_dimensions(ALLEGRO_FONT const *f,
-   const ALLEGRO_USTR *text,
+static void color_get_text_dimensions(A5O_FONT const *f,
+   const A5O_USTR *text,
    int *bbx, int *bby, int *bbw, int *bbh)
 {
    /* Dummy implementation - for A4-style bitmap fonts the bounding
@@ -110,8 +110,8 @@ static void color_get_text_dimensions(ALLEGRO_FONT const *f,
 
 
 
-static ALLEGRO_FONT_COLOR_DATA *_al_font_find_page(
-   ALLEGRO_FONT_COLOR_DATA *cf, int ch)
+static A5O_FONT_COLOR_DATA *_al_font_find_page(
+   A5O_FONT_COLOR_DATA *cf, int ch)
 {
     while (cf) {
         if (ch >= cf->begin && ch < cf->end)
@@ -125,9 +125,9 @@ static ALLEGRO_FONT_COLOR_DATA *_al_font_find_page(
 /* _color_find_glyph:
  *  Helper for color vtable entries, below.
  */
-static ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
+static A5O_BITMAP* _al_font_color_find_glyph(const A5O_FONT* f, int ch)
 {
-    ALLEGRO_FONT_COLOR_DATA* cf = (ALLEGRO_FONT_COLOR_DATA*)(f->data);
+    A5O_FONT_COLOR_DATA* cf = (A5O_FONT_COLOR_DATA*)(f->data);
 
     cf = _al_font_find_page(cf, ch);
     if (cf) {
@@ -148,9 +148,9 @@ static ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
  *  Returns the length of a character, in pixels, as it would be rendered
  *  in this font.
  */
-static int color_char_length(const ALLEGRO_FONT* f, int ch)
+static int color_char_length(const A5O_FONT* f, int ch)
 {
-   ALLEGRO_BITMAP* g = _al_font_color_find_glyph(f, ch);
+   A5O_BITMAP* g = _al_font_color_find_glyph(f, ch);
    if (g)
       return al_get_bitmap_width(g);
    if (f->fallback)
@@ -166,13 +166,13 @@ static int color_char_length(const ALLEGRO_FONT* f, int ch)
  *  using the specified color.
  *  Returns the character width, in pixels.
  */
-static int color_render_char(const ALLEGRO_FONT* f,
-   ALLEGRO_COLOR color, int ch, float x,
+static int color_render_char(const A5O_FONT* f,
+   A5O_COLOR color, int ch, float x,
    float y)
 {
    int w = 0;
    int h = f->vtable->font_height(f);
-   ALLEGRO_BITMAP *g;
+   A5O_BITMAP *g;
 
    g = _al_font_color_find_glyph(f, ch);
    if (g) {
@@ -194,8 +194,8 @@ static int color_render_char(const ALLEGRO_FONT* f,
  *  Renders a color font onto a bitmap, at the specified location, using
  *  the specified color.
  */
-static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
-   const ALLEGRO_USTR *text,
+static int color_render(const A5O_FONT* f, A5O_COLOR color,
+   const A5O_USTR *text,
     float x, float y)
 {
     int pos = 0;
@@ -212,9 +212,9 @@ static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
 }
 
 
-static bool color_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
+static bool color_get_glyph(const A5O_FONT *f, int prev_codepoint, int codepoint, A5O_GLYPH *glyph)
 {
-   ALLEGRO_BITMAP *g = _al_font_color_find_glyph(f, codepoint);
+   A5O_BITMAP *g = _al_font_color_find_glyph(f, codepoint);
    if (g) {
       glyph->bitmap = g;
       glyph->x = 0;
@@ -238,21 +238,21 @@ static bool color_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codep
  *  (color vtable entry)
  *  Destroys a color font.
  */
-static void color_destroy(ALLEGRO_FONT* f)
+static void color_destroy(A5O_FONT* f)
 {
-    ALLEGRO_FONT_COLOR_DATA* cf;
-    ALLEGRO_BITMAP *glyphs = NULL;
+    A5O_FONT_COLOR_DATA* cf;
+    A5O_BITMAP *glyphs = NULL;
 
     if (!f)
         return;
 
-    cf = (ALLEGRO_FONT_COLOR_DATA*)(f->data);
+    cf = (A5O_FONT_COLOR_DATA*)(f->data);
 
     if (cf)
         glyphs = cf->glyphs;
 
     while (cf) {
-        ALLEGRO_FONT_COLOR_DATA* next = cf->next;
+        A5O_FONT_COLOR_DATA* next = cf->next;
         int i = 0;
 
         for (i = cf->begin; i < cf->end; i++) al_destroy_bitmap(cf->bitmaps[i - cf->begin]);
@@ -275,10 +275,10 @@ static void color_destroy(ALLEGRO_FONT* f)
 }
 
 
-static int color_get_font_ranges(ALLEGRO_FONT *font, int ranges_count,
+static int color_get_font_ranges(A5O_FONT *font, int ranges_count,
    int *ranges)
 {
-   ALLEGRO_FONT_COLOR_DATA *cf = font->data;
+   A5O_FONT_COLOR_DATA *cf = font->data;
    int i = 0;
    while (cf) {
       if (i < ranges_count) {
@@ -291,10 +291,10 @@ static int color_get_font_ranges(ALLEGRO_FONT *font, int ranges_count,
    return i;
 }
 
-static bool color_get_glyph_dimensions(ALLEGRO_FONT const *f,
+static bool color_get_glyph_dimensions(A5O_FONT const *f,
    int codepoint, int *bbx, int *bby, int *bbw, int *bbh)
 {   
-   ALLEGRO_BITMAP *glyph = _al_font_color_find_glyph(f, codepoint);
+   A5O_BITMAP *glyph = _al_font_color_find_glyph(f, codepoint);
    if(!glyph) {
       if (f->fallback) {
          return al_get_glyph_dimensions(f->fallback, codepoint,
@@ -309,13 +309,13 @@ static bool color_get_glyph_dimensions(ALLEGRO_FONT const *f,
    return true;
 }
 
-static int color_get_glyph_advance(ALLEGRO_FONT const *f,
+static int color_get_glyph_advance(A5O_FONT const *f,
    int codepoint1, int codepoint2)
 {
    (void) codepoint2;
    
    /* Handle special case to simplify use in a loop. */
-   if (codepoint1 == ALLEGRO_NO_KERNING) {
+   if (codepoint1 == A5O_NO_KERNING) {
       return 0;
    }
       
@@ -329,7 +329,7 @@ static int color_get_glyph_advance(ALLEGRO_FONT const *f,
  * vtable declarations
  ********/
 
-ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
+A5O_FONT_VTABLE _al_font_vtable_color = {
     font_height,
     font_ascent,
     font_descent,
@@ -367,7 +367,7 @@ static void font_shutdown(void)
 bool al_init_font_addon(void)
 {
    if (font_inited) {
-      ALLEGRO_WARN("Font addon already initialised.\n");
+      A5O_WARN("Font addon already initialised.\n");
       return true;
    }
 
@@ -424,7 +424,7 @@ static FONT_HANDLER *find_extension(char const *extension)
 /* Function: al_register_font_loader
  */
 bool al_register_font_loader(char const *extension,
-   ALLEGRO_FONT *(*load_font)(char const *filename, int size, int flags))
+   A5O_FONT *(*load_font)(char const *filename, int size, int flags))
 {
    FONT_HANDLER *handler = find_extension(extension);
    if (!handler) {
@@ -447,7 +447,7 @@ bool al_register_font_loader(char const *extension,
 
 /* Function: al_load_font
  */
-ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
+A5O_FONT *al_load_font(char const *filename, int size, int flags)
 {
    int i;
    const char *ext;
@@ -456,13 +456,13 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
    ASSERT(filename);
 
    if (!font_inited) {
-      ALLEGRO_ERROR("Font addon not initialised.\n");
+      A5O_ERROR("Font addon not initialised.\n");
       return NULL;
    }
 
    ext = strrchr(filename, '.');
    if (!ext) {
-      ALLEGRO_ERROR("Unable to determine filetype: '%s'\n", filename);
+      A5O_ERROR("Unable to determine filetype: '%s'\n", filename);
       return NULL;
    }
    handler = find_extension(ext);
@@ -482,7 +482,7 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
     */
    for (i = _al_vector_size(&font_handlers) - 1; i >= 0 ; i--) {
       FONT_HANDLER *handler = _al_vector_ref(&font_handlers, i);
-      ALLEGRO_FONT *try = handler->load_font(filename, size, flags);
+      A5O_FONT *try = handler->load_font(filename, size, flags);
       if (try)
          return try;
    }
@@ -496,7 +496,7 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
  */
 uint32_t al_get_allegro_font_version(void)
 {
-   return ALLEGRO_VERSION_INT;
+   return A5O_VERSION_INT;
 }
 
 /* vim: set sts=4 sw=4 et: */

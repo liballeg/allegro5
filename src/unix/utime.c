@@ -24,8 +24,8 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintuthr.h"
 
-ALLEGRO_STATIC_ASSERT(utime,
-   sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
+A5O_STATIC_ASSERT(utime,
+   sizeof(A5O_TIMEOUT_UNIX) <= sizeof(A5O_TIMEOUT));
 
 
 /* Marks the time Allegro was initialised, for al_get_time(). */
@@ -34,7 +34,7 @@ struct timespec _al_unix_initial_time;
 /* clock_gettime() doesn't exist in MacOSX versions < 10.12. Use
  * gettimeofday() if building for MacOSX and targeting version < 10.12.
  */
-#if defined(ALLEGRO_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED < 101200
+#if defined(A5O_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED < 101200
 #include <mach/mach_time.h>
 int _internal_clock_gettime(clockid_t clock_id, struct timespec* t)
 {
@@ -54,7 +54,7 @@ int _internal_clock_gettime(clockid_t clock_id, struct timespec* t)
 // Prefer clock that never decreases and includes time suspended.
 // Can probably use CLOCK_MONOTONIC_RAW for non-mac too, but remains to be
 // verified.
-#if defined(ALLEGRO_MACOSX)
+#if defined(A5O_MACOSX)
 #define CLOCK_ID CLOCK_MONOTONIC_RAW
 #else
 #define CLOCK_ID CLOCK_REALTIME
@@ -99,9 +99,9 @@ void _al_unix_rest(double seconds)
 
 
 
-void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+void _al_unix_init_timeout(A5O_TIMEOUT *timeout, double seconds)
 {
-   ALLEGRO_TIMEOUT_UNIX *ut = (ALLEGRO_TIMEOUT_UNIX *) timeout;
+   A5O_TIMEOUT_UNIX *ut = (A5O_TIMEOUT_UNIX *) timeout;
    struct timespec now;
    double integral;
    double frac;

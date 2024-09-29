@@ -14,11 +14,11 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bmp;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
+   A5O_FONT *font;
    bool redraw;
    bool halt_drawing;
 
@@ -33,14 +33,14 @@ int main(int argc, char **argv)
    al_init_font_addon();
 
    al_set_config_value(al_get_system_config(), "osx", "allow_live_resize", "false");
-   al_set_new_display_flags(ALLEGRO_RESIZABLE |
-      ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_RESIZABLE |
+      A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to set any graphic mode\n");
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Unable to load image\n");
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
          "- key to un-maximize",
          al_get_display_width(display),
          al_get_display_height(display),
-         al_get_display_flags(display) & ALLEGRO_MAXIMIZED ? "yes" :
+         al_get_display_flags(display) & A5O_MAXIMIZED ? "yes" :
          "no");
 
          al_flip_display();
@@ -77,34 +77,34 @@ int main(int argc, char **argv)
       }
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(event.display.source);
          redraw = true;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_EXPOSE) {
          redraw = true;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
+      if (event.type == A5O_EVENT_DISPLAY_HALT_DRAWING) {
          halt_drawing = true;
          al_acknowledge_drawing_halt(display);
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING) {
+      if (event.type == A5O_EVENT_DISPLAY_RESUME_DRAWING) {
          halt_drawing = false;
          al_acknowledge_drawing_resume(display);
       }
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR &&
+      if (event.type == A5O_EVENT_KEY_CHAR &&
             event.keyboard.unichar == '+') {
-         al_set_display_flag(display, ALLEGRO_MAXIMIZED, true);
+         al_set_display_flag(display, A5O_MAXIMIZED, true);
       }
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR &&
+      if (event.type == A5O_EVENT_KEY_CHAR &&
             event.keyboard.unichar == '-') {
-         al_set_display_flag(display, ALLEGRO_MAXIMIZED, false);
+         al_set_display_flag(display, A5O_MAXIMIZED, false);
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
    }

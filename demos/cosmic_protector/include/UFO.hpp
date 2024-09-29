@@ -9,12 +9,12 @@ public:
 
    bool logic(int step);
    void render(int offx, int offy);
-   void render(int offx, int offy, ALLEGRO_COLOR tint);
+   void render(int offx, int offy, A5O_COLOR tint);
 
    UFO(float x, float y, float dx, float dy);
    ~UFO();
 protected:
-   ALLEGRO_BITMAP *bitmaps[3];
+   A5O_BITMAP *bitmaps[3];
    int nextShot;
    int bitmapFrame;
    int bitmapFrameCount;

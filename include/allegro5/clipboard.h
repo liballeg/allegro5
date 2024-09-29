@@ -24,9 +24,9 @@
    extern "C" {
 #endif
 
-AL_FUNC(char *, al_get_clipboard_text, (ALLEGRO_DISPLAY *display));
-AL_FUNC(bool, al_set_clipboard_text, (ALLEGRO_DISPLAY *display, const char *text));
-AL_FUNC(bool, al_clipboard_has_text, (ALLEGRO_DISPLAY *display));
+AL_FUNC(char *, al_get_clipboard_text, (A5O_DISPLAY *display));
+AL_FUNC(bool, al_set_clipboard_text, (A5O_DISPLAY *display, const char *text));
+AL_FUNC(bool, al_clipboard_has_text, (A5O_DISPLAY *display));
 
 #ifdef __cplusplus
    }

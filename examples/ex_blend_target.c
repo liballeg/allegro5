@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
@@ -9,9 +9,9 @@
 
 #define FPS 60
 
-static ALLEGRO_BITMAP *load_bitmap(char const *filename)
+static A5O_BITMAP *load_bitmap(char const *filename)
 {
-   ALLEGRO_BITMAP *bitmap = al_load_bitmap(filename);
+   A5O_BITMAP *bitmap = al_load_bitmap(filename);
    if (!bitmap)
       abort_example("%s not found or failed to load\n", filename);
    return bitmap;
@@ -19,13 +19,13 @@ static ALLEGRO_BITMAP *load_bitmap(char const *filename)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP* mysha;
-   ALLEGRO_BITMAP* parrot;
-   ALLEGRO_BITMAP* targets[4];
-   ALLEGRO_BITMAP* backbuffer;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_BITMAP* mysha;
+   A5O_BITMAP* parrot;
+   A5O_BITMAP* targets[4];
+   A5O_BITMAP* backbuffer;
    int w;
    int h;
 
@@ -64,17 +64,17 @@ int main(int argc, char **argv)
    backbuffer = al_get_backbuffer(display);
    targets[0] = al_create_sub_bitmap(backbuffer, 0, 0, w, h );
    al_set_target_bitmap(targets[0]);
-   al_set_bitmap_blender(ALLEGRO_DEST_MINUS_SRC, ALLEGRO_SRC_COLOR, ALLEGRO_DST_COLOR);
+   al_set_bitmap_blender(A5O_DEST_MINUS_SRC, A5O_SRC_COLOR, A5O_DST_COLOR);
    targets[1] = al_create_sub_bitmap(backbuffer, w, 0, w, h );
    al_set_target_bitmap(targets[1]);
-   al_set_bitmap_blender(ALLEGRO_ADD, ALLEGRO_SRC_COLOR, ALLEGRO_DST_COLOR);
+   al_set_bitmap_blender(A5O_ADD, A5O_SRC_COLOR, A5O_DST_COLOR);
    al_set_bitmap_blend_color(al_map_rgb_f(0.5, 0.5, 1.0));
    targets[2] = al_create_sub_bitmap(backbuffer, 0, h, w, h );
    al_set_target_bitmap(targets[2]);
-   al_set_bitmap_blender(ALLEGRO_SRC_MINUS_DEST, ALLEGRO_SRC_COLOR, ALLEGRO_DST_COLOR);
+   al_set_bitmap_blender(A5O_SRC_MINUS_DEST, A5O_SRC_COLOR, A5O_DST_COLOR);
    targets[3] = al_create_sub_bitmap(backbuffer, w, h, w, h );
    al_set_target_bitmap(targets[3]);
-   al_set_bitmap_blender(ALLEGRO_DEST_MINUS_SRC, ALLEGRO_INVERSE_SRC_COLOR, ALLEGRO_DST_COLOR);
+   al_set_bitmap_blender(A5O_DEST_MINUS_SRC, A5O_INVERSE_SRC_COLOR, A5O_DST_COLOR);
 
    timer = al_create_timer(1.0 / FPS);
 
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (need_redraw) {
          int i;
@@ -108,16 +108,16 @@ int main(int argc, char **argv)
       while (true) {
          al_wait_for_event(queue, &event);
          switch (event.type) {
-            case ALLEGRO_EVENT_KEY_CHAR:
-               if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+            case A5O_EVENT_KEY_CHAR:
+               if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                   done = true;
                break;
 
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            case A5O_EVENT_DISPLAY_CLOSE:
                done = true;
                break;
 
-            case ALLEGRO_EVENT_TIMER:
+            case A5O_EVENT_TIMER:
                need_redraw = true;
                break;
          }

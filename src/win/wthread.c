@@ -24,11 +24,11 @@
 
 #include <objbase.h>
 
-#ifndef ALLEGRO_WINDOWS
+#ifndef A5O_WINDOWS
 #error something is wrong with the makefile
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("system")
+A5O_DEBUG_CHANNEL("system")
 
 
 /* COINIT_MULTITHREADED is not defined in objbase.h for MSVC */
@@ -58,13 +58,13 @@ void _al_win_thread_init(void)
 						ole32, "CoInitializeEx");
       }
       else {
-         ALLEGRO_WARN("OLE32.DLL can't be loaded.\n");
+         A5O_WARN("OLE32.DLL can't be loaded.\n");
       }
 
       if (_CoInitializeEx == NULL) {
-         ALLEGRO_WARN("Microsoft Distributed COM is not installed on this system. If you have problems ");
-         ALLEGRO_WARN("with this application, please install the DCOM update. You can find it on the ");
-         ALLEGRO_WARN("Microsoft homepage\n");
+         A5O_WARN("Microsoft Distributed COM is not installed on this system. If you have problems ");
+         A5O_WARN("with this application, please install the DCOM update. You can find it on the ");
+         A5O_WARN("Microsoft homepage\n");
       }
    }
 

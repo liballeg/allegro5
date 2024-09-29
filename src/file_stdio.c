@@ -16,7 +16,7 @@
 #include "allegro5/allegro.h"
 
 /* enable large file support in gcc/glibc */
-#if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO
+#if defined A5O_HAVE_FTELLO && defined A5O_HAVE_FSEEKO
 #ifndef _LARGEFILE_SOURCE
    #define _LARGEFILE_SOURCE
 #endif
@@ -30,16 +30,16 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_wunicode.h"
-#include ALLEGRO_INTERNAL_HEADER
+#include A5O_INTERNAL_HEADER
 
-#ifdef ALLEGRO_HAVE_SYS_STAT_H
+#ifdef A5O_HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("stdio")
+A5O_DEBUG_CHANNEL("stdio")
 
 /* forward declaration */
-const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio;
+const struct A5O_FILE_INTERFACE _al_file_interface_stdio;
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
@@ -54,7 +54,7 @@ typedef struct
 } USERDATA;
 
 
-static USERDATA *get_userdata(ALLEGRO_FILE *f)
+static USERDATA *get_userdata(A5O_FILE *f)
 {
    if (f)
       return al_get_file_userdata(f);
@@ -65,9 +65,9 @@ static USERDATA *get_userdata(ALLEGRO_FILE *f)
 
 /* Function: al_fopen_fd
  */
-ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
+A5O_FILE *al_fopen_fd(int fd, const char *mode)
 {
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
    USERDATA *userdata;
    FILE *fp;
 
@@ -104,9 +104,9 @@ static void *file_stdio_fopen(const char *path, const char *mode)
    FILE *fp;
    USERDATA *userdata;
 
-   ALLEGRO_DEBUG("opening %s %s\n", path, mode);
+   A5O_DEBUG("opening %s %s\n", path, mode);
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    {
       wchar_t *wpath = _al_win_utf8_to_utf16(path);
       wchar_t *wmode = _al_win_utf8_to_utf16(mode);
@@ -136,7 +136,7 @@ static void *file_stdio_fopen(const char *path, const char *mode)
 }
 
 
-static bool file_stdio_fclose(ALLEGRO_FILE *f)
+static bool file_stdio_fclose(A5O_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
    bool ret;
@@ -159,7 +159,7 @@ static bool file_stdio_fclose(ALLEGRO_FILE *f)
 }
 
 
-static size_t file_stdio_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
+static size_t file_stdio_fread(A5O_FILE *f, void *ptr, size_t size)
 {
    USERDATA *userdata = get_userdata(f);
 
@@ -185,7 +185,7 @@ static size_t file_stdio_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 }
 
 
-static size_t file_stdio_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
+static size_t file_stdio_fwrite(A5O_FILE *f, const void *ptr, size_t size)
 {
    USERDATA *userdata = get_userdata(f);
    size_t ret;
@@ -200,7 +200,7 @@ static size_t file_stdio_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
 }
 
 
-static bool file_stdio_fflush(ALLEGRO_FILE *f)
+static bool file_stdio_fflush(A5O_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
 
@@ -214,14 +214,14 @@ static bool file_stdio_fflush(ALLEGRO_FILE *f)
 }
 
 
-static int64_t file_stdio_ftell(ALLEGRO_FILE *f)
+static int64_t file_stdio_ftell(A5O_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
    int64_t ret;
 
-#if defined(ALLEGRO_HAVE_FTELLO)
+#if defined(A5O_HAVE_FTELLO)
    ret = ftello(userdata->fp);
-#elif defined(ALLEGRO_HAVE_FTELLI64)
+#elif defined(A5O_HAVE_FTELLI64)
    ret = _ftelli64(userdata->fp);
 #else
    ret = ftell(userdata->fp);
@@ -235,21 +235,21 @@ static int64_t file_stdio_ftell(ALLEGRO_FILE *f)
 }
 
 
-static bool file_stdio_fseek(ALLEGRO_FILE *f, int64_t offset,
+static bool file_stdio_fseek(A5O_FILE *f, int64_t offset,
    int whence)
 {
    USERDATA *userdata = get_userdata(f);
    int rc;
 
    switch (whence) {
-      case ALLEGRO_SEEK_SET: whence = SEEK_SET; break;
-      case ALLEGRO_SEEK_CUR: whence = SEEK_CUR; break;
-      case ALLEGRO_SEEK_END: whence = SEEK_END; break;
+      case A5O_SEEK_SET: whence = SEEK_SET; break;
+      case A5O_SEEK_CUR: whence = SEEK_CUR; break;
+      case A5O_SEEK_END: whence = SEEK_END; break;
    }
 
-#if defined(ALLEGRO_HAVE_FSEEKO)
+#if defined(A5O_HAVE_FSEEKO)
    rc = fseeko(userdata->fp, offset, whence);
-#elif defined(ALLEGRO_HAVE_FSEEKI64)
+#elif defined(A5O_HAVE_FSEEKI64)
    rc = _fseeki64(userdata->fp, offset, whence);
 #else
    rc = fseek(userdata->fp, offset, whence);
@@ -265,7 +265,7 @@ static bool file_stdio_fseek(ALLEGRO_FILE *f, int64_t offset,
 }
 
 
-static bool file_stdio_feof(ALLEGRO_FILE *f)
+static bool file_stdio_feof(A5O_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
 
@@ -273,7 +273,7 @@ static bool file_stdio_feof(ALLEGRO_FILE *f)
 }
 
 
-static int file_stdio_ferror(ALLEGRO_FILE *f)
+static int file_stdio_ferror(A5O_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
 
@@ -281,7 +281,7 @@ static int file_stdio_ferror(ALLEGRO_FILE *f)
 }
 
 
-static const char *file_stdio_ferrmsg(ALLEGRO_FILE *f)
+static const char *file_stdio_ferrmsg(A5O_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
 
@@ -289,7 +289,7 @@ static const char *file_stdio_ferrmsg(ALLEGRO_FILE *f)
       return "";
 
    /* Note: at this time MinGW has neither strerror_r nor strerror_s. */
-#if defined(ALLEGRO_HAVE_STRERROR_R)
+#if defined(A5O_HAVE_STRERROR_R)
    {
       int rc = strerror_r(userdata->errnum, userdata->errmsg,
          sizeof(userdata->errmsg));
@@ -299,7 +299,7 @@ static const char *file_stdio_ferrmsg(ALLEGRO_FILE *f)
    }
 #endif
 
-#if defined(ALLEGRO_HAVE_STRERROR_S)
+#if defined(A5O_HAVE_STRERROR_S)
    {
       errno_t rc = strerror_s(userdata->errmsg, sizeof(userdata->errmsg),
          userdata->errnum);
@@ -313,7 +313,7 @@ static const char *file_stdio_ferrmsg(ALLEGRO_FILE *f)
 }
 
 
-static void file_stdio_fclearerr(ALLEGRO_FILE *f)
+static void file_stdio_fclearerr(A5O_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
 
@@ -321,7 +321,7 @@ static void file_stdio_fclearerr(ALLEGRO_FILE *f)
 }
 
 
-static int file_stdio_fungetc(ALLEGRO_FILE *f, int c)
+static int file_stdio_fungetc(A5O_FILE *f, int c)
 {
    USERDATA *userdata = get_userdata(f);
    int rc;
@@ -336,7 +336,7 @@ static int file_stdio_fungetc(ALLEGRO_FILE *f, int c)
 }
 
 
-static off_t file_stdio_fsize(ALLEGRO_FILE *f)
+static off_t file_stdio_fsize(A5O_FILE *f)
 {
    int64_t old_pos;
    int64_t new_pos;
@@ -345,21 +345,21 @@ static off_t file_stdio_fsize(ALLEGRO_FILE *f)
    if (old_pos == -1)
       return -1;
 
-   if (!file_stdio_fseek(f, 0, ALLEGRO_SEEK_END))
+   if (!file_stdio_fseek(f, 0, A5O_SEEK_END))
       return -1;
 
    new_pos = file_stdio_ftell(f);
    if (new_pos == -1)
       return -1;
 
-   if (!file_stdio_fseek(f, old_pos, ALLEGRO_SEEK_SET))
+   if (!file_stdio_fseek(f, old_pos, A5O_SEEK_SET))
       return -1;
 
    return new_pos;
 }
 
 
-const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio =
+const struct A5O_FILE_INTERFACE _al_file_interface_stdio =
 {
    file_stdio_fopen,
    file_stdio_fclose,
@@ -408,10 +408,10 @@ static void mktemp_replace_XX(const char *template, char *dst)
 }
 
 
-static ALLEGRO_FILE *make_temp_file(const char *template, char *temp_filename,
-   ALLEGRO_PATH *path)
+static A5O_FILE *make_temp_file(const char *template, char *temp_filename,
+   A5O_PATH *path)
 {
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
    int fd;
    int i;
 
@@ -426,11 +426,11 @@ static ALLEGRO_FILE *make_temp_file(const char *template, char *temp_filename,
       mktemp_replace_XX(template, temp_filename);
       al_set_path_filename(path, temp_filename);
 
-#ifndef ALLEGRO_MSVC
-      fd = open(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP),
+#ifndef A5O_MSVC
+      fd = open(al_path_cstr(path, A5O_NATIVE_PATH_SEP),
          O_EXCL | O_CREAT | O_RDWR, S_IRWXU);
 #else
-      fd = open(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP),
+      fd = open(al_path_cstr(path, A5O_NATIVE_PATH_SEP),
          O_EXCL | O_CREAT | O_RDWR, _S_IWRITE | _S_IREAD);
 #endif
 
@@ -447,7 +447,7 @@ static ALLEGRO_FILE *make_temp_file(const char *template, char *temp_filename,
    if (!f) {
       al_set_errno(errno);
       close(fd);
-      unlink(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+      unlink(al_path_cstr(path, A5O_NATIVE_PATH_SEP));
       return NULL;
    }
 
@@ -457,14 +457,14 @@ static ALLEGRO_FILE *make_temp_file(const char *template, char *temp_filename,
 
 /* Function: al_make_temp_file
  */
-ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
+A5O_FILE *al_make_temp_file(const char *template, A5O_PATH **ret_path)
 {
    char *temp_filename;
-   ALLEGRO_PATH *path;
-   ALLEGRO_FILE *f;
+   A5O_PATH *path;
+   A5O_FILE *f;
 
    temp_filename = al_malloc(strlen(template) + 1);
-   path = al_get_standard_path(ALLEGRO_TEMP_PATH);
+   path = al_get_standard_path(A5O_TEMP_PATH);
 
    if (temp_filename && path)
       f = make_temp_file(template, temp_filename, path);

@@ -25,22 +25,22 @@
 #include "allegro5/internal/aintern_tri_soft.h"
 #include <math.h>
 
-ALLEGRO_DEBUG_CHANNEL("tri_soft")
+A5O_DEBUG_CHANNEL("tri_soft")
 
-#define MIN _ALLEGRO_MIN
-#define MAX _ALLEGRO_MAX
+#define MIN _A5O_MIN
+#define MAX _A5O_MAX
 
 typedef void (*shader_draw)(uintptr_t, int, int, int);
-typedef void (*shader_init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*);
+typedef void (*shader_init)(uintptr_t, A5O_VERTEX*, A5O_VERTEX*, A5O_VERTEX*);
 typedef void (*shader_first)(uintptr_t, int, int, int, int);
 typedef void (*shader_step)(uintptr_t, int);
 
 typedef struct {
-   ALLEGRO_BITMAP *target;
-   ALLEGRO_COLOR cur_color;
+   A5O_BITMAP *target;
+   A5O_COLOR cur_color;
 } state_solid_any_2d;
 
-static void shader_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+static void shader_solid_any_init(uintptr_t state, A5O_VERTEX* v1, A5O_VERTEX* v2, A5O_VERTEX* v3)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
    s->target = al_get_target_bitmap();
@@ -70,15 +70,15 @@ static void shader_solid_any_step(uintptr_t state, int minor)
 typedef struct {
    state_solid_any_2d solid;
 
-   ALLEGRO_COLOR color_dx;
-   ALLEGRO_COLOR color_dy;
-   ALLEGRO_COLOR color_const;
+   A5O_COLOR color_dx;
+   A5O_COLOR color_dy;
+   A5O_COLOR color_const;
 
    /*
    These are catched for the left edge walking
    */
-   ALLEGRO_COLOR minor_color;
-   ALLEGRO_COLOR major_color;
+   A5O_COLOR minor_color;
+   A5O_COLOR major_color;
 
    /*
    We use these to increase the precision of interpolation
@@ -116,13 +116,13 @@ typedef struct {
                                             \
    const float det_u = minor3 - minor1 + minor2;
 
-static void shader_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+static void shader_grad_any_init(uintptr_t state, A5O_VERTEX* v1, A5O_VERTEX* v2, A5O_VERTEX* v3)
 {
    INIT_PREAMBLE
 
-   ALLEGRO_COLOR v1c = v1->color;
-   ALLEGRO_COLOR v2c = v2->color;
-   ALLEGRO_COLOR v3c = v3->color;
+   A5O_COLOR v1c = v1->color;
+   A5O_COLOR v2c = v2->color;
+   A5O_COLOR v3c = v3->color;
 
    PLANE_DETS(r, v1c.r, v2c.r, v3c.r)
    PLANE_DETS(g, v1c.g, v2c.g, v3c.g)
@@ -206,8 +206,8 @@ static void shader_grad_any_step(uintptr_t state, int minor)
    A.a = B.a * A.a;
 
 typedef struct {
-   ALLEGRO_BITMAP *target;
-   ALLEGRO_COLOR cur_color;
+   A5O_BITMAP *target;
+   A5O_COLOR cur_color;
 
    float du_dx, du_dy, u_const;
    float dv_dx, dv_dy, v_const;
@@ -221,12 +221,12 @@ typedef struct {
    float off_x;
    float off_y;
 
-   ALLEGRO_BITMAP* texture;
-   ALLEGRO_BITMAP_WRAP default_wrap;
+   A5O_BITMAP* texture;
+   A5O_BITMAP_WRAP default_wrap;
    int w, h;
 } state_texture_solid_any_2d;
 
-static void shader_texture_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+static void shader_texture_solid_any_init(uintptr_t state, A5O_VERTEX* v1, A5O_VERTEX* v2, A5O_VERTEX* v3)
 {
    INIT_PREAMBLE
 
@@ -293,24 +293,24 @@ static void shader_texture_solid_any_step(uintptr_t state, int minor)
 typedef struct {
    state_texture_solid_any_2d solid;
 
-   ALLEGRO_COLOR color_dx;
-   ALLEGRO_COLOR color_dy;
-   ALLEGRO_COLOR color_const;
+   A5O_COLOR color_dx;
+   A5O_COLOR color_dy;
+   A5O_COLOR color_const;
 
    /*
    These are catched for the left edge walking
    */
-   ALLEGRO_COLOR minor_color;
-   ALLEGRO_COLOR major_color;
+   A5O_COLOR minor_color;
+   A5O_COLOR major_color;
 } state_texture_grad_any_2d;
 
-static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+static void shader_texture_grad_any_init(uintptr_t state, A5O_VERTEX* v1, A5O_VERTEX* v2, A5O_VERTEX* v3)
 {
    INIT_PREAMBLE
 
-   ALLEGRO_COLOR v1c = v1->color;
-   ALLEGRO_COLOR v2c = v2->color;
-   ALLEGRO_COLOR v3c = v3->color;
+   A5O_COLOR v1c = v1->color;
+   A5O_COLOR v2c = v2->color;
+   A5O_COLOR v3c = v3->color;
 
    PLANE_DETS(r, v1c.r, v2c.r, v3c.r)
    PLANE_DETS(g, v1c.g, v2c.g, v3c.g)
@@ -411,7 +411,7 @@ static void shader_texture_grad_any_step(uintptr_t state, int minor)
 
 static void triangle_stepper(uintptr_t state,
    shader_init init, shader_first first, shader_step step, shader_draw draw,
-   ALLEGRO_VERTEX* vtx1, ALLEGRO_VERTEX* vtx2, ALLEGRO_VERTEX* vtx3)
+   A5O_VERTEX* vtx1, A5O_VERTEX* vtx2, A5O_VERTEX* vtx3)
 {
    float Coords[6] = {vtx1->x - 0.5f, vtx1->y + 0.5f, vtx2->x - 0.5f, vtx2->y + 0.5f, vtx3->x - 0.5f, vtx3->y + 0.5f};
    float *V1 = Coords, *V2 = &Coords[2], *V3 = &Coords[4], *s;
@@ -688,12 +688,12 @@ static void triangle_stepper(uintptr_t state,
 This one will check to see what exactly we need to draw...
 I.e. this will call all of the actual renderers and set the appropriate callbacks
 */
-void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+void _al_triangle_2d(A5O_BITMAP* texture, A5O_VERTEX* v1, A5O_VERTEX* v2, A5O_VERTEX* v3)
 {
    int shade = 1;
    int grad = 1;
    int op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR v1c, v2c, v3c;
+   A5O_COLOR v1c, v2c, v3c;
 
    v1c = v1->color;
    v2c = v2->color;
@@ -713,7 +713,7 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    }
 
    if (texture) {
-      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      A5O_BITMAP_WRAP wrap_u, wrap_v;
       _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 
       /*
@@ -721,8 +721,8 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
       reason the scanline drawers were always designed to repeat even for
       regular bitmaps. This does not match what we do with OpenGL/Direct3D.
       */
-      bool repeat = (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT || wrap_u == ALLEGRO_BITMAP_WRAP_REPEAT) &&
-         (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT || wrap_v == ALLEGRO_BITMAP_WRAP_REPEAT);
+      bool repeat = (wrap_u == A5O_BITMAP_WRAP_DEFAULT || wrap_u == A5O_BITMAP_WRAP_REPEAT) &&
+         (wrap_v == A5O_BITMAP_WRAP_DEFAULT || wrap_v == A5O_BITMAP_WRAP_REPEAT);
       if (grad) {
          state_texture_grad_any_2d state;
          state.solid.texture = texture;
@@ -781,7 +781,7 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    }
 }
 
-static int bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int w, int h)
+static int bitmap_region_is_locked(A5O_BITMAP* bmp, int x1, int y1, int w, int h)
 {
    ASSERT(bmp);
 
@@ -793,21 +793,21 @@ static int bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int w, i
 }
 
 void _al_draw_soft_triangle(
-   ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
-   void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+   A5O_VERTEX* v1, A5O_VERTEX* v2, A5O_VERTEX* v3, uintptr_t state,
+   void (*init)(uintptr_t, A5O_VERTEX*, A5O_VERTEX*, A5O_VERTEX*),
    void (*first)(uintptr_t, int, int, int, int),
    void (*step)(uintptr_t, int),
    void (*draw)(uintptr_t, int, int, int))
 {
    /*
-   ALLEGRO_VERTEX copy_v1, copy_v2; <- may be needed for clipping later on
+   A5O_VERTEX copy_v1, copy_v2; <- may be needed for clipping later on
    */
-   ALLEGRO_VERTEX* vtx1 = v1;
-   ALLEGRO_VERTEX* vtx2 = v2;
-   ALLEGRO_VERTEX* vtx3 = v3;
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_VERTEX* vtx1 = v1;
+   A5O_VERTEX* vtx2 = v2;
+   A5O_VERTEX* vtx3 = v3;
+   A5O_BITMAP *target = al_get_target_bitmap();
    int need_unlock = 0;
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int min_x, max_x, min_y, max_y;
    int clip_min_x, clip_min_y, clip_max_x, clip_max_y;
 
@@ -853,7 +853,7 @@ void _al_draw_soft_triangle(
           _al_pixel_format_is_video_only(target->locked_region.format))
          return;
    } else {
-      if (!(lr = al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
+      if (!(lr = al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, A5O_PIXEL_FORMAT_ANY, 0)))
          return;
       need_unlock = 1;
    }

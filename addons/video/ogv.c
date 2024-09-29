@@ -25,13 +25,13 @@
 #include <theora/theoradec.h>
 #include <vorbis/codec.h>
 
-ALLEGRO_DEBUG_CHANNEL("video")
+A5O_DEBUG_CHANNEL("video")
 
 
 /* XXX probably should be based on stream parameters */
 static const int NUM_FRAGS    = 2;
 static const int FRAG_SAMPLES = 4096;
-static const int RGB_PIXEL_FORMAT = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+static const int RGB_PIXEL_FORMAT = A5O_PIXEL_FORMAT_ABGR_8888;
 
 
 typedef struct OGG_VIDEO OGG_VIDEO;
@@ -84,7 +84,7 @@ struct STREAM {
 };
 
 struct OGG_VIDEO {
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
    bool reached_eof;
    ogg_sync_state sync_state;
    _AL_VECTOR streams;              /* vector of STREAM pointers */
@@ -97,19 +97,19 @@ struct OGG_VIDEO {
    th_ycbcr_buffer buffer;
    bool buffer_dirty;
    unsigned char* rgb_data;
-   ALLEGRO_BITMAP *frame_bmp;
-   ALLEGRO_BITMAP *pic_bmp;         /* frame_bmp, or subbitmap thereof */
+   A5O_BITMAP *frame_bmp;
+   A5O_BITMAP *pic_bmp;         /* frame_bmp, or subbitmap thereof */
 
-   ALLEGRO_EVENT_SOURCE evtsrc;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_MUTEX *mutex;
-   ALLEGRO_COND *cond;
-   ALLEGRO_THREAD *thread;
+   A5O_EVENT_SOURCE evtsrc;
+   A5O_EVENT_QUEUE *queue;
+   A5O_MUTEX *mutex;
+   A5O_COND *cond;
+   A5O_THREAD *thread;
 };
 
 
 /* forward declarations */
-static bool ogv_close_video(ALLEGRO_VIDEO *video);
+static bool ogv_close_video(A5O_VIDEO *video);
 
 
 /* Packet queue. */
@@ -249,7 +249,7 @@ static void free_stream(STREAM *stream)
          {
             THEORA_STREAM *tstream = &stream->u.theora;
 
-            ALLEGRO_DEBUG("Clean up Theora.\n");
+            A5O_DEBUG("Clean up Theora.\n");
             th_info_clear(&tstream->info);
             th_comment_clear(&tstream->comment);
             if (tstream->setup) {
@@ -265,7 +265,7 @@ static void free_stream(STREAM *stream)
          {
             VORBIS_STREAM *vstream = &stream->u.vorbis;
 
-            ALLEGRO_DEBUG("Clean up Vorbis.\n");
+            A5O_DEBUG("Clean up Vorbis.\n");
             vorbis_info_clear(&vstream->info);
             vorbis_comment_clear(&vstream->comment);
             if (vstream->inited_for_data) {
@@ -298,7 +298,7 @@ static bool read_page(OGG_VIDEO *ogv, ogg_page *page)
       buffer = ogg_sync_buffer(&ogv->sync_state, buffer_size);
       bytes = al_fread(ogv->fp, buffer, buffer_size);
       if (bytes == 0) {
-         ALLEGRO_DEBUG("End of file.\n");
+         A5O_DEBUG("End of file.\n");
          return false;
       }
 
@@ -365,7 +365,7 @@ static bool try_decode_theora_header(STREAM *stream, ogg_packet *packet)
    if (rc > 0) {
       /* Successfully parsed a Theora header. */
       if (stream->stream_type == STREAM_TYPE_UNKNOWN) {
-         ALLEGRO_DEBUG("Found Theora stream.\n");
+         A5O_DEBUG("Found Theora stream.\n");
          stream->stream_type = STREAM_TYPE_THEORA;
       }
       return true;
@@ -404,7 +404,7 @@ static int try_decode_vorbis_header(STREAM *stream, ogg_packet *packet)
    if (rc == 0) {
       /* Successfully parsed a Vorbis header. */
       if (stream->stream_type == STREAM_TYPE_UNKNOWN) {
-         ALLEGRO_INFO("Found Vorbis stream.\n");
+         A5O_INFO("Found Vorbis stream.\n");
          stream->stream_type = STREAM_TYPE_VORBIS;
          stream->u.vorbis.inited_for_data = false;
       }
@@ -455,7 +455,7 @@ static void read_headers(OGG_VIDEO *ogv)
    int serial;
    int rc;
 
-   ALLEGRO_DEBUG("Begin reading headers.\n");
+   A5O_DEBUG("Begin reading headers.\n");
 
    do {
       /* Read a page of data. */
@@ -475,7 +475,7 @@ static void read_headers(OGG_VIDEO *ogv)
       }
 
       if (!stream) {
-         ALLEGRO_WARN("No stream for serial: %x\n", serial);
+         A5O_WARN("No stream for serial: %x\n", serial);
          continue;
       }
 
@@ -493,14 +493,14 @@ static void read_headers(OGG_VIDEO *ogv)
          continue;
       }
       if (rc == -1) {
-         ALLEGRO_WARN("No packet due to lost sync or hole in data.\n");
+         A5O_WARN("No packet due to lost sync or hole in data.\n");
          continue;
       }
 
       /* Try to decode the packet as a Theora or Vorbis header. */
       if (!try_decode_theora_header(stream, &packet)) {
          if (!try_decode_vorbis_header(stream, &packet)) {
-            ALLEGRO_DEBUG("Unknown packet type ignored.\n");
+            A5O_DEBUG("Unknown packet type ignored.\n");
          }
       }
 
@@ -510,13 +510,13 @@ static void read_headers(OGG_VIDEO *ogv)
 
    } while (!all_headers_done(ogv));
 
-   ALLEGRO_DEBUG("End reading headers.\n");
+   A5O_DEBUG("End reading headers.\n");
 }
 
 
 /* Vorbis streams. */
 
-static void setup_vorbis_stream_decode(ALLEGRO_VIDEO *video, STREAM *stream)
+static void setup_vorbis_stream_decode(A5O_VIDEO *video, STREAM *stream)
 {
    VORBIS_STREAM * const vstream = &stream->u.vorbis;
    int rc;
@@ -535,8 +535,8 @@ static void setup_vorbis_stream_decode(ALLEGRO_VIDEO *video, STREAM *stream)
    vstream->next_fragment =
       al_calloc(vstream->channels * FRAG_SAMPLES, sizeof(float));
 
-   ALLEGRO_INFO("Audio rate: %f\n", video->audio_rate);
-   ALLEGRO_INFO("Audio channels: %d\n", vstream->channels);
+   A5O_INFO("Audio rate: %f\n", video->audio_rate);
+   A5O_INFO("Audio channels: %d\n", vstream->channels);
 }
 
 static void handle_vorbis_data(VORBIS_STREAM *vstream, ogg_packet *packet)
@@ -545,13 +545,13 @@ static void handle_vorbis_data(VORBIS_STREAM *vstream, ogg_packet *packet)
 
    rc = vorbis_synthesis(&vstream->block, packet);
    if (rc != 0) {
-      ALLEGRO_ERROR("vorbis_synthesis returned %d\n", rc);
+      A5O_ERROR("vorbis_synthesis returned %d\n", rc);
       return;
    }
 
    rc = vorbis_synthesis_blockin(&vstream->dsp, &vstream->block);
    if (rc != 0) {
-      ALLEGRO_ERROR("vorbis_synthesis_blockin returned %d\n", rc);
+      A5O_ERROR("vorbis_synthesis_blockin returned %d\n", rc);
       return;
    }
 }
@@ -632,32 +632,32 @@ static void poll_vorbis_decode(OGG_VIDEO *ogv, STREAM *vstream_outer)
    }
 }
 
-static ALLEGRO_AUDIO_STREAM *create_audio_stream(const ALLEGRO_VIDEO *video,
+static A5O_AUDIO_STREAM *create_audio_stream(const A5O_VIDEO *video,
    const STREAM *vstream_outer)
 {
    const VORBIS_STREAM *vstream = &vstream_outer->u.vorbis;
-   ALLEGRO_AUDIO_STREAM *audio;
+   A5O_AUDIO_STREAM *audio;
    int chanconf;
    int rc;
 
    switch (vstream->channels) {
-      case 1: chanconf = ALLEGRO_CHANNEL_CONF_1; break;
-      case 2: chanconf = ALLEGRO_CHANNEL_CONF_2; break;
-      case 3: chanconf = ALLEGRO_CHANNEL_CONF_3; break;
-      case 4: chanconf = ALLEGRO_CHANNEL_CONF_4; break;
-      case 6: chanconf = ALLEGRO_CHANNEL_CONF_5_1; break;
-      case 7: chanconf = ALLEGRO_CHANNEL_CONF_6_1; break;
-      case 8: chanconf = ALLEGRO_CHANNEL_CONF_7_1; break;
+      case 1: chanconf = A5O_CHANNEL_CONF_1; break;
+      case 2: chanconf = A5O_CHANNEL_CONF_2; break;
+      case 3: chanconf = A5O_CHANNEL_CONF_3; break;
+      case 4: chanconf = A5O_CHANNEL_CONF_4; break;
+      case 6: chanconf = A5O_CHANNEL_CONF_5_1; break;
+      case 7: chanconf = A5O_CHANNEL_CONF_6_1; break;
+      case 8: chanconf = A5O_CHANNEL_CONF_7_1; break;
       default:
-         ALLEGRO_WARN("Unsupported number of channels: %d\n",
+         A5O_WARN("Unsupported number of channels: %d\n",
             vstream->channels);
          return NULL;
    }
 
    audio = al_create_audio_stream(NUM_FRAGS, FRAG_SAMPLES,
-      vstream->info.rate, ALLEGRO_AUDIO_DEPTH_FLOAT32, chanconf);
+      vstream->info.rate, A5O_AUDIO_DEPTH_FLOAT32, chanconf);
    if (!audio) {
-      ALLEGRO_ERROR("Could not create audio stream.\n");
+      A5O_ERROR("Could not create audio stream.\n");
       return NULL;
    }
 
@@ -672,10 +672,10 @@ static ALLEGRO_AUDIO_STREAM *create_audio_stream(const ALLEGRO_VIDEO *video,
    }
 
    if (rc) {
-      ALLEGRO_DEBUG("Audio stream ready.\n");
+      A5O_DEBUG("Audio stream ready.\n");
    }
    else {
-      ALLEGRO_ERROR("Could not attach audio stream.\n");
+      A5O_ERROR("Could not attach audio stream.\n");
       al_destroy_audio_stream(audio);
       audio = NULL;
    }
@@ -683,7 +683,7 @@ static ALLEGRO_AUDIO_STREAM *create_audio_stream(const ALLEGRO_VIDEO *video,
    return audio;
 }
 
-static void update_audio_fragment(ALLEGRO_AUDIO_STREAM *audio_stream,
+static void update_audio_fragment(A5O_AUDIO_STREAM *audio_stream,
    VORBIS_STREAM *vstream, bool paused, bool reached_eof)
 {
    float *frag;
@@ -694,7 +694,7 @@ static void update_audio_fragment(ALLEGRO_AUDIO_STREAM *audio_stream,
 
    if (paused || vstream->next_fragment_pos < FRAG_SAMPLES) {
       if (!paused && !reached_eof) {
-         ALLEGRO_WARN("Next fragment not ready.\n");
+         A5O_WARN("Next fragment not ready.\n");
       }
       memset(frag, 0, vstream->channels * FRAG_SAMPLES * sizeof(float));
    }
@@ -710,7 +710,7 @@ static void update_audio_fragment(ALLEGRO_AUDIO_STREAM *audio_stream,
 
 /* Theora streams. */
 
-static void setup_theora_stream_decode(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
+static void setup_theora_stream_decode(A5O_VIDEO *video, OGG_VIDEO *ogv,
    STREAM *tstream_outer)
 {
    THEORA_STREAM * const tstream = &tstream_outer->u.theora;
@@ -757,11 +757,11 @@ static void setup_theora_stream_decode(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
 
    tstream->prev_framenum = -1;
 
-   ALLEGRO_INFO("Frame size: %dx%d\n", frame_w, frame_h);
-   ALLEGRO_INFO("Picture size: %dx%d\n", pic_w, pic_h);
-   ALLEGRO_INFO("Scaled size: %fx%f\n", video->scaled_width, video->scaled_height);
-   ALLEGRO_INFO("FPS: %f\n", video->fps);
-   ALLEGRO_INFO("Frame_duration: %f\n", tstream->frame_duration);
+   A5O_INFO("Frame size: %dx%d\n", frame_w, frame_h);
+   A5O_INFO("Picture size: %dx%d\n", pic_w, pic_h);
+   A5O_INFO("Scaled size: %fx%f\n", video->scaled_width, video->scaled_height);
+   A5O_INFO("FPS: %f\n", video->fps);
+   A5O_INFO("Frame_duration: %f\n", tstream->frame_duration);
 }
 
 static int64_t get_theora_framenum(THEORA_STREAM *tstream, ogg_packet *packet)
@@ -773,7 +773,7 @@ static int64_t get_theora_framenum(THEORA_STREAM *tstream, ogg_packet *packet)
    return tstream->prev_framenum + 1;
 }
 
-static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
+static bool handle_theora_data(A5O_VIDEO *video, THEORA_STREAM *tstream,
    ogg_packet *packet, bool *ret_new_frame)
 {
    int64_t expected_framenum;
@@ -785,7 +785,7 @@ static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
 
    if (framenum > expected_framenum) {
       /* Packet is for a later frame, don't decode it yet. */
-      ALLEGRO_DEBUG("Expected frame %ld, got %ld\n",
+      A5O_DEBUG("Expected frame %ld, got %ld\n",
          (long)expected_framenum, (long)framenum);
       video->video_position += tstream->frame_duration;
       tstream->prev_framenum++;
@@ -793,7 +793,7 @@ static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
    }
 
    if (framenum < expected_framenum) {
-      ALLEGRO_DEBUG("Expected frame %ld, got %ld (decoding anyway)\n",
+      A5O_DEBUG("Expected frame %ld, got %ld (decoding anyway)\n",
          (long)expected_framenum, (long)framenum);
    }
 
@@ -870,12 +870,12 @@ static void convert_buffer_to_rgba(OGG_VIDEO *ogv)
          ycbcr_to_rgb(ogv->buffer, ogv->rgb_data, pixel_size, pitch, 0, 0);
          break;
       default:
-         ALLEGRO_ERROR("Unsupported pixel format.\n");
+         A5O_ERROR("Unsupported pixel format.\n");
          break;
    }
 }
 
-static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
+static int poll_theora_decode(A5O_VIDEO *video, STREAM *tstream_outer)
 {
    OGG_VIDEO * const ogv = video->data;
    THEORA_STREAM * const tstream = &tstream_outer->u.theora;
@@ -920,7 +920,7 @@ static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
    }
 
    if (new_frame) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_lock_mutex(ogv->mutex);
 
       rc = th_decode_ycbcr_out(tstream->ctx, ogv->buffer);
@@ -930,7 +930,7 @@ static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
 
       ogv->buffer_dirty = true;
 
-      event.type = ALLEGRO_EVENT_VIDEO_FRAME_SHOW;
+      event.type = A5O_EVENT_VIDEO_FRAME_SHOW;
       event.user.data1 = (intptr_t)video;
       al_emit_user_event(&video->es, &event, NULL);
 
@@ -943,7 +943,7 @@ static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
 
 /* Seeking. */
 
-static void seek_to_beginning(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
+static void seek_to_beginning(A5O_VIDEO *video, OGG_VIDEO *ogv,
    THEORA_STREAM *tstream)
 {
    unsigned i;
@@ -985,19 +985,19 @@ static void seek_to_beginning(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
 
 /* Decode thread. */
 
-static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
+static void *decode_thread_func(A5O_THREAD *thread, void *_video)
 {
-   ALLEGRO_VIDEO * const video = _video;
+   A5O_VIDEO * const video = _video;
    OGG_VIDEO * const ogv = video->data;
    STREAM *tstream_outer;
    THEORA_STREAM *tstream = NULL;
    STREAM *vstream_outer;
    VORBIS_STREAM *vstream = NULL;
-   ALLEGRO_TIMER *timer;
+   A5O_TIMER *timer;
    double audio_pos_step = 0.0;
    double timer_dur;
 
-   ALLEGRO_DEBUG("Thread started.\n");
+   A5O_DEBUG("Thread started.\n");
 
    tstream_outer = ogv->selected_video_stream;
    if (tstream_outer) {
@@ -1021,7 +1021,7 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
    }
 
    if (!tstream_outer && !vstream_outer) {
-      ALLEGRO_WARN("No audio or video stream found.\n");
+      A5O_WARN("No audio or video stream found.\n");
       return NULL;
    }
 
@@ -1040,16 +1040,16 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
          al_get_audio_stream_event_source(video->audio));
    }
 
-   ALLEGRO_DEBUG("Begin decode loop.\n");
+   A5O_DEBUG("Begin decode loop.\n");
 
    al_start_timer(timer);
 
    while (!al_get_thread_should_stop(thread)) {
-      ALLEGRO_EVENT ev;
+      A5O_EVENT ev;
 
       al_wait_for_event(ogv->queue, &ev);
 
-      if (ev.type == _ALLEGRO_EVENT_VIDEO_SEEK) {
+      if (ev.type == _A5O_EVENT_VIDEO_SEEK) {
          double seek_to = ev.user.data1 / 1.0e6;
          /* XXX we only know how to seek to start of video */
          ASSERT(seek_to <= 0.0);
@@ -1061,7 +1061,7 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
          continue;
       }
 
-      if (ev.type == ALLEGRO_EVENT_TIMER) {
+      if (ev.type == A5O_EVENT_TIMER) {
          if (vstream_outer && video->playing) {
             poll_vorbis_decode(ogv, vstream_outer);
          }
@@ -1076,16 +1076,16 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
          }
 
          if (video->playing && ogv->reached_eof) {
-            ALLEGRO_EVENT event;
+            A5O_EVENT event;
             video->playing = false;
 
-            event.type = ALLEGRO_EVENT_VIDEO_FINISHED;
+            event.type = A5O_EVENT_VIDEO_FINISHED;
             event.user.data1 = (intptr_t)video;
             al_emit_user_event(&video->es, &event, NULL);
          }
       }
 
-      if (ev.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+      if (ev.type == A5O_EVENT_AUDIO_STREAM_FRAGMENT) {
          /* Audio clock is master when it exists. */
          /* XXX This doesn't work well when the process is paused then resumed,
           * due to a problem with the audio addon.  We get a flood of
@@ -1101,7 +1101,7 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
       }
    }
 
-   ALLEGRO_DEBUG("End decode loop.\n");
+   A5O_DEBUG("End decode loop.\n");
 
    if (video->audio) {
       al_drain_audio_stream(video->audio);
@@ -1110,7 +1110,7 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
    }
    al_destroy_timer(timer);
 
-   ALLEGRO_DEBUG("Thread exit.\n");
+   A5O_DEBUG("Thread exit.\n");
 
    return NULL;
 }
@@ -1118,14 +1118,14 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
 
 static bool update_frame_bmp(OGG_VIDEO *ogv)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int y;
    int pitch = al_get_pixel_size(RGB_PIXEL_FORMAT) * al_get_bitmap_width(ogv->frame_bmp);
 
    lr = al_lock_bitmap(ogv->frame_bmp, RGB_PIXEL_FORMAT,
-      ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCK_WRITEONLY);
    if (!lr) {
-      ALLEGRO_ERROR("Failed to lock bitmap.\n");
+      A5O_ERROR("Failed to lock bitmap.\n");
       return false;
    }
 
@@ -1140,7 +1140,7 @@ static bool update_frame_bmp(OGG_VIDEO *ogv)
 
 /* Video interface. */
 
-static bool do_open_video(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv)
+static bool do_open_video(A5O_VIDEO *video, OGG_VIDEO *ogv)
 {
    unsigned i;
 
@@ -1171,23 +1171,23 @@ static bool do_open_video(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv)
    return ogv->selected_video_stream || ogv->selected_audio_stream;
 }
 
-static bool ogv_open_video(ALLEGRO_VIDEO *video)
+static bool ogv_open_video(A5O_VIDEO *video)
 {
    const char *filename;
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
    OGG_VIDEO *ogv;
    int rc;
 
-   filename = al_path_cstr(video->filename, ALLEGRO_NATIVE_PATH_SEP);
+   filename = al_path_cstr(video->filename, A5O_NATIVE_PATH_SEP);
    fp = al_fopen(filename, "rb");
    if (!fp) {
-      ALLEGRO_WARN("Failed to open %s.\n", filename);
+      A5O_WARN("Failed to open %s.\n", filename);
       return false;
    }
 
    ogv = al_calloc(1, sizeof(OGG_VIDEO));
    if (!ogv) {
-      ALLEGRO_ERROR("Out of memory.\n");
+      A5O_ERROR("Out of memory.\n");
       al_fclose(fp);
       return false;
    }
@@ -1197,7 +1197,7 @@ static bool ogv_open_video(ALLEGRO_VIDEO *video)
    _al_vector_init(&ogv->streams, sizeof(STREAM *));
 
    if (!do_open_video(video, ogv)) {
-      ALLEGRO_ERROR("No audio or video stream found.\n");
+      A5O_ERROR("No audio or video stream found.\n");
       ogv_close_video(video);
       return false;
    }
@@ -1208,7 +1208,7 @@ static bool ogv_open_video(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool ogv_close_video(ALLEGRO_VIDEO *video)
+static bool ogv_close_video(A5O_VIDEO *video)
 {
    OGG_VIDEO *ogv;
    unsigned i;
@@ -1246,18 +1246,18 @@ static bool ogv_close_video(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool ogv_start_video(ALLEGRO_VIDEO *video)
+static bool ogv_start_video(A5O_VIDEO *video)
 {
    OGG_VIDEO *ogv = video->data;
 
    if (ogv->thread != NULL) {
-      ALLEGRO_ERROR("Thread already created.\n");
+      A5O_ERROR("Thread already created.\n");
       return false;
    }
 
    ogv->thread = al_create_thread(decode_thread_func, video);
    if (!ogv->thread) {
-      ALLEGRO_ERROR("Could not create thread.\n");
+      A5O_ERROR("Could not create thread.\n");
       return false;
    }
 
@@ -1272,7 +1272,7 @@ static bool ogv_start_video(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool ogv_set_video_playing(ALLEGRO_VIDEO *video)
+static bool ogv_set_video_playing(A5O_VIDEO *video)
 {
    OGG_VIDEO * const ogv = video->data;
    if (ogv->reached_eof) {
@@ -1281,10 +1281,10 @@ static bool ogv_set_video_playing(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool ogv_seek_video(ALLEGRO_VIDEO *video, double seek_to)
+static bool ogv_seek_video(A5O_VIDEO *video, double seek_to)
 {
    OGG_VIDEO *ogv = video->data;
-   ALLEGRO_EVENT ev;
+   A5O_EVENT ev;
    int seek_counter;
 
    /* XXX we only know how to seek to beginning */
@@ -1296,7 +1296,7 @@ static bool ogv_seek_video(ALLEGRO_VIDEO *video, double seek_to)
 
    seek_counter = ogv->seek_counter;
 
-   ev.user.type = _ALLEGRO_EVENT_VIDEO_SEEK;
+   ev.user.type = _A5O_EVENT_VIDEO_SEEK;
    ev.user.data1 = seek_to * 1.0e6;
    ev.user.data2 = 0;
    ev.user.data3 = 0;
@@ -1312,7 +1312,7 @@ static bool ogv_seek_video(ALLEGRO_VIDEO *video, double seek_to)
    return true;
 }
 
-static bool ogv_update_video(ALLEGRO_VIDEO *video)
+static bool ogv_update_video(A5O_VIDEO *video)
 {
    OGG_VIDEO *ogv = video->data;
    int w, h;
@@ -1347,7 +1347,7 @@ static bool ogv_update_video(ALLEGRO_VIDEO *video)
    return ret;
 }
 
-static ALLEGRO_VIDEO_INTERFACE ogv_vtable = {
+static A5O_VIDEO_INTERFACE ogv_vtable = {
    ogv_open_video,
    ogv_close_video,
    ogv_start_video,
@@ -1356,12 +1356,12 @@ static ALLEGRO_VIDEO_INTERFACE ogv_vtable = {
    ogv_update_video,
 };
 
-ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void)
+A5O_VIDEO_INTERFACE *_al_video_ogv_vtable(void)
 {
    return &ogv_vtable;
 }
 
-bool _al_video_identify_ogv(ALLEGRO_FILE *f)
+bool _al_video_identify_ogv(A5O_FILE *f)
 {
    uint8_t x[4];
    if (al_fread(f, x, 4) < 4)

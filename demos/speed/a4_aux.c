@@ -16,7 +16,7 @@
 
 #include "a4_aux.h"
 
-ALLEGRO_AUDIO_STREAM *_midi_stream;
+A5O_AUDIO_STREAM *_midi_stream;
 
 
 /*
@@ -26,7 +26,7 @@ ALLEGRO_AUDIO_STREAM *_midi_stream;
 
 
 /* emulate get_config_string() */
-const char *get_config_string(const ALLEGRO_CONFIG *cfg, const char *section,
+const char *get_config_string(const A5O_CONFIG *cfg, const char *section,
 			      const char *name, const char *def)
 {
    const char *v = al_get_config_value(cfg, section, name);
@@ -37,7 +37,7 @@ const char *get_config_string(const ALLEGRO_CONFIG *cfg, const char *section,
 
 
 /* emulate get_config_int() */
-int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
+int get_config_int(const A5O_CONFIG *cfg, const char *section,
 		   const char *name, int def)
 {
    const char *v = al_get_config_value(cfg, section, name);
@@ -48,7 +48,7 @@ int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
 
 
 /* emulate set_config_int() */
-void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
+void set_config_int(A5O_CONFIG *cfg, const char *section, const char *name,
 		    int val)
 {
    char buf[32];
@@ -67,7 +67,7 @@ void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
 #define MAX_KEYBUF   16
 
 
-int key[ALLEGRO_KEY_MAX];
+int key[A5O_KEY_MAX];
 
 int joy_left;
 int joy_right;
@@ -75,16 +75,16 @@ int joy_b1;
 
 static int keybuf[MAX_KEYBUF];
 static int keybuf_len = 0;
-static ALLEGRO_MUTEX *keybuf_mutex;
+static A5O_MUTEX *keybuf_mutex;
 
-static ALLEGRO_EVENT_QUEUE *input_queue;
+static A5O_EVENT_QUEUE *input_queue;
 
 
 
 /* initialises the input emulation */
 void init_input()
 {
-   ALLEGRO_JOYSTICK *joy;
+   A5O_JOYSTICK *joy;
 
    keybuf_len = 0;
    keybuf_mutex = al_create_mutex();
@@ -115,7 +115,7 @@ void shutdown_input()
 
 
 /* helper function to add a keypress to a buffer */
-static void add_key(ALLEGRO_KEYBOARD_EVENT *event)
+static void add_key(A5O_KEYBOARD_EVENT *event)
 {
    if ((event->unichar == 0) || (event->unichar > 255))
       return;
@@ -135,39 +135,39 @@ static void add_key(ALLEGRO_KEYBOARD_EVENT *event)
 /* emulate poll_keyboard() and poll_joystick() combined */
 void poll_input()
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    while (al_get_next_event(input_queue, &event)) {
 
       switch (event.type) {
 
-    case ALLEGRO_EVENT_DISPLAY_RESIZE:
+    case A5O_EVENT_DISPLAY_RESIZE:
        al_acknowledge_resize(event.display.source);
        break;
 
-	 case ALLEGRO_EVENT_KEY_DOWN:
+	 case A5O_EVENT_KEY_DOWN:
 	    key[event.keyboard.keycode] = 1;
 	    break;
 
-	 case ALLEGRO_EVENT_KEY_UP:
+	 case A5O_EVENT_KEY_UP:
 	    key[event.keyboard.keycode] = 0;
 	    break;
 
-	 case ALLEGRO_EVENT_KEY_CHAR:
+	 case A5O_EVENT_KEY_CHAR:
 	    add_key(&event.keyboard);
 	    break;
 
-	 case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
+	 case A5O_EVENT_JOYSTICK_BUTTON_DOWN:
 	    if (event.joystick.button == 0)
 	       joy_b1 = 1;
 	    break;
 
-	 case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
+	 case A5O_EVENT_JOYSTICK_BUTTON_UP:
 	    if (event.joystick.button == 0)
 	       joy_b1 = 0;
 	    break;
 
-	 case ALLEGRO_EVENT_JOYSTICK_AXIS:
+	 case A5O_EVENT_JOYSTICK_AXIS:
 	    if (event.joystick.stick == 0 && event.joystick.axis == 0) {
 	       float pos = event.joystick.pos;
 	       joy_left = (pos < 0.0);
@@ -175,11 +175,11 @@ void poll_input()
 	    }
 	    break;
 
-	 case ALLEGRO_EVENT_TIMER:
+	 case A5O_EVENT_TIMER:
 	    /* retrace_count incremented */
 	    break;
 
-	 case ALLEGRO_EVENT_DISPLAY_EXPOSE:
+	 case A5O_EVENT_DISPLAY_EXPOSE:
 	    break;
       }
    }
@@ -248,21 +248,21 @@ void clear_keybuf()
 #define MAX_POLYGON_VERTICES	 6
 
 
-ALLEGRO_DISPLAY *screen;
-ALLEGRO_FONT *font;
-ALLEGRO_FONT *font_video;
+A5O_DISPLAY *screen;
+A5O_FONT *font;
+A5O_FONT *font_video;
 
 
 
 /* like create_bitmap() */
-ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
+A5O_BITMAP *create_memory_bitmap(int w, int h)
 {
    int oldflags;
    int newflags;
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
 
    oldflags = al_get_new_bitmap_flags();
-   newflags = (oldflags &~ ALLEGRO_VIDEO_BITMAP) | ALLEGRO_MEMORY_BITMAP;
+   newflags = (oldflags &~ A5O_VIDEO_BITMAP) | A5O_MEMORY_BITMAP;
    al_set_new_bitmap_flags(newflags);
    bmp = al_create_bitmap(w, h);
    al_set_new_bitmap_flags(oldflags);
@@ -272,9 +272,9 @@ ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
 
 
 /* used to clone a video bitmap from a memory bitmap; no such function in A4 */
-ALLEGRO_BITMAP *replace_bitmap(ALLEGRO_BITMAP *bmp)
+A5O_BITMAP *replace_bitmap(A5O_BITMAP *bmp)
 {
-   ALLEGRO_BITMAP *tmp = al_clone_bitmap(bmp);
+   A5O_BITMAP *tmp = al_clone_bitmap(bmp);
    al_destroy_bitmap(bmp);
    return tmp;
 }
@@ -310,13 +310,13 @@ void rotate_sprite(BITMAP *bitmap, int x, int y, int angle) {
  */
 void solid_mode()
 {
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 }
 
 
 
 /* emulate makecol() */
-ALLEGRO_COLOR makecol(int r, int g, int b)
+A5O_COLOR makecol(int r, int g, int b)
 {
    return al_map_rgb(r, g, b);
 }
@@ -324,7 +324,7 @@ ALLEGRO_COLOR makecol(int r, int g, int b)
 
 
 /* emulate hline() */
-void hline(int x1, int y, int x2, ALLEGRO_COLOR c)
+void hline(int x1, int y, int x2, A5O_COLOR c)
 {
    al_draw_line(x1+0.5, y+0.5, x2+0.5, y+0.5, c, 1);
 }
@@ -332,7 +332,7 @@ void hline(int x1, int y, int x2, ALLEGRO_COLOR c)
 
 
 /* emulate vline() */
-void vline(int x, int y1, int y2, ALLEGRO_COLOR c)
+void vline(int x, int y1, int y2, A5O_COLOR c)
 {
    al_draw_line(x+0.5, y1+0.5, x+0.5, y2+0.5, c, 1);
 }
@@ -340,7 +340,7 @@ void vline(int x, int y1, int y2, ALLEGRO_COLOR c)
 
 
 /* emulate line() */
-void line(int x1, int y1, int x2, int y2, ALLEGRO_COLOR color)
+void line(int x1, int y1, int x2, int y2, A5O_COLOR color)
 {
    al_draw_line(x1+0.5, y1+0.5, x2+0.5, y2+0.5, color, 1);
 }
@@ -348,7 +348,7 @@ void line(int x1, int y1, int x2, int y2, ALLEGRO_COLOR color)
 
 
 /* emulate rectfill() */
-void rectfill(int x1, int y1, int x2, int y2, ALLEGRO_COLOR color)
+void rectfill(int x1, int y1, int x2, int y2, A5O_COLOR color)
 {
    al_draw_filled_rectangle(x1, y1, x2+1, y2+1, color);
 }
@@ -356,7 +356,7 @@ void rectfill(int x1, int y1, int x2, int y2, ALLEGRO_COLOR color)
 
 
 /* emulate circle() */
-void circle(int x, int y, int radius, ALLEGRO_COLOR color)
+void circle(int x, int y, int radius, A5O_COLOR color)
 {
    al_draw_circle(x+0.5, y+0.5, radius, color, 1);
 }
@@ -364,7 +364,7 @@ void circle(int x, int y, int radius, ALLEGRO_COLOR color)
 
 
 /* emulate circlefill() */
-void circlefill(int x, int y, int radius, ALLEGRO_COLOR color)
+void circlefill(int x, int y, int radius, A5O_COLOR color)
 {
    al_draw_filled_circle(x+0.5, y+0.5, radius, color);
 }
@@ -372,12 +372,12 @@ void circlefill(int x, int y, int radius, ALLEGRO_COLOR color)
 
 
 /* emulate stretch_sprite() */
-void stretch_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite,
+void stretch_sprite(A5O_BITMAP *bmp, A5O_BITMAP *sprite,
 		    int x, int y, int w, int h)
 {
-   ALLEGRO_STATE state;
+   A5O_STATE state;
 
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+   al_store_state(&state, A5O_STATE_TARGET_BITMAP);
 
    al_set_target_bitmap(bmp);
    al_draw_scaled_bitmap(sprite,
@@ -390,9 +390,9 @@ void stretch_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite,
 
 
 /* emulate polygon() for convex polygons only */
-void polygon(int vertices, const int *points, ALLEGRO_COLOR color)
+void polygon(int vertices, const int *points, A5O_COLOR color)
 {
-   ALLEGRO_VERTEX vtxs[MAX_POLYGON_VERTICES + 2];
+   A5O_VERTEX vtxs[MAX_POLYGON_VERTICES + 2];
    int i;
 
    assert(vertices <= MAX_POLYGON_VERTICES);
@@ -424,29 +424,29 @@ void polygon(int vertices, const int *points, ALLEGRO_COLOR color)
 
    vtxs[vertices + 1] = vtxs[1];
 
-   al_draw_prim(vtxs, NULL, NULL, 0, vertices + 2, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vtxs, NULL, NULL, 0, vertices + 2, A5O_PRIM_TRIANGLE_FAN);
 }
 
 
 
 /* emulate textout() */
-void textout(const ALLEGRO_FONT *font, const char *s, int x, int y, ALLEGRO_COLOR c)
+void textout(const A5O_FONT *font, const char *s, int x, int y, A5O_COLOR c)
 {
-   al_draw_text(font, c, x, y, ALLEGRO_ALIGN_LEFT, s);
+   al_draw_text(font, c, x, y, A5O_ALIGN_LEFT, s);
 }
 
 
 
 /* emulate textout_centre() */
-void textout_centre(const ALLEGRO_FONT *font, const char *s, int x, int y, ALLEGRO_COLOR c)
+void textout_centre(const A5O_FONT *font, const char *s, int x, int y, A5O_COLOR c)
 {
-   al_draw_text(font, c, x, y, ALLEGRO_ALIGN_CENTRE, s);
+   al_draw_text(font, c, x, y, A5O_ALIGN_CENTRE, s);
 }
 
 
 
 /* emulate textprintf() */
-void textprintf(const ALLEGRO_FONT *f, int x, int y, ALLEGRO_COLOR color, const char *fmt, ...)
+void textprintf(const A5O_FONT *f, int x, int y, A5O_COLOR color, const char *fmt, ...)
 {
    va_list ap;
    char buf[256];
@@ -507,8 +507,8 @@ void get_z_rotate_matrix_f(MATRIX_f *m, float r)
 {
    float c, s;
 
-   s = sin(r * ALLEGRO_PI / 128.0);
-   c = cos(r * ALLEGRO_PI / 128.0);
+   s = sin(r * A5O_PI / 128.0);
+   c = cos(r * A5O_PI / 128.0);
    *m = identity_matrix_f;
 
    m->v[0][0] = c;
@@ -585,7 +585,7 @@ void apply_matrix_f(const MATRIX_f *m, float x, float y, float z,
  */
 
 
-static ALLEGRO_TIMER *retrace_counter = NULL;
+static A5O_TIMER *retrace_counter = NULL;
 
 
 
@@ -639,20 +639,20 @@ void install_timer()
 
 
 /* emulate create_sample(), for unsigned 8-bit mono samples */
-ALLEGRO_SAMPLE *create_sample_u8(int freq, int len)
+A5O_SAMPLE *create_sample_u8(int freq, int len)
 {
    char *buf = al_malloc(freq * len);
 
-   return al_create_sample(buf, len, freq, ALLEGRO_AUDIO_DEPTH_UINT8,
-			   ALLEGRO_CHANNEL_CONF_1, true);
+   return al_create_sample(buf, len, freq, A5O_AUDIO_DEPTH_UINT8,
+			   A5O_CHANNEL_CONF_1, true);
 }
 
 
 
 /* emulate play_sample() */
-void play_sample(ALLEGRO_SAMPLE *spl, int vol, int pan, int freq, int loop)
+void play_sample(A5O_SAMPLE *spl, int vol, int pan, int freq, int loop)
 {
-   int playmode = loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE;
+   int playmode = loop ? A5O_PLAYMODE_LOOP : A5O_PLAYMODE_ONCE;
 
    al_play_sample(spl, vol/255.0, (pan - 128)/128.0, freq/1000.0,
 		  playmode, NULL);
@@ -676,7 +676,7 @@ void play_midi(char const *midi, int loop)
    _midi_stream = al_load_audio_stream(midi, 2, 4096);
    al_attach_audio_stream_to_mixer(_midi_stream, al_get_default_mixer());
    if (loop) {
-      al_set_audio_stream_playmode(_midi_stream, ALLEGRO_PLAYMODE_LOOP);
+      al_set_audio_stream_playmode(_midi_stream, A5O_PLAYMODE_LOOP);
    }
 }
 

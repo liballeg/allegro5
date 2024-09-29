@@ -99,7 +99,7 @@ void draw_explode(int r, int g, int b, int (*project)(float *f, int *i, int c))
    float pos[2];
    int ipos[2];
    int rr, gg, bb, c, s;
-   ALLEGRO_COLOR col;
+   A5O_COLOR col;
 
    while (e) {
       pos[0] = e->x;

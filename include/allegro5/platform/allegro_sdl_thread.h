@@ -30,8 +30,8 @@ struct _AL_COND
    SDL_cond *cond;
 };
 
-typedef struct ALLEGRO_TIMEOUT_SDL ALLEGRO_TIMEOUT_SDL;
-struct ALLEGRO_TIMEOUT_SDL
+typedef struct A5O_TIMEOUT_SDL A5O_TIMEOUT_SDL;
+struct A5O_TIMEOUT_SDL
 {
    int ms;
 };

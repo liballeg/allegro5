@@ -19,46 +19,46 @@ struct METHOD
 {
    float x;
    float y;
-   ALLEGRO_VERTEX_BUFFER *vbuff;
-   ALLEGRO_VERTEX *vertices;
+   A5O_VERTEX_BUFFER *vbuff;
+   A5O_VERTEX *vertices;
    const char *name;
    int flags;
    double frame_average;
 };
 
-static ALLEGRO_COLOR get_color(size_t ii)
+static A5O_COLOR get_color(size_t ii)
 {
    double t = al_get_time();
    double frac = (float)(ii) / NUM_VERTICES;
-   #define THETA(period) ((t / (period) + frac) * 2 * ALLEGRO_PI)
+   #define THETA(period) ((t / (period) + frac) * 2 * A5O_PI)
    return al_map_rgb_f(sin(THETA(5.0)) / 2 + 1, cos(THETA(1.1)) / 2 + 1, sin(THETA(3.4) / 2) / 2 + 1);
 }
 
-static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vertices)
+static void draw_method(METHOD *md, A5O_FONT *font, A5O_VERTEX* new_vertices)
 {
-   ALLEGRO_TRANSFORM t;
+   A5O_TRANSFORM t;
    double start_time;
    double new_fps;
-   ALLEGRO_COLOR c;
+   A5O_COLOR c;
 
    al_identity_transform(&t);
    al_translate_transform(&t, md->x, md->y);
    al_use_transform(&t);
 
-   al_draw_textf(font, al_map_rgb_f(1, 1, 1), 0, -50, ALLEGRO_ALIGN_CENTRE, "%s%s", md->name, 
-                 md->flags & ALLEGRO_PRIM_BUFFER_READWRITE ? "+read/write" : "+write-only");
+   al_draw_textf(font, al_map_rgb_f(1, 1, 1), 0, -50, A5O_ALIGN_CENTRE, "%s%s", md->name, 
+                 md->flags & A5O_PRIM_BUFFER_READWRITE ? "+read/write" : "+write-only");
 
    start_time = al_get_time();
    if (md->vbuff) {
       if (new_vertices) {
-         void* lock_mem = al_lock_vertex_buffer(md->vbuff, 0, NUM_VERTICES, ALLEGRO_LOCK_WRITEONLY);
-         memcpy(lock_mem, new_vertices, sizeof(ALLEGRO_VERTEX) * NUM_VERTICES);
+         void* lock_mem = al_lock_vertex_buffer(md->vbuff, 0, NUM_VERTICES, A5O_LOCK_WRITEONLY);
+         memcpy(lock_mem, new_vertices, sizeof(A5O_VERTEX) * NUM_VERTICES);
          al_unlock_vertex_buffer(md->vbuff);
       }
-      al_draw_vertex_buffer(md->vbuff, 0, 0, NUM_VERTICES, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_vertex_buffer(md->vbuff, 0, 0, NUM_VERTICES, A5O_PRIM_TRIANGLE_STRIP);
    }
    else if (md->vertices) {
-      al_draw_prim(md->vertices, 0, 0, 0, NUM_VERTICES, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(md->vertices, 0, 0, 0, NUM_VERTICES, A5O_PRIM_TRIANGLE_STRIP);
    }
 
    /* Force the completion of the previous commands by reading from screen */
@@ -69,10 +69,10 @@ static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vert
    md->frame_average += (new_fps - md->frame_average) / FRAME_TAU;
 
    if (md->vbuff || md->vertices) {
-      al_draw_textf(font, al_map_rgb_f(1, 0, 0), 0, 0, ALLEGRO_ALIGN_CENTRE, "%.1e FPS", md->frame_average);
+      al_draw_textf(font, al_map_rgb_f(1, 0, 0), 0, 0, A5O_ALIGN_CENTRE, "%.1e FPS", md->frame_average);
    }
    else {
-      al_draw_text(font, al_map_rgb_f(1, 0, 0), 0, 0, ALLEGRO_ALIGN_CENTRE, "N/A");
+      al_draw_text(font, al_map_rgb_f(1, 0, 0), 0, 0, A5O_ALIGN_CENTRE, "N/A");
    }
 
    al_identity_transform(&t);
@@ -81,10 +81,10 @@ static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vert
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
    int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
    int spacing_x = 200;
    int spacing_y = 150;
    size_t ii;
-   ALLEGRO_VERTEX* vertices;
+   A5O_VERTEX* vertices;
 
    (void)argc;
    (void)argv;
@@ -108,11 +108,11 @@ int main(int argc, char **argv)
    al_init_font_addon();
    al_init_primitives_addon();
 
-   #ifdef ALLEGRO_IPHONE
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+   #ifdef A5O_IPHONE
+   al_set_new_display_flags(A5O_FULLSCREEN_WINDOW);
    #endif
-   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
-                             ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SUPPORTED_ORIENTATIONS,
+                             A5O_DISPLAY_ORIENTATION_ALL, A5O_SUGGEST);
    display = al_create_display(w, h);
    if (!display) {
       abort_example("Error creating display.\n");
@@ -131,8 +131,8 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_register_event_source(queue, al_get_display_event_source(display));
 
-   vertices = al_malloc(sizeof(ALLEGRO_VERTEX) * NUM_VERTICES);
-   al_calculate_arc(&vertices[0].x, sizeof(ALLEGRO_VERTEX), 0, 0, 80, 30, 0, 2 * ALLEGRO_PI, 10, NUM_VERTICES / 2);
+   vertices = al_malloc(sizeof(A5O_VERTEX) * NUM_VERTICES);
+   al_calculate_arc(&vertices[0].x, sizeof(A5O_VERTEX), 0, 0, 80, 30, 0, 2 * A5O_PI, 10, NUM_VERTICES / 2);
    for (ii = 0; ii < NUM_VERTICES; ii++) {
       vertices[ii].z = 0;
       vertices[ii].color = get_color(ii);
@@ -145,12 +145,12 @@ int main(int argc, char **argv)
       METHOD methods[] =
       {
          {GETX(1), GETY(0), 0, vertices, "No buffer", 0, 0},
-         {GETX(0), GETY(1), 0, 0, "STREAM", ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_READWRITE, 0},
-         {GETX(1), GETY(1), 0, 0, "STATIC", ALLEGRO_PRIM_BUFFER_STATIC | ALLEGRO_PRIM_BUFFER_READWRITE, 0},
-         {GETX(2), GETY(1), 0, 0, "DYNAMIC", ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_READWRITE, 0},
-         {GETX(0), GETY(2), 0, 0, "STREAM", ALLEGRO_PRIM_BUFFER_STREAM, 0},
-         {GETX(1), GETY(2), 0, 0, "STATIC", ALLEGRO_PRIM_BUFFER_STATIC, 0},
-         {GETX(2), GETY(2), 0, 0, "DYNAMIC", ALLEGRO_PRIM_BUFFER_DYNAMIC, 0}
+         {GETX(0), GETY(1), 0, 0, "STREAM", A5O_PRIM_BUFFER_STREAM | A5O_PRIM_BUFFER_READWRITE, 0},
+         {GETX(1), GETY(1), 0, 0, "STATIC", A5O_PRIM_BUFFER_STATIC | A5O_PRIM_BUFFER_READWRITE, 0},
+         {GETX(2), GETY(1), 0, 0, "DYNAMIC", A5O_PRIM_BUFFER_STREAM | A5O_PRIM_BUFFER_READWRITE, 0},
+         {GETX(0), GETY(2), 0, 0, "STREAM", A5O_PRIM_BUFFER_STREAM, 0},
+         {GETX(1), GETY(2), 0, 0, "STATIC", A5O_PRIM_BUFFER_STATIC, 0},
+         {GETX(2), GETY(2), 0, 0, "DYNAMIC", A5O_PRIM_BUFFER_DYNAMIC, 0}
       };
 
       num_methods = sizeof(methods) / sizeof(METHOD);
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
       al_start_timer(timer);
 
       while (!done) {
-         ALLEGRO_EVENT event;
+         A5O_EVENT event;
          if (!background && need_redraw && al_is_event_queue_empty(queue)) {
             al_clear_to_color(al_map_rgb_f(0, 0, 0.2));
 
@@ -180,26 +180,26 @@ int main(int argc, char **argv)
 
          al_wait_for_event(queue, &event);
          switch (event.type) {
-            case ALLEGRO_EVENT_KEY_DOWN:
-               if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+            case A5O_EVENT_KEY_DOWN:
+               if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                   done = true;
-               else if(event.keyboard.keycode == ALLEGRO_KEY_D)
+               else if(event.keyboard.keycode == A5O_KEY_D)
                   dynamic_buffers = !dynamic_buffers;
                break;
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            case A5O_EVENT_DISPLAY_CLOSE:
                done = true;
                break;
-            case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+            case A5O_EVENT_DISPLAY_HALT_DRAWING:
                background = true;
                al_acknowledge_drawing_halt(event.display.source);
                break;
-            case ALLEGRO_EVENT_DISPLAY_RESIZE:
+            case A5O_EVENT_DISPLAY_RESIZE:
                al_acknowledge_resize(event.display.source);
                break;
-            case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+            case A5O_EVENT_DISPLAY_RESUME_DRAWING:
                background = false;
                break;
-            case ALLEGRO_EVENT_TIMER:
+            case A5O_EVENT_TIMER:
                for (ii = 0; ii < NUM_VERTICES; ii++)
                   vertices[ii].color = get_color(ii);
                need_redraw = true;

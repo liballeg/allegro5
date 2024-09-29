@@ -32,9 +32,9 @@ static int update(void)
       return DEMO_STATE_MAIN_MENU;
    }
 
-   if (key_pressed(ALLEGRO_KEY_ESCAPE)) return DEMO_STATE_MAIN_MENU;
-   if (key_pressed(ALLEGRO_KEY_SPACE)) return DEMO_STATE_MAIN_MENU;
-   if (key_pressed(ALLEGRO_KEY_ENTER)) return DEMO_STATE_MAIN_MENU;
+   if (key_pressed(A5O_KEY_ESCAPE)) return DEMO_STATE_MAIN_MENU;
+   if (key_pressed(A5O_KEY_SPACE)) return DEMO_STATE_MAIN_MENU;
+   if (key_pressed(A5O_KEY_ENTER)) return DEMO_STATE_MAIN_MENU;
    if (mouse_button_pressed(1)) return DEMO_STATE_MAIN_MENU;
 
    return id();

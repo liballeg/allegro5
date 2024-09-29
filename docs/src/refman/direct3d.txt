@@ -64,7 +64,7 @@ used texture, in pixels.
 
 *Parameters:*
 
-* bitmap - ALLEGRO_BITMAP to examine
+* bitmap - A5O_BITMAP to examine
 * u - Will hold the returned u coordinate
 * v - Will hold the returned v coordinate
 

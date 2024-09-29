@@ -16,11 +16,11 @@
 
 
 /* globals */
-ALLEGRO_EVENT_QUEUE  *event_queue;
-ALLEGRO_FONT         *font;
-ALLEGRO_COLOR        black;
-ALLEGRO_COLOR        grey;
-ALLEGRO_COLOR        white;
+A5O_EVENT_QUEUE  *event_queue;
+A5O_FONT         *font;
+A5O_COLOR        black;
+A5O_COLOR        grey;
+A5O_COLOR        white;
 
 int num_sticks = 0;
 int num_buttons = 0;
@@ -29,9 +29,9 @@ float joys[MAX_STICKS][MAX_AXES] = {{ 0 }};
 bool joys_buttons[MAX_BUTTONS] = { 0 };
 
 
-static void setup_joystick_values(ALLEGRO_JOYSTICK *joy)
+static void setup_joystick_values(A5O_JOYSTICK *joy)
 {
-   ALLEGRO_JOYSTICK_STATE jst;
+   A5O_JOYSTICK_STATE jst;
    int i, j;
 
    if (joy == NULL) {
@@ -62,7 +62,7 @@ static void setup_joystick_values(ALLEGRO_JOYSTICK *joy)
 
 
 
-static void draw_joystick_axes(ALLEGRO_JOYSTICK *joy, int cx, int cy, int stick)
+static void draw_joystick_axes(A5O_JOYSTICK *joy, int cx, int cy, int stick)
 {
    const int size = 30;
    const int csize = 5;
@@ -84,11 +84,11 @@ static void draw_joystick_axes(ALLEGRO_JOYSTICK *joy, int cx, int cy, int stick)
    }
 
    if (joy) {
-      al_draw_text(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
+      al_draw_text(font, black, cx, cy + osize + 1, A5O_ALIGN_CENTRE,
          al_get_joystick_stick_name(joy, stick));
       for (i = 0; i < num_axes[stick]; i++) {
          al_draw_text(font, black, cx, cy + osize + (1 + i) * 10,
-            ALLEGRO_ALIGN_CENTRE,
+            A5O_ALIGN_CENTRE,
             al_get_joystick_axis_name(joy, stick, i));
       }
    }
@@ -96,12 +96,12 @@ static void draw_joystick_axes(ALLEGRO_JOYSTICK *joy, int cx, int cy, int stick)
 
 
 
-static void draw_joystick_button(ALLEGRO_JOYSTICK *joy, int button, bool down)
+static void draw_joystick_button(A5O_JOYSTICK *joy, int button, bool down)
 {
-   ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+   A5O_BITMAP *bmp = al_get_target_bitmap();
    int x = al_get_bitmap_width(bmp)/2-120 + (button % 8) * 30;
    int y = al_get_bitmap_height(bmp)-120 + (button / 8) * 30;
-   ALLEGRO_COLOR fg;
+   A5O_COLOR fg;
 
    al_draw_filled_rectangle(x, y, x + 25, y + 25, grey);
    al_draw_rectangle(x+0.5, y+0.5, x + 24.5, y + 24.5, black, 0);
@@ -116,16 +116,16 @@ static void draw_joystick_button(ALLEGRO_JOYSTICK *joy, int button, bool down)
    if (joy) {
       const char *name = al_get_joystick_button_name(joy, button);
       if (strlen(name) < 4) {
-         al_draw_text(font, fg, x + 13, y + 8, ALLEGRO_ALIGN_CENTRE, name);
+         al_draw_text(font, fg, x + 13, y + 8, A5O_ALIGN_CENTRE, name);
       }
    }
 }
 
 
 
-static void draw_all(ALLEGRO_JOYSTICK *joy)
+static void draw_all(A5O_JOYSTICK *joy)
 {
-   ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+   A5O_BITMAP *bmp = al_get_target_bitmap();
    int width = al_get_bitmap_width(bmp);
    int height = al_get_bitmap_height(bmp);
    int i;
@@ -133,7 +133,7 @@ static void draw_all(ALLEGRO_JOYSTICK *joy)
    al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
 
    if (joy) {
-      al_draw_textf(font, black, width / 2, 10, ALLEGRO_ALIGN_CENTRE,
+      al_draw_textf(font, black, width / 2, 10, A5O_ALIGN_CENTRE,
          "Joystick: %s", al_get_joystick_name(joy));
    }
 
@@ -156,7 +156,7 @@ static void draw_all(ALLEGRO_JOYSTICK *joy)
 
 static void main_loop(void)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    while (true) {
       if (al_is_event_queue_empty(event_queue))
@@ -165,37 +165,37 @@ static void main_loop(void)
       al_wait_for_event(event_queue, &event);
 
       switch (event.type) {
-         /* ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
+         /* A5O_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
           */
-         case ALLEGRO_EVENT_JOYSTICK_AXIS:
+         case A5O_EVENT_JOYSTICK_AXIS:
             if (event.joystick.stick < MAX_STICKS && event.joystick.axis < MAX_AXES) {
                joys[event.joystick.stick][event.joystick.axis] = event.joystick.pos;
             }
             break;
 
-         /* ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
+         /* A5O_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
           */
-         case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
+         case A5O_EVENT_JOYSTICK_BUTTON_DOWN:
             joys_buttons[event.joystick.button] = true;
             break;
 
-         /* ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
+         /* A5O_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
           */
-         case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
+         case A5O_EVENT_JOYSTICK_BUTTON_UP:
             joys_buttons[event.joystick.button] = false;
             break;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                return;
             break;
 
-         /* ALLEGRO_EVENT_DISPLAY_CLOSE - the window close button was pressed.
+         /* A5O_EVENT_DISPLAY_CLOSE - the window close button was pressed.
           */
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             return;
 
-         case ALLEGRO_EVENT_JOYSTICK_CONFIGURATION:
+         case A5O_EVENT_JOYSTICK_CONFIGURATION:
             al_reconfigure_joysticks();
             setup_joystick_values(al_get_joystick(0));
             break;
@@ -213,7 +213,7 @@ static void main_loop(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
 
    (void)argc;
    (void)argv;

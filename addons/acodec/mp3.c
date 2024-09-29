@@ -19,7 +19,7 @@
 #include <minimp3.h>
 #include <minimp3_ex.h>
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
+A5O_DEBUG_CHANNEL("acodec")
 
 typedef struct MP3FILE
 {
@@ -42,18 +42,18 @@ typedef struct MP3FILE
    int frame_samples;         /* in samples, same across all frames */
 
    int freq;
-   ALLEGRO_CHANNEL_CONF chan_conf;
+   A5O_CHANNEL_CONF chan_conf;
 } MP3FILE;
 
-ALLEGRO_SAMPLE *_al_load_mp3(const char *filename)
+A5O_SAMPLE *_al_load_mp3(const char *filename)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_SAMPLE *spl;
+   A5O_FILE *f;
+   A5O_SAMPLE *spl;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_WARN("Could not open file '%s'.\n", filename);
+      A5O_WARN("Could not open file '%s'.\n", filename);
       return NULL;
    }
 
@@ -64,18 +64,18 @@ ALLEGRO_SAMPLE *_al_load_mp3(const char *filename)
    return spl;
 }
 
-ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f)
+A5O_SAMPLE *_al_load_mp3_f(A5O_FILE *f)
 {
    mp3dec_t dec;
    mp3dec_init(&dec);
 
    mp3dec_file_info_t info;
-   ALLEGRO_SAMPLE *spl = NULL;
+   A5O_SAMPLE *spl = NULL;
 
    /* Read our file size. */
    int64_t filesize = al_fsize(f);
    if (filesize == -1) {
-      ALLEGRO_WARN("Could not determine file size.\n");
+      A5O_WARN("Could not determine file size.\n");
       return NULL;
    }
 
@@ -83,7 +83,7 @@ ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f)
    uint8_t* mp3data = (uint8_t*)al_malloc(filesize);
    size_t readbytes = al_fread(f, mp3data, filesize);
    if (readbytes != (size_t)filesize) {
-      ALLEGRO_WARN("Failed to read file into memory.\n");
+      A5O_WARN("Failed to read file into memory.\n");
       al_free(mp3data);
       return NULL;
    }
@@ -93,7 +93,7 @@ ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f)
    al_free(mp3data);
 
    if (info.buffer == NULL) {
-      ALLEGRO_WARN("Could not decode MP3.\n");
+      A5O_WARN("Could not decode MP3.\n");
       return NULL;
    }
 
@@ -105,15 +105,15 @@ ALLEGRO_SAMPLE *_al_load_mp3_f(ALLEGRO_FILE *f)
    return spl;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream(const char *filename, size_t buffer_count, unsigned int samples)
+A5O_AUDIO_STREAM *_al_load_mp3_audio_stream(const char *filename, size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_WARN("Could not open file '%s'.\n", filename);
+      A5O_WARN("Could not open file '%s'.\n", filename);
       return NULL;
    }
 
@@ -125,7 +125,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream(const char *filename, size_t buf
 }
 
 
-static bool mp3_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
+static bool mp3_stream_seek(A5O_AUDIO_STREAM * stream, double time)
 {
    MP3FILE *mp3file = (MP3FILE *) stream->extra;
    int file_pos = time * mp3file->freq;
@@ -133,10 +133,10 @@ static bool mp3_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
    /* It is necessary to start decoding a little earlier than where we are
     * seeking to, because frames will reuse decoder state from previous frames.
     * minimp3 assures us that 10 frames is sufficient. */
-   int sync_frame = _ALLEGRO_MAX(0, frame - 10);
+   int sync_frame = _A5O_MAX(0, frame - 10);
    int frame_pos = file_pos - frame * mp3file->frame_samples;
    if (frame < 0 || frame > mp3file->num_frames) {
-      ALLEGRO_WARN("Seeking outside the stream bounds: %f\n", time);
+      A5O_WARN("Seeking outside the stream bounds: %f\n", time);
       return false;
    }
    int frame_offset = mp3file->frame_offsets[frame];
@@ -158,28 +158,28 @@ static bool mp3_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
    return true;
 }
 
-static bool mp3_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
+static bool mp3_stream_rewind(A5O_AUDIO_STREAM *stream)
 {
    MP3FILE *mp3file = (MP3FILE *) stream->extra;
 
    return mp3_stream_seek(stream, mp3file->loop_start);
 }
 
-static double mp3_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
+static double mp3_stream_get_position(A5O_AUDIO_STREAM *stream)
 {
    MP3FILE *mp3file = (MP3FILE *) stream->extra;
 
    return (double)mp3file->file_pos / mp3file->freq;
 }
 
-static double mp3_stream_get_length(ALLEGRO_AUDIO_STREAM * stream)
+static double mp3_stream_get_length(A5O_AUDIO_STREAM * stream)
 {
    MP3FILE *mp3file = (MP3FILE *) stream->extra;
 
    return (double)mp3file->file_samples / mp3file->freq;
 }
 
-static bool mp3_stream_set_loop(ALLEGRO_AUDIO_STREAM * stream, double start, double end)
+static bool mp3_stream_set_loop(A5O_AUDIO_STREAM * stream, double start, double end)
 {
    MP3FILE *mp3file = (MP3FILE *) stream->extra;
    mp3file->loop_start = start;
@@ -191,7 +191,7 @@ static bool mp3_stream_set_loop(ALLEGRO_AUDIO_STREAM * stream, double start, dou
  *  Updates 'stream' with the next chunk of data.
  *  Returns the actual number of bytes written.
  */
-static size_t mp3_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t mp3_stream_update(A5O_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    MP3FILE *mp3file = (MP3FILE *) stream->extra;
@@ -200,7 +200,7 @@ static size_t mp3_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    double ctime = mp3_stream_get_position(stream);
    double btime = (double)samples_needed / mp3file->freq;
 
-   if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > mp3file->loop_end) {
+   if (stream->spl.loop != _A5O_PLAYMODE_STREAM_ONCE && ctime + btime > mp3file->loop_end) {
       samples_needed = (mp3file->loop_end - ctime) * mp3file->freq;
    }
    if (samples_needed < 0)
@@ -211,7 +211,7 @@ static size_t mp3_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 
    int samples_read = 0;
    while (samples_read < samples_needed) {
-      int samples_from_this_frame = _ALLEGRO_MIN(
+      int samples_from_this_frame = _A5O_MIN(
          mp3file->frame_samples - mp3file->frame_pos,
          samples_needed - samples_read
       );
@@ -241,7 +241,7 @@ static size_t mp3_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    return samples_read * sample_size;
 }
 
-static void mp3_stream_close(ALLEGRO_AUDIO_STREAM *stream)
+static void mp3_stream_close(A5O_AUDIO_STREAM *stream)
 {
    MP3FILE *mp3file = (MP3FILE *) stream->extra;
 
@@ -254,7 +254,7 @@ static void mp3_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    stream->feed_thread = NULL;
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer_count, unsigned int samples)
+A5O_AUDIO_STREAM *_al_load_mp3_audio_stream_f(A5O_FILE* f, size_t buffer_count, unsigned int samples)
 {
    MP3FILE* mp3file = al_calloc(sizeof(MP3FILE), 1);
    mp3dec_init(&mp3file->dec);
@@ -262,7 +262,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
    /* Read our file size. */
    mp3file->file_size = al_fsize(f);
    if (mp3file->file_size == -1) {
-      ALLEGRO_WARN("Could not determine file size.\n");
+      A5O_WARN("Could not determine file size.\n");
       goto failure;
    }
 
@@ -270,7 +270,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
    mp3file->file_buffer = (uint8_t*)al_malloc(mp3file->file_size);
    size_t readbytes = al_fread(f, mp3file->file_buffer, mp3file->file_size);
    if (readbytes != (size_t)mp3file->file_size) {
-      ALLEGRO_WARN("Failed to read file into memory.\n");
+      A5O_WARN("Failed to read file into memory.\n");
       goto failure;
    }
 
@@ -290,7 +290,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
          mp3file->file_size - offset_so_far, NULL, &frame_info);
       if (frame_samples == 0) {
          if (mp3file->num_frames == 0) {
-            ALLEGRO_WARN("Could not decode the first frame.\n");
+            A5O_WARN("Could not decode the first frame.\n");
             goto failure;
          }
          else {
@@ -299,7 +299,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
       }
       /* Grab the file information from the first frame. */
       if (offset_so_far == 0) {
-         ALLEGRO_DEBUG("Channels %d, frequency %d\n", frame_info.channels, frame_info.hz);
+         A5O_DEBUG("Channels %d, frequency %d\n", frame_info.channels, frame_info.hz);
          mp3file->chan_conf = _al_count_to_channel_conf(frame_info.channels);
          mp3file->freq = frame_info.hz;
          mp3file->frame_samples = frame_samples;
@@ -312,12 +312,12 @@ ALLEGRO_AUDIO_STREAM *_al_load_mp3_audio_stream_f(ALLEGRO_FILE* f, size_t buffer
    }
    mp3file->loop_end = (double)mp3file->file_samples * mp3file->freq;
 
-   ALLEGRO_AUDIO_STREAM *stream = al_create_audio_stream(
+   A5O_AUDIO_STREAM *stream = al_create_audio_stream(
       buffer_count, samples, mp3file->freq,
       _al_word_size_to_depth_conf(sizeof(mp3d_sample_t)),
       mp3file->chan_conf);
    if (!stream) {
-      ALLEGRO_WARN("Failed to create stream.\n");
+      A5O_WARN("Failed to create stream.\n");
       goto failure;
    }
 
@@ -491,7 +491,7 @@ static bool identify_mp3(const uint8_t* buf, size_t len)
 }
 
 
-bool _al_identify_mp3(ALLEGRO_FILE *f)
+bool _al_identify_mp3(A5O_FILE *f)
 {
    uint8_t x[8192];
    size_t len = al_fread(f, x, sizeof x);

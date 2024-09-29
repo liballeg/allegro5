@@ -28,16 +28,16 @@
 * On Windows, of course, the Windows API is always used.
 */
 
-#ifdef ALLEGRO_HAVE_SYSCONF
+#ifdef A5O_HAVE_SYSCONF
 #include <unistd.h>
 #endif
 
-#ifdef ALLEGRO_HAVE_SYSCTL
+#ifdef A5O_HAVE_SYSCTL
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
 #ifndef WINVER
 #define WINVER 0x0500
 #endif
@@ -49,9 +49,9 @@
  */
 int al_get_cpu_count(void)
 {
-#if defined(ALLEGRO_HAVE_SYSCONF) && defined(_SC_NPROCESSORS_ONLN)
+#if defined(A5O_HAVE_SYSCONF) && defined(_SC_NPROCESSORS_ONLN)
    return (int)sysconf(_SC_NPROCESSORS_ONLN);
-#elif defined(ALLEGRO_HAVE_SYSCTL)
+#elif defined(A5O_HAVE_SYSCTL)
    #if defined(HW_AVAILCPU)
       int mib[2] = {CTL_HW, HW_AVAILCPU};
    #elif defined(HW_NCPU)
@@ -64,7 +64,7 @@ int al_get_cpu_count(void)
    if (sysctl(mib, 2, &ncpu, &len, NULL, 0) == 0) { 
       return ncpu;
    }
-#elif defined(ALLEGRO_WINDOWS)
+#elif defined(A5O_WINDOWS)
    SYSTEM_INFO info;
    GetSystemInfo(&info);
    return info.dwNumberOfProcessors;
@@ -76,12 +76,12 @@ int al_get_cpu_count(void)
  */
 int al_get_ram_size(void)
 {
-#if defined(ALLEGRO_HAVE_SYSCONF) && defined(_SC_PHYS_PAGES) && defined(_SC_PAGESIZE)
+#if defined(A5O_HAVE_SYSCONF) && defined(_SC_PHYS_PAGES) && defined(_SC_PAGESIZE)
    uint64_t aid = (uint64_t) sysconf(_SC_PHYS_PAGES);
    aid         *= (uint64_t) sysconf(_SC_PAGESIZE);
    aid         /= (uint64_t) (1024 * 1024);
    return (int)(aid);
-#elif defined(ALLEGRO_HAVE_SYSCTL)
+#elif defined(A5O_HAVE_SYSCTL)
    #ifdef HW_REALMEM
       int mib[2] = {CTL_HW, HW_REALMEM};
    #elif defined(HW_PHYSMEM)
@@ -96,7 +96,7 @@ int al_get_ram_size(void)
    if (sysctl(mib, 2, &memsize, &len, NULL, 0) == 0) { 
       return (int)(memsize / (1024*1024));
    }
-#elif defined(ALLEGRO_WINDOWS)
+#elif defined(A5O_WINDOWS)
    MEMORYSTATUSEX status;
    status.dwLength = sizeof(status);
    if (GlobalMemoryStatusEx(&status)) {

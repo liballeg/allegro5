@@ -1,1 +1,1 @@
-#cmakedefine ALLEGRO_CFG_VIDEO_HAVE_OGV
+#cmakedefine A5O_CFG_VIDEO_HAVE_OGV

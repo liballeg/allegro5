@@ -19,7 +19,7 @@
 #ifndef __al_included_allegro5_alosx_h
 #define __al_included_allegro5_alosx_h
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
    #error bad include
 #endif
 
@@ -31,7 +31,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
-#if defined __OBJC__ && defined ALLEGRO_SRC
+#if defined __OBJC__ && defined A5O_SRC
    #import <mach/mach.h>
    #import <mach/mach_error.h>
    #import <AppKit/AppKit.h>
@@ -47,11 +47,11 @@
    #import <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
 #endif
 
-ALLEGRO_PATH *_al_osx_get_path(int id);
+A5O_PATH *_al_osx_get_path(int id);
 
-#ifndef ALLEGRO_LIB_BUILD
-   #ifndef ALLEGRO_NO_MAGIC_MAIN
-      #define ALLEGRO_MAGIC_MAIN
+#ifndef A5O_LIB_BUILD
+   #ifndef A5O_NO_MAGIC_MAIN
+      #define A5O_MAGIC_MAIN
       #if __GNUC__ >= 4
          #define main __attribute__ ((visibility("default"),used)) _al_mangled_main
       #else

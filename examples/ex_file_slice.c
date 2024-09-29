@@ -13,7 +13,7 @@
 
 #define BUFFER_SIZE 1024
 
-static void pack_object(ALLEGRO_FILE *file, const void *object, size_t len)
+static void pack_object(A5O_FILE *file, const void *object, size_t len)
 {
    /* First write the length of the object, so we know how big to make
       the slice when it is opened later. */      
@@ -21,7 +21,7 @@ static void pack_object(ALLEGRO_FILE *file, const void *object, size_t len)
    al_fwrite(file, object, len);
 }
 
-static ALLEGRO_FILE *get_next_chunk(ALLEGRO_FILE *file)
+static A5O_FILE *get_next_chunk(A5O_FILE *file)
 {
    /* Reads the length of the next chunk, and if not at end of file, returns a 
       slice that represents that portion of the file. */ 
@@ -31,8 +31,8 @@ static ALLEGRO_FILE *get_next_chunk(ALLEGRO_FILE *file)
 
 int main(int argc, const char *argv[])
 {
-   ALLEGRO_FILE *master, *slice;
-   ALLEGRO_PATH *tmp_path;
+   A5O_FILE *master, *slice;
+   A5O_PATH *tmp_path;
 
    const char *first_string = "Hello, World!";
    const char *second_string = "The quick brown fox jumps over the lazy dog.";
@@ -56,7 +56,7 @@ int main(int argc, const char *argv[])
    pack_object(master, second_string, strlen(second_string));
 
    /* Seek back to the beginning of the file, as if we had just opened it */
-   al_fseek(master, 0, ALLEGRO_SEEK_SET);
+   al_fseek(master, 0, A5O_SEEK_SET);
 
    /* Loop through the main file, opening a slice for each object */
    while ((slice = get_next_chunk(master))) {

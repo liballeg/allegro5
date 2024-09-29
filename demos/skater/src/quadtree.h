@@ -13,7 +13,7 @@
 #define FLAGS_FOREGROUND		0x200
 
 struct Material {
-   ALLEGRO_BITMAP *Edge, *Fill;
+   A5O_BITMAP *Edge, *Fill;
    double Friction;
    struct Material *Next;
 };
@@ -45,8 +45,8 @@ struct Triangle {
 };
 
 struct ObjectType {
-   ALLEGRO_BITMAP *Image;
-   ALLEGRO_SAMPLE *CollectNoise;
+   A5O_BITMAP *Image;
+   A5O_SAMPLE *CollectNoise;
    int Radius;
 
    struct ObjectType *Next;
@@ -119,7 +119,7 @@ struct Level {
    struct Triangle *AllTris;
    struct Object *AllObjects;
 
-   ALLEGRO_BITMAP *DoorOpen, *DoorShut;
+   A5O_BITMAP *DoorOpen, *DoorShut;
 };
 
 

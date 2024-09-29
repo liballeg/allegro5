@@ -8,20 +8,20 @@
 #include "iphone.h"
 #include "allegroAppDelegate.h"
 
-ALLEGRO_DEBUG_CHANNEL("iphone")
+A5O_DEBUG_CHANNEL("iphone")
 
-static ALLEGRO_DISPLAY_INTERFACE *vt;
+static A5O_DISPLAY_INTERFACE *vt;
 
 static float _screen_iscale = 1.0;
 static float _screen_x, _screen_y;
 static float _screen_w, _screen_h;
 static bool _screen_hack;
 
-bool _al_iphone_is_display_connected(ALLEGRO_DISPLAY *display);
+bool _al_iphone_is_display_connected(A5O_DISPLAY *display);
 void _al_iphone_connect_airplay(void);
-extern ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex;
+extern A5O_MUTEX *_al_iphone_display_hotplug_mutex;
 
-void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d, bool manage_backbuffer)
+void _al_iphone_setup_opengl_view(A5O_DISPLAY *d, bool manage_backbuffer)
 {
    int w, h;
 
@@ -38,7 +38,7 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d, bool manage_backbuffer)
    }
 }
 
-void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y)
+void _al_iphone_translate_from_screen(A5O_DISPLAY *d, int *x, int *y)
 {
    if (!_screen_hack) return;
    // See _al_iphone_setup_opengl_view
@@ -53,51 +53,51 @@ void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y)
    }
 }
 
-void _al_iphone_clip(ALLEGRO_BITMAP const *bitmap, int x_1, int y_1, int x_2, int y_2)
+void _al_iphone_clip(A5O_BITMAP const *bitmap, int x_1, int y_1, int x_2, int y_2)
 {
-   ALLEGRO_BITMAP *oglb = (void *)(bitmap->parent ? bitmap->parent : bitmap);
+   A5O_BITMAP *oglb = (void *)(bitmap->parent ? bitmap->parent : bitmap);
    int h = oglb->h;
    glScissor(x_1, h - y_2, x_2 - x_1, y_2 - y_1);
 }
 
-static void set_rgba8888(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+static void set_rgba8888(A5O_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   eds->settings[ALLEGRO_RED_SIZE] = 8;
-   eds->settings[ALLEGRO_GREEN_SIZE] = 8;
-   eds->settings[ALLEGRO_BLUE_SIZE] = 8;
-   eds->settings[ALLEGRO_ALPHA_SIZE] = 8;
-   eds->settings[ALLEGRO_RED_SHIFT] = 0;
-   eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
-   eds->settings[ALLEGRO_BLUE_SHIFT] = 16;
-   eds->settings[ALLEGRO_ALPHA_SHIFT] = 24;
-   eds->settings[ALLEGRO_COLOR_SIZE] = 32;
+   eds->settings[A5O_RED_SIZE] = 8;
+   eds->settings[A5O_GREEN_SIZE] = 8;
+   eds->settings[A5O_BLUE_SIZE] = 8;
+   eds->settings[A5O_ALPHA_SIZE] = 8;
+   eds->settings[A5O_RED_SHIFT] = 0;
+   eds->settings[A5O_GREEN_SHIFT] = 8;
+   eds->settings[A5O_BLUE_SHIFT] = 16;
+   eds->settings[A5O_ALPHA_SHIFT] = 24;
+   eds->settings[A5O_COLOR_SIZE] = 32;
 }
 
-static void set_rgb565(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+static void set_rgb565(A5O_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   eds->settings[ALLEGRO_RED_SIZE] = 5;
-   eds->settings[ALLEGRO_GREEN_SIZE] = 6;
-   eds->settings[ALLEGRO_BLUE_SIZE] = 5;
-   eds->settings[ALLEGRO_ALPHA_SIZE] = 0;
-   eds->settings[ALLEGRO_RED_SHIFT] = 0;
-   eds->settings[ALLEGRO_GREEN_SHIFT] = 5;
-   eds->settings[ALLEGRO_BLUE_SHIFT] = 11;
-   eds->settings[ALLEGRO_ALPHA_SHIFT] = 0;
-   eds->settings[ALLEGRO_COLOR_SIZE] = 16;
+   eds->settings[A5O_RED_SIZE] = 5;
+   eds->settings[A5O_GREEN_SIZE] = 6;
+   eds->settings[A5O_BLUE_SIZE] = 5;
+   eds->settings[A5O_ALPHA_SIZE] = 0;
+   eds->settings[A5O_RED_SHIFT] = 0;
+   eds->settings[A5O_GREEN_SHIFT] = 5;
+   eds->settings[A5O_BLUE_SHIFT] = 11;
+   eds->settings[A5O_ALPHA_SHIFT] = 0;
+   eds->settings[A5O_COLOR_SIZE] = 16;
 }
 
 #define VISUALS_COUNT 6
 void _al_iphone_update_visuals(void)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
-   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
+   A5O_EXTRA_DISPLAY_SETTINGS *ref;
+   A5O_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
 
    ref = _al_get_new_display_settings();
 
    /* If we aren't called the first time, only updated scores. */
    if (system->visuals) {
       for (int i = 0; i < system->visuals_count; i++) {
-         ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = system->visuals[i];
+         A5O_EXTRA_DISPLAY_SETTINGS *eds = system->visuals[i];
          eds->score = _al_score_display_settings(eds, ref);
       }
       return;
@@ -107,13 +107,13 @@ void _al_iphone_update_visuals(void)
    system->visuals_count = VISUALS_COUNT;
 
    for (int i = 0; i < VISUALS_COUNT; i++) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_calloc(1, sizeof *eds);
-      eds->settings[ALLEGRO_RENDER_METHOD] = 1;
-      eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
-      eds->settings[ALLEGRO_SWAP_METHOD] = 2;
-      eds->settings[ALLEGRO_VSYNC] = 1;
-      eds->settings[ALLEGRO_SUPPORTED_ORIENTATIONS] =
-         ref->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
+      A5O_EXTRA_DISPLAY_SETTINGS *eds = al_calloc(1, sizeof *eds);
+      eds->settings[A5O_RENDER_METHOD] = 1;
+      eds->settings[A5O_COMPATIBLE_DISPLAY] = 1;
+      eds->settings[A5O_SWAP_METHOD] = 2;
+      eds->settings[A5O_VSYNC] = 1;
+      eds->settings[A5O_SUPPORTED_ORIENTATIONS] =
+         ref->settings[A5O_SUPPORTED_ORIENTATIONS];
       switch (i) {
          case 0:
             set_rgba8888(eds);
@@ -123,21 +123,21 @@ void _al_iphone_update_visuals(void)
             break;
          case 2:
             set_rgba8888(eds);
-            eds->settings[ALLEGRO_DEPTH_SIZE] = 16;
+            eds->settings[A5O_DEPTH_SIZE] = 16;
             break;
          case 3:
             set_rgb565(eds);
-            eds->settings[ALLEGRO_DEPTH_SIZE] = 16;
+            eds->settings[A5O_DEPTH_SIZE] = 16;
             break;
          case 4:
             set_rgba8888(eds);
-            eds->settings[ALLEGRO_DEPTH_SIZE] = 24;
-            eds->settings[ALLEGRO_STENCIL_SIZE] = 8;
+            eds->settings[A5O_DEPTH_SIZE] = 24;
+            eds->settings[A5O_STENCIL_SIZE] = 8;
             break;
          case 5:
             set_rgb565(eds);
-            eds->settings[ALLEGRO_DEPTH_SIZE] = 24;
-            eds->settings[ALLEGRO_STENCIL_SIZE] = 8;
+            eds->settings[A5O_DEPTH_SIZE] = 24;
+            eds->settings[A5O_STENCIL_SIZE] = 8;
             break;
 
       }
@@ -147,11 +147,11 @@ void _al_iphone_update_visuals(void)
    }
 }
 
-static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
+static A5O_DISPLAY *iphone_create_display(int w, int h)
 {
-    ALLEGRO_DISPLAY_IPHONE *d = al_calloc(1, sizeof *d);
-    ALLEGRO_DISPLAY *display = (void*)d;
-    ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
+    A5O_DISPLAY_IPHONE *d = al_calloc(1, sizeof *d);
+    A5O_DISPLAY *display = (void*)d;
+    A5O_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
     display->ogl_extras = ogl;
     display->vt = _al_get_iphone_display_interface();
     display->flags = al_get_new_display_flags();
@@ -165,17 +165,17 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
         _al_iphone_connect_airplay();
     }
 
-    if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+    if (display->flags & A5O_FULLSCREEN_WINDOW) {
         _al_iphone_get_screen_size(adapter, &w, &h);
     }
 
     display->w = w;
     display->h = h;
 
-    ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
+    A5O_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
 
     /* Add ourself to the list of displays. */
-    ALLEGRO_DISPLAY_IPHONE **add;
+    A5O_DISPLAY_IPHONE **add;
     add = _al_vector_alloc_back(&system->system.displays);
     *add = d;
 
@@ -184,20 +184,20 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 
    _al_iphone_update_visuals();
 
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
+   A5O_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
    memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
    qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
 
-   ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index);
+   A5O_INFO("Chose visual no. %i\n", eds[0]->index);
 
-   memcpy(&display->extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   memcpy(&display->extra_settings, eds[0], sizeof(A5O_EXTRA_DISPLAY_SETTINGS));
 
-   display->flags |= ALLEGRO_OPENGL;
-#ifdef ALLEGRO_CFG_OPENGLES2
-   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   display->flags |= A5O_OPENGL;
+#ifdef A5O_CFG_OPENGLES2
+   display->flags |= A5O_PROGRAMMABLE_PIPELINE;
 #endif
-#ifdef ALLEGRO_CFG_OPENGLES
-   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#ifdef A5O_CFG_OPENGLES
+   display->flags |= A5O_OPENGL_ES_PROFILE;
 #endif
 
    /* This will add an OpenGL view with an OpenGL context, then return. */
@@ -220,23 +220,23 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 
    /* Fill in opengl version */
    const int v = display->ogl_extras->ogl_info.version;
-   display->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
-   display->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+   display->extra_settings.settings[A5O_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   display->extra_settings.settings[A5O_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
 
    return display;
 }
 
-static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
+static void iphone_destroy_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_IPHONE *idisplay = (ALLEGRO_DISPLAY_IPHONE *)d;
-   ALLEGRO_DISPLAY_IPHONE_EXTRA *extra = idisplay->extra;
+   A5O_DISPLAY_IPHONE *idisplay = (A5O_DISPLAY_IPHONE *)d;
+   A5O_DISPLAY_IPHONE_EXTRA *extra = idisplay->extra;
    bool disconnected = extra->disconnected;
 
    _al_set_current_display_only(d);
 
    while (d->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref_back(&d->bitmaps);
-      ALLEGRO_BITMAP *b = *bptr;
+      A5O_BITMAP **bptr = (A5O_BITMAP **)_al_vector_ref_back(&d->bitmaps);
+      A5O_BITMAP *b = *bptr;
       _al_convert_to_memory_bitmap(b);
    }
 
@@ -247,13 +247,13 @@ static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
       _al_iphone_disconnect(d);
    }
 
-   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
    _al_vector_find_and_delete(&system->system.displays, &d);
 
    [[UIApplication sharedApplication] setIdleTimerDisabled:FALSE];
 }
 
-static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
+static bool iphone_set_current_display(A5O_DISPLAY *d)
 {
    (void)d;
    _al_iphone_make_view_current(d);
@@ -261,7 +261,7 @@ static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
    return true;
 }
 
-static int iphone_get_orientation(ALLEGRO_DISPLAY *d)
+static int iphone_get_orientation(A5O_DISPLAY *d)
 {
    return _al_iphone_get_orientation(d);
 }
@@ -270,8 +270,8 @@ static int iphone_get_orientation(ALLEGRO_DISPLAY *d)
 /* There can be only one window and only one OpenGL context, so all bitmaps
  * are compatible.
  */
-static bool iphone_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
-                                      ALLEGRO_BITMAP *bitmap)
+static bool iphone_is_compatible_bitmap(A5O_DISPLAY *display,
+                                      A5O_BITMAP *bitmap)
 {
     (void)display;
     (void)bitmap;
@@ -279,7 +279,7 @@ static bool iphone_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
 }
 
 /* Resizing is not possible. */
-static bool iphone_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
+static bool iphone_resize_display(A5O_DISPLAY *d, int w, int h)
 {
     (void)d;
     (void)w;
@@ -290,7 +290,7 @@ static bool iphone_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 /* The icon must be provided in the Info.plist file, it cannot be changed
  * at runtime.
  */
-static void iphone_set_icons(ALLEGRO_DISPLAY *d, int num_icons, ALLEGRO_BITMAP *bitmaps[])
+static void iphone_set_icons(A5O_DISPLAY *d, int num_icons, A5O_BITMAP *bitmaps[])
 {
     (void)d;
     (void)num_icons;
@@ -298,14 +298,14 @@ static void iphone_set_icons(ALLEGRO_DISPLAY *d, int num_icons, ALLEGRO_BITMAP *
 }
 
 /* There is no way to leave fullscreen so no window title is visible. */
-static void iphone_set_window_title(ALLEGRO_DISPLAY *display, char const *title)
+static void iphone_set_window_title(A5O_DISPLAY *display, char const *title)
 {
     (void)display;
     (void)title;
 }
 
 /* The window always spans the entire screen right now. */
-static void iphone_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void iphone_set_window_position(A5O_DISPLAY *display, int x, int y)
 {
     (void)display;
     (void)x;
@@ -313,7 +313,7 @@ static void iphone_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 }
 
 /* The window cannot be constrained. */
-static bool iphone_set_window_constraints(ALLEGRO_DISPLAY *display,
+static bool iphone_set_window_constraints(A5O_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
    (void)display;
@@ -325,7 +325,7 @@ static bool iphone_set_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 /* Always fullscreen. */
-static bool iphone_set_display_flag(ALLEGRO_DISPLAY *display,
+static bool iphone_set_display_flag(A5O_DISPLAY *display,
    int flag, bool onoff)
 {
    (void)display;
@@ -334,7 +334,7 @@ static bool iphone_set_display_flag(ALLEGRO_DISPLAY *display,
    return false;
 }
 
-static void iphone_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void iphone_get_window_position(A5O_DISPLAY *display, int *x, int *y)
 {
     (void)display;
     *x = 0;
@@ -342,7 +342,7 @@ static void iphone_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 /* The window cannot be constrained. */
-static bool iphone_get_window_constraints(ALLEGRO_DISPLAY *display,
+static bool iphone_get_window_constraints(A5O_DISPLAY *display,
    int *min_w, int *min_h, int *max_w, int *max_h)
 {
    (void)display;
@@ -353,18 +353,18 @@ static bool iphone_get_window_constraints(ALLEGRO_DISPLAY *display,
    return false;
 }
 
-static bool iphone_wait_for_vsync(ALLEGRO_DISPLAY *display)
+static bool iphone_wait_for_vsync(A5O_DISPLAY *display)
 {
     (void)display;
     return false;
 }
 
-static void iphone_flip_display(ALLEGRO_DISPLAY *d)
+static void iphone_flip_display(A5O_DISPLAY *d)
 {
     _al_iphone_flip_view(d);
 }
 
-static void iphone_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+static void iphone_update_display_region(A5O_DISPLAY *d, int x, int y,
                                        int w, int h)
 {
     (void)x;
@@ -374,43 +374,43 @@ static void iphone_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
     iphone_flip_display(d);
 }
 
-static bool iphone_acknowledge_resize(ALLEGRO_DISPLAY *d)
+static bool iphone_acknowledge_resize(A5O_DISPLAY *d)
 {
    _al_iphone_recreate_framebuffer(d);
    _al_iphone_setup_opengl_view(d, true);
    return true;
 }
 
-static bool iphone_set_mouse_cursor(ALLEGRO_DISPLAY *display,
-                                  ALLEGRO_MOUSE_CURSOR *cursor)
+static bool iphone_set_mouse_cursor(A5O_DISPLAY *display,
+                                  A5O_MOUSE_CURSOR *cursor)
 {
     (void)display;
     (void)cursor;
     return false;
 }
 
-static bool iphone_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
-                                         ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+static bool iphone_set_system_mouse_cursor(A5O_DISPLAY *display,
+                                         A5O_SYSTEM_MOUSE_CURSOR cursor_id)
 {
     (void)display;
     (void)cursor_id;
     return false;
 }
 
-static bool iphone_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+static bool iphone_show_mouse_cursor(A5O_DISPLAY *display)
 {
     (void)display;
     return false;
 }
 
-static bool iphone_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+static bool iphone_hide_mouse_cursor(A5O_DISPLAY *display)
 {
     (void)display;
     return false;
 }
 
 /* Obtain a reference to this driver. */
-ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
+A5O_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
 {
     if (vt)
         return vt;

@@ -21,15 +21,15 @@ function(image_summary msg yesno)
     set(IMAGE_CONFIGURATION_SUMMARY "${IMAGE_CONFIGURATION_SUMMARY}${msg}: ${yesno}\n" PARENT_SCOPE)
 endfunction()
 
-# ALLEGRO_CFG_IIO_HAVE_* are the available libraries.
-# ALLEGRO_CFG_IIO_SUPPORT_* are the supported formats.
+# A5O_CFG_IIO_HAVE_* are the available libraries.
+# A5O_CFG_IIO_SUPPORT_* are the supported formats.
 
 # First look for native libraries and mark any supported image
 # type as found, so that the associated third party libraries 
 # don't need to be used.
 
 if(WANT_NATIVE_IMAGE_LOADER)
-    set(ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER 1)
+    set(A5O_CFG_WANT_NATIVE_IMAGE_LOADER 1)
 
     if(WIN32)
         find_package(GDIPLUS)
@@ -55,10 +55,10 @@ if(WANT_NATIVE_IMAGE_LOADER)
                 SUPPORT_GDIPLUS)
         endif(GDIPLUS_FOUND)
         if(SUPPORT_GDIPLUS)
-            set(ALLEGRO_CFG_IIO_HAVE_GDIPLUS 1)
-            set(ALLEGRO_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H ${GDIPLUS_LOWERCASE})
-            set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
-            set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
+            set(A5O_CFG_IIO_HAVE_GDIPLUS 1)
+            set(A5O_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H ${GDIPLUS_LOWERCASE})
+            set(A5O_CFG_IIO_SUPPORT_PNG 1)
+            set(A5O_CFG_IIO_SUPPORT_JPG 1)
             list(APPEND IMAGE_SOURCES gdiplus.cpp)
             list(APPEND IMAGE_LIBRARIES ${GDIPLUS_LIBRARIES})
             if(MINGW)
@@ -72,17 +72,17 @@ if(WANT_NATIVE_IMAGE_LOADER)
         endif(SUPPORT_GDIPLUS)
     endif(WIN32)
 
-    if (ALLEGRO_MACOSX)
-        set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
+    if (A5O_MACOSX)
+        set(A5O_CFG_IIO_SUPPORT_PNG 1)
+        set(A5O_CFG_IIO_SUPPORT_JPG 1)
         list(APPEND IMAGE_SOURCES macosx.m)
-    endif(ALLEGRO_MACOSX)
+    endif(A5O_MACOSX)
 
     if(ANDROID)
-        set(ALLEGRO_CFG_IIO_HAVE_ANDROID 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_WEBP 1)
+        set(A5O_CFG_IIO_HAVE_ANDROID 1)
+        set(A5O_CFG_IIO_SUPPORT_JPG 1)
+        set(A5O_CFG_IIO_SUPPORT_PNG 1)
+        set(A5O_CFG_IIO_SUPPORT_WEBP 1)
         list(APPEND IMAGE_SOURCES android.c)
     endif(ANDROID)
 
@@ -102,8 +102,8 @@ if(WANT_IMAGE_FREEIMAGE)
     find_package(FreeImage)
     if(FREEIMAGE_FOUND)
         # HAVE_FREEIMAGE means libfreeimage is available (and should be used)
-        set(ALLEGRO_CFG_IIO_HAVE_FREEIMAGE 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_FREEIMAGE 1)
+        set(A5O_CFG_IIO_HAVE_FREEIMAGE 1)
+        set(A5O_CFG_IIO_SUPPORT_FREEIMAGE 1)
         list(APPEND IMAGE_SOURCES freeimage.c)
         list(APPEND IMAGE_LIBRARIES ${FREEIMAGE_LIBRARIES})
         list(APPEND IMAGE_DEFINES ${FREEIMAGE_DEFINITIONS})
@@ -114,14 +114,14 @@ if(WANT_IMAGE_FREEIMAGE)
     endif(FREEIMAGE_FOUND)
 endif(WANT_IMAGE_FREEIMAGE)
 
-image_summary(" - FreeImage" ALLEGRO_CFG_IIO_SUPPORT_FREEIMAGE)
+image_summary(" - FreeImage" A5O_CFG_IIO_SUPPORT_FREEIMAGE)
 
-if(WANT_IMAGE_PNG AND NOT ALLEGRO_CFG_IIO_SUPPORT_PNG)
+if(WANT_IMAGE_PNG AND NOT A5O_CFG_IIO_SUPPORT_PNG)
     find_package(PNG)
     if(PNG_FOUND)
         # HAVE_PNG means libpng is available (and should be used)
-        set(ALLEGRO_CFG_IIO_HAVE_PNG 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
+        set(A5O_CFG_IIO_HAVE_PNG 1)
+        set(A5O_CFG_IIO_SUPPORT_PNG 1)
         list(APPEND IMAGE_SOURCES png.c)
         list(APPEND IMAGE_LIBRARIES ${PNG_LIBRARIES})
         list(APPEND IMAGE_DEFINES ${PNG_DEFINITIONS})
@@ -130,11 +130,11 @@ if(WANT_IMAGE_PNG AND NOT ALLEGRO_CFG_IIO_SUPPORT_PNG)
     else(PNG_FOUND)
         message("WARNING: libpng not found, disabling support")
     endif(PNG_FOUND)
-endif(WANT_IMAGE_PNG AND NOT ALLEGRO_CFG_IIO_SUPPORT_PNG)
+endif(WANT_IMAGE_PNG AND NOT A5O_CFG_IIO_SUPPORT_PNG)
 
 image_summary(" - libpng" PNG_FOUND)
 
-if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
+if(WANT_IMAGE_JPG AND NOT A5O_CFG_IIO_SUPPORT_JPG)
     find_package(JPEG)
     if(JPEG_FOUND AND MINGW)
         set(CMAKE_REQUIRED_INCLUDES ${JPEG_INCLUDE_DIR})
@@ -154,8 +154,8 @@ if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
     endif()
     if(SUPPORT_JPEG)
         # HAVE_JPG means libjpeg is available (and should be used)
-        set(ALLEGRO_CFG_IIO_HAVE_JPG 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
+        set(A5O_CFG_IIO_HAVE_JPG 1)
+        set(A5O_CFG_IIO_SUPPORT_JPG 1)
         list(APPEND IMAGE_SOURCES jpg.c)
         list(APPEND IMAGE_LIBRARIES ${JPEG_LIBRARIES})
         list(APPEND IMAGE_DEFINES ${JPEG_DEFINITIONS})
@@ -170,15 +170,15 @@ if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
             message("WARNING: libjpeg not found, disabling support")
         endif()
     endif()
-endif(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
+endif(WANT_IMAGE_JPG AND NOT A5O_CFG_IIO_SUPPORT_JPG)
 
 image_summary(" - libjpeg" SUPPORT_JPEG)
 
-if(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
+if(WANT_IMAGE_WEBP AND NOT A5O_CFG_IIO_SUPPORT_WEBP)
     find_package(WebP)
     if(WEBP_FOUND)
-        set(ALLEGRO_CFG_IIO_HAVE_WEBP 1)
-        set(ALLEGRO_CFG_IIO_SUPPORT_WEBP 1)
+        set(A5O_CFG_IIO_HAVE_WEBP 1)
+        set(A5O_CFG_IIO_SUPPORT_WEBP 1)
         list(APPEND IMAGE_SOURCES webp.c)
         list(APPEND IMAGE_LIBRARIES ${WEBP_LIBRARIES})
         list(APPEND IMAGE_INCLUDE_DIRECTORIES ${WEBP_INCLUDE_DIRS})
@@ -186,7 +186,7 @@ if(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
     else(WEBP_FOUND)
         message("WARNING: libwebp not found, disabling support")
     endif(WEBP_FOUND)
-endif(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
+endif(WANT_IMAGE_WEBP AND NOT A5O_CFG_IIO_SUPPORT_WEBP)
 
 image_summary(" - libwebp" WEBP_FOUND)
 
@@ -196,10 +196,10 @@ configure_file(
     )
 
 add_our_addon_library(allegro_image
-    AllegroImage-${ALLEGRO_SOVERSION}
+    AllegroImage-${A5O_SOVERSION}
     "${IMAGE_SOURCES};${IMAGE_INCLUDE_FILES}"
-    "-DALLEGRO_IIO_SRC"
-    "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
+    "-DA5O_IIO_SRC"
+    "${A5O_LINK_WITH};${IMAGE_LIBRARIES}"
     )
 
 install_our_headers(${IMAGE_INCLUDE_FILES})

@@ -21,7 +21,7 @@
 
 /* Function: al_fopen
  */
-ALLEGRO_FILE *al_fopen(const char *path, const char *mode)
+A5O_FILE *al_fopen(const char *path, const char *mode)
 {
    return al_fopen_interface(al_get_new_file_interface(), path, mode);
 }
@@ -29,10 +29,10 @@ ALLEGRO_FILE *al_fopen(const char *path, const char *mode)
 
 /* Function: al_fopen_interface
  */
-ALLEGRO_FILE *al_fopen_interface(const ALLEGRO_FILE_INTERFACE *drv,
+A5O_FILE *al_fopen_interface(const A5O_FILE_INTERFACE *drv,
    const char *path, const char *mode)
 {
-   ALLEGRO_FILE *f = NULL;
+   A5O_FILE *f = NULL;
 
    ASSERT(drv);
    ASSERT(path);
@@ -60,10 +60,10 @@ ALLEGRO_FILE *al_fopen_interface(const ALLEGRO_FILE_INTERFACE *drv,
 
 /* Function: al_create_file_handle
  */
-ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv,
+A5O_FILE *al_create_file_handle(const A5O_FILE_INTERFACE *drv,
    void *userdata)
 {
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
 
    ASSERT(drv);
 
@@ -83,7 +83,7 @@ ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv,
 
 /* Function: al_fclose
  */
-bool al_fclose(ALLEGRO_FILE *f)
+bool al_fclose(A5O_FILE *f)
 {
    if (f) {
       bool ret = f->vtable->fi_fclose(f);
@@ -98,7 +98,7 @@ bool al_fclose(ALLEGRO_FILE *f)
 
 /* Function: al_fread
  */
-size_t al_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
+size_t al_fread(A5O_FILE *f, void *ptr, size_t size)
 {
    ASSERT(f);
    ASSERT(ptr || size == 0);
@@ -123,7 +123,7 @@ size_t al_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 
 /* Function: al_fwrite
  */
-size_t al_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
+size_t al_fwrite(A5O_FILE *f, const void *ptr, size_t size)
 {
    ASSERT(f);
    ASSERT(ptr || size == 0);
@@ -135,7 +135,7 @@ size_t al_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
 
 /* Function: al_fflush
  */
-bool al_fflush(ALLEGRO_FILE *f)
+bool al_fflush(A5O_FILE *f)
 {
    ASSERT(f);
 
@@ -145,7 +145,7 @@ bool al_fflush(ALLEGRO_FILE *f)
 
 /* Function: al_ftell
  */
-int64_t al_ftell(ALLEGRO_FILE *f)
+int64_t al_ftell(A5O_FILE *f)
 {
    ASSERT(f);
 
@@ -155,18 +155,18 @@ int64_t al_ftell(ALLEGRO_FILE *f)
 
 /* Function: al_fseek
  */
-bool al_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
+bool al_fseek(A5O_FILE *f, int64_t offset, int whence)
 {
    ASSERT(f);
    /* offset can be negative */
    ASSERT(
-      whence == ALLEGRO_SEEK_SET ||
-      whence == ALLEGRO_SEEK_CUR ||
-      whence == ALLEGRO_SEEK_END
+      whence == A5O_SEEK_SET ||
+      whence == A5O_SEEK_CUR ||
+      whence == A5O_SEEK_END
    );
 
    if (f->ungetc_len) {
-      if (whence == ALLEGRO_SEEK_CUR) {
+      if (whence == A5O_SEEK_CUR) {
          offset -= f->ungetc_len;
       }
       f->ungetc_len = 0;
@@ -178,7 +178,7 @@ bool al_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
 
 /* Function: al_feof
  */
-bool al_feof(ALLEGRO_FILE *f)
+bool al_feof(A5O_FILE *f)
 {
    ASSERT(f);
 
@@ -188,7 +188,7 @@ bool al_feof(ALLEGRO_FILE *f)
 
 /* Function: al_ferror
  */
-int al_ferror(ALLEGRO_FILE *f)
+int al_ferror(A5O_FILE *f)
 {
    ASSERT(f);
 
@@ -198,7 +198,7 @@ int al_ferror(ALLEGRO_FILE *f)
 
 /* Function: al_ferrmsg
  */
-const char *al_ferrmsg(ALLEGRO_FILE *f)
+const char *al_ferrmsg(A5O_FILE *f)
 {
    const char *msg;
 
@@ -211,7 +211,7 @@ const char *al_ferrmsg(ALLEGRO_FILE *f)
 
 /* Function: al_fclearerr
  */
-void al_fclearerr(ALLEGRO_FILE *f)
+void al_fclearerr(A5O_FILE *f)
 {
    ASSERT(f);
 
@@ -221,7 +221,7 @@ void al_fclearerr(ALLEGRO_FILE *f)
 
 /* Function: al_fgetc
  */
-int al_fgetc(ALLEGRO_FILE *f)
+int al_fgetc(A5O_FILE *f)
 {
    uint8_t c;
    ASSERT(f);
@@ -236,7 +236,7 @@ int al_fgetc(ALLEGRO_FILE *f)
 
 /* Function: al_fputc
  */
-int al_fputc(ALLEGRO_FILE *f, int c)
+int al_fputc(A5O_FILE *f, int c)
 {
    uint8_t b = (c & 0xff);
    ASSERT(f);
@@ -251,7 +251,7 @@ int al_fputc(ALLEGRO_FILE *f, int c)
 
 /* Function: al_fread16le
  */
-int16_t al_fread16le(ALLEGRO_FILE *f)
+int16_t al_fread16le(A5O_FILE *f)
 {
    unsigned char b[2];
    ASSERT(f);
@@ -266,7 +266,7 @@ int16_t al_fread16le(ALLEGRO_FILE *f)
 
 /* Function: al_fread32le
  */
-int32_t al_fread32le(ALLEGRO_FILE *f)
+int32_t al_fread32le(A5O_FILE *f)
 {
    unsigned char b[4];
    ASSERT(f);
@@ -282,7 +282,7 @@ int32_t al_fread32le(ALLEGRO_FILE *f)
 
 /* Function: al_fwrite16le
  */
-size_t al_fwrite16le(ALLEGRO_FILE *f, int16_t w)
+size_t al_fwrite16le(A5O_FILE *f, int16_t w)
 {
    uint8_t b1, b2;
    ASSERT(f);
@@ -302,7 +302,7 @@ size_t al_fwrite16le(ALLEGRO_FILE *f, int16_t w)
 
 /* Function: al_fwrite32le
  */
-size_t al_fwrite32le(ALLEGRO_FILE *f, int32_t l)
+size_t al_fwrite32le(A5O_FILE *f, int32_t l)
 {
    uint8_t b1, b2, b3, b4;
    ASSERT(f);
@@ -330,7 +330,7 @@ size_t al_fwrite32le(ALLEGRO_FILE *f, int32_t l)
 
 /* Function: al_fread16be
  */
-int16_t al_fread16be(ALLEGRO_FILE *f)
+int16_t al_fread16be(A5O_FILE *f)
 {
    unsigned char b[2];
    ASSERT(f);
@@ -345,7 +345,7 @@ int16_t al_fread16be(ALLEGRO_FILE *f)
 
 /* Function: al_fread32be
  */
-int32_t al_fread32be(ALLEGRO_FILE *f)
+int32_t al_fread32be(A5O_FILE *f)
 {
    unsigned char b[4];
    ASSERT(f);
@@ -361,7 +361,7 @@ int32_t al_fread32be(ALLEGRO_FILE *f)
 
 /* Function: al_fwrite16be
  */
-size_t al_fwrite16be(ALLEGRO_FILE *f, int16_t w)
+size_t al_fwrite16be(A5O_FILE *f, int16_t w)
 {
    uint8_t b1, b2;
    ASSERT(f);
@@ -381,7 +381,7 @@ size_t al_fwrite16be(ALLEGRO_FILE *f, int16_t w)
 
 /* Function: al_fwrite32be
  */
-size_t al_fwrite32be(ALLEGRO_FILE *f, int32_t l)
+size_t al_fwrite32be(A5O_FILE *f, int32_t l)
 {
    uint8_t b1, b2, b3, b4;
    ASSERT(f);
@@ -409,7 +409,7 @@ size_t al_fwrite32be(ALLEGRO_FILE *f, int32_t l)
 
 /* Function: al_fgets
  */
-char *al_fgets(ALLEGRO_FILE *f, char * const buf, size_t max)
+char *al_fgets(A5O_FILE *f, char * const buf, size_t max)
 {
    char *p = buf;
    int c;
@@ -454,9 +454,9 @@ char *al_fgets(ALLEGRO_FILE *f, char * const buf, size_t max)
 
 /* Function: al_fget_ustr
  */
-ALLEGRO_USTR *al_fget_ustr(ALLEGRO_FILE *f)
+A5O_USTR *al_fget_ustr(A5O_FILE *f)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
    char buf[128];
 
    if (!al_fgets(f, buf, sizeof(buf))) {
@@ -477,7 +477,7 @@ ALLEGRO_USTR *al_fget_ustr(ALLEGRO_FILE *f)
 
 /* Function: al_fputs
  */
-int al_fputs(ALLEGRO_FILE *f, char const *p)
+int al_fputs(A5O_FILE *f, char const *p)
 {
    size_t n;
    ASSERT(f);
@@ -494,7 +494,7 @@ int al_fputs(ALLEGRO_FILE *f, char const *p)
 
 /* Function: al_fungetc
  */
-int al_fungetc(ALLEGRO_FILE *f, int c)
+int al_fungetc(A5O_FILE *f, int c)
 {
    ASSERT(f != NULL);
 
@@ -507,7 +507,7 @@ int al_fungetc(ALLEGRO_FILE *f, int c)
        * implement it, then this ungetc buffer will never be filled, and all
        * other references to it within this file will always be ignored.)
        */
-      if (f->ungetc_len == ALLEGRO_UNGETC_SIZE) {
+      if (f->ungetc_len == A5O_UNGETC_SIZE) {
          return EOF;
       }
 
@@ -520,7 +520,7 @@ int al_fungetc(ALLEGRO_FILE *f, int c)
 
 /* Function: al_fsize
  */
-int64_t al_fsize(ALLEGRO_FILE *f)
+int64_t al_fsize(A5O_FILE *f)
 {
    ASSERT(f != NULL);
 
@@ -530,7 +530,7 @@ int64_t al_fsize(ALLEGRO_FILE *f)
 
 /* Function: al_get_file_userdata
  */
-void *al_get_file_userdata(ALLEGRO_FILE *f)
+void *al_get_file_userdata(A5O_FILE *f)
 {
    ASSERT(f != NULL);
 
@@ -540,10 +540,10 @@ void *al_get_file_userdata(ALLEGRO_FILE *f)
 
 /* Function: al_vfprintf
  */
-int al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
+int al_vfprintf(A5O_FILE *pfile, const char *format, va_list args)
 {
    int rv = -1;
-   ALLEGRO_USTR *ustr = 0;
+   A5O_USTR *ustr = 0;
    size_t size = 0;
    bool success;
 
@@ -573,7 +573,7 @@ int al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
 
 /* Function: al_fprintf
  */
-int al_fprintf(ALLEGRO_FILE *pfile, const char *format, ...)
+int al_fprintf(A5O_FILE *pfile, const char *format, ...)
 {
    int rv = -1;
    va_list args;

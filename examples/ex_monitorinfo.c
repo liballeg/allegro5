@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_MONITOR_INFO info;
+   A5O_MONITOR_INFO info;
    int num_adapters;
    int i, j;
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
       al_set_new_display_adapter(i);
       log_printf("   Available fullscreen display modes:\n");
       for (j = 0; j < al_get_num_display_modes(); j++) {
-         ALLEGRO_DISPLAY_MODE mode;
+         A5O_DISPLAY_MODE mode;
 
          al_get_display_mode(j, &mode);
 

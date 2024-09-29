@@ -16,7 +16,7 @@ protected:
    float angle;
    float speed_x;
    float speed_y;
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
 };
 
 #endif // ASTEROID_HPP

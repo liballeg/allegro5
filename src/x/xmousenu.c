@@ -18,7 +18,7 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 #include <X11/Xlib.h>
 #include <stdio.h>
@@ -31,56 +31,56 @@
 #include "allegro5/internal/aintern_xmouse.h"
 #include "allegro5/internal/aintern_xsystem.h"
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
 #include "allegro5/internal/aintern_vector.h"
-#define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
-#define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
+#define A5O_SYSTEM_XGLX A5O_SYSTEM_RASPBERRYPI
+#define A5O_DISPLAY_XGLX A5O_DISPLAY_RASPBERRYPI
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("mouse")
+A5O_DEBUG_CHANNEL("mouse")
 
-typedef struct ALLEGRO_MOUSE_XWIN
+typedef struct A5O_MOUSE_XWIN
 {
-   ALLEGRO_MOUSE parent;
-   ALLEGRO_MOUSE_STATE state;
+   A5O_MOUSE parent;
+   A5O_MOUSE_STATE state;
    int min_x, min_y;
    int max_x, max_y;
-} ALLEGRO_MOUSE_XWIN;
+} A5O_MOUSE_XWIN;
 
 
 
 static bool xmouse_installed = false;
 
 /* the one and only mouse object */
-static ALLEGRO_MOUSE_XWIN the_mouse;
+static A5O_MOUSE_XWIN the_mouse;
 
 
 
 /* forward declarations */
 static bool xmouse_init(void);
 static void xmouse_exit(void);
-static ALLEGRO_MOUSE *xmouse_get_mouse(void);
+static A5O_MOUSE *xmouse_get_mouse(void);
 static unsigned int xmouse_get_mouse_num_buttons(void);
 static unsigned int xmouse_get_mouse_num_axes(void);
-static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *,int x, int y);
+static bool xmouse_set_mouse_xy(A5O_DISPLAY *,int x, int y);
 static bool xmouse_set_mouse_axis(int which, int z);
-static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
+static void xmouse_get_state(A5O_MOUSE_STATE *ret_state);
 
-static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display);
+static void wheel_motion_handler(int x_button, A5O_DISPLAY *display);
 static unsigned int x_button_to_al_button(unsigned int x_button);
 static void generate_mouse_event(unsigned int type,
    int x, int y, int z, int w, float pressure,
    int dx, int dy, int dz, int dw,
    unsigned int button,
-   ALLEGRO_DISPLAY *display);
+   A5O_DISPLAY *display);
 
 
 
 /* the driver vtable */
 #define MOUSEDRV_XWIN  AL_ID('X','W','I','N')
 
-static ALLEGRO_MOUSE_DRIVER mousedrv_xwin =
+static A5O_MOUSE_DRIVER mousedrv_xwin =
 {
    MOUSEDRV_XWIN,
    "",
@@ -98,7 +98,7 @@ static ALLEGRO_MOUSE_DRIVER mousedrv_xwin =
 
 
 
-ALLEGRO_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
+A5O_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
 {
    return &mousedrv_xwin;
 }
@@ -109,8 +109,8 @@ ALLEGRO_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
  */
 static bool xmouse_init(void)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY *display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY *display;
    int x, y;
 
    if (system->x11display == NULL)
@@ -153,13 +153,13 @@ static void xmouse_exit(void)
 
 
 /* xmouse_get_mouse:
- *  Returns the address of a ALLEGRO_MOUSE structure representing the mouse.
+ *  Returns the address of a A5O_MOUSE structure representing the mouse.
  */
-static ALLEGRO_MOUSE *xmouse_get_mouse(void)
+static A5O_MOUSE *xmouse_get_mouse(void)
 {
    ASSERT(xmouse_installed);
 
-   return (ALLEGRO_MOUSE *)&the_mouse;
+   return (A5O_MOUSE *)&the_mouse;
 }
 
 
@@ -171,7 +171,7 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
 {
    int num_buttons;
    unsigned char map[32];
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ASSERT(xmouse_installed);
 
@@ -189,7 +189,7 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
    for (i = 0; i < num_buttons; i++) {
       sprintf(debug + strlen(debug), "%2d,", map[i]);
    }
-   ALLEGRO_DEBUG("XGetPointerMapping: %s\n", debug);
+   A5O_DEBUG("XGetPointerMapping: %s\n", debug);
    #endif
 
    if (num_buttons < 1)
@@ -216,14 +216,14 @@ static unsigned int xmouse_get_mouse_num_axes(void)
 /* xmouse_set_mouse_xy:
  *  Set the mouse position.  Return true if successful.
  */
-static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+static bool xmouse_set_mouse_xy(A5O_DISPLAY *display, int x, int y)
 {
    if (!xmouse_installed)
       return false;
 
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *x11display = system->x11display;
-   ALLEGRO_DISPLAY_XGLX *d = (void *)display;
+   A5O_DISPLAY_XGLX *d = (void *)display;
 
    int window_width = al_get_display_width(display);
    int window_height = al_get_display_height(display);
@@ -233,7 +233,7 @@ static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
    the_mouse.state.x = x;
    the_mouse.state.y = y;
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
    float scale_x, scale_y;
    _al_raspberrypi_get_mouse_scale_ratios(&scale_x, &scale_y);
    x /= scale_x;
@@ -288,7 +288,7 @@ static bool xmouse_set_mouse_axis(int which, int v)
          the_mouse.state.w = w;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            A5O_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             the_mouse.state.w, the_mouse.state.pressure,
             0, 0, dz, dw,
@@ -306,7 +306,7 @@ static bool xmouse_set_mouse_axis(int which, int v)
 /* xmouse_get_state:
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
-static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+static void xmouse_get_state(A5O_MOUSE_STATE *ret_state)
 {
    ASSERT(xmouse_installed);
 
@@ -324,7 +324,7 @@ static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
  *  server.
  */
 void _al_xwin_mouse_button_press_handler(int x_button,
-   ALLEGRO_DISPLAY *display)
+   A5O_DISPLAY *display)
 {
    unsigned int al_button;
 
@@ -344,7 +344,7 @@ void _al_xwin_mouse_button_press_handler(int x_button,
       the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; /* TODO */
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
+         A5O_EVENT_MOUSE_BUTTON_DOWN,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          the_mouse.state.w, the_mouse.state.pressure,
          0, 0, 0, 0,
@@ -359,7 +359,7 @@ void _al_xwin_mouse_button_press_handler(int x_button,
  *  Called by _al_xwin_mouse_button_press_handler() if the ButtonPress event
  *  received from the X server is actually for a mouse wheel movement.
  */
-static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
+static void wheel_motion_handler(int x_button, A5O_DISPLAY *display)
 {
    int dz = 0, dw = 0;
    if (x_button == Button4) dz = 1;
@@ -377,7 +377,7 @@ static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
       the_mouse.state.w += dw;
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_AXES,
+         A5O_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          the_mouse.state.w, the_mouse.state.pressure,
          0, 0, dz, dw,
@@ -393,7 +393,7 @@ static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
  *  X server.
  */
 void _al_xwin_mouse_button_release_handler(int x_button,
-   ALLEGRO_DISPLAY *display)
+   A5O_DISPLAY *display)
 {
    int al_button;
 
@@ -410,7 +410,7 @@ void _al_xwin_mouse_button_release_handler(int x_button,
       the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; /* TODO */
 
       generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_BUTTON_UP,
+         A5O_EVENT_MOUSE_BUTTON_UP,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          the_mouse.state.w, the_mouse.state.pressure,
          0, 0, 0, 0,
@@ -426,10 +426,10 @@ void _al_xwin_mouse_button_release_handler(int x_button,
  *  server.
  */
 void _al_xwin_mouse_motion_notify_handler(int x, int y,
-   ALLEGRO_DISPLAY *display)
+   A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   int event_type = ALLEGRO_EVENT_MOUSE_AXES;
+   A5O_DISPLAY_XGLX *glx = (void *)display;
+   int event_type = A5O_EVENT_MOUSE_AXES;
 
    if (!xmouse_installed)
       return;
@@ -437,12 +437,12 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
    /* Is this an event generated in response to al_set_mouse_xy? */
    if (glx->mouse_warp) {
       glx->mouse_warp = false;
-      event_type = ALLEGRO_EVENT_MOUSE_WARPED;
+      event_type = A5O_EVENT_MOUSE_WARPED;
    }
 
    _al_event_source_lock(&the_mouse.parent.es);
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
    float scale_x, scale_y;
    _al_raspberrypi_get_mouse_scale_ratios(&scale_x, &scale_y);
    x *= scale_x;
@@ -503,9 +503,9 @@ static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z, int w, float pressure,
                                  int dx, int dy, int dz, int dw,
                                  unsigned int button,
-                                 ALLEGRO_DISPLAY *display)
+                                 A5O_DISPLAY *display)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
@@ -531,7 +531,7 @@ static void generate_mouse_event(unsigned int type,
 /* _al_xwin_mouse_switch_handler:
  *  Handle a focus switch event.
  */
-void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
+void _al_xwin_mouse_switch_handler(A5O_DISPLAY *display,
    const XCrossingEvent *event)
 {
    int event_type;
@@ -549,13 +549,13 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
          the_mouse.state.display = display;
          the_mouse.state.x = event->x;
          the_mouse.state.y = event->y;
-         event_type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
+         event_type = A5O_EVENT_MOUSE_ENTER_DISPLAY;
          break;
       case LeaveNotify:
          the_mouse.state.display = NULL;
          the_mouse.state.x = event->x;
          the_mouse.state.y = event->y;
-         event_type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
+         event_type = A5O_EVENT_MOUSE_LEAVE_DISPLAY;
          break;
       default:
          ASSERT(false);
@@ -573,10 +573,10 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
    _al_event_source_unlock(&the_mouse.parent.es);
 }
 
-bool _al_xwin_grab_mouse(ALLEGRO_DISPLAY *display)
+bool _al_xwin_grab_mouse(A5O_DISPLAY *display)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    int grab;
    bool ret;
 
@@ -597,7 +597,7 @@ bool _al_xwin_grab_mouse(ALLEGRO_DISPLAY *display)
 
 bool _al_xwin_ungrab_mouse(void)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    _al_mutex_lock(&system->lock);
    XUngrabPointer(system->x11display, CurrentTime);

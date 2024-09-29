@@ -26,13 +26,13 @@
 #include <alloca.h>
 #include <alsa/asoundlib.h>
 
-ALLEGRO_DEBUG_CHANNEL("alsa")
+A5O_DEBUG_CHANNEL("alsa")
 
 #define ALSA_CHECK(a) \
 do {                                                                  \
    int err = (a);                                                     \
    if (err < 0) {                                                     \
-      ALLEGRO_ERROR("%s: %s\n", snd_strerror(err), #a);               \
+      A5O_ERROR("%s: %s\n", snd_strerror(err), #a);               \
       goto Error;                                                     \
    }                                                                  \
 } while(0)
@@ -95,7 +95,7 @@ typedef struct ALSA_VOICE {
    struct pollfd *ufds;
    int ufds_count;
 
-   ALLEGRO_THREAD *poll_thread;
+   A5O_THREAD *poll_thread;
 
    snd_pcm_t *pcm_handle;
    bool mmapped;
@@ -120,7 +120,7 @@ static int alsa_open(void)
    int alsa_err = snd_pcm_open(&test_pcm_handle, alsa_device,
                                SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
    if (alsa_err < 0) {
-      ALLEGRO_WARN("ALSA is not available on the system.\n");
+      A5O_WARN("ALSA is not available on the system.\n");
       return 1;
    }
    else {
@@ -131,7 +131,7 @@ static int alsa_open(void)
 
    /* ALSA check is a macro that 'goto' error*/
 Error:
-   ALLEGRO_ERROR("Error initializing alsa!\n");
+   A5O_ERROR("Error initializing alsa!\n");
    return 1;
 }
 
@@ -159,25 +159,25 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
    if (err == -EPIPE) { /* under-run */
       err = snd_pcm_prepare(handle);
       if (err < 0) {
-         ALLEGRO_ERROR("Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
+         A5O_ERROR("Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
       }
       else {
-         ALLEGRO_DEBUG("Recovered from underrun\n");
+         A5O_DEBUG("Recovered from underrun\n");
       }
       return 0;
    }
    else if (err == -ESTRPIPE) { /* suspend */
       err = snd_pcm_resume(handle);
       if (err < 0) {
-         ALLEGRO_ERROR("Can't recover from suspend, resume failed: %s\n", snd_strerror(err));
+         A5O_ERROR("Can't recover from suspend, resume failed: %s\n", snd_strerror(err));
       }
       else {
-         ALLEGRO_DEBUG("Resumed successfully\n");
+         A5O_DEBUG("Resumed successfully\n");
       }
       return 0;
    }
    else {
-      ALLEGRO_ERROR("Unknown error code: %d\n", err);
+      A5O_ERROR("Unknown error code: %d\n", err);
       ASSERT(0);
    }
 
@@ -195,7 +195,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
  * If the voice is played backwards, 'buf' will point to the end of the buffer
  * and 'bytes' is the size that can be read towards the beginning.
  */
-static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *bytes)
+static int alsa_update_nonstream_voice(A5O_VOICE *voice, void **buf, int *bytes)
 {
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
    int bpos = voice->attached_stream->pos * alsa_voice->frame_size;
@@ -206,14 +206,14 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
    if (!alsa_voice->reversed) {
       if (bpos + *bytes > blen) {
          *bytes = blen - bpos;
-         if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
+         if (voice->attached_stream->loop == A5O_PLAYMODE_ONCE) {
             alsa_voice->stop = true;
             voice->attached_stream->pos = 0;
          }
-         if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_LOOP) {
+         if (voice->attached_stream->loop == A5O_PLAYMODE_LOOP) {
             voice->attached_stream->pos = 0;
          }
-         else if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
+         else if (voice->attached_stream->loop == A5O_PLAYMODE_BIDIR) {
             alsa_voice->reversed = true;
             voice->attached_stream->pos = alsa_voice->len;
          }
@@ -225,9 +225,9 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
    else {
       if (bpos - *bytes < 0) {
          *bytes = bpos;
-         /* loop will be ALLEGRO_PLAYMODE_BIDIR, other playing modes that play
+         /* loop will be A5O_PLAYMODE_BIDIR, other playing modes that play
             backwards are not currently supported by the API */
-         /*if (voice->attached_stream->loop != ALLEGRO_PLAYMODE_BIDIR)
+         /*if (voice->attached_stream->loop != A5O_PLAYMODE_BIDIR)
             alsa_voice->stop = true;*/
 
          voice->attached_stream->pos = 0;
@@ -262,11 +262,11 @@ static int alsa_voice_is_ready(ALSA_VOICE *alsa_voice)
             err = -ESTRPIPE;
 
          if (xrun_recovery(alsa_voice->pcm_handle, err) < 0) {
-            ALLEGRO_ERROR("Write error: %s\n", snd_strerror(err));
+            A5O_ERROR("Write error: %s\n", snd_strerror(err));
             return -POLLERR;
          }
       } else {
-         ALLEGRO_ERROR("Wait for poll failed\n");
+         A5O_ERROR("Wait for poll failed\n");
          return -POLLERR;
       }
    }
@@ -280,9 +280,9 @@ static int alsa_voice_is_ready(ALSA_VOICE *alsa_voice)
 
 /* Custom routine which runs in another thread and fills the hardware PCM buffer
    from the voice buffer. */
-static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
+static void *alsa_update_mmap(A5O_THREAD *self, void *arg)
 {
-   ALLEGRO_VOICE *voice = (ALLEGRO_VOICE*)arg;
+   A5O_VOICE *voice = (A5O_VOICE*)arg;
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
    snd_pcm_state_t last_state = -1;
    snd_pcm_state_t state;
@@ -293,7 +293,7 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
    snd_pcm_sframes_t commitres;
    int ret;
 
-   ALLEGRO_INFO("ALSA update_mmap thread started\n");
+   A5O_INFO("ALSA update_mmap thread started\n");
 
    while (!al_get_thread_should_stop(self)) {
       if (alsa_voice->stop && !alsa_voice->stopped) {
@@ -321,17 +321,17 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
 
       state = snd_pcm_state(alsa_voice->pcm_handle);
       if (state != last_state) {
-         ALLEGRO_DEBUG("state changed to: %s\n", snd_pcm_state_name(state));
+         A5O_DEBUG("state changed to: %s\n", snd_pcm_state_name(state));
          last_state = state;
       }
       if (state == SND_PCM_STATE_SETUP) {
          int rc = snd_pcm_prepare(alsa_voice->pcm_handle);
-         ALLEGRO_DEBUG("snd_pcm_prepare returned: %d\n", rc);
+         A5O_DEBUG("snd_pcm_prepare returned: %d\n", rc);
          continue;
       }
       if (state == SND_PCM_STATE_PREPARED) {
          int rc = snd_pcm_start(alsa_voice->pcm_handle);
-         ALLEGRO_DEBUG("snd_pcm_start returned: %d\n", rc);
+         A5O_DEBUG("snd_pcm_start returned: %d\n", rc);
       }
 
       ret = alsa_voice_is_ready(alsa_voice);
@@ -347,7 +347,7 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
       ret = snd_pcm_mmap_begin(alsa_voice->pcm_handle, &areas, &offset, &frames);
       if (ret < 0) {
          if ((ret = xrun_recovery(alsa_voice->pcm_handle, ret)) < 0) {
-            ALLEGRO_ERROR("MMAP begin avail error: %s\n", snd_strerror(ret));
+            A5O_ERROR("MMAP begin avail error: %s\n", snd_strerror(ret));
          }
          break;
       }
@@ -400,28 +400,28 @@ commit:
       commitres = snd_pcm_mmap_commit(alsa_voice->pcm_handle, offset, frames);
       if (commitres < 0 || (snd_pcm_uframes_t)commitres != frames) {
          if ((ret = xrun_recovery(alsa_voice->pcm_handle, commitres >= 0 ? -EPIPE : commitres)) < 0) {
-            ALLEGRO_ERROR("MMAP commit error: %s\n", snd_strerror(ret));
+            A5O_ERROR("MMAP commit error: %s\n", snd_strerror(ret));
             break;
          }
       }
    }
 
-   ALLEGRO_INFO("ALSA update_mmap thread stopped\n");
+   A5O_INFO("ALSA update_mmap thread stopped\n");
 
    return NULL;
 }
 
 
-static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
+static void *alsa_update_rw(A5O_THREAD *self, void *arg)
 {
-   ALLEGRO_VOICE *voice = (ALLEGRO_VOICE*)arg;
+   A5O_VOICE *voice = (A5O_VOICE*)arg;
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
    snd_pcm_state_t last_state = -1;
    snd_pcm_state_t state;
    snd_pcm_uframes_t frames;
    snd_pcm_sframes_t err;
 
-   ALLEGRO_INFO("ALSA update_rw thread started\n");
+   A5O_INFO("ALSA update_rw thread started\n");
 
    while (!al_get_thread_should_stop(self)) {
       if (alsa_voice->stop && !alsa_voice->stopped) {
@@ -449,17 +449,17 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
 
       state = snd_pcm_state(alsa_voice->pcm_handle);
       if (state != last_state) {
-         ALLEGRO_DEBUG("state changed to: %s\n", snd_pcm_state_name(state));
+         A5O_DEBUG("state changed to: %s\n", snd_pcm_state_name(state));
          last_state = state;
       }
       if (state == SND_PCM_STATE_SETUP) {
          int rc = snd_pcm_prepare(alsa_voice->pcm_handle);
-         ALLEGRO_DEBUG("snd_pcm_prepare returned: %d\n", rc);
+         A5O_DEBUG("snd_pcm_prepare returned: %d\n", rc);
          continue;
       }
       if (state == SND_PCM_STATE_PREPARED) {
          int rc = snd_pcm_start(alsa_voice->pcm_handle);
-         ALLEGRO_DEBUG("snd_pcm_start returned: %d\n", rc);
+         A5O_DEBUG("snd_pcm_start returned: %d\n", rc);
       }
 
       snd_pcm_wait(alsa_voice->pcm_handle, 10);
@@ -469,7 +469,7 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
             snd_pcm_prepare(alsa_voice->pcm_handle);
          }
          else {
-            ALLEGRO_WARN("Alsa r/w thread exited "
+            A5O_WARN("Alsa r/w thread exited "
                "with error code %s.\n", snd_strerror(-err));
             break;
          }
@@ -511,7 +511,7 @@ silence:
       }
    }
 
-   ALLEGRO_INFO("ALSA update_rw thread stopped\n");
+   A5O_INFO("ALSA update_rw thread stopped\n");
 
    return NULL;
 }
@@ -522,7 +522,7 @@ silence:
    'buffer_size' field will be the total length in bytes of the sample data.
    The voice's attached stream's looping mode should be honored, and loading
    must fail if it cannot be. */
-static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
+static int alsa_load_voice(A5O_VOICE *voice, const void *data)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
@@ -537,7 +537,7 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
 /* The unload_voice method unloads a sample previously loaded with load_voice.
    This method should not be called on a streaming voice. */
-static void alsa_unload_voice(ALLEGRO_VOICE *voice)
+static void alsa_unload_voice(A5O_VOICE *voice)
 {
    (void)voice;
 }
@@ -548,7 +548,7 @@ static void alsa_unload_voice(ALLEGRO_VOICE *voice)
    should start polling the device and call _al_voice_update for audio data.
    For non-streaming voices, it should resume playing from the last set
    position */
-static int alsa_start_voice(ALLEGRO_VOICE *voice)
+static int alsa_start_voice(A5O_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
@@ -563,7 +563,7 @@ static int alsa_start_voice(ALLEGRO_VOICE *voice)
 
 /* The stop_voice method should stop playback. For non-streaming voices, it
    should leave the data loaded, and reset the voice position to 0. */
-static int alsa_stop_voice(ALLEGRO_VOICE *voice)
+static int alsa_stop_voice(A5O_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
@@ -586,7 +586,7 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
 
 /* The voice_is_playing method should only be called on non-streaming sources,
    and should return true if the voice is playing */
-static bool alsa_voice_is_playing(const ALLEGRO_VOICE *voice)
+static bool alsa_voice_is_playing(const A5O_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
    return !ex_data->stopped;
@@ -595,7 +595,7 @@ static bool alsa_voice_is_playing(const ALLEGRO_VOICE *voice)
 
 /* The allocate_voice method should grab a voice from the system, and allocate
    any data common to streaming and non-streaming sources. */
-static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
+static int alsa_allocate_voice(A5O_VOICE *voice)
 {
    snd_pcm_format_t format;
    int chan_count;
@@ -616,25 +616,25 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 
    ex_data->frag_len = get_period_size();
 
-   if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT8)
+   if (voice->depth == A5O_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
+   else if (voice->depth == A5O_AUDIO_DEPTH_UINT8)
       format = SND_PCM_FORMAT_U8;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+   else if (voice->depth == A5O_AUDIO_DEPTH_INT16)
       format = SND_PCM_FORMAT_S16;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
+   else if (voice->depth == A5O_AUDIO_DEPTH_UINT16)
       format = SND_PCM_FORMAT_U16;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT24)
+   else if (voice->depth == A5O_AUDIO_DEPTH_INT24)
       format = SND_PCM_FORMAT_S24;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT24)
+   else if (voice->depth == A5O_AUDIO_DEPTH_UINT24)
       format = SND_PCM_FORMAT_U24;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+   else if (voice->depth == A5O_AUDIO_DEPTH_FLOAT32)
       format = SND_PCM_FORMAT_FLOAT;
    else
       goto Error;
 
    /* Why is this? And what is this? */
-   if (voice->chan_conf == ALLEGRO_CHANNEL_CONF_3)
+   if (voice->chan_conf == A5O_CHANNEL_CONF_3)
       goto Error;
 
    req_freq = voice->frequency;
@@ -661,7 +661,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_hw_params(ex_data->pcm_handle, hwparams));
 
    if (voice->frequency != req_freq) {
-      ALLEGRO_ERROR("Unsupported rate! Requested %u, got %iu.\n", voice->frequency, req_freq);
+      A5O_ERROR("Unsupported rate! Requested %u, got %iu.\n", voice->frequency, req_freq);
       goto Error;
    }
 
@@ -683,7 +683,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
       ex_data->poll_thread = al_create_thread(alsa_update_mmap, (void*)voice);
    }
    else {
-      ALLEGRO_WARN("Falling back to non-mmapped transfer.\n");
+      A5O_WARN("Falling back to non-mmapped transfer.\n");
       snd_pcm_nonblock(ex_data->pcm_handle, 0);
       ex_data->poll_thread = al_create_thread(alsa_update_rw, (void*)voice);
    }
@@ -704,7 +704,7 @@ Error:
 /* The deallocate_voice method should free the resources for the given voice,
    but still retain a hold on the device. The voice should be stopped and
    unloaded by the time this is called */
-static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
+static void alsa_deallocate_voice(A5O_VOICE *voice)
 {
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
 
@@ -728,7 +728,7 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
 /* The get_voice_position method should return the current sample position of
    the voice (sample_pos = byte_pos / (depth/8) / channels). This should never
    be called on a streaming voice. */
-static unsigned int alsa_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int alsa_get_voice_position(const A5O_VOICE *voice)
 {
    return voice->attached_stream->pos;
 }
@@ -738,7 +738,7 @@ static unsigned int alsa_get_voice_position(const ALLEGRO_VOICE *voice)
 /* The set_voice_position method should set the voice's playback position,
    given the value in samples. This should never be called on a streaming
    voice. */
-static int alsa_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
+static int alsa_set_voice_position(A5O_VOICE *voice, unsigned int val)
 {
    voice->attached_stream->pos = val;
    return 0;
@@ -750,17 +750,17 @@ typedef struct ALSA_RECORDER_DATA
    snd_pcm_hw_params_t *hw_params;
 } ALSA_RECORDER_DATA;
 
-static void *alsa_update_recorder(ALLEGRO_THREAD *t, void *thread_data)
+static void *alsa_update_recorder(A5O_THREAD *t, void *thread_data)
 {
-   ALLEGRO_AUDIO_RECORDER *r = thread_data;
+   A5O_AUDIO_RECORDER *r = thread_data;
    ALSA_RECORDER_DATA *alsa = r->extra;
-   ALLEGRO_EVENT user_event;
+   A5O_EVENT user_event;
    uint8_t *null_buffer;
    unsigned int fragment_i = 0;
    
    null_buffer = al_malloc(1024 * r->sample_size);
    if (!null_buffer) {
-      ALLEGRO_ERROR("Unable to create buffer for draining ALSA.\n");
+      A5O_ERROR("Unable to create buffer for draining ALSA.\n");
       return NULL;
    }
    
@@ -777,11 +777,11 @@ static void *alsa_update_recorder(ALLEGRO_THREAD *t, void *thread_data)
          snd_pcm_readi(alsa->capture_handle, null_buffer, 1024);
       }
       else {
-         ALLEGRO_AUDIO_RECORDER_EVENT *e;
+         A5O_AUDIO_RECORDER_EVENT *e;
          snd_pcm_sframes_t count;
          al_unlock_mutex(r->mutex);
          if ((count = snd_pcm_readi(alsa->capture_handle, r->fragments[fragment_i], r->samples)) > 0) {
-            user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+            user_event.user.type = A5O_EVENT_AUDIO_RECORDER_FRAGMENT;
             e = al_get_audio_recorder_event(&user_event);
             e->buffer = r->fragments[fragment_i];
             e->samples = count;
@@ -798,7 +798,7 @@ static void *alsa_update_recorder(ALLEGRO_THREAD *t, void *thread_data)
    return NULL;
 }
 
-static int alsa_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+static int alsa_allocate_recorder(A5O_AUDIO_RECORDER *r)
 {
    ALSA_RECORDER_DATA *data;
    unsigned int frequency = r->frequency;
@@ -816,19 +816,19 @@ static int alsa_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
       goto Error;
    }
    
-   if (r->depth == ALLEGRO_AUDIO_DEPTH_INT8)
+   if (r->depth == A5O_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
+   else if (r->depth == A5O_AUDIO_DEPTH_UINT8)
       format = SND_PCM_FORMAT_U8;
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+   else if (r->depth == A5O_AUDIO_DEPTH_INT16)
       format = SND_PCM_FORMAT_S16;
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
+   else if (r->depth == A5O_AUDIO_DEPTH_UINT16)
       format = SND_PCM_FORMAT_U16;
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT24)
+   else if (r->depth == A5O_AUDIO_DEPTH_INT24)
       format = SND_PCM_FORMAT_S24;
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT24)
+   else if (r->depth == A5O_AUDIO_DEPTH_UINT24)
       format = SND_PCM_FORMAT_U24;
-   else if (r->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+   else if (r->depth == A5O_AUDIO_DEPTH_FLOAT32)
       format = SND_PCM_FORMAT_FLOAT;
    else
       goto Error;
@@ -841,7 +841,7 @@ static int alsa_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    ALSA_CHECK(snd_pcm_hw_params_set_rate_near(data->capture_handle, data->hw_params, &frequency, 0));
    
    if (frequency != r->frequency) {
-      ALLEGRO_ERROR("Unsupported rate! Requested %u, got %iu.\n", r->frequency, frequency);
+      A5O_ERROR("Unsupported rate! Requested %u, got %iu.\n", r->frequency, frequency);
       goto Error;
    }
    
@@ -870,7 +870,7 @@ Error:
    return 1;
 }
 
-static void alsa_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+static void alsa_deallocate_recorder(A5O_AUDIO_RECORDER *r)
 {
    ALSA_RECORDER_DATA *data = r->extra;
    
@@ -882,7 +882,7 @@ static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
-   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
    al_free(device);
@@ -897,7 +897,7 @@ static _AL_LIST* alsa_get_output_devices(void)
       int rcard = -1;
       while(snd_card_next(&rcard) == 0) {
          if (rcard < 0) {
-            ALLEGRO_WARN("snd_card_next returned a bad card %d.\n", rcard);
+            A5O_WARN("snd_card_next returned a bad card %d.\n", rcard);
             /* Something is really messed up, so bail out. */
             return output_device_list;
          }
@@ -908,7 +908,7 @@ static _AL_LIST* alsa_get_output_devices(void)
          snprintf(str, sizeof str, "hw:%i", rcard);
          res = snd_ctl_open(&handle, str, 0);
          if (res < 0) {
-            ALLEGRO_WARN("snd_ctl_open on '%s' failed with code %d.\n", str, res);
+            A5O_WARN("snd_ctl_open on '%s' failed with code %d.\n", str, res);
             continue;
          }
 
@@ -916,7 +916,7 @@ static _AL_LIST* alsa_get_output_devices(void)
          snd_ctl_card_info_alloca(&card_info);
          res = snd_ctl_card_info(handle, card_info);
          if (res < 0) {
-            ALLEGRO_WARN("snd_ctl_card_info on '%s' failed with code %d.\n", str, res);
+            A5O_WARN("snd_ctl_card_info on '%s' failed with code %d.\n", str, res);
             continue;
          }
 
@@ -930,14 +930,14 @@ static _AL_LIST* alsa_get_output_devices(void)
             }
 
             if (dev_num < 0) {
-               ALLEGRO_WARN("Invalid device number for card %d.\n", rcard);
+               A5O_WARN("Invalid device number for card %d.\n", rcard);
                break;
             }
 
             void **hints;
             res = snd_device_name_hint(dev_num, "pcm", &hints);
             if (res < 0) {
-               ALLEGRO_WARN("snd_device_name_hint for card %d, device %d failed with error code %d\n",
+               A5O_WARN("snd_device_name_hint for card %d, device %d failed with error code %d\n",
                   rcard, dev_num, res);
                continue;
             }
@@ -964,7 +964,7 @@ static _AL_LIST* alsa_get_output_devices(void)
                snd_device_name_free_hint(hints);
                free(identifier);
                free(name);
-               ALLEGRO_WARN("Could not find identifier/name for card %d, device %d\n",
+               A5O_WARN("Could not find identifier/name for card %d, device %d\n",
                   rcard, dev_num);
                continue;
             }
@@ -976,7 +976,7 @@ static _AL_LIST* alsa_get_output_devices(void)
             int len = strlen(actual_name) + strlen(card_name) + 1 + 1;
             int identifier_len = strlen(identifier) + 1;
 
-            ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+            A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)al_malloc(sizeof(A5O_AUDIO_DEVICE));
             device->identifier = (char*)al_malloc(identifier_len);
             device->name = (char*)al_malloc(len);
 
@@ -997,7 +997,7 @@ static _AL_LIST* alsa_get_output_devices(void)
    return output_device_list;
 }
 
-ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
+A5O_AUDIO_DRIVER _al_kcm_alsa_driver =
 {
    "ALSA",
 

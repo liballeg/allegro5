@@ -10,51 +10,51 @@ Link with allegro_video.
 Currently we have an Ogg backend (Theora + Vorbis). See <http://xiph.org/> for
 installation instructions, licensing information and supported video formats.
 
-## API: ALLEGRO_VIDEO_EVENT_TYPE
+## API: A5O_VIDEO_EVENT_TYPE
 
 Events sent by [al_get_video_event_source].
 
-### ALLEGRO_EVENT_VIDEO_FRAME_SHOW
+### A5O_EVENT_VIDEO_FRAME_SHOW
 
 This event is sent when it is time to show a new frame. Once you receive this
 event, you can draw the current frame (as returned by [al_get_video_frame]).
 [al_get_video_frame] will continue returning the same frame until the next
-ALLEGRO_EVENT_VIDEO_FRAME_SHOW is sent.
+A5O_EVENT_VIDEO_FRAME_SHOW is sent.
 
-user.data1 (ALLEGRO_VIDEO *)
+user.data1 (A5O_VIDEO *)
 :   The video which generated the event.
 
 Since: 5.1.0
 
-### ALLEGRO_EVENT_VIDEO_FINISHED
+### A5O_EVENT_VIDEO_FINISHED
 
 This event is sent when the video is finished. Depending on the backend, it may
 be possible to seek to an earlier part of the video and set the video to play
 to resume playback.
 
-user.data1 (ALLEGRO_VIDEO *)
+user.data1 (A5O_VIDEO *)
 :   The video which generated the event.
 
 Since: 5.1.0
 
-## API: ALLEGRO_VIDEO_POSITION_TYPE
+## API: A5O_VIDEO_POSITION_TYPE
 
 Used with [al_get_video_position] to specify which position to retrieve. If
 these get out of sync, audio and video may be out of sync in the display of
 the video.
 
-* ALLEGRO_VIDEO_POSITION_ACTUAL -
+* A5O_VIDEO_POSITION_ACTUAL -
 The amount of time the video has been playing. If the video has audio then
-this value can be ahead of ALLEGRO_VIDEO_POSITION_VIDEO_DECODE when video
+this value can be ahead of A5O_VIDEO_POSITION_VIDEO_DECODE when video
 decoding lags.
 
-* ALLEGRO_VIDEO_POSITION_VIDEO_DECODE -
+* A5O_VIDEO_POSITION_VIDEO_DECODE -
 The amount of video that has been decoded. This may lag behind the "actual"
 and audio positions if decoding is slower than realtime.
 
-* ALLEGRO_VIDEO_POSITION_AUDIO_DECODE -
+* A5O_VIDEO_POSITION_AUDIO_DECODE -
 The amount of audio that has been decoded. This may be the same as
-ALLEGRO_VIDEO_POSITION_ACTUAL if audio decode is driving the position,
+A5O_VIDEO_POSITION_ACTUAL if audio decode is driving the position,
 which is common to keep audio and video in sync.
 
 Since: 5.1.11
@@ -105,7 +105,7 @@ See also: [al_init_video_addon], [al_identify_video_f]
 
 ## API: al_identify_video_f
 
-Tries to guess the video file type of the open ALLEGRO_FILE by
+Tries to guess the video file type of the open A5O_FILE by
 reading the first few bytes. By default Allegro cannot recognize any
 file types, but calling [al_init_video_addon] will add detection of the
 types it can read.
@@ -140,7 +140,7 @@ Since: 5.1.0
 ## API: al_get_video_event_source
 
 Get an event source for the video. The possible events are described
-under [ALLEGRO_VIDEO_EVENT_TYPE].
+under [A5O_VIDEO_EVENT_TYPE].
 
 Since: 5.1.0
 
@@ -200,7 +200,7 @@ frame would be using code like this:
 
 ~~~~c
 float scale = 1.0; /* Adjust this to fit your target bitmap dimensions. */
-ALLEGRO_BITMAP* frame = al_get_video_frame(video);
+A5O_BITMAP* frame = al_get_video_frame(video);
 float sw = al_get_bitmap_width(frame);
 float sh = al_get_bitmap_height(frame);
 float dw = scale * al_get_video_scaled_width(video);
@@ -215,7 +215,7 @@ See also: [al_get_video_scaled_width], [al_get_video_scaled_height]
 ## API: al_get_video_position
 
 Returns the current position of the video stream in seconds since the
-beginning. The parameter is one of the [ALLEGRO_VIDEO_POSITION_TYPE]
+beginning. The parameter is one of the [A5O_VIDEO_POSITION_TYPE]
 constants.
 
 Since: 5.1.0

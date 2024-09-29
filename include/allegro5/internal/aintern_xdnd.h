@@ -17,12 +17,12 @@ typedef struct {
    Window xdnd_source;
 } DndInfo;
 
-void _al_display_xglx_init_dnd_atoms(ALLEGRO_SYSTEM_XGLX *s);
-void _al_xwin_accept_drag_and_drop(ALLEGRO_DISPLAY *display, bool accept);
-bool _al_display_xglx_handle_drag_and_drop(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *allegro_display, XEvent *event);
-bool _al_display_xglx_handle_drag_and_drop_selection(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *allegro_display, XEvent *xevent);
+void _al_display_xglx_init_dnd_atoms(A5O_SYSTEM_XGLX *s);
+void _al_xwin_accept_drag_and_drop(A5O_DISPLAY *display, bool accept);
+bool _al_display_xglx_handle_drag_and_drop(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *allegro_display, XEvent *event);
+bool _al_display_xglx_handle_drag_and_drop_selection(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *allegro_display, XEvent *xevent);
 
 #endif
 

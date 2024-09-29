@@ -16,7 +16,7 @@
 
 
 /* draws text with a dropshadow */
-static void textout_shadow(char *msg, int x, int y, ALLEGRO_COLOR c)
+static void textout_shadow(char *msg, int x, int y, A5O_COLOR c)
 {
    textout_centre(font, msg, x+1, y+1, makecol(0, 0, 0));
    textout_centre(font, msg, x, y, c);
@@ -29,13 +29,13 @@ int title_screen()
 {
    int SCREEN_W = al_get_display_width(screen);
    int SCREEN_H = al_get_display_height(screen);
-   ALLEGRO_BITMAP *bmp, *b;
-   ALLEGRO_COLOR white = makecol(255, 255, 255);
+   A5O_BITMAP *bmp, *b;
+   A5O_COLOR white = makecol(255, 255, 255);
    int i, j, y;
 
    bmp = create_memory_bitmap(SCREEN_W, SCREEN_H);
    al_set_target_bitmap(bmp);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 
    for (i=0; i<SCREEN_H/2; i++) {
       hline(0, i, SCREEN_W, makecol(0, 0, i*255/(SCREEN_H/2)));
@@ -91,10 +91,10 @@ int title_screen()
 
    stop_retrace_count();
 
-   while (joy_b1 || key[ALLEGRO_KEY_SPACE] || key[ALLEGRO_KEY_ENTER] || key[ALLEGRO_KEY_ESCAPE])
+   while (joy_b1 || key[A5O_KEY_SPACE] || key[A5O_KEY_ENTER] || key[A5O_KEY_ESCAPE])
       poll_input_wait();
 
-   while (!key[ALLEGRO_KEY_SPACE] && !key[ALLEGRO_KEY_ENTER] && !key[ALLEGRO_KEY_ESCAPE] && !joy_b1) {
+   while (!key[A5O_KEY_SPACE] && !key[A5O_KEY_ENTER] && !key[A5O_KEY_ESCAPE] && !joy_b1) {
       poll_input_wait();
       al_draw_bitmap(bmp, 0, 0, 0);
       al_flip_display();
@@ -102,7 +102,7 @@ int title_screen()
 
    al_destroy_bitmap(bmp);
 
-   if (key[ALLEGRO_KEY_ESCAPE])
+   if (key[A5O_KEY_ESCAPE])
       return FALSE;
 
    sfx_ping(2);
@@ -117,7 +117,7 @@ void show_results()
 {
    int SCREEN_W = al_get_display_width(screen);
    int SCREEN_H = al_get_display_height(screen);
-   ALLEGRO_BITMAP *bmp, *b;
+   A5O_BITMAP *bmp, *b;
    char buf[80];
    int i, j, x;
 
@@ -168,10 +168,10 @@ void show_results()
 
    stop_retrace_count();
 
-   while (joy_b1 || key[ALLEGRO_KEY_SPACE] || key[ALLEGRO_KEY_ENTER] || key[ALLEGRO_KEY_ESCAPE])
+   while (joy_b1 || key[A5O_KEY_SPACE] || key[A5O_KEY_ENTER] || key[A5O_KEY_ESCAPE])
       poll_input_wait();
 
-   while (!key[ALLEGRO_KEY_SPACE] && !key[ALLEGRO_KEY_ENTER] && !key[ALLEGRO_KEY_ESCAPE] && !joy_b1) {
+   while (!key[A5O_KEY_SPACE] && !key[A5O_KEY_ENTER] && !key[A5O_KEY_ESCAPE] && !joy_b1) {
       poll_input_wait();
       al_draw_bitmap(bmp, 0, 0, 0);
       al_flip_display();
@@ -200,10 +200,10 @@ void goodbye()
       12, 3, 7, 1, 6, 1, 7, 1, 8, 3, 7, 3
    };
 
-   ALLEGRO_SAMPLE *s1, *s2;
-   ALLEGRO_SAMPLE_ID id;
-   ALLEGRO_BITMAP *b;
-   ALLEGRO_BITMAP *screen_backbuffer;
+   A5O_SAMPLE *s1, *s2;
+   A5O_SAMPLE_ID id;
+   A5O_BITMAP *b;
+   A5O_BITMAP *screen_backbuffer;
    char *sdata1, *sdata2;
    int SCREEN_W, SCREEN_H;
    int i;
@@ -251,14 +251,14 @@ void goodbye()
 
    al_flip_display();
 
-   while (key[ALLEGRO_KEY_SPACE] || key[ALLEGRO_KEY_ENTER] || key[ALLEGRO_KEY_ESCAPE])
+   while (key[A5O_KEY_SPACE] || key[A5O_KEY_ENTER] || key[A5O_KEY_ESCAPE])
       poll_input_wait();
 
    clear_keybuf();
 
    for (i=0; i < (int)(sizeof(data1)/sizeof(int)); i += 2) {
       al_play_sample(s1, 64/255.0, 0.0, pow(2.0, (float)data1[i]/12.0),
-		     ALLEGRO_PLAYMODE_LOOP, &id);
+		     A5O_PLAYMODE_LOOP, &id);
       rest(100*data1[i+1]);
       al_stop_sample(&id);
       rest(50*data1[i+1]);
@@ -275,7 +275,7 @@ void goodbye()
 
    for (i=0; i < (int)(sizeof(data2)/sizeof(int)); i += 2) {
       al_play_sample(s2, 64/255.0, 0.0, pow(2.0, (float)data2[i]/12.0),
-		     ALLEGRO_PLAYMODE_LOOP, &id);
+		     A5O_PLAYMODE_LOOP, &id);
       rest(75*data2[i+1]);
       al_stop_sample(&id);
       rest(25*data2[i+1]);

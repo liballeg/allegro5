@@ -27,25 +27,25 @@
 
 
 /* describe this platform */
-#ifdef ALLEGRO_STATICLINK
-   #define ALLEGRO_PLATFORM_STR  "MSVC.s"
+#ifdef A5O_STATICLINK
+   #define A5O_PLATFORM_STR  "MSVC.s"
 #else
-   #define ALLEGRO_PLATFORM_STR  "MSVC"
+   #define A5O_PLATFORM_STR  "MSVC"
 #endif
 
-#define ALLEGRO_WINDOWS
-#define ALLEGRO_I386
-#define ALLEGRO_LITTLE_ENDIAN
-#define ALLEGRO_GUESS_INTTYPES_OK
+#define A5O_WINDOWS
+#define A5O_I386
+#define A5O_LITTLE_ENDIAN
+#define A5O_GUESS_INTTYPES_OK
 
-#ifdef ALLEGRO_USE_CONSOLE
-   #define ALLEGRO_NO_MAGIC_MAIN
+#ifdef A5O_USE_CONSOLE
+   #define A5O_NO_MAGIC_MAIN
 #endif
   
 
 /* describe how function prototypes look to MSVC */
-#ifndef ALLEGRO_STATICLINK
-   #ifdef ALLEGRO_SRC
+#ifndef A5O_STATICLINK
+   #ifdef A5O_SRC
       #define _AL_DLL   __declspec(dllexport)
    #else
       #define _AL_DLL   __declspec(dllimport)
@@ -100,6 +100,6 @@
 
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alwin.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
-#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintwthr.h"
+#define A5O_EXTRA_HEADER     "allegro5/platform/alwin.h"
+#define A5O_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
+#define A5O_INTERNAL_THREAD_HEADER "allegro5/platform/aintwthr.h"

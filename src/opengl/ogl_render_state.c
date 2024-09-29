@@ -3,9 +3,9 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-ALLEGRO_DEBUG_CHANNEL("opengl")
+A5O_DEBUG_CHANNEL("opengl")
 
-/* Note: synched to ALLEGRO_RENDER_FUNCTION values as array indices */
+/* Note: synched to A5O_RENDER_FUNCTION values as array indices */
 static int _gl_funcs[] = {
    GL_NEVER,
    GL_ALWAYS,
@@ -17,16 +17,16 @@ static int _gl_funcs[] = {
    GL_GEQUAL
 };
 
-void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)
+void _al_ogl_update_render_state(A5O_DISPLAY *display)
 {
-   _ALLEGRO_RENDER_STATE *r = &display->render_state;
+   _A5O_RENDER_STATE *r = &display->render_state;
 
    /* TODO: We could store the previous state and/or mark updated states to
     * avoid so many redundant OpenGL calls.
     */
 
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_SHADER_GLSL
       GLint atloc = display->ogl_extras->varlocs.alpha_test_loc;
       GLint floc = display->ogl_extras->varlocs.alpha_func_loc;
       GLint tvloc = display->ogl_extras->varlocs.alpha_test_val_loc;
@@ -39,7 +39,7 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       if (r->alpha_test == 0)
          glDisable(GL_ALPHA_TEST);
       else
@@ -54,10 +54,10 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)
       glEnable(GL_DEPTH_TEST);
    glDepthFunc(_gl_funcs[r->depth_function]);
 
-   glDepthMask((r->write_mask & ALLEGRO_MASK_DEPTH) ? GL_TRUE : GL_FALSE);
+   glDepthMask((r->write_mask & A5O_MASK_DEPTH) ? GL_TRUE : GL_FALSE);
    glColorMask(
-      (r->write_mask & ALLEGRO_MASK_RED) ? GL_TRUE : GL_FALSE,
-      (r->write_mask & ALLEGRO_MASK_GREEN) ? GL_TRUE : GL_FALSE,
-      (r->write_mask & ALLEGRO_MASK_BLUE) ? GL_TRUE : GL_FALSE,
-      (r->write_mask & ALLEGRO_MASK_ALPHA) ? GL_TRUE : GL_FALSE);
+      (r->write_mask & A5O_MASK_RED) ? GL_TRUE : GL_FALSE,
+      (r->write_mask & A5O_MASK_GREEN) ? GL_TRUE : GL_FALSE,
+      (r->write_mask & A5O_MASK_BLUE) ? GL_TRUE : GL_FALSE,
+      (r->write_mask & A5O_MASK_ALPHA) ? GL_TRUE : GL_FALSE);
 }

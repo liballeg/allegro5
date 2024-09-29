@@ -26,7 +26,7 @@ static volatile unsigned int game_time;
 static unsigned int prev_bullet_time;
 static int new_asteroid_time;
 static int score_pos;
-static ALLEGRO_SAMPLE_ID engine;
+static A5O_SAMPLE_ID engine;
 
 #define MAX_SPEED       32
 
@@ -86,12 +86,12 @@ static void move_everyone(void)
    }
    else {
       if (skip_count <= 0) {
-         if ((key[ALLEGRO_KEY_LEFT])) { // || (joy[0].stick[0].axis[0].d1)) {
+         if ((key[A5O_KEY_LEFT])) { // || (joy[0].stick[0].axis[0].d1)) {
             /* moving left */
             if (xspeed > -MAX_SPEED)
                xspeed -= 2;
          }
-         else if ((key[ALLEGRO_KEY_RIGHT])) { // || (joy[0].stick[0].axis[0].d2)) {
+         else if ((key[A5O_KEY_RIGHT])) { // || (joy[0].stick[0].axis[0].d2)) {
             /* moving right */
             if (xspeed < MAX_SPEED)
                xspeed += 2;
@@ -129,17 +129,17 @@ static void move_everyone(void)
       }
 
       if (skip_count <= 0) {
-         if ((key[ALLEGRO_KEY_UP])) { // || (joy[0].stick[0].axis[1].d1)) {
+         if ((key[A5O_KEY_UP])) { // || (joy[0].stick[0].axis[1].d1)) {
             /* firing thrusters */
             if (yspeed < MAX_SPEED) {
                if (yspeed == 0) {
                   al_stop_sample(&engine);
                   al_play_sample(data[ENGINE_SPL].dat, 0.9, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0,
-                     1.0, ALLEGRO_PLAYMODE_LOOP, &engine);
+                     1.0, A5O_PLAYMODE_LOOP, &engine);
                }
                else {
                   /* fade in sample while speeding up */
-                  ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+                  A5O_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
                   al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
                   al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
                   al_unlock_sample_id(&engine);
@@ -148,7 +148,7 @@ static void move_everyone(void)
             }
             else {
                /* adjust pan while the sample is looping */
-               ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+               A5O_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
                al_set_sample_instance_gain(si, 64 / 255.0);
                al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
                al_unlock_sample_id(&engine);
@@ -166,7 +166,7 @@ static void move_everyone(void)
                }
                else {
                   /* fade out and reduce frequency when slowing down */
-                  ALLEGRO_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
+                  A5O_SAMPLE_INSTANCE *si = al_lock_sample_id(&engine);
                   al_set_sample_instance_gain(si, yspeed * 64 / MAX_SPEED / 255.0);
                   al_set_sample_instance_pan(si, -1 + 2 * PAN(player_x_pos >> SPEED_SHIFT) / 255.0);
                   al_set_sample_instance_speed(si, (500 + yspeed * 500 / MAX_SPEED) / 1000.0);
@@ -201,7 +201,7 @@ static void move_everyone(void)
 
    /* fire bullet? */
    if (!player_hit) {
-      if ((key[ALLEGRO_KEY_SPACE] || key[ALLEGRO_KEY_ENTER] || key[ALLEGRO_KEY_LCTRL] || key[ALLEGRO_KEY_RCTRL])) {
+      if ((key[A5O_KEY_SPACE] || key[A5O_KEY_ENTER] || key[A5O_KEY_LCTRL] || key[A5O_KEY_RCTRL])) {
          // ||(joy[0].button[0].b) || (joy[0].button[1].b)) {
          if (prev_bullet_time + BULLET_DELAY < game_time) {
             bullet = add_bullet((player_x_pos >> SPEED_SHIFT) - 2, SCREEN_H - 64);
@@ -293,9 +293,9 @@ static void move_score(void)
 
 static void draw_score(void)
 {
-   ALLEGRO_TRANSFORM tr;
+   A5O_TRANSFORM tr;
    al_identity_transform(&tr);
-   al_rotate_transform(&tr, score_pos * ALLEGRO_PI / 300);
+   al_rotate_transform(&tr, score_pos * A5O_PI / 300);
    al_translate_transform(&tr, score_pos, score_pos);
    al_use_transform(&tr);
    textout_centre(data[END_FONT].dat, "GAME OVER", 0, -24, get_palette(2));
@@ -441,7 +441,7 @@ void play_game(void)
 
       poll_input();
 
-      if (key[ALLEGRO_KEY_ESCAPE] || (dead && (
+      if (key[A5O_KEY_ESCAPE] || (dead && (
          keypressed()))) // || joy[0].button[0].b || joy[0].button[1].b)))
          esc = TRUE;
    }
@@ -455,7 +455,7 @@ void play_game(void)
    if (esc) {
       do {
         poll_input();
-      } while (key[ALLEGRO_KEY_ESCAPE]);
+      } while (key[A5O_KEY_ESCAPE]);
 
       fade_out(5);
       return;

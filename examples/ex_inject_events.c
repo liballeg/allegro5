@@ -14,10 +14,10 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_EVENT_SOURCE fake_src;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT fake_keydown_event, fake_joystick_event;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_SOURCE fake_src;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT fake_keydown_event, fake_joystick_event;
+   A5O_EVENT event;
 
    (void)argc;
    (void)argv;
@@ -34,15 +34,15 @@ int main(int argc, char **argv)
    al_register_event_source(queue, &fake_src);
 
    /* fake a joystick event */
-   fake_joystick_event.any.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+   fake_joystick_event.any.type = A5O_EVENT_JOYSTICK_AXIS;
    fake_joystick_event.joystick.stick = 1;
    fake_joystick_event.joystick.axis = 0;
    fake_joystick_event.joystick.pos = 0.5;
    al_emit_user_event(&fake_src, &fake_joystick_event, NULL);
 
    /* fake a keyboard event */
-   fake_keydown_event.any.type = ALLEGRO_EVENT_KEY_DOWN;
-   fake_keydown_event.keyboard.keycode = ALLEGRO_KEY_ENTER;
+   fake_keydown_event.any.type = A5O_EVENT_KEY_DOWN;
+   fake_keydown_event.keyboard.keycode = A5O_KEY_ENTER;
    al_emit_user_event(&fake_src, &fake_keydown_event, NULL);
 
    /* poll for the events we injected */
@@ -50,12 +50,12 @@ int main(int argc, char **argv)
       al_wait_for_event(queue, &event);
 
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_DOWN:
-            ALLEGRO_ASSERT(event.user.source == &fake_src);
+         case A5O_EVENT_KEY_DOWN:
+            A5O_ASSERT(event.user.source == &fake_src);
             log_printf("Got keydown: %d\n", event.keyboard.keycode);
             break;
-         case ALLEGRO_EVENT_JOYSTICK_AXIS:
-            ALLEGRO_ASSERT(event.user.source == &fake_src);
+         case A5O_EVENT_JOYSTICK_AXIS:
+            A5O_ASSERT(event.user.source == &fake_src);
             log_printf("Got joystick axis: stick=%d axis=%d pos=%f\n",
                event.joystick.stick, event.joystick.axis, event.joystick.pos);
             break;

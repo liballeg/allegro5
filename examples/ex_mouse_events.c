@@ -11,8 +11,8 @@ static int actual_buttons;
 static void draw_mouse_button(int but, bool down)
 {
    const int offset[NUM_BUTTONS] = {0, 70, 35, 105, 140};
-   ALLEGRO_COLOR grey;
-   ALLEGRO_COLOR black;
+   A5O_COLOR grey;
+   A5O_COLOR black;
    int x;
    int y;
    
@@ -31,11 +31,11 @@ static void draw_mouse_button(int but, bool down)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *cursor;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *cursor;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
+   A5O_FONT *font;
    int mx = 0;
    int my = 0;
    int mz = 0;
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
    bool buttons[NUM_BUTTONS] = {false};
    int i;
    float p = 0.0;
-   ALLEGRO_COLOR black;
+   A5O_COLOR black;
 
    (void)argc;
    (void)argv;
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
    if (actual_buttons > NUM_BUTTONS)
       actual_buttons = NUM_BUTTONS;
 
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_RESIZABLE);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
@@ -106,20 +106,20 @@ int main(int argc, char **argv)
             draw_mouse_button(i, buttons[i]);
          }
          al_draw_bitmap(cursor, mx, my, 0);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_textf(font, black, 5, 5, 0, "dx %i, dy %i, dz %i, dw %i", mmx, mmy, mmz, mmw);
          al_draw_textf(font, black, 5, 25, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
          al_draw_textf(font, black, 5, 45, 0, "p = %g", p);
          al_draw_textf(font, black, 5, 65, 0, "%s", in ? "in" : "out");
          al_draw_textf(font, black, 5, 85, 0, "wheel precision (PgUp/PgDn) %d", precision);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          mmx = mmy = mmz = 0;
          al_flip_display();
       }
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_MOUSE_AXES:
+         case A5O_EVENT_MOUSE_AXES:
             mx = event.mouse.x;
             my = event.mouse.y;
             mz = event.mouse.z;
@@ -131,40 +131,40 @@ int main(int argc, char **argv)
             p = event.mouse.pressure;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+         case A5O_EVENT_MOUSE_BUTTON_DOWN:
             if (event.mouse.button-1 < NUM_BUTTONS) {
                buttons[event.mouse.button-1] = true;
             }
             p = event.mouse.pressure;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+         case A5O_EVENT_MOUSE_BUTTON_UP:
             if (event.mouse.button-1 < NUM_BUTTONS) {
                buttons[event.mouse.button-1] = false;
             }
             p = event.mouse.pressure;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+         case A5O_EVENT_MOUSE_ENTER_DISPLAY:
             in = true;
             break;
 
-         case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+         case A5O_EVENT_MOUSE_LEAVE_DISPLAY:
             in = false;
             break;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
                goto done;
             }
             break;
 
-         case ALLEGRO_EVENT_KEY_CHAR:
-            if (event.keyboard.keycode == ALLEGRO_KEY_PGUP) {
+         case A5O_EVENT_KEY_CHAR:
+            if (event.keyboard.keycode == A5O_KEY_PGUP) {
                precision++;
                al_set_mouse_wheel_precision(precision);
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_PGDN) {
+            else if (event.keyboard.keycode == A5O_KEY_PGDN) {
                precision--;
                if (precision < 1)
                   precision = 1;
@@ -172,11 +172,11 @@ int main(int argc, char **argv)
             }
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+         case A5O_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             goto done;
       }
    }

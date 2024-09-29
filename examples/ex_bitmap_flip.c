@@ -17,9 +17,9 @@ float bmp_dy = 96;
 int bmp_flag = 0;
 
 /* Updates the bitmap velocity, orientation and position. */
-static void update(ALLEGRO_BITMAP *bmp)
+static void update(A5O_BITMAP *bmp)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
    int display_w = al_get_bitmap_width(target);
    int display_h = al_get_bitmap_height(target);
    int bitmap_w = al_get_bitmap_width(bmp);
@@ -32,38 +32,38 @@ static void update(ALLEGRO_BITMAP *bmp)
    if (bmp_y < 0) {
       bmp_y = 0;
       bmp_dy *= -1;
-      bmp_flag &= ~ALLEGRO_FLIP_VERTICAL;
+      bmp_flag &= ~A5O_FLIP_VERTICAL;
    }
 
    if (bmp_x < 0) {
       bmp_x = 0;
       bmp_dx *= -1;
-      bmp_flag &= ~ALLEGRO_FLIP_HORIZONTAL;
+      bmp_flag &= ~A5O_FLIP_HORIZONTAL;
    }
 
    if (bmp_y > display_h - bitmap_h) {
       bmp_y = display_h - bitmap_h;
       bmp_dy *= -1;
-      bmp_flag |= ALLEGRO_FLIP_VERTICAL;
+      bmp_flag |= A5O_FLIP_VERTICAL;
    }
 
    if (bmp_x > display_w - bitmap_w) {
       bmp_x = display_w - bitmap_w;
       bmp_dx *= -1;
-      bmp_flag |= ALLEGRO_FLIP_HORIZONTAL;
+      bmp_flag |= A5O_FLIP_HORIZONTAL;
    }
 }
 
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_BITMAP *mem_bmp;
-   ALLEGRO_BITMAP *disp_bmp;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_BITMAP *bmp;
+   A5O_BITMAP *mem_bmp;
+   A5O_BITMAP *disp_bmp;
+   A5O_FONT *font;
    char *text;
    bool done = false;
    bool redraw = true;
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
    }
    text = "Display bitmap (space to change)";
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!mem_bmp) {
       abort_example("Error loading data/mysha.pcx\n");
@@ -133,11 +133,11 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    /* Default premultiplied aplha blending. */
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
    /* Primary 'game' loop. */
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       /* If the timer has since been fired and the queue is empty, draw.*/
       if (redraw && al_is_event_queue_empty(queue)) {
@@ -153,10 +153,10 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                done = true;
-            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+            else if (event.keyboard.keycode == A5O_KEY_SPACE) {
                /* Spacebar toggles whether render from a memory bitmap
                 * or display bitamp.
                 */
@@ -172,11 +172,11 @@ int main(int argc, char **argv)
                
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             redraw = true;
             break;
       }

@@ -12,7 +12,7 @@
  *
  *      See readme.txt for copyright information.
  */
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
@@ -28,30 +28,30 @@ typedef enum {
    NUM_TYPES,
 } PRIM_TYPE;
 
-static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, float h, int prim_type)
+static void draw_square(A5O_BITMAP* texture, float x, float y, float w, float h, int prim_type)
 {
-   ALLEGRO_COLOR c = al_map_rgb_f(1, 1, 1);
+   A5O_COLOR c = al_map_rgb_f(1, 1, 1);
 
    switch (prim_type) {
       case TRIANGLES: {
-         ALLEGRO_VERTEX vtxs[4] = {
+         A5O_VERTEX vtxs[4] = {
          /*  x       y       z   u        v      c  */
             {x,          y,          0., -2 * w, -2 * h, c},
             {x + 5 * w,  y,          0.,  3 * w, -2 * h, c},
             {x + 5 * w,  y + 5 * h,  0.,  3 * w,  3 * h, c},
             {x,          y + 5 * h,  0., -2 * w,  3 * h, c},
          };
-         al_draw_prim(vtxs, NULL, texture, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+         al_draw_prim(vtxs, NULL, texture, 0, 4, A5O_PRIM_TRIANGLE_FAN);
          break;
       }
       case POINTS: {
 #define POINTS_N 32
          float d = POINTS_N - 1;
-         ALLEGRO_VERTEX vtxs[POINTS_N * POINTS_N];
+         A5O_VERTEX vtxs[POINTS_N * POINTS_N];
 
          for (int iy = 0; iy < POINTS_N; iy++) {
             for (int ix = 0; ix < POINTS_N; ix++) {
-               ALLEGRO_VERTEX *v = &vtxs[iy * POINTS_N + ix];
+               A5O_VERTEX *v = &vtxs[iy * POINTS_N + ix];
                v->x = x + 5. * w * (float)ix / d;
                v->y = y + 5. * h * (float)iy / d;
                v->z = 0.;
@@ -61,17 +61,17 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
             }
          }
          
-         al_draw_prim(vtxs, NULL, texture, 0, POINTS_N * POINTS_N, ALLEGRO_PRIM_POINT_LIST);
+         al_draw_prim(vtxs, NULL, texture, 0, POINTS_N * POINTS_N, A5O_PRIM_POINT_LIST);
          break;
       }
       case LINES: {
 #define LINES_N 32
          float d = LINES_N - 1;
-         ALLEGRO_VERTEX vtxs[2 * LINES_N * 2];
+         A5O_VERTEX vtxs[2 * LINES_N * 2];
 
          for (int iy = 0; iy < LINES_N; iy++) {
             for (int ix = 0; ix < 2; ix++) {
-               ALLEGRO_VERTEX *v = &vtxs[ix + 2 * iy];
+               A5O_VERTEX *v = &vtxs[ix + 2 * iy];
                v->x = x + 5. * w * (float)ix;
                v->y = y + 5. * h * (float)iy / d;
                v->z = 0.;
@@ -82,7 +82,7 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
          }
          for (int iy = 0; iy < 2; iy++) {
             for (int ix = 0; ix < LINES_N; ix++) {
-               ALLEGRO_VERTEX *v = &vtxs[2 * ix + iy + 2 * LINES_N];
+               A5O_VERTEX *v = &vtxs[2 * ix + iy + 2 * LINES_N];
                v->x = x + 5. * w * (float)ix / d;
                v->y = y + 5. * h * (float)iy;
                v->z = 0.;
@@ -91,7 +91,7 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
                v->color = c;
             }
          }
-         al_draw_prim(vtxs, NULL, texture, 0, 4 * LINES_N, ALLEGRO_PRIM_LINE_LIST);
+         al_draw_prim(vtxs, NULL, texture, 0, 4 * LINES_N, A5O_PRIM_LINE_LIST);
          break;
       }
    }
@@ -119,20 +119,20 @@ int main(int argc, char **argv)
    }
 
    if (allow_shader)
-      al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
-   ALLEGRO_DISPLAY *display = al_create_display(1024, 1024);
+      al_set_new_display_flags(A5O_PROGRAMMABLE_PIPELINE);
+   A5O_DISPLAY *display = al_create_display(1024, 1024);
    if (!display)
       abort_example("Error creating display\n");
 
-   ALLEGRO_BITMAP *bitmap = al_load_bitmap("data/texture2.tga");
+   A5O_BITMAP *bitmap = al_load_bitmap("data/texture2.tga");
    if (!bitmap)
       abort_example("Could not load 'data/texture2.tga'.\n");
 
-   ALLEGRO_BITMAP_WRAP wrap_settings[4] = {
-      ALLEGRO_BITMAP_WRAP_DEFAULT,
-      ALLEGRO_BITMAP_WRAP_REPEAT,
-      ALLEGRO_BITMAP_WRAP_CLAMP,
-      ALLEGRO_BITMAP_WRAP_MIRROR,
+   A5O_BITMAP_WRAP wrap_settings[4] = {
+      A5O_BITMAP_WRAP_DEFAULT,
+      A5O_BITMAP_WRAP_REPEAT,
+      A5O_BITMAP_WRAP_CLAMP,
+      A5O_BITMAP_WRAP_MIRROR,
    };
    const char* wrap_names[4] = {
       "DEFAULT",
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
       "LINES",
    };
 
-   ALLEGRO_BITMAP *bitmaps[4][4];
+   A5O_BITMAP *bitmaps[4][4];
    for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
          al_set_new_bitmap_wrap(wrap_settings[i], wrap_settings[j]);
@@ -154,29 +154,29 @@ int main(int argc, char **argv)
       }
    }
 
-   ALLEGRO_FONT *font = al_create_builtin_font();
+   A5O_FONT *font = al_create_builtin_font();
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   ALLEGRO_BITMAP *memory_buffer = al_create_bitmap(al_get_display_width(display),
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+   A5O_BITMAP *memory_buffer = al_create_bitmap(al_get_display_width(display),
       al_get_display_height(display));
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   ALLEGRO_BITMAP *display_buffer = al_get_backbuffer(display);
+   al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
+   A5O_BITMAP *display_buffer = al_get_backbuffer(display);
 
-   ALLEGRO_SHADER *shader = NULL;
+   A5O_SHADER *shader = NULL;
 
    if (allow_shader) {
-      shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+      shader = al_create_shader(A5O_SHADER_AUTO);
       if (!shader)
          abort_example("Error creating shader.\n");
 
       const char* pixel_file;
-      if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
-   #ifdef ALLEGRO_CFG_SHADER_GLSL
+      if (al_get_shader_platform(shader) == A5O_SHADER_GLSL) {
+   #ifdef A5O_CFG_SHADER_GLSL
          pixel_file = "data/ex_bitmap_wrap_pixel.glsl";
    #endif
       }
       else {
-   #ifdef ALLEGRO_CFG_SHADER_HLSL
+   #ifdef A5O_CFG_SHADER_HLSL
          pixel_file = "data/ex_bitmap_wrap_pixel.hlsl";
    #endif
       }
@@ -184,18 +184,18 @@ int main(int argc, char **argv)
       if (!pixel_file) {
          abort_example("No shader source\n");
       }
-      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-            al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
+      if (!al_attach_shader_source(shader, A5O_VERTEX_SHADER,
+            al_get_default_shader_source(A5O_SHADER_AUTO, A5O_VERTEX_SHADER))) {
          abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
       }
-      if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_file))
+      if (!al_attach_shader_source_file(shader, A5O_PIXEL_SHADER, pixel_file))
          abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
       if (!al_build_shader(shader))
          abort_example("al_build_shader failed: %s\n", al_get_shader_log(shader));
    }
 
-   ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60);
-   ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+   A5O_TIMER *timer = al_create_timer(1.0 / 60);
+   A5O_EVENT_QUEUE *queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -207,28 +207,28 @@ int main(int argc, char **argv)
    bool quit = false;
 
    while (!quit) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+      if (event.type == A5O_EVENT_KEY_CHAR) {
          switch (event.keyboard.keycode) {
-            case ALLEGRO_KEY_ESCAPE:
+            case A5O_KEY_ESCAPE:
                quit = true;
                break;
-            case ALLEGRO_KEY_S:
+            case A5O_KEY_S:
                software = !software;
                break;
-            case ALLEGRO_KEY_R:
+            case A5O_KEY_R:
                if (allow_shader)
                   use_shader = !use_shader;
                break;
-            case ALLEGRO_KEY_P:
+            case A5O_KEY_P:
                prim_type = (prim_type + 1) % NUM_TYPES;
                break;
          }
       }
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          redraw = true;
       }
 
@@ -253,19 +253,19 @@ int main(int argc, char **argv)
          }
 
          al_draw_textf(font, al_map_rgb_f(1., 1., 0.5), 16, 16,
-            ALLEGRO_ALIGN_LEFT, "(S)oftware: %s", (software && !use_shader) ? "On" : "Off");
+            A5O_ALIGN_LEFT, "(S)oftware: %s", (software && !use_shader) ? "On" : "Off");
          al_draw_textf(font, al_map_rgb_f(1., 1., 0.5), 16, 32,
-            ALLEGRO_ALIGN_LEFT, "Shade(r) (--shader to enable): %s", use_shader ? "On" : "Off");
+            A5O_ALIGN_LEFT, "Shade(r) (--shader to enable): %s", use_shader ? "On" : "Off");
          al_draw_textf(font, al_map_rgb_f(1., 1., 0.5), 16, 48,
-            ALLEGRO_ALIGN_LEFT, "(P)rimitive type: %s", prim_names[prim_type]);
+            A5O_ALIGN_LEFT, "(P)rimitive type: %s", prim_names[prim_type]);
 
          for (int i = 0; i < 4; i++) {
             al_draw_text(font, al_map_rgb_f(1., 0.5, 1.), offt_x + spacing + w * i + w / 2,
-               64, ALLEGRO_ALIGN_CENTRE, wrap_names[i]);
+               64, A5O_ALIGN_CENTRE, wrap_names[i]);
             for (int j = 0; j < 4; j++) {
                if (i == 0) {
                   al_draw_text(font, al_map_rgb_f(1., 0.5, 1.), 16,
-                     offt_y + spacing + h * j + h / 2, ALLEGRO_ALIGN_LEFT, wrap_names[j]);
+                     offt_y + spacing + h * j + h / 2, A5O_ALIGN_LEFT, wrap_names[j]);
                }
                if (use_shader) {
                   al_use_shader(shader);

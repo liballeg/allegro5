@@ -2,7 +2,7 @@ include(FindPythonInterp)
 
 # Construct list of files whose modification should trigger a rebuild of
 # the Python API.
-foreach(x ${MONOLITH_SOURCES} ${MONOLITH_HEADERS} ${ALLEGRO_PUBLIC_HEADERS})
+foreach(x ${MONOLITH_SOURCES} ${MONOLITH_HEADERS} ${A5O_PUBLIC_HEADERS})
     if(NOT ${x} MATCHES "^/.*")
         file(RELATIVE_PATH xrel ${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/${x})
         list(APPEND SOURCES ${xrel})
@@ -34,7 +34,7 @@ endif(WIN32)
 SET(release "")
 append_lib_type_suffix(release)
 append_lib_linkage_suffix(release)
-SET(version "${ALLEGRO_SOVERSION}")
+SET(version "${A5O_SOVERSION}")
 
 add_custom_command(
     OUTPUT allegro.py

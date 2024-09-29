@@ -3,7 +3,7 @@
 
 #include "common.c"
 
-static void print_file(ALLEGRO_FS_ENTRY *entry)
+static void print_file(A5O_FS_ENTRY *entry)
 {
    int mode = al_get_fs_entry_mode(entry);
    time_t now = time(NULL);
@@ -15,25 +15,25 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
 
    log_printf("%-36s %s%s%s%s%s%s %8u %8u %8u %8u\n",
       name,
-      mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
-      mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
-      mode & ALLEGRO_FILEMODE_EXECUTE ? "x" : ".",
-      mode & ALLEGRO_FILEMODE_HIDDEN ? "h" : ".",
-      mode & ALLEGRO_FILEMODE_ISFILE ? "f" : ".",
-      mode & ALLEGRO_FILEMODE_ISDIR ? "d" : ".",
+      mode & A5O_FILEMODE_READ ? "r" : ".",
+      mode & A5O_FILEMODE_WRITE ? "w" : ".",
+      mode & A5O_FILEMODE_EXECUTE ? "x" : ".",
+      mode & A5O_FILEMODE_HIDDEN ? "h" : ".",
+      mode & A5O_FILEMODE_ISFILE ? "f" : ".",
+      mode & A5O_FILEMODE_ISDIR ? "d" : ".",
       (unsigned)(now - ctime),
       (unsigned)(now - mtime),
       (unsigned)(now - atime),
       (unsigned)size);
 }
 
-static void print_entry(ALLEGRO_FS_ENTRY *entry)
+static void print_entry(A5O_FS_ENTRY *entry)
 {
-   ALLEGRO_FS_ENTRY *next;
+   A5O_FS_ENTRY *next;
 
    print_file(entry);
 
-   if (!(al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR))
+   if (!(al_get_fs_entry_mode(entry) & A5O_FILEMODE_ISDIR))
       return;
 
    if (!al_open_directory(entry)) {
@@ -54,26 +54,26 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
 }
 
 
-static int print_fs_entry_cb(ALLEGRO_FS_ENTRY * entry, void * extra) {
+static int print_fs_entry_cb(A5O_FS_ENTRY * entry, void * extra) {
    (void) extra;
    print_file(entry);
-   return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
+   return A5O_FOR_EACH_FS_ENTRY_OK;
 }
 
-static int print_fs_entry_cb_norecurse(ALLEGRO_FS_ENTRY * entry, void * extra) {
+static int print_fs_entry_cb_norecurse(A5O_FS_ENTRY * entry, void * extra) {
    (void) extra;
    print_file(entry);
-   return ALLEGRO_FOR_EACH_FS_ENTRY_SKIP;
+   return A5O_FOR_EACH_FS_ENTRY_SKIP;
 }
 
-static void print_fs_entry(ALLEGRO_FS_ENTRY * dir)
+static void print_fs_entry(A5O_FS_ENTRY * dir)
 {
    log_printf("\n------------------------------------\nExample of al_for_each_fs_entry with recursion:\n\n");
    al_for_each_fs_entry(dir, print_fs_entry_cb,
       (void*) al_get_fs_entry_name(dir));
 }
 
-static void print_fs_entry_norecurse(ALLEGRO_FS_ENTRY * dir)
+static void print_fs_entry_norecurse(A5O_FS_ENTRY * dir)
 {
    log_printf("\n------------------------------------\nExample of al_for_each_fs_entry without recursion:\n\n");
    al_for_each_fs_entry(dir, print_fs_entry_cb_norecurse,
@@ -99,12 +99,12 @@ int main(int argc, char **argv)
       "-------- "
       "--------\n");
 
-   #ifdef ALLEGRO_ANDROID
+   #ifdef A5O_ANDROID
    al_android_set_apk_fs_interface();
    #endif
 
    if (argc == 1) {
-      ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("data");
+      A5O_FS_ENTRY *entry = al_create_fs_entry("data");
       print_entry(entry);
       print_fs_entry(entry);
       print_fs_entry_norecurse(entry);
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
    }
 
    for (i = 1; i < argc; i++) {
-      ALLEGRO_FS_ENTRY *entry = al_create_fs_entry(argv[i]);
+      A5O_FS_ENTRY *entry = al_create_fs_entry(argv[i]);
       print_entry(entry);
       print_fs_entry(entry);
       print_fs_entry_norecurse(entry);

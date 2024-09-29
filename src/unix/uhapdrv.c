@@ -24,7 +24,7 @@
 
 
 _AL_BEGIN_HAPTIC_DRIVER_LIST
-#if defined ALLEGRO_HAVE_LINUX_INPUT_H && (defined ALLEGRO_WITH_XWINDOWS || defined ALLEGRO_RASPBERRYPI)
-   { _ALLEGRO_HAPDRV_LINUX,   &_al_hapdrv_linux,   true  },
+#if defined A5O_HAVE_LINUX_INPUT_H && (defined A5O_WITH_XWINDOWS || defined A5O_RASPBERRYPI)
+   { _A5O_HAPDRV_LINUX,   &_al_hapdrv_linux,   true  },
 #endif
 _AL_END_HAPTIC_DRIVER_LIST

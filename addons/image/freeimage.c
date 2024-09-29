@@ -11,12 +11,12 @@
 
 #include "iio.h"
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 static bool freeimage_initialized = false;
 
 static void _fiio_al_error_handler(FREE_IMAGE_FORMAT fif, const char *message) {
-   ALLEGRO_ERROR("FreeImage %s : %s\n", (fif == FIF_UNKNOWN)? "UNKNOWN" : FreeImage_GetFormatFromFIF(fif), message);
+   A5O_ERROR("FreeImage %s : %s\n", (fif == FIF_UNKNOWN)? "UNKNOWN" : FreeImage_GetFormatFromFIF(fif), message);
 }
 
 bool _al_init_fi(void)
@@ -38,15 +38,15 @@ void _al_shutdown_fi(void)
    freeimage_initialized = false;
 }
 
-static ALLEGRO_BITMAP *_al_fi_to_al_bitmap(FIBITMAP *fib) {
+static A5O_BITMAP *_al_fi_to_al_bitmap(FIBITMAP *fib) {
    int width = 0, height = 0;
-   ALLEGRO_BITMAP *bitmap = NULL;
+   A5O_BITMAP *bitmap = NULL;
    width = FreeImage_GetWidth(fib);
    height = FreeImage_GetHeight(fib);
    bitmap = al_create_bitmap(width, height);
    if (bitmap) {
-      ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(bitmap,
-         ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCKED_REGION *a_lock = al_lock_bitmap(bitmap,
+         A5O_PIXEL_FORMAT_ARGB_8888, A5O_LOCK_WRITEONLY);
       if (a_lock) {
          unsigned char *out = (unsigned char *)a_lock->data;
          int out_inc = a_lock->pitch - (width*4);
@@ -54,7 +54,7 @@ static ALLEGRO_BITMAP *_al_fi_to_al_bitmap(FIBITMAP *fib) {
             for (int i=0; i < width; ++i) {
                RGBQUAD color = { 0.0, 0.0, 0.0, 0.0 } ;
                if (FreeImage_GetPixelColor(fib, i, j, &color) == FALSE) {
-                  ALLEGRO_ERROR("Unable to get pixel data at %d,%d\n", i , j);
+                  A5O_ERROR("Unable to get pixel data at %d,%d\n", i , j);
                }
                *out++ = (unsigned char) color.rgbBlue;
                *out++ = (unsigned char) color.rgbGreen;
@@ -69,10 +69,10 @@ static ALLEGRO_BITMAP *_al_fi_to_al_bitmap(FIBITMAP *fib) {
    return bitmap;
 }
 
-ALLEGRO_BITMAP *_al_load_fi_bitmap(const char *filename, int flags)
+A5O_BITMAP *_al_load_fi_bitmap(const char *filename, int flags)
 {
    FIBITMAP *fib = NULL;
-   ALLEGRO_BITMAP *bitmap = NULL;
+   A5O_BITMAP *bitmap = NULL;
    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 
    ASSERT(filename);
@@ -82,7 +82,7 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap(const char *filename, int flags)
    if (fif == FIF_UNKNOWN)
       fif = FreeImage_GetFileType(filename, 0);
    if (fif == FIF_UNKNOWN) {
-      ALLEGRO_WARN("Could not determine the file type for '%s'\n", filename);
+      A5O_WARN("Could not determine the file type for '%s'\n", filename);
       return NULL;
    }
 
@@ -102,30 +102,30 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap(const char *filename, int flags)
 }
 
 static unsigned int _fiio_al_read(void *buffer, unsigned size, unsigned count, fi_handle handle) {
-   return (unsigned int) al_fread((ALLEGRO_FILE *)handle, buffer, (count * size));
+   return (unsigned int) al_fread((A5O_FILE *)handle, buffer, (count * size));
 }
 
 static unsigned int _fiio_al_write(void *buffer, unsigned size, unsigned count, fi_handle handle) {
-   return (unsigned int) al_fwrite((ALLEGRO_FILE *)handle, buffer, (count * size));
+   return (unsigned int) al_fwrite((A5O_FILE *)handle, buffer, (count * size));
 }
 
 static int _fiio_al_fseek(fi_handle handle, long offset, int origin) {
-   return al_fseek((ALLEGRO_FILE *)handle, offset, origin);
+   return al_fseek((A5O_FILE *)handle, offset, origin);
 }
 
 static long _fiio_al_ftell(fi_handle handle) {
-   return (long) al_ftell((ALLEGRO_FILE *)handle);
+   return (long) al_ftell((A5O_FILE *)handle);
 }
 
-ALLEGRO_BITMAP *_al_load_fi_bitmap_f(ALLEGRO_FILE *f, int flags)
+A5O_BITMAP *_al_load_fi_bitmap_f(A5O_FILE *f, int flags)
 {
    FreeImageIO fio;
-   ALLEGRO_BITMAP *bitmap = NULL;
+   A5O_BITMAP *bitmap = NULL;
    FIBITMAP *fib = NULL;
    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 
    if (flags != 0) {
-      ALLEGRO_WARN("Ignoring bitmap loading flags.\n");
+      A5O_WARN("Ignoring bitmap loading flags.\n");
    }
 
    ASSERT(f);
@@ -138,7 +138,7 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap_f(ALLEGRO_FILE *f, int flags)
 
    fif = FreeImage_GetFileTypeFromHandle(&fio, (fi_handle)f, 0);
    if (fif == FIF_UNKNOWN) {
-      ALLEGRO_WARN("Could not determine the file type for Allegro file.\n");
+      A5O_WARN("Could not determine the file type for Allegro file.\n");
       return NULL;
    }
 
@@ -157,7 +157,7 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap_f(ALLEGRO_FILE *f, int flags)
    return bitmap;
 }
 
-bool _al_identify_fi(ALLEGRO_FILE *f)
+bool _al_identify_fi(A5O_FILE *f)
 {
    FreeImageIO fio;
    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
@@ -172,7 +172,7 @@ bool _al_identify_fi(ALLEGRO_FILE *f)
 
    fif = FreeImage_GetFileTypeFromHandle(&fio, (fi_handle)f, 0);
    if (fif == FIF_UNKNOWN) {
-      ALLEGRO_WARN("Could not determine the file type for Allegro file.\n");
+      A5O_WARN("Could not determine the file type for Allegro file.\n");
       return false;
    }
 

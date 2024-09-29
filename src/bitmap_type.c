@@ -22,12 +22,12 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("bitmap")
+A5O_DEBUG_CHANNEL("bitmap")
 
 
-/* Global list of MEMORY bitmaps with ALLEGRO_CONVERT_BITMAP flag. */
+/* Global list of MEMORY bitmaps with A5O_CONVERT_BITMAP flag. */
 struct BITMAP_CONVERSION_LIST {
-   ALLEGRO_MUTEX *mutex;
+   A5O_MUTEX *mutex;
    _AL_VECTOR bitmaps;
 };
 
@@ -48,19 +48,19 @@ static void cleanup_convert_bitmap_list(void)
 void _al_init_convert_bitmap_list(void)
 {
    convert_bitmap_list.mutex = al_create_mutex_recursive();
-   _al_vector_init(&convert_bitmap_list.bitmaps, sizeof(ALLEGRO_BITMAP *));
+   _al_vector_init(&convert_bitmap_list.bitmaps, sizeof(A5O_BITMAP *));
    _al_add_exit_func(cleanup_convert_bitmap_list,
       "cleanup_convert_bitmap_list");
 }
 
 
-void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap)
+void _al_register_convert_bitmap(A5O_BITMAP *bitmap)
 {
    int bitmap_flags = al_get_bitmap_flags(bitmap);
-   if (!(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
+   if (!(bitmap_flags & A5O_MEMORY_BITMAP))
       return;
-   if (bitmap_flags & ALLEGRO_CONVERT_BITMAP) {
-      ALLEGRO_BITMAP **back;
+   if (bitmap_flags & A5O_CONVERT_BITMAP) {
+      A5O_BITMAP **back;
       al_lock_mutex(convert_bitmap_list.mutex);
       back = _al_vector_alloc_back(&convert_bitmap_list.bitmaps);
       *back = bitmap;
@@ -69,12 +69,12 @@ void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
-void _al_unregister_convert_bitmap(ALLEGRO_BITMAP *bitmap)
+void _al_unregister_convert_bitmap(A5O_BITMAP *bitmap)
 {
    int bitmap_flags = al_get_bitmap_flags(bitmap);
-   if (!(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
+   if (!(bitmap_flags & A5O_MEMORY_BITMAP))
       return;
-   if (bitmap_flags & ALLEGRO_CONVERT_BITMAP) {
+   if (bitmap_flags & A5O_CONVERT_BITMAP) {
       al_lock_mutex(convert_bitmap_list.mutex);
       _al_vector_find_and_delete(&convert_bitmap_list.bitmaps, &bitmap);
       al_unlock_mutex(convert_bitmap_list.mutex);
@@ -82,12 +82,12 @@ void _al_unregister_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
-static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
+static void swap_bitmaps(A5O_BITMAP *bitmap, A5O_BITMAP *other)
 {
-   ALLEGRO_BITMAP temp;
+   A5O_BITMAP temp;
    _AL_LIST_ITEM *bitmap_dtor_item = bitmap->dtor_item;
    _AL_LIST_ITEM *other_dtor_item = other->dtor_item;
-   ALLEGRO_DISPLAY *bitmap_display, *other_display;
+   A5O_DISPLAY *bitmap_display, *other_display;
 
    _al_unregister_convert_bitmap(bitmap);
    _al_unregister_convert_bitmap(other);
@@ -118,7 +118,7 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
       /* This means before the swap, other was the display bitmap, and we
        * now should replace it with the swapped pointer.
        */
-      ALLEGRO_BITMAP **back;
+      A5O_BITMAP **back;
       int pos = _al_vector_find(&bitmap_display->bitmaps, &other);
       ASSERT(pos >= 0);
       back = _al_vector_ref(&bitmap_display->bitmaps, pos);
@@ -126,7 +126,7 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
    }
 
    if (other_display && !bitmap_display) {
-      ALLEGRO_BITMAP **back;
+      A5O_BITMAP **back;
       int pos = _al_vector_find(&other_display->bitmaps, &bitmap);
       ASSERT(pos >= 0);
       back = _al_vector_ref(&other_display->bitmaps, pos);
@@ -151,16 +151,16 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
 
 /* Function: al_convert_bitmap
  */
-void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
+void al_convert_bitmap(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP *clone;
+   A5O_BITMAP *clone;
    int bitmap_flags = al_get_bitmap_flags(bitmap);
    int new_bitmap_flags = al_get_new_bitmap_flags();
-   bool want_memory = (new_bitmap_flags & ALLEGRO_MEMORY_BITMAP) != 0;
+   bool want_memory = (new_bitmap_flags & A5O_MEMORY_BITMAP) != 0;
    bool clone_memory;
-   ALLEGRO_BITMAP *target_bitmap;
+   A5O_BITMAP *target_bitmap;
    
-   bitmap_flags &= ~_ALLEGRO_INTERNAL_OPENGL;
+   bitmap_flags &= ~_A5O_INTERNAL_OPENGL;
 
    /* If a cloned bitmap would be identical, we can just do nothing. */
    if (al_get_bitmap_format(bitmap) == al_get_new_bitmap_format() &&
@@ -181,7 +181,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
       return;
    }
 
-   clone_memory = (al_get_bitmap_flags(clone) & ALLEGRO_MEMORY_BITMAP) != 0;
+   clone_memory = (al_get_bitmap_flags(clone) & A5O_MEMORY_BITMAP) != 0;
 
    if (clone_memory != want_memory) {
       /* We couldn't convert. */
@@ -202,7 +202,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 
    /* Memory bitmaps do not support custom projection transforms,
     * so reset it to the orthographic transform. */
-   if (new_bitmap_flags & ALLEGRO_MEMORY_BITMAP) {
+   if (new_bitmap_flags & A5O_MEMORY_BITMAP) {
       al_identity_transform(&bitmap->proj_transform);
       al_orthographic_transform(&bitmap->proj_transform, 0, 0, -1.0, bitmap->w, bitmap->h, 1.0);
    } else {
@@ -215,7 +215,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
     * on the current target. */
    target_bitmap = al_get_target_bitmap();
    if (target_bitmap) {
-      ALLEGRO_BITMAP *target_parent =
+      A5O_BITMAP *target_parent =
          target_bitmap->parent ? target_bitmap->parent : target_bitmap;
       if (bitmap == target_parent || bitmap->parent == target_parent) {
          al_set_target_bitmap(target_bitmap);
@@ -230,35 +230,35 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 void al_convert_memory_bitmaps(void)
 {
-   ALLEGRO_STATE backup;
-   ALLEGRO_DISPLAY *display = al_get_current_display();
+   A5O_STATE backup;
+   A5O_DISPLAY *display = al_get_current_display();
    _AL_VECTOR copy;
    size_t i;
    if (!display) return;
    
-   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_store_state(&backup, A5O_STATE_NEW_BITMAP_PARAMETERS);
 
    al_lock_mutex(convert_bitmap_list.mutex);
    
-   _al_vector_init(&copy, sizeof(ALLEGRO_BITMAP *));
+   _al_vector_init(&copy, sizeof(A5O_BITMAP *));
    for (i = 0; i <  _al_vector_size(&convert_bitmap_list.bitmaps); i++) {
-      ALLEGRO_BITMAP **bptr, **bptr2;
+      A5O_BITMAP **bptr, **bptr2;
       bptr = _al_vector_ref(&convert_bitmap_list.bitmaps, i);
       bptr2 = _al_vector_alloc_back(&copy);
       *bptr2 = *bptr;
    }
    _al_vector_free(&convert_bitmap_list.bitmaps);
-   _al_vector_init(&convert_bitmap_list.bitmaps, sizeof(ALLEGRO_BITMAP *));
+   _al_vector_init(&convert_bitmap_list.bitmaps, sizeof(A5O_BITMAP *));
    for (i = 0; i < _al_vector_size(&copy); i++) {
-      ALLEGRO_BITMAP **bptr;
+      A5O_BITMAP **bptr;
       int flags;
       bptr = _al_vector_ref(&copy, i);
       flags = al_get_bitmap_flags(*bptr);
-      flags &= ~ALLEGRO_MEMORY_BITMAP;
+      flags &= ~A5O_MEMORY_BITMAP;
       al_set_new_bitmap_flags(flags);
       al_set_new_bitmap_format(al_get_bitmap_format(*bptr));
       
-      ALLEGRO_DEBUG("converting memory bitmap %p to display bitmap\n", *bptr);
+      A5O_DEBUG("converting memory bitmap %p to display bitmap\n", *bptr);
       
       al_convert_bitmap(*bptr);
    }
@@ -276,18 +276,18 @@ void al_convert_memory_bitmaps(void)
  * 
  * If this is called for a sub-bitmap, the parent also is converted.
  */
-void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
+void _al_convert_to_display_bitmap(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_STATE backup;
+   A5O_STATE backup;
    int bitmap_flags = al_get_bitmap_flags(bitmap);
    /* Do nothing if it is a display bitmap already. */
-   if (!(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
+   if (!(bitmap_flags & A5O_MEMORY_BITMAP))
       return;
 
-   ALLEGRO_DEBUG("converting memory bitmap %p to display bitmap\n", bitmap);
+   A5O_DEBUG("converting memory bitmap %p to display bitmap\n", bitmap);
 
-   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags(bitmap_flags & ~ALLEGRO_MEMORY_BITMAP);
+   al_store_state(&backup, A5O_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(bitmap_flags & ~A5O_MEMORY_BITMAP);
    al_set_new_bitmap_format(al_get_bitmap_format(bitmap));
    al_convert_bitmap(bitmap);
    al_restore_state(&backup);
@@ -297,18 +297,18 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
 /* Converts a display bitmap to a memory bitmap preserving its contents.
  * If this is called for a sub-bitmap, the parent also is converted.
  */
-void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
+void _al_convert_to_memory_bitmap(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_STATE backup;
+   A5O_STATE backup;
    int bitmap_flags = al_get_bitmap_flags(bitmap);
    /* Do nothing if it is a memory bitmap already. */
-   if (bitmap_flags & ALLEGRO_MEMORY_BITMAP)
+   if (bitmap_flags & A5O_MEMORY_BITMAP)
       return;
 
-   ALLEGRO_DEBUG("converting display bitmap %p to memory bitmap\n", bitmap);
+   A5O_DEBUG("converting display bitmap %p to memory bitmap\n", bitmap);
 
-   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags((bitmap_flags & ~ALLEGRO_VIDEO_BITMAP) | ALLEGRO_MEMORY_BITMAP);
+   al_store_state(&backup, A5O_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags((bitmap_flags & ~A5O_VIDEO_BITMAP) | A5O_MEMORY_BITMAP);
    al_set_new_bitmap_format(al_get_bitmap_format(bitmap));
    al_convert_bitmap(bitmap);
    al_restore_state(&backup);

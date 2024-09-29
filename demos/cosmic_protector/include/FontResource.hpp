@@ -9,7 +9,7 @@ public:
    void* get(void);
    FontResource(const char *filename);
 private:
-   ALLEGRO_FONT *font;
+   A5O_FONT *font;
    std::string filename;
 };
 

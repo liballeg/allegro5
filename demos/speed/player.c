@@ -208,7 +208,7 @@ int update_player()
    poll_input();
 
    /* quit game? */ 
-   if (key[ALLEGRO_KEY_ESCAPE])
+   if (key[A5O_KEY_ESCAPE])
       return -1;
 
    /* safe period while initing */
@@ -237,10 +237,10 @@ int update_player()
 
    /* handle user left/right input */
    if (!die_time) {
-      if ((joy_left) || (key[ALLEGRO_KEY_LEFT]))
+      if ((joy_left) || (key[A5O_KEY_LEFT]))
 	 vel -= 0.005;
 
-      if ((joy_right) || (key[ALLEGRO_KEY_RIGHT]))
+      if ((joy_right) || (key[A5O_KEY_RIGHT]))
 	 vel += 0.005;
    }
 
@@ -257,7 +257,7 @@ int update_player()
 
    /* fire bullets */
    if ((!die_time) && (!init_time) && (!fire_time)) {
-      if ((key[ALLEGRO_KEY_SPACE]) || (joy_b1)) {
+      if ((key[A5O_KEY_SPACE]) || (joy_b1)) {
 	 fire_bullet();
 	 fire_time = 24;
       }

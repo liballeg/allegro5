@@ -54,28 +54,28 @@ class TouchListener implements View.OnTouchListener
 
       if (action == MotionEvent.ACTION_DOWN) {
          primary = true;
-         action = Const.ALLEGRO_EVENT_TOUCH_BEGIN;
+         action = Const.A5O_EVENT_TOUCH_BEGIN;
       }
       else if (action == MotionEvent.ACTION_UP) {
          primary = true;
-         action = Const.ALLEGRO_EVENT_TOUCH_END;
+         action = Const.A5O_EVENT_TOUCH_END;
       }
       else if (action == MotionEvent.ACTION_MOVE) {
-         action = Const.ALLEGRO_EVENT_TOUCH_MOVE;
+         action = Const.A5O_EVENT_TOUCH_MOVE;
       }
       else if (action == MotionEvent.ACTION_CANCEL) {
-         action = Const.ALLEGRO_EVENT_TOUCH_CANCEL;
+         action = Const.A5O_EVENT_TOUCH_CANCEL;
       }
       // android-5 / 2.0
       else if (Reflect.fieldExists(event, "ACTION_POINTER_DOWN") &&
          action == Reflect.<Integer>getField(event, "ACTION_POINTER_DOWN"))
       {
-         action = Const.ALLEGRO_EVENT_TOUCH_BEGIN;
+         action = Const.A5O_EVENT_TOUCH_BEGIN;
       }
       else if (Reflect.fieldExists(event, "ACTION_POINTER_UP") &&
          action == Reflect.<Integer>getField(event, "ACTION_POINTER_UP"))
       {
-         action = Const.ALLEGRO_EVENT_TOUCH_END;
+         action = Const.A5O_EVENT_TOUCH_END;
       }
       else {
          Log.v(TAG, "unknown MotionEvent type: " + action);
@@ -99,7 +99,7 @@ class TouchListener implements View.OnTouchListener
             if (id == pointer_id) {
                nativeOnTouch(id, action, x, y, primary);
             } else {
-               nativeOnTouch(id, Const.ALLEGRO_EVENT_TOUCH_MOVE, x, y,
+               nativeOnTouch(id, Const.A5O_EVENT_TOUCH_MOVE, x, y,
                   primary);
             }
          }

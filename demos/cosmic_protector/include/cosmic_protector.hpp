@@ -8,7 +8,7 @@
 #include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_primitives.h"
 
-#ifdef ALLEGRO_UNIX
+#ifdef A5O_UNIX
 #define MAX_PATH 5000
 #endif
 
@@ -58,7 +58,7 @@
 
 extern int BB_W;
 extern int BB_H;
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 extern bool switched_out;
 void switch_game_out(bool halt);
 void switch_game_in(void);

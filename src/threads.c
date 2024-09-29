@@ -34,7 +34,7 @@ typedef enum THREAD_STATE {
 } THREAD_STATE;
 
 
-struct ALLEGRO_THREAD {
+struct A5O_THREAD {
    _AL_THREAD thread;
    _AL_MUTEX mutex;
    _AL_COND cond;
@@ -45,20 +45,20 @@ struct ALLEGRO_THREAD {
 };
 
 
-struct ALLEGRO_MUTEX {
+struct A5O_MUTEX {
    _AL_MUTEX mutex;
 };
 
 
-struct ALLEGRO_COND {
+struct A5O_COND {
    _AL_COND cond;
 };
 
 
 static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 {
-   ALLEGRO_THREAD *outer = (ALLEGRO_THREAD *) _outer;
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_THREAD *outer = (A5O_THREAD *) _outer;
+   A5O_SYSTEM *system = al_get_system_driver();
    (void)inner;
 
    if (system && system->vt && system->vt->thread_init) {
@@ -77,7 +77,7 @@ static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
    if (outer->thread_state == THREAD_STATE_STARTING) {
       outer->thread_state = THREAD_STATE_STARTED;
       outer->retval =
-         ((void *(*)(ALLEGRO_THREAD *, void *))outer->proc)(outer, outer->arg);
+         ((void *(*)(A5O_THREAD *, void *))outer->proc)(outer, outer->arg);
    }
 
    if (system && system->vt && system->vt->thread_exit) {
@@ -88,7 +88,7 @@ static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 
 static void detached_thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 {
-   ALLEGRO_THREAD *outer = (ALLEGRO_THREAD *) _outer;
+   A5O_THREAD *outer = (A5O_THREAD *) _outer;
    (void)inner;
 
    ((void *(*)(void *))outer->proc)(outer->arg);
@@ -96,9 +96,9 @@ static void detached_thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 }
 
 
-static ALLEGRO_THREAD *create_thread(void)
+static A5O_THREAD *create_thread(void)
 {
-   ALLEGRO_THREAD *outer;
+   A5O_THREAD *outer;
 
    outer = al_malloc(sizeof(*outer));
    if (!outer) {
@@ -112,10 +112,10 @@ static ALLEGRO_THREAD *create_thread(void)
 
 /* Function: al_create_thread
  */
-ALLEGRO_THREAD *al_create_thread(
-   void *(*proc)(ALLEGRO_THREAD *thread, void *arg), void *arg)
+A5O_THREAD *al_create_thread(
+   void *(*proc)(A5O_THREAD *thread, void *arg), void *arg)
 {
-   ALLEGRO_THREAD *outer = create_thread();
+   A5O_THREAD *outer = create_thread();
    outer->thread_state = THREAD_STATE_CREATED;
    _al_mutex_init(&outer->mutex);
    _al_cond_init(&outer->cond);
@@ -128,10 +128,10 @@ ALLEGRO_THREAD *al_create_thread(
 
 /* Function: al_create_thread_with_stacksize
  */
-ALLEGRO_THREAD *al_create_thread_with_stacksize(
-   void *(*proc)(ALLEGRO_THREAD *thread, void *arg), void *arg, size_t stacksize)
+A5O_THREAD *al_create_thread_with_stacksize(
+   void *(*proc)(A5O_THREAD *thread, void *arg), void *arg, size_t stacksize)
 {
-   ALLEGRO_THREAD *outer = create_thread();
+   A5O_THREAD *outer = create_thread();
    outer->thread_state = THREAD_STATE_CREATED;
    _al_mutex_init(&outer->mutex);
    _al_cond_init(&outer->cond);
@@ -146,7 +146,7 @@ ALLEGRO_THREAD *al_create_thread_with_stacksize(
  */
 void al_run_detached_thread(void *(*proc)(void *arg), void *arg)
 {
-   ALLEGRO_THREAD *outer = create_thread();
+   A5O_THREAD *outer = create_thread();
    outer->thread_state = THREAD_STATE_DETACHED;
    outer->arg = arg;
    outer->proc = proc;
@@ -157,7 +157,7 @@ void al_run_detached_thread(void *(*proc)(void *arg), void *arg)
 
 /* Function: al_start_thread
  */
-void al_start_thread(ALLEGRO_THREAD *thread)
+void al_start_thread(A5O_THREAD *thread)
 {
    ASSERT(thread);
 
@@ -191,7 +191,7 @@ void al_start_thread(ALLEGRO_THREAD *thread)
 
 /* Function: al_join_thread
  */
-void al_join_thread(ALLEGRO_THREAD *thread, void **ret_value)
+void al_join_thread(A5O_THREAD *thread, void **ret_value)
 {
    ASSERT(thread);
 
@@ -241,7 +241,7 @@ void al_join_thread(ALLEGRO_THREAD *thread, void **ret_value)
 
 /* Function: al_set_thread_should_stop
  */
-void al_set_thread_should_stop(ALLEGRO_THREAD *thread)
+void al_set_thread_should_stop(A5O_THREAD *thread)
 {
    ASSERT(thread);
    _al_thread_set_should_stop(&thread->thread);
@@ -250,7 +250,7 @@ void al_set_thread_should_stop(ALLEGRO_THREAD *thread)
 
 /* Function: al_get_thread_should_stop
  */
-bool al_get_thread_should_stop(ALLEGRO_THREAD *thread)
+bool al_get_thread_should_stop(A5O_THREAD *thread)
 {
    ASSERT(thread);
    return _al_get_thread_should_stop(&thread->thread);
@@ -259,7 +259,7 @@ bool al_get_thread_should_stop(ALLEGRO_THREAD *thread)
 
 /* Function: al_destroy_thread
  */
-void al_destroy_thread(ALLEGRO_THREAD *thread)
+void al_destroy_thread(A5O_THREAD *thread)
 {
    if (!thread) {
       return;
@@ -293,9 +293,9 @@ void al_destroy_thread(ALLEGRO_THREAD *thread)
 
 /* Function: al_create_mutex
  */
-ALLEGRO_MUTEX *al_create_mutex(void)
+A5O_MUTEX *al_create_mutex(void)
 {
-   ALLEGRO_MUTEX *mutex = al_malloc(sizeof(*mutex));
+   A5O_MUTEX *mutex = al_malloc(sizeof(*mutex));
    if (mutex) {
       _AL_MARK_MUTEX_UNINITED(mutex->mutex);
       _al_mutex_init(&mutex->mutex);
@@ -306,9 +306,9 @@ ALLEGRO_MUTEX *al_create_mutex(void)
 
 /* Function: al_create_mutex_recursive
  */
-ALLEGRO_MUTEX *al_create_mutex_recursive(void)
+A5O_MUTEX *al_create_mutex_recursive(void)
 {
-   ALLEGRO_MUTEX *mutex = al_malloc(sizeof(*mutex));
+   A5O_MUTEX *mutex = al_malloc(sizeof(*mutex));
    if (mutex) {
       _AL_MARK_MUTEX_UNINITED(mutex->mutex);
       _al_mutex_init_recursive(&mutex->mutex);
@@ -319,7 +319,7 @@ ALLEGRO_MUTEX *al_create_mutex_recursive(void)
 
 /* Function: al_lock_mutex
  */
-void al_lock_mutex(ALLEGRO_MUTEX *mutex)
+void al_lock_mutex(A5O_MUTEX *mutex)
 {
    ASSERT(mutex);
    _al_mutex_lock(&mutex->mutex);
@@ -329,7 +329,7 @@ void al_lock_mutex(ALLEGRO_MUTEX *mutex)
 
 /* Function: al_unlock_mutex
  */
-void al_unlock_mutex(ALLEGRO_MUTEX *mutex)
+void al_unlock_mutex(A5O_MUTEX *mutex)
 {
    ASSERT(mutex);
    _al_mutex_unlock(&mutex->mutex);
@@ -338,7 +338,7 @@ void al_unlock_mutex(ALLEGRO_MUTEX *mutex)
 
 /* Function: al_destroy_mutex
  */
-void al_destroy_mutex(ALLEGRO_MUTEX *mutex)
+void al_destroy_mutex(A5O_MUTEX *mutex)
 {
    if (mutex) {
       _al_mutex_destroy(&mutex->mutex);
@@ -349,9 +349,9 @@ void al_destroy_mutex(ALLEGRO_MUTEX *mutex)
 
 /* Function: al_create_cond
  */
-ALLEGRO_COND *al_create_cond(void)
+A5O_COND *al_create_cond(void)
 {
-   ALLEGRO_COND *cond = al_malloc(sizeof(*cond));
+   A5O_COND *cond = al_malloc(sizeof(*cond));
    if (cond) {
       _al_cond_init(&cond->cond);
    }
@@ -361,7 +361,7 @@ ALLEGRO_COND *al_create_cond(void)
 
 /* Function: al_destroy_cond
  */
-void al_destroy_cond(ALLEGRO_COND *cond)
+void al_destroy_cond(A5O_COND *cond)
 {
    if (cond) {
       _al_cond_destroy(&cond->cond);
@@ -372,7 +372,7 @@ void al_destroy_cond(ALLEGRO_COND *cond)
 
 /* Function: al_wait_cond
  */
-void al_wait_cond(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex)
+void al_wait_cond(A5O_COND *cond, A5O_MUTEX *mutex)
 {
    ASSERT(cond);
    ASSERT(mutex);
@@ -383,8 +383,8 @@ void al_wait_cond(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex)
 
 /* Function: al_wait_cond_until
  */
-int al_wait_cond_until(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
-   const ALLEGRO_TIMEOUT *timeout)
+int al_wait_cond_until(A5O_COND *cond, A5O_MUTEX *mutex,
+   const A5O_TIMEOUT *timeout)
 {
    ASSERT(cond);
    ASSERT(mutex);
@@ -396,7 +396,7 @@ int al_wait_cond_until(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
 
 /* Function: al_broadcast_cond
  */
-void al_broadcast_cond(ALLEGRO_COND *cond)
+void al_broadcast_cond(A5O_COND *cond)
 {
    ASSERT(cond);
 
@@ -406,7 +406,7 @@ void al_broadcast_cond(ALLEGRO_COND *cond)
 
 /* Function: al_signal_cond
  */
-void al_signal_cond(ALLEGRO_COND *cond)
+void al_signal_cond(A5O_COND *cond)
 {
    ASSERT(cond);
 

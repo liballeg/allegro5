@@ -6,7 +6,7 @@
 typedef struct {
    XmlState state;
    bool closing;
-   ALLEGRO_USTR *value;
+   A5O_USTR *value;
    int (*callback)(XmlState state, char const *value, void *u);
    void *u;
 } XmlParser;
@@ -44,7 +44,7 @@ static void open_tag(XmlParser *x) {
    x->state = Outside;
 }
 
-void _al_xml_parse(ALLEGRO_FILE *f,
+void _al_xml_parse(A5O_FILE *f,
         int (*callback)(XmlState state, char const *value, void *u),
         void *u)
 {
