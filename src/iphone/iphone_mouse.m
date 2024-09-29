@@ -3,12 +3,12 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_iphone.h"
 
-typedef struct ALLEGRO_MOUSE_IPHONE {
-    ALLEGRO_MOUSE parent;
-    ALLEGRO_MOUSE_STATE state;
-} ALLEGRO_MOUSE_IPHONE;
+typedef struct A5O_MOUSE_IPHONE {
+    A5O_MOUSE parent;
+    A5O_MOUSE_STATE state;
+} A5O_MOUSE_IPHONE;
 
-static ALLEGRO_MOUSE_IPHONE the_mouse;
+static A5O_MOUSE_IPHONE the_mouse;
 
 static bool imouse_installed;
 
@@ -16,9 +16,9 @@ static bool imouse_installed;
  *  Helper to generate a mouse event.
  */
 void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
-   unsigned int button, ALLEGRO_DISPLAY *d)
+   unsigned int button, A5O_DISPLAY *d)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    
    _al_event_source_lock(&the_mouse.parent.es);
 
@@ -27,10 +27,10 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
    the_mouse.state.x = x;
    the_mouse.state.y = y;
 
-   if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+   if (type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
       the_mouse.state.buttons |= (1 << button);
    }
-   else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+   else if (type == A5O_EVENT_MOUSE_BUTTON_UP) {
       the_mouse.state.buttons &= ~(1 << button);
    }
 
@@ -75,10 +75,10 @@ static void imouse_exit(void)
     _al_event_source_free(&the_mouse.parent.es);
 }
 
-static ALLEGRO_MOUSE *imouse_get_mouse(void)
+static A5O_MOUSE *imouse_get_mouse(void)
 {
     ASSERT(imouse_installed);
-    return (ALLEGRO_MOUSE *)&the_mouse;
+    return (A5O_MOUSE *)&the_mouse;
 }
 
 /* We report multi-touch as different buttons. */
@@ -93,7 +93,7 @@ static unsigned int imouse_get_mouse_num_axes(void)
 }
 
 /* Hard to accomplish on a touch screen. */
-static bool imouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+static bool imouse_set_mouse_xy(A5O_DISPLAY *display, int x, int y)
 {
     (void)display;
     (void)x;
@@ -109,7 +109,7 @@ static bool imouse_set_mouse_axis(int which, int z)
 }
 
 /*
-static void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+static void imouse_get_state(A5O_MOUSE_STATE *ret_state)
 {
     ASSERT(imouse_installed);
     
@@ -120,9 +120,9 @@ static void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
     _al_event_source_unlock(&the_mouse.parent.es);
 }
 */
-void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
+void imouse_get_state(A5O_MOUSE_STATE *ret_state);
 
-static ALLEGRO_MOUSE_DRIVER iphone_mouse_driver = {
+static A5O_MOUSE_DRIVER iphone_mouse_driver = {
     AL_ID('I', 'P', 'H', 'O'),
     "",
     "",
@@ -137,7 +137,7 @@ static ALLEGRO_MOUSE_DRIVER iphone_mouse_driver = {
     imouse_get_state
 };
 
-ALLEGRO_MOUSE_DRIVER *_al_get_iphone_mouse_driver(void)
+A5O_MOUSE_DRIVER *_al_get_iphone_mouse_driver(void)
 {
     return &iphone_mouse_driver;
 }

@@ -22,10 +22,10 @@
 
 /* Function: al_lock_bitmap_region
  */
-ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
+A5O_LOCKED_REGION *al_lock_bitmap_region(A5O_BITMAP *bitmap,
    int x, int y, int width, int height, int format, int flags)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int bitmap_format = al_get_bitmap_format(bitmap);
    int bitmap_flags = al_get_bitmap_flags(bitmap);
    int block_width = al_get_pixel_block_width(bitmap_format);
@@ -51,8 +51,8 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    if (bitmap->locked)
       return NULL;
 
-   if (!(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(flags & ALLEGRO_LOCK_READONLY))
+   if (!(bitmap_flags & A5O_MEMORY_BITMAP) &&
+         !(flags & A5O_LOCK_READONLY))
       bitmap->dirty = true;
 
    ASSERT(x+width <= bitmap->w);
@@ -69,21 +69,21 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    bitmap->lock_h = hc;
    bitmap->lock_flags = flags;
 
-   if (flags == ALLEGRO_LOCK_WRITEONLY &&
+   if (flags == A5O_LOCK_WRITEONLY &&
        (xc != x || yc != y || wc != width || hc != height)) {
       /* Unaligned write-only access requires that we fill in the padding
        * from the texture.
        * XXX: In principle, this could be done more efficiently. */
-      flags = ALLEGRO_LOCK_READWRITE;
+      flags = A5O_LOCK_READWRITE;
    }
 
-   if (bitmap_flags & ALLEGRO_MEMORY_BITMAP) {
+   if (bitmap_flags & A5O_MEMORY_BITMAP) {
       int f = _al_get_real_pixel_format(al_get_current_display(), format);
       if (f < 0) {
          return NULL;
       }
       ASSERT(bitmap->memory);
-      if (format == ALLEGRO_PIXEL_FORMAT_ANY || bitmap_format == format || bitmap_format == f) {
+      if (format == A5O_PIXEL_FORMAT_ANY || bitmap_format == format || bitmap_format == f) {
          bitmap->locked_region.data = bitmap->memory
             + bitmap->pitch * yc + xc * al_get_pixel_size(bitmap_format);
          bitmap->locked_region.format = bitmap_format;
@@ -95,7 +95,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
          bitmap->locked_region.data = al_malloc(bitmap->locked_region.pitch*hc);
          bitmap->locked_region.format = f;
          bitmap->locked_region.pixel_size = al_get_pixel_size(f);
-         if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
+         if (!(bitmap->lock_flags & A5O_LOCK_WRITEONLY)) {
             _al_convert_bitmap_data(
                bitmap->memory, bitmap_format, bitmap->pitch,
                bitmap->locked_region.data, f, bitmap->locked_region.pitch,
@@ -123,7 +123,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_lock_bitmap
  */
-ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
+A5O_LOCKED_REGION *al_lock_bitmap(A5O_BITMAP *bitmap,
    int format, int flags)
 {
    return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h, format, flags);
@@ -132,7 +132,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_unlock_bitmap
  */
-void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
+void al_unlock_bitmap(A5O_BITMAP *bitmap)
 {
    int bitmap_format = al_get_bitmap_format(bitmap);
    /* For sub-bitmaps */
@@ -140,7 +140,7 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
       bitmap = bitmap->parent;
    }
 
-   if (!(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)) {
+   if (!(al_get_bitmap_flags(bitmap) & A5O_MEMORY_BITMAP)) {
       if (_al_pixel_format_is_compressed(bitmap->locked_region.format))
          bitmap->vt->unlock_compressed_region(bitmap);
       else
@@ -148,7 +148,7 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
    }
    else {
       if (bitmap->locked_region.format != 0 && bitmap->locked_region.format != bitmap_format) {
-         if (!(bitmap->lock_flags & ALLEGRO_LOCK_READONLY)) {
+         if (!(bitmap->lock_flags & A5O_LOCK_READONLY)) {
             _al_convert_bitmap_data(
                bitmap->locked_region.data, bitmap->locked_region.format, bitmap->locked_region.pitch,
                bitmap->memory, bitmap_format, bitmap->pitch,
@@ -164,14 +164,14 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_is_bitmap_locked
  */
-bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
+bool al_is_bitmap_locked(A5O_BITMAP *bitmap)
 {
    return bitmap->locked;
 }
 
 /* Function: al_lock_bitmap_blocked
  */
-ALLEGRO_LOCKED_REGION *al_lock_bitmap_blocked(ALLEGRO_BITMAP *bitmap,
+A5O_LOCKED_REGION *al_lock_bitmap_blocked(A5O_BITMAP *bitmap,
    int flags)
 {
    int bitmap_format = al_get_bitmap_format(bitmap);
@@ -186,10 +186,10 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_blocked(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_lock_bitmap_region_blocked
  */
-ALLEGRO_LOCKED_REGION *al_lock_bitmap_region_blocked(ALLEGRO_BITMAP *bitmap,
+A5O_LOCKED_REGION *al_lock_bitmap_region_blocked(A5O_BITMAP *bitmap,
    int x_block, int y_block, int width_block, int height_block, int flags)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int bitmap_format = al_get_bitmap_format(bitmap);
    int bitmap_flags = al_get_bitmap_flags(bitmap);
    int block_width = al_get_pixel_block_width(bitmap_format);
@@ -206,7 +206,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region_blocked(ALLEGRO_BITMAP *bitmap,
 
    /* Currently, this is the only format that gets to this point */
    ASSERT(_al_pixel_format_is_compressed(bitmap_format));
-   ASSERT(!(bitmap_flags & ALLEGRO_MEMORY_BITMAP));
+   ASSERT(!(bitmap_flags & A5O_MEMORY_BITMAP));
 
    /* For sub-bitmaps */
    if (bitmap->parent) {
@@ -222,7 +222,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region_blocked(ALLEGRO_BITMAP *bitmap,
    if (bitmap->locked)
       return NULL;
 
-   if (!(flags & ALLEGRO_LOCK_READONLY))
+   if (!(flags & A5O_LOCK_READONLY))
       bitmap->dirty = true;
 
    ASSERT(x_block + width_block

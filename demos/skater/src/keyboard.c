@@ -10,7 +10,7 @@
  * bit 1: key was pressed
  * bit 2: key was released
  */
-static int key_array[ALLEGRO_KEY_MAX];
+static int key_array[A5O_KEY_MAX];
 static int unicode_array[KEYBUF_SIZE];
 static int unicode_count;
 
@@ -36,21 +36,21 @@ int unicode_char(bool remove)
    return u;
 }
 
-void keyboard_event(ALLEGRO_EVENT *event)
+void keyboard_event(A5O_EVENT *event)
 {
    switch (event->type) {
-      case ALLEGRO_EVENT_KEY_DOWN:
+      case A5O_EVENT_KEY_DOWN:
          key_array[event->keyboard.keycode] |= (1 << 0);
          key_array[event->keyboard.keycode] |= (1 << 1);
          break;
 
-      case ALLEGRO_EVENT_KEY_CHAR:
+      case A5O_EVENT_KEY_CHAR:
          if (event->keyboard.unichar && unicode_count < KEYBUF_SIZE) {
             unicode_array[unicode_count++] = event->keyboard.unichar;
          }
          break;
 
-      case ALLEGRO_EVENT_KEY_UP:
+      case A5O_EVENT_KEY_UP:
          key_array[event->keyboard.keycode] &= ~(1 << 0);
          key_array[event->keyboard.keycode] |= (1 << 2);
          break;
@@ -61,7 +61,7 @@ void keyboard_tick(void)
 {
    /* clear pressed/released bits */
    int i;
-   for (i = 0; i < ALLEGRO_KEY_MAX; i++) {
+   for (i = 0; i < A5O_KEY_MAX; i++) {
       key_array[i] &= ~(1 << 1);
       key_array[i] &= ~(1 << 2);
    }
@@ -74,12 +74,12 @@ static void read_config(VCONTROLLER * this, const char *config_path)
    int i;
    char tmp[64];
    int def[] = {
-      ALLEGRO_KEY_LEFT,
-      ALLEGRO_KEY_RIGHT,
-      ALLEGRO_KEY_SPACE
+      A5O_KEY_LEFT,
+      A5O_KEY_RIGHT,
+      A5O_KEY_SPACE
    };
 
-   ALLEGRO_CONFIG *c = al_load_config_file(config_path);
+   A5O_CONFIG *c = al_load_config_file(config_path);
    if (!c) c = al_create_config();
 
    for (i = 0; i < 3; i++) {
@@ -98,7 +98,7 @@ static void write_config(VCONTROLLER * this, const char *config_path)
    int i;
    char tmp[64];
 
-   ALLEGRO_CONFIG *c = al_load_config_file(config_path);
+   A5O_CONFIG *c = al_load_config_file(config_path);
    if (!c) c = al_create_config();
 
    for (i = 0; i < 3; i++) {
@@ -133,11 +133,11 @@ static int calibrate_button(VCONTROLLER * this, int i)
 {
    int c;
 
-   if (key_down(ALLEGRO_KEY_ESCAPE)) {
+   if (key_down(A5O_KEY_ESCAPE)) {
       return 0;
    }
 
-   for (c = 1; c < ALLEGRO_KEY_MAX; c++) {
+   for (c = 1; c < A5O_KEY_MAX; c++) {
       if (key_pressed(c)) {
          ((int *)(this->private_data))[i] = c;
          return 1;

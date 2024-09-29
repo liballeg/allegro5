@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include <stdio.h>
 #include <math.h>
@@ -49,7 +49,7 @@ static void draw_opengl(void)
    /* Let's create a framebuffer object. */
    if (!fbo && !no_fbo) {
       /* Did Allegro discover the OpenGL extension for us? */
-      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
+      if (al_get_opengl_extension_list()->A5O_GL_EXT_framebuffer_object) {
          /* If yes, then it also filled in the function pointer. How nice. */
          glGenFramebuffersEXT(1, &fbo);
 
@@ -86,7 +86,7 @@ static void draw_opengl(void)
 
       glDisable(GL_TEXTURE_2D);
       glColor3f(1, 1, 0);
-      glTranslatef(128, 128 + sin(secs * ALLEGRO_PI * 2 * 2) * 20, 0);
+      glTranslatef(128, 128 + sin(secs * A5O_PI * 2 * 2) * 20, 0);
       glBegin(GL_TRIANGLES);
       glVertex2f(0, -100);
       glVertex2f(100, 0);
@@ -119,9 +119,9 @@ static void draw_opengl(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    int frames = 0;
    double start;
 
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
    open_log();
 
    al_install_keyboard();
-   al_set_new_display_flags(ALLEGRO_OPENGL);
+   al_set_new_display_flags(A5O_OPENGL);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display.\n");
@@ -151,11 +151,11 @@ int main(int argc, char **argv)
       if (!al_is_event_queue_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
-               case ALLEGRO_EVENT_DISPLAY_CLOSE:
+               case A5O_EVENT_DISPLAY_CLOSE:
                   goto done;
 
-               case ALLEGRO_EVENT_KEY_DOWN:
-                  if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+               case A5O_EVENT_KEY_DOWN:
+                  if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                      goto done;
                   break;
             }

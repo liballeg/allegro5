@@ -19,7 +19,7 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -31,7 +31,7 @@
 
 
 /* the active keyboard driver */
-static ALLEGRO_MOUSE_DRIVER *new_mouse_driver = NULL;
+static A5O_MOUSE_DRIVER *new_mouse_driver = NULL;
 
 
 
@@ -115,9 +115,9 @@ void al_uninstall_mouse(void)
 /* This was in the public API but its only purpose is now served by
  * al_get_mouse_event_source().
  */
-static ALLEGRO_MOUSE *al_get_mouse(void)
+static A5O_MOUSE *al_get_mouse(void)
 {
-   ALLEGRO_MOUSE *mse;
+   A5O_MOUSE *mse;
 
    ASSERT(new_mouse_driver);
 
@@ -153,7 +153,7 @@ unsigned int al_get_mouse_num_axes(void)
 
 /* Function: al_set_mouse_xy
  */
-bool al_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+bool al_set_mouse_xy(A5O_DISPLAY *display, int x, int y)
 {
    ASSERT(new_mouse_driver);
    ASSERT(new_mouse_driver->set_mouse_xy);
@@ -194,9 +194,9 @@ bool al_set_mouse_axis(int which, int value)
    ASSERT(new_mouse_driver);
    ASSERT(new_mouse_driver->set_mouse_axis);
    ASSERT(which >= 2);
-   ASSERT(which < 4 + ALLEGRO_MOUSE_MAX_EXTRA_AXES);
+   ASSERT(which < 4 + A5O_MOUSE_MAX_EXTRA_AXES);
 
-   if (which >= 2 && which < 4 + ALLEGRO_MOUSE_MAX_EXTRA_AXES)
+   if (which >= 2 && which < 4 + A5O_MOUSE_MAX_EXTRA_AXES)
       return new_mouse_driver->set_mouse_axis(which, value);
    else
       return false;
@@ -206,7 +206,7 @@ bool al_set_mouse_axis(int which, int value)
 
 /* Function: al_get_mouse_state
  */
-void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
+void al_get_mouse_state(A5O_MOUSE_STATE *ret_state)
 {
    ASSERT(new_mouse_driver);
    ASSERT(ret_state);
@@ -218,11 +218,11 @@ void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 
 /* Function: al_get_mouse_state_axis
  */
-int al_get_mouse_state_axis(const ALLEGRO_MOUSE_STATE *state, int axis)
+int al_get_mouse_state_axis(const A5O_MOUSE_STATE *state, int axis)
 {
    ASSERT(state);
    ASSERT(axis >= 0);
-   ASSERT(axis < (4 + ALLEGRO_MOUSE_MAX_EXTRA_AXES));
+   ASSERT(axis < (4 + A5O_MOUSE_MAX_EXTRA_AXES));
 
    switch (axis) {
       case 0:
@@ -242,7 +242,7 @@ int al_get_mouse_state_axis(const ALLEGRO_MOUSE_STATE *state, int axis)
 
 /* Function: al_mouse_button_down
  */
-bool al_mouse_button_down(const ALLEGRO_MOUSE_STATE *state, int button)
+bool al_mouse_button_down(const A5O_MOUSE_STATE *state, int button)
 {
    ASSERT(state);
    ASSERT(button > 0);
@@ -255,7 +255,7 @@ bool al_mouse_button_down(const ALLEGRO_MOUSE_STATE *state, int button)
  */
 bool al_can_get_mouse_cursor_position(void)
 {
-   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   A5O_SYSTEM *alsys = al_get_system_driver();
 
    return alsys->vt->get_cursor_position;
 }
@@ -265,7 +265,7 @@ bool al_can_get_mouse_cursor_position(void)
  */
 bool al_get_mouse_cursor_position(int *ret_x, int *ret_y)
 {
-   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   A5O_SYSTEM *alsys = al_get_system_driver();
    ASSERT(ret_x);
    ASSERT(ret_y);
 
@@ -283,9 +283,9 @@ bool al_get_mouse_cursor_position(int *ret_x, int *ret_y)
 
 /* Function: al_grab_mouse
  */
-bool al_grab_mouse(ALLEGRO_DISPLAY *display)
+bool al_grab_mouse(A5O_DISPLAY *display)
 {
-   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   A5O_SYSTEM *alsys = al_get_system_driver();
 
    if (alsys->vt->grab_mouse)
       return alsys->vt->grab_mouse(display);
@@ -299,7 +299,7 @@ bool al_grab_mouse(ALLEGRO_DISPLAY *display)
  */
 bool al_ungrab_mouse(void)
 {
-   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   A5O_SYSTEM *alsys = al_get_system_driver();
 
    if (alsys->vt->ungrab_mouse)
       return alsys->vt->ungrab_mouse();
@@ -311,9 +311,9 @@ bool al_ungrab_mouse(void)
 
 /* Function: al_get_mouse_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_mouse_event_source(void)
+A5O_EVENT_SOURCE *al_get_mouse_event_source(void)
 {
-   ALLEGRO_MOUSE *mouse = al_get_mouse();
+   A5O_MOUSE *mouse = al_get_mouse();
 
    return (mouse) ? &mouse->es : NULL;
 }
@@ -324,7 +324,7 @@ ALLEGRO_EVENT_SOURCE *al_get_mouse_event_source(void)
  */
 void al_set_mouse_wheel_precision(int precision)
 {
-   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   A5O_SYSTEM *alsys = al_get_system_driver();
    ASSERT(alsys);
    if (precision < 1)
       precision = 1;
@@ -337,7 +337,7 @@ void al_set_mouse_wheel_precision(int precision)
  */
 int al_get_mouse_wheel_precision(void)
 {
-   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   A5O_SYSTEM *alsys = al_get_system_driver();
    ASSERT(alsys);
    return alsys->mouse_wheel_precision;
 }

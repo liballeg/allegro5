@@ -12,7 +12,7 @@ static void read_config(VCONTROLLER * this, const char *config_path)
    int i;
    char tmp[64];
 
-   ALLEGRO_CONFIG *c = al_load_config_file(config_path);
+   A5O_CONFIG *c = al_load_config_file(config_path);
    if (!c) c = al_create_config();
 
    for (i = 0; i < 3; i++) {
@@ -32,7 +32,7 @@ static void write_config(VCONTROLLER * this, const char *config_path)
    int i;
    char tmp[64];
 
-   ALLEGRO_CONFIG *c = al_load_config_file(config_path);
+   A5O_CONFIG *c = al_load_config_file(config_path);
    if (!c) c = al_create_config();
 
    for (i = 0; i < 3; i++) {
@@ -49,11 +49,11 @@ static void poll(VCONTROLLER * this)
 {
    //printf("%f %f %f\n", axis[0], axis[1], axis[2]);
    float a = axis[0];
-   if (screen_orientation == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES)
+   if (screen_orientation == A5O_DISPLAY_ORIENTATION_90_DEGREES)
       a = axis[1];
-   if (screen_orientation == ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES)
+   if (screen_orientation == A5O_DISPLAY_ORIENTATION_180_DEGREES)
       a = -axis[0];
-   if (screen_orientation == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES)
+   if (screen_orientation == A5O_DISPLAY_ORIENTATION_270_DEGREES)
       a = -axis[1];
    this->button[0] = a < -threshold;
    this->button[1] = a > threshold;
@@ -149,18 +149,18 @@ VCONTROLLER *create_gamepad_controller(const char *config_path)
    return ret;
 }
 
-void gamepad_event(ALLEGRO_EVENT *event)
+void gamepad_event(A5O_EVENT *event)
 {
     switch (event->type) {
-        case ALLEGRO_EVENT_TOUCH_BEGIN:
+        case A5O_EVENT_TOUCH_BEGIN:
             button_down = true;
             break;
             
-        case ALLEGRO_EVENT_TOUCH_END:
+        case A5O_EVENT_TOUCH_END:
             button_down = false;
             break;
         
-        case ALLEGRO_EVENT_JOYSTICK_AXIS:
+        case A5O_EVENT_JOYSTICK_AXIS:
             if (event->joystick.axis < 3)
                 axis[event->joystick.axis] = event->joystick.pos;
             break;

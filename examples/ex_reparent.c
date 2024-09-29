@@ -9,9 +9,9 @@
 #define FPS 60
 
 struct Example {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *glyphs[2];
-   ALLEGRO_BITMAP *sub;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *glyphs[2];
+   A5O_BITMAP *sub;
    int i;
    int p;
 } example;
@@ -46,7 +46,7 @@ static void redraw(void)
    for (i = 0; i < 8; i++) {
       al_draw_scaled_rotated_bitmap(example.sub, 0, 0,
          i * 100, 32 * 6 + 33 * 5 + 4,
-         2.0, 2.0, ALLEGRO_PI / 4 * i / 8, 0);
+         2.0, 2.0, A5O_PI / 4 * i / 8, 0);
    }
 }
 
@@ -79,8 +79,8 @@ static void init(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    int w = 800, h = 600;
    bool done = false;
    bool need_redraw = true;
@@ -100,8 +100,8 @@ int main(int argc, char **argv)
 
    init_platform_specific();
 
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
+   al_set_new_display_flags(A5O_RESIZABLE);
    example.display = al_create_display(w, h);
    if (!example.display) {
       abort_example("Error creating display.\n");
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       w = al_get_display_width(example.display);
       h = al_get_display_height(example.display);
 
@@ -148,20 +148,20 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_CHAR:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_CHAR:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                done = true;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+         case A5O_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
               
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             update();
             need_redraw = true;
             break;

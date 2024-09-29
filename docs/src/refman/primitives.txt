@@ -239,7 +239,7 @@ Example with `thickness <= 0`:
 ~~~~c
 const int num_points = 4;
 float points[num_points][2];
-al_calculate_arc(&points[0][0], 2 * sizeof(float), 0, 0, 10, 10, 0, ALLEGRO_PI / 2, 0, num_points);
+al_calculate_arc(&points[0][0], 2 * sizeof(float), 0, 0, 10, 10, 0, A5O_PI / 2, 0, num_points);
 
 assert((int)points[0][0] == 10);
 assert((int)points[0][1] == 0);
@@ -253,7 +253,7 @@ Example with `thickness > 0`:
 ~~~~c
 const int num_points = 4;
 float points[num_points * 2][2];
-al_calculate_arc(&points[0][0], 2 * sizeof(float), 0, 0, 10, 10, 0, ALLEGRO_PI / 2, 2, num_points);
+al_calculate_arc(&points[0][0], 2 * sizeof(float), 0, 0, 10, 10, 0, A5O_PI / 2, 2, num_points);
 
 assert((int)points[0][0] == 11);
 assert((int)points[0][1] == 0);
@@ -505,10 +505,10 @@ Draws a subset of the passed vertex array.
 * texture - Texture to use, pass NULL to use only color shaded primitves
 * vtxs - Pointer to an array of vertices
 * decl - Pointer to a [vertex declaration][al_create_vertex_decl]. If set to NULL,
-      the vertices are assumed to be of the [ALLEGRO_VERTEX] type
+      the vertices are assumed to be of the [A5O_VERTEX] type
 * start - Start index of the subset of the vertex array to draw
 * end - One past the last index of the subset of the vertex array to draw
-* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
+* type - A member of the [A5O_PRIM_TYPE] enumeration, specifying what kind
          of primitive to draw
 
 *Returns:*
@@ -517,16 +517,16 @@ Number of primitives drawn
 For example to draw a textured triangle you could use:
 
 ~~~~c
-ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
-ALLEGRO_VERTEX v[] = {
+A5O_COLOR white = al_map_rgb_f(1, 1, 1);
+A5O_VERTEX v[] = {
    {.x = 128, .y = 0, .z = 0, .color = white, .u = 128, .v = 0},
    {.x = 0, .y = 256, .z = 0, .color = white, .u = 0, .v = 256},
    {.x = 256, .y = 256, .z = 0, .color = white, .u = 256, .v = 256}};
-al_draw_prim(v, NULL, texture, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+al_draw_prim(v, NULL, texture, 0, 3, A5O_PRIM_TRIANGLE_LIST);
 ~~~~
 
 See also:
-[ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL],
+[A5O_VERTEX], [A5O_PRIM_TYPE], [A5O_VERTEX_DECL],
 [al_draw_indexed_prim]
 
 ### API: al_draw_indexed_prim
@@ -539,24 +539,24 @@ to specify which vertices to use.
 * texture - Texture to use, pass NULL to use only color shaded primitves
 * vtxs - Pointer to an array of vertices
 * decl - Pointer to a vertex declaration. If set to NULL, the vtxs are assumed
-      to be of the ALLEGRO_VERTEX type
+      to be of the A5O_VERTEX type
 * indices - An array of indices into the vertex array
 * num_vtx - Number of indices from the indices array you want to draw
-* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
+* type - A member of the [A5O_PRIM_TYPE] enumeration, specifying what kind
          of primitive to draw
 
 *Returns:*
 Number of primitives drawn
 
 See also:
-[ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], [al_draw_prim]
+[A5O_VERTEX], [A5O_PRIM_TYPE], [A5O_VERTEX_DECL], [al_draw_prim]
 
 ### API: al_draw_vertex_buffer
 
 Draws a subset of the passed vertex buffer. The vertex buffer must
 not be locked. Additionally, to draw onto memory bitmaps or with
 memory bitmap textures the vertex buffer must support reading (i.e.
-it must be created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
+it must be created with the `A5O_PRIM_BUFFER_READWRITE`).
 
 *Parameters:*
 
@@ -564,7 +564,7 @@ it must be created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 * texture - Texture to use, pass NULL to use only color shaded primitves
 * start - Start index of the subset of the vertex buffer to draw
 * end - One past the last index of the subset of the vertex buffer to draw
-* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
+* type - A member of the [A5O_PRIM_TYPE] enumeration, specifying what kind
          of primitive to draw
 
 *Returns:*
@@ -573,7 +573,7 @@ Number of primitives drawn
 Since: 5.1.3
 
 See also:
-[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE]
+[A5O_VERTEX_BUFFER], [A5O_PRIM_TYPE]
 
 ### API: al_draw_indexed_buffer
 
@@ -581,7 +581,7 @@ Draws a subset of the passed vertex buffer.  This function uses an
 index buffer to specify which vertices to use. Both buffers must not
 be locked. Additionally, to draw onto memory bitmaps or with memory
 bitmap textures both buffers must support reading (i.e. they must be
-created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
+created with the `A5O_PRIM_BUFFER_READWRITE`).
 
 *Parameters:*
 
@@ -590,9 +590,9 @@ created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 * index_buffer - Index buffer to use
 * start - Start index of the subset of the index buffer to draw
 * end - One past the last index of the subset of the index buffer to draw
-* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying
-  what kind of primitive to draw. Note that ALLEGRO_PRIM_LINE_LOOP and
-  ALLEGRO_PRIM_POINT_LIST are not supported.
+* type - A member of the [A5O_PRIM_TYPE] enumeration, specifying
+  what kind of primitive to draw. Note that A5O_PRIM_LINE_LOOP and
+  A5O_PRIM_POINT_LIST are not supported.
 
 *Returns:*
 Number of primitives drawn
@@ -600,7 +600,7 @@ Number of primitives drawn
 Since: 5.1.8
 
 See also:
-[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_INDEX_BUFFER], [ALLEGRO_PRIM_TYPE]
+[A5O_VERTEX_BUFFER], [A5O_INDEX_BUFFER], [A5O_PRIM_TYPE]
 
 ### API: al_draw_soft_triangle
 
@@ -669,14 +669,14 @@ Creates a vertex declaration, which describes a custom vertex format.
 
 *Parameters:*
 
-* elements - An array of [ALLEGRO_VERTEX_ELEMENT] structures.
+* elements - An array of [A5O_VERTEX_ELEMENT] structures.
 * stride - Size of the custom vertex structure
 
 *Returns:*
 Newly created vertex declaration.
 
 See also:
-[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_destroy_vertex_decl]
+[A5O_VERTEX_ELEMENT], [A5O_VERTEX_DECL], [al_destroy_vertex_decl]
 
 ### API: al_destroy_vertex_decl
 
@@ -687,7 +687,7 @@ Destroys a vertex declaration.
 * decl - Vertex declaration to destroy
 
 See also:
-[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_create_vertex_decl]
+[A5O_VERTEX_ELEMENT], [A5O_VERTEX_DECL], [al_create_vertex_decl]
 
 ## Vertex buffer routines
 
@@ -706,17 +706,17 @@ created (e.g. the system only supports write-only buffers).
 *Parameters:*
 
 * decl - Vertex type that this buffer will hold. NULL implies that this buffer will
-   hold [ALLEGRO_VERTEX] vertices
+   hold [A5O_VERTEX] vertices
 * initial_data - Memory buffer to copy from to initialize the vertex buffer. Can
    be `NULL`, in which case the buffer is uninitialized.
 * num_vertices - Number of vertices the buffer will hold
-* flags - A combination of the [ALLEGRO_PRIM_BUFFER_FLAGS] flags
+* flags - A combination of the [A5O_PRIM_BUFFER_FLAGS] flags
   specifying how this buffer will be created. Passing 0 is the same
-  as passing `ALLEGRO_PRIM_BUFFER_STATIC`.
+  as passing `A5O_PRIM_BUFFER_STATIC`.
 
 Since: 5.1.3
 
-See also: [ALLEGRO_VERTEX_BUFFER], [al_destroy_vertex_buffer]
+See also: [A5O_VERTEX_BUFFER], [al_destroy_vertex_buffer]
 
 ### API: al_destroy_vertex_buffer
 
@@ -724,7 +724,7 @@ Destroys a vertex buffer. Does nothing if passed NULL.
 
 Since: 5.1.3
 
-See also: [ALLEGRO_VERTEX_BUFFER], [al_create_vertex_buffer]
+See also: [A5O_VERTEX_BUFFER], [al_create_vertex_buffer]
 
 ### API: al_lock_vertex_buffer
 
@@ -737,11 +737,11 @@ if the buffer is already locked.
 * buffer - Vertex buffer to lock
 * offset - Vertex index of the start of the locked range
 * length - How many vertices to lock
-* flags - ALLEGRO_LOCK_READONLY, ALLEGRO_LOCK_WRITEONLY or ALLEGRO_LOCK_READWRITE
+* flags - A5O_LOCK_READONLY, A5O_LOCK_WRITEONLY or A5O_LOCK_READWRITE
 
 Since: 5.1.3
 
-See also: [ALLEGRO_VERTEX_BUFFER], [al_unlock_vertex_buffer]
+See also: [A5O_VERTEX_BUFFER], [al_unlock_vertex_buffer]
 
 ### API: al_unlock_vertex_buffer
 
@@ -749,7 +749,7 @@ Unlocks a previously locked vertex buffer.
 
 Since: 5.1.3
 
-See also: [ALLEGRO_VERTEX_BUFFER], [al_lock_vertex_buffer]
+See also: [A5O_VERTEX_BUFFER], [al_lock_vertex_buffer]
 
 ### API: al_get_vertex_buffer_size
 
@@ -757,7 +757,7 @@ Returns the size of the vertex buffer
 
 Since: 5.1.8
 
-See also: [ALLEGRO_VERTEX_BUFFER]
+See also: [A5O_VERTEX_BUFFER]
 
 ## Index buffer routines
 
@@ -780,13 +780,13 @@ created (e.g. the system only supports write-only buffers).
 * initial_data - Memory buffer to copy from to initialize the index
   buffer. Can be `NULL`, in which case the buffer is uninitialized.
 * num_indices - Number of indices the buffer will hold
-* flags - A combination of the [ALLEGRO_PRIM_BUFFER_FLAGS] flags
+* flags - A combination of the [A5O_PRIM_BUFFER_FLAGS] flags
   specifying how this buffer will be created. Passing 0 is the same
-  as passing `ALLEGRO_PRIM_BUFFER_STATIC`.
+  as passing `A5O_PRIM_BUFFER_STATIC`.
 
 Since: 5.1.8
 
-See also: [ALLEGRO_INDEX_BUFFER], [al_destroy_index_buffer]
+See also: [A5O_INDEX_BUFFER], [al_destroy_index_buffer]
 
 ### API: al_destroy_index_buffer
 
@@ -794,7 +794,7 @@ Destroys a index buffer. Does nothing if passed NULL.
 
 Since: 5.1.8
 
-See also: [ALLEGRO_INDEX_BUFFER], [al_create_index_buffer]
+See also: [A5O_INDEX_BUFFER], [al_create_index_buffer]
 
 ### API: al_lock_index_buffer
 
@@ -807,11 +807,11 @@ if the buffer is already locked.
 * buffer - Index buffer to lock
 * offset - Element index of the start of the locked range
 * length - How many indices to lock
-* flags - ALLEGRO_LOCK_READONLY, ALLEGRO_LOCK_WRITEONLY or ALLEGRO_LOCK_READWRITE
+* flags - A5O_LOCK_READONLY, A5O_LOCK_WRITEONLY or A5O_LOCK_READWRITE
 
 Since: 5.1.8
 
-See also: [ALLEGRO_INDEX_BUFFER], [al_unlock_index_buffer]
+See also: [A5O_INDEX_BUFFER], [al_unlock_index_buffer]
 
 ### API: al_unlock_index_buffer
 
@@ -819,7 +819,7 @@ Unlocks a previously locked index buffer.
 
 Since: 5.1.8
 
-See also: [ALLEGRO_INDEX_BUFFER], [al_lock_index_buffer]
+See also: [A5O_INDEX_BUFFER], [al_lock_index_buffer]
 
 ### API: al_get_index_buffer_size
 
@@ -827,7 +827,7 @@ Returns the size of the index buffer
 
 Since: 5.1.8
 
-See also: [ALLEGRO_INDEX_BUFFER]
+See also: [A5O_INDEX_BUFFER]
 
 ## Polygon routines
 
@@ -838,9 +838,9 @@ Draw a series of line segments.
 * vertices - Interleaved array of (x, y) vertex coordinates
 * vertex_stride - the number of bytes between pairs of vertices (the stride)
 * vertex_count - Number of vertices in the array
-* join_style - Member of [ALLEGRO_LINE_JOIN] specifying how to render the
+* join_style - Member of [A5O_LINE_JOIN] specifying how to render the
 joins between line segments
-* cap_style - Member of [ALLEGRO_LINE_CAP] specifying how to render the end
+* cap_style - Member of [A5O_LINE_CAP] specifying how to render the end
 caps
 * color - Color of the line
 * thickness - Thickness of the line, pass `<= 0` to draw hairline lines
@@ -856,10 +856,10 @@ struct VertexInfo {
    int id;
 };
 
-void my_draw(struct VertexInfo verts[], int vertex_count, ALLEGRO_COLOR c)
+void my_draw(struct VertexInfo verts[], int vertex_count, A5O_COLOR c)
 {
    al_draw_polyline((float *)verts, sizeof(VertexInfo), vertex_count,
-      ALLEGRO_LINE_JOIN_NONE, ALLEGRO_LINE_CAP_NONE, c, 1.0, 1.0);
+      A5O_LINE_JOIN_NONE, A5O_LINE_CAP_NONE, c, 1.0, 1.0);
 }
 ~~~~
 
@@ -867,16 +867,16 @@ The stride may also be negative if the vertices are stored in reverse order.
 
 Since: 5.1.0
 
-See also: [al_draw_polygon], [ALLEGRO_LINE_JOIN], [ALLEGRO_LINE_CAP]
+See also: [al_draw_polygon], [A5O_LINE_JOIN], [A5O_LINE_CAP]
 
 ### API: al_draw_polygon
 
 Draw an unfilled polygon.  This is the same as passing
-`ALLEGRO_LINE_CAP_CLOSED` to [al_draw_polyline].
+`A5O_LINE_CAP_CLOSED` to [al_draw_polyline].
 
 * vertex - Interleaved array of (x, y) vertex coordinates
 * vertex_count - Number of vertices in the array
-* join_style - Member of [ALLEGRO_LINE_JOIN] specifying how to render the
+* join_style - Member of [A5O_LINE_JOIN] specifying how to render the
 joins between line segments
 * color - Color of the line
 * thickness - Thickness of the line, pass `<= 0` to draw hairline lines
@@ -884,7 +884,7 @@ joins between line segments
 
 Since: 5.1.0
 
-See also: [al_draw_filled_polygon], [al_draw_polyline], [ALLEGRO_LINE_JOIN]
+See also: [al_draw_filled_polygon], [al_draw_polyline], [A5O_LINE_JOIN]
 
 ### API: al_draw_filled_polygon
 
@@ -978,7 +978,7 @@ See also: [al_draw_filled_polygon_with_holes]
 
 ## Structures and types
 
-### API: ALLEGRO_VERTEX
+### API: A5O_VERTEX
 
 Defines the generic vertex type, with a 3D position, color and texture
 coordinates for a single texture. Note that at this time, the software driver
@@ -991,21 +991,21 @@ be left uninitialized when you are not using textures.
 
 * x, y, z - Position of the vertex (float)
 * u, v - Texture coordinates measured in pixels (float)
-* color - [ALLEGRO_COLOR] structure, storing the color of the vertex
+* color - [A5O_COLOR] structure, storing the color of the vertex
 
 See also:
-[ALLEGRO_PRIM_ATTR]
+[A5O_PRIM_ATTR]
 
-### API: ALLEGRO_VERTEX_DECL
+### API: A5O_VERTEX_DECL
 
 A vertex declaration. This opaque structure is responsible for describing
 the format and layout of a user defined custom vertex. It is created and
 destroyed by specialized functions.
 
 See also:
-[al_create_vertex_decl], [al_destroy_vertex_decl], [ALLEGRO_VERTEX_ELEMENT]
+[al_create_vertex_decl], [al_destroy_vertex_decl], [A5O_VERTEX_ELEMENT]
 
-### API: ALLEGRO_VERTEX_ELEMENT
+### API: A5O_VERTEX_ELEMENT
 
 A small structure describing a certain element of a vertex. E.g. the
 position of the vertex, or its color. These structures are used by the
@@ -1013,84 +1013,84 @@ position of the vertex, or its color. These structures are used by the
 generally occur in an array. The last element of such an array should have the
 attribute field equal to 0, to signify that it is the end of the array.
 Here is an example code that would create a declaration describing the
-[ALLEGRO_VERTEX] structure (passing this as vertex declaration to
+[A5O_VERTEX] structure (passing this as vertex declaration to
 al_draw_prim would be identical to passing NULL):
 
 ~~~~c
 /* On compilers without the offsetof keyword you need to obtain the
  * offset with sizeof and make sure to account for packing.
  */
-ALLEGRO_VERTEX_ELEMENT elems[] = {
-   {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
-   {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
-   {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
+A5O_VERTEX_ELEMENT elems[] = {
+   {A5O_PRIM_POSITION, A5O_PRIM_FLOAT_3, offsetof(A5O_VERTEX, x)},
+   {A5O_PRIM_TEX_COORD_PIXEL, A5O_PRIM_FLOAT_2, offsetof(A5O_VERTEX, u)},
+   {A5O_PRIM_COLOR_ATTR, 0, offsetof(A5O_VERTEX, color)},
    {0, 0, 0}
 };
-ALLEGRO_VERTEX_DECL* decl = al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+A5O_VERTEX_DECL* decl = al_create_vertex_decl(elems, sizeof(A5O_VERTEX));
 ~~~~
 
 *Fields:*
 
-* attribute - A member of the [ALLEGRO_PRIM_ATTR] enumeration, specifying what
+* attribute - A member of the [A5O_PRIM_ATTR] enumeration, specifying what
    this attribute signifies
-* storage - A member of the [ALLEGRO_PRIM_STORAGE] enumeration, specifying how
+* storage - A member of the [A5O_PRIM_STORAGE] enumeration, specifying how
    this attribute is stored
 * offset - Offset in bytes from the beginning of the custom vertex structure. The C
    function offsetof is very useful here.
 
 See also:
-[al_create_vertex_decl], [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_ATTR],
-[ALLEGRO_PRIM_STORAGE]
+[al_create_vertex_decl], [A5O_VERTEX_DECL], [A5O_PRIM_ATTR],
+[A5O_PRIM_STORAGE]
 
-### API: ALLEGRO_PRIM_TYPE
+### API: A5O_PRIM_TYPE
 
 Enumerates the types of primitives this addon can draw.
 
-* ALLEGRO_PRIM_POINT_LIST - A list of points, each vertex defines a point
+* A5O_PRIM_POINT_LIST - A list of points, each vertex defines a point
 
-* ALLEGRO_PRIM_LINE_LIST - A list of lines, sequential pairs of vertices define
+* A5O_PRIM_LINE_LIST - A list of lines, sequential pairs of vertices define
   disjointed lines
 
-* ALLEGRO_PRIM_LINE_STRIP - A strip of lines, sequential vertices define a
+* A5O_PRIM_LINE_STRIP - A strip of lines, sequential vertices define a
   strip of lines
 
-* ALLEGRO_PRIM_LINE_LOOP - Like a line strip, except at the end the first and
+* A5O_PRIM_LINE_LOOP - Like a line strip, except at the end the first and
   the last vertices are also connected by a line
 
-* ALLEGRO_PRIM_TRIANGLE_LIST - A list of triangles, sequential triplets of
+* A5O_PRIM_TRIANGLE_LIST - A list of triangles, sequential triplets of
   vertices define disjointed triangles
 
-* ALLEGRO_PRIM_TRIANGLE_STRIP - A strip of triangles, sequential vertices
+* A5O_PRIM_TRIANGLE_STRIP - A strip of triangles, sequential vertices
   define a strip of triangles
 
-* ALLEGRO_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first
+* A5O_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first
   vertex
 
-### API: ALLEGRO_PRIM_ATTR
+### API: A5O_PRIM_ATTR
 
 Enumerates the types of vertex attributes that a custom vertex may have.
 
-* ALLEGRO_PRIM_POSITION - Position information, can be stored only in
-   ALLEGRO_PRIM_SHORT_2, ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_FLOAT_3.
+* A5O_PRIM_POSITION - Position information, can be stored only in
+   A5O_PRIM_SHORT_2, A5O_PRIM_FLOAT_2 and A5O_PRIM_FLOAT_3.
 
-* ALLEGRO_PRIM_COLOR_ATTR - Color information, stored in an [ALLEGRO_COLOR].
-   The storage field of ALLEGRO_VERTEX_ELEMENT is ignored
+* A5O_PRIM_COLOR_ATTR - Color information, stored in an [A5O_COLOR].
+   The storage field of A5O_VERTEX_ELEMENT is ignored
 
-* ALLEGRO_PRIM_TEX_COORD - Texture coordinate information, can be stored only in
-   ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2. These coordinates are
+* A5O_PRIM_TEX_COORD - Texture coordinate information, can be stored only in
+   A5O_PRIM_FLOAT_2 and A5O_PRIM_SHORT_2. These coordinates are
    normalized by the width and height of the texture, meaning that the
    bottom-right corner has texture coordinates of (1, 1).
 
-* ALLEGRO_PRIM_TEX_COORD_PIXEL - Texture coordinate information, can be stored
-   only in ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2. These coordinates are
+* A5O_PRIM_TEX_COORD_PIXEL - Texture coordinate information, can be stored
+   only in A5O_PRIM_FLOAT_2 and A5O_PRIM_SHORT_2. These coordinates are
    measured in pixels.
 
-* ALLEGRO_PRIM_USER_ATTR - A user specified attribute. You can use any storage
-    for this attribute. You may have at most ALLEGRO_PRIM_MAX_USER_ATTR
+* A5O_PRIM_USER_ATTR - A user specified attribute. You can use any storage
+    for this attribute. You may have at most A5O_PRIM_MAX_USER_ATTR
     (currently 10) of these that you can specify by adding an index to the
-    value of ALLEGRO_PRIM_USER_ATTR, e.g. the first user attribute is
-    `ALLEGRO_PRIM_USER_ATTR + 0`, the second is
-    `ALLEGRO_PRIM_USER_ATTR + 1` and so on.
+    value of A5O_PRIM_USER_ATTR, e.g. the first user attribute is
+    `A5O_PRIM_USER_ATTR + 0`, the second is
+    `A5O_PRIM_USER_ATTR + 1` and so on.
 
     To access these custom attributes from GLSL shaders you need to declare
     attributes that follow this nomenclature: `al_user_attr_#` where # is the index
@@ -1100,17 +1100,17 @@ Enumerates the types of vertex attributes that a custom vertex may have.
     you could declare it like this:
 
     ~~~~c
-    ALLEGRO_VERTEX_ELEMENT elements[3] = {
-        {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, 0},
-        {ALLEGRO_PRIM_USER_ATTR + 0, ALLEGRO_PRIM_FLOAT_3, 12},
+    A5O_VERTEX_ELEMENT elements[3] = {
+        {A5O_PRIM_POSITION, A5O_PRIM_FLOAT_3, 0},
+        {A5O_PRIM_USER_ATTR + 0, A5O_PRIM_FLOAT_3, 12},
         {0, 0, 0}};
     ~~~~
 
     And then in your vertex shader access it like this:
 
     ~~~~c
-    attribute vec3 al_pos; // ALLEGRO_PRIM_POSITION
-    attribute vec3 al_user_attr_0; // ALLEGRO_PRIM_USER_ATTR + 0
+    attribute vec3 al_pos; // A5O_PRIM_POSITION
+    attribute vec3 al_user_attr_0; // A5O_PRIM_USER_ATTR + 0
     varying float light;
     const vec3 light_direction = vec3(0, 0, 1);
     void main() {
@@ -1127,77 +1127,77 @@ Enumerates the types of vertex attributes that a custom vertex may have.
     Since: 5.1.6
 
 See also:
-[ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE], [al_attach_shader_source]
+[A5O_VERTEX_DECL], [A5O_PRIM_STORAGE], [al_attach_shader_source]
 
-### API: ALLEGRO_PRIM_STORAGE
+### API: A5O_PRIM_STORAGE
 
 Enumerates the types of storage an attribute of a custom vertex may be stored
-in. Many of these can only be used for ALLEGRO_PRIM_USER_ATTR attributes and
+in. Many of these can only be used for A5O_PRIM_USER_ATTR attributes and
 can only be accessed via shaders. Usually no matter what the storage is
 specified the attribute gets converted to single precision floating point when
 the shader is run. Despite that, it may be advantageous to use more dense
-storage formats (e.g. ALLEGRO_PRIM_NORMALIZED_UBYTE_4 instead of
-ALLEGRO_PRIM_FLOAT_4) when bandwidth (amount of memory sent to the GPU) is an
+storage formats (e.g. A5O_PRIM_NORMALIZED_UBYTE_4 instead of
+A5O_PRIM_FLOAT_4) when bandwidth (amount of memory sent to the GPU) is an
 issue but precision is not.
 
-* ALLEGRO_PRIM_FLOAT_1 - A single float
+* A5O_PRIM_FLOAT_1 - A single float
 
     Since: 5.1.6
-* ALLEGRO_PRIM_FLOAT_2 - A doublet of floats
+* A5O_PRIM_FLOAT_2 - A doublet of floats
 
-* ALLEGRO_PRIM_FLOAT_3 - A triplet of floats
+* A5O_PRIM_FLOAT_3 - A triplet of floats
 
-* ALLEGRO_PRIM_FLOAT_4 - A quad of floats
-
-    Since: 5.1.6
-* ALLEGRO_PRIM_SHORT_2 - A doublet of shorts
-
-* ALLEGRO_PRIM_SHORT_4 - A quad of shorts
+* A5O_PRIM_FLOAT_4 - A quad of floats
 
     Since: 5.1.6
-* ALLEGRO_PRIM_UBYTE_4 - A quad of unsigned bytes
+* A5O_PRIM_SHORT_2 - A doublet of shorts
+
+* A5O_PRIM_SHORT_4 - A quad of shorts
 
     Since: 5.1.6
-* ALLEGRO_PRIM_NORMALIZED_SHORT_2 - A doublet of shorts. Before being sent to
+* A5O_PRIM_UBYTE_4 - A quad of unsigned bytes
+
+    Since: 5.1.6
+* A5O_PRIM_NORMALIZED_SHORT_2 - A doublet of shorts. Before being sent to
     the shader, each component is divided by 32767. Each component of the
     resultant float doublet ranges between -1.0 and 1.0
 
     Since: 5.1.6
-* ALLEGRO_PRIM_NORMALIZED_SHORT_4 - A quad of shorts. Before being sent to
+* A5O_PRIM_NORMALIZED_SHORT_4 - A quad of shorts. Before being sent to
     the shader, each component is divided by 32767. Each component of the
     resultant float quad ranges between -1.0 and 1.0
 
     Since: 5.1.6
-* ALLEGRO_PRIM_NORMALIZED_UBYTE_4 - A quad of unsigned bytes. Before being sent
+* A5O_PRIM_NORMALIZED_UBYTE_4 - A quad of unsigned bytes. Before being sent
     to the shader, each component is divided by 255. Each component of the
     resultant float quad ranges between 0.0 and 1.0
 
     Since: 5.1.6
-* ALLEGRO_PRIM_NORMALIZED_USHORT_2 - A doublet of unsigned shorts. Before being
+* A5O_PRIM_NORMALIZED_USHORT_2 - A doublet of unsigned shorts. Before being
     sent to the shader, each component is divided by 65535. Each component of
     the resultant float doublet ranges between 0.0 and 1.0
 
     Since: 5.1.6
-* ALLEGRO_PRIM_NORMALIZED_USHORT_4 - A quad of unsigned shorts. Before being
+* A5O_PRIM_NORMALIZED_USHORT_4 - A quad of unsigned shorts. Before being
     sent to the shader, each component is divided by 65535. Each component of
     the resultant float quad ranges between 0.0 and 1.0
 
     Since: 5.1.6
-* ALLEGRO_PRIM_HALF_FLOAT_2 - A doublet of half-precision floats. Note that this
+* A5O_PRIM_HALF_FLOAT_2 - A doublet of half-precision floats. Note that this
     storage format is not supported on all platforms. [al_create_vertex_decl]
     will return NULL if you use it on those platforms
 
     Since: 5.1.6
-* ALLEGRO_PRIM_HALF_FLOAT_4 - A quad of half-precision floats.  Note that this
+* A5O_PRIM_HALF_FLOAT_4 - A quad of half-precision floats.  Note that this
     storage format is not supported on all platforms. [al_create_vertex_decl]
     will return NULL if you use it on those platforms.
 
     Since: 5.1.6
 
 See also:
-[ALLEGRO_PRIM_ATTR]
+[A5O_PRIM_ATTR]
 
-### API: ALLEGRO_VERTEX_CACHE_SIZE
+### API: A5O_VERTEX_CACHE_SIZE
 
 Defines the size of the transformation vertex cache for the software renderer.
 If you pass less than this many vertices to the primitive rendering functions
@@ -1205,21 +1205,21 @@ you will get a speed boost. This also defines the size of the cache vertex
 buffer, used for the high-level primitives. This corresponds to the maximum
 number of line segments that will be used to form them.
 
-### API: ALLEGRO_PRIM_QUALITY
+### API: A5O_PRIM_QUALITY
 
 Controls the quality of the approximation of curved primitives (e.g. circles).
 Curved primitives are drawn by approximating them with a sequence of line
 segments. By default, this roughly corresponds to error of less than half of a
 pixel.
 
-### API: ALLEGRO_LINE_JOIN
+### API: A5O_LINE_JOIN
 
-* ALLEGRO_LINE_JOIN_NONE
-* ALLEGRO_LINE_JOIN_BEVEL
-* ALLEGRO_LINE_JOIN_ROUND
-* ALLEGRO_LINE_JOIN_MITER
+* A5O_LINE_JOIN_NONE
+* A5O_LINE_JOIN_BEVEL
+* A5O_LINE_JOIN_ROUND
+* A5O_LINE_JOIN_MITER
 
-![*ALLEGRO_LINE_JOIN styles*](images/LINE_JOIN.png)
+![*A5O_LINE_JOIN styles*](images/LINE_JOIN.png)
 
 See the picture for the difference.
 
@@ -1230,27 +1230,27 @@ Since: 5.1.0
 
 See also: [al_draw_polygon]
 
-### API: ALLEGRO_LINE_CAP
+### API: A5O_LINE_CAP
 
-* ALLEGRO_LINE_CAP_NONE
-* ALLEGRO_LINE_CAP_SQUARE
-* ALLEGRO_LINE_CAP_ROUND
-* ALLEGRO_LINE_CAP_TRIANGLE
-* ALLEGRO_LINE_CAP_CLOSED
+* A5O_LINE_CAP_NONE
+* A5O_LINE_CAP_SQUARE
+* A5O_LINE_CAP_ROUND
+* A5O_LINE_CAP_TRIANGLE
+* A5O_LINE_CAP_CLOSED
 
-![*ALLEGRO_LINE_CAP styles*](images/LINE_CAP.png)
+![*A5O_LINE_CAP styles*](images/LINE_CAP.png)
 
 See the picture for the difference.
 
-ALLEGRO_LINE_CAP_CLOSED is different from the others - it causes the polygon
-to have no caps. (And the [ALLEGRO_LINE_JOIN] style will determine how the
+A5O_LINE_CAP_CLOSED is different from the others - it causes the polygon
+to have no caps. (And the [A5O_LINE_JOIN] style will determine how the
 vertex looks.)
 
 Since: 5.1.0
 
 See also: [al_draw_polygon]
 
-### API: ALLEGRO_VERTEX_BUFFER
+### API: A5O_VERTEX_BUFFER
 
 A GPU vertex buffer that you can use to store vertices on the GPU instead of
 uploading them afresh during every drawing operation.
@@ -1259,7 +1259,7 @@ Since: 5.1.3
 
 See also: [al_create_vertex_buffer], [al_destroy_vertex_buffer]
 
-### API: ALLEGRO_INDEX_BUFFER
+### API: A5O_INDEX_BUFFER
 
 A GPU index buffer that you can use to store indices of vertices in
 a vertex buffer on the GPU instead of uploading them afresh during
@@ -1269,20 +1269,20 @@ Since: 5.1.8
 
 See also: [al_create_index_buffer], [al_destroy_index_buffer]
 
-### API: ALLEGRO_PRIM_BUFFER_FLAGS
+### API: A5O_PRIM_BUFFER_FLAGS
 
 Flags to specify how to create a vertex or an index buffer.
 
-* ALLEGRO_PRIM_BUFFER_STREAM - Hints to the driver that the buffer
+* A5O_PRIM_BUFFER_STREAM - Hints to the driver that the buffer
   is written to often, but used only a few times per frame
 
-* ALLEGRO_PRIM_BUFFER_STATIC - Hints to the driver that the buffer
+* A5O_PRIM_BUFFER_STATIC - Hints to the driver that the buffer
   is written to once and is used often
 
-* ALLEGRO_PRIM_BUFFER_DYNAMIC - Hints to the driver that the buffer
+* A5O_PRIM_BUFFER_DYNAMIC - Hints to the driver that the buffer
   is written to often and is used often
 
-* ALLEGRO_PRIM_BUFFER_READWRITE - Specifies that you want to be able
+* A5O_PRIM_BUFFER_READWRITE - Specifies that you want to be able
   read from this buffer. By default this is disabled for performance.
   Some platforms (like OpenGL ES) do not support reading from vertex
   buffers, so if you pass this flag to `al_create_vertex_buffer` or

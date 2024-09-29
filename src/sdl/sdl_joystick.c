@@ -16,20 +16,20 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
 
-ALLEGRO_DEBUG_CHANNEL("SDL")
+A5O_DEBUG_CHANNEL("SDL")
 
-typedef struct ALLEGRO_JOYSTICK_SDL
+typedef struct A5O_JOYSTICK_SDL
 {
    int id;
-   ALLEGRO_JOYSTICK allegro;
+   A5O_JOYSTICK allegro;
    SDL_Joystick *sdl;
-} ALLEGRO_JOYSTICK_SDL;
+} A5O_JOYSTICK_SDL;
 
-static ALLEGRO_JOYSTICK_DRIVER *vt;
+static A5O_JOYSTICK_DRIVER *vt;
 static int count;
-static ALLEGRO_JOYSTICK_SDL *joysticks;
+static A5O_JOYSTICK_SDL *joysticks;
 
-static int get_id(ALLEGRO_JOYSTICK *allegro)
+static int get_id(A5O_JOYSTICK *allegro)
 {
    int i;
    for (i = 0; i < count; i++) {
@@ -39,7 +39,7 @@ static int get_id(ALLEGRO_JOYSTICK *allegro)
    return -1;
 }
 
-static SDL_Joystick *get_sdl(ALLEGRO_JOYSTICK *allegro)
+static SDL_Joystick *get_sdl(A5O_JOYSTICK *allegro)
 {
    int id = get_id(allegro);
    if (id < 0)
@@ -49,13 +49,13 @@ static SDL_Joystick *get_sdl(ALLEGRO_JOYSTICK *allegro)
 
 void _al_sdl_joystick_event(SDL_Event *e)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    memset(&event, 0, sizeof event);
 
    event.joystick.timestamp = al_get_time();
 
    if (e->type == SDL_JOYAXISMOTION) {
-      event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+      event.joystick.type = A5O_EVENT_JOYSTICK_AXIS;
       event.joystick.id = &joysticks[e->jaxis.which].allegro;
       event.joystick.stick = e->jaxis.axis / 2;
       event.joystick.axis = e->jaxis.axis % 2;
@@ -63,7 +63,7 @@ void _al_sdl_joystick_event(SDL_Event *e)
       event.joystick.button = 0;
    }
    else if (e->type == SDL_JOYBUTTONDOWN) {
-      event.joystick.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
+      event.joystick.type = A5O_EVENT_JOYSTICK_BUTTON_DOWN;
       event.joystick.id = &joysticks[e->jbutton.which].allegro;
       event.joystick.stick = 0;
       event.joystick.axis = 0;
@@ -71,7 +71,7 @@ void _al_sdl_joystick_event(SDL_Event *e)
       event.joystick.button = e->jbutton.button;
    }
    else if (e->type == SDL_JOYBUTTONUP) {
-      event.joystick.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
+      event.joystick.type = A5O_EVENT_JOYSTICK_BUTTON_UP;
       event.joystick.id = &joysticks[e->jbutton.which].allegro;
       event.joystick.stick = 0;
       event.joystick.axis = 0;
@@ -79,13 +79,13 @@ void _al_sdl_joystick_event(SDL_Event *e)
       event.joystick.button = e->jbutton.button;
    }
    else if (e->type == SDL_JOYDEVICEADDED || e->type == SDL_JOYDEVICEREMOVED) {
-      event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
+      event.joystick.type = A5O_EVENT_JOYSTICK_CONFIGURATION;
    }
    else {
       return;
    }
 
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
    _al_event_source_lock(es);
    _al_event_source_emit_event(es, &event);
    _al_event_source_unlock(es);
@@ -143,20 +143,20 @@ static int sdl_num_joysticks(void)
    return count;
 }
 
-static ALLEGRO_JOYSTICK *sdl_get_joystick(int joyn)
+static A5O_JOYSTICK *sdl_get_joystick(int joyn)
 {
    return &joysticks[joyn].allegro;
 }
 
-static void sdl_release_joystick(ALLEGRO_JOYSTICK *joy)
+static void sdl_release_joystick(A5O_JOYSTICK *joy)
 {
    ASSERT(joy);
 }
 
-static void sdl_get_joystick_state(ALLEGRO_JOYSTICK *joy,
-   ALLEGRO_JOYSTICK_STATE *ret_state)
+static void sdl_get_joystick_state(A5O_JOYSTICK *joy,
+   A5O_JOYSTICK_STATE *ret_state)
 {
-   ALLEGRO_SYSTEM_INTERFACE *s = _al_sdl_system_driver();
+   A5O_SYSTEM_INTERFACE *s = _al_sdl_system_driver();
    s->heartbeat();
 
    SDL_Joystick *sdl = get_sdl(joy);
@@ -171,19 +171,19 @@ static void sdl_get_joystick_state(ALLEGRO_JOYSTICK *joy,
    }
 }
 
-static const char *sdl_get_name(ALLEGRO_JOYSTICK *joy)
+static const char *sdl_get_name(A5O_JOYSTICK *joy)
 {
    SDL_Joystick *sdl = get_sdl(joy);
    return SDL_JoystickName(sdl);
 }
 
-static bool sdl_get_active(ALLEGRO_JOYSTICK *joy)
+static bool sdl_get_active(A5O_JOYSTICK *joy)
 {
    SDL_Joystick *sdl = get_sdl(joy);
    return SDL_JoystickGetAttached(sdl);
 }
 
-ALLEGRO_JOYSTICK_DRIVER *_al_sdl_joystick_driver(void)
+A5O_JOYSTICK_DRIVER *_al_sdl_joystick_driver(void)
 {
    if (vt)
       return vt;

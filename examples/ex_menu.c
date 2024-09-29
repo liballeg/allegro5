@@ -30,33 +30,33 @@ enum {
 /* This is one way to define a menu. The entire system, nested menus and all,
  * can be defined by this single array. 
  */
-ALLEGRO_MENU_INFO main_menu_info[] = {
-   ALLEGRO_START_OF_MENU("&File", FILE_ID),
+A5O_MENU_INFO main_menu_info[] = {
+   A5O_START_OF_MENU("&File", FILE_ID),
       { "&Open", FILE_OPEN_ID, 0, NULL },
-      ALLEGRO_MENU_SEPARATOR,
+      A5O_MENU_SEPARATOR,
       { "E&xit", FILE_EXIT_ID, 0, NULL },
-      ALLEGRO_END_OF_MENU,
+      A5O_END_OF_MENU,
    
-   ALLEGRO_START_OF_MENU("&Dynamic Options", DYNAMIC_ID),
-      { "&Checkbox", DYNAMIC_CHECKBOX_ID, ALLEGRO_MENU_ITEM_CHECKED, NULL },
-      { "&Disabled", DYNAMIC_DISABLED_ID, ALLEGRO_MENU_ITEM_DISABLED, NULL },
+   A5O_START_OF_MENU("&Dynamic Options", DYNAMIC_ID),
+      { "&Checkbox", DYNAMIC_CHECKBOX_ID, A5O_MENU_ITEM_CHECKED, NULL },
+      { "&Disabled", DYNAMIC_DISABLED_ID, A5O_MENU_ITEM_DISABLED, NULL },
       { "DELETE ME!", DYNAMIC_DELETE_ID, 0, NULL },
       { "Click Me", DYNAMIC_CREATE_ID, 0, NULL },
-      ALLEGRO_END_OF_MENU,
+      A5O_END_OF_MENU,
 
-   ALLEGRO_START_OF_MENU("&Help", 0),
+   A5O_START_OF_MENU("&Help", 0),
       { "&About", HELP_ABOUT_ID, 0, NULL },
-      ALLEGRO_END_OF_MENU,
+      A5O_END_OF_MENU,
  
-   ALLEGRO_END_OF_MENU
+   A5O_END_OF_MENU
 };
 
 /* This is the menu on the secondary windows. */
-ALLEGRO_MENU_INFO child_menu_info[] = {
-   ALLEGRO_START_OF_MENU("&File", 0),
+A5O_MENU_INFO child_menu_info[] = {
+   A5O_START_OF_MENU("&File", 0),
       { "&Close", FILE_CLOSE_ID, 0, NULL },
-      ALLEGRO_END_OF_MENU,
-   ALLEGRO_END_OF_MENU
+      A5O_END_OF_MENU,
+   A5O_END_OF_MENU
 };
 
 int main(int argc, char **argv)
@@ -65,14 +65,14 @@ int main(int argc, char **argv)
    const int initial_height = 200;
    int dcount = 0;
 
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_MENU *menu;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_MENU *menu;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
    bool redraw = true;
    bool menu_visible = true;
-   ALLEGRO_MENU *pmenu;
-   ALLEGRO_BITMAP *bg;
+   A5O_MENU *pmenu;
+   A5O_BITMAP *bg;
 
    (void)argc;
    (void)argv;
@@ -89,11 +89,11 @@ int main(int argc, char **argv)
 
    queue = al_create_event_queue();
 
-#ifdef ALLEGRO_GTK_TOPLEVEL
-   /* ALLEGRO_GTK_TOPLEVEL is necessary for menus with GTK. */
-   al_set_new_display_flags(ALLEGRO_RESIZABLE | ALLEGRO_GTK_TOPLEVEL);
+#ifdef A5O_GTK_TOPLEVEL
+   /* A5O_GTK_TOPLEVEL is necessary for menus with GTK. */
+   al_set_new_display_flags(A5O_RESIZABLE | A5O_GTK_TOPLEVEL);
 #else
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_RESIZABLE);
 #endif
    display = al_create_display(initial_width, initial_height);
    if (!display) {
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (true) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (redraw && al_is_event_queue_empty(queue)) {
          redraw = false;
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          if (event.display.source == display) {
             /* Closing the primary display */
             break;
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
             al_destroy_display(event.display.source);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_MENU_CLICK) {
+      else if (event.type == A5O_EVENT_MENU_CLICK) {
          /* data1: id
           * data2: display (could be null)
           * data3: menu    (could be null)
@@ -184,9 +184,9 @@ int main(int argc, char **argv)
          if (event.user.data2 == (intptr_t) display) {
             /* The main window. */
             if (event.user.data1 == FILE_OPEN_ID) {
-               ALLEGRO_DISPLAY *d = al_create_display(320, 240);
+               A5O_DISPLAY *d = al_create_display(320, 240);
                if (d) {
-                  ALLEGRO_MENU *menu = al_build_menu(child_menu_info);
+                  A5O_MENU *menu = al_build_menu(child_menu_info);
                   al_set_display_menu(d, menu);
                   al_clear_to_color(al_map_rgb(0,0,0));
                   al_flip_display();                  
@@ -196,9 +196,9 @@ int main(int argc, char **argv)
                }
             }
             else if (event.user.data1 == DYNAMIC_CHECKBOX_ID) {
-               al_set_menu_item_flags(menu, DYNAMIC_DISABLED_ID, al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) ^ ALLEGRO_MENU_ITEM_DISABLED);
+               al_set_menu_item_flags(menu, DYNAMIC_DISABLED_ID, al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) ^ A5O_MENU_ITEM_DISABLED);
                al_set_menu_item_caption(menu, DYNAMIC_DISABLED_ID, 
-                  (al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) & ALLEGRO_MENU_ITEM_DISABLED) ?
+                  (al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) & A5O_MENU_ITEM_DISABLED) ?
                   "&Disabled" : "&Enabled");               
             }
             else if (event.user.data1 == DYNAMIC_DELETE_ID) {
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
                   
                   if (dcount == 5) {
                      /* disable the option */
-                     al_set_menu_item_flags(menu, DYNAMIC_CREATE_ID, ALLEGRO_MENU_ITEM_DISABLED);
+                     al_set_menu_item_flags(menu, DYNAMIC_CREATE_ID, A5O_MENU_ITEM_DISABLED);
                   }
                }
             }
@@ -242,24 +242,24 @@ int main(int argc, char **argv)
             }
             else if (event.user.data1 == FILE_FULLSCREEN_ID) {
                int flags = al_get_display_flags(display);
-               bool value = (flags & ALLEGRO_FULLSCREEN_WINDOW) ? true : false;
-               al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, !value);
+               bool value = (flags & A5O_FULLSCREEN_WINDOW) ? true : false;
+               al_set_display_flag(display, A5O_FULLSCREEN_WINDOW, !value);
             }
             else if (event.user.data1 == FILE_FRAMELESS_ID) {
                int flags = al_get_display_flags(display);
-               bool value = (flags & ALLEGRO_FRAMELESS) ? true : false;
-               al_set_display_flag(display, ALLEGRO_FRAMELESS, !value);
+               bool value = (flags & A5O_FRAMELESS) ? true : false;
+               al_set_display_flag(display, A5O_FRAMELESS, !value);
             }
             else if (event.user.data1 == FILE_MAXIMIZE_ID) {
                int flags = al_get_display_flags(display);
-               bool value = (flags & ALLEGRO_MAXIMIZED) ? true : false;
-               al_set_display_flag(display, ALLEGRO_MAXIMIZED, !value);
+               bool value = (flags & A5O_MAXIMIZED) ? true : false;
+               al_set_display_flag(display, A5O_MAXIMIZED, !value);
             }
          }
          else {
             /* The child window  */
             if (event.user.data1 == FILE_CLOSE_ID) {
-               ALLEGRO_DISPLAY *d = (ALLEGRO_DISPLAY *) event.user.data2;
+               A5O_DISPLAY *d = (A5O_DISPLAY *) event.user.data2;
                if (d) {
                   al_set_display_menu(d, NULL);
                   al_destroy_display(d);
@@ -267,7 +267,7 @@ int main(int argc, char **argv)
             }
          }
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_UP) {
          /* Popup a context menu on a right click. */
          if (event.mouse.display == display && event.mouse.button == 2) {
             if (pmenu) {
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
             }
          }
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+      else if (event.type == A5O_EVENT_KEY_CHAR) {
          /* Toggle the menu if the spacebar is pressed */
          if (event.keyboard.display == display) {
             if (event.keyboard.unichar == ' ') {
@@ -290,11 +290,11 @@ int main(int argc, char **argv)
             }
          }
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      else if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(display);
          redraw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_TIMER) {
+      else if (event.type == A5O_EVENT_TIMER) {
          redraw = true;
       }
    }

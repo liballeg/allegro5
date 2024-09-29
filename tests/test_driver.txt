@@ -64,11 +64,11 @@ The [bitmaps] section defines a list of bitmaps to load, relative to the
 tests directory.  Each key name is then a valid bitmap literal.
 The name 'target' refers to the default target bitmap.
 
-ALLEGRO_COLOR literals may be written as #rrggbb, #rrggbbaa or a named
+A5O_COLOR literals may be written as #rrggbb, #rrggbbaa or a named
 color (e.g. purple).
 
 Integer, float and enumeration literals are written as per C.
-(Note that "ALLEGRO_FLIP_HORIZONTAL|ALLEGRO_FLIP_VERTICAL" must be written
+(Note that "A5O_FLIP_HORIZONTAL|A5O_FLIP_VERTICAL" must be written
 without whitespace, because we don't have a proper parser.)
 
 String literals are not supported, but you can use a variable whose value

@@ -20,13 +20,13 @@
 
 
 /* globals */
-static ALLEGRO_MEMORY_INTERFACE *mem = NULL;
+static A5O_MEMORY_INTERFACE *mem = NULL;
 
 
 
 /* Function: al_set_memory_interface
  */
-void al_set_memory_interface(ALLEGRO_MEMORY_INTERFACE *memory_interface)
+void al_set_memory_interface(A5O_MEMORY_INTERFACE *memory_interface)
 {
    mem = memory_interface;
 }

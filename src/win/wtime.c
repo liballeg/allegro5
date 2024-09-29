@@ -22,8 +22,8 @@
 
 #include <mmsystem.h>
 
-ALLEGRO_STATIC_ASSERT(wtime,
-   sizeof(ALLEGRO_TIMEOUT_WIN) <= sizeof(ALLEGRO_TIMEOUT));
+A5O_STATIC_ASSERT(wtime,
+   sizeof(A5O_TIMEOUT_WIN) <= sizeof(A5O_TIMEOUT));
 
 
 #define LARGE_INTEGER_TO_INT64(li) (((int64_t)li.HighPart << 32) | \
@@ -128,9 +128,9 @@ void _al_win_rest(double seconds)
 
 
 
-void _al_win_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+void _al_win_init_timeout(A5O_TIMEOUT *timeout, double seconds)
 {
-   ALLEGRO_TIMEOUT_WIN *wt = (ALLEGRO_TIMEOUT_WIN *) timeout;
+   A5O_TIMEOUT_WIN *wt = (A5O_TIMEOUT_WIN *) timeout;
 
    ASSERT(wt);
    ASSERT(seconds <= INT_MAX/1000.0);

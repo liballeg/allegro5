@@ -40,14 +40,14 @@
 
 #include <process.h>
 
-ALLEGRO_DEBUG_CHANNEL("display")
+A5O_DEBUG_CHANNEL("display")
 
-static ALLEGRO_DISPLAY_INTERFACE vt;
+static A5O_DISPLAY_INTERFACE vt;
 
 /* Forward declarations: */
 static void display_thread_proc(void *arg);
-static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp);
-static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d);
+static void destroy_display_internals(A5O_DISPLAY_WGL *wgl_disp);
+static bool wgl_acknowledge_resize(A5O_DISPLAY *d);
 
 /* Prevents switching to desktop resolution when destroying the display. Used
    on full screen resize. */
@@ -58,7 +58,7 @@ static bool _wgl_do_not_change_display_mode = false;
  * they're thread local. We get them in the calling thread first.
  */
 typedef struct WGL_DISPLAY_PARAMETERS {
-   ALLEGRO_DISPLAY_WGL *display;
+   A5O_DISPLAY_WGL *display;
    volatile bool init_failed;
    HANDLE AckEvent;
    int window_x, window_y;
@@ -66,7 +66,7 @@ typedef struct WGL_DISPLAY_PARAMETERS {
    const char* window_title;
 } WGL_DISPLAY_PARAMETERS;
 
-static bool is_wgl_extension_supported(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, const char *extension, HDC dc)
+static bool is_wgl_extension_supported(_A5O_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, const char *extension, HDC dc)
 {
    bool ret = false;
    const GLubyte* extensions;
@@ -106,27 +106,27 @@ static HGLRC init_temp_context(HWND wnd)
 
    pf = ChoosePixelFormat(dc, &pfd);
    if (!pf) {
-      ALLEGRO_ERROR("Unable to chose a temporary pixel format. %s\n",
+      A5O_ERROR("Unable to chose a temporary pixel format. %s\n",
         _al_win_last_error());
       return NULL;
    }
 
    memset(&pfd, 0, sizeof(pfd));
    if (!SetPixelFormat(dc, pf, &pfd)) {
-      ALLEGRO_ERROR("Unable to set a temporary pixel format. %s\n",
+      A5O_ERROR("Unable to set a temporary pixel format. %s\n",
         _al_win_last_error());
       return NULL;
    }
 
    glrc = wglCreateContext(dc);
    if (!glrc) {
-      ALLEGRO_ERROR("Unable to create a render context. %s\n",
+      A5O_ERROR("Unable to create a render context. %s\n",
         _al_win_last_error());
       return NULL;
    }
 
    if (!wglMakeCurrent(dc, glrc)) {
-      ALLEGRO_ERROR("Unable to set the render context as current. %s\n",
+      A5O_ERROR("Unable to set the render context as current. %s\n",
         _al_win_last_error());
       wglDeleteContext(glrc);
       return NULL;
@@ -136,8 +136,8 @@ static HGLRC init_temp_context(HWND wnd)
 }
 
 
-static _ALLEGRO_wglGetPixelFormatAttribivARB_t _wglGetPixelFormatAttribivARB = NULL;
-static _ALLEGRO_wglGetPixelFormatAttribivEXT_t _wglGetPixelFormatAttribivEXT = NULL;
+static _A5O_wglGetPixelFormatAttribivARB_t _wglGetPixelFormatAttribivARB = NULL;
+static _A5O_wglGetPixelFormatAttribivEXT_t _wglGetPixelFormatAttribivEXT = NULL;
 
 static bool init_pixel_format_extensions(void)
 {
@@ -145,12 +145,12 @@ static bool init_pixel_format_extensions(void)
     * mechanism here, because it hasn't been initialized yet!
     */
    _wglGetPixelFormatAttribivARB =
-      (_ALLEGRO_wglGetPixelFormatAttribivARB_t)wglGetProcAddress("wglGetPixelFormatAttribivARB");
+      (_A5O_wglGetPixelFormatAttribivARB_t)wglGetProcAddress("wglGetPixelFormatAttribivARB");
    _wglGetPixelFormatAttribivEXT =
-      (_ALLEGRO_wglGetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
+      (_A5O_wglGetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
 
    if (!_wglGetPixelFormatAttribivARB && !_wglGetPixelFormatAttribivEXT) {
-      ALLEGRO_ERROR("WGL_ARB/EXT_pf not supported.\n");
+      A5O_ERROR("WGL_ARB/EXT_pf not supported.\n");
       return false;
    }
 
@@ -158,15 +158,15 @@ static bool init_pixel_format_extensions(void)
 }
 
 
-static _ALLEGRO_wglCreateContextAttribsARB_t _wglCreateContextAttribsARB = NULL;
+static _A5O_wglCreateContextAttribsARB_t _wglCreateContextAttribsARB = NULL;
 
 static bool init_context_creation_extensions(void)
 {
    _wglCreateContextAttribsARB =
-      (_ALLEGRO_wglCreateContextAttribsARB_t)wglGetProcAddress("wglCreateContextAttribsARB");
+      (_A5O_wglCreateContextAttribsARB_t)wglGetProcAddress("wglCreateContextAttribsARB");
 
    if (!_wglCreateContextAttribsARB) {
-      ALLEGRO_ERROR("wglCreateContextAttribs not supported!\n");
+      A5O_ERROR("wglCreateContextAttribs not supported!\n");
       return false;
    }
 
@@ -181,7 +181,7 @@ static int get_pixel_formats_count_old(HDC dc)
 
    ret = DescribePixelFormat(dc, 1, sizeof(pfd), &pfd);
    if (!ret) {
-      ALLEGRO_ERROR("DescribePixelFormat failed! %s\n",
+      A5O_ERROR("DescribePixelFormat failed! %s\n",
                      _al_win_last_error());
    }
 
@@ -197,7 +197,7 @@ static int get_pixel_formats_count_ext(HDC dc)
    attrib[0] = WGL_NUMBER_PIXEL_FORMATS_ARB;
    if ((_wglGetPixelFormatAttribivARB(dc, 0, 0, 1, attrib, value) == GL_FALSE)
     && (_wglGetPixelFormatAttribivEXT(dc, 0, 0, 1, attrib, value) == GL_FALSE)) {
-        ALLEGRO_ERROR("WGL_ARB/EXT_pixel_format use failed! %s\n",
+        A5O_ERROR("WGL_ARB/EXT_pixel_format use failed! %s\n",
                        _al_win_last_error());
    }
 
@@ -205,213 +205,213 @@ static int get_pixel_formats_count_ext(HDC dc)
 }
 
 
-static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+static void display_pixel_format(A5O_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   ALLEGRO_INFO("Accelerated: %s\n", eds->settings[ALLEGRO_RENDER_METHOD] ? "yes" : "no");
-   ALLEGRO_INFO("Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
-   if (eds->settings[ALLEGRO_SWAP_METHOD] > 0)
-      ALLEGRO_INFO("Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
+   A5O_INFO("Accelerated: %s\n", eds->settings[A5O_RENDER_METHOD] ? "yes" : "no");
+   A5O_INFO("Single-buffer: %s\n", eds->settings[A5O_SINGLE_BUFFER] ? "yes" : "no");
+   if (eds->settings[A5O_SWAP_METHOD] > 0)
+      A5O_INFO("Swap method: %s\n", eds->settings[A5O_SWAP_METHOD] == 2 ? "flip" : "copy");
    else
-      ALLEGRO_INFO("Swap method: undefined\n");
-   ALLEGRO_INFO("Color format: r%i g%i b%i a%i, %i bit\n",
-      eds->settings[ALLEGRO_RED_SIZE],
-      eds->settings[ALLEGRO_GREEN_SIZE],
-      eds->settings[ALLEGRO_BLUE_SIZE],
-      eds->settings[ALLEGRO_ALPHA_SIZE],
-      eds->settings[ALLEGRO_COLOR_SIZE]);
-   ALLEGRO_INFO("Depth buffer: %i bits\n", eds->settings[ALLEGRO_DEPTH_SIZE]);
-   ALLEGRO_INFO("Sample buffers: %s\n", eds->settings[ALLEGRO_SAMPLE_BUFFERS] ? "yes" : "no");
-   ALLEGRO_INFO("Samples: %i\n", eds->settings[ALLEGRO_SAMPLES]);
+      A5O_INFO("Swap method: undefined\n");
+   A5O_INFO("Color format: r%i g%i b%i a%i, %i bit\n",
+      eds->settings[A5O_RED_SIZE],
+      eds->settings[A5O_GREEN_SIZE],
+      eds->settings[A5O_BLUE_SIZE],
+      eds->settings[A5O_ALPHA_SIZE],
+      eds->settings[A5O_COLOR_SIZE]);
+   A5O_INFO("Depth buffer: %i bits\n", eds->settings[A5O_DEPTH_SIZE]);
+   A5O_INFO("Sample buffers: %s\n", eds->settings[A5O_SAMPLE_BUFFERS] ? "yes" : "no");
+   A5O_INFO("Samples: %i\n", eds->settings[A5O_SAMPLES]);
 }
 
 
 static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
-                                   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+                                   A5O_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   ALLEGRO_INFO("Decoding:\n");
+   A5O_INFO("Decoding:\n");
 
 	/* Not interested if it doesn't support OpenGL and RGBA */
    if (!(pfd->dwFlags & PFD_SUPPORT_OPENGL)) {
-      ALLEGRO_INFO("OpenGL Unsupported\n");
+      A5O_INFO("OpenGL Unsupported\n");
       return false;
    }
    if (pfd->iPixelType != PFD_TYPE_RGBA) {
-      ALLEGRO_INFO("Not RGBA mode\n");
+      A5O_INFO("Not RGBA mode\n");
       return false;
    }
 
    /* hardware acceleration */
    if (((pfd->dwFlags & PFD_GENERIC_ACCELERATED) && (pfd->dwFlags & PFD_GENERIC_FORMAT))
    || (!(pfd->dwFlags & PFD_GENERIC_ACCELERATED) && !(pfd->dwFlags & PFD_GENERIC_FORMAT)))
-      eds->settings[ALLEGRO_RENDER_METHOD] = 1;
+      eds->settings[A5O_RENDER_METHOD] = 1;
    else
-      eds->settings[ALLEGRO_RENDER_METHOD] = 0;
+      eds->settings[A5O_RENDER_METHOD] = 0;
 
    /* Depths of colour buffers */
-   eds->settings[ALLEGRO_RED_SIZE] = pfd->cRedBits;
-   eds->settings[ALLEGRO_GREEN_SIZE] = pfd->cGreenBits;
-   eds->settings[ALLEGRO_BLUE_SIZE] = pfd->cBlueBits;
-   eds->settings[ALLEGRO_ALPHA_SIZE] = pfd->cAlphaBits;
+   eds->settings[A5O_RED_SIZE] = pfd->cRedBits;
+   eds->settings[A5O_GREEN_SIZE] = pfd->cGreenBits;
+   eds->settings[A5O_BLUE_SIZE] = pfd->cBlueBits;
+   eds->settings[A5O_ALPHA_SIZE] = pfd->cAlphaBits;
 
    /* Depths of accumulation buffer */
-   eds->settings[ALLEGRO_ACC_RED_SIZE] = pfd->cAccumRedBits;
-   eds->settings[ALLEGRO_ACC_GREEN_SIZE] = pfd->cAccumGreenBits;
-   eds->settings[ALLEGRO_ACC_BLUE_SIZE] = pfd->cAccumBlueBits;
-   eds->settings[ALLEGRO_ACC_ALPHA_SIZE] = pfd->cAccumAlphaBits;
+   eds->settings[A5O_ACC_RED_SIZE] = pfd->cAccumRedBits;
+   eds->settings[A5O_ACC_GREEN_SIZE] = pfd->cAccumGreenBits;
+   eds->settings[A5O_ACC_BLUE_SIZE] = pfd->cAccumBlueBits;
+   eds->settings[A5O_ACC_ALPHA_SIZE] = pfd->cAccumAlphaBits;
 
    /* Miscellaneous settings */
-   eds->settings[ALLEGRO_SINGLE_BUFFER] = !(pfd->dwFlags & PFD_DOUBLEBUFFER);
-   eds->settings[ALLEGRO_DEPTH_SIZE] = pfd->cDepthBits;
-   eds->settings[ALLEGRO_STENCIL_SIZE] = pfd->cStencilBits;
-   eds->settings[ALLEGRO_COLOR_SIZE] = pfd->cColorBits;
-   eds->settings[ALLEGRO_STEREO] = pfd->dwFlags & PFD_STEREO;
-   eds->settings[ALLEGRO_AUX_BUFFERS] = pfd->cAuxBuffers;
+   eds->settings[A5O_SINGLE_BUFFER] = !(pfd->dwFlags & PFD_DOUBLEBUFFER);
+   eds->settings[A5O_DEPTH_SIZE] = pfd->cDepthBits;
+   eds->settings[A5O_STENCIL_SIZE] = pfd->cStencilBits;
+   eds->settings[A5O_COLOR_SIZE] = pfd->cColorBits;
+   eds->settings[A5O_STEREO] = pfd->dwFlags & PFD_STEREO;
+   eds->settings[A5O_AUX_BUFFERS] = pfd->cAuxBuffers;
 
    /* These are the component shifts. */
-   eds->settings[ALLEGRO_RED_SHIFT] = pfd->cRedShift;
-   eds->settings[ALLEGRO_GREEN_SHIFT] = pfd->cGreenShift;
-   eds->settings[ALLEGRO_BLUE_SHIFT] = pfd->cBlueShift;
-   eds->settings[ALLEGRO_ALPHA_SHIFT] = pfd->cAlphaShift;
+   eds->settings[A5O_RED_SHIFT] = pfd->cRedShift;
+   eds->settings[A5O_GREEN_SHIFT] = pfd->cGreenShift;
+   eds->settings[A5O_BLUE_SHIFT] = pfd->cBlueShift;
+   eds->settings[A5O_ALPHA_SHIFT] = pfd->cAlphaShift;
 
    /* Multisampling isn't supported under Windows if we don't also use
     * WGL_ARB_pixel_format or WGL_EXT_pixel_format.
     */
-   eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 0;
-   eds->settings[ALLEGRO_SAMPLES] = 0;
+   eds->settings[A5O_SAMPLE_BUFFERS] = 0;
+   eds->settings[A5O_SAMPLES] = 0;
 
    /* Swap method can't be detected without WGL_ARB_pixel_format or
     * WGL_EXT_pixel_format
     */
-   eds->settings[ALLEGRO_SWAP_METHOD] = 0;
+   eds->settings[A5O_SWAP_METHOD] = 0;
 
    /* Float depth/color isn't supported under Windows if we don't also use
     * AGL_ARB_pixel_format or WGL_EXT_pixel_format.
     */
-   eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
-   eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
+   eds->settings[A5O_FLOAT_COLOR] = 0;
+   eds->settings[A5O_FLOAT_DEPTH] = 0;
 
    // FIXME
 
-   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+   eds->settings[A5O_COMPATIBLE_DISPLAY] = 1;
 
    return true;
 }
 
 
-static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int num_attribs,
+static bool decode_pixel_format_attrib(A5O_EXTRA_DISPLAY_SETTINGS *eds, int num_attribs,
                                       const int *attrib, const int *value)
 {
    int i;
 
-   ALLEGRO_INFO("Decoding:\n");
+   A5O_INFO("Decoding:\n");
 
-   eds->settings[ALLEGRO_SAMPLES] = 0;
-   eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 0;
-   eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
-   eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
-   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+   eds->settings[A5O_SAMPLES] = 0;
+   eds->settings[A5O_SAMPLE_BUFFERS] = 0;
+   eds->settings[A5O_FLOAT_DEPTH] = 0;
+   eds->settings[A5O_FLOAT_COLOR] = 0;
+   eds->settings[A5O_COMPATIBLE_DISPLAY] = 1;
 
    for (i = 0; i < num_attribs; i++) {
       /* Not interested if it doesn't support OpenGL or window drawing or RGBA. */
       if (attrib[i] == WGL_SUPPORT_OPENGL_ARB && value[i] == 0) {
-         ALLEGRO_INFO("OpenGL Unsupported\n");
+         A5O_INFO("OpenGL Unsupported\n");
          return false;
       }
       else if (attrib[i] == WGL_DRAW_TO_WINDOW_ARB && value[i] == 0) {
-         ALLEGRO_INFO("Can't draw to window\n");
+         A5O_INFO("Can't draw to window\n");
          return false;
       }
       else if (attrib[i] == WGL_PIXEL_TYPE_ARB
          && (value[i] != WGL_TYPE_RGBA_ARB && value[i] != WGL_TYPE_RGBA_FLOAT_ARB)) {
-         ALLEGRO_INFO("Not RGBA mode\n");
+         A5O_INFO("Not RGBA mode\n");
          return false;
       }
       /* hardware acceleration */
       else if (attrib[i] == WGL_ACCELERATION_ARB) {
-         eds->settings[ALLEGRO_RENDER_METHOD] = (value[i] == WGL_NO_ACCELERATION_ARB) ? 0 : 1;
+         eds->settings[A5O_RENDER_METHOD] = (value[i] == WGL_NO_ACCELERATION_ARB) ? 0 : 1;
       }
       /* Depths of colour buffers */
       else if (attrib[i] == WGL_RED_BITS_ARB) {
-         eds->settings[ALLEGRO_RED_SIZE] = value[i];
+         eds->settings[A5O_RED_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_GREEN_BITS_ARB) {
-         eds->settings[ALLEGRO_GREEN_SIZE] = value[i];
+         eds->settings[A5O_GREEN_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_BLUE_BITS_ARB) {
-         eds->settings[ALLEGRO_BLUE_SIZE] = value[i];
+         eds->settings[A5O_BLUE_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ALPHA_BITS_ARB) {
-         eds->settings[ALLEGRO_ALPHA_SIZE] = value[i];
+         eds->settings[A5O_ALPHA_SIZE] = value[i];
       }
       /* Shift of color components */
       else if (attrib[i] == WGL_RED_SHIFT_ARB) {
-         eds->settings[ALLEGRO_RED_SHIFT] = value[i];
+         eds->settings[A5O_RED_SHIFT] = value[i];
       }
       else if (attrib[i] == WGL_GREEN_SHIFT_ARB) {
-         eds->settings[ALLEGRO_GREEN_SHIFT] = value[i];
+         eds->settings[A5O_GREEN_SHIFT] = value[i];
       }
       else if (attrib[i] == WGL_BLUE_SHIFT_ARB) {
-         eds->settings[ALLEGRO_BLUE_SHIFT] = value[i];
+         eds->settings[A5O_BLUE_SHIFT] = value[i];
       }
       else if (attrib[i] == WGL_ALPHA_SHIFT_ARB) {
-         eds->settings[ALLEGRO_ALPHA_SHIFT] = value[i];
+         eds->settings[A5O_ALPHA_SHIFT] = value[i];
       }
       /* Miscellaneous settings */
       else if (attrib[i] == WGL_DOUBLE_BUFFER_ARB) {
-         eds->settings[ALLEGRO_SINGLE_BUFFER] = !(value[i]);
+         eds->settings[A5O_SINGLE_BUFFER] = !(value[i]);
       }
       else if (attrib[i] == WGL_SWAP_METHOD_ARB) {
          if (value[i] == WGL_SWAP_UNDEFINED_ARB)
-            eds->settings[ALLEGRO_SWAP_METHOD] = 0;
+            eds->settings[A5O_SWAP_METHOD] = 0;
          else if (value[i] == WGL_SWAP_COPY_ARB)
-            eds->settings[ALLEGRO_SWAP_METHOD] = 1;
+            eds->settings[A5O_SWAP_METHOD] = 1;
          else if (value[i] == WGL_SWAP_EXCHANGE_ARB)
-            eds->settings[ALLEGRO_SWAP_METHOD] = 2;
+            eds->settings[A5O_SWAP_METHOD] = 2;
       }
 
       else if (attrib[i] == WGL_STEREO_ARB) {
-         eds->settings[ALLEGRO_STEREO] = value[i];
+         eds->settings[A5O_STEREO] = value[i];
       }
       else if (attrib[i] == WGL_AUX_BUFFERS_ARB) {
-         eds->settings[ALLEGRO_AUX_BUFFERS] = value[i];
+         eds->settings[A5O_AUX_BUFFERS] = value[i];
       }
       else if (attrib[i] == WGL_STENCIL_BITS_ARB) {
-         eds->settings[ALLEGRO_STENCIL_SIZE] = value[i];
+         eds->settings[A5O_STENCIL_SIZE] = value[i];
       }
       /* Depths of accumulation buffer */
       else if (attrib[i] == WGL_ACCUM_RED_BITS_ARB) {
-         eds->settings[ALLEGRO_ACC_RED_SIZE] = value[i];
+         eds->settings[A5O_ACC_RED_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ACCUM_GREEN_BITS_ARB) {
-         eds->settings[ALLEGRO_ACC_GREEN_SIZE] = value[i];
+         eds->settings[A5O_ACC_GREEN_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ACCUM_BLUE_BITS_ARB) {
-         eds->settings[ALLEGRO_ACC_BLUE_SIZE] = value[i];
+         eds->settings[A5O_ACC_BLUE_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ACCUM_ALPHA_BITS_ARB) {
-         eds->settings[ALLEGRO_ACC_ALPHA_SIZE] = value[i];
+         eds->settings[A5O_ACC_ALPHA_SIZE] = value[i];
       }
 
       else if (attrib[i] == WGL_DEPTH_BITS_ARB) {
-         eds->settings[ALLEGRO_DEPTH_SIZE] = value[i];
+         eds->settings[A5O_DEPTH_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_COLOR_BITS_ARB) {
-         eds->settings[ALLEGRO_COLOR_SIZE] = value[i];
+         eds->settings[A5O_COLOR_SIZE] = value[i];
       }
       /* Multisampling bits */
       else if (attrib[i] == WGL_SAMPLE_BUFFERS_ARB) {
-         eds->settings[ALLEGRO_SAMPLE_BUFFERS] = value[i];
+         eds->settings[A5O_SAMPLE_BUFFERS] = value[i];
       }
       else if (attrib[i] == WGL_SAMPLES_ARB) {
-         eds->settings[ALLEGRO_SAMPLES] = value[i];
+         eds->settings[A5O_SAMPLES] = value[i];
       }
       /* Float color */
       if (attrib[i] == WGL_PIXEL_TYPE_ARB && value[i] == WGL_TYPE_RGBA_FLOAT_ARB) {
-         eds->settings[ALLEGRO_FLOAT_COLOR] = true;
+         eds->settings[A5O_FLOAT_COLOR] = true;
       }
       /* Float depth */
       else if (attrib[i] == WGL_DEPTH_FLOAT_EXT) {
-         eds->settings[ALLEGRO_FLOAT_DEPTH] = value[i];
+         eds->settings[A5O_FLOAT_DEPTH] = value[i];
       }
    }
 
@@ -419,15 +419,15 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
 }
 
 
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
+static A5O_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = NULL;
+   A5O_EXTRA_DISPLAY_SETTINGS *eds = NULL;
    PIXELFORMATDESCRIPTOR pfd;
    int result;
 
    result = DescribePixelFormat(dc, fmt+1, sizeof(pfd), &pfd);
    if (!result) {
-      ALLEGRO_WARN("DescribePixelFormat() failed. %s\n", _al_win_last_error());
+      A5O_WARN("DescribePixelFormat() failed. %s\n", _al_win_last_error());
       return NULL;
    }
 
@@ -441,9 +441,9 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
 }
 
 
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(_ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, int fmt, HDC dc)
+static A5O_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(_A5O_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB, int fmt, HDC dc)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = NULL;
+   A5O_EXTRA_DISPLAY_SETTINGS *eds = NULL;
 
    /* Note: Even though we use te ARB suffix, all those enums are compatible
     * with EXT_pixel_format.
@@ -513,7 +513,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(_ALLEGRO_wglGetExte
    }
 
    if (!ret) {
-      ALLEGRO_ERROR("wglGetPixelFormatAttrib failed! %s\n", _al_win_last_error());
+      A5O_ERROR("wglGetPixelFormatAttrib failed! %s\n", _al_win_last_error());
       al_free(value);
       return NULL;
    }
@@ -528,21 +528,21 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(_ALLEGRO_wglGetExte
 
    /* Hack: for some reason this happens for me under Wine. */
    if (eds &&
-      eds->settings[ALLEGRO_RED_SHIFT] == 0 &&
-         eds->settings[ALLEGRO_GREEN_SHIFT] == 0 &&
-         eds->settings[ALLEGRO_BLUE_SHIFT] == 0 &&
-         eds->settings[ALLEGRO_ALPHA_SHIFT] == 0) {
-      eds->settings[ALLEGRO_RED_SHIFT] = 0;
-      eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
-      eds->settings[ALLEGRO_BLUE_SHIFT] = 16;
-      eds->settings[ALLEGRO_ALPHA_SHIFT] = 24;
+      eds->settings[A5O_RED_SHIFT] == 0 &&
+         eds->settings[A5O_GREEN_SHIFT] == 0 &&
+         eds->settings[A5O_BLUE_SHIFT] == 0 &&
+         eds->settings[A5O_ALPHA_SHIFT] == 0) {
+      eds->settings[A5O_RED_SHIFT] = 0;
+      eds->settings[A5O_GREEN_SHIFT] = 8;
+      eds->settings[A5O_BLUE_SHIFT] = 16;
+      eds->settings[A5O_ALPHA_SHIFT] = 24;
    }
 
    return eds;
 }
 
 
-static bool change_display_mode(ALLEGRO_DISPLAY *d)
+static bool change_display_mode(A5O_DISPLAY *d)
 {
    DEVMODE dm;
    DEVMODE fallback_dm;
@@ -565,7 +565,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(DEVMODE);
 
-   bpp = d->extra_settings.settings[ALLEGRO_COLOR_SIZE];
+   bpp = d->extra_settings.settings[A5O_COLOR_SIZE];
    if (!bpp)
       bpp = 32;
 
@@ -603,7 +603,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
        || (dm.dmDisplayFrequency != (unsigned) d->refresh_rate));
 
    if (!modeswitch && !fallback_dm_valid) {
-      ALLEGRO_ERROR("Mode not found.\n");
+      A5O_ERROR("Mode not found.\n");
       return false;
    }
 
@@ -616,11 +616,11 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    d->refresh_rate = dm.dmDisplayFrequency;
 
    if (result != DISP_CHANGE_SUCCESSFUL) {
-      ALLEGRO_ERROR("Unable to set mode. %s\n", _al_win_last_error());
+      A5O_ERROR("Unable to set mode. %s\n", _al_win_last_error());
       return false;
    }
 
-   ALLEGRO_INFO("Mode seccessfuly set.\n");
+   A5O_INFO("Mode seccessfuly set.\n");
    return true;
 }
 
@@ -646,9 +646,9 @@ static HGLRC init_ogl_context_ex(HDC dc, bool fc, int major, int minor)
    if (!testrc)
       goto bail;
 
-   _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB
-      = (_ALLEGRO_wglGetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
-   ALLEGRO_INFO("_wglGetExtensionsStringARB %p\n", _wglGetExtensionsStringARB);
+   _A5O_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB
+      = (_A5O_wglGetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
+   A5O_INFO("_wglGetExtensionsStringARB %p\n", _wglGetExtensionsStringARB);
 
    if (is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_ARB_create_context", testdc)) {
       int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, major,
@@ -684,15 +684,15 @@ bail:
 }
 
 
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *count)
+static A5O_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *count)
 {
    HWND testwnd = NULL;
    HDC testdc   = NULL;
    HGLRC testrc = NULL;
    HGLRC old_rc = NULL;
    HDC old_dc   = NULL;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
+   A5O_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
+   A5O_EXTRA_DISPLAY_SETTINGS *ref;
    int maxindex;
    int i, j;
 
@@ -714,13 +714,13 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    if (!testrc)
       goto bail;
 
-   _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB
-      = (_ALLEGRO_wglGetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
-   ALLEGRO_INFO("_wglGetExtensionsStringARB %p\n", _wglGetExtensionsStringARB);
+   _A5O_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB
+      = (_A5O_wglGetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
+   A5O_INFO("_wglGetExtensionsStringARB %p\n", _wglGetExtensionsStringARB);
 
    if (!is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_ARB_pixel_format", testdc) &&
        !is_wgl_extension_supported(_wglGetExtensionsStringARB, "WGL_EXT_pixel_format", testdc)) {
-      ALLEGRO_ERROR("WGL_ARB/EXT_pf not supported.\n");
+      A5O_ERROR("WGL_ARB/EXT_pf not supported.\n");
       goto bail;
    }
 
@@ -731,20 +731,20 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    if (maxindex < 1)
       goto bail;
 
-   ALLEGRO_INFO("Got %i visuals.\n", maxindex);
+   A5O_INFO("Got %i visuals.\n", maxindex);
 
    eds_list = al_calloc(maxindex, sizeof(*eds_list));
    if (!eds_list)
       goto bail;
 
    for (j = i = 0; i < maxindex; i++) {
-      ALLEGRO_INFO("-- \n");
-      ALLEGRO_INFO("Decoding visual no. %i...\n", i+1);
+      A5O_INFO("-- \n");
+      A5O_INFO("Decoding visual no. %i...\n", i+1);
       eds_list[j] = read_pixel_format_ext(_wglGetExtensionsStringARB, i, testdc);
       if (!eds_list[j])
          continue;
       // Fill vsync setting here and enable/disable it after display creation
-      eds_list[j]->settings[ALLEGRO_VSYNC] = ref->settings[ALLEGRO_VSYNC];
+      eds_list[j]->settings[A5O_VSYNC] = ref->settings[A5O_VSYNC];
       display_pixel_format(eds_list[j]);
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
       if (eds_list[j]->score == -1) {
@@ -757,7 +757,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
       j++;
    }
 
-   ALLEGRO_INFO("%i visuals are good enough.\n", j);
+   A5O_INFO("%i visuals are good enough.\n", j);
    *count = j;
 
 bail:
@@ -780,10 +780,10 @@ bail:
 }
 
 
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *count, HDC dc)
+static A5O_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *count, HDC dc)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
+   A5O_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
+   A5O_EXTRA_DISPLAY_SETTINGS *ref;
    int maxindex;
    int i, j;
 
@@ -794,15 +794,15 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
    if (maxindex < 1)
       return NULL;
 
-   ALLEGRO_INFO("Got %i visuals.\n", maxindex);
+   A5O_INFO("Got %i visuals.\n", maxindex);
 
    eds_list = al_calloc(maxindex, sizeof(*eds_list));
    if (!eds_list)
       return NULL;
 
    for (j = i = 0; i < maxindex; i++) {
-      ALLEGRO_INFO("-- \n");
-      ALLEGRO_INFO("Decoding visual no. %i...\n", i+1);
+      A5O_INFO("-- \n");
+      A5O_INFO("Decoding visual no. %i...\n", i+1);
       eds_list[j] = read_pixel_format_old(i, dc);
       if (!eds_list[j])
          continue;
@@ -820,17 +820,17 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
       j++;
    }
 
-   ALLEGRO_INFO("%i visuals are good enough.\n", j);
+   A5O_INFO("%i visuals are good enough.\n", j);
    *count = j;
 
    return eds_list;
 }
 
 
-static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
+static bool select_pixel_format(A5O_DISPLAY_WGL *d, HDC dc)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
-   ALLEGRO_CONFIG *sys_cfg = al_get_system_config();
+   A5O_EXTRA_DISPLAY_SETTINGS **eds = NULL;
+   A5O_CONFIG *sys_cfg = al_get_system_config();
    int eds_count = 0;
    int i;
    bool force_old = false;
@@ -840,7 +840,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
                        "config_selection");
    if (selection_mode && selection_mode[0] != '\0') {
       if (!_al_stricmp(selection_mode, "old")) {
-         ALLEGRO_INFO("Forcing OLD visual selection method.\n");
+         A5O_INFO("Forcing OLD visual selection method.\n");
          force_old = true;
       }
       else if (!_al_stricmp(selection_mode, "new"))
@@ -853,7 +853,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
       eds = get_available_pixel_formats_old(&eds_count, dc);
 
    if (!eds || !eds_count) {
-      ALLEGRO_ERROR("Didn't find any suitable pixel format!\n");
+      A5O_ERROR("Didn't find any suitable pixel format!\n");
       return false;
    }
 
@@ -861,25 +861,25 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
 
    for (i = 0; i < eds_count ; i++) {
       if (SetPixelFormat(d->dc, eds[i]->index, NULL)) {
-         ALLEGRO_INFO("Chose visual no. %i\n\n", eds[i]->index);
+         A5O_INFO("Chose visual no. %i\n\n", eds[i]->index);
          display_pixel_format(eds[i]);
          break;
       }
       else {
-         ALLEGRO_WARN("Unable to set pixel format! %s\n", _al_win_last_error());
-         ALLEGRO_WARN("Trying next one.\n");
+         A5O_WARN("Unable to set pixel format! %s\n", _al_win_last_error());
+         A5O_WARN("Trying next one.\n");
       }
    }
 
    if (i == eds_count) {
-      ALLEGRO_ERROR("Unable to set any pixel format! %s\n", _al_win_last_error());
+      A5O_ERROR("Unable to set any pixel format! %s\n", _al_win_last_error());
       for (i = 0; i < eds_count; i++)
          al_free(eds[i]);
       al_free(eds);
       return false;
    }
 
-   memcpy(&d->win_display.display.extra_settings, eds[i], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   memcpy(&d->win_display.display.extra_settings, eds[i], sizeof(A5O_EXTRA_DISPLAY_SETTINGS));
 
    for (i = 0; i < eds_count; i++)
       al_free(eds[i]);
@@ -889,10 +889,10 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
    return true;
 }
 
-static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
+static bool create_display_internals(A5O_DISPLAY_WGL *wgl_disp)
 {
-   ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
-   ALLEGRO_DISPLAY_WIN *win_disp = (void*)wgl_disp;
+   A5O_DISPLAY     *disp     = (void*)wgl_disp;
+   A5O_DISPLAY_WIN *win_disp = (void*)wgl_disp;
    WGL_DISPLAY_PARAMETERS ndp;
    int window_x, window_y;
    int major, minor;
@@ -924,7 +924,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    CloseHandle(ndp.AckEvent);
 
    if (ndp.init_failed) {
-      ALLEGRO_ERROR("Failed to create display.\n");
+      A5O_ERROR("Failed to create display.\n");
       return false;
    }
 
@@ -936,14 +936,14 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       return false;
    }
 
-   major = al_get_new_display_option(ALLEGRO_OPENGL_MAJOR_VERSION, 0);
-   minor = al_get_new_display_option(ALLEGRO_OPENGL_MINOR_VERSION, 0);
+   major = al_get_new_display_option(A5O_OPENGL_MAJOR_VERSION, 0);
+   minor = al_get_new_display_option(A5O_OPENGL_MINOR_VERSION, 0);
 
    // TODO: request GLES context in GLES builds
-   if ((disp->flags & ALLEGRO_OPENGL_3_0) || major != 0) {
+   if ((disp->flags & A5O_OPENGL_3_0) || major != 0) {
       if (major == 0)
          major = 3;
-      bool fc = (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0;
+      bool fc = (disp->flags & A5O_OPENGL_FORWARD_COMPATIBLE) != 0;
       wgl_disp->glrc = init_ogl_context_ex(wgl_disp->dc, fc, major,
          minor);
    }
@@ -952,14 +952,14 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    }
 
    if (!wgl_disp->glrc) {
-      ALLEGRO_ERROR("Unable to create a render context! %s\n", _al_win_last_error());
+      A5O_ERROR("Unable to create a render context! %s\n", _al_win_last_error());
       destroy_display_internals(wgl_disp);
       return false;
    }
 
    /* make the context the current one */
    if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
-      ALLEGRO_ERROR("Unable to make the context current! %s\n", _al_win_last_error());
+      A5O_ERROR("Unable to make the context current! %s\n", _al_win_last_error());
       destroy_display_internals(wgl_disp);
       return false;
    }
@@ -967,20 +967,20 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    _al_ogl_manage_extensions(disp);
    _al_ogl_set_extensions(disp->ogl_extras->extension_api);
 
-   if (disp->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_1_2) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
-      if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
-         ALLEGRO_WARN("Allegro requires at least OpenGL version 1.2 to work.\n");
+   if (disp->ogl_extras->ogl_info.version < _A5O_OPENGL_VERSION_1_2) {
+      A5O_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
+      if (eds->required & (1<<A5O_COMPATIBLE_DISPLAY)) {
+         A5O_WARN("Allegro requires at least OpenGL version 1.2 to work.\n");
          destroy_display_internals(wgl_disp);
          return false;
       }
-      disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
+      disp->extra_settings.settings[A5O_COMPATIBLE_DISPLAY] = 0;
    }
 
    /* Fill in the display settings for opengl major and minor versions...*/
    const int v = disp->ogl_extras->ogl_info.version;
-   disp->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
-   disp->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+   disp->extra_settings.settings[A5O_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   disp->extra_settings.settings[A5O_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
 
    /* Try to enable or disable vsync as requested */
    /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
@@ -988,10 +988,10 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
     * does get loaded, so just check for that.
     */
    if (wglSwapIntervalEXT) {
-      if (disp->extra_settings.settings[ALLEGRO_VSYNC] == 1) {
+      if (disp->extra_settings.settings[A5O_VSYNC] == 1) {
          wglSwapIntervalEXT(1);
       }
-      else if (disp->extra_settings.settings[ALLEGRO_VSYNC] == 2) {
+      else if (disp->extra_settings.settings[A5O_VSYNC] == 2) {
          wglSwapIntervalEXT(0);
       }
    }
@@ -1002,21 +1002,21 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    _al_win_grab_input(win_disp);
 
-   if (disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+   if (disp->extra_settings.settings[A5O_COMPATIBLE_DISPLAY])
       _al_ogl_setup_gl(disp);
 
    return true;
 }
 
 
-static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
+static A5O_DISPLAY* wgl_create_display(int w, int h)
 {
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
-   ALLEGRO_DISPLAY_WGL **add;
-   ALLEGRO_DISPLAY_WGL *wgl_display = al_calloc(1, sizeof *wgl_display);
-   ALLEGRO_DISPLAY *ogl_display = (void*)wgl_display;
-   ALLEGRO_DISPLAY     *display     = (void*)ogl_display;
-   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_SYSTEM_WIN *system = (A5O_SYSTEM_WIN *)al_get_system_driver();
+   A5O_DISPLAY_WGL **add;
+   A5O_DISPLAY_WGL *wgl_display = al_calloc(1, sizeof *wgl_display);
+   A5O_DISPLAY *ogl_display = (void*)wgl_display;
+   A5O_DISPLAY     *display     = (void*)ogl_display;
+   A5O_DISPLAY_WIN *win_disp = (A5O_DISPLAY_WIN *)display;
 
    win_disp->adapter = _al_win_determine_adapter();
 
@@ -1024,15 +1024,15 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    display->h = h;
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
-#ifdef ALLEGRO_CFG_OPENGLES2
-   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#ifdef A5O_CFG_OPENGLES2
+   display->flags |= A5O_PROGRAMMABLE_PIPELINE;
 #endif
-#ifdef ALLEGRO_CFG_OPENGLES
-   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#ifdef A5O_CFG_OPENGLES
+   display->flags |= A5O_OPENGL_ES_PROFILE;
 #endif
    display->vt = &vt;
 
-   display->ogl_extras = al_calloc(1, sizeof(ALLEGRO_OGL_EXTRAS));
+   display->ogl_extras = al_calloc(1, sizeof(A5O_OGL_EXTRAS));
 
    if (!create_display_internals(wgl_display)) {
       al_free(display->ogl_extras);
@@ -1041,9 +1041,9 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    }
 
    /* Print out OpenGL version info */
-   ALLEGRO_INFO("OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
-   ALLEGRO_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-   ALLEGRO_INFO("Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
+   A5O_INFO("OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
+   A5O_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
+   A5O_INFO("Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
 
    /* Add ourself to the list of displays. */
    add = _al_vector_alloc_back(&system->system.displays);
@@ -1052,7 +1052,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
 
-   _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+   _al_win_set_system_mouse_cursor(display, A5O_SYSTEM_MOUSE_CURSOR_ARROW);
    _al_win_show_mouse_cursor(display);
 
    _al_win_post_create_window(display);
@@ -1061,16 +1061,16 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
 }
 
 
-static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
+static void destroy_display_internals(A5O_DISPLAY_WGL *wgl_disp)
 {
-   ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY *)wgl_disp;
-   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)wgl_disp;
+   A5O_DISPLAY *disp = (A5O_DISPLAY *)wgl_disp;
+   A5O_DISPLAY_WIN *win_disp = (A5O_DISPLAY_WIN *)wgl_disp;
 
    /* We need to convert all our bitmaps to display independent (memory)
     * bitmaps because WGL driver doesn't support sharing of resources. */
    while (disp->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&disp->bitmaps);
-      ALLEGRO_BITMAP *bmp = *bptr;
+      A5O_BITMAP **bptr = _al_vector_ref_back(&disp->bitmaps);
+      A5O_BITMAP *bmp = *bptr;
       _al_convert_to_memory_bitmap(bmp);
    }
 
@@ -1094,7 +1094,7 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       wgl_disp->dc = NULL;
    }
 
-   if (disp->flags & ALLEGRO_FULLSCREEN && !_wgl_do_not_change_display_mode) {
+   if (disp->flags & A5O_FULLSCREEN && !_wgl_do_not_change_display_mode) {
       ChangeDisplaySettings(NULL, 0);
    }
 
@@ -1105,11 +1105,11 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 }
 
 
-static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
+static void wgl_destroy_display(A5O_DISPLAY *disp)
 {
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)disp;
-   ALLEGRO_DISPLAY *old_disp = al_get_current_display();
+   A5O_SYSTEM_WIN *system = (A5O_SYSTEM_WIN *)al_get_system_driver();
+   A5O_DISPLAY_WGL *wgl_disp = (A5O_DISPLAY_WGL *)disp;
+   A5O_DISPLAY *old_disp = al_get_current_display();
 
    if (old_disp != disp)
       _al_set_current_display_only(disp);
@@ -1124,7 +1124,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    _al_vector_find_and_delete(&system->system.displays, &disp);
 
    _al_vector_free(&disp->bitmaps);
-   _al_vector_free(&((ALLEGRO_DISPLAY_WIN*) disp)->msg_callbacks);
+   _al_vector_free(&((A5O_DISPLAY_WIN*) disp)->msg_callbacks);
    al_free(disp->ogl_extras);
 
    if (old_disp != disp)
@@ -1135,9 +1135,9 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 }
 
 
-static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
+static bool wgl_set_current_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
+   A5O_DISPLAY_WGL *wgl_disp = (A5O_DISPLAY_WGL *)d;
    HGLRC current_glrc;
 
    current_glrc = wglGetCurrentContext();
@@ -1145,7 +1145,7 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
    if (!current_glrc || (current_glrc && current_glrc != wgl_disp->glrc)) {
       /* make the context the current one */
       if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
-         ALLEGRO_ERROR("Unable to make the context current! %s\n",
+         A5O_ERROR("Unable to make the context current! %s\n",
                         _al_win_last_error());
          return false;
       }
@@ -1159,12 +1159,12 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
 }
 
 
-static void wgl_unset_current_display(ALLEGRO_DISPLAY *d)
+static void wgl_unset_current_display(A5O_DISPLAY *d)
 {
    (void)d;
 
    if (!wglMakeCurrent(NULL, NULL)) {
-      ALLEGRO_ERROR("Unable unset the current context! %s\n", _al_win_last_error());
+      A5O_ERROR("Unable unset the current context! %s\n", _al_win_last_error());
    }
 }
 
@@ -1175,9 +1175,9 @@ static void wgl_unset_current_display(ALLEGRO_DISPLAY *d)
 static void display_thread_proc(void *arg)
 {
    WGL_DISPLAY_PARAMETERS *ndp = arg;
-   ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY*)ndp->display;
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
-   ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
+   A5O_DISPLAY *disp = (A5O_DISPLAY*)ndp->display;
+   A5O_DISPLAY_WGL *wgl_disp = (void*)disp;
+   A5O_DISPLAY_WIN *win_disp = (void*)disp;
    MSG msg;
 
    /* So that we can call the functions using TLS from this thread. */
@@ -1185,7 +1185,7 @@ static void display_thread_proc(void *arg)
    al_set_new_window_position(ndp->window_x, ndp->window_y);
    al_set_new_window_title(ndp->window_title);
 
-   if (disp->flags & ALLEGRO_FULLSCREEN) {
+   if (disp->flags & A5O_FULLSCREEN) {
       if (!change_display_mode(disp)) {
          win_disp->thread_ended = true;
          destroy_display_internals(wgl_disp);
@@ -1193,8 +1193,8 @@ static void display_thread_proc(void *arg)
          return;
       }
    }
-   else if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-      ALLEGRO_MONITOR_INFO mi;
+   else if (disp->flags & A5O_FULLSCREEN_WINDOW) {
+      A5O_MONITOR_INFO mi;
       int adapter = win_disp->adapter;
       al_get_monitor_info(adapter, &mi);
 
@@ -1224,8 +1224,8 @@ static void display_thread_proc(void *arg)
    }
 
    /* FIXME: can't _al_win_create_window() do this? */
-   if ((disp->flags & ALLEGRO_FULLSCREEN) ||
-         (disp->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+   if ((disp->flags & A5O_FULLSCREEN) ||
+         (disp->flags & A5O_FULLSCREEN_WINDOW)) {
       RECT rect;
       rect.left = 0;
       rect.right = disp->w;
@@ -1236,7 +1236,7 @@ static void display_thread_proc(void *arg)
              SWP_NOZORDER | SWP_FRAMECHANGED);
    }
 
-   if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+   if (disp->flags & A5O_FULLSCREEN_WINDOW) {
       _al_win_set_window_frameless(disp, win_disp->window, true);
    }
 
@@ -1244,7 +1244,7 @@ static void display_thread_proc(void *arg)
       DWORD lock_time;
       HWND wnd = win_disp->window;
 
-      if ((disp->flags & ALLEGRO_FULLSCREEN) == 0) {
+      if ((disp->flags & A5O_FULLSCREEN) == 0) {
          ShowWindow(wnd, SW_SHOWNORMAL);
          SetForegroundWindow(wnd);
          UpdateWindow(wnd);
@@ -1291,14 +1291,14 @@ static void display_thread_proc(void *arg)
    }
 
 #if 0
-   if (disp->flags & ALLEGRO_FULLSCREEN && al_is_mouse_installed()) {
+   if (disp->flags & A5O_FULLSCREEN && al_is_mouse_installed()) {
       RAWINPUTDEVICE rid[1];
       rid[0].usUsagePage = 0x01;
       rid[0].usUsage = 0x02;
       rid[0].dwFlags = RIDEV_NOLEGACY;
       rid[0].hwndTarget = 0;
       if (RegisterRawInputDevices(rid, 1, sizeof(rid[0])) == FALSE) {
-          ALLEGRO_ERROR(
+          A5O_ERROR(
              "Failed to init mouse. %s\n", get_error_desc(GetLastError()));
       }
    }
@@ -1320,28 +1320,28 @@ static void display_thread_proc(void *arg)
          break;                 /* WM_QUIT received or error (GetMessage returned -1)  */
    }
 
-   ALLEGRO_INFO("wgl display thread exits\n");
+   A5O_INFO("wgl display thread exits\n");
    win_disp->thread_ended = true;
 }
 
 
-static void wgl_flip_display(ALLEGRO_DISPLAY *d)
+static void wgl_flip_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
+   A5O_DISPLAY_WGL* disp = (A5O_DISPLAY_WGL*)d;
    glFlush();
-   if (!d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
+   if (!d->extra_settings.settings[A5O_SINGLE_BUFFER])
       SwapBuffers(disp->dc);
 }
 
 
-static void wgl_update_display_region(ALLEGRO_DISPLAY *d,
+static void wgl_update_display_region(A5O_DISPLAY *d,
                                       int x, int y, int width, int height)
 {
-   if (al_get_opengl_extension_list()->ALLEGRO_WGL_WIN_swap_hint) {
+   if (al_get_opengl_extension_list()->A5O_WGL_WIN_swap_hint) {
       /* FIXME: This is just a driver hint and there is no guarantee that the
        * contens of the front buffer outside the given rectangle will be preserved,
        * thus we should really return false here and do nothing. */
-      ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
+      A5O_DISPLAY_WGL* disp = (A5O_DISPLAY_WGL*)d;
       wglAddSwapHintRectWIN(x, y, width, height);
       glFlush();
       SwapBuffers(disp->dc);
@@ -1351,41 +1351,41 @@ static void wgl_update_display_region(ALLEGRO_DISPLAY *d,
 }
 
 
-static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
+static bool wgl_resize_helper(A5O_DISPLAY *d, int width, int height)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
-   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
+   A5O_DISPLAY_WGL *wgl_disp = (A5O_DISPLAY_WGL *)d;
+   A5O_DISPLAY_WIN *win_disp = (A5O_DISPLAY_WIN *)d;
    int full_w, full_h;
-   ALLEGRO_MONITOR_INFO mi;
+   A5O_MONITOR_INFO mi;
    int adapter = win_disp->adapter;
    al_get_monitor_info(adapter, &mi);
    full_w = mi.x2 - mi.x1;
    full_h = mi.y2 - mi.y1;
 
-   if ((d->flags & ALLEGRO_FULLSCREEN_WINDOW) && (full_w != width || full_h != height)) {
+   if ((d->flags & A5O_FULLSCREEN_WINDOW) && (full_w != width || full_h != height)) {
       win_disp->toggle_w = width;
       win_disp->toggle_h = height;
       return true;
    }
 
-   if (d->flags & ALLEGRO_FULLSCREEN) {
-      ALLEGRO_BITMAP *target_bmp;
+   if (d->flags & A5O_FULLSCREEN) {
+      A5O_BITMAP *target_bmp;
       _AL_VECTOR disp_bmps;
       bool was_backbuffer = false;
       size_t i;
 
       target_bmp = al_get_target_bitmap();
       if (target_bmp && target_bmp->vt) {
-         ALLEGRO_BITMAP_EXTRA_OPENGL *extra = target_bmp->parent ?
+         A5O_BITMAP_EXTRA_OPENGL *extra = target_bmp->parent ?
             target_bmp->parent->extra : target_bmp->extra;
          was_backbuffer = extra->is_backbuffer;
       }
 
       /* Remember display bitmaps. */
-      _al_vector_init(&disp_bmps, sizeof(ALLEGRO_BITMAP*));
+      _al_vector_init(&disp_bmps, sizeof(A5O_BITMAP*));
       for (i = 0; i < _al_vector_size(&d->bitmaps); i++) {
-         ALLEGRO_BITMAP **dis = _al_vector_ref(&d->bitmaps, i);
-         ALLEGRO_BITMAP **mem = _al_vector_alloc_back(&disp_bmps);
+         A5O_BITMAP **dis = _al_vector_ref(&d->bitmaps, i);
+         A5O_BITMAP **mem = _al_vector_alloc_back(&disp_bmps);
          *mem = *dis;
       }
 
@@ -1405,7 +1405,7 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
       /* Reupload bitmaps. */
       while (_al_vector_is_nonempty(&disp_bmps)) {
-         ALLEGRO_BITMAP **back = _al_vector_ref_back(&disp_bmps);
+         A5O_BITMAP **back = _al_vector_ref_back(&disp_bmps);
          _al_convert_to_display_bitmap(*back);
          _al_vector_delete_at(&disp_bmps, _al_vector_size(&disp_bmps) - 1);
       }
@@ -1433,7 +1433,7 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
       d->w = width;
       d->h = height;
-      if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+      if (!(d->flags & A5O_FULLSCREEN_WINDOW)) {
          win_disp->toggle_w = width;
          win_disp->toggle_h = height;
       }
@@ -1442,9 +1442,9 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
    return true;
 }
 
-static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
+static bool wgl_resize_display(A5O_DISPLAY *d, int width, int height)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)d;
    int orig_w = d->w;
    int orig_h = d->h;
    bool ret;
@@ -1464,12 +1464,12 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    return ret;
 }
 
-static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
+static bool wgl_acknowledge_resize(A5O_DISPLAY *d)
 {
    WINDOWINFO wi;
-   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
+   A5O_DISPLAY_WIN *win_disp = (A5O_DISPLAY_WIN *)d;
    int w, h;
-   ALLEGRO_STATE state;
+   A5O_STATE state;
 
    wi.cbSize = sizeof(WINDOWINFO);
    GetWindowInfo(win_disp->window, &wi);
@@ -1482,7 +1482,7 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
    _al_ogl_setup_gl(d);
    _al_ogl_update_render_state(d);
 
-   al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
+   al_store_state(&state, A5O_STATE_DISPLAY | A5O_STATE_TARGET_BITMAP);
    al_set_target_backbuffer(d);
    al_set_clipping_rectangle(0, 0, w, h);
    al_restore_state(&state);
@@ -1491,7 +1491,7 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 }
 
 
-static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+static bool wgl_is_compatible_bitmap(A5O_DISPLAY *display, A5O_BITMAP *bitmap)
 {
    /* Note: WGL driver doesn't support sharing of resources between contexts,
     * thus all bitmaps are tied to the display which was current at the time
@@ -1501,11 +1501,11 @@ static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
 }
 
 
-static void wgl_switch_in(ALLEGRO_DISPLAY *display)
+static void wgl_switch_in(A5O_DISPLAY *display)
 {
    (void)display;
    /*
-   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_disp = (A5O_DISPLAY_WIN *)display;
 
    if (al_is_mouse_installed())
       al_set_mouse_range(win_disp->mouse_range_x1, win_disp->mouse_range_y1,
@@ -1514,26 +1514,26 @@ static void wgl_switch_in(ALLEGRO_DISPLAY *display)
 }
 
 
-static void wgl_switch_out(ALLEGRO_DISPLAY *display)
+static void wgl_switch_out(A5O_DISPLAY *display)
 {
    (void)display;
 }
 
 
-static void wgl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void wgl_set_window_position(A5O_DISPLAY *display, int x, int y)
 {
-   _al_win_set_window_position(((ALLEGRO_DISPLAY_WIN *)display)->window, x, y);
+   _al_win_set_window_position(((A5O_DISPLAY_WIN *)display)->window, x, y);
 }
 
 
-static void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void wgl_get_window_position(A5O_DISPLAY *display, int *x, int *y)
 {
-   _al_win_get_window_position(((ALLEGRO_DISPLAY_WIN *)display)->window, x, y);
+   _al_win_get_window_position(((A5O_DISPLAY_WIN *)display)->window, x, y);
 }
 
 
 /* Obtain a reference to this driver. */
-ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
+A5O_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 {
    if (vt.create_display)
       return &vt;
@@ -1600,9 +1600,9 @@ int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags)
 }
 
 
-ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
+A5O_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
                                                int refresh_rate, int flags,
-                                               ALLEGRO_DISPLAY_MODE *mode)
+                                               A5O_DISPLAY_MODE *mode)
 {
    DEVMODE dm;
 
@@ -1625,19 +1625,19 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
    mode->format = format;
    switch (dm.dmBitsPerPel) {
       case 32:
-         if (format == ALLEGRO_PIXEL_FORMAT_ANY)
-            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA;
-         else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
-            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA;
+         if (format == A5O_PIXEL_FORMAT_ANY)
+            mode->format = A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA;
+         else if (format == A5O_PIXEL_FORMAT_ANY_NO_ALPHA)
+            mode->format = A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA;
          break;
       case 24:
-         mode->format = ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA;
+         mode->format = A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA;
          break;
       case 16:
-         if (format == ALLEGRO_PIXEL_FORMAT_ANY)
-            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA;
-         else if(format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
-            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA;
+         if (format == A5O_PIXEL_FORMAT_ANY)
+            mode->format = A5O_PIXEL_FORMAT_ANY_16_WITH_ALPHA;
+         else if(format == A5O_PIXEL_FORMAT_ANY_NO_ALPHA)
+            mode->format = A5O_PIXEL_FORMAT_ANY_16_NO_ALPHA;
          break;
       default:
          break;

@@ -1,9 +1,9 @@
 #include <allegro5/allegro.h>
 #include "allegro5/allegro_memfile.h"
 
-typedef struct ALLEGRO_FILE_MEMFILE ALLEGRO_FILE_MEMFILE;
+typedef struct A5O_FILE_MEMFILE A5O_FILE_MEMFILE;
 
-struct ALLEGRO_FILE_MEMFILE {
+struct A5O_FILE_MEMFILE {
    bool readable;
    bool writable;
    
@@ -13,15 +13,15 @@ struct ALLEGRO_FILE_MEMFILE {
    char *mem;
 };
 
-static bool memfile_fclose(ALLEGRO_FILE *fp)
+static bool memfile_fclose(A5O_FILE *fp)
 {
    al_free(al_get_file_userdata(fp));
    return true;
 }
 
-static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
+static size_t memfile_fread(A5O_FILE *fp, void *ptr, size_t size)
 {
-   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
+   A5O_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    size_t n = 0;
    
    if (!mf->readable) {
@@ -44,9 +44,9 @@ static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
    return n;
 }
 
-static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
+static size_t memfile_fwrite(A5O_FILE *fp, const void *ptr, size_t size)
 {
-   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
+   A5O_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    size_t n;
    
    if (!mf->writable) {
@@ -69,35 +69,35 @@ static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
    return n;
 }
 
-static bool memfile_fflush(ALLEGRO_FILE *fp)
+static bool memfile_fflush(A5O_FILE *fp)
 {
    (void)fp;
    return true;
 }
 
-static int64_t memfile_ftell(ALLEGRO_FILE *fp)
+static int64_t memfile_ftell(A5O_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
+   A5O_FILE_MEMFILE *mf = al_get_file_userdata(fp);
 
    return mf->pos;
 }
 
-static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
+static bool memfile_fseek(A5O_FILE *fp, int64_t offset,
    int whence)
 {
-   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
+   A5O_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    int64_t pos = mf->pos;
 
    switch (whence) {
-      case ALLEGRO_SEEK_SET:
+      case A5O_SEEK_SET:
          pos = offset;
          break;
 
-      case ALLEGRO_SEEK_CUR:
+      case A5O_SEEK_CUR:
          pos = mf->pos + offset;
          break;
 
-      case ALLEGRO_SEEK_END:
+      case A5O_SEEK_END:
          pos = mf->size + offset;
          break;
    }
@@ -117,38 +117,38 @@ static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
 /* doesn't quite match up to stdio here,
    an feof after a seek will return false,
    even if it seeks past the end of the file */
-static bool memfile_feof(ALLEGRO_FILE *fp)
+static bool memfile_feof(A5O_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
+   A5O_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    return mf->eof;
 }
 
-static int memfile_ferror(ALLEGRO_FILE *fp)
+static int memfile_ferror(A5O_FILE *fp)
 {
    (void)fp;
    return 0;
 }
 
-static const char *memfile_ferrmsg(ALLEGRO_FILE *fp)
+static const char *memfile_ferrmsg(A5O_FILE *fp)
 {
    (void)fp;
    return "";
 }
 
-static void memfile_fclearerr(ALLEGRO_FILE *fp)
+static void memfile_fclearerr(A5O_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
+   A5O_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    mf->eof = false;
 }
 
-static off_t memfile_fsize(ALLEGRO_FILE *fp)
+static off_t memfile_fsize(A5O_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
+   A5O_FILE_MEMFILE *mf = al_get_file_userdata(fp);
 
    return mf->size;
 }
 
-static struct ALLEGRO_FILE_INTERFACE memfile_vtable = {
+static struct A5O_FILE_INTERFACE memfile_vtable = {
    NULL,    /* open */
    memfile_fclose,
    memfile_fread,
@@ -166,15 +166,15 @@ static struct ALLEGRO_FILE_INTERFACE memfile_vtable = {
 
 /* Function: al_open_memfile
  */
-ALLEGRO_FILE *al_open_memfile(void *mem, int64_t size, const char *mode)
+A5O_FILE *al_open_memfile(void *mem, int64_t size, const char *mode)
 {
-   ALLEGRO_FILE *memfile;
-   ALLEGRO_FILE_MEMFILE *userdata = NULL;
+   A5O_FILE *memfile;
+   A5O_FILE_MEMFILE *userdata = NULL;
 
    ASSERT(mem);
    ASSERT(size > 0);
    
-   userdata = al_malloc(sizeof(ALLEGRO_FILE_MEMFILE));
+   userdata = al_malloc(sizeof(A5O_FILE_MEMFILE));
    if (!userdata) {
       al_set_errno(ENOMEM);
       return NULL;
@@ -200,7 +200,7 @@ ALLEGRO_FILE *al_open_memfile(void *mem, int64_t size, const char *mode)
  */
 uint32_t al_get_allegro_memfile_version(void)
 {
-   return ALLEGRO_VERSION_INT;
+   return A5O_VERSION_INT;
 }
 
 /* vim: set sts=3 sw=3 et: */

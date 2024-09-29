@@ -1,7 +1,7 @@
 /* This example displays a picture on the screen, with support for
  * command-line parameters, multi-screen, screen-orientation and
  * zooming. It is a little different from ex_bitmap in the sense
- * that it uses the ALLEGRO_FILE interface.
+ * that it uses the A5O_FILE interface.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,11 +14,11 @@ int main(int argc, char **argv)
 {
     const char *filename;
     char *fileextension = NULL;
-    ALLEGRO_DISPLAY *display;
-    ALLEGRO_FILE *file;
-    ALLEGRO_BITMAP *bitmap = NULL;
-    ALLEGRO_TIMER *timer;
-    ALLEGRO_EVENT_QUEUE *queue;
+    A5O_DISPLAY *display;
+    A5O_FILE *file;
+    A5O_BITMAP *bitmap = NULL;
+    A5O_TIMER *timer;
+    A5O_EVENT_QUEUE *queue;
 
     bool redraw = true;
     double zoom = 1;
@@ -100,30 +100,30 @@ int main(int argc, char **argv)
 
     // Primary 'game' loop.
     while (1) {
-        ALLEGRO_EVENT event;
+        A5O_EVENT event;
         al_wait_for_event(queue, &event); // Wait for and get an event.
-        if (event.type == ALLEGRO_EVENT_DISPLAY_ORIENTATION) {
+        if (event.type == A5O_EVENT_DISPLAY_ORIENTATION) {
             int o = event.display.orientation;
-            if (o == ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
+            if (o == A5O_DISPLAY_ORIENTATION_0_DEGREES) {
                 log_printf("0 degrees\n");
             }
-            else if (o == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES) {
+            else if (o == A5O_DISPLAY_ORIENTATION_90_DEGREES) {
                 log_printf("90 degrees\n");
             }
-            else if (o == ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES) {
+            else if (o == A5O_DISPLAY_ORIENTATION_180_DEGREES) {
                 log_printf("180 degrees\n");
             }
-            else if (o == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES) {
+            else if (o == A5O_DISPLAY_ORIENTATION_270_DEGREES) {
                 log_printf("270 degrees\n");
             }
-            else if (o == ALLEGRO_DISPLAY_ORIENTATION_FACE_UP) {
+            else if (o == A5O_DISPLAY_ORIENTATION_FACE_UP) {
                 log_printf("Face up\n");
             }
-            else if (o == ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN) {
+            else if (o == A5O_DISPLAY_ORIENTATION_FACE_DOWN) {
                 log_printf("Face down\n");
             }
         }
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        if (event.type == A5O_EVENT_DISPLAY_CLOSE)
             break;
         /* Use keyboard to zoom image in and out.
          * 1: Reset zoom.
@@ -131,8 +131,8 @@ int main(int argc, char **argv)
          * -: Zoom out 10%
          * f: Zoom to width of window
          */
-        if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+        if (event.type == A5O_EVENT_KEY_CHAR) {
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                 break; // Break the loop and quite on escape key.
             if (event.keyboard.unichar == '1')
                 zoom = 1;
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
         }
 
         // Trigger a redraw on the timer event
-        if (event.type == ALLEGRO_EVENT_TIMER)
+        if (event.type == A5O_EVENT_TIMER)
             redraw = true;
 
         // Redraw, but only if the event queue is empty

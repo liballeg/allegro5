@@ -4,22 +4,22 @@
 #include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/internal/aintern_android.h"
 
-ALLEGRO_DEBUG_CHANNEL("android")
+A5O_DEBUG_CHANNEL("android")
 
 /* the number of gamepad & dpad buttons defined in the Android documentation
    https://developer.android.com/reference/android/view/KeyEvent */
 #define MAX_BUTTONS 36
-ALLEGRO_STATIC_ASSERT(android_joystick, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
+A5O_STATIC_ASSERT(android_joystick, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
 
 /* sticks: left & right thumbsticks; left & right triggers */
 #define MAX_STICKS 4
-ALLEGRO_STATIC_ASSERT(android_joystick, _AL_MAX_JOYSTICK_STICKS >= MAX_STICKS);
+A5O_STATIC_ASSERT(android_joystick, _AL_MAX_JOYSTICK_STICKS >= MAX_STICKS);
 
-typedef struct ALLEGRO_JOYSTICK_ANDROID {
-   ALLEGRO_JOYSTICK parent;
-   ALLEGRO_JOYSTICK_STATE joystate;
+typedef struct A5O_JOYSTICK_ANDROID {
+   A5O_JOYSTICK parent;
+   A5O_JOYSTICK_STATE joystate;
    char name[64];
-} ALLEGRO_JOYSTICK_ANDROID;
+} A5O_JOYSTICK_ANDROID;
 
 static const char *button_name[MAX_BUTTONS] = {
    /* buttons are named according to the Android documentation
@@ -66,13 +66,13 @@ static const char *button_name[MAX_BUTTONS] = {
    "16"
 };
 
-static _AL_VECTOR joysticks = _AL_VECTOR_INITIALIZER(ALLEGRO_JOYSTICK_ANDROID *);
+static _AL_VECTOR joysticks = _AL_VECTOR_INITIALIZER(A5O_JOYSTICK_ANDROID *);
 static bool initialized;
 
 static char *android_get_joystick_name(JNIEnv *env, jobject activity, int index, char *buffer, size_t buffer_size)
 {
     jstring str_obj = (jstring)_jni_callObjectMethodV(env, activity, "getJoystickName", "(I)Ljava/lang/String;", (jint)index);
-    ALLEGRO_USTR *s = _jni_getString(env, str_obj);
+    A5O_USTR *s = _jni_getString(env, str_obj);
     _al_sane_strncpy(buffer, al_cstr(s), buffer_size);
     al_ustr_free(s);
     _jni_callv(env, DeleteLocalRef, str_obj);
@@ -87,9 +87,9 @@ static void android_init_joysticks(int num)
     jobject activity = _al_android_activity_object();
 
     for (i = 0; i < num; i++) {
-       ALLEGRO_JOYSTICK_ANDROID *stick = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_ANDROID));
-       ALLEGRO_JOYSTICK_ANDROID **ptr;
-       ALLEGRO_JOYSTICK *joy;
+       A5O_JOYSTICK_ANDROID *stick = al_calloc(1, sizeof(A5O_JOYSTICK_ANDROID));
+       A5O_JOYSTICK_ANDROID **ptr;
+       A5O_JOYSTICK *joy;
 
        joy = (void *)stick;
 
@@ -101,20 +101,20 @@ static void android_init_joysticks(int num)
        joy->info.stick[0].num_axes = 2;
        joy->info.stick[0].axis[0].name = "X";
        joy->info.stick[0].axis[1].name = "Y";
-       joy->info.stick[0].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+       joy->info.stick[0].flags = A5O_JOYFLAG_ANALOGUE;
        joy->info.stick[1].name = "Right Thumbstick";
        joy->info.stick[1].num_axes = 2;
        joy->info.stick[1].axis[0].name = "X";
        joy->info.stick[1].axis[1].name = "Y";
-       joy->info.stick[1].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+       joy->info.stick[1].flags = A5O_JOYFLAG_ANALOGUE;
        joy->info.stick[2].name = "Left Trigger";
        joy->info.stick[2].num_axes = 1;
        joy->info.stick[2].axis[0].name = "Ramp";
-       joy->info.stick[2].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+       joy->info.stick[2].flags = A5O_JOYFLAG_ANALOGUE;
        joy->info.stick[3].name = "Right Trigger";
        joy->info.stick[3].num_axes = 1;
        joy->info.stick[3].axis[0].name = "Ramp";
-       joy->info.stick[3].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+       joy->info.stick[3].flags = A5O_JOYFLAG_ANALOGUE;
 
        for (j = 0; j < joy->info.num_buttons; j++) {
            joy->info.button[j].name = button_name[j];
@@ -127,9 +127,9 @@ static void android_init_joysticks(int num)
 
 static bool andjoy_init_joystick(void)
 {
-    ALLEGRO_JOYSTICK_ANDROID *accel = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_ANDROID));
-    ALLEGRO_JOYSTICK_ANDROID **ptr;
-    ALLEGRO_JOYSTICK *joy;
+    A5O_JOYSTICK_ANDROID *accel = al_calloc(1, sizeof(A5O_JOYSTICK_ANDROID));
+    A5O_JOYSTICK_ANDROID **ptr;
+    A5O_JOYSTICK *joy;
     int num;
 
     joy = (void *)accel;
@@ -143,7 +143,7 @@ static bool andjoy_init_joystick(void)
     joy->info.stick[0].axis[0].name = "X";
     joy->info.stick[0].axis[1].name = "Y";
     joy->info.stick[0].axis[2].name = "Z";
-    joy->info.stick[0].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+    joy->info.stick[0].flags = A5O_JOYFLAG_ANALOGUE;
 
     ptr = _al_vector_alloc_back(&joysticks);
     *ptr = accel;
@@ -173,7 +173,7 @@ static bool andjoy_reconfigure_joysticks(void)
     sz = _al_vector_size(&joysticks);
 
     for (i = 1; i < sz; i++) {
-        al_free(*((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, 1)));
+        al_free(*((A5O_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, 1)));
         _al_vector_delete_at(&joysticks, 1);
     }
 
@@ -191,21 +191,21 @@ static int andjoy_num_joysticks(void)
     return _al_vector_size(&joysticks);
 }
 
-static ALLEGRO_JOYSTICK *andjoy_get_joystick(int num)
+static A5O_JOYSTICK *andjoy_get_joystick(int num)
 {
-    ALLEGRO_JOYSTICK_ANDROID *andjoy;
-    ALLEGRO_JOYSTICK *joy;
+    A5O_JOYSTICK_ANDROID *andjoy;
+    A5O_JOYSTICK *joy;
 
     if (num >= andjoy_num_joysticks())
        return NULL;
     
-    andjoy = *((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, num));
+    andjoy = *((A5O_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, num));
     joy = &andjoy->parent;
 
     return joy;
 }
 
-static void andjoy_release_joystick(ALLEGRO_JOYSTICK *joy)
+static void andjoy_release_joystick(A5O_JOYSTICK *joy)
 {
     int i;
     int sz;
@@ -214,26 +214,26 @@ static void andjoy_release_joystick(ALLEGRO_JOYSTICK *joy)
     sz = _al_vector_size(&joysticks);
 
     for (i = 0; i < sz; i++) {
-        al_free(*((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, 0)));
+        al_free(*((A5O_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, 0)));
         _al_vector_delete_at(&joysticks, 0);
     }
 
     _jni_callVoidMethod(_al_android_get_jnienv(), _al_android_activity_object(), "setJoystickInactive");
 
-    ALLEGRO_DEBUG("Joystick released.\n");
+    A5O_DEBUG("Joystick released.\n");
     initialized = false;
 }
 
-static void andjoy_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
+static void andjoy_get_joystick_state(A5O_JOYSTICK *joy, A5O_JOYSTICK_STATE *ret_state)
 {
-    ALLEGRO_JOYSTICK_ANDROID *andjoy = (void *)joy;
-    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+    A5O_JOYSTICK_ANDROID *andjoy = (void *)joy;
+    A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
     int i;
     bool found = false;
 
     for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-        ALLEGRO_JOYSTICK_ANDROID **ptr = _al_vector_ref(&joysticks, i);
-        ALLEGRO_JOYSTICK_ANDROID *thisjoy = *ptr;
+        A5O_JOYSTICK_ANDROID **ptr = _al_vector_ref(&joysticks, i);
+        A5O_JOYSTICK_ANDROID *thisjoy = *ptr;
         if (andjoy == thisjoy) {
             found = true;
             break;
@@ -270,12 +270,12 @@ void _al_android_generate_accelerometer_event(float x, float y, float z)
     if (z < -1) z = -1;
     if (z > 1) z = 1;
 
-    ALLEGRO_JOYSTICK_ANDROID *accel = *((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, 0));
-    ALLEGRO_JOYSTICK *joy = &accel->parent;
+    A5O_JOYSTICK_ANDROID *accel = *((A5O_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, 0));
+    A5O_JOYSTICK *joy = &accel->parent;
 
-    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+    A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-    ALLEGRO_EVENT event;
+    A5O_EVENT event;
 
     _al_event_source_lock(es);
 
@@ -284,7 +284,7 @@ void _al_android_generate_accelerometer_event(float x, float y, float z)
         int i;
         for (i = 0; i < 3; i++) {
             event.joystick.id = joy;
-            event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+            event.joystick.type = A5O_EVENT_JOYSTICK_AXIS;
             event.joystick.timestamp = al_get_time();
             event.joystick.stick = 0;
             event.joystick.axis = i;
@@ -305,18 +305,18 @@ void _al_android_generate_joystick_axis_event(int index, int stick, int axis, fl
     if (!initialized || index >= andjoy_num_joysticks())
         return;
 
-    ALLEGRO_JOYSTICK_ANDROID *joystick = *((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, index));
-    ALLEGRO_JOYSTICK *joy = &joystick->parent;
+    A5O_JOYSTICK_ANDROID *joystick = *((A5O_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, index));
+    A5O_JOYSTICK *joy = &joystick->parent;
 
-    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+    A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-    ALLEGRO_EVENT event;
+    A5O_EVENT event;
 
     _al_event_source_lock(es);
 
     if (_al_event_source_needs_to_generate_event(es)) {
         event.joystick.id = joy;
-        event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+        event.joystick.type = A5O_EVENT_JOYSTICK_AXIS;
         event.joystick.timestamp = al_get_time();
         event.joystick.stick = stick;
         event.joystick.axis = axis;
@@ -337,19 +337,19 @@ void _al_android_generate_joystick_button_event(int index, int button, bool down
     if (!initialized || index >= andjoy_num_joysticks())
         return;
 
-    ALLEGRO_JOYSTICK_ANDROID *joystick = *((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, index));
-    ALLEGRO_JOYSTICK *joy = &joystick->parent;
+    A5O_JOYSTICK_ANDROID *joystick = *((A5O_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, index));
+    A5O_JOYSTICK *joy = &joystick->parent;
 
-    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+    A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-    ALLEGRO_EVENT event;
+    A5O_EVENT event;
 
     _al_event_source_lock(es);
 
     if (down)
-        type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
+        type = A5O_EVENT_JOYSTICK_BUTTON_DOWN;
     else
-        type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
+        type = A5O_EVENT_JOYSTICK_BUTTON_UP;
 
     if (_al_event_source_needs_to_generate_event(es)) {
         event.joystick.id = joy;
@@ -360,34 +360,34 @@ void _al_android_generate_joystick_button_event(int index, int button, bool down
         event.joystick.pos = 0;
         event.joystick.button = button;
 
-        joystick->joystate.button[button] = type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN ? 1 : 0;
+        joystick->joystate.button[button] = type == A5O_EVENT_JOYSTICK_BUTTON_DOWN ? 1 : 0;
 
         _al_event_source_emit_event(es, &event);
     }
     _al_event_source_unlock(es);
 }
 
-static char const *andjoy_get_name(ALLEGRO_JOYSTICK *joy)
+static char const *andjoy_get_name(A5O_JOYSTICK *joy)
 {
     int i;
     (void)joy;
 
     for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-        ALLEGRO_JOYSTICK_ANDROID *andjoy = *((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, i));
-        if ((ALLEGRO_JOYSTICK *)andjoy == joy)
+        A5O_JOYSTICK_ANDROID *andjoy = *((A5O_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, i));
+        if ((A5O_JOYSTICK *)andjoy == joy)
             return andjoy->name;
     }
 
     return "";
 }
 
-static bool andjoy_get_active(ALLEGRO_JOYSTICK *joy)
+static bool andjoy_get_active(A5O_JOYSTICK *joy)
 {
     (void)joy;
     return true;
 }
 
-ALLEGRO_JOYSTICK_DRIVER _al_android_joystick_driver = {
+A5O_JOYSTICK_DRIVER _al_android_joystick_driver = {
    AL_ID('A', 'N', 'D', 'R'),
    "",
    "",

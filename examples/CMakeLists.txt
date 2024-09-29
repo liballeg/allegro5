@@ -213,7 +213,7 @@ if(SUPPORT_OPENGL AND NOT SUPPORT_OPENGLES)
     example(ex_opengl)
     example(ex_opengl_pixel_shader ${IMAGE})
 endif()
-if(SUPPORT_OPENGL AND NOT IPHONE AND NOT ALLEGRO_RASPBERRYPI)
+if(SUPPORT_OPENGL AND NOT IPHONE AND NOT A5O_RASPBERRYPI)
     example(ex_palette ${IMAGE} ${COLOR} ${DATA_IMAGES} ${DATA_SHADERS})
 endif()
 

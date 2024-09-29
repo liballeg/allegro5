@@ -14,12 +14,12 @@
 
 #include "nihgui.hpp"
 
-ALLEGRO_BITMAP *allegro;
-ALLEGRO_BITMAP *mysha;
-ALLEGRO_BITMAP *allegro_bmp;
-ALLEGRO_BITMAP *mysha_bmp;
-ALLEGRO_BITMAP *target;
-ALLEGRO_BITMAP *target_bmp;
+A5O_BITMAP *allegro;
+A5O_BITMAP *mysha;
+A5O_BITMAP *allegro_bmp;
+A5O_BITMAP *mysha_bmp;
+A5O_BITMAP *target;
+A5O_BITMAP *target_bmp;
 
 class Prog {
 private:
@@ -40,7 +40,7 @@ private:
    HSlider a[3];
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, A5O_DISPLAY *display);
    void run();
 
 private:
@@ -49,7 +49,7 @@ private:
    void draw_bitmap(const std::string &, const std::string &, bool, bool);
 };
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, A5O_DISPLAY *display) :
    d(Dialog(theme, display, 20, 40)),
    memory_label(Label("Memory")),
    texture_label(Label("Texture")),
@@ -147,39 +147,39 @@ void Prog::run()
 int str_to_blend_mode(const std::string & str)
 {
    if (str == "ZERO")
-      return ALLEGRO_ZERO;
+      return A5O_ZERO;
    if (str == "ONE")
-      return ALLEGRO_ONE;
+      return A5O_ONE;
    if (str == "SRC_COLOR")
-      return ALLEGRO_SRC_COLOR;
+      return A5O_SRC_COLOR;
    if (str == "DEST_COLOR")
-      return ALLEGRO_DEST_COLOR;
+      return A5O_DEST_COLOR;
    if (str == "INV_SRC_COLOR")
-      return ALLEGRO_INVERSE_SRC_COLOR;
+      return A5O_INVERSE_SRC_COLOR;
    if (str == "INV_DEST_COLOR")
-      return ALLEGRO_INVERSE_DEST_COLOR;
+      return A5O_INVERSE_DEST_COLOR;
    if (str == "ALPHA")
-      return ALLEGRO_ALPHA;
+      return A5O_ALPHA;
    if (str == "INVERSE")
-      return ALLEGRO_INVERSE_ALPHA;
+      return A5O_INVERSE_ALPHA;
    if (str == "ADD")
-      return ALLEGRO_ADD;
+      return A5O_ADD;
    if (str == "SRC_MINUS_DEST")
-      return ALLEGRO_SRC_MINUS_DEST;
+      return A5O_SRC_MINUS_DEST;
    if (str == "DEST_MINUS_SRC")
-      return ALLEGRO_DEST_MINUS_SRC;
+      return A5O_DEST_MINUS_SRC;
    if (str == "CONST_COLOR")
-      return ALLEGRO_CONST_COLOR;
+      return A5O_CONST_COLOR;
    if (str == "INV_CONST_COLOR")
-      return ALLEGRO_INVERSE_CONST_COLOR;
+      return A5O_INVERSE_CONST_COLOR;
 
-   ALLEGRO_ASSERT(false);
-   return ALLEGRO_ONE;
+   A5O_ASSERT(false);
+   return A5O_ONE;
 }
 
 void draw_background(int x, int y)
 {
-   ALLEGRO_COLOR c[] = {
+   A5O_COLOR c[] = {
       al_map_rgba(0x66, 0x66, 0x66, 0xff),
       al_map_rgba(0x99, 0x99, 0x99, 0xff)
    };
@@ -193,7 +193,7 @@ void draw_background(int x, int y)
    }
 }
 
-static ALLEGRO_COLOR makecol(int r, int g, int b, int a)
+static A5O_COLOR makecol(int r, int g, int b, int a)
 {
    /* Premultiply alpha. */
    float rf = (float)r / 255.0f;
@@ -218,8 +218,8 @@ void Prog::draw_bitmap(const std::string & str,
    int gv = g[i].get_cur_value();
    int bv = b[i].get_cur_value();
    int av = a[i].get_cur_value();
-   ALLEGRO_COLOR color = makecol(rv, gv, bv, av);
-   ALLEGRO_BITMAP *bmp;
+   A5O_COLOR color = makecol(rv, gv, bv, av);
+   A5O_BITMAP *bmp;
 
    if (contains(str, "Mysha"))
       bmp = (memory ? mysha_bmp : mysha);
@@ -256,18 +256,18 @@ void Prog::draw_bitmap(const std::string & str,
       }
       else if (contains(str, "tint")) {
          al_draw_tinted_rotated_bitmap(bmp, color, 160, 100,
-            160, 100, ALLEGRO_PI / 8, 0);
+            160, 100, A5O_PI / 8, 0);
       }
       else {
          al_draw_rotated_bitmap(bmp, 160, 100,
-            160, 100, ALLEGRO_PI / 8, 0);
+            160, 100, A5O_PI / 8, 0);
       }
    }
 }
 
 void Prog::blending_test(bool memory)
 {
-   ALLEGRO_COLOR transparency = al_map_rgba_f(0, 0, 0, 0);
+   A5O_COLOR transparency = al_map_rgba_f(0, 0, 0, 0);
    int op = str_to_blend_mode(operations[4].get_selected_item_text());
    int aop = str_to_blend_mode(operations[5].get_selected_item_text());
    int src = str_to_blend_mode(operations[0].get_selected_item_text());
@@ -278,11 +278,11 @@ void Prog::blending_test(bool memory)
    int gv = g[2].get_cur_value();
    int bv = b[2].get_cur_value();
    int av = a[2].get_cur_value();
-   ALLEGRO_COLOR color = makecol(rv, gv, bv, av);
+   A5O_COLOR color = makecol(rv, gv, bv, av);
 
    /* Initialize with destination. */
    al_clear_to_color(transparency); // Just in case.
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    draw_bitmap(destination_image.get_selected_item_text(),
       "original", memory, true);
 
@@ -295,8 +295,8 @@ void Prog::blending_test(bool memory)
 
 void Prog::draw_samples()
 {
-   ALLEGRO_STATE state;
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+   A5O_STATE state;
+   al_store_state(&state, A5O_STATE_TARGET_BITMAP | A5O_STATE_BLENDER);
       
    /* Draw a background, in case our target bitmap will end up with
     * alpha in it.
@@ -314,7 +314,7 @@ void Prog::draw_samples()
 
    /* Display results. */
    al_restore_state(&state);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    al_draw_bitmap(target, 40, 20, 0);
    al_draw_bitmap(target_bmp, 400, 20, 0);
  
@@ -323,8 +323,8 @@ void Prog::draw_samples()
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
 
    (void)argc;
    (void)argv;
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
    al_init_image_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(800, 600);
    if (!display) {
       abort_example("Unable to create display\n");
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
    
    target = al_create_bitmap(320, 200);
 
-   al_add_new_bitmap_flag(ALLEGRO_MEMORY_BITMAP);
+   al_add_new_bitmap_flag(A5O_MEMORY_BITMAP);
    allegro_bmp = al_clone_bitmap(allegro);
    mysha_bmp = al_clone_bitmap(mysha);
    target_bmp = al_clone_bitmap(target);

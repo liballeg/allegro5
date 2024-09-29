@@ -4,9 +4,9 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *win, *full;
-   ALLEGRO_EVENT_QUEUE *events;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *win, *full;
+   A5O_EVENT_QUEUE *events;
+   A5O_EVENT event;
 
    (void)argc;
    (void)argv;
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
    }
 
    al_set_new_display_adapter(1);
-   al_set_new_display_flags(ALLEGRO_WINDOWED);
+   al_set_new_display_flags(A5O_WINDOWED);
    win = al_create_display(640, 480);
    if (!win) {
       abort_example("Error creating windowed display on adapter 1 "
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
    }
 
    al_set_new_display_adapter(0);
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+   al_set_new_display_flags(A5O_FULLSCREEN);
    full = al_create_display(640, 480);
    if (!full) {
       abort_example("Error creating fullscreen display on adapter 0\n");
@@ -42,8 +42,8 @@ int main(int argc, char **argv)
    while (1) {
       while (!al_is_event_queue_empty(events)) {
          al_get_next_event(events, &event);
-         if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-               event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         if (event.type == A5O_EVENT_KEY_DOWN &&
+               event.keyboard.keycode == A5O_KEY_ESCAPE)
             goto done;
       }
 

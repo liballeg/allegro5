@@ -3,12 +3,12 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_android.h"
 
-typedef struct ALLEGRO_MOUSE_ANDROID {
-    ALLEGRO_MOUSE parent;
-    ALLEGRO_MOUSE_STATE state;
-} ALLEGRO_MOUSE_ANDROID;
+typedef struct A5O_MOUSE_ANDROID {
+    A5O_MOUSE parent;
+    A5O_MOUSE_STATE state;
+} A5O_MOUSE_ANDROID;
 
-static ALLEGRO_MOUSE_ANDROID the_mouse;
+static A5O_MOUSE_ANDROID the_mouse;
 
 static bool amouse_installed;
 
@@ -16,9 +16,9 @@ static bool amouse_installed;
  *  Helper to generate a mouse event.
  */
 void _al_android_generate_mouse_event(unsigned int type, int x, int y,
-   unsigned int button, ALLEGRO_DISPLAY *d)
+   unsigned int button, A5O_DISPLAY *d)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    
    _al_event_source_lock(&the_mouse.parent.es);
 
@@ -27,10 +27,10 @@ void _al_android_generate_mouse_event(unsigned int type, int x, int y,
    the_mouse.state.x = x;
    the_mouse.state.y = y;
 
-   if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+   if (type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
       the_mouse.state.buttons |= (1 << button);
    }
-   else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+   else if (type == A5O_EVENT_MOUSE_BUTTON_UP) {
       the_mouse.state.buttons &= ~(1 << button);
    }
 
@@ -75,10 +75,10 @@ static void amouse_exit(void)
     _al_event_source_free(&the_mouse.parent.es);
 }
 
-static ALLEGRO_MOUSE *amouse_get_mouse(void)
+static A5O_MOUSE *amouse_get_mouse(void)
 {
     ASSERT(amouse_installed);
-    return (ALLEGRO_MOUSE *)&the_mouse;
+    return (A5O_MOUSE *)&the_mouse;
 }
 
 /* We report multi-touch as different buttons. */
@@ -93,7 +93,7 @@ static unsigned int amouse_get_mouse_num_axes(void)
 }
 
 /* Hard to accomplish on a touch screen. */
-static bool amouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+static bool amouse_set_mouse_xy(A5O_DISPLAY *display, int x, int y)
 {
     (void)display;
     (void)x;
@@ -108,7 +108,7 @@ static bool amouse_set_mouse_axis(int which, int z)
     return false;
 }
 
-static ALLEGRO_MOUSE_DRIVER android_mouse_driver = {
+static A5O_MOUSE_DRIVER android_mouse_driver = {
     AL_ID('A', 'N', 'D', 'R'),
     "",
     "",
@@ -123,7 +123,7 @@ static ALLEGRO_MOUSE_DRIVER android_mouse_driver = {
     _al_android_mouse_get_state
 };
 
-ALLEGRO_MOUSE_DRIVER *_al_get_android_mouse_driver(void)
+A5O_MOUSE_DRIVER *_al_get_android_mouse_driver(void)
 {
     return &android_mouse_driver;
 }

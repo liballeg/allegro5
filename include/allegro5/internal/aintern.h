@@ -27,14 +27,14 @@
    extern "C" {
 #endif
     
-#define _ALLEGRO_MIN(x,y)     (((x) < (y)) ? (x) : (y))
-#define _ALLEGRO_MAX(x,y)     (((x) > (y)) ? (x) : (y))
-#define _ALLEGRO_CLAMP(x,y,z) _ALLEGRO_MAX((x), _ALLEGRO_MIN((y), (z)))
+#define _A5O_MIN(x,y)     (((x) < (y)) ? (x) : (y))
+#define _A5O_MAX(x,y)     (((x) > (y)) ? (x) : (y))
+#define _A5O_CLAMP(x,y,z) _A5O_MAX((x), _A5O_MIN((y), (z)))
 
 int _al_get_least_multiple(int val, int mul);
 
 /* message stuff */
-#define ALLEGRO_MESSAGE_SIZE  4096
+#define A5O_MESSAGE_SIZE  4096
 
 /* various libc stuff */
 AL_FUNC(void *, _al_sane_realloc, (void *ptr, size_t size));

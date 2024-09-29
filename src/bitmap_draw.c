@@ -21,26 +21,26 @@
 #include "allegro5/internal/aintern_pixels.h"
 
 
-static ALLEGRO_COLOR solid_white = {1, 1, 1, 1};
+static A5O_COLOR solid_white = {1, 1, 1, 1};
 
 
-static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
+static void _bitmap_drawer(A5O_BITMAP *bitmap, A5O_COLOR tint,
    float sx, float sy, float sw, float sh, int flags)
 {
-   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *display = _al_get_bitmap_display(dest);
+   A5O_BITMAP *dest = al_get_target_bitmap();
+   A5O_DISPLAY *display = _al_get_bitmap_display(dest);
    ASSERT(bitmap->parent == NULL);
-   ASSERT(!(flags & (ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL)));
+   ASSERT(!(flags & (A5O_FLIP_HORIZONTAL | A5O_FLIP_VERTICAL)));
    ASSERT(bitmap != dest && bitmap != dest->parent);
 
    /* If destination is memory, do a memory blit */
-   if (al_get_bitmap_flags(dest) & ALLEGRO_MEMORY_BITMAP ||
+   if (al_get_bitmap_flags(dest) & A5O_MEMORY_BITMAP ||
        _al_pixel_format_is_compressed(al_get_bitmap_format(dest))) {
       _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
    }
    else {
       /* if source is memory or incompatible */
-      if ((al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) ||
+      if ((al_get_bitmap_flags(bitmap) & A5O_MEMORY_BITMAP) ||
           (!al_is_compatible_bitmap(bitmap)))
       {
          if (display && display->vt->draw_memory_bitmap_region) {
@@ -59,15 +59,15 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
 }
 
 
-static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint, float cx, float cy, float angle,
+static void _draw_tinted_rotated_scaled_bitmap_region(A5O_BITMAP *bitmap,
+   A5O_COLOR tint, float cx, float cy, float angle,
    float xscale, float yscale,
    float sx, float sy, float sw, float sh, float dx, float dy,
    int flags)
 {
-   ALLEGRO_TRANSFORM backup;
-   ALLEGRO_TRANSFORM t;
-   ALLEGRO_BITMAP *parent = bitmap;
+   A5O_TRANSFORM backup;
+   A5O_TRANSFORM t;
+   A5O_BITMAP *parent = bitmap;
    float const orig_sw = sw;
    float const orig_sh = sh;
    ASSERT(bitmap);
@@ -96,16 +96,16 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
    if (sy + sh > parent->h)
       sh = parent->h - sy;
 
-   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
+   if (flags & A5O_FLIP_HORIZONTAL) {
       al_scale_transform(&t, -1, 1);
       al_translate_transform(&t, orig_sw, 0);
-      flags &= ~ALLEGRO_FLIP_HORIZONTAL;
+      flags &= ~A5O_FLIP_HORIZONTAL;
    }
 
-   if (flags & ALLEGRO_FLIP_VERTICAL) {
+   if (flags & A5O_FLIP_VERTICAL) {
       al_scale_transform(&t, 1, -1);
       al_translate_transform(&t, 0, orig_sh);
-      flags &= ~ALLEGRO_FLIP_VERTICAL;
+      flags &= ~A5O_FLIP_VERTICAL;
    }
 
    al_translate_transform(&t, -cx, -cy);
@@ -122,8 +122,8 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_tinted_bitmap_region
  */
-void al_draw_tinted_bitmap_region(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
+void al_draw_tinted_bitmap_region(A5O_BITMAP *bitmap,
+   A5O_COLOR tint,
    float sx, float sy, float sw, float sh, float dx, float dy,
    int flags)
 {
@@ -134,7 +134,7 @@ void al_draw_tinted_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_tinted_bitmap
  */
-void al_draw_tinted_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
+void al_draw_tinted_bitmap(A5O_BITMAP *bitmap, A5O_COLOR tint,
    float dx, float dy, int flags)
 {
    ASSERT(bitmap);
@@ -145,7 +145,7 @@ void al_draw_tinted_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
 
 /* Function: al_draw_bitmap
  */
-void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
+void al_draw_bitmap(A5O_BITMAP *bitmap, float dx, float dy, int flags)
 {
    al_draw_tinted_bitmap(bitmap, solid_white, dx, dy, flags);
 }
@@ -153,7 +153,7 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 
 /* Function: al_draw_bitmap_region
  */
-void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
+void al_draw_bitmap_region(A5O_BITMAP *bitmap,
    float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
    al_draw_tinted_bitmap_region(bitmap, solid_white, sx, sy, sw, sh,
@@ -163,8 +163,8 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_tinted_scaled_bitmap
  */
-void al_draw_tinted_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
+void al_draw_tinted_scaled_bitmap(A5O_BITMAP *bitmap,
+   A5O_COLOR tint,
    float sx, float sy, float sw, float sh,
    float dx, float dy, float dw, float dh, int flags)
 {
@@ -177,7 +177,7 @@ void al_draw_tinted_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_scaled_bitmap
  */
-void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+void al_draw_scaled_bitmap(A5O_BITMAP *bitmap,
    float sx, float sy, float sw, float sh,
    float dx, float dy, float dw, float dh, int flags)
 {
@@ -191,8 +191,8 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
  * angle is specified in radians and moves clockwise
  * on the screen.
  */
-void al_draw_tinted_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
+void al_draw_tinted_rotated_bitmap(A5O_BITMAP *bitmap,
+   A5O_COLOR tint,
    float cx, float cy, float dx, float dy, float angle, int flags)
 {
    al_draw_tinted_scaled_rotated_bitmap(bitmap, tint, cx, cy, dx, dy,
@@ -202,7 +202,7 @@ void al_draw_tinted_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_rotated_bitmap
  */
-void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
+void al_draw_rotated_bitmap(A5O_BITMAP *bitmap,
    float cx, float cy, float dx, float dy, float angle, int flags)
 {
    al_draw_tinted_rotated_bitmap(bitmap, solid_white, cx, cy, dx, dy,
@@ -212,8 +212,8 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_tinted_scaled_rotated_bitmap
  */
-void al_draw_tinted_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
+void al_draw_tinted_scaled_rotated_bitmap(A5O_BITMAP *bitmap,
+   A5O_COLOR tint,
    float cx, float cy, float dx, float dy, float xscale, float yscale,
    float angle, int flags)
 {
@@ -226,9 +226,9 @@ void al_draw_tinted_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_tinted_scaled_rotated_bitmap_region
  */
-void al_draw_tinted_scaled_rotated_bitmap_region(ALLEGRO_BITMAP *bitmap,
+void al_draw_tinted_scaled_rotated_bitmap_region(A5O_BITMAP *bitmap,
    float sx, float sy, float sw, float sh,
-   ALLEGRO_COLOR tint,
+   A5O_COLOR tint,
    float cx, float cy, float dx, float dy, float xscale, float yscale,
    float angle, int flags)
 {
@@ -241,7 +241,7 @@ void al_draw_tinted_scaled_rotated_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_draw_scaled_rotated_bitmap
  */
-void al_draw_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
+void al_draw_scaled_rotated_bitmap(A5O_BITMAP *bitmap,
    float cx, float cy, float dx, float dy, float xscale, float yscale,
    float angle, int flags)
 {

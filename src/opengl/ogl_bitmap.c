@@ -28,13 +28,13 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_transform.h"
 
-#if defined ALLEGRO_ANDROID
+#if defined A5O_ANDROID
 #include "allegro5/internal/aintern_android.h"
 #endif
 
 #include "ogl_helpers.h"
 
-ALLEGRO_DEBUG_CHANNEL("opengl")
+A5O_DEBUG_CHANNEL("opengl")
 
 /* OpenGL does not support "locking", i.e. direct access to a memory
  * buffer with pixel data. Instead, the data can be copied from/to
@@ -87,8 +87,8 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 #define get_glformat(f, c) _al_ogl_get_glformat((f), (c))
 int _al_ogl_get_glformat(int format, int component)
 {
-   #if !defined ALLEGRO_CFG_OPENGLES
-   static int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
+   #if !defined A5O_CFG_OPENGLES
+   static int glformats[A5O_NUM_PIXEL_FORMATS][3] = {
       /* Skip pseudo formats */
       {0, 0, 0},
       {0, 0, 0},
@@ -124,13 +124,13 @@ int _al_ogl_get_glformat(int format, int component)
       {GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_DXT5 */
    };
   
-   if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_3_0) {
-      glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][0] = GL_RED;
-      glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][2] = GL_RED;
+   if (al_get_opengl_version() >= _A5O_OPENGL_VERSION_3_0) {
+      glformats[A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8][0] = GL_RED;
+      glformats[A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8][2] = GL_RED;
    }
    #else
    // TODO: Check supported formats by various GLES versions
-   static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
+   static const int glformats[A5O_NUM_PIXEL_FORMATS][3] = {
       /* Skip pseudo formats */
       {0, 0, 0},
       {0, 0, 0},
@@ -170,7 +170,7 @@ int _al_ogl_get_glformat(int format, int component)
    return glformats[format][component];
 }
 
-static ALLEGRO_BITMAP_INTERFACE glbmp_vt;
+static A5O_BITMAP_INTERFACE glbmp_vt;
 
 
 #define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
@@ -183,12 +183,12 @@ char const *_al_gl_error_string(GLenum e)
       ERR(GL_INVALID_ENUM)
       ERR(GL_INVALID_VALUE)
       ERR(GL_INVALID_OPERATION)
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       ERR(GL_STACK_OVERFLOW)
       ERR(GL_STACK_UNDERFLOW)
 #endif
       ERR(GL_OUT_OF_MEMORY)
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       ERR(GL_INVALID_FRAMEBUFFER_OPERATION)
 #endif
    }
@@ -201,16 +201,16 @@ static INLINE void transform_vertex(float* x, float* y, float* z)
    al_transform_coordinates_3d(al_get_current_transform(), x, y, z);
 }
 
-static void draw_quad(ALLEGRO_BITMAP *bitmap,
-    ALLEGRO_COLOR tint,
+static void draw_quad(A5O_BITMAP *bitmap,
+    A5O_COLOR tint,
     float sx, float sy, float sw, float sh,
     int flags)
 {
    float tex_l, tex_t, tex_r, tex_b, w, h, true_w, true_h;
    float dw = sw, dh = sh;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
-   ALLEGRO_OGL_BITMAP_VERTEX *verts;
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   A5O_OGL_BITMAP_VERTEX *verts;
+   A5O_DISPLAY *disp = al_get_current_display();
    
    (void)flags;
 
@@ -292,15 +292,15 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 #undef SWAP
 
 
-static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint, float sx, float sy,
+static void ogl_draw_bitmap_region(A5O_BITMAP *bitmap,
+   A5O_COLOR tint, float sx, float sy,
    float sw, float sh, int flags)
 {
    // FIXME: hack
    // FIXME: need format conversion if they don't match
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target;
-   ALLEGRO_DISPLAY *disp = _al_get_bitmap_display(target);
+   A5O_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP_EXTRA_OPENGL *ogl_target;
+   A5O_DISPLAY *disp = _al_get_bitmap_display(target);
 
    /* For sub-bitmaps */
    if (target->parent) {
@@ -309,9 +309,9 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    ogl_target = target->extra;
 
-   if (!(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) && !bitmap->locked &&
+   if (!(al_get_bitmap_flags(bitmap) & A5O_MEMORY_BITMAP) && !bitmap->locked &&
          !target->locked) {
-      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_source = bitmap->extra;
+      A5O_BITMAP_EXTRA_OPENGL *ogl_source = bitmap->extra;
       if (ogl_source->is_backbuffer) {
          /* Our source bitmap is the OpenGL backbuffer, the target
           * is an OpenGL texture.
@@ -390,17 +390,17 @@ static int pot(int x)
 
 
 
-static GLint ogl_bitmap_wrap(ALLEGRO_BITMAP_WRAP wrap)
+static GLint ogl_bitmap_wrap(A5O_BITMAP_WRAP wrap)
 {
    switch (wrap) {
       default:
-      case ALLEGRO_BITMAP_WRAP_DEFAULT:
+      case A5O_BITMAP_WRAP_DEFAULT:
          return GL_CLAMP_TO_EDGE;
-      case ALLEGRO_BITMAP_WRAP_REPEAT:
+      case A5O_BITMAP_WRAP_REPEAT:
          return GL_REPEAT;
-      case ALLEGRO_BITMAP_WRAP_CLAMP:
+      case A5O_BITMAP_WRAP_CLAMP:
          return GL_CLAMP_TO_EDGE;
-      case ALLEGRO_BITMAP_WRAP_MIRROR:
+      case A5O_BITMAP_WRAP_MIRROR:
          return GL_MIRRORED_REPEAT;
    }
 }
@@ -409,9 +409,9 @@ static GLint ogl_bitmap_wrap(ALLEGRO_BITMAP_WRAP wrap)
 
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
-static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
+static bool ogl_upload_bitmap(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    int w = bitmap->w;
    int h = bitmap->h;
    int bitmap_format = al_get_bitmap_format(bitmap);
@@ -428,10 +428,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       glGenTextures(1, &ogl_bitmap->texture);
       e = glGetError();
       if (e) {
-         ALLEGRO_ERROR("glGenTextures failed: %s\n", _al_gl_error_string(e));
+         A5O_ERROR("glGenTextures failed: %s\n", _al_gl_error_string(e));
       }
       else {
-         ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
+         A5O_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
                     ogl_bitmap->texture,
                     ogl_bitmap->true_w, ogl_bitmap->true_h,
                     _al_pixel_format_name(bitmap_format));
@@ -440,54 +440,54 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    e = glGetError();
    if (e) {
-      ALLEGRO_ERROR("glBindTexture for texture %d failed (%s).\n",
+      A5O_ERROR("glBindTexture for texture %d failed (%s).\n",
          ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
    /* Wrap, Min/Mag should always come before glTexImage2D so the texture is "complete" */
    // NOTE: on OGLES CLAMP_TO_EDGE is only one supported with NPOT textures
-   ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+   A5O_BITMAP_WRAP wrap_u, wrap_v;
    _al_get_bitmap_wrap(bitmap, &wrap_u, &wrap_v);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ogl_bitmap_wrap(wrap_u));
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ogl_bitmap_wrap(wrap_v));
 
-   filter = (bitmap_flags & ALLEGRO_MIPMAP) ? 2 : 0;
-   if (bitmap_flags & ALLEGRO_MIN_LINEAR) {
+   filter = (bitmap_flags & A5O_MIPMAP) ? 2 : 0;
+   if (bitmap_flags & A5O_MIN_LINEAR) {
       filter++;
    }
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filters[filter]);
 
    filter = 0;
-   if (bitmap_flags & ALLEGRO_MAG_LINEAR) {
+   if (bitmap_flags & A5O_MAG_LINEAR) {
       filter++;
    }
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filters[filter]);
 
 // TODO: To support anisotropy, we would need an API for it. Something
 // like:
-// al_set_new_bitmap_option(ALLEGRO_ANISOTROPY, 16.0);
+// al_set_new_bitmap_option(A5O_ANISOTROPY, 16.0);
 #if 0
-   if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_texture_filter_anisotropic) {
+   if (al_get_opengl_extension_list()->A5O_GL_EXT_texture_filter_anisotropic) {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
    }
 #endif
 
-   if (bitmap_flags & ALLEGRO_MIPMAP) {
+   if (bitmap_flags & A5O_MIPMAP) {
       /* If using FBOs, use glGenerateMipmapEXT instead of the GL_GENERATE_MIPMAP
        * texture parameter.  GL_GENERATE_MIPMAP is deprecated in GL 3.0 so we
        * may want to use the new method in other cases as well.
        */
-      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
-          al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object ||
+      if (al_get_opengl_extension_list()->A5O_GL_EXT_framebuffer_object ||
+          al_get_opengl_extension_list()->A5O_GL_OES_framebuffer_object ||
           IS_OPENGLES /* FIXME */) {
          post_generate_mipmap = true;
       }
       else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
          glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
           e = glGetError();
           if (e) {
-              ALLEGRO_ERROR("glTexParameteri for texture %d failed (%s).\n",
+              A5O_ERROR("glTexParameteri for texture %d failed (%s).\n",
                             ogl_bitmap->texture, _al_gl_error_string(e));
           }
 #endif
@@ -503,7 +503,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    if (!IS_OPENGLES) {
       if (ogl_bitmap->true_w != bitmap->w ||
             ogl_bitmap->true_h != bitmap->h ||
-            bitmap_format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
+            bitmap_format == A5O_PIXEL_FORMAT_ABGR_F32) {
          unsigned char *buf;
          buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
          glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -536,7 +536,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    if (e) {
-      ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
+      A5O_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
          _al_pixel_format_name(bitmap_format),
          ogl_bitmap->true_w, ogl_bitmap->true_h,
          _al_gl_error_string(e));
@@ -551,7 +551,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       glGenerateMipmapEXT(GL_TEXTURE_2D);
       e = glGetError();
       if (e) {
-         ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
+         A5O_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
             ogl_bitmap->texture, _al_gl_error_string(e));
       }
    }
@@ -566,10 +566,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 
-static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
+static void ogl_update_clipping_rectangle(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
-   ALLEGRO_BITMAP *target_bitmap = bitmap;
+   A5O_DISPLAY *ogl_disp = al_get_current_display();
+   A5O_BITMAP *target_bitmap = bitmap;
 
    if (bitmap->parent) {
       target_bitmap = bitmap->parent;
@@ -582,12 +582,12 @@ static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 
 
 
-static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
+static void ogl_destroy_bitmap(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
-   ALLEGRO_DISPLAY *disp;
-   ALLEGRO_DISPLAY *bmp_disp;
-   ALLEGRO_DISPLAY *old_disp = NULL;
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   A5O_DISPLAY *disp;
+   A5O_DISPLAY *bmp_disp;
+   A5O_DISPLAY *old_disp = NULL;
 
    ASSERT(!al_is_sub_bitmap(bitmap));
 
@@ -619,10 +619,10 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 
-static void ogl_bitmap_pointer_changed(ALLEGRO_BITMAP *bitmap,
-      ALLEGRO_BITMAP *old)
+static void ogl_bitmap_pointer_changed(A5O_BITMAP *bitmap,
+      A5O_BITMAP *old)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
+   A5O_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
    if (extra && extra->fbo_info) {
       ASSERT(extra->fbo_info->owner == old);
       extra->fbo_info->owner = bitmap;
@@ -630,12 +630,12 @@ static void ogl_bitmap_pointer_changed(ALLEGRO_BITMAP *bitmap,
 }
 
 
-static bool can_flip_blocks(ALLEGRO_PIXEL_FORMAT format)
+static bool can_flip_blocks(A5O_PIXEL_FORMAT format)
 {
    switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:
-      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:
-      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:
+      case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:
+      case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:
+      case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:
          return true;
       default:
          return false;
@@ -643,14 +643,14 @@ static bool can_flip_blocks(ALLEGRO_PIXEL_FORMAT format)
 }
 
 
-static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
+static void ogl_flip_blocks(A5O_LOCKED_REGION *lr, int wc, int hc)
 {
 #define SWAP(x, y) do { unsigned char t = x; x = y; y = t; } while (0)
    int x, y;
    unsigned char* data = lr->data;
    ASSERT(can_flip_blocks(lr->format));
    switch (lr->format) {
-      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1: {
+      case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1: {
          for (y = 0; y < hc; y++) {
             unsigned char* row = data;
             for (x = 0; x < wc; x++) {
@@ -668,7 +668,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
          }
          break;
       }
-      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3: {
+      case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3: {
          for (y = 0; y < hc; y++) {
             unsigned char* row = data;
             for (x = 0; x < wc; x++) {
@@ -695,7 +695,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
          }
          break;
       }
-      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5: {
+      case A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5: {
          for (y = 0; y < hc; y++) {
             unsigned char* row = data;
             for (x = 0; x < wc; x++) {
@@ -744,13 +744,13 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
 #undef SWAP
 }
 
-static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
+static A5O_LOCKED_REGION *ogl_lock_compressed_region(A5O_BITMAP *bitmap,
    int x, int y, int w, int h, int flags)
 {
-#if !defined ALLEGRO_CFG_OPENGLES
-   ALLEGRO_BITMAP_EXTRA_OPENGL *const ogl_bitmap = bitmap->extra;
-   ALLEGRO_DISPLAY *disp;
-   ALLEGRO_DISPLAY *old_disp = NULL;
+#if !defined A5O_CFG_OPENGLES
+   A5O_BITMAP_EXTRA_OPENGL *const ogl_bitmap = bitmap->extra;
+   A5O_DISPLAY *disp;
+   A5O_DISPLAY *old_disp = NULL;
    GLenum e;
    bool ok = true;
    int bitmap_format = al_get_bitmap_format(bitmap);
@@ -769,7 +769,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
       return NULL;
    }
 
-   if (flags & ALLEGRO_LOCK_WRITEONLY) {
+   if (flags & A5O_LOCK_WRITEONLY) {
       int pitch = wc * block_size;
       ogl_bitmap->lock_buffer = al_malloc(pitch * hc);
       if (ogl_bitmap->lock_buffer == NULL) {
@@ -805,7 +805,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
       glPixelStorei(GL_PACK_ALIGNMENT, 1);
       e = glGetError();
       if (e) {
-         ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
+         A5O_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
             1, _al_gl_error_string(e));
          ok = false;
       }
@@ -819,14 +819,14 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
          glGetCompressedTexImage(GL_TEXTURE_2D, 0, ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
-            ALLEGRO_ERROR("glGetCompressedTexImage for format %s failed (%s).\n",
+            A5O_ERROR("glGetCompressedTexImage for format %s failed (%s).\n",
                _al_pixel_format_name(bitmap_format), _al_gl_error_string(e));
             al_free(ogl_bitmap->lock_buffer);
             ogl_bitmap->lock_buffer = NULL;
             ok = false;
          }
          else {
-            if (flags == ALLEGRO_LOCK_READWRITE) {
+            if (flags == A5O_LOCK_READWRITE) {
                /* Need to make the locked memory contiguous, as
                 * glCompressedTexSubImage2D cannot read strided
                 * memory. */
@@ -873,7 +873,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
       return &bitmap->locked_region;
    }
 
-   ALLEGRO_ERROR("Failed to lock region\n");
+   A5O_ERROR("Failed to lock region\n");
    ASSERT(ogl_bitmap->lock_buffer == NULL);
    return NULL;
 #else
@@ -888,13 +888,13 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
 }
 
 
-static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
+static void ogl_unlock_compressed_region(A5O_BITMAP *bitmap)
 {
-#if !defined ALLEGRO_CFG_OPENGLES
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+#if !defined A5O_CFG_OPENGLES
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    int lock_format = bitmap->locked_region.format;
-   ALLEGRO_DISPLAY *old_disp = NULL;
-   ALLEGRO_DISPLAY *disp;
+   A5O_DISPLAY *old_disp = NULL;
+   A5O_DISPLAY *disp;
    GLenum e;
    int block_size = al_get_pixel_block_size(lock_format);
    int block_width = al_get_pixel_block_width(lock_format);
@@ -907,7 +907,7 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
     * to lock earlier */
    ASSERT(can_flip_blocks(bitmap->locked_region.format));
 
-   if ((bitmap->lock_flags & ALLEGRO_LOCK_READONLY)) {
+   if ((bitmap->lock_flags & A5O_LOCK_READONLY)) {
       goto EXIT;
    }
 
@@ -932,7 +932,7 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       e = glGetError();
       if (e) {
-         ALLEGRO_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
+         A5O_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
             1, _al_gl_error_string(e));
       }
    }
@@ -947,7 +947,7 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
 
    e = glGetError();
    if (e) {
-      ALLEGRO_ERROR("glCompressedTexSubImage2D for format %s failed (%s).\n",
+      A5O_ERROR("glCompressedTexSubImage2D for format %s failed (%s).\n",
          _al_pixel_format_name(lock_format), _al_gl_error_string(e));
    }
 
@@ -967,27 +967,27 @@ EXIT:
 #endif
 }
 
-static void ogl_backup_dirty_bitmap(ALLEGRO_BITMAP *b)
+static void ogl_backup_dirty_bitmap(A5O_BITMAP *b)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
+   A5O_LOCKED_REGION *lr;
    int bitmap_flags = al_get_bitmap_flags(b);
 
    if (b->parent)
       return;
 
-   if ((bitmap_flags & ALLEGRO_MEMORY_BITMAP) ||
-      (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
+   if ((bitmap_flags & A5O_MEMORY_BITMAP) ||
+      (bitmap_flags & A5O_NO_PRESERVE_TEXTURE) ||
       !b->dirty ||
       ogl_bitmap->is_backbuffer)
       return;
 
-   ALLEGRO_DEBUG("Backing up dirty bitmap %p\n", b);
+   A5O_DEBUG("Backing up dirty bitmap %p\n", b);
 
    lr = al_lock_bitmap(
       b,
       _al_get_bitmap_memory_format(b),
-      ALLEGRO_LOCK_READONLY
+      A5O_LOCK_READONLY
    );
 
    if (lr) {
@@ -1003,12 +1003,12 @@ static void ogl_backup_dirty_bitmap(ALLEGRO_BITMAP *b)
       b->dirty = false;
    }
    else {
-      ALLEGRO_WARN("Failed to lock dirty bitmap %p\n", b);
+      A5O_WARN("Failed to lock dirty bitmap %p\n", b);
    }
 }
 
 /* Obtain a reference to this driver. */
-static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
+static A5O_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 {
    if (glbmp_vt.draw_bitmap_region) {
       return &glbmp_vt;
@@ -1019,7 +1019,7 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    glbmp_vt.update_clipping_rectangle = ogl_update_clipping_rectangle;
    glbmp_vt.destroy_bitmap = ogl_destroy_bitmap;
    glbmp_vt.bitmap_pointer_changed = ogl_bitmap_pointer_changed;
-#if defined(ALLEGRO_CFG_OPENGLES)
+#if defined(A5O_CFG_OPENGLES)
    glbmp_vt.lock_region = _al_ogl_lock_region_gles;
    glbmp_vt.unlock_region = _al_ogl_unlock_region_gles;
 #else
@@ -1035,16 +1035,16 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 
 
 
-ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
+A5O_BITMAP *_al_ogl_create_bitmap(A5O_DISPLAY *d, int w, int h,
    int format, int flags)
 {
-   ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   A5O_BITMAP *bitmap;
+   A5O_BITMAP_EXTRA_OPENGL *extra;
    int true_w;
    int true_h;
    int block_width;
    int block_height;
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
    (void)d;
 
    format = _al_get_real_pixel_format(d, format);
@@ -1056,13 +1056,13 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
    true_h = _al_get_least_multiple(h, block_height);
 
    if (_al_pixel_format_is_compressed(format)) {
-      if (!al_get_opengl_extension_list()->ALLEGRO_GL_EXT_texture_compression_s3tc) {
-         ALLEGRO_DEBUG("Device does not support S3TC compressed textures.\n");
+      if (!al_get_opengl_extension_list()->A5O_GL_EXT_texture_compression_s3tc) {
+         A5O_DEBUG("Device does not support S3TC compressed textures.\n");
          return NULL;
       }
    }
 
-   if (!d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP]) {
+   if (!d->extra_settings.settings[A5O_SUPPORT_NPOT_BITMAP]) {
       true_w = pot(true_w);
       true_h = pot(true_h);
    }
@@ -1089,21 +1089,21 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
 
    bitmap = al_calloc(1, sizeof *bitmap);
    ASSERT(bitmap);
-   bitmap->extra = al_calloc(1, sizeof(ALLEGRO_BITMAP_EXTRA_OPENGL));
+   bitmap->extra = al_calloc(1, sizeof(A5O_BITMAP_EXTRA_OPENGL));
    ASSERT(bitmap->extra);
    extra = bitmap->extra;
 
    bitmap->vt = ogl_bitmap_driver();
    bitmap->_memory_format =
-      _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
+      _al_pixel_format_is_compressed(format) ? A5O_PIXEL_FORMAT_ABGR_8888_LE : format;
    bitmap->pitch = true_w * al_get_pixel_size(bitmap->_memory_format);
    bitmap->_format = format;
-   bitmap->_flags = flags | _ALLEGRO_INTERNAL_OPENGL;
+   bitmap->_flags = flags | _A5O_INTERNAL_OPENGL;
 
    extra->true_w = true_w;
    extra->true_h = true_h;
 
-   if (!(flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
+   if (!(flags & A5O_NO_PRESERVE_TEXTURE)) {
       bitmap->memory = al_calloc(1, al_get_pixel_size(bitmap->_memory_format)*w*h);
    }
 
@@ -1117,14 +1117,14 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
  * 'ptr' should be tightly packed or NULL if no texture data
  * upload is desired.
  */
-void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
+void _al_ogl_upload_bitmap_memory(A5O_BITMAP *bitmap, int format, void *ptr)
 {
    int w = bitmap->w;
    int h = bitmap->h;
    int pixsize = al_get_pixel_size(format);
    int y;
-   ALLEGRO_BITMAP *tmp;
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_BITMAP *tmp;
+   A5O_LOCKED_REGION *lr;
    uint8_t *dst;
    uint8_t *src;
 
@@ -1135,7 +1135,7 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    ASSERT(tmp);
 
    if (ptr != NULL) {
-      lr = al_lock_bitmap(tmp, format, ALLEGRO_LOCK_WRITEONLY);
+      lr = al_lock_bitmap(tmp, format, A5O_LOCK_WRITEONLY);
       ASSERT(lr);
 
       dst = (uint8_t *)lr->data;
@@ -1151,20 +1151,20 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
       al_unlock_bitmap(tmp);
    }
 
-   ((ALLEGRO_BITMAP_EXTRA_OPENGL *)bitmap->extra)->texture =
-      ((ALLEGRO_BITMAP_EXTRA_OPENGL *)tmp->extra)->texture;
-   ((ALLEGRO_BITMAP_EXTRA_OPENGL *)tmp->extra)->texture = 0;
+   ((A5O_BITMAP_EXTRA_OPENGL *)bitmap->extra)->texture =
+      ((A5O_BITMAP_EXTRA_OPENGL *)tmp->extra)->texture;
+   ((A5O_BITMAP_EXTRA_OPENGL *)tmp->extra)->texture = 0;
    al_destroy_bitmap(tmp);
 }
 
 /* Function: al_get_opengl_texture
  */
-GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
+GLuint al_get_opengl_texture(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   A5O_BITMAP_EXTRA_OPENGL *extra;
    if (bitmap->parent)
       bitmap = bitmap->parent;
-   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL))
+   if (!(al_get_bitmap_flags(bitmap) & _A5O_INTERNAL_OPENGL))
       return 0;
    extra = bitmap->extra;
    return extra->texture;
@@ -1172,12 +1172,12 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_remove_opengl_fbo
  */
-void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
+void al_remove_opengl_fbo(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    if (bitmap->parent)
       bitmap = bitmap->parent;
-   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL))
+   if (!(al_get_bitmap_flags(bitmap) & _A5O_INTERNAL_OPENGL))
       return;
    ogl_bitmap = bitmap->extra;
    if (!ogl_bitmap->fbo_info)
@@ -1186,7 +1186,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    ASSERT(ogl_bitmap->fbo_info->fbo_state > FBO_INFO_UNUSED);
    ASSERT(ogl_bitmap->fbo_info->fbo != 0);
 
-   ALLEGRO_FBO_INFO *info = ogl_bitmap->fbo_info;
+   A5O_FBO_INFO *info = ogl_bitmap->fbo_info;
    _al_ogl_del_fbo(info);
 
    if (info->fbo_state == FBO_INFO_PERSISTENT) {
@@ -1199,13 +1199,13 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_opengl_fbo
  */
-GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
+GLuint al_get_opengl_fbo(A5O_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    if (bitmap->parent)
       bitmap = bitmap->parent;
 
-   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL))
+   if (!(al_get_bitmap_flags(bitmap) & _A5O_INTERNAL_OPENGL))
       return 0;
 
    ogl_bitmap = bitmap->extra;
@@ -1225,17 +1225,17 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_opengl_texture_size
  */
-bool al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
+bool al_get_opengl_texture_size(A5O_BITMAP *bitmap, int *w, int *h)
 {
    /* The designers of OpenGL ES 1.0 forgot to add a function to query
     * texture sizes, so this will be the only way there to get the texture
     * size. On normal OpenGL also glGetTexLevelParameter could be used.
     */
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
+   A5O_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    if (bitmap->parent)
       bitmap = bitmap->parent;
    
-   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL)) {
+   if (!(al_get_bitmap_flags(bitmap) & _A5O_INTERNAL_OPENGL)) {
       *w = 0;
       *h = 0;
       return false;
@@ -1249,7 +1249,7 @@ bool al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
 
 /* Function: al_get_opengl_texture_position
  */
-void al_get_opengl_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
+void al_get_opengl_texture_position(A5O_BITMAP *bitmap, int *u, int *v)
 {
    ASSERT(bitmap);
    ASSERT(u);

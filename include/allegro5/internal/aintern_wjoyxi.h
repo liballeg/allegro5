@@ -18,8 +18,8 @@
 
 /* make sure all the constants add up */
 /* the first two sticks are (x,y,z) and (rx,ry,rz) */
-ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_STICKS >= (2 + MAX_TRIGGERS + MAX_STICKS));
-ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
+A5O_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_STICKS >= (2 + MAX_TRIGGERS + MAX_STICKS));
+A5O_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
 
 typedef enum
 {
@@ -31,18 +31,18 @@ typedef enum
    ((st) == STATE_ACTIVE)
 
 
-typedef struct ALLEGRO_JOYSTICK_XINPUT
+typedef struct A5O_JOYSTICK_XINPUT
 {
-   ALLEGRO_JOYSTICK parent;                /* must be first */
+   A5O_JOYSTICK parent;                /* must be first */
    bool active;
-   ALLEGRO_JOYSTICK_STATE joystate;
+   A5O_JOYSTICK_STATE joystate;
    DWORD index;
    XINPUT_STATE state;
    XINPUT_CAPABILITIES capabilities;
    XINPUT_VIBRATION vibration;
    char name[80];
    char all_names[512]; /* button/stick/axis names with NUL terminators */
-} ALLEGRO_JOYSTICK_XINPUT;
+} A5O_JOYSTICK_XINPUT;
 
 #endif
 

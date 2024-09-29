@@ -6,7 +6,7 @@
  */
 
 #include <stdio.h>
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 
 #include "common.c"
@@ -17,8 +17,8 @@
 
 
 /* globals */
-ALLEGRO_EVENT_QUEUE *event_queue;
-ALLEGRO_DISPLAY     *display;
+A5O_EVENT_QUEUE *event_queue;
+A5O_DISPLAY     *display;
 
 
 
@@ -44,7 +44,7 @@ static void log_key(char const *how, int keycode, int unichar, int modifiers)
  */
 static void main_loop(void)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    log_printf("Focus on the main window (black) and press keys to see events. ");
    log_printf("Escape quits.\n\n");
@@ -53,7 +53,7 @@ static void main_loop(void)
       /* Take the next event out of the event queue, and store it in `event'. */
       al_wait_for_event(event_queue, &event);
 
-      /* Check what type of event we got and act accordingly.  ALLEGRO_EVENT
+      /* Check what type of event we got and act accordingly.  A5O_EVENT
        * is a union type and interpretation of its contents is dependent on
        * the event type, which is given by the 'type' field.
        *
@@ -63,24 +63,24 @@ static void main_loop(void)
        */
       switch (event.type) {
 
-         /* ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
+         /* A5O_EVENT_KEY_DOWN - a keyboard key was pressed.
           */
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
                return;
             }
             log_key("KEY_DOWN", event.keyboard.keycode, 0, 0);
             break;
 
-         /* ALLEGRO_EVENT_KEY_UP - a keyboard key was released.
+         /* A5O_EVENT_KEY_UP - a keyboard key was released.
           */
-         case ALLEGRO_EVENT_KEY_UP:
+         case A5O_EVENT_KEY_UP:
             log_key("KEY_UP", event.keyboard.keycode, 0, 0);
             break;
 
-         /* ALLEGRO_EVENT_KEY_CHAR - a character was typed or repeated.
+         /* A5O_EVENT_KEY_CHAR - a character was typed or repeated.
           */
-         case ALLEGRO_EVENT_KEY_CHAR: {
+         case A5O_EVENT_KEY_CHAR: {
             char const *label = (event.keyboard.repeat ? "repeat" : "KEY_CHAR");
             log_key(label,
                event.keyboard.keycode,
@@ -89,12 +89,12 @@ static void main_loop(void)
             break;
          }
 
-         /* ALLEGRO_EVENT_DISPLAY_CLOSE - the window close button was pressed.
+         /* A5O_EVENT_DISPLAY_CLOSE - the window close button was pressed.
           */
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             return;
 
-         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+         case A5O_EVENT_DISPLAY_SWITCH_OUT:
             al_clear_keyboard_state(event.display.source);
             log_printf("Cleared keyboard state\n");
             break;

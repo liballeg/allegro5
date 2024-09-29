@@ -1,7 +1,7 @@
 #ifndef DEMO_H_INCLUDED
 #define DEMO_H_INCLUDED
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
@@ -20,15 +20,15 @@ extern int cheat;
 typedef struct PALETTE PALETTE;
 #define PAL_SIZE 256
 struct PALETTE {
-    ALLEGRO_COLOR rgb[PAL_SIZE];
+    A5O_COLOR rgb[PAL_SIZE];
 };
-typedef ALLEGRO_FONT FONT;
-typedef ALLEGRO_SAMPLE SAMPLE;
+typedef A5O_FONT FONT;
+typedef A5O_SAMPLE SAMPLE;
 #define SCREEN_W (al_get_display_width(al_get_current_display()))
 #define SCREEN_H (al_get_display_height(al_get_current_display()))
 
 
-ALLEGRO_COLOR get_palette(int p);
+A5O_COLOR get_palette(int p);
 void set_palette(PALETTE *p);
 void fade_out(int divider);
 

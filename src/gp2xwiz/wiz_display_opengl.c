@@ -18,16 +18,16 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-ALLEGRO_DEBUG_CHANNEL("display")
+A5O_DEBUG_CHANNEL("display")
 
-static ALLEGRO_DISPLAY_INTERFACE *gp2xwiz_vt;
+static A5O_DISPLAY_INTERFACE *gp2xwiz_vt;
 
 static bool set_gfx_mode = false;
 
 /* Helper to set up GL state as we want it. */
-static void setup_gl(ALLEGRO_DISPLAY *d)
+static void setup_gl(A5O_DISPLAY *d)
 {
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+   A5O_OGL_EXTRAS *ogl = d->ogl_extras;
 
    glViewport(0, 0, d->w, d->h);
 
@@ -44,7 +44,7 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
 
 /* Create a new X11 display, which maps directly to a GLX window. */
-static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
+static A5O_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 {
    (void)w;
    (void)h;
@@ -53,14 +53,14 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
    if (set_gfx_mode)
       return NULL;
 
-   ALLEGRO_DISPLAY_GP2XWIZ_OGL *d = al_calloc(1, sizeof *d);
-   ALLEGRO_DISPLAY *display = (void*)d;
-   ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
+   A5O_DISPLAY_GP2XWIZ_OGL *d = al_calloc(1, sizeof *d);
+   A5O_DISPLAY *display = (void*)d;
+   A5O_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
    EGLint numConfigs;
 
    display->ogl_extras = ogl;
 
-   ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_GP2XWIZ *system = (void *)al_get_system_driver();
 
    display->w = 320;
    display->h = 240;
@@ -69,17 +69,17 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
    display->flags = al_get_new_display_flags();
 
    // FIXME: default? Is this the right place to set this?
-   display->flags |= ALLEGRO_OPENGL;
-#ifdef ALLEGRO_CFG_OPENGLES2
-   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   display->flags |= A5O_OPENGL;
+#ifdef A5O_CFG_OPENGLES2
+   display->flags |= A5O_PROGRAMMABLE_PIPELINE;
 #endif
-#ifdef ALLEGRO_CFG_OPENGLES
-   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#ifdef A5O_CFG_OPENGLES
+   display->flags |= A5O_OPENGL_ES_PROFILE;
 #endif
-   display->flags |= ALLEGRO_FULLSCREEN;
+   display->flags |= A5O_FULLSCREEN;
 
    /* Add ourself to the list of displays. */
-   ALLEGRO_DISPLAY_GP2XWIZ_OGL **add;
+   A5O_DISPLAY_GP2XWIZ_OGL **add;
    add = _al_vector_alloc_back(&system->system.displays);
    *add = d;
 
@@ -106,7 +106,7 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 
    eglInitialize(d->egl_display, &majorVersion, &minorVersion);
 
-   ALLEGRO_DEBUG("EGL Version: %d.%d\n", majorVersion, minorVersion);
+   A5O_DEBUG("EGL Version: %d.%d\n", majorVersion, minorVersion);
 
    eglChooseConfig(d->egl_display, attrib_list, &d->egl_config, 1, &numConfigs);
 
@@ -119,35 +119,35 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 
    //eglSwapInterval(d->egl_display, EGL_MAX_SWAP_INTERVAL);
 
-   ALLEGRO_DEBUG("GP2X Wiz window created.\n");
+   A5O_DEBUG("GP2X Wiz window created.\n");
 
    // FIXME:
-   ALLEGRO_DEBUG("Calling _al_ogl_manage_extensions\n");
+   A5O_DEBUG("Calling _al_ogl_manage_extensions\n");
    _al_ogl_manage_extensions(display);
-   ALLEGRO_DEBUG("Calling _al_ogl_set_extensions\n");
+   A5O_DEBUG("Calling _al_ogl_set_extensions\n");
    _al_ogl_set_extensions(ogl->extension_api);
 
    // FIXME
    // We don't have this extra_settings stuff set up right
-   //if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+   //if (display->extra_settings.settings[A5O_COMPATIBLE_DISPLAY])
       setup_gl(display);
 
    set_gfx_mode = true;
 
-   ALLEGRO_DEBUG("Display created successfully\n");
+   A5O_DEBUG("Display created successfully\n");
 
    return display;
 }
 
 
-static void gp2xwiz_destroy_display_ogl(ALLEGRO_DISPLAY *d)
+static void gp2xwiz_destroy_display_ogl(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_GP2XWIZ *s = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_GP2XWIZ_OGL *wiz_disp = (void *)d;
+   A5O_SYSTEM_GP2XWIZ *s = (void *)al_get_system_driver();
+   A5O_DISPLAY_GP2XWIZ_OGL *wiz_disp = (void *)d;
 
    while (d->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
-      ALLEGRO_BITMAP *b = *bptr;
+      A5O_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+      A5O_BITMAP *b = *bptr;
       _al_convert_to_memory_bitmap(b);
    }
 
@@ -174,20 +174,20 @@ static void gp2xwiz_destroy_display_ogl(ALLEGRO_DISPLAY *d)
 }
 
 
-static bool gp2xwiz_set_current_display_ogl(ALLEGRO_DISPLAY *d)
+static bool gp2xwiz_set_current_display_ogl(A5O_DISPLAY *d)
 {
    (void)d;
    return true;
 }
 
 
-static void gp2xwiz_flip_display_ogl(ALLEGRO_DISPLAY *d)
+static void gp2xwiz_flip_display_ogl(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_GP2XWIZ_OGL *wiz_disp = (ALLEGRO_DISPLAY_GP2XWIZ_OGL *)d;
+   A5O_DISPLAY_GP2XWIZ_OGL *wiz_disp = (A5O_DISPLAY_GP2XWIZ_OGL *)d;
    eglSwapBuffers(wiz_disp->egl_display, wiz_disp->egl_surface);
 }
 
-static void gp2xwiz_update_display_region_ogl(ALLEGRO_DISPLAY *d, int x, int y,
+static void gp2xwiz_update_display_region_ogl(A5O_DISPLAY *d, int x, int y,
    int w, int h)
 {
    (void)x;
@@ -197,14 +197,14 @@ static void gp2xwiz_update_display_region_ogl(ALLEGRO_DISPLAY *d, int x, int y,
    gp2xwiz_flip_display_ogl(d);
 }
 
-static bool gp2xwiz_acknowledge_resize_ogl(ALLEGRO_DISPLAY *d)
+static bool gp2xwiz_acknowledge_resize_ogl(A5O_DISPLAY *d)
 {
    (void)d;
    return false;
 }
 
 
-static bool gp2xwiz_resize_display_ogl(ALLEGRO_DISPLAY *d, int w, int h)
+static bool gp2xwiz_resize_display_ogl(A5O_DISPLAY *d, int w, int h)
 {
    (void)d;
    (void)w;
@@ -213,8 +213,8 @@ static bool gp2xwiz_resize_display_ogl(ALLEGRO_DISPLAY *d, int w, int h)
 }
 
 
-static bool gp2xwiz_is_compatible_bitmap_ogl(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bitmap)
+static bool gp2xwiz_is_compatible_bitmap_ogl(A5O_DISPLAY *display,
+   A5O_BITMAP *bitmap)
 {
    (void)display;
    (void)bitmap;
@@ -222,7 +222,7 @@ static bool gp2xwiz_is_compatible_bitmap_ogl(ALLEGRO_DISPLAY *display,
 }
 
 
-static void gp2xwiz_get_window_position_ogl(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void gp2xwiz_get_window_position_ogl(A5O_DISPLAY *display, int *x, int *y)
 {
    (void)display;
    *x = 0;
@@ -230,14 +230,14 @@ static void gp2xwiz_get_window_position_ogl(ALLEGRO_DISPLAY *display, int *x, in
 }
 
 
-static bool gp2xwiz_wait_for_vsync_ogl(ALLEGRO_DISPLAY *display)
+static bool gp2xwiz_wait_for_vsync_ogl(A5O_DISPLAY *display)
 {
    (void)display;
    return false;
 }
 
 /* Obtain a reference to this driver. */
-ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_opengl_driver(void)
+A5O_DISPLAY_INTERFACE *_al_display_gp2xwiz_opengl_driver(void)
 {
    if (gp2xwiz_vt)
       return gp2xwiz_vt;

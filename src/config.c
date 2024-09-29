@@ -34,31 +34,31 @@ static int cmp_ustr(void const *a, void const *b)
 
 /* Function: al_create_config
  */
-ALLEGRO_CONFIG *al_create_config(void)
+A5O_CONFIG *al_create_config(void)
 {
-   ALLEGRO_CONFIG *config = al_calloc(1, sizeof(ALLEGRO_CONFIG));
+   A5O_CONFIG *config = al_calloc(1, sizeof(A5O_CONFIG));
    ASSERT(config);
 
    return config;
 }
 
 
-static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR *section)
+static A5O_CONFIG_SECTION *find_section(const A5O_CONFIG *config,
+   const A5O_USTR *section)
 {
    return _al_aa_search(config->tree, section, cmp_ustr);
 }
 
 
-static ALLEGRO_CONFIG_ENTRY *find_entry(const ALLEGRO_CONFIG_SECTION *section,
-   const ALLEGRO_USTR *key)
+static A5O_CONFIG_ENTRY *find_entry(const A5O_CONFIG_SECTION *section,
+   const A5O_USTR *key)
 {
    return _al_aa_search(section->tree, key, cmp_ustr);
 }
 
 
-static void get_key_and_value(const ALLEGRO_USTR *buf,
-   ALLEGRO_USTR *key, ALLEGRO_USTR *value)
+static void get_key_and_value(const A5O_USTR *buf,
+   A5O_USTR *key, A5O_USTR *value)
 {
    int eq = al_ustr_find_chr(buf, 0, '=');
 
@@ -76,16 +76,16 @@ static void get_key_and_value(const ALLEGRO_USTR *buf,
 }
 
 
-static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR *name)
+static A5O_CONFIG_SECTION *config_add_section(A5O_CONFIG *config,
+   const A5O_USTR *name)
 {
-   ALLEGRO_CONFIG_SECTION *sec = config->head;
-   ALLEGRO_CONFIG_SECTION *section;
+   A5O_CONFIG_SECTION *sec = config->head;
+   A5O_CONFIG_SECTION *section;
 
    if ((section = find_section(config, name)))
       return section;
 
-   section = al_calloc(1, sizeof(ALLEGRO_CONFIG_SECTION));
+   section = al_calloc(1, sizeof(A5O_CONFIG_SECTION));
    section->name = al_ustr_dup(name);
 
    if (sec == NULL) {
@@ -107,22 +107,22 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
 
 /* Function: al_add_config_section
  */
-void al_add_config_section(ALLEGRO_CONFIG *config, const char *name)
+void al_add_config_section(A5O_CONFIG *config, const char *name)
 {
-   ALLEGRO_USTR_INFO name_info;
-   const ALLEGRO_USTR *uname;
+   A5O_USTR_INFO name_info;
+   const A5O_USTR *uname;
 
    uname = al_ref_cstr(&name_info, name);
    config_add_section(config, uname);
 }
 
 
-static void config_set_value(ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
-   const ALLEGRO_USTR *value)
+static void config_set_value(A5O_CONFIG *config,
+   const A5O_USTR *section, const A5O_USTR *key,
+   const A5O_USTR *value)
 {
-   ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *entry;
+   A5O_CONFIG_SECTION *s;
+   A5O_CONFIG_ENTRY *entry;
 
    s = find_section(config, section);
    if (s) {
@@ -134,7 +134,7 @@ static void config_set_value(ALLEGRO_CONFIG *config,
       }
    }
 
-   entry = al_calloc(1, sizeof(ALLEGRO_CONFIG_ENTRY));
+   entry = al_calloc(1, sizeof(A5O_CONFIG_ENTRY));
    entry->is_comment = false;
    entry->key = al_ustr_dup(key);
    entry->value = al_ustr_dup(value);
@@ -161,15 +161,15 @@ static void config_set_value(ALLEGRO_CONFIG *config,
 
 /* Function: al_set_config_value
  */
-void al_set_config_value(ALLEGRO_CONFIG *config,
+void al_set_config_value(A5O_CONFIG *config,
    const char *section, const char *key, const char *value)
 {
-   ALLEGRO_USTR_INFO section_info;
-   ALLEGRO_USTR_INFO key_info;
-   ALLEGRO_USTR_INFO value_info;
-   const ALLEGRO_USTR *usection;
-   const ALLEGRO_USTR *ukey;
-   const ALLEGRO_USTR *uvalue;
+   A5O_USTR_INFO section_info;
+   A5O_USTR_INFO key_info;
+   A5O_USTR_INFO value_info;
+   const A5O_USTR *usection;
+   const A5O_USTR *ukey;
+   const A5O_USTR *uvalue;
 
    if (section == NULL) {
       section = "";
@@ -186,15 +186,15 @@ void al_set_config_value(ALLEGRO_CONFIG *config,
 }
 
 
-static void config_add_comment(ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR *section, const ALLEGRO_USTR *comment)
+static void config_add_comment(A5O_CONFIG *config,
+   const A5O_USTR *section, const A5O_USTR *comment)
 {
-   ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *entry;
+   A5O_CONFIG_SECTION *s;
+   A5O_CONFIG_ENTRY *entry;
 
    s = find_section(config, section);
 
-   entry = al_calloc(1, sizeof(ALLEGRO_CONFIG_ENTRY));
+   entry = al_calloc(1, sizeof(A5O_CONFIG_ENTRY));
    entry->is_comment = true;
    entry->key = al_ustr_dup(comment);
 
@@ -222,13 +222,13 @@ static void config_add_comment(ALLEGRO_CONFIG *config,
 
 /* Function: al_add_config_comment
  */
-void al_add_config_comment(ALLEGRO_CONFIG *config,
+void al_add_config_comment(A5O_CONFIG *config,
    const char *section, const char *comment)
 {
-   ALLEGRO_USTR_INFO section_info;
-   ALLEGRO_USTR_INFO comment_info;
-   const ALLEGRO_USTR *usection;
-   const ALLEGRO_USTR *ucomment;
+   A5O_USTR_INFO section_info;
+   A5O_USTR_INFO comment_info;
+   const A5O_USTR *usection;
+   const A5O_USTR *ucomment;
 
    if (section == NULL) {
       section = "";
@@ -243,12 +243,12 @@ void al_add_config_comment(ALLEGRO_CONFIG *config,
 }
 
 
-static bool config_get_value(const ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
-   const ALLEGRO_USTR **ret_value)
+static bool config_get_value(const A5O_CONFIG *config,
+   const A5O_USTR *section, const A5O_USTR *key,
+   const A5O_USTR **ret_value)
 {
-   ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *e;
+   A5O_CONFIG_SECTION *s;
+   A5O_CONFIG_ENTRY *e;
 
    s = find_section(config, section);
    if (!s)
@@ -265,14 +265,14 @@ static bool config_get_value(const ALLEGRO_CONFIG *config,
 
 /* Function: al_get_config_value
  */
-const char *al_get_config_value(const ALLEGRO_CONFIG *config,
+const char *al_get_config_value(const A5O_CONFIG *config,
    const char *section, const char *key)
 {
-   ALLEGRO_USTR_INFO section_info;
-   ALLEGRO_USTR_INFO key_info;
-   const ALLEGRO_USTR *usection;
-   const ALLEGRO_USTR *ukey;
-   const ALLEGRO_USTR *value;
+   A5O_USTR_INFO section_info;
+   A5O_USTR_INFO key_info;
+   const A5O_USTR *usection;
+   const A5O_USTR *ukey;
+   const A5O_USTR *value;
 
    if (section == NULL) {
       section = "";
@@ -288,7 +288,7 @@ const char *al_get_config_value(const ALLEGRO_CONFIG *config,
 }
 
 
-static bool readline(ALLEGRO_FILE *file, ALLEGRO_USTR *line)
+static bool readline(A5O_FILE *file, A5O_USTR *line)
 {
    char buf[128];
 
@@ -308,10 +308,10 @@ static bool readline(ALLEGRO_FILE *file, ALLEGRO_USTR *line)
 
 /* Function: al_load_config_file
  */
-ALLEGRO_CONFIG *al_load_config_file(const char *filename)
+A5O_CONFIG *al_load_config_file(const char *filename)
 {
-   ALLEGRO_FILE *file;
-   ALLEGRO_CONFIG *cfg = NULL;
+   A5O_FILE *file;
+   A5O_CONFIG *cfg = NULL;
 
    file = al_fopen(filename, "r");
    if (file) {
@@ -325,14 +325,14 @@ ALLEGRO_CONFIG *al_load_config_file(const char *filename)
 
 /* Function: al_load_config_file_f
  */
-ALLEGRO_CONFIG *al_load_config_file_f(ALLEGRO_FILE *file)
+A5O_CONFIG *al_load_config_file_f(A5O_FILE *file)
 {
-   ALLEGRO_CONFIG *config;
-   ALLEGRO_CONFIG_SECTION *current_section = NULL;
-   ALLEGRO_USTR *line;
-   ALLEGRO_USTR *section;
-   ALLEGRO_USTR *key;
-   ALLEGRO_USTR *value;
+   A5O_CONFIG *config;
+   A5O_CONFIG_SECTION *current_section = NULL;
+   A5O_USTR *line;
+   A5O_USTR *section;
+   A5O_USTR *key;
+   A5O_USTR *value;
    ASSERT(file);
 
    config = al_create_config();
@@ -353,7 +353,7 @@ ALLEGRO_CONFIG *al_load_config_file_f(ALLEGRO_FILE *file)
 
       if (al_ustr_has_prefix_cstr(line, "#") || al_ustr_size(line) == 0) {
          /* Preserve comments and blank lines */
-         const ALLEGRO_USTR *name;
+         const A5O_USTR *name;
          if (current_section)
             name = current_section->name;
          else
@@ -385,10 +385,10 @@ ALLEGRO_CONFIG *al_load_config_file_f(ALLEGRO_FILE *file)
 }
 
 
-static bool config_write_section(ALLEGRO_FILE *file,
-   const ALLEGRO_CONFIG_SECTION *s)
+static bool config_write_section(A5O_FILE *file,
+   const A5O_CONFIG_SECTION *s)
 {
-   ALLEGRO_CONFIG_ENTRY *e;
+   A5O_CONFIG_ENTRY *e;
 
    if (al_ustr_size(s->name) > 0) {
       al_fputc(file, '[');
@@ -429,9 +429,9 @@ static bool config_write_section(ALLEGRO_FILE *file,
 
 /* Function: al_save_config_file
  */
-bool al_save_config_file(const char *filename, const ALLEGRO_CONFIG *config)
+bool al_save_config_file(const char *filename, const A5O_CONFIG *config)
 {
-   ALLEGRO_FILE *file;
+   A5O_FILE *file;
 
    file = al_fopen(filename, "w");
    if (file) {
@@ -446,9 +446,9 @@ bool al_save_config_file(const char *filename, const ALLEGRO_CONFIG *config)
 
 /* Function: al_save_config_file_f
  */
-bool al_save_config_file_f(ALLEGRO_FILE *file, const ALLEGRO_CONFIG *config)
+bool al_save_config_file_f(A5O_FILE *file, const A5O_CONFIG *config)
 {
-   ALLEGRO_CONFIG_SECTION *s;
+   A5O_CONFIG_SECTION *s;
 
    /* Save global section */
    s = config->head;
@@ -480,11 +480,11 @@ bool al_save_config_file_f(ALLEGRO_FILE *file, const ALLEGRO_CONFIG *config)
 /* do_config_merge_into:
  *  Helper function for merging.
  */
-static void do_config_merge_into(ALLEGRO_CONFIG *master,
-   const ALLEGRO_CONFIG *add, bool merge_comments)
+static void do_config_merge_into(A5O_CONFIG *master,
+   const A5O_CONFIG *add, bool merge_comments)
 {
-   ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *e;
+   A5O_CONFIG_SECTION *s;
+   A5O_CONFIG_ENTRY *e;
    ASSERT(master);
 
    if (!add) {
@@ -512,7 +512,7 @@ static void do_config_merge_into(ALLEGRO_CONFIG *master,
 
 /* Function: al_merge_config_into
  */
-void al_merge_config_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
+void al_merge_config_into(A5O_CONFIG *master, const A5O_CONFIG *add)
 {
    do_config_merge_into(master, add, false);
 }
@@ -520,10 +520,10 @@ void al_merge_config_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
 
 /* Function: al_merge_config
  */
-ALLEGRO_CONFIG *al_merge_config(const ALLEGRO_CONFIG *cfg1,
-    const ALLEGRO_CONFIG *cfg2)
+A5O_CONFIG *al_merge_config(const A5O_CONFIG *cfg1,
+    const A5O_CONFIG *cfg2)
 {
-   ALLEGRO_CONFIG *config = al_create_config();
+   A5O_CONFIG *config = al_create_config();
 
    do_config_merge_into(config, cfg1, true);
    do_config_merge_into(config, cfg2, false);
@@ -532,7 +532,7 @@ ALLEGRO_CONFIG *al_merge_config(const ALLEGRO_CONFIG *cfg1,
 }
 
 
-static void destroy_entry(ALLEGRO_CONFIG_ENTRY *e)
+static void destroy_entry(A5O_CONFIG_ENTRY *e)
 {
    al_ustr_free(e->key);
    al_ustr_free(e->value);
@@ -540,11 +540,11 @@ static void destroy_entry(ALLEGRO_CONFIG_ENTRY *e)
 }
 
 
-static void destroy_section(ALLEGRO_CONFIG_SECTION *s)
+static void destroy_section(A5O_CONFIG_SECTION *s)
 {
-   ALLEGRO_CONFIG_ENTRY *e = s->head;
+   A5O_CONFIG_ENTRY *e = s->head;
    while (e) {
-      ALLEGRO_CONFIG_ENTRY *tmp = e->next;
+      A5O_CONFIG_ENTRY *tmp = e->next;
       destroy_entry(e);
       e = tmp;
    }
@@ -556,9 +556,9 @@ static void destroy_section(ALLEGRO_CONFIG_SECTION *s)
 
 /* Function: al_destroy_config
  */
-void al_destroy_config(ALLEGRO_CONFIG *config)
+void al_destroy_config(A5O_CONFIG *config)
 {
-   ALLEGRO_CONFIG_SECTION *s;
+   A5O_CONFIG_SECTION *s;
 
    if (!config) {
       return;
@@ -566,7 +566,7 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
 
    s = config->head;
    while (s) {
-      ALLEGRO_CONFIG_SECTION *tmp = s->next;
+      A5O_CONFIG_SECTION *tmp = s->next;
       destroy_section(s);
       s = tmp;
    }
@@ -578,10 +578,10 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
 
 /* Function: al_get_first_config_section
  */
-char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
-   ALLEGRO_CONFIG_SECTION **iterator)
+char const *al_get_first_config_section(A5O_CONFIG const *config,
+   A5O_CONFIG_SECTION **iterator)
 {
-   ALLEGRO_CONFIG_SECTION *s;
+   A5O_CONFIG_SECTION *s;
 
    if (!config)
       return NULL;
@@ -593,9 +593,9 @@ char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
 
 /* Function: al_get_next_config_section
  */
-char const *al_get_next_config_section(ALLEGRO_CONFIG_SECTION **iterator)
+char const *al_get_next_config_section(A5O_CONFIG_SECTION **iterator)
 {
-   ALLEGRO_CONFIG_SECTION *s;
+   A5O_CONFIG_SECTION *s;
 
    if (!iterator)
       return NULL;
@@ -609,13 +609,13 @@ char const *al_get_next_config_section(ALLEGRO_CONFIG_SECTION **iterator)
 
 /* Function: al_get_first_config_entry
  */
-char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
-   char const *section, ALLEGRO_CONFIG_ENTRY **iterator)
+char const *al_get_first_config_entry(A5O_CONFIG const *config,
+   char const *section, A5O_CONFIG_ENTRY **iterator)
 {
-   ALLEGRO_USTR_INFO section_info;
-   const ALLEGRO_USTR *usection;
-   ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *e;
+   A5O_USTR_INFO section_info;
+   const A5O_USTR *usection;
+   A5O_CONFIG_SECTION *s;
+   A5O_CONFIG_ENTRY *e;
 
    if (!config)
       return NULL;
@@ -637,9 +637,9 @@ char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
 
 /* Function: al_get_next_config_entry
  */
-char const *al_get_next_config_entry(ALLEGRO_CONFIG_ENTRY **iterator)
+char const *al_get_next_config_entry(A5O_CONFIG_ENTRY **iterator)
 {
-   ALLEGRO_CONFIG_ENTRY *e;
+   A5O_CONFIG_ENTRY *e;
 
    if (!iterator)
       return NULL;
@@ -655,12 +655,12 @@ char const *al_get_next_config_entry(ALLEGRO_CONFIG_ENTRY **iterator)
 
 /* Function: al_remove_config_section
  */
-bool al_remove_config_section(ALLEGRO_CONFIG *config, char const *section)
+bool al_remove_config_section(A5O_CONFIG *config, char const *section)
 {
-   ALLEGRO_USTR_INFO section_info;
-   ALLEGRO_USTR const *usection;
+   A5O_USTR_INFO section_info;
+   A5O_USTR const *usection;
    void *value;
-   ALLEGRO_CONFIG_SECTION *s;
+   A5O_CONFIG_SECTION *s;
 
    if (section == NULL)
       section = "";
@@ -697,22 +697,22 @@ bool al_remove_config_section(ALLEGRO_CONFIG *config, char const *section)
 
 /* Function: al_remove_config_key
  */
-bool al_remove_config_key(ALLEGRO_CONFIG *config, char const *section,
+bool al_remove_config_key(A5O_CONFIG *config, char const *section,
    char const *key)
 {
-   ALLEGRO_USTR_INFO section_info;
-   ALLEGRO_USTR_INFO key_info;
-   ALLEGRO_USTR const *usection;
-   ALLEGRO_USTR const *ukey = al_ref_cstr(&key_info, key);
+   A5O_USTR_INFO section_info;
+   A5O_USTR_INFO key_info;
+   A5O_USTR const *usection;
+   A5O_USTR const *ukey = al_ref_cstr(&key_info, key);
    void *value;
-   ALLEGRO_CONFIG_ENTRY * e;
+   A5O_CONFIG_ENTRY * e;
 
    if (section == NULL)
       section = "";
 
    usection = al_ref_cstr(&section_info, section);
 
-   ALLEGRO_CONFIG_SECTION *s = find_section(config, usection);
+   A5O_CONFIG_SECTION *s = find_section(config, usection);
    if (!s)
       return false;
 

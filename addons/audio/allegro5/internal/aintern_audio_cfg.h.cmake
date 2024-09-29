@@ -1,7 +1,7 @@
-#cmakedefine ALLEGRO_CFG_KCM_ALSA
-#cmakedefine ALLEGRO_CFG_KCM_OPENAL
-#cmakedefine ALLEGRO_CFG_KCM_OPENSL
-#cmakedefine ALLEGRO_CFG_KCM_DSOUND
-#cmakedefine ALLEGRO_CFG_KCM_OSS
-#cmakedefine ALLEGRO_CFG_KCM_PULSEAUDIO
-#cmakedefine ALLEGRO_CFG_KCM_AQUEUE
+#cmakedefine A5O_CFG_KCM_ALSA
+#cmakedefine A5O_CFG_KCM_OPENAL
+#cmakedefine A5O_CFG_KCM_OPENSL
+#cmakedefine A5O_CFG_KCM_DSOUND
+#cmakedefine A5O_CFG_KCM_OSS
+#cmakedefine A5O_CFG_KCM_PULSEAUDIO
+#cmakedefine A5O_CFG_KCM_AQUEUE

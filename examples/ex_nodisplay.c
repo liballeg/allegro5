@@ -8,9 +8,9 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_BITMAP *sprite;
-   ALLEGRO_COLOR c1, c2, c3;
+   A5O_BITMAP *bmp;
+   A5O_BITMAP *sprite;
+   A5O_COLOR c1, c2, c3;
    bool rc;
 
    (void)argc;
@@ -40,17 +40,17 @@ int main(int argc, char **argv)
 
    al_clear_to_color(al_map_rgba(255, 0, 0, 128));
    al_draw_bitmap(sprite, 0, 0, 0);
-   al_draw_tinted_bitmap(sprite, c1, 64, 0, ALLEGRO_FLIP_HORIZONTAL);
-   al_draw_tinted_bitmap(sprite, c2, 0, 64, ALLEGRO_FLIP_VERTICAL);
-   al_draw_tinted_bitmap(sprite, c3, 64, 64, ALLEGRO_FLIP_HORIZONTAL |
-      ALLEGRO_FLIP_VERTICAL);
+   al_draw_tinted_bitmap(sprite, c1, 64, 0, A5O_FLIP_HORIZONTAL);
+   al_draw_tinted_bitmap(sprite, c2, 0, 64, A5O_FLIP_VERTICAL);
+   al_draw_tinted_bitmap(sprite, c3, 64, 64, A5O_FLIP_HORIZONTAL |
+      A5O_FLIP_VERTICAL);
 
    al_set_target_bitmap(NULL);
 
    rc = al_save_bitmap("ex_nodisplay_out.tga", bmp);
 
    if (rc) {
-#ifdef ALLEGRO_POPUP_EXAMPLES
+#ifdef A5O_POPUP_EXAMPLES
       al_show_native_message_box(NULL, "ex_nodisplay_out", "",
          "Saved ex_nodisplay_out.tga", NULL, 0);
 #else

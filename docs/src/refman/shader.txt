@@ -6,25 +6,25 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_SHADER
+## API: A5O_SHADER
 
-An [ALLEGRO_SHADER] is a program that runs on the GPU.
+An [A5O_SHADER] is a program that runs on the GPU.
 It combines both a vertex and a pixel shader.
-(In OpenGL terms, an [ALLEGRO_SHADER] is actually a *program*
+(In OpenGL terms, an [A5O_SHADER] is actually a *program*
 which has one or more *shaders* attached. This can be confusing.)
 
 The source code for the underlying vertex or pixel shader can be provided
-either as GLSL or HLSL, depending on the value of [ALLEGRO_SHADER_PLATFORM]
+either as GLSL or HLSL, depending on the value of [A5O_SHADER_PLATFORM]
 used when creating it.
 
 Since: 5.1.0
 
-## API: ALLEGRO_SHADER_TYPE
+## API: A5O_SHADER_TYPE
 
 Used with [al_attach_shader_source] and [al_attach_shader_source_file] to
 specify how to interpret the attached source.
 
-ALLEGRO_VERTEX_SHADER
+A5O_VERTEX_SHADER
 :   A vertex shader is executed for each vertex it is
     used with. The program will output exactly one vertex at a time.
    
@@ -32,7 +32,7 @@ ALLEGRO_VERTEX_SHADER
     primitives from the primitives addon, each drawn bitmap also consists of
     four vertices.
 
-ALLEGRO_PIXEL_SHADER
+A5O_PIXEL_SHADER
 :   A pixel shader is executed for each pixel it is used
     with. The program will output exactly one pixel at a time - either in the
     backbuffer or in the current target bitmap.
@@ -47,20 +47,20 @@ ALLEGRO_PIXEL_SHADER
 
 Since: 5.1.0
 
-## API: ALLEGRO_SHADER_PLATFORM
+## API: A5O_SHADER_PLATFORM
 
-The underlying platform which the [ALLEGRO_SHADER] is built on top of,
+The underlying platform which the [A5O_SHADER] is built on top of,
 which dictates the language used to program the shader.
 
-* ALLEGRO_SHADER_AUTO - Pick a platform automatically given the
+* A5O_SHADER_AUTO - Pick a platform automatically given the
   current display flags.
-* ALLEGRO_SHADER_GLSL - OpenGL Shading Language
-* ALLEGRO_SHADER_HLSL - High Level Shader Language (for Direct3D)
-* ALLEGRO_SHADER_AUTO_MINIMAL - Like ALLEGRO_SHADER_AUTO, but pick a
+* A5O_SHADER_GLSL - OpenGL Shading Language
+* A5O_SHADER_HLSL - High Level Shader Language (for Direct3D)
+* A5O_SHADER_AUTO_MINIMAL - Like A5O_SHADER_AUTO, but pick a
   more minimal implementation that may not support alpha testing.
-* ALLEGRO_SHADER_GLSL_MINIMAL - Minimal GLSL shader.
-* ALLEGRO_SHADER_HLSL_MINIMAL - Minimal HLSL shader.
-* ALLEGRO_SHADER_HLSL_SM_3_0 - HLSL shader using shader model 3_0.
+* A5O_SHADER_GLSL_MINIMAL - Minimal GLSL shader.
+* A5O_SHADER_HLSL_MINIMAL - Minimal HLSL shader.
+* A5O_SHADER_HLSL_SM_3_0 - HLSL shader using shader model 3_0.
 
 Since: 5.1.0
 
@@ -68,7 +68,7 @@ Since: 5.1.0
 
 Create a shader object.
 
-The platform argument is one of the [ALLEGRO_SHADER_PLATFORM] values,
+The platform argument is one of the [A5O_SHADER_PLATFORM] values,
 and specifies the type of shader object to create, and which language is
 used to program the shader.
 
@@ -76,7 +76,7 @@ The shader platform must be compatible with the type of display that you will
 use the shader with.  For example, you cannot create and use a HLSL shader on
 an OpenGL display, nor a GLSL shader on a Direct3D display.
 
-The ALLEGRO_SHADER_AUTO value automatically chooses the appropriate platform
+The A5O_SHADER_AUTO value automatically chooses the appropriate platform
 for the display currently targeted by the calling thread; there must be such a
 display.  It will create a GLSL shader for an OpenGL display, and a HLSL shader
 for a Direct3D display.
@@ -96,14 +96,14 @@ NULL deletes the underlying (OpenGL or DirectX) shader. See also
 [al_attach_shader_source_file] if you prefer to obtain your shader source from
 an external file.
 
-If you do not use ALLEGRO_PROGRAMMABLE_PIPELINE Allegro's graphics functions
+If you do not use A5O_PROGRAMMABLE_PIPELINE Allegro's graphics functions
 will not use any shader specific functions themselves. In case of a system
 with no fixed function pipeline (like OpenGL ES 2 or OpenGL 3 or 4) this means
 Allegro's drawing functions cannot be used.
 
-TODO: Is ALLEGRO_PROGRAMMABLE_PIPELINE set automatically in this case?
+TODO: Is A5O_PROGRAMMABLE_PIPELINE set automatically in this case?
 
-When ALLEGRO_PROGRAMMABLE_PIPELINE is used the following shader uniforms
+When A5O_PROGRAMMABLE_PIPELINE is used the following shader uniforms
 are provided by Allegro and can be accessed in your shaders:
 
 al_projview_matrix
@@ -137,13 +137,13 @@ al_alpha_test
     `al_alpha_test_val`.
 
 al_alpha_func
-:   The alpha testing function used. One of the [ALLEGRO_RENDER_FUNCTION]
-    values. The default is ALLEGRO_RENDER_ALWAYS which means all pixels
+:   The alpha testing function used. One of the [A5O_RENDER_FUNCTION]
+    values. The default is A5O_RENDER_ALWAYS which means all pixels
     (even completely transparent ones) are rendered. The type is `int`.
-    See [ALLEGRO_RENDER_STATE].
+    See [A5O_RENDER_STATE].
 
 al_alpha_test_val
-:   If alpha testing is not ALLEGRO_RENDER_NEVER or ALLEGRO_RENDER_ALWAYS
+:   If alpha testing is not A5O_RENDER_NEVER or A5O_RENDER_ALWAYS
     the alpha value to compare to for alpha testing. The type is `float`.
 
 For GLSL shaders the vertex attributes are passed using the following variables:
@@ -158,10 +158,10 @@ al_color
 :   vertex color attribute. Type is `vec4`.
 
 al_user_attr_0
-:   The vertex attribute declared as ALLEGRO_PRIM_USER_ATTR
+:   The vertex attribute declared as A5O_PRIM_USER_ATTR
 
 al_user_attr_1, ..., al_user_attr_9
-:   The vertex attribute declared as ALLEGRO_PRIM_USER_ATTR + X where X is an integer from 1 to 9
+:   The vertex attribute declared as A5O_PRIM_USER_ATTR + X where X is an integer from 1 to 9
 
 
 For HLSL shaders the vertex attributes are passed using the following semantics:
@@ -179,16 +179,16 @@ Also, each shader variable has a corresponding macro name that can be used when
 defining the shaders using string literals. Don't use these macros with the
 other shader functions as that will lead to undefined behavior.
 
-* ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX for "al_projview_matrix"
-* ALLEGRO_SHADER_VAR_POS for "al_pos"
-* ALLEGRO_SHADER_VAR_COLOR for "al_color"
-* ALLEGRO_SHADER_VAR_TEXCOORD for "al_texcoord"
-* ALLEGRO_SHADER_VAR_USE_TEX for "al_use_tex"
-* ALLEGRO_SHADER_VAR_TEX for "al_tex"
-* ALLEGRO_SHADER_VAR_USE_TEX_MATRIX for "al_use_tex_matrix"
-* ALLEGRO_SHADER_VAR_TEX_MATRIX for "al_tex_matrix"
-* ALLEGRO_SHADER_VAR_ALPHA_FUNCTION for "al_alpha_func"
-* ALLEGRO_SHADER_VAR_ALPHA_TEST_VALUE for "al_alpha_test_val"
+* A5O_SHADER_VAR_PROJVIEW_MATRIX for "al_projview_matrix"
+* A5O_SHADER_VAR_POS for "al_pos"
+* A5O_SHADER_VAR_COLOR for "al_color"
+* A5O_SHADER_VAR_TEXCOORD for "al_texcoord"
+* A5O_SHADER_VAR_USE_TEX for "al_use_tex"
+* A5O_SHADER_VAR_TEX for "al_tex"
+* A5O_SHADER_VAR_USE_TEX_MATRIX for "al_use_tex_matrix"
+* A5O_SHADER_VAR_TEX_MATRIX for "al_tex_matrix"
+* A5O_SHADER_VAR_ALPHA_FUNCTION for "al_alpha_func"
+* A5O_SHADER_VAR_ALPHA_TEST_VALUE for "al_alpha_test_val"
 
 Examine the output of [al_get_default_shader_source] for an example of how to
 use the above uniforms and attributes.
@@ -199,7 +199,7 @@ updated. The error log can be retrieved with [al_get_shader_log].
 Since: 5.1.0
 
 See also: [al_attach_shader_source_file], [al_build_shader],
-[al_get_default_shader_source], [al_get_shader_log], [ALLEGRO_PRIM_ATTR]
+[al_get_default_shader_source], [al_get_shader_log], [A5O_PRIM_ATTR]
 
 ## API: al_attach_shader_source_file
 
@@ -222,7 +222,7 @@ be called after successfully attaching the pixel and/or vertex shaders with
 Returns true on success and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
-> *Note:* If you are using the ALLEGRO_PROGRAMMABLE_PIPELINE flag, then you
+> *Note:* If you are using the A5O_PROGRAMMABLE_PIPELINE flag, then you
 must specify both a pixel and a vertex shader sources for anything to be
 rendered.
 
@@ -246,7 +246,7 @@ See also: [al_attach_shader_source], [al_attach_shader_source_file],
 ## API: al_get_shader_platform
 
 Returns the platform the shader was created with (either
-ALLEGRO_SHADER_HLSL or ALLEGRO_SHADER_GLSL).
+A5O_SHADER_HLSL or A5O_SHADER_GLSL).
 
 Since: 5.1.6
 
@@ -395,8 +395,8 @@ See also: [al_set_shader_int_vector], [al_use_shader]
 ## API: al_get_default_shader_source
 
 Returns a string containing the source code to Allegro's default vertex or pixel
-shader appropriate for the passed platform. The ALLEGRO_SHADER_AUTO value means
-GLSL is used if OpenGL is being used otherwise HLSL. ALLEGRO_SHADER_AUTO
+shader appropriate for the passed platform. The A5O_SHADER_AUTO value means
+GLSL is used if OpenGL is being used otherwise HLSL. A5O_SHADER_AUTO
 requires that there is a current display set on the calling thread. This
 function can return NULL if Allegro was built without support for shaders of the
 selected platform.

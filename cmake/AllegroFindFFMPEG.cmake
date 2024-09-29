@@ -6,7 +6,7 @@
 
 # -lavcodec -lavformat -lswscale
 
-if(ALLEGRO_UNIX)
+if(A5O_UNIX)
    pkg_check_modules(FFMPEG libavcodec libavformat libswscale libavutil)
 endif()
 

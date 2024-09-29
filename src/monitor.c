@@ -22,7 +22,7 @@
  */
 int al_get_num_video_adapters(void)
 {
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
 
    if (system && system->vt && system->vt->get_num_video_adapters) {
       return system->vt->get_num_video_adapters();
@@ -35,7 +35,7 @@ int al_get_num_video_adapters(void)
  */
 int al_get_monitor_refresh_rate(int adapter)
 {
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
 
    if (adapter < al_get_num_video_adapters()) {
       if (system && system->vt && system->vt->get_monitor_refresh_rate) {
@@ -49,9 +49,9 @@ int al_get_monitor_refresh_rate(int adapter)
 
 /* Function: al_get_monitor_info
  */
-bool al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+bool al_get_monitor_info(int adapter, A5O_MONITOR_INFO *info)
 {
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
 
    if (adapter < al_get_num_video_adapters()) {
       if (system && system->vt && system->vt->get_monitor_info) {
@@ -67,7 +67,7 @@ bool al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
  */
 int al_get_monitor_dpi(int adapter)
 {
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
 
    if (adapter < al_get_num_video_adapters()) {
        if (system && system->vt && system->vt->get_monitor_dpi) {

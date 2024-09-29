@@ -26,7 +26,7 @@ extern "C" {
 
 #include "allegro5/internal/aintern_keyboard.h"
 
-ALLEGRO_KEYBOARD_DRIVER *_al_xwin_keyboard_driver(void);
+A5O_KEYBOARD_DRIVER *_al_xwin_keyboard_driver(void);
 
 #ifdef __cplusplus
 }

@@ -3,13 +3,13 @@
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_primitives.h"
 
-/* The ALLEGRO_CFG_* defines are actually internal to Allegro so don't use them
+/* The A5O_CFG_* defines are actually internal to Allegro so don't use them
  * in your own programs.
  */
-#ifdef ALLEGRO_CFG_D3D
+#ifdef A5O_CFG_D3D
    #include "allegro5/allegro_direct3d.h"
 #endif
-#ifdef ALLEGRO_CFG_OPENGL
+#ifdef A5O_CFG_OPENGL
    #include "allegro5/allegro_opengl.h"
 #endif
 
@@ -23,12 +23,12 @@ static void parse_args(int argc, char **argv)
 
    for (i = 1; i < argc; i++) {
       if (0 == strcmp(argv[i], "--opengl")) {
-         display_flags = ALLEGRO_OPENGL;
+         display_flags = A5O_OPENGL;
          continue;
       }
-#ifdef ALLEGRO_CFG_D3D
+#ifdef A5O_CFG_D3D
       if (0 == strcmp(argv[i], "--d3d")) {
-         display_flags = ALLEGRO_DIRECT3D;
+         display_flags = A5O_DIRECT3D;
          continue;
       }
 #endif
@@ -36,15 +36,15 @@ static void parse_args(int argc, char **argv)
    }
 }
 
-static void choose_shader_source(ALLEGRO_SHADER *shader,
+static void choose_shader_source(A5O_SHADER *shader,
    char const **vsource, char const **psource)
 {
-   ALLEGRO_SHADER_PLATFORM platform = al_get_shader_platform(shader);
-   if (platform == ALLEGRO_SHADER_HLSL) {
+   A5O_SHADER_PLATFORM platform = al_get_shader_platform(shader);
+   if (platform == A5O_SHADER_HLSL) {
       *vsource = "data/ex_shader_vertex.hlsl";
       *psource = "data/ex_shader_pixel.hlsl";
    }
-   else if (platform == ALLEGRO_SHADER_GLSL) {
+   else if (platform == A5O_SHADER_GLSL) {
       *vsource = "data/ex_shader_vertex.glsl";
       *psource = "data/ex_shader_pixel.glsl";
    }
@@ -57,9 +57,9 @@ static void choose_shader_source(ALLEGRO_SHADER *shader,
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
    const char *vsource;
    const char *psource;
 
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE | display_flags);
+   al_set_new_display_flags(A5O_PROGRAMMABLE_PIPELINE | display_flags);
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
       abort_example("Could not load bitmap.\n");
    }
 
-   shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+   shader = al_create_shader(A5O_SHADER_AUTO);
    if (!shader) {
       abort_example("Could not create shader.\n");
    }
@@ -94,11 +94,11 @@ int main(int argc, char **argv)
       abort_example("Could not load source files.\n");
    }
 
-   if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vsource)) {
+   if (!al_attach_shader_source_file(shader, A5O_VERTEX_SHADER, vsource)) {
       abort_example("al_attach_shader_source_file failed: %s\n",
          al_get_shader_log(shader));
    }
-   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, psource)) {
+   if (!al_attach_shader_source_file(shader, A5O_PIXEL_SHADER, psource)) {
       abort_example("al_attach_shader_source_file failed: %s\n",
          al_get_shader_log(shader));
    }
@@ -117,9 +117,9 @@ int main(int argc, char **argv)
    };
 
    while (1) {
-      ALLEGRO_KEYBOARD_STATE s;
+      A5O_KEYBOARD_STATE s;
       al_get_keyboard_state(&s);
-      if (al_key_down(&s, ALLEGRO_KEY_ESCAPE))
+      if (al_key_down(&s, A5O_KEY_ESCAPE))
          break;
 
       al_clear_to_color(al_map_rgb(140, 40, 40));
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
       al_draw_bitmap(bmp, 0, 240, 0);
 
       /* Draw the last one transformed */
-      ALLEGRO_TRANSFORM trans, backup;
+      A5O_TRANSFORM trans, backup;
       al_copy_transform(&backup, al_get_current_transform());
       al_identity_transform(&trans);
       al_translate_transform(&trans, 320, 240);

@@ -10,12 +10,12 @@
 
 #include "allegro_physfs_intern.h"
 
-ALLEGRO_DEBUG_CHANNEL("physfs")
+A5O_DEBUG_CHANNEL("physfs")
 
 
-typedef struct ALLEGRO_FILE_PHYSFS ALLEGRO_FILE_PHYSFS;
+typedef struct A5O_FILE_PHYSFS A5O_FILE_PHYSFS;
 
-struct ALLEGRO_FILE_PHYSFS
+struct A5O_FILE_PHYSFS
 {
    PHYSFS_file *phys;
    bool error_indicator;
@@ -23,9 +23,9 @@ struct ALLEGRO_FILE_PHYSFS
 };
 
 /* forward declaration */
-static const ALLEGRO_FILE_INTERFACE file_phys_vtable;
+static const A5O_FILE_INTERFACE file_phys_vtable;
 
-const ALLEGRO_FILE_INTERFACE *_al_get_phys_vtable(void)
+const A5O_FILE_INTERFACE *_al_get_phys_vtable(void)
 {
    return &file_phys_vtable;
 }
@@ -34,13 +34,13 @@ const ALLEGRO_FILE_INTERFACE *_al_get_phys_vtable(void)
 #define streq(a, b)  (0 == strcmp(a, b))
 
 
-static ALLEGRO_FILE_PHYSFS *cast_stream(ALLEGRO_FILE *f)
+static A5O_FILE_PHYSFS *cast_stream(A5O_FILE *f)
 {
-   return (ALLEGRO_FILE_PHYSFS *)al_get_file_userdata(f);
+   return (A5O_FILE_PHYSFS *)al_get_file_userdata(f);
 }
 
 
-static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
+static void phys_set_errno(A5O_FILE_PHYSFS *fp)
 {
    /* It might be worth mapping some common error strings from
     * PHYSFS_getLastError() onto errno values.  There are no guarantees,
@@ -51,7 +51,7 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
    PHYSFS_ErrorCode error = PHYSFS_getLastErrorCode();
    const char* msg = PHYSFS_getErrorByCode(error);
    if (error != PHYSFS_ERR_OK) {
-      ALLEGRO_ERROR("PhysFS error code: %s\n", msg);
+      A5O_ERROR("PhysFS error code: %s\n", msg);
    }
    if (fp) {
       fp->error_indicator = true;
@@ -68,9 +68,9 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
 
 static void *file_phys_fopen(const char *filename, const char *mode)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
    PHYSFS_file *phys;
-   ALLEGRO_FILE_PHYSFS *fp;
+   A5O_FILE_PHYSFS *fp;
 
    us = _al_physfs_process_path(filename);
 
@@ -109,9 +109,9 @@ static void *file_phys_fopen(const char *filename, const char *mode)
 }
 
 
-static bool file_phys_fclose(ALLEGRO_FILE *f)
+static bool file_phys_fclose(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_file *phys_fp = fp->phys;
 
    al_free(fp);
@@ -125,9 +125,9 @@ static bool file_phys_fclose(ALLEGRO_FILE *f)
 }
 
 
-static size_t file_phys_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
+static size_t file_phys_fread(A5O_FILE *f, void *buf, size_t buf_size)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    if (buf_size == 0)
@@ -142,10 +142,10 @@ static size_t file_phys_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
 }
 
 
-static size_t file_phys_fwrite(ALLEGRO_FILE *f, const void *buf,
+static size_t file_phys_fwrite(A5O_FILE *f, const void *buf,
    size_t buf_size)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    n = PHYSFS_writeBytes(fp->phys, buf, buf_size);
@@ -158,9 +158,9 @@ static size_t file_phys_fwrite(ALLEGRO_FILE *f, const void *buf,
 }
 
 
-static bool file_phys_fflush(ALLEGRO_FILE *f)
+static bool file_phys_fflush(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
 
    if (!PHYSFS_flush(fp->phys)) {
       phys_set_errno(fp);
@@ -171,9 +171,9 @@ static bool file_phys_fflush(ALLEGRO_FILE *f)
 }
 
 
-static int64_t file_phys_ftell(ALLEGRO_FILE *f)
+static int64_t file_phys_ftell(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    n = PHYSFS_tell(fp->phys);
@@ -186,17 +186,17 @@ static int64_t file_phys_ftell(ALLEGRO_FILE *f)
 }
 
 
-static bool file_phys_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
+static bool file_phys_seek(A5O_FILE *f, int64_t offset, int whence)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 base;
 
    switch (whence) {
-      case ALLEGRO_SEEK_SET:
+      case A5O_SEEK_SET:
          base = 0;
          break;
 
-      case ALLEGRO_SEEK_CUR:
+      case A5O_SEEK_CUR:
          base = PHYSFS_tell(fp->phys);
          if (base < 0) {
             phys_set_errno(fp);
@@ -204,7 +204,7 @@ static bool file_phys_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
          }
          break;
 
-      case ALLEGRO_SEEK_END:
+      case A5O_SEEK_END:
          base = PHYSFS_fileLength(fp->phys);
          if (base < 0) {
             phys_set_errno(fp);
@@ -226,25 +226,25 @@ static bool file_phys_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
 }
 
 
-static bool file_phys_feof(ALLEGRO_FILE *f)
+static bool file_phys_feof(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
 
    return PHYSFS_eof(fp->phys);
 }
 
 
-static int file_phys_ferror(ALLEGRO_FILE *f)
+static int file_phys_ferror(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
 
    return (fp->error_indicator) ? 1 : 0;
 }
 
 
-static const char *file_phys_ferrmsg(ALLEGRO_FILE *f)
+static const char *file_phys_ferrmsg(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
 
    if (fp->error_indicator)
       return fp->error_msg;
@@ -253,9 +253,9 @@ static const char *file_phys_ferrmsg(ALLEGRO_FILE *f)
 }
 
 
-static void file_phys_fclearerr(ALLEGRO_FILE *f)
+static void file_phys_fclearerr(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
 
    fp->error_indicator = false;
 
@@ -263,9 +263,9 @@ static void file_phys_fclearerr(ALLEGRO_FILE *f)
 }
 
 
-static off_t file_phys_fsize(ALLEGRO_FILE *f)
+static off_t file_phys_fsize(A5O_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+   A5O_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    n = PHYSFS_fileLength(fp->phys);
@@ -278,7 +278,7 @@ static off_t file_phys_fsize(ALLEGRO_FILE *f)
 }
 
 
-static const ALLEGRO_FILE_INTERFACE file_phys_vtable =
+static const A5O_FILE_INTERFACE file_phys_vtable =
 {
    file_phys_fopen,
    file_phys_fclose,
@@ -309,7 +309,7 @@ void al_set_physfs_file_interface(void)
  */
 uint32_t al_get_allegro_physfs_version(void)
 {
-   return ALLEGRO_VERSION_INT;
+   return A5O_VERSION_INT;
 }
 
 

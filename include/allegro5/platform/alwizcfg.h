@@ -20,14 +20,14 @@
 #include <unistd.h>
 
 /* Describe this platform.  */
-#define ALLEGRO_PLATFORM_STR  "GP2XWIZ"
+#define A5O_PLATFORM_STR  "GP2XWIZ"
 
-#define ALLEGRO_EXTRA_HEADER "allegro5/platform/alwiz.h"
-#define ALLEGRO_INTERNAL_HEADER "allegro5/platform/aintwiz.h"
-#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
+#define A5O_EXTRA_HEADER "allegro5/platform/alwiz.h"
+#define A5O_INTERNAL_HEADER "allegro5/platform/aintwiz.h"
+#define A5O_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
 
 /* Include configuration information.  */
 #include "allegro5/platform/alplatf.h"
 
 /* No GLX on the Wiz */
-#define ALLEGRO_EXCLUDE_GLX
+#define A5O_EXCLUDE_GLX

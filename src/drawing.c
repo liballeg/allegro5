@@ -23,17 +23,17 @@
 
 /* Function: al_clear_to_color
  */
-void al_clear_to_color(ALLEGRO_COLOR color)
+void al_clear_to_color(A5O_COLOR color)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
    ASSERT(target);
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+   if (al_get_bitmap_flags(target) & A5O_MEMORY_BITMAP ||
        _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       _al_clear_bitmap_by_locking(target, &color);
    }
    else {
-      ALLEGRO_DISPLAY *display = _al_get_bitmap_display(target);
+      A5O_DISPLAY *display = _al_get_bitmap_display(target);
       ASSERT(display);
       ASSERT(display->vt);
       display->vt->clear(display, &color);
@@ -45,14 +45,14 @@ void al_clear_to_color(ALLEGRO_COLOR color)
  */
 void al_clear_depth_buffer(float z)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
    ASSERT(target);
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(target) & A5O_MEMORY_BITMAP) {
       /* has no depth buffer */
    }
    else {
-      ALLEGRO_DISPLAY *display = _al_get_bitmap_display(target);
+      A5O_DISPLAY *display = _al_get_bitmap_display(target);
       ASSERT(display);
       display->vt->clear_depth_buffer(display, z);
    }
@@ -61,18 +61,18 @@ void al_clear_depth_buffer(float z)
 
 /* Function: al_draw_pixel
  */
-void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
+void al_draw_pixel(float x, float y, A5O_COLOR color)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+   if (al_get_bitmap_flags(target) & A5O_MEMORY_BITMAP ||
        _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       _al_draw_pixel_memory(target, x, y, &color);
    }
    else {
-      ALLEGRO_DISPLAY *display = _al_get_bitmap_display(target);
+      A5O_DISPLAY *display = _al_get_bitmap_display(target);
       ASSERT(display);
       ASSERT(display->vt);
       display->vt->draw_pixel(display, x, y, &color);

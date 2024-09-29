@@ -2,7 +2,7 @@
  * Taken from AllegroGL.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include <math.h>
 #include <string.h>
@@ -179,7 +179,7 @@ static void draw_mesh(void)
 
          wave_movement += 0.00001f;
 
-         if (wave_movement > 2 * ALLEGRO_PI) {
+         if (wave_movement > 2 * A5O_PI) {
                wave_movement = 0.0f;
          }
       }
@@ -194,10 +194,10 @@ static void draw_mesh(void)
 int main(int argc, const char *argv[])
 {
    GLuint pid;
-   ALLEGRO_DISPLAY *d;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *d;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
+   A5O_TIMER *timer;
    int frames = 0;
    double start;
    bool limited = true;
@@ -212,16 +212,16 @@ int main(int argc, const char *argv[])
 
    open_log();
 
-   al_set_new_display_flags(ALLEGRO_OPENGL);
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
+   al_set_new_display_flags(A5O_OPENGL);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLES, 4, A5O_SUGGEST);
    d = al_create_display(WINDOW_W, WINDOW_H);
    if (!d) {
       abort_example("Unable to open a OpenGL display.\n");
    }
 
-   if (al_get_display_option(d, ALLEGRO_SAMPLE_BUFFERS)) {
-      log_printf("With multisampling, level %i\n", al_get_display_option(d, ALLEGRO_SAMPLES));
+   if (al_get_display_option(d, A5O_SAMPLE_BUFFERS)) {
+      log_printf("With multisampling, level %i\n", al_get_display_option(d, A5O_SAMPLES));
    }
    else {
       log_printf("Without multisampling.\n");
@@ -242,11 +242,11 @@ int main(int argc, const char *argv[])
       timer = NULL;
    }
 
-   if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multisample) {
+   if (al_get_opengl_extension_list()->A5O_GL_ARB_multisample) {
       glEnable(GL_MULTISAMPLE_ARB);
    }
 
-   if (!al_get_opengl_extension_list()->ALLEGRO_GL_ARB_vertex_program) {
+   if (!al_get_opengl_extension_list()->A5O_GL_ARB_vertex_program) {
       abort_example("This example requires a video card that supports "
                      " the ARB_vertex_program extension.\n");
    }
@@ -276,7 +276,7 @@ int main(int argc, const char *argv[])
    glBindProgramARB(GL_VERTEX_PROGRAM_ARB, pid);
    glGetError();
 
-   if (al_get_opengl_extension_list()->ALLEGRO_GL_NV_vertex_program2_option) {
+   if (al_get_opengl_extension_list()->A5O_GL_NV_vertex_program2_option) {
       glProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
                         strlen(program_nv), program_nv);
    }
@@ -287,7 +287,7 @@ int main(int argc, const char *argv[])
 
    /* Check for errors */
    if (glGetError()) {
-      const char *pgm = al_get_opengl_extension_list()->ALLEGRO_GL_NV_vertex_program2_option
+      const char *pgm = al_get_opengl_extension_list()->A5O_GL_NV_vertex_program2_option
                         ? program_nv : program;
       GLint error_pos;
       const GLubyte *error_str = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
@@ -308,11 +308,11 @@ int main(int argc, const char *argv[])
       if (!al_is_event_queue_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
-               case ALLEGRO_EVENT_DISPLAY_CLOSE:
+               case A5O_EVENT_DISPLAY_CLOSE:
                   goto done;
 
-               case ALLEGRO_EVENT_KEY_DOWN:
-                  if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+               case A5O_EVENT_KEY_DOWN:
+                  if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                      goto done;
                   break;
             }

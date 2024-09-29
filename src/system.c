@@ -20,11 +20,11 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+#ifdef A5O_CFG_SHADER_GLSL
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_opengl.h"
 #endif
-#include ALLEGRO_INTERNAL_HEADER
+#include A5O_INTERNAL_HEADER
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_debug.h"
 #include "allegro5/internal/aintern_dtor.h"
@@ -36,13 +36,13 @@
 #include "allegro5/internal/aintern_tls.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("system")
+A5O_DEBUG_CHANNEL("system")
 
-static ALLEGRO_SYSTEM *active_sysdrv = NULL;
-static ALLEGRO_CONFIG *sys_config = NULL;
+static A5O_SYSTEM *active_sysdrv = NULL;
+static A5O_CONFIG *sys_config = NULL;
 
 _AL_VECTOR _al_system_interfaces;
-static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
+static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(A5O_SYSTEM_INTERFACE *);
 
 _AL_DTOR_LIST *_al_dtor_list = NULL;
 
@@ -53,11 +53,11 @@ static char _al_org_name[256] = "";
 
 
 
-static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
+static A5O_SYSTEM *find_system(_AL_VECTOR *vector)
 {
-   ALLEGRO_SYSTEM_INTERFACE **sptr;
-   ALLEGRO_SYSTEM_INTERFACE *sys_interface;
-   ALLEGRO_SYSTEM *system;
+   A5O_SYSTEM_INTERFACE **sptr;
+   A5O_SYSTEM_INTERFACE *sys_interface;
+   A5O_SYSTEM *system;
    unsigned int i;
 
    for (i = 0; i < vector->_size; i++) {
@@ -84,7 +84,7 @@ static void shutdown_system_driver(void)
       while (!_al_vector_is_empty(&_al_system_interfaces))
          _al_vector_delete_at(&_al_system_interfaces, _al_vector_size(&_al_system_interfaces)-1);
       _al_vector_free(&_al_system_interfaces);
-      _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
+      _al_vector_init(&_al_system_interfaces, sizeof(A5O_SYSTEM_INTERFACE *));
    }
    al_destroy_config(sys_config);
    sys_config = NULL;
@@ -96,21 +96,21 @@ static void shutdown_system_driver(void)
  * initialised.  Before that, we need to call the underlying functions
  * directly.
  */
-static ALLEGRO_PATH *early_get_exename_path(void)
+static A5O_PATH *early_get_exename_path(void)
 {
-#if defined(ALLEGRO_WINDOWS)
-   return _al_win_get_path(ALLEGRO_EXENAME_PATH);
-#elif defined(ALLEGRO_MACOSX)
-   return _al_osx_get_path(ALLEGRO_EXENAME_PATH);
-#elif defined(ALLEGRO_IPHONE)
-   return _al_iphone_get_path(ALLEGRO_EXENAME_PATH);
-#elif defined(ALLEGRO_UNIX)
-   return _al_unix_get_path(ALLEGRO_EXENAME_PATH);
-#elif defined(ALLEGRO_ANDROID)
-   return _al_android_get_path(ALLEGRO_EXENAME_PATH);
-#elif defined(ALLEGRO_SDL)
+#if defined(A5O_WINDOWS)
+   return _al_win_get_path(A5O_EXENAME_PATH);
+#elif defined(A5O_MACOSX)
+   return _al_osx_get_path(A5O_EXENAME_PATH);
+#elif defined(A5O_IPHONE)
+   return _al_iphone_get_path(A5O_EXENAME_PATH);
+#elif defined(A5O_UNIX)
+   return _al_unix_get_path(A5O_EXENAME_PATH);
+#elif defined(A5O_ANDROID)
+   return _al_android_get_path(A5O_EXENAME_PATH);
+#elif defined(A5O_SDL)
    char* p = SDL_GetBasePath();
-   ALLEGRO_PATH *path = al_create_path_for_directory(p);
+   A5O_PATH *path = al_create_path_for_directory(p);
    SDL_free(p);
    return path;
 #else
@@ -124,20 +124,20 @@ static void read_allegro_cfg(void)
 {
    /* We assume that the stdio file interface is in effect. */
 
-   ALLEGRO_PATH *path;
-   ALLEGRO_CONFIG *temp;
+   A5O_PATH *path;
+   A5O_CONFIG *temp;
 
    if (!sys_config)
       sys_config = al_create_config();
 
-#if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_IPHONE)
+#if defined(A5O_UNIX) && !defined(A5O_IPHONE)
    temp = al_load_config_file("/etc/allegro5rc");
    if (temp) {
       al_merge_config_into(sys_config, temp);
       al_destroy_config(temp);
    }
 
-   path = _al_unix_get_path(ALLEGRO_USER_HOME_PATH);
+   path = _al_unix_get_path(A5O_USER_HOME_PATH);
    if (path) {
       al_set_path_filename(path, "allegro5rc");
       temp = al_load_config_file(al_path_cstr(path, '/'));
@@ -158,7 +158,7 @@ static void read_allegro_cfg(void)
    path = early_get_exename_path();
    if (path) {
       al_set_path_filename(path, "allegro5.cfg");
-      temp = al_load_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+      temp = al_load_config_file(al_path_cstr(path, A5O_NATIVE_PATH_SEP));
       if (temp) {
          al_merge_config_into(sys_config, temp);
          al_destroy_config(temp);
@@ -184,7 +184,7 @@ static void read_allegro_cfg(void)
  */
 static bool compatible_versions(int a, int b)
 {
-   int a_unstable = a & _ALLEGRO_UNSTABLE_BIT_SET;
+   int a_unstable = a & _A5O_UNSTABLE_BIT_SET;
 
    int a_major = (a & 0x7f000000) >> 24;
    int a_sub   = (a & 0x00ff0000) >> 16;
@@ -215,8 +215,8 @@ static bool compatible_versions(int a, int b)
  */
 bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 {
-   ALLEGRO_SYSTEM bootstrap;
-   ALLEGRO_SYSTEM *real_system;
+   A5O_SYSTEM bootstrap;
+   A5O_SYSTEM *real_system;
    int library_version = al_get_allegro_version();
 
    if (active_sysdrv) {
@@ -233,14 +233,14 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    _al_tls_init_once();
    _al_reinitialize_tls_values();
 
-   _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
+   _al_vector_init(&_al_system_interfaces, sizeof(A5O_SYSTEM_INTERFACE *));
 
    /* Set up a bootstrap system so the calls expecting it don't freak out */
    memset(&bootstrap, 0, sizeof(bootstrap));
    active_sysdrv = &bootstrap;
    read_allegro_cfg();
 
-#ifdef ALLEGRO_BCC32
+#ifdef A5O_BCC32
    /* This supresses exceptions on floating point divide by zero */
    _control87(MCW_EM, MCW_EM);
 #endif
@@ -268,7 +268,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       al_get_system_config(), "graphics", "min_bitmap_size");
    active_sysdrv->min_bitmap_size = min_bitmap_size ? atoi(min_bitmap_size) : 16;
 
-   ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
+   A5O_INFO("Allegro version: %s\n", A5O_VERSION_STR);
 
    if (strcmp(al_get_app_name(), "") == 0) {
       al_set_app_name(NULL);
@@ -286,7 +286,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    _al_init_timers();
 
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+#ifdef A5O_CFG_SHADER_GLSL
    _al_glsl_init_shaders();
 #endif
 
@@ -294,7 +294,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       active_sysdrv->vt->heartbeat_init();
 
    if (atexit_ptr && atexit_virgin) {
-#ifndef ALLEGRO_ANDROID
+#ifndef A5O_ANDROID
       atexit_ptr(al_uninstall_system);
 #endif
       atexit_virgin = false;
@@ -325,7 +325,7 @@ void al_uninstall_system(void)
    _al_shutdown_destructors(_al_dtor_list);
    _al_dtor_list = NULL;
 
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+#ifdef A5O_CFG_SHADER_GLSL
    _al_glsl_shutdown_shaders();
 #endif
 
@@ -350,16 +350,16 @@ bool al_is_system_installed(void)
 
 /* Hidden function: al_get_system_driver
  *  This was exported and documented in 5.0rc1 but probably shouldn't have been
- *  as ALLEGRO_SYSTEM is not documented.
+ *  as A5O_SYSTEM is not documented.
  */
-ALLEGRO_SYSTEM *al_get_system_driver(void)
+A5O_SYSTEM *al_get_system_driver(void)
 {
    return active_sysdrv;
 }
 
 /* Function: al_get_system_id
  */
-ALLEGRO_SYSTEM_ID al_get_system_id(void)
+A5O_SYSTEM_ID al_get_system_id(void)
 {
    ASSERT(active_sysdrv);
    return active_sysdrv->vt->id;
@@ -367,7 +367,7 @@ ALLEGRO_SYSTEM_ID al_get_system_id(void)
 
 /* Function: al_get_system_config
  */
-ALLEGRO_CONFIG *al_get_system_config(void)
+A5O_CONFIG *al_get_system_config(void)
 {
    if (!sys_config)
       sys_config = al_create_config();
@@ -377,17 +377,17 @@ ALLEGRO_CONFIG *al_get_system_config(void)
 
 /* Function: al_get_standard_path
  */
-ALLEGRO_PATH *al_get_standard_path(int id)
+A5O_PATH *al_get_standard_path(int id)
 {
    ASSERT(active_sysdrv);
    ASSERT(active_sysdrv->vt);
    ASSERT(active_sysdrv->vt->get_path);
    
-   if (id == ALLEGRO_EXENAME_PATH && active_sysdrv->user_exe_path)
+   if (id == A5O_EXENAME_PATH && active_sysdrv->user_exe_path)
       return al_clone_path(active_sysdrv->user_exe_path);
    
-   if (id == ALLEGRO_RESOURCES_PATH && active_sysdrv->user_exe_path) {
-      ALLEGRO_PATH *exe_dir = al_clone_path(active_sysdrv->user_exe_path);
+   if (id == A5O_RESOURCES_PATH && active_sysdrv->user_exe_path) {
+      A5O_PATH *exe_dir = al_clone_path(active_sysdrv->user_exe_path);
       al_set_path_filename(exe_dir, NULL);
       return exe_dir;
    }
@@ -430,8 +430,8 @@ void al_set_app_name(const char *app_name)
       _al_sane_strncpy(_al_app_name, app_name, sizeof(_al_app_name));
    }
    else {
-      ALLEGRO_PATH *path;
-      path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+      A5O_PATH *path;
+      path = al_get_standard_path(A5O_EXENAME_PATH);
       _al_sane_strncpy(_al_app_name, al_get_path_filename(path), sizeof(_al_app_name));
       al_destroy_path(path);
    }
@@ -523,7 +523,7 @@ void al_rest(double seconds)
 
 /* Function: al_init_timeout
  */
-void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+void al_init_timeout(A5O_TIMEOUT *timeout, double seconds)
 {
    ASSERT(active_sysdrv);
 

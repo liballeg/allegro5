@@ -33,18 +33,18 @@ static char yourname[MAX_NAME_LEN+1] = "";
 /* initialises the hiscore system */
 void init_hiscore()
 {
-   ALLEGRO_PATH *path;
-   ALLEGRO_CONFIG *cfg;
+   A5O_PATH *path;
+   A5O_CONFIG *cfg;
    char buf1[256];
    int i;
 
-   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   path = al_get_standard_path(A5O_USER_DATA_PATH);
    if (!path) return;
-   al_make_directory(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+   al_make_directory(al_path_cstr(path, A5O_NATIVE_PATH_SEP));
    
    al_set_path_filename(path, "speed.rec");
 
-   cfg = al_load_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+   cfg = al_load_config_file(al_path_cstr(path, A5O_NATIVE_PATH_SEP));
    if (!cfg)
       cfg = al_create_config();
 
@@ -66,14 +66,14 @@ void init_hiscore()
 /* shuts down the hiscore system */
 void shutdown_hiscore()
 {
-   ALLEGRO_PATH *path;
-   ALLEGRO_CONFIG *cfg;
+   A5O_PATH *path;
+   A5O_CONFIG *cfg;
    char buf1[256];
    int i;
 
-   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   path = al_get_standard_path(A5O_USER_DATA_PATH);
    if (!path) return;
-   al_make_directory(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+   al_make_directory(al_path_cstr(path, A5O_NATIVE_PATH_SEP));
 
    al_set_path_filename(path, "speed.rec");
 
@@ -87,7 +87,7 @@ void shutdown_hiscore()
       al_set_config_value(cfg, "hiscore", buf1, names[i]);
    }
 
-   al_save_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP), cfg);
+   al_save_config_file(al_path_cstr(path, A5O_NATIVE_PATH_SEP), cfg);
 
    al_destroy_config(cfg);
    al_destroy_path(path);
@@ -100,8 +100,8 @@ static void draw_entry_box(int which, int64_t retrace_count)
 {
    const int w = MAX_NAME_LEN*8+16;
    const int h = 16;
-   ALLEGRO_BITMAP *b;
-   ALLEGRO_BITMAP *screen;
+   A5O_BITMAP *b;
+   A5O_BITMAP *screen;
    int SCREEN_W, SCREEN_H;
    int x;
 
@@ -136,8 +136,8 @@ void score_table()
 {
    int SCREEN_W = al_get_display_width(screen);
    int SCREEN_H = al_get_display_height(screen);
-   ALLEGRO_BITMAP *bmp, *b;
-   ALLEGRO_COLOR col;
+   A5O_BITMAP *bmp, *b;
+   A5O_COLOR col;
    int c, i, j, x, y;
    int myscore = -1;
 
@@ -221,7 +221,7 @@ void score_table()
       } while (retrace_count() < i*512/SCREEN_W);
    }
 
-   while (joy_b1 || key[ALLEGRO_KEY_SPACE] || key[ALLEGRO_KEY_ENTER] || key[ALLEGRO_KEY_ESCAPE])
+   while (joy_b1 || key[A5O_KEY_SPACE] || key[A5O_KEY_ENTER] || key[A5O_KEY_ESCAPE])
       poll_input_wait();
 
    if (myscore >= 0) {
@@ -238,17 +238,17 @@ void score_table()
 	 if (keypressed()) {
 	    c = readkey();
 
-	    if (((c >> 8) == ALLEGRO_KEY_ENTER) && (yourname[0])) {
+	    if (((c >> 8) == A5O_KEY_ENTER) && (yourname[0])) {
 	       strcpy(names[myscore], yourname);
 	       sfx_explode_player();
 	       break;
 	    }
-	    else if (((c >> 8) == ALLEGRO_KEY_ESCAPE) && (names[myscore][0])) {
+	    else if (((c >> 8) == A5O_KEY_ESCAPE) && (names[myscore][0])) {
 	       strcpy(yourname, names[myscore]);
 	       sfx_ping(2);
 	       break;
 	    }
-	    else if (((c >> 8) == ALLEGRO_KEY_BACKSPACE) && (strlen(yourname) > 0)) {
+	    else if (((c >> 8) == A5O_KEY_BACKSPACE) && (strlen(yourname) > 0)) {
 	       yourname[strlen(yourname)-1] = 0;
 	       sfx_shoot();
 	    }
@@ -265,7 +265,7 @@ void score_table()
       }
    }
    else {
-      while (!key[ALLEGRO_KEY_SPACE] && !key[ALLEGRO_KEY_ENTER] && !key[ALLEGRO_KEY_ESCAPE] && !joy_b1) {
+      while (!key[A5O_KEY_SPACE] && !key[A5O_KEY_ENTER] && !key[A5O_KEY_ESCAPE] && !joy_b1) {
 	 poll_input_wait();
 	 al_draw_bitmap(bmp, 0, 0, 0);
 	 al_flip_display();

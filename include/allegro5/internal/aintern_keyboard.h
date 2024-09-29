@@ -8,7 +8,7 @@
 #endif
 
 
-typedef struct ALLEGRO_KEYBOARD_DRIVER
+typedef struct A5O_KEYBOARD_DRIVER
 {
    int  keydrv_id;
    const char *keydrv_name;
@@ -16,12 +16,12 @@ typedef struct ALLEGRO_KEYBOARD_DRIVER
    const char *keydrv_ascii_name;
    AL_METHOD(bool, init_keyboard, (void));
    AL_METHOD(void, exit_keyboard, (void));
-   AL_METHOD(ALLEGRO_KEYBOARD*, get_keyboard, (void));
+   AL_METHOD(A5O_KEYBOARD*, get_keyboard, (void));
    AL_METHOD(bool, set_keyboard_leds, (int leds));
    AL_METHOD(const char *, keycode_to_name, (int keycode));
-   AL_METHOD(void, get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
+   AL_METHOD(void, get_keyboard_state, (A5O_KEYBOARD_STATE *ret_state));
    AL_METHOD(void, clear_keyboard_state, (void));
-} ALLEGRO_KEYBOARD_DRIVER;
+} A5O_KEYBOARD_DRIVER;
 
 
 extern _AL_DRIVER_INFO _al_keyboard_driver_list[];
@@ -31,9 +31,9 @@ extern const char *_al_keyboard_common_names[];
 int _al_parse_key_binding(const char *s, unsigned int *modifiers);
 
 
-struct ALLEGRO_KEYBOARD
+struct A5O_KEYBOARD
 {
-   ALLEGRO_EVENT_SOURCE es;
+   A5O_EVENT_SOURCE es;
 };
 
 

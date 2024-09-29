@@ -4,7 +4,7 @@
  * Originlly derived from the audio example on the wiki.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include <stdio.h>
 #include "allegro5/allegro.h"
@@ -15,9 +15,9 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_VOICE *voice;
-   ALLEGRO_MIXER *mixer;
-   ALLEGRO_SAMPLE_INSTANCE *sample;
+   A5O_VOICE *voice;
+   A5O_MIXER *mixer;
+   A5O_SAMPLE_INSTANCE *sample;
    int i;
    char const **filenames;
    int n;
@@ -47,14 +47,14 @@ int main(int argc, char **argv)
       abort_example("Could not init sound!\n");
    }
 
-   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
-      ALLEGRO_CHANNEL_CONF_2);
+   voice = al_create_voice(44100, A5O_AUDIO_DEPTH_INT16,
+      A5O_CHANNEL_CONF_2);
    if (!voice) {
-      abort_example("Could not create ALLEGRO_VOICE.\n");
+      abort_example("Could not create A5O_VOICE.\n");
    }
 
-   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-      ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32,
+      A5O_CHANNEL_CONF_2);
    if (!mixer) {
       abort_example("al_create_mixer failed.\n");
    }
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
    }
 
    for (i = 0; i < n; ++i) {
-      ALLEGRO_SAMPLE *sample_data = NULL;
+      A5O_SAMPLE *sample_data = NULL;
       const char *filename = filenames[i];
       float sample_time = 0;
       /* A matrix that puts everything in the left channel. */
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
       }
 
       /* Play sample in looping mode. */
-      al_set_sample_instance_playmode(sample, ALLEGRO_PLAYMODE_LOOP);
+      al_set_sample_instance_playmode(sample, A5O_PLAYMODE_LOOP);
       al_play_sample_instance(sample);
 
       sample_time = al_get_sample_instance_time(sample);

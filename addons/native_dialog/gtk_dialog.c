@@ -9,7 +9,7 @@
 #include "gtk_dialog.h"
 #include "gtk_xgtk.h"
 
-ALLEGRO_DEBUG_CHANNEL("gtk_dialog")
+A5O_DEBUG_CHANNEL("gtk_dialog")
 
 
 bool _al_init_native_dialog_addon(void)
@@ -18,7 +18,7 @@ bool _al_init_native_dialog_addon(void)
    char **argv = NULL;
    gdk_set_allowed_backends("x11");
    if (!gtk_init_check(&argc, &argv)) {
-      ALLEGRO_ERROR("gtk_init_check failed\n");
+      A5O_ERROR("gtk_init_check failed\n");
       return false;
    }
 
@@ -31,7 +31,7 @@ void _al_shutdown_native_dialog_addon(void)
    _al_gtk_set_display_overridable_interface(false);
 }
 
-static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
+static void really_make_transient(GtkWidget *window, A5O_DISPLAY_XGLX *glx)
 {
 
    GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
@@ -51,10 +51,10 @@ static void realized(GtkWidget *window, gpointer data)
 }
 
 
-void _al_gtk_make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
+void _al_gtk_make_transient(A5O_DISPLAY *display, GtkWidget *window)
 {
    /* Set the current display window (if any) as the parent of the dialog. */
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
+   A5O_DISPLAY_XGLX *glx = (void *)display;
    if (glx) {
       if (!gtk_widget_get_realized(window))
          g_signal_connect(window, "realize", G_CALLBACK(realized), (void *)glx);

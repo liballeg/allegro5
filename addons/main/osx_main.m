@@ -19,7 +19,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintosx.h"
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
 #error something is wrong with the makefile
 #endif
 #undef main

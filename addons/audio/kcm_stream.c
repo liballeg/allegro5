@@ -14,7 +14,7 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
-ALLEGRO_DEBUG_CHANNEL("audio")
+A5O_DEBUG_CHANNEL("audio")
 
 /*
  * The highest quality interpolator is a cubic interpolator requiring
@@ -28,7 +28,7 @@ ALLEGRO_DEBUG_CHANNEL("audio")
  * To avoid deadlocks, unlock the mutex returned by this function, rather than
  * whatever you passed as the argument.
  */
-static ALLEGRO_MUTEX *maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
+static A5O_MUTEX *maybe_lock_mutex(A5O_MUTEX *mutex)
 {
    if (mutex) {
       al_lock_mutex(mutex);
@@ -37,7 +37,7 @@ static ALLEGRO_MUTEX *maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
 }
 
 
-static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
+static void maybe_unlock_mutex(A5O_MUTEX *mutex)
 {
    if (mutex) {
       al_unlock_mutex(mutex);
@@ -46,27 +46,27 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
 
 /* Function: al_create_audio_stream
  */
-ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
-   unsigned int frag_samples, unsigned int freq, ALLEGRO_AUDIO_DEPTH depth,
-   ALLEGRO_CHANNEL_CONF chan_conf)
+A5O_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
+   unsigned int frag_samples, unsigned int freq, A5O_AUDIO_DEPTH depth,
+   A5O_CHANNEL_CONF chan_conf)
 {
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_AUDIO_STREAM *stream;
    unsigned long bytes_per_sample;
    unsigned long bytes_per_frag_buf;
    size_t i;
 
    if (!fragment_count) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
+      _al_set_error(A5O_INVALID_PARAM,
          "Attempted to create stream with no buffers");
       return NULL;
    }
    if (!frag_samples) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
+      _al_set_error(A5O_INVALID_PARAM,
           "Attempted to create stream with no buffer size");
       return NULL;
    }
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
+      _al_set_error(A5O_INVALID_PARAM,
          "Attempted to create stream with no frequency");
       return NULL;
    }
@@ -77,7 +77,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
 
    stream = al_calloc(1, sizeof(*stream));
    if (!stream) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Out of memory allocating stream object");
       return NULL;
    }
@@ -85,7 +85,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    stream->spl.is_playing = true;
    stream->is_draining = false;
 
-   stream->spl.loop      = _ALLEGRO_PLAYMODE_STREAM_ONCE;
+   stream->spl.loop      = _A5O_PLAYMODE_STREAM_ONCE;
    stream->spl.spl_data.depth     = depth;
    stream->spl.spl_data.chan_conf = chan_conf;
    stream->spl.spl_data.frequency = freq;
@@ -103,7 +103,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    if (!stream->used_bufs) {
       al_free(stream->used_bufs);
       al_free(stream);
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Out of memory allocating stream buffer pointers");
       return NULL;
    }
@@ -119,7 +119,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    if (!stream->main_buffer) {
       al_free(stream->used_bufs);
       al_free(stream);
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Out of memory allocating stream buffer");
       return NULL;
    }
@@ -142,7 +142,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
 
 /* Function: al_destroy_audio_stream
  */
-void al_destroy_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
+void al_destroy_audio_stream(A5O_AUDIO_STREAM *stream)
 {
    if (stream) {
       if (stream->feed_thread) {
@@ -162,7 +162,7 @@ void al_destroy_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_drain_audio_stream
  */
-void al_drain_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
+void al_drain_audio_stream(A5O_AUDIO_STREAM *stream)
 {
    bool playing;
 
@@ -181,7 +181,7 @@ void al_drain_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_frequency
  */
-unsigned int al_get_audio_stream_frequency(const ALLEGRO_AUDIO_STREAM *stream)
+unsigned int al_get_audio_stream_frequency(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -191,7 +191,7 @@ unsigned int al_get_audio_stream_frequency(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_length
  */
-unsigned int al_get_audio_stream_length(const ALLEGRO_AUDIO_STREAM *stream)
+unsigned int al_get_audio_stream_length(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -201,7 +201,7 @@ unsigned int al_get_audio_stream_length(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_fragments
  */
-unsigned int al_get_audio_stream_fragments(const ALLEGRO_AUDIO_STREAM *stream)
+unsigned int al_get_audio_stream_fragments(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -212,7 +212,7 @@ unsigned int al_get_audio_stream_fragments(const ALLEGRO_AUDIO_STREAM *stream)
 /* Function: al_get_available_audio_stream_fragments
  */
 unsigned int al_get_available_audio_stream_fragments(
-   const ALLEGRO_AUDIO_STREAM *stream)
+   const A5O_AUDIO_STREAM *stream)
 {
    unsigned int i;
    ASSERT(stream);
@@ -225,7 +225,7 @@ unsigned int al_get_available_audio_stream_fragments(
 
 /* Function: al_get_audio_stream_speed
  */
-float al_get_audio_stream_speed(const ALLEGRO_AUDIO_STREAM *stream)
+float al_get_audio_stream_speed(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -235,7 +235,7 @@ float al_get_audio_stream_speed(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_gain
  */
-float al_get_audio_stream_gain(const ALLEGRO_AUDIO_STREAM *stream)
+float al_get_audio_stream_gain(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -245,7 +245,7 @@ float al_get_audio_stream_gain(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_pan
  */
-float al_get_audio_stream_pan(const ALLEGRO_AUDIO_STREAM *stream)
+float al_get_audio_stream_pan(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -255,8 +255,8 @@ float al_get_audio_stream_pan(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_channels
  */
-ALLEGRO_CHANNEL_CONF al_get_audio_stream_channels(
-   const ALLEGRO_AUDIO_STREAM *stream)
+A5O_CHANNEL_CONF al_get_audio_stream_channels(
+   const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -266,8 +266,8 @@ ALLEGRO_CHANNEL_CONF al_get_audio_stream_channels(
 
 /* Function: al_get_audio_stream_depth
  */
-ALLEGRO_AUDIO_DEPTH al_get_audio_stream_depth(
-   const ALLEGRO_AUDIO_STREAM *stream)
+A5O_AUDIO_DEPTH al_get_audio_stream_depth(
+   const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -277,8 +277,8 @@ ALLEGRO_AUDIO_DEPTH al_get_audio_stream_depth(
 
 /* Function: al_get_audio_stream_playmode
  */
-ALLEGRO_PLAYMODE al_get_audio_stream_playmode(
-   const ALLEGRO_AUDIO_STREAM *stream)
+A5O_PLAYMODE al_get_audio_stream_playmode(
+   const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -288,7 +288,7 @@ ALLEGRO_PLAYMODE al_get_audio_stream_playmode(
 
 /* Function: al_get_audio_stream_playing
 */
-bool al_get_audio_stream_playing(const ALLEGRO_AUDIO_STREAM *stream)
+bool al_get_audio_stream_playing(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -298,7 +298,7 @@ bool al_get_audio_stream_playing(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_attached
 */
-bool al_get_audio_stream_attached(const ALLEGRO_AUDIO_STREAM *stream)
+bool al_get_audio_stream_attached(const A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -307,10 +307,10 @@ bool al_get_audio_stream_attached(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_played_samples
 */
-uint64_t al_get_audio_stream_played_samples(const ALLEGRO_AUDIO_STREAM *stream)
+uint64_t al_get_audio_stream_played_samples(const A5O_AUDIO_STREAM *stream)
 {
    uint64_t result;
-   ALLEGRO_MUTEX *stream_mutex;
+   A5O_MUTEX *stream_mutex;
    ASSERT(stream);
 
    stream_mutex = maybe_lock_mutex(stream->spl.mutex);
@@ -328,11 +328,11 @@ uint64_t al_get_audio_stream_played_samples(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_fragment
 */
-void *al_get_audio_stream_fragment(const ALLEGRO_AUDIO_STREAM *stream)
+void *al_get_audio_stream_fragment(const A5O_AUDIO_STREAM *stream)
 {
    size_t i;
    void *fragment;
-   ALLEGRO_MUTEX *stream_mutex;
+   A5O_MUTEX *stream_mutex;
    ASSERT(stream);
 
    stream_mutex = maybe_lock_mutex(stream->spl.mutex);
@@ -357,26 +357,26 @@ void *al_get_audio_stream_fragment(const ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_set_audio_stream_speed
  */
-bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
+bool al_set_audio_stream_speed(A5O_AUDIO_STREAM *stream, float val)
 {
    ASSERT(stream);
 
    if (val <= 0.0f) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
+      _al_set_error(A5O_INVALID_PARAM,
          "Attempted to set stream speed to a zero or negative value");
       return false;
    }
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set voice playback speed");
       return false;
    }
 
    stream->spl.speed = val;
    if (stream->spl.parent.u.mixer) {
-      ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+      A5O_MIXER *mixer = stream->spl.parent.u.mixer;
+      A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
 
       stream->spl.step = (stream->spl.spl_data.frequency) * stream->spl.speed;
       stream->spl.step_denom = mixer->ss.spl_data.frequency;
@@ -394,12 +394,12 @@ bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
 
 /* Function: al_set_audio_stream_gain
  */
-bool al_set_audio_stream_gain(ALLEGRO_AUDIO_STREAM *stream, float val)
+bool al_set_audio_stream_gain(A5O_AUDIO_STREAM *stream, float val)
 {
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set gain of stream attached to voice");
       return false;
    }
@@ -411,8 +411,8 @@ bool al_set_audio_stream_gain(ALLEGRO_AUDIO_STREAM *stream, float val)
        * matrix to take into account the gain.
        */
       if (stream->spl.parent.u.mixer) {
-         ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-         ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+         A5O_MIXER *mixer = stream->spl.parent.u.mixer;
+         A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
          maybe_unlock_mutex(stream_mutex);
       }
@@ -424,17 +424,17 @@ bool al_set_audio_stream_gain(ALLEGRO_AUDIO_STREAM *stream, float val)
 
 /* Function: al_set_audio_stream_pan
  */
-bool al_set_audio_stream_pan(ALLEGRO_AUDIO_STREAM *stream, float val)
+bool al_set_audio_stream_pan(A5O_AUDIO_STREAM *stream, float val)
 {
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set gain of stream attached to voice");
       return false;
    }
-   if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
+   if (val != A5O_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
+      _al_set_error(A5O_GENERIC_ERROR, "Invalid pan value");
       return false;
    }
 
@@ -445,8 +445,8 @@ bool al_set_audio_stream_pan(ALLEGRO_AUDIO_STREAM *stream, float val)
        * matrix to take into account the panning.
        */
       if (stream->spl.parent.u.mixer) {
-         ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-         ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+         A5O_MIXER *mixer = stream->spl.parent.u.mixer;
+         A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
          maybe_unlock_mutex(stream_mutex);
       }
@@ -458,27 +458,27 @@ bool al_set_audio_stream_pan(ALLEGRO_AUDIO_STREAM *stream, float val)
 
 /* Function: al_set_audio_stream_playmode
  */
-bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
-   ALLEGRO_PLAYMODE val)
+bool al_set_audio_stream_playmode(A5O_AUDIO_STREAM *stream,
+   A5O_PLAYMODE val)
 {
    ASSERT(stream);
    bool ret = false;
 
-   if (val == ALLEGRO_PLAYMODE_ONCE) {
-      stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONCE;
+   if (val == A5O_PLAYMODE_ONCE) {
+      stream->spl.loop = _A5O_PLAYMODE_STREAM_ONCE;
       ret = true;
    }
-   if (val == ALLEGRO_PLAYMODE_LOOP_ONCE) {
-      stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE;
+   if (val == A5O_PLAYMODE_LOOP_ONCE) {
+      stream->spl.loop = _A5O_PLAYMODE_STREAM_LOOP_ONCE;
       ret = true;
    }
-   else if (val == ALLEGRO_PLAYMODE_LOOP) {
+   else if (val == A5O_PLAYMODE_LOOP) {
       /* Only streams creating by al_load_audio_stream() support
        * looping. */
       if (!stream->feeder) {
          ret = false;
       } else {
-         stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONEDIR;
+         stream->spl.loop = _A5O_PLAYMODE_STREAM_ONEDIR;
          ret = true;
       }
    }
@@ -491,7 +491,7 @@ bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
 }
 
 
-static void reset_stopped_stream(ALLEGRO_AUDIO_STREAM *stream)
+static void reset_stopped_stream(A5O_AUDIO_STREAM *stream)
 {
    const int bytes_per_sample =
       al_get_channel_count(stream->spl.spl_data.chan_conf) *
@@ -538,14 +538,14 @@ static void reset_stopped_stream(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_set_audio_stream_playing
  */
-bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
+bool al_set_audio_stream_playing(A5O_AUDIO_STREAM *stream, bool val)
 {
    bool rc = true;
-   ALLEGRO_MUTEX *stream_mutex;
+   A5O_MUTEX *stream_mutex;
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      ALLEGRO_VOICE *voice = stream->spl.parent.u.voice;
+      A5O_VOICE *voice = stream->spl.parent.u.voice;
       if (val != stream->spl.is_playing) {
          rc = _al_kcm_set_voice_playing(voice, voice->mutex, val);
       }
@@ -574,7 +574,7 @@ bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
 
 /* Function: al_detach_audio_stream
  */
-bool al_detach_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
+bool al_detach_audio_stream(A5O_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -586,11 +586,11 @@ bool al_detach_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_set_audio_stream_fragment
  */
-bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
+bool al_set_audio_stream_fragment(A5O_AUDIO_STREAM *stream, void *val)
 {
    size_t i;
    bool ret;
-   ALLEGRO_MUTEX *stream_mutex;
+   A5O_MUTEX *stream_mutex;
    ASSERT(stream);
 
    stream_mutex = maybe_lock_mutex(stream->spl.mutex);
@@ -602,7 +602,7 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
       ret = true;
    }
    else {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to set a stream buffer with a full pending list");
       ret = false;
    }
@@ -622,9 +622,9 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
  *  Returns true if the next buffer is available and set up.
  *  Otherwise returns false.
  */
-bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
+bool _al_kcm_refill_stream(A5O_AUDIO_STREAM *stream)
 {
-   ALLEGRO_SAMPLE_INSTANCE *spl = &stream->spl;
+   A5O_SAMPLE_INSTANCE *spl = &stream->spl;
    void *old_buf = spl->spl_data.buffer.ptr;
    void *new_buf;
    size_t i;
@@ -649,7 +649,7 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
    new_buf = stream->pending_bufs[0];
    stream->spl.spl_data.buffer.ptr = new_buf;
    if (!new_buf) {
-      ALLEGRO_WARN("Out of buffers\n");
+      A5O_WARN("Out of buffers\n");
       return false;
    }
 
@@ -679,15 +679,15 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
  * A routine running in another thread that feeds the stream buffers as
  * necessary, usually getting data from some file reader backend.
  */
-void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
+void *_al_kcm_feed_stream(A5O_THREAD *self, void *vstream)
 {
-   ALLEGRO_AUDIO_STREAM *stream = vstream;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_AUDIO_STREAM *stream = vstream;
+   A5O_EVENT_QUEUE *queue;
    bool finished_event_sent = false;
    bool prefill = true;
    (void)self;
 
-   ALLEGRO_DEBUG("Stream feeder thread started.\n");
+   A5O_DEBUG("Stream feeder thread started.\n");
 
    queue = al_create_event_queue();
    al_register_event_source(queue, &stream->spl.es);
@@ -696,16 +696,16 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
    while (!stream->quit_feed_thread) {
       char *fragment;
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (!prefill)
          al_wait_for_event(queue, &event);
 
-      if ((prefill || event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT)
+      if ((prefill || event.type == A5O_EVENT_AUDIO_STREAM_FRAGMENT)
           && !stream->is_draining) {
          unsigned long bytes;
          unsigned long bytes_written;
-         ALLEGRO_MUTEX *stream_mutex;
+         A5O_MUTEX *stream_mutex;
 
          fragment = al_get_audio_stream_fragment(stream);
          if (!fragment) {
@@ -721,10 +721,10 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          bytes_written = stream->feeder(stream, fragment, bytes);
          maybe_unlock_mutex(stream_mutex);
 
-         if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+         if (stream->spl.loop == _A5O_PLAYMODE_STREAM_ONEDIR) {
             /* Keep rewinding until the fragment is filled. */
             while (bytes_written < bytes &&
-                     stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+                     stream->spl.loop == _A5O_PLAYMODE_STREAM_ONEDIR) {
                size_t bw;
                al_rewind_audio_stream(stream);
                stream_mutex = maybe_lock_mutex(stream->spl.mutex);
@@ -744,7 +744,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          }
 
          if (!al_set_audio_stream_fragment(stream, fragment)) {
-            ALLEGRO_ERROR("Error setting stream buffer.\n");
+            A5O_ERROR("Error setting stream buffer.\n");
             continue;
          }
 
@@ -752,16 +752,16 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
           * Don't quit in case the user decides to seek and then restart the
           * stream. */
          if (bytes_written != bytes &&
-             (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE ||
-              stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE)) {
+             (stream->spl.loop == _A5O_PLAYMODE_STREAM_ONCE ||
+              stream->spl.loop == _A5O_PLAYMODE_STREAM_LOOP_ONCE)) {
             /* Why not al_drain_audio_stream? We don't want to block on draining
              * because the user might adjust the stream loop points and restart
              * the stream. */
             stream->is_draining = true;
 
             if (!finished_event_sent) {
-               ALLEGRO_EVENT fin_event;
-               fin_event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FINISHED;
+               A5O_EVENT fin_event;
+               fin_event.user.type = A5O_EVENT_AUDIO_STREAM_FINISHED;
                fin_event.user.timestamp = al_get_time();
                al_emit_user_event(&stream->spl.es, &fin_event, NULL);
                finished_event_sent = true;
@@ -771,10 +771,10 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          }
       }
       else if (event.type == _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE) {
-         ALLEGRO_EVENT fin_event;
+         A5O_EVENT fin_event;
          stream->quit_feed_thread = true;
 
-         fin_event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FINISHED;
+         fin_event.user.type = A5O_EVENT_AUDIO_STREAM_FINISHED;
          fin_event.user.timestamp = al_get_time();
          al_emit_user_event(&stream->spl.es, &fin_event, NULL);
       }
@@ -789,13 +789,13 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
    al_destroy_event_queue(queue);
 
-   ALLEGRO_DEBUG("Stream feeder thread finished.\n");
+   A5O_DEBUG("Stream feeder thread finished.\n");
 
    return NULL;
 }
 
 
-void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream)
+void _al_kcm_emit_stream_events(A5O_AUDIO_STREAM *stream)
 {
    /* Emit one event for each stream fragment available right now.
     *
@@ -811,8 +811,8 @@ void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream)
    int count = al_get_available_audio_stream_fragments(stream);
 
    while (count--) {
-      ALLEGRO_EVENT event;
-      event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT;
+      A5O_EVENT event;
+      event.user.type = A5O_EVENT_AUDIO_STREAM_FRAGMENT;
       event.user.timestamp = al_get_time();
       al_emit_user_event(&stream->spl.es, &event, NULL);
    }
@@ -821,12 +821,12 @@ void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_rewind_audio_stream
  */
-bool al_rewind_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
+bool al_rewind_audio_stream(A5O_AUDIO_STREAM *stream)
 {
    bool ret;
 
    if (stream->rewind_feeder) {
-      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+      A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->rewind_feeder(stream);
       stream->is_draining = false;
       maybe_unlock_mutex(stream_mutex);
@@ -839,12 +839,12 @@ bool al_rewind_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_seek_audio_stream_secs
  */
-bool al_seek_audio_stream_secs(ALLEGRO_AUDIO_STREAM *stream, double time)
+bool al_seek_audio_stream_secs(A5O_AUDIO_STREAM *stream, double time)
 {
    bool ret;
 
    if (stream->seek_feeder) {
-      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+      A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->seek_feeder(stream, time);
       stream->is_draining = false;
       maybe_unlock_mutex(stream_mutex);
@@ -857,12 +857,12 @@ bool al_seek_audio_stream_secs(ALLEGRO_AUDIO_STREAM *stream, double time)
 
 /* Function: al_get_audio_stream_position_secs
  */
-double al_get_audio_stream_position_secs(ALLEGRO_AUDIO_STREAM *stream)
+double al_get_audio_stream_position_secs(A5O_AUDIO_STREAM *stream)
 {
    double ret;
 
    if (stream->get_feeder_position) {
-      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+      A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->get_feeder_position(stream);
       maybe_unlock_mutex(stream_mutex);
       return ret;
@@ -874,12 +874,12 @@ double al_get_audio_stream_position_secs(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_get_audio_stream_length_secs
  */
-double al_get_audio_stream_length_secs(ALLEGRO_AUDIO_STREAM *stream)
+double al_get_audio_stream_length_secs(A5O_AUDIO_STREAM *stream)
 {
    double ret;
 
    if (stream->get_feeder_length) {
-      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+      A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->get_feeder_length(stream);
       maybe_unlock_mutex(stream_mutex);
       return ret;
@@ -891,7 +891,7 @@ double al_get_audio_stream_length_secs(ALLEGRO_AUDIO_STREAM *stream)
 
 /* Function: al_set_audio_stream_loop_secs
  */
-bool al_set_audio_stream_loop_secs(ALLEGRO_AUDIO_STREAM *stream,
+bool al_set_audio_stream_loop_secs(A5O_AUDIO_STREAM *stream,
    double start, double end)
 {
    bool ret;
@@ -900,7 +900,7 @@ bool al_set_audio_stream_loop_secs(ALLEGRO_AUDIO_STREAM *stream,
       return false;
 
    if (stream->set_feeder_loop) {
-      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
+      A5O_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->set_feeder_loop(stream, start, end);
       stream->is_draining = false;
       maybe_unlock_mutex(stream_mutex);
@@ -913,18 +913,18 @@ bool al_set_audio_stream_loop_secs(ALLEGRO_AUDIO_STREAM *stream,
 
 /* Function: al_get_audio_stream_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_audio_stream_event_source(
-   ALLEGRO_AUDIO_STREAM *stream)
+A5O_EVENT_SOURCE *al_get_audio_stream_event_source(
+   A5O_AUDIO_STREAM *stream)
 {
    return &stream->spl.es;
 }
 
-bool al_set_audio_stream_channel_matrix(ALLEGRO_AUDIO_STREAM *stream, const float *matrix)
+bool al_set_audio_stream_channel_matrix(A5O_AUDIO_STREAM *stream, const float *matrix)
 {
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set channel matrix of stream attached to voice");
       return false;
    }

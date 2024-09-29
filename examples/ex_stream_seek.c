@@ -14,11 +14,11 @@
 
 #include "common.c"
 
-ALLEGRO_DISPLAY *display;
-ALLEGRO_TIMER *timer;
-ALLEGRO_EVENT_QUEUE *queue;
-ALLEGRO_FONT *basic_font = NULL;
-ALLEGRO_AUDIO_STREAM *music_stream = NULL;
+A5O_DISPLAY *display;
+A5O_TIMER *timer;
+A5O_EVENT_QUEUE *queue;
+A5O_FONT *basic_font = NULL;
+A5O_AUDIO_STREAM *music_stream = NULL;
 const char *stream_filename = "data/welcome.wav";
 
 float slider_pos = 0.0;
@@ -105,12 +105,12 @@ static void render(void)
    double w = al_get_display_width(display) - 20;
    double loop_start_pos = w * (loop_start / length);
    double loop_end_pos = w * (loop_end / length);
-   ALLEGRO_COLOR c = al_map_rgb(255, 255, 255);
+   A5O_COLOR c = al_map_rgb(255, 255, 255);
 
    al_clear_to_color(al_map_rgb(64, 64, 128));
    
    /* render "music player" */
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    al_draw_textf(basic_font, c, 0, 0, 0, "Playing %s", stream_filename);
    print_time(8, 24, pos);
    al_draw_textf(basic_font, c, 100, 24, 0, "/");
@@ -166,69 +166,69 @@ static void maybe_fiddle_sliders(int mx, int my)
    }
 }
 
-static void event_handler(const ALLEGRO_EVENT * event)
+static void event_handler(const A5O_EVENT * event)
 {
    int i;
 
    switch (event->type) {
       /* Was the X button on the window pressed? */
-      case ALLEGRO_EVENT_DISPLAY_CLOSE:
+      case A5O_EVENT_DISPLAY_CLOSE:
          exiting = true;
          break;
 
       /* Was a key pressed? */
-      case ALLEGRO_EVENT_KEY_CHAR:
-         if (event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
+      case A5O_EVENT_KEY_CHAR:
+         if (event->keyboard.keycode == A5O_KEY_LEFT) {
             double pos = al_get_audio_stream_position_secs(music_stream);
             pos -= 5.0;
             if (pos < 0.0)
                pos = 0.0;
             al_seek_audio_stream_secs(music_stream, pos);
          }
-         else if (event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+         else if (event->keyboard.keycode == A5O_KEY_RIGHT) {
             double pos = al_get_audio_stream_position_secs(music_stream);
             pos += 5.0;
             if (!al_seek_audio_stream_secs(music_stream, pos))
                log_printf("seek error!\n");
          }
-         else if (event->keyboard.keycode == ALLEGRO_KEY_R) {
+         else if (event->keyboard.keycode == A5O_KEY_R) {
             if (!al_rewind_audio_stream(music_stream)) {
                log_printf("rewind error!\n");
             }
          }
-         else if (event->keyboard.keycode == ALLEGRO_KEY_SPACE) {
+         else if (event->keyboard.keycode == A5O_KEY_SPACE) {
             bool playing;
             playing = al_get_audio_stream_playing(music_stream);
             playing = !playing;
             al_set_audio_stream_playing(music_stream, playing);
          }
-         else if (event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         else if (event->keyboard.keycode == A5O_KEY_ESCAPE) {
             exiting = true;
          }
          break;
 
-      case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+      case A5O_EVENT_MOUSE_BUTTON_DOWN:
          mouse_button[event->mouse.button] = 1;
          maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
          break;
-      case ALLEGRO_EVENT_MOUSE_AXES:
+      case A5O_EVENT_MOUSE_AXES:
          maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
          break;
-      case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+      case A5O_EVENT_MOUSE_BUTTON_UP:
          mouse_button[event->mouse.button] = 0;
          break;
-      case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+      case A5O_EVENT_MOUSE_LEAVE_DISPLAY:
          for (i = 0; i < 16; i++)
             mouse_button[i] = 0;
          break;
 
       /* Is it time for the next timer tick? */
-      case ALLEGRO_EVENT_TIMER:
+      case A5O_EVENT_TIMER:
          logic();
          render();
          break;
 
-      case ALLEGRO_EVENT_AUDIO_STREAM_FINISHED:
+      case A5O_EVENT_AUDIO_STREAM_FINISHED:
          log_printf("Stream finished.\n");
          break;
    }
@@ -236,12 +236,12 @@ static void event_handler(const ALLEGRO_EVENT * event)
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_CONFIG *config;
-   ALLEGRO_EVENT event;
+   A5O_CONFIG *config;
+   A5O_EVENT event;
    unsigned buffer_count;
    unsigned samples;
    const char *s;
-   ALLEGRO_PLAYMODE playmode = ALLEGRO_PLAYMODE_LOOP;
+   A5O_PLAYMODE playmode = A5O_PLAYMODE_LOOP;
 
    initialize();
 
@@ -261,13 +261,13 @@ int main(int argc, char *argv[])
       }
       if ((s = al_get_config_value(config, "", "playmode"))) {
          if (!strcmp(s, "loop")) {
-            playmode = ALLEGRO_PLAYMODE_LOOP;
+            playmode = A5O_PLAYMODE_LOOP;
          }
          else if (!strcmp(s, "once")) {
-            playmode = ALLEGRO_PLAYMODE_ONCE;
+            playmode = A5O_PLAYMODE_ONCE;
          }
          else if (!strcmp(s, "loop_once")) {
-            playmode = ALLEGRO_PLAYMODE_LOOP_ONCE;
+            playmode = A5O_PLAYMODE_LOOP_ONCE;
          }
       }
       al_destroy_config(config);

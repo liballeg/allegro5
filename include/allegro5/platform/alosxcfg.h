@@ -22,15 +22,15 @@
 /* Include configuration information.  */
 #include "allegro5/platform/alplatf.h"
 
-#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
+#define A5O_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
 
 /* Describe this platform */
-#define ALLEGRO_PLATFORM_STR  "MacOS X"
+#define A5O_PLATFORM_STR  "MacOS X"
 
 
 /* Arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alosx.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintosx.h"
+#define A5O_EXTRA_HEADER     "allegro5/platform/alosx.h"
+#define A5O_INTERNAL_HEADER  "allegro5/platform/aintosx.h"
 
 
 #endif

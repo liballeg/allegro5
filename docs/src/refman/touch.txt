@@ -6,19 +6,19 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_TOUCH_INPUT
+## API: A5O_TOUCH_INPUT
 
 An abstract data type representing a physical touch screen or touch pad.
 
 Since: 5.1.0
 
-## API: ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT
+## API: A5O_TOUCH_INPUT_MAX_TOUCH_COUNT
 
 The maximum amount of simultaneous touches that can be detected.
 
 Since: 5.1.0
 
-## API: ALLEGRO_TOUCH_STATE
+## API: A5O_TOUCH_STATE
 
 This is a structure that is used to hold a "snapshot" of a touch at
 a particular instant.
@@ -31,38 +31,38 @@ Public fields (read only):
 * dx - touch relative x position
 * dy - touch relative y position
 * primary - TRUE if this touch is the primary one (usually the first one).
-* display - The [ALLEGRO_DISPLAY] that was touched.
+* display - The [A5O_DISPLAY] that was touched.
 
 Since: 5.1.0
 
-## API: ALLEGRO_TOUCH_INPUT_STATE
+## API: A5O_TOUCH_INPUT_STATE
 
 This is a structure that holds a snapshot of all simultaneous touches at a
 particular instant.
 
 Public fields (read only):
 
-* touches - an array of [ALLEGRO_TOUCH_STATE]
+* touches - an array of [A5O_TOUCH_STATE]
 
 Since: 5.1.0
 
-## API: ALLEGRO_MOUSE_EMULATION_MODE
+## API: A5O_MOUSE_EMULATION_MODE
 
 Type of mouse emulation to apply.
 
-ALLEGRO_MOUSE_EMULATION_NONE
+A5O_MOUSE_EMULATION_NONE
 :   Disables mouse emulation.
 
-ALLEGRO_MOUSE_EMULATION_TRANSPARENT
+A5O_MOUSE_EMULATION_TRANSPARENT
 :   Enables transparent mouse emulation.
 
-ALLEGRO_MOUSE_EMULATION_INCLUSIVE
+A5O_MOUSE_EMULATION_INCLUSIVE
 :   Enable inclusive mouse emulation.
 
-ALLEGRO_MOUSE_EMULATION_EXCLUSIVE
+A5O_MOUSE_EMULATION_EXCLUSIVE
 :   Enables exclusive mouse emulation.
 
-ALLEGRO_MOUSE_EMULATION_5_0_x
+A5O_MOUSE_EMULATION_5_0_x
 :   Enables mouse emulation that is backwards compatible with Allegro 5.0.x.
 
 Since: 5.1.0
@@ -99,7 +99,7 @@ Since: 5.1.0
 ## API: al_get_touch_input_state
 
 Gets the current touch input state. The touch information is copied into the
-[ALLEGRO_TOUCH_INPUT_STATE] you provide to this function.
+[A5O_TOUCH_INPUT_STATE] you provide to this function.
 
 Since: 5.1.0
 
@@ -112,7 +112,7 @@ Since: 5.1.0
 > *[Unstable API]:* Seems of limited value, as touch input tends to have different
 semantics compared to mouse input.
 
-See also: [ALLEGRO_MOUSE_EMULATION_MODE], [al_get_mouse_emulation_mode].
+See also: [A5O_MOUSE_EMULATION_MODE], [al_get_mouse_emulation_mode].
 
 ## API: al_get_mouse_emulation_mode
 
@@ -124,24 +124,24 @@ Since: 5.1.0
 > *[Unstable API]:* Seems of limited value, as touch input tends to have different
 semantics compared to mouse input.
 
-See also: [ALLEGRO_MOUSE_EMULATION_MODE], [al_set_mouse_emulation_mode].
+See also: [A5O_MOUSE_EMULATION_MODE], [al_set_mouse_emulation_mode].
 
 ## API: al_get_touch_input_event_source
 
 Returns the global touch input event source.  This event source generates
-[touch input events][ALLEGRO_EVENT_TOUCH_BEGIN].
+[touch input events][A5O_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 
-See also: [ALLEGRO_EVENT_SOURCE], [al_register_event_source]
+See also: [A5O_EVENT_SOURCE], [al_register_event_source]
 
 ## API: al_get_touch_input_mouse_emulation_event_source
 
 Returns the global touch input event source for emulated mouse events.
-This event source generates [emulated mouse events][ALLEGRO_EVENT_MOUSE_AXES]
+This event source generates [emulated mouse events][A5O_EVENT_MOUSE_AXES]
 that are based on touch events.
 
-See also: [ALLEGRO_EVENT_SOURCE], [al_register_event_source]
+See also: [A5O_EVENT_SOURCE], [al_register_event_source]
 
 Since: 5.1.0
 

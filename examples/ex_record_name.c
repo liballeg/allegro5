@@ -5,7 +5,7 @@
  * play it back.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_acodec.h"
@@ -17,11 +17,11 @@
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
-   ALLEGRO_AUDIO_RECORDER *recorder;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
+   A5O_AUDIO_RECORDER *recorder;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
    int font_height;
    
    /* Frequency is the number of samples per second. */
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
    
    bool is_recording = false;
    
-   ALLEGRO_SAMPLE *spl = NULL;
+   A5O_SAMPLE *spl = NULL;
    
    (void) argc;
    (void) argv;
@@ -103,8 +103,8 @@ int main(int argc, char *argv[])
       frequency * latency,         /* configure the fragment size to give us the given
                                         latency in seconds */
       frequency,                   /* samples per second (higher => better quality) */
-      ALLEGRO_AUDIO_DEPTH_INT16,   /* 2-byte sample size */
-      ALLEGRO_CHANNEL_CONF_2       /* stereo */
+      A5O_AUDIO_DEPTH_INT16,   /* 2-byte sample size */
+      A5O_CHANNEL_CONF_2       /* stereo */
    );
    
    if (!recorder) {
@@ -136,30 +136,30 @@ int main(int argc, char *argv[])
    al_start_audio_recorder(recorder);
    
    while (true) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       bool do_draw = false;
       
       al_wait_for_event(queue, &event);
       
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE || 
-         (event.type == ALLEGRO_EVENT_KEY_UP && event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE || 
+         (event.type == A5O_EVENT_KEY_UP && event.keyboard.keycode == A5O_KEY_ESCAPE)) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+      else if (event.type == A5O_EVENT_KEY_CHAR) {
          if (spl && event.keyboard.unichar != 27) {
-            al_play_sample(spl, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+            al_play_sample(spl, 1.0, 0.0, 1.0, A5O_PLAYMODE_ONCE, NULL);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_TIMER) {
+      else if (event.type == A5O_EVENT_TIMER) {
          do_draw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT && recorder != NULL) {
+      else if (event.type == A5O_EVENT_AUDIO_RECORDER_FRAGMENT && recorder != NULL) {
          /* Because the recording happens in a different thread (and simply because we are
             queuing up events), it's quite possible to receive (process) a fragment event
             after the recorder has been stopped or destroyed. Thus, it is important to
             somehow check that the recorder is still valid, as we are doing above.
           */
-         ALLEGRO_AUDIO_RECORDER_EVENT *re = al_get_audio_recorder_event(&event);
+         A5O_AUDIO_RECORDER_EVENT *re = al_get_audio_recorder_event(&event);
          int16_t *buffer = re->buffer;
          int16_t low = 0, high = 0;
          unsigned int i;
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
          if (!is_recording && name_buffer_pos != name_buffer && !spl) {
             /* finished recording, but haven't created the sample yet */
             spl = al_create_sample(name_buffer, name_buffer_pos - name_buffer, frequency, 
-               ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2, false);
+               A5O_AUDIO_DEPTH_INT16, A5O_CHANNEL_CONF_2, false);
             
             /* We no longer need the recorder. Destroying it is the only way to unlock the device. */
             al_destroy_audio_recorder(recorder);
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
             int width = al_get_text_width(font, msg);
             
             al_draw_text(font, al_map_rgb(255,255,255),
-               320, 240 - font_height / 2, ALLEGRO_ALIGN_CENTRE, msg
+               320, 240 - font_height / 2, A5O_ALIGN_CENTRE, msg
             );
             
             /* draw volume meter */
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
          }
          else {
             al_draw_text(font, al_map_rgb(255,255,255), 320, 240 - font_height / 2,
-               ALLEGRO_ALIGN_CENTRE, "Press Any Key");
+               A5O_ALIGN_CENTRE, "Press Any Key");
          }
          al_flip_display();
       }

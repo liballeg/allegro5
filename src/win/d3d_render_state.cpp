@@ -2,7 +2,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "d3d.h"
 
-/* Note: synched to ALLEGRO_RENDER_FUNCTION values as array indices */
+/* Note: synched to A5O_RENDER_FUNCTION values as array indices */
 static int _d3d_funcs[] = {
    D3DCMP_NEVER,
    D3DCMP_ALWAYS,
@@ -14,10 +14,10 @@ static int _d3d_funcs[] = {
    D3DCMP_GREATEREQUAL
 };
 
-void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display)
+void _al_d3d_update_render_state(A5O_DISPLAY *display)
 {
-   _ALLEGRO_RENDER_STATE *r = &display->render_state;
-   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)display;
+   _A5O_RENDER_STATE *r = &display->render_state;
+   A5O_DISPLAY_D3D *disp = (A5O_DISPLAY_D3D *)display;
 
    if (!disp->device) return;
 
@@ -35,12 +35,12 @@ void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display)
    disp->device->SetRenderState(D3DRS_ZFUNC, _d3d_funcs[r->depth_function]);
   
    disp->device->SetRenderState(D3DRS_ZWRITEENABLE,
-      (r->write_mask & ALLEGRO_MASK_DEPTH) ? TRUE : FALSE);
+      (r->write_mask & A5O_MASK_DEPTH) ? TRUE : FALSE);
 
    disp->device->SetRenderState(D3DRS_COLORWRITEENABLE,
-      ((r->write_mask & ALLEGRO_MASK_RED) ? D3DCOLORWRITEENABLE_RED : 0) |
-      ((r->write_mask & ALLEGRO_MASK_GREEN) ? D3DCOLORWRITEENABLE_GREEN : 0) |
-      ((r->write_mask & ALLEGRO_MASK_BLUE) ? D3DCOLORWRITEENABLE_BLUE : 0) |
-      ((r->write_mask & ALLEGRO_MASK_ALPHA) ? D3DCOLORWRITEENABLE_ALPHA : 0));
+      ((r->write_mask & A5O_MASK_RED) ? D3DCOLORWRITEENABLE_RED : 0) |
+      ((r->write_mask & A5O_MASK_GREEN) ? D3DCOLORWRITEENABLE_GREEN : 0) |
+      ((r->write_mask & A5O_MASK_BLUE) ? D3DCOLORWRITEENABLE_BLUE : 0) |
+      ((r->write_mask & A5O_MASK_ALPHA) ? D3DCOLORWRITEENABLE_ALPHA : 0));
 
 }

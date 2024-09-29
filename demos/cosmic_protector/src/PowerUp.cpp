@@ -48,11 +48,11 @@ PowerUp::PowerUp(float x, float y, int type) :
    
    switch (type) {
       case POWERUP_LIFE:
-         bitmap = (ALLEGRO_BITMAP *)rm.getData(RES_LIFEPOWERUP);
+         bitmap = (A5O_BITMAP *)rm.getData(RES_LIFEPOWERUP);
          break;
       default:
          type = POWERUP_WEAPON;
-         bitmap = (ALLEGRO_BITMAP *)rm.getData(RES_WEAPONPOWERUP);
+         bitmap = (A5O_BITMAP *)rm.getData(RES_WEAPONPOWERUP);
          break;
    }
 }

@@ -24,19 +24,19 @@
    extern "C" {
 #endif
 
-typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
+typedef struct A5O_KEYBOARD A5O_KEYBOARD;
 
 
 
-/* Type: ALLEGRO_KEYBOARD_STATE
+/* Type: A5O_KEYBOARD_STATE
  */
-typedef struct ALLEGRO_KEYBOARD_STATE ALLEGRO_KEYBOARD_STATE;
+typedef struct A5O_KEYBOARD_STATE A5O_KEYBOARD_STATE;
 
-struct ALLEGRO_KEYBOARD_STATE
+struct A5O_KEYBOARD_STATE
 {
-   struct ALLEGRO_DISPLAY *display;  /* public */
+   struct A5O_DISPLAY *display;  /* public */
    /* internal */
-   unsigned int __key_down__internal__[(ALLEGRO_KEY_MAX + 31) / 32];
+   unsigned int __key_down__internal__[(A5O_KEY_MAX + 31) / 32];
 };
 
 
@@ -49,13 +49,13 @@ AL_FUNC(bool,         al_set_keyboard_leds,  (int leds));
 
 AL_FUNC(const char *, al_keycode_to_name, (int keycode));
 
-AL_FUNC(void,         al_get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
-#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
-AL_FUNC(void,         al_clear_keyboard_state, (ALLEGRO_DISPLAY *display));
+AL_FUNC(void,         al_get_keyboard_state, (A5O_KEYBOARD_STATE *ret_state));
+#if defined(A5O_UNSTABLE) || defined(A5O_INTERNAL_UNSTABLE) || defined(A5O_SRC)
+AL_FUNC(void,         al_clear_keyboard_state, (A5O_DISPLAY *display));
 #endif
-AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, int keycode));
+AL_FUNC(bool,         al_key_down,           (const A5O_KEYBOARD_STATE *, int keycode));
 
-AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_keyboard_event_source, (void));
+AL_FUNC(A5O_EVENT_SOURCE *, al_get_keyboard_event_source, (void));
 
 #ifdef __cplusplus
    }

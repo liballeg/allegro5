@@ -9,7 +9,7 @@
 #endif
 
 
-typedef struct ALLEGRO_JOYSTICK_DRIVER
+typedef struct A5O_JOYSTICK_DRIVER
 {
    int  joydrv_id;
    const char *joydrv_name;
@@ -19,12 +19,12 @@ typedef struct ALLEGRO_JOYSTICK_DRIVER
    AL_METHOD(void, exit_joystick, (void));
    AL_METHOD(bool, reconfigure_joysticks, (void));
    AL_METHOD(int, num_joysticks, (void));
-   AL_METHOD(ALLEGRO_JOYSTICK *, get_joystick, (int joyn));
-   AL_METHOD(void, release_joystick, (ALLEGRO_JOYSTICK *joy));
-   AL_METHOD(void, get_joystick_state, (ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state));
-   AL_METHOD(const char *, get_name, (ALLEGRO_JOYSTICK *joy));
-   AL_METHOD(bool, get_active, (ALLEGRO_JOYSTICK *joy));
-} ALLEGRO_JOYSTICK_DRIVER;
+   AL_METHOD(A5O_JOYSTICK *, get_joystick, (int joyn));
+   AL_METHOD(void, release_joystick, (A5O_JOYSTICK *joy));
+   AL_METHOD(void, get_joystick_state, (A5O_JOYSTICK *joy, A5O_JOYSTICK_STATE *ret_state));
+   AL_METHOD(const char *, get_name, (A5O_JOYSTICK *joy));
+   AL_METHOD(bool, get_active, (A5O_JOYSTICK *joy));
+} A5O_JOYSTICK_DRIVER;
 
 
 extern _AL_DRIVER_INFO _al_joystick_driver_list[];
@@ -76,13 +76,13 @@ typedef struct _AL_JOYSTICK_INFO
 
 /* Joystick has a driver field for per-device drivers,
  * needed on some platforms. */
-struct ALLEGRO_JOYSTICK
+struct A5O_JOYSTICK
 {
    _AL_JOYSTICK_INFO info;
-   ALLEGRO_JOYSTICK_DRIVER * driver;
+   A5O_JOYSTICK_DRIVER * driver;
 };
 
-void _al_generate_joystick_event(ALLEGRO_EVENT *event);
+void _al_generate_joystick_event(A5O_EVENT *event);
 
 #ifdef __cplusplus
    }

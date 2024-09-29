@@ -7,17 +7,17 @@ bool ButtonWidget::activate(void)
 
 void ButtonWidget::render(bool selected)
 {
-   ALLEGRO_FONT *myfont;
+   A5O_FONT *myfont;
    ResourceManager& rm = ResourceManager::getInstance();
 
    if (center) {
       if (selected) {
-         myfont = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
+         myfont = (A5O_FONT *)rm.getData(RES_LARGEFONT);
       }
       else {
-         myfont = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
+         myfont = (A5O_FONT *)rm.getData(RES_SMALLFONT);
       }
-      al_draw_textf(myfont, al_map_rgb(255, 255, 255), x, y-al_get_font_line_height(myfont)/2, ALLEGRO_ALIGN_CENTRE, "%s", text);
+      al_draw_textf(myfont, al_map_rgb(255, 255, 255), x, y-al_get_font_line_height(myfont)/2, A5O_ALIGN_CENTRE, "%s", text);
    }
 }
 

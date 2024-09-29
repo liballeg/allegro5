@@ -1,11 +1,11 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include <allegro5/allegro_android.h> /* al_android_set_apk_file_interface */
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("main")
+A5O_DEBUG_CHANNEL("main")
 
 #define MAX_TOUCH 10
 
@@ -17,19 +17,19 @@ struct touch {
 /* debugging */
 #define print_standard_path(std)                           \
    do {                                                    \
-      ALLEGRO_PATH *path = al_get_standard_path(std);      \
-      ALLEGRO_DEBUG(#std ": %s", al_path_cstr(path, '/')); \
+      A5O_PATH *path = al_get_standard_path(std);      \
+      A5O_DEBUG(#std ": %s", al_path_cstr(path, '/')); \
    } while (0)
 
 static void print_standard_paths(void)
 {
-   print_standard_path(ALLEGRO_RESOURCES_PATH);
-   print_standard_path(ALLEGRO_TEMP_PATH);
-   print_standard_path(ALLEGRO_USER_DATA_PATH);
-   print_standard_path(ALLEGRO_USER_HOME_PATH);
-   print_standard_path(ALLEGRO_USER_SETTINGS_PATH);
-   print_standard_path(ALLEGRO_USER_DOCUMENTS_PATH);
-   print_standard_path(ALLEGRO_EXENAME_PATH);
+   print_standard_path(A5O_RESOURCES_PATH);
+   print_standard_path(A5O_TEMP_PATH);
+   print_standard_path(A5O_USER_DATA_PATH);
+   print_standard_path(A5O_USER_HOME_PATH);
+   print_standard_path(A5O_USER_SETTINGS_PATH);
+   print_standard_path(A5O_USER_DOCUMENTS_PATH);
+   print_standard_path(A5O_EXENAME_PATH);
 }
 
 static void draw_touches(void)
@@ -48,59 +48,59 @@ static void draw_touches(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *dpy;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_BITMAP *image;
-   ALLEGRO_BITMAP *image2;
+   A5O_DISPLAY *dpy;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
+   A5O_TIMER *timer;
+   A5O_BITMAP *image;
+   A5O_BITMAP *image2;
 
    (void) argc;
    (void) argv;
 
-   ALLEGRO_DEBUG("init allegro!");
+   A5O_DEBUG("init allegro!");
    if (!al_init()) {
       return 1;
    }
 
-   ALLEGRO_DEBUG("init primitives");
+   A5O_DEBUG("init primitives");
    al_init_primitives_addon();
 
-   ALLEGRO_DEBUG("init image addon");
+   A5O_DEBUG("init image addon");
    al_init_image_addon();
 
-   ALLEGRO_DEBUG("init touch input");
+   A5O_DEBUG("init touch input");
    al_install_touch_input();
 
-   ALLEGRO_DEBUG("init keyboard");
+   A5O_DEBUG("init keyboard");
    al_install_keyboard();
 
-   ALLEGRO_DEBUG("creating display");
+   A5O_DEBUG("creating display");
    dpy = al_create_display(800, 480);
    if (!dpy) {
-      ALLEGRO_ERROR("failed to create display!");
+      A5O_ERROR("failed to create display!");
       return 1;
    }
 
    print_standard_paths();
 
    /* This is loaded from assets in the apk. */
-   #ifdef ALLEGRO_ANDROID
+   #ifdef A5O_ANDROID
    al_android_set_apk_file_interface();
    #endif
    image = al_load_bitmap("data/alexlogo.png");
    if (!image) {
-      ALLEGRO_DEBUG("failed to load alexlogo.png");
+      A5O_DEBUG("failed to load alexlogo.png");
       return 1;
    }
 
-   #ifdef ALLEGRO_ANDROID
+   #ifdef A5O_ANDROID
    /* Copy the .png from the .apk into the user data area. */
-   ALLEGRO_FILE *fin = al_fopen("data/alexlogo.png", "rb");
+   A5O_FILE *fin = al_fopen("data/alexlogo.png", "rb");
    al_set_standard_file_interface();
-   ALLEGRO_PATH *path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   A5O_PATH *path = al_get_standard_path(A5O_USER_DATA_PATH);
    al_set_path_filename(path, "alexlogo.png");
-   ALLEGRO_FILE *fout = al_fopen(al_path_cstr(path, '/'), "wb");
+   A5O_FILE *fout = al_fopen(al_path_cstr(path, '/'), "wb");
    while (!al_feof(fin)) {
       char buf[1024];
       int n = al_fread(fin, buf, 1024);
@@ -141,77 +141,77 @@ int main(int argc, char **argv)
       al_wait_for_event(queue, &event);
 
       switch (event.type) {
-         case ALLEGRO_EVENT_TOUCH_BEGIN:
-            //ALLEGRO_DEBUG("touch %i begin", event.touch.id);
+         case A5O_EVENT_TOUCH_BEGIN:
+            //A5O_DEBUG("touch %i begin", event.touch.id);
             touch[event.touch.id].down = true;
             touch[event.touch.id].x = event.touch.x;
             touch[event.touch.id].y = event.touch.y;
             break;
 
-         case ALLEGRO_EVENT_TOUCH_END:
-            //ALLEGRO_DEBUG("touch %i end", event.touch.id);
+         case A5O_EVENT_TOUCH_END:
+            //A5O_DEBUG("touch %i end", event.touch.id);
             touch[event.touch.id].down = false;
             touch[event.touch.id].x = 0.0;
             touch[event.touch.id].y = 0.0;
             break;
 
-         case ALLEGRO_EVENT_TOUCH_MOVE:
-            //ALLEGRO_DEBUG("touch %i move: %fx%f", event.touch.id, event.touch.x, event.touch.y);
+         case A5O_EVENT_TOUCH_MOVE:
+            //A5O_DEBUG("touch %i move: %fx%f", event.touch.id, event.touch.x, event.touch.y);
             touch[event.touch.id].x = event.touch.x;
             touch[event.touch.id].y = event.touch.y;
             break;
 
-         case ALLEGRO_EVENT_TOUCH_CANCEL:
-            //ALLEGRO_DEBUG("touch %i canceled", event.touch.id);
+         case A5O_EVENT_TOUCH_CANCEL:
+            //A5O_DEBUG("touch %i canceled", event.touch.id);
             break;
 
-         case ALLEGRO_EVENT_KEY_UP:
-            if (event.keyboard.keycode == ALLEGRO_KEY_BACK) {
-               ALLEGRO_DEBUG("back key pressed, exit!");
+         case A5O_EVENT_KEY_UP:
+            if (event.keyboard.keycode == A5O_KEY_BACK) {
+               A5O_DEBUG("back key pressed, exit!");
                running = false;
             }
             else {
-               ALLEGRO_DEBUG("%i key pressed", event.keyboard.keycode);
+               A5O_DEBUG("%i key pressed", event.keyboard.keycode);
             }
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             draw = true;
             if (count == 60) {
-               ALLEGRO_DEBUG("tick");
+               A5O_DEBUG("tick");
                count = 0;
             }
             count++;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
-            ALLEGRO_DEBUG("display close");
+         case A5O_EVENT_DISPLAY_CLOSE:
+            A5O_DEBUG("display close");
             running = false;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
-            ALLEGRO_DEBUG("halt drawing");
+         case A5O_EVENT_DISPLAY_HALT_DRAWING:
+            A5O_DEBUG("halt drawing");
             // Stop the timer so we don't run at all while our display isn't
             // active.
             al_stop_timer(timer);
-            ALLEGRO_DEBUG("after set target");
+            A5O_DEBUG("after set target");
             draw = false;
             al_acknowledge_drawing_halt(dpy);
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
-            ALLEGRO_DEBUG("resume drawing");
+         case A5O_EVENT_DISPLAY_RESUME_DRAWING:
+            A5O_DEBUG("resume drawing");
 
             al_acknowledge_drawing_resume(dpy);
-            ALLEGRO_DEBUG("done waiting for surface recreated");
+            A5O_DEBUG("done waiting for surface recreated");
 
             al_start_timer(timer);
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_RESIZE:
-            ALLEGRO_DEBUG("display resize");
+         case A5O_EVENT_DISPLAY_RESIZE:
+            A5O_DEBUG("display resize");
             al_acknowledge_resize(dpy);
-            ALLEGRO_DEBUG("done resize");
+            A5O_DEBUG("done resize");
             break;
       }
 
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
       }
    }
 
-   ALLEGRO_DEBUG("done");
+   A5O_DEBUG("done");
    return 0;
 }
 

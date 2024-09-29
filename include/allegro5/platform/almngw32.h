@@ -27,23 +27,23 @@
 
 
 /* describe this platform */
-#ifdef ALLEGRO_STATICLINK
-   #define ALLEGRO_PLATFORM_STR  "MinGW32.s"
+#ifdef A5O_STATICLINK
+   #define A5O_PLATFORM_STR  "MinGW32.s"
 #else
-   #define ALLEGRO_PLATFORM_STR  "MinGW32"
+   #define A5O_PLATFORM_STR  "MinGW32"
 #endif
 
-#define ALLEGRO_WINDOWS
-#define ALLEGRO_I386
-#define ALLEGRO_LITTLE_ENDIAN
+#define A5O_WINDOWS
+#define A5O_I386
+#define A5O_LITTLE_ENDIAN
 
-#ifdef ALLEGRO_USE_CONSOLE
-   #define ALLEGRO_NO_MAGIC_MAIN
+#ifdef A5O_USE_CONSOLE
+   #define A5O_NO_MAGIC_MAIN
 #endif
 
 
 /* describe how function prototypes look to MINGW32 */
-#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
+#if (defined A5O_STATICLINK) || (defined A5O_SRC)
    #define _AL_DLL
 #else
    #define _AL_DLL   __declspec(dllimport)
@@ -58,7 +58,7 @@
 
 /* windows specific defines */
 
-#if (defined ALLEGRO_SRC)
+#if (defined A5O_SRC)
 /* pathches to handle DX7 headers on a win9x system */
 
 /* should WINNT be defined on win9x systems? */
@@ -71,7 +71,7 @@
    #define HMONITOR_DECLARED 1
 #endif
 
-#endif /* ALLEGRO_SRC */
+#endif /* A5O_SRC */
 
 /* another instance of missing constants in the mingw32 headers */
 #ifndef ENUM_CURRENT_SETTINGS
@@ -79,6 +79,6 @@
 #endif
 
 /* arrange for other headers to be included later on */
-#define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alwin.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
-#define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintwthr.h"
+#define A5O_EXTRA_HEADER     "allegro5/platform/alwin.h"
+#define A5O_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
+#define A5O_INTERNAL_THREAD_HEADER "allegro5/platform/aintwthr.h"

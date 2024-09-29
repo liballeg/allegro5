@@ -49,7 +49,7 @@ void generate_explosions(void)
       }
 
       explosion[c] = al_create_bitmap(EXPLODE_SIZE, EXPLODE_SIZE);
-      ALLEGRO_LOCKED_REGION *locked = al_lock_bitmap(explosion[c], ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCKED_REGION *locked = al_lock_bitmap(explosion[c], A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_WRITEONLY);
 
       PALETTE *pal = data[GAME_PAL].dat;
       for (x = 0; x < EXPLODE_SIZE; x++) {

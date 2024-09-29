@@ -27,7 +27,7 @@
 #import <CoreAudio/CoreAudioTypes.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 #import <AVFoundation/AVFoundation.h>
 #endif
 
@@ -41,20 +41,20 @@
 #define BUFFER_SIZE 1024*2 // in samples
 #define NUM_BUFFERS 4
 
-ALLEGRO_DEBUG_CHANNEL("AudioQueue")
+A5O_DEBUG_CHANNEL("AudioQueue")
 
-typedef struct ALLEGRO_AQ_DATA {
+typedef struct A5O_AQ_DATA {
    int bits_per_sample;
    int channels;
    bool playing;
    unsigned int buffer_size;
    unsigned char *silence;
-   ALLEGRO_VOICE *voice;
+   A5O_VOICE *voice;
    AudioQueueRef queue;
    AudioQueueBufferRef buffers[NUM_BUFFERS];
-} ALLEGRO_AQ_DATA;
+} A5O_AQ_DATA;
 
-static _AL_VECTOR saved_voices = _AL_VECTOR_INITIALIZER(ALLEGRO_VOICE*);
+static _AL_VECTOR saved_voices = _AL_VECTOR_INITIALIZER(A5O_VOICE*);
 static _AL_LIST* output_device_list;
 
 /* Audio queue callback */
@@ -63,7 +63,7 @@ static void handle_buffer(
    AudioQueueRef inAQ,
    AudioQueueBufferRef inBuffer)
 {
-   ALLEGRO_AQ_DATA *ex_data = in_data;
+   A5O_AQ_DATA *ex_data = in_data;
    const void *data;
 
    (void)inAQ; // unsused
@@ -77,7 +77,7 @@ static void handle_buffer(
 
    unsigned int copy_bytes = samples * ex_data->channels *
       (ex_data->bits_per_sample / 8);
-   copy_bytes = _ALLEGRO_MIN(copy_bytes, inBuffer->mAudioDataBytesCapacity);
+   copy_bytes = _A5O_MIN(copy_bytes, inBuffer->mAudioDataBytesCapacity);
 
    memcpy(inBuffer->mAudioData, data, copy_bytes);
    inBuffer->mAudioDataByteSize = copy_bytes;
@@ -90,16 +90,16 @@ static void handle_buffer(
    );
 }
 
-#ifdef ALLEGRO_IPHONE
-static int _aqueue_start_voice(ALLEGRO_VOICE *voice);
-static int _aqueue_stop_voice(ALLEGRO_VOICE* voice);
+#ifdef A5O_IPHONE
+static int _aqueue_start_voice(A5O_VOICE *voice);
+static int _aqueue_stop_voice(A5O_VOICE* voice);
 
 static void interruption_callback(void *inClientData, UInt32 inInterruptionState)
 {
    unsigned i;
    (void)inClientData;
    for (i = 0; i < _al_vector_size(&saved_voices); i++) {
-      ALLEGRO_VOICE **voice = _al_vector_ref(&saved_voices, i);
+      A5O_VOICE **voice = _al_vector_ref(&saved_voices, i);
       if (inInterruptionState == kAudioSessionBeginInterruption) {
          _aqueue_stop_voice(*voice);
       }
@@ -118,7 +118,7 @@ static void property_listener(void *inClientData, AudioSessionPropertyID inID, U
 
    if (inID == kAudioSessionProperty_AudioRouteChange) {
       for (i = 0; i < _al_vector_size(&saved_voices); i++) {
-         ALLEGRO_VOICE **voice = _al_vector_ref(&saved_voices, i);
+         A5O_VOICE **voice = _al_vector_ref(&saved_voices, i);
          UInt32 reason = (UInt32)inData;
          if (reason == kAudioSessionRouteChangeReason_NewDeviceAvailable) {
             _aqueue_stop_voice(*voice);
@@ -166,7 +166,7 @@ static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
-   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device->identifier);
    al_free(device);
@@ -217,7 +217,7 @@ static void _aqueue_list_audio_output_devices(void)
       }
   
       if (_aqueue_device_has_scope(deviceIDs[idx], kAudioObjectPropertyScopeOutput)) {
-         ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+         A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)al_malloc(sizeof(A5O_AUDIO_DEVICE));
          device->identifier = (void*)al_malloc(sizeof(AudioDeviceID));
          device->name = (char*)al_malloc(sizeof(deviceName));
 
@@ -236,7 +236,7 @@ static void _aqueue_list_audio_output_devices(void)
    audio data to the device yet, however. */
 static int _aqueue_open(void)
 {
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
    /* These settings allow ipod music playback simultaneously with
     * our Allegro music/sfx, and also do not stop the streams when
     * a phone call comes in (it's muted for the duration of the call).
@@ -271,16 +271,16 @@ static void _aqueue_close(void)
 
 /* The allocate_voice method should grab a voice from the system, and allocate
    any data common to streaming and non-streaming sources. */
-static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
+static int _aqueue_allocate_voice(A5O_VOICE *voice)
 {
-   ALLEGRO_AQ_DATA *ex_data;
+   A5O_AQ_DATA *ex_data;
    int bits_per_sample;
    int channels;
 
    switch (voice->depth)
    {
-      case ALLEGRO_AUDIO_DEPTH_UINT16:
-      case ALLEGRO_AUDIO_DEPTH_INT16:
+      case A5O_AUDIO_DEPTH_UINT16:
+      case A5O_AUDIO_DEPTH_INT16:
          bits_per_sample = 16;
          break;
       default:
@@ -288,10 +288,10 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
    }
 
    switch (voice->chan_conf) {
-      case ALLEGRO_CHANNEL_CONF_1:
+      case A5O_CHANNEL_CONF_1:
          channels = 1;
          break;
-      case ALLEGRO_CHANNEL_CONF_2:
+      case A5O_CHANNEL_CONF_2:
          channels = 2;
          break;
       default:
@@ -299,7 +299,7 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
          return 1;
    }
 
-   ex_data = (ALLEGRO_AQ_DATA *)al_calloc(1, sizeof(*ex_data));
+   ex_data = (A5O_AQ_DATA *)al_calloc(1, sizeof(*ex_data));
    if (!ex_data) {
       fprintf(stderr, "Could not allocate voice data memory\n"); 
       return 1;
@@ -321,9 +321,9 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
 /* The deallocate_voice method should free the resources for the given voice,
    but still retain a hold on the device. The voice should be stopped and
    unloaded by the time this is called */
-static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
+static void _aqueue_deallocate_voice(A5O_VOICE *voice)
 {
-   ALLEGRO_AQ_DATA *ex_data = voice->extra;
+   A5O_AQ_DATA *ex_data = voice->extra;
    al_free(ex_data->silence);
    al_free(ex_data);
    voice->extra = NULL;
@@ -334,7 +334,7 @@ static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
    'buffer_size' field will be the total length in bytes of the sample data.
    The voice's attached sample's looping mode should be honored, and loading
    must fail if it cannot be. */
-static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
+static int _aqueue_load_voice(A5O_VOICE *voice, const void *data)
 {
    /* FIXME */
    (void)voice;
@@ -344,7 +344,7 @@ static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
 /* The unload_voice method unloads a sample previously loaded with load_voice.
    This method should not be called on a streaming voice. */
-static void _aqueue_unload_voice(ALLEGRO_VOICE *voice)
+static void _aqueue_unload_voice(A5O_VOICE *voice)
 {
    /* FIXME */
    (void)voice;
@@ -355,20 +355,20 @@ static void *stream_proc(void *in_data)
 {
    THREAD_BEGIN
 
-   ALLEGRO_VOICE *voice = in_data;
-   ALLEGRO_AQ_DATA *ex_data = voice->extra;
+   A5O_VOICE *voice = in_data;
+   A5O_AQ_DATA *ex_data = voice->extra;
 
    AudioStreamBasicDescription desc;
 
    desc.mSampleRate = voice->frequency;
    desc.mFormatID = kAudioFormatLinearPCM;
-   if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+   if (voice->depth == A5O_AUDIO_DEPTH_INT16)
       desc.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger |
       kLinearPCMFormatFlagIsPacked;
    else
       desc.mFormatFlags = kLinearPCMFormatFlagIsFloat |
       kLinearPCMFormatFlagIsPacked;
-#ifdef ALLEGRO_BIG_ENDIAN
+#ifdef A5O_BIG_ENDIAN
    desc.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
 #endif
    desc.mBytesPerPacket = ex_data->channels * (ex_data->bits_per_sample/8);
@@ -440,12 +440,12 @@ static void *stream_proc(void *in_data)
    should start polling the device and call _al_voice_update for audio data.
    For non-streaming voices, it should resume playing from the last set
    position */
-static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
+static int _aqueue_start_voice(A5O_VOICE *voice)
 {
-   ALLEGRO_AQ_DATA *ex_data = voice->extra;
+   A5O_AQ_DATA *ex_data = voice->extra;
 
    if (voice->is_streaming && !ex_data->playing) {
-      *(ALLEGRO_VOICE**)_al_vector_alloc_back(&saved_voices) = voice;
+      *(A5O_VOICE**)_al_vector_alloc_back(&saved_voices) = voice;
       ex_data->playing = true;
       al_run_detached_thread(stream_proc, voice);
       return 0;
@@ -458,9 +458,9 @@ static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
 
 /* The stop_voice method should stop playback. For non-streaming voices, it
    should leave the data loaded, and reset the voice position to 0. */
-static int _aqueue_stop_voice(ALLEGRO_VOICE* voice)
+static int _aqueue_stop_voice(A5O_VOICE* voice)
 {
-   ALLEGRO_AQ_DATA *ex_data = voice->extra;
+   A5O_AQ_DATA *ex_data = voice->extra;
 
    if (ex_data->playing) {
       _al_vector_find_and_delete(&saved_voices, &voice);
@@ -477,9 +477,9 @@ static int _aqueue_stop_voice(ALLEGRO_VOICE* voice)
 
 /* The voice_is_playing method should only be called on non-streaming sources,
    and should return true if the voice is playing */
-static bool _aqueue_voice_is_playing(const ALLEGRO_VOICE *voice)
+static bool _aqueue_voice_is_playing(const A5O_VOICE *voice)
 {
-   ALLEGRO_AQ_DATA *ex_data = (ALLEGRO_AQ_DATA *)voice->extra;
+   A5O_AQ_DATA *ex_data = (A5O_AQ_DATA *)voice->extra;
 
    return ex_data->playing;
 }
@@ -487,7 +487,7 @@ static bool _aqueue_voice_is_playing(const ALLEGRO_VOICE *voice)
 /* The get_voice_position method should return the current sample position of
    the voice (sample_pos = byte_pos / (depth/8) / channels). This should never
    be called on a streaming voice. */
-static unsigned int _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int _aqueue_get_voice_position(const A5O_VOICE *voice)
 {
    /* FIXME */
    (void)voice;
@@ -497,7 +497,7 @@ static unsigned int _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
 /* The set_voice_position method should set the voice's playback position,
    given the value in samples. This should never be called on a streaming
    voice. */
-static int _aqueue_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
+static int _aqueue_set_voice_position(A5O_VOICE *voice, unsigned int val)
 {
    /* FIXME */
    (void)voice;
@@ -528,7 +528,7 @@ static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
                                        AudioQueueBufferRef aq_buffer, const AudioTimeStamp *start_time,
                                        UInt32 sample_count, const AudioStreamPacketDescription *descs)
 {
-   ALLEGRO_AUDIO_RECORDER *recorder = (ALLEGRO_AUDIO_RECORDER *) user_data;
+   A5O_AUDIO_RECORDER *recorder = (A5O_AUDIO_RECORDER *) user_data;
    RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
    char *input = aq_buffer->mAudioData;
  
@@ -559,12 +559,12 @@ static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
          sample_count -= samples_to_write;
          
          /* We should have never written more samples than the user asked for */
-         ALLEGRO_ASSERT(recorder->samples >= data->samples_written);
+         A5O_ASSERT(recorder->samples >= data->samples_written);
          
          if (data->samples_written == recorder->samples) {
-            ALLEGRO_EVENT user_event;
-            ALLEGRO_AUDIO_RECORDER_EVENT *e;
-            user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+            A5O_EVENT user_event;
+            A5O_AUDIO_RECORDER_EVENT *e;
+            user_event.user.type = A5O_EVENT_AUDIO_RECORDER_FRAGMENT;
             e = al_get_audio_recorder_event(&user_event);
             e->buffer = recorder->fragments[data->fragment_i];
             e->samples = recorder->samples;
@@ -585,7 +585,7 @@ static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
    AudioQueueEnqueueBuffer(data->queue, aq_buffer, 0, NULL);
 }
 
-static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
+static int _aqueue_allocate_recorder(A5O_AUDIO_RECORDER *recorder)
 {
    RECORDER_DATA *data;
    int i;
@@ -610,12 +610,12 @@ static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
    data->data_format.mBytesPerPacket = data->data_format.mChannelsPerFrame * al_get_audio_depth_size(recorder->depth);
    
    data->data_format.mFormatFlags = kLinearPCMFormatFlagIsPacked;
-#ifdef ALLEGRO_BIG_ENDIAN
+#ifdef A5O_BIG_ENDIAN
    data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
 #endif
-   if (recorder->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+   if (recorder->depth == A5O_AUDIO_DEPTH_FLOAT32)
       data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsFloat;
-   else if (!(recorder->depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+   else if (!(recorder->depth & A5O_AUDIO_DEPTH_UNSIGNED))
       data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsSignedInteger;
 
    data->buffer_size = 2048; // in bytes
@@ -631,7 +631,7 @@ static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
    );
    
    if (ret) {
-      ALLEGRO_ERROR("AudioQueueNewInput failed (%d)\n", ret);
+      A5O_ERROR("AudioQueueNewInput failed (%d)\n", ret);
       al_free(data->buffers);
       al_free(data);
       return 1;
@@ -652,7 +652,7 @@ static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
    return 0;
 }
 
-static void _aqueue_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
+static void _aqueue_deallocate_recorder(A5O_AUDIO_RECORDER *recorder)
 {
    RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
  
@@ -663,7 +663,7 @@ static void _aqueue_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
    al_free(data);
 }
 
-ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
+A5O_AUDIO_DRIVER _al_kcm_aqueue_driver = {
    "Apple Audio Queues",
 
    _aqueue_open,

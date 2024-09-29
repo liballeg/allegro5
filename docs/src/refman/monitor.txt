@@ -6,7 +6,7 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_MONITOR_INFO
+## API: A5O_MONITOR_INFO
 
 Describes a monitor's size and position relative to other
 monitors. x1, y1 will be 0, 0 on the primary display.
@@ -17,13 +17,13 @@ x2-x1 gives the width and y2-y1 gives the height of the
 display.
 
 ~~~~c
-typedef struct ALLEGRO_MONITOR_INFO
+typedef struct A5O_MONITOR_INFO
 {
    int x1;
    int y1;
    int x2;
    int y2;
-} ALLEGRO_MONITOR_INFO;
+} A5O_MONITOR_INFO;
 ~~~~
 
 See also: [al_get_monitor_info]
@@ -33,7 +33,7 @@ See also: [al_get_monitor_info]
 Gets the video adapter index where new displays
 will be created by the calling thread, if previously set with
 [al_set_new_display_adapter].
-Otherwise returns `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
+Otherwise returns `A5O_DEFAULT_DISPLAY_ADAPTER`.
 
 See also: [al_set_new_display_adapter]
 
@@ -44,7 +44,7 @@ The adapter has a monitor attached to it. Information
 about the monitor can be gotten using [al_get_num_video_adapters]
 and [al_get_monitor_info].
 
-To return to the default behaviour, pass `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
+To return to the default behaviour, pass `A5O_DEFAULT_DISPLAY_ADAPTER`.
 
 See also: [al_get_num_video_adapters], [al_get_monitor_info]
 
@@ -58,7 +58,7 @@ OpenGL backends, which will often have different adapters available.
 
 Returns `true` on success, `false` on failure.
 
-See also: [ALLEGRO_MONITOR_INFO], [al_get_num_video_adapters]
+See also: [A5O_MONITOR_INFO], [al_get_num_video_adapters]
 
 ## API: al_get_monitor_dpi
 

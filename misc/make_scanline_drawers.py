@@ -38,19 +38,19 @@ def make_drawer(name):
          print("""\
          state_grad_any_2d *gs = (state_grad_any_2d *)state;
          state_solid_any_2d *s = &gs->solid;
-         ALLEGRO_COLOR cur_color = s->cur_color;
+         A5O_COLOR cur_color = s->cur_color;
          """)
       else:
          print("""\
          state_solid_any_2d *s = (state_solid_any_2d *)state;
-         ALLEGRO_COLOR cur_color = s->cur_color;
+         A5O_COLOR cur_color = s->cur_color;
          """)
    else:
       if grad:
          print("""\
          state_texture_grad_any_2d *gs = (state_texture_grad_any_2d *)state;
          state_texture_solid_any_2d *s = &gs->solid;
-         ALLEGRO_COLOR cur_color = s->cur_color;
+         A5O_COLOR cur_color = s->cur_color;
          """)
       else:
          print("""\
@@ -63,7 +63,7 @@ def make_drawer(name):
 
    # XXX still don't understand why y-1 is required
    print("""\
-      ALLEGRO_BITMAP *target = s->target;
+      A5O_BITMAP *target = s->target;
 
       if (target->parent) {
          x1 += target->xofs;
@@ -111,7 +111,7 @@ def make_drawer(name):
       print("""\
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
@@ -122,10 +122,10 @@ def make_drawer(name):
       print("""\
       const int offset_x = s->texture->parent ? s->texture->xofs : 0;
       const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-      ALLEGRO_BITMAP* texture = s->texture->parent ? s->texture->parent : s->texture;
+      A5O_BITMAP* texture = s->texture->parent ? s->texture->parent : s->texture;
       const int src_format = texture->locked_region.format;
       const int src_size = texture->locked_region.pixel_size;
-      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      A5O_BITMAP_WRAP wrap_u, wrap_v;
       _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
       int tile_u = (int)(floorf(u / s->w));
       int tile_v = (int)(floorf(v / s->h));
@@ -149,40 +149,40 @@ def make_drawer(name):
 
    if shade:
       make_if_blender_loop(
-            op='ALLEGRO_ADD',
-            src_mode='ALLEGRO_ONE',
-            src_alpha='ALLEGRO_ONE',
-            op_alpha='ALLEGRO_ADD',
-            dst_mode='ALLEGRO_INVERSE_ALPHA',
-            dst_alpha='ALLEGRO_INVERSE_ALPHA',
+            op='A5O_ADD',
+            src_mode='A5O_ONE',
+            src_alpha='A5O_ONE',
+            op_alpha='A5O_ADD',
+            dst_mode='A5O_INVERSE_ALPHA',
+            dst_alpha='A5O_INVERSE_ALPHA',
             const_color='NULL',
-            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
+            if_format='A5O_PIXEL_FORMAT_ARGB_8888',
             alpha_only=True,
             repeat=repeat,
             )
       print("else")
       make_if_blender_loop(
-            op='ALLEGRO_ADD',
-            src_mode='ALLEGRO_ALPHA',
-            src_alpha='ALLEGRO_ALPHA',
-            op_alpha='ALLEGRO_ADD',
-            dst_mode='ALLEGRO_INVERSE_ALPHA',
-            dst_alpha='ALLEGRO_INVERSE_ALPHA',
+            op='A5O_ADD',
+            src_mode='A5O_ALPHA',
+            src_alpha='A5O_ALPHA',
+            op_alpha='A5O_ADD',
+            dst_mode='A5O_INVERSE_ALPHA',
+            dst_alpha='A5O_INVERSE_ALPHA',
             const_color='NULL',
-            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
+            if_format='A5O_PIXEL_FORMAT_ARGB_8888',
             alpha_only=True,
             repeat=repeat,
             )
       print("else")
       make_if_blender_loop(
-            op='ALLEGRO_ADD',
-            src_mode='ALLEGRO_ONE',
-            src_alpha='ALLEGRO_ONE',
-            op_alpha='ALLEGRO_ADD',
-            dst_mode='ALLEGRO_ONE',
-            dst_alpha='ALLEGRO_ONE',
+            op='A5O_ADD',
+            src_mode='A5O_ONE',
+            src_alpha='A5O_ONE',
+            op_alpha='A5O_ADD',
+            dst_mode='A5O_ONE',
+            dst_alpha='A5O_ONE',
             const_color='NULL',
-            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
+            if_format='A5O_PIXEL_FORMAT_ARGB_8888',
             alpha_only=True,
             repeat=repeat,
             )
@@ -197,7 +197,7 @@ def make_drawer(name):
       print("else")
    else:
       make_loop(
-            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            if_format='A5O_PIXEL_FORMAT_ARGB_8888'
             )
       print("else")
 
@@ -389,7 +389,7 @@ def make_innermost_loop(
 
    if not texture:
       print("""\
-         ALLEGRO_COLOR src_color = cur_color;
+         A5O_COLOR src_color = cur_color;
          """)
    else:
       print(interp("""\
@@ -400,13 +400,13 @@ def make_innermost_loop(
       if not repeat:
          print("""\
          switch (wrap_u) {
-            case ALLEGRO_BITMAP_WRAP_CLAMP:
+            case A5O_BITMAP_WRAP_CLAMP:
                if (tile_u < 0)
                   src_x = 0;
                if (tile_u > 0)
                   src_x = s->w - 1;
                break;
-            case ALLEGRO_BITMAP_WRAP_MIRROR:
+            case A5O_BITMAP_WRAP_MIRROR:
                if (tile_u % 2)
                   src_x = s->w - 1 - src_x;
             // REPEAT and DEFAULT.
@@ -415,13 +415,13 @@ def make_innermost_loop(
          }
 
          switch (wrap_v) {
-            case ALLEGRO_BITMAP_WRAP_CLAMP:
+            case A5O_BITMAP_WRAP_CLAMP:
                if (tile_v < 0)
                   src_y = 0;
                if (tile_v > 0)
                   src_y = s->h - 1;
                break;
-            case ALLEGRO_BITMAP_WRAP_MIRROR:
+            case A5O_BITMAP_WRAP_MIRROR:
                if (tile_v % 2)
                   src_y = s->h - 1 - src_y;
             // REPEAT and DEFAULT.
@@ -440,7 +440,7 @@ def make_innermost_loop(
          pass
       else:
          print(interp("""\
-            ALLEGRO_COLOR src_color;
+            A5O_COLOR src_color;
             _AL_INLINE_GET_PIXEL(#{src_format}, src_data, src_color, false);
             """))
          if grad:
@@ -478,8 +478,8 @@ def make_innermost_loop(
          blend = "_al_blend_alpha_inline"
       print(interp("""\
          {
-            ALLEGRO_COLOR dst_color;
-            ALLEGRO_COLOR result;
+            A5O_COLOR dst_color;
+            A5O_COLOR result;
             _AL_INLINE_GET_PIXEL(#{dst_format}, dst_data, dst_color, false);
             #{blend}(&src_color, &dst_color,
                #{op}, #{src_mode}, #{dst_mode},

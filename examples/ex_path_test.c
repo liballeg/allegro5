@@ -9,7 +9,7 @@
 
 #include "common.c"
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #pragma warning (disable: 4066)
 #endif
 
@@ -37,7 +37,7 @@ int error = 0;
  */
 static void t1(void)
 {
-   ALLEGRO_PATH *path;
+   A5O_PATH *path;
 
    CHECK(path = al_create_path(NULL));
    al_destroy_path(path);
@@ -99,8 +99,8 @@ static void t1(void)
 /* Test parsing UNC paths. */
 static void t2(void)
 {
-#ifdef ALLEGRO_WINDOWS
-   ALLEGRO_PATH *path;
+#ifdef A5O_WINDOWS
+   A5O_PATH *path;
 
    /* The mixed slashes are deliberate. */
    /* Good paths. */
@@ -124,8 +124,8 @@ static void t2(void)
 /* Test parsing drive letter paths. */
 static void t3(void)
 {
-#ifdef ALLEGRO_WINDOWS
-   ALLEGRO_PATH *path;
+#ifdef A5O_WINDOWS
+   A5O_PATH *path;
 
    /* The mixed slashes are deliberate. */
 
@@ -155,7 +155,7 @@ static void t3(void)
 /* Test al_append_path_component. */
 static void t4(void)
 {
-   ALLEGRO_PATH *path = al_create_path(NULL);
+   A5O_PATH *path = al_create_path(NULL);
 
    CHECK(al_get_path_num_components(path) == 0);
 
@@ -179,7 +179,7 @@ static void t4(void)
 /* Test al_replace_path_component. */
 static void t5(void)
 {
-   ALLEGRO_PATH *path = al_create_path(NULL);
+   A5O_PATH *path = al_create_path(NULL);
 
    al_append_path_component(path, "abc");
    al_append_path_component(path, "INKY");
@@ -206,7 +206,7 @@ static void t5(void)
 /* Test al_remove_path_component. */
 static void t6(void)
 {
-   ALLEGRO_PATH *path = al_create_path(NULL);
+   A5O_PATH *path = al_create_path(NULL);
 
    al_append_path_component(path, "abc");
    al_append_path_component(path, "INKY");
@@ -232,7 +232,7 @@ static void t6(void)
 /* Test al_insert_path_component. */
 static void t7(void)
 {
-   ALLEGRO_PATH *path = al_create_path("INKY/BLINKY/");
+   A5O_PATH *path = al_create_path("INKY/BLINKY/");
 
    al_insert_path_component(path, 0, "abc");
    al_insert_path_component(path, 2, "def");
@@ -251,7 +251,7 @@ static void t7(void)
 /* Test al_get_path_tail, al_drop_path_tail. */
 static void t8(void)
 {
-   ALLEGRO_PATH *path = al_create_path(NULL);
+   A5O_PATH *path = al_create_path(NULL);
 
    CHECK(! al_get_path_tail(path));
 
@@ -278,7 +278,7 @@ static void t8(void)
  */
 static void t9(void)
 {
-   ALLEGRO_PATH *path = al_create_path(NULL);
+   A5O_PATH *path = al_create_path(NULL);
 
    CHECK_EQ(al_path_cstr(path, '/'), "");
 
@@ -318,8 +318,8 @@ static void t9(void)
 /* Test al_join_paths. */
 static void t10(void)
 {
-   ALLEGRO_PATH *path1;
-   ALLEGRO_PATH *path2;
+   A5O_PATH *path1;
+   A5O_PATH *path2;
 
    /* Both empty. */
    path1 = al_create_path(NULL);
@@ -346,7 +346,7 @@ static void t10(void)
    al_destroy_path(path1);
    al_destroy_path(path2);
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    /* Both relative paths with drive letters. */
    path1 = al_create_path("d:dir1a/dir1b/file1");
    path2 = al_create_path("e:dir2a/dir2b/file2");
@@ -376,8 +376,8 @@ static void t10(void)
 /* Test al_rebase_path. */
 static void t11(void)
 {
-   ALLEGRO_PATH *path1;
-   ALLEGRO_PATH *path2;
+   A5O_PATH *path1;
+   A5O_PATH *path2;
 
    /* Both empty. */
    path1 = al_create_path(NULL);
@@ -404,7 +404,7 @@ static void t11(void)
    al_destroy_path(path1);
    al_destroy_path(path2);
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    /* Both relative paths with drive letters. */
    path1 = al_create_path("d:dir1a/dir1b/file1");
    path2 = al_create_path("e:dir2a/dir2b/file2");
@@ -434,7 +434,7 @@ static void t11(void)
 /* Test al_set_path_extension, al_get_path_extension. */
 static void t12(void)
 {
-   ALLEGRO_PATH *path = al_create_path(NULL);
+   A5O_PATH *path = al_create_path(NULL);
 
    /* Get null extension. */
    CHECK_EQ(al_get_path_extension(path), "");
@@ -466,7 +466,7 @@ static void t12(void)
 /* Test al_get_path_basename. */
 static void t13(void)
 {
-   ALLEGRO_PATH *path = al_create_path(NULL);
+   A5O_PATH *path = al_create_path(NULL);
 
    /* No filename. */
    al_set_path_filename(path, NULL);
@@ -490,8 +490,8 @@ static void t13(void)
 /* Test al_clone_path. */
 static void t14(void)
 {
-   ALLEGRO_PATH *path1;
-   ALLEGRO_PATH *path2;
+   A5O_PATH *path1;
+   A5O_PATH *path2;
 
    path1 = al_create_path("/abc/def/ghi");
    path2 = al_clone_path(path1);
@@ -522,7 +522,7 @@ static void t16(void)
 /* Test al_make_path_canonical. */
 static void t17(void)
 {
-   ALLEGRO_PATH *path;
+   A5O_PATH *path;
 
    path = al_create_path("/../.././abc/./def/../../ghi/jkl");
    CHECK(al_make_path_canonical(path));

@@ -15,7 +15,7 @@ public:
    PowerUp(float x, float y, int type);
 private:
    int type;
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    float angle;
    float da;
 };

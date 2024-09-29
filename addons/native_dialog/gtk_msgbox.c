@@ -23,8 +23,8 @@
 
 
 typedef struct {
-   ALLEGRO_DISPLAY         *display;
-   ALLEGRO_NATIVE_DIALOG   *dialog;
+   A5O_DISPLAY         *display;
+   A5O_NATIVE_DIALOG   *dialog;
 } Msg;
 
 
@@ -32,7 +32,7 @@ typedef struct {
 
 static void msgbox_destroy(GtkWidget *w, gpointer data)
 {
-   ALLEGRO_NATIVE_DIALOG *nd = data;
+   A5O_NATIVE_DIALOG *nd = data;
    (void)w;
 
    ASSERT(nd->async_queue);
@@ -42,7 +42,7 @@ static void msgbox_destroy(GtkWidget *w, gpointer data)
 static void msgbox_response(GtkDialog *dialog, gint response_id,
    gpointer user_data)
 {
-   ALLEGRO_NATIVE_DIALOG *nd = (void *)user_data;
+   A5O_NATIVE_DIALOG *nd = (void *)user_data;
    (void)dialog;
    switch (response_id) {
       case GTK_RESPONSE_DELETE_EVENT:
@@ -65,19 +65,19 @@ static void msgbox_response(GtkDialog *dialog, gint response_id,
 static gboolean create_native_message_box(gpointer data)
 {
    Msg *msg = data;
-   ALLEGRO_DISPLAY *display = msg->display;
-   ALLEGRO_NATIVE_DIALOG *fd = msg->dialog;
+   A5O_DISPLAY *display = msg->display;
+   A5O_NATIVE_DIALOG *fd = msg->dialog;
    GtkWidget *window;
 
    /* Create a new file selection widget */
    GtkMessageType type = GTK_MESSAGE_INFO;
    GtkButtonsType buttons = GTK_BUTTONS_OK;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) type = GTK_MESSAGE_QUESTION;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_QUESTION) type = GTK_MESSAGE_QUESTION;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_WARN) type = GTK_MESSAGE_WARNING;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR) type = GTK_MESSAGE_ERROR;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) buttons = GTK_BUTTONS_YES_NO;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) buttons = GTK_BUTTONS_OK_CANCEL;
+   if (fd->flags & A5O_MESSAGEBOX_YES_NO) type = GTK_MESSAGE_QUESTION;
+   if (fd->flags & A5O_MESSAGEBOX_QUESTION) type = GTK_MESSAGE_QUESTION;
+   if (fd->flags & A5O_MESSAGEBOX_WARN) type = GTK_MESSAGE_WARNING;
+   if (fd->flags & A5O_MESSAGEBOX_ERROR) type = GTK_MESSAGE_ERROR;
+   if (fd->flags & A5O_MESSAGEBOX_YES_NO) buttons = GTK_BUTTONS_YES_NO;
+   if (fd->flags & A5O_MESSAGEBOX_OK_CANCEL) buttons = GTK_BUTTONS_OK_CANCEL;
    if (fd->mb_buttons) buttons = GTK_BUTTONS_NONE;
 
    window = gtk_message_dialog_new(NULL, 0, type, buttons, "%s",
@@ -95,8 +95,8 @@ static gboolean create_native_message_box(gpointer data)
          int pos2 = next;
          if (next == -1)
 	     pos2 = al_ustr_size(fd->mb_buttons);
-         ALLEGRO_USTR_INFO info;
-         const ALLEGRO_USTR *button_text;
+         A5O_USTR_INFO info;
+         const A5O_USTR *button_text;
          button_text = al_ref_ustr(&info, fd->mb_buttons, pos, pos2);
          pos = pos2 + 1;
          char buffer[256];
@@ -119,8 +119,8 @@ static gboolean create_native_message_box(gpointer data)
 }
 
 /* [user thread] */
-int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
-   ALLEGRO_NATIVE_DIALOG *fd)
+int _al_show_native_message_box(A5O_DISPLAY *display,
+   A5O_NATIVE_DIALOG *fd)
 {
    Msg msg;
 

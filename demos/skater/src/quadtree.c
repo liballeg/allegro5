@@ -371,7 +371,7 @@ struct QuadTreeNode *GetCollisionNode(struct Level *lvl, double *pos,
 
 */
 
-static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
+static void set_v(A5O_VERTEX *vt, double x, double y, double u, double v)
 {
    vt->x = x;
    vt->y = y;
@@ -388,7 +388,7 @@ static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
 */
 static void DrawTriEdge(struct Triangle *tri, struct BoundingBox *ScrBounder)
 {
-   ALLEGRO_VERTEX PolyEdges[4];
+   A5O_VERTEX PolyEdges[4];
    int c, c2;
    double x, y, w;
 
@@ -417,12 +417,12 @@ static void DrawTriEdge(struct Triangle *tri, struct BoundingBox *ScrBounder)
          set_v(PolyEdges + 1, x, y - w, tri->Edges[c2]->Pos[0], 0);
          set_v(PolyEdges + 2, x, y + w, tri->Edges[c2]->Pos[0], al_get_bitmap_height(tri->Material->Edge));
 
-         al_draw_prim(PolyEdges, NULL, tri->Material->Edge, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+         al_draw_prim(PolyEdges, NULL, tri->Material->Edge, 0, 4, A5O_PRIM_TRIANGLE_FAN);
       }
    }
 }
 
-static void setuv(ALLEGRO_VERTEX *v, struct BoundingBox *ScrBounder)
+static void setuv(A5O_VERTEX *v, struct BoundingBox *ScrBounder)
 {
    v->u = v->x + ScrBounder->TL.Pos[0];
    v->v = v->y + ScrBounder->TL.Pos[1];
@@ -440,7 +440,7 @@ static void setuv(ALLEGRO_VERTEX *v, struct BoundingBox *ScrBounder)
 static void DrawTriangle(struct Triangle *tri,
                   struct BoundingBox *ScrBounder)
 {
-   ALLEGRO_VERTEX v[3];
+   A5O_VERTEX v[3];
 
    /* quick bounding box check - if the triangle isn't on screen then we can
       forget about it */
@@ -457,7 +457,7 @@ static void DrawTriangle(struct Triangle *tri,
     v[2].y = tri->Edges[2]->Pos[1] - ScrBounder->TL.Pos[1];
     setuv(&v[2], ScrBounder);
 
-    al_draw_prim(v, NULL, tri->Material->Fill, 0, 3, ALLEGRO_PRIM_TRIANGLE_STRIP);
+    al_draw_prim(v, NULL, tri->Material->Fill, 0, 3, A5O_PRIM_TRIANGLE_STRIP);
 }
 
 /*

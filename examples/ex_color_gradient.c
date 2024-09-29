@@ -17,7 +17,7 @@
  *
  *      See readme.txt for copyright information.
  */
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
@@ -40,7 +40,7 @@ static char const *colorspace_name[] = {
 };
 
 struct Example {
-   ALLEGRO_FONT *font;
+   A5O_FONT *font;
    bool resized;
    int ox, oy;
    float scale;
@@ -60,8 +60,8 @@ static void print(int x, int y, char const *format, ...)
    float ox = 0;
    if (x - tw / 2 < 0) ox = tw / 2 - x;
    if (x + tw / 2 > SCREEN_W) ox = SCREEN_W - x - tw / 2;
-   ALLEGRO_TRANSFORM backup = *al_get_current_transform();
-   ALLEGRO_TRANSFORM t;
+   A5O_TRANSFORM backup = *al_get_current_transform();
+   A5O_TRANSFORM t;
    // Since we re-load the font when the window is resized we need to
    // un-scale it for drawing (but keep the scaled position).
    al_identity_transform(&t);
@@ -76,7 +76,7 @@ static void print(int x, int y, char const *format, ...)
 }
 
 
-static ALLEGRO_COLOR get_colorspace_rgb(ColorSpace cs, float *v)
+static A5O_COLOR get_colorspace_rgb(ColorSpace cs, float *v)
 {
    if (cs == RGB) {
       return al_map_rgb_f(v[0], v[1], v[2]);
@@ -100,8 +100,8 @@ static ALLEGRO_COLOR get_colorspace_rgb(ColorSpace cs, float *v)
 static void draw_gradient(int x, int y, ColorSpace cs,
       int color1, int color2)
 {
-   ALLEGRO_COLOR rgb1 = al_color_name(example.colors[color1]);
-   ALLEGRO_COLOR rgb2 = al_color_name(example.colors[color2]);
+   A5O_COLOR rgb1 = al_color_name(example.colors[color1]);
+   A5O_COLOR rgb2 = al_color_name(example.colors[color2]);
    float v1[3], v2[3];
    if (cs == RGB) {
       al_unmap_rgb_f(rgb1, v1 + 0, v1 + 1, v1 + 2);
@@ -131,7 +131,7 @@ static void draw_gradient(int x, int y, ColorSpace cs,
       v[0] = v1[0] + p * (v2[0] - v1[0]);
       v[1] = v1[1] + p * (v2[1] - v1[1]);
       v[2] = v1[2] + p * (v2[2] - v1[2]);
-      ALLEGRO_COLOR rgb = get_colorspace_rgb(cs, v);
+      A5O_COLOR rgb = get_colorspace_rgb(cs, v);
       float colx = x + 10 + i / example.scale;
       al_draw_filled_rectangle(colx, y + 10, colx + 1 / example.scale, y + 80, rgb);
       float l, a, b;
@@ -169,7 +169,7 @@ static void redraw(void)
       // size whenever the transformation changes.
       example.font = al_load_font("data/DejaVuSans.ttf", 20 * example.scale, 0);
    }
-   ALLEGRO_TRANSFORM transform;
+   A5O_TRANSFORM transform;
    al_build_transform(&transform, example.ox, example.oy,
       example.scale, example.scale, 0);
    al_use_transform(&transform);
@@ -209,9 +209,9 @@ static void init(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
    bool done = false;
    bool need_redraw = true;
 
@@ -227,9 +227,9 @@ int main(int argc, char **argv)
    init_platform_specific();
    example.resized = true;
 
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
-   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 16, ALLEGRO_SUGGEST);
+   al_set_new_display_flags(A5O_RESIZABLE);
+   al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_SUGGEST);
+   al_set_new_display_option(A5O_SAMPLES, 16, A5O_SUGGEST);
    display = al_create_display(SCREEN_W, SCREEN_H);
    if (!display) {
       abort_example("Error creating display.\n");
@@ -253,7 +253,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (need_redraw) {
          redraw();
@@ -264,21 +264,21 @@ int main(int argc, char **argv)
       while (true) {
          al_wait_for_event(queue, &event);
          switch (event.type) {
-            case ALLEGRO_EVENT_KEY_CHAR:
-               if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+            case A5O_EVENT_KEY_CHAR:
+               if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                   done = true;
                break;
 
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            case A5O_EVENT_DISPLAY_CLOSE:
                done = true;
                break;
 
-            case ALLEGRO_EVENT_DISPLAY_RESIZE:
+            case A5O_EVENT_DISPLAY_RESIZE:
                al_acknowledge_resize(display);
                example.resized = true;
                break;
 
-            case ALLEGRO_EVENT_TIMER:
+            case A5O_EVENT_TIMER:
                need_redraw = true;
                break;
          }

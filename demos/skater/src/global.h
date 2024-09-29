@@ -15,7 +15,7 @@
 #include "defines.h"
 #include "keyboard.h"
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #define snprintf  _snprintf
    #define vsnprintf _vsnprintf
 #endif
@@ -59,15 +59,15 @@ extern char config_path[DEMO_PATH_LENGTH + 1];
 extern char data_path[DEMO_PATH_LENGTH + 1];
 
 /* The main menu font (monochrome). */
-#define demo_font ((ALLEGRO_FONT *)demo_data[DEMO_FONT].dat)
+#define demo_font ((A5O_FONT *)demo_data[DEMO_FONT].dat)
 
 /* The big title font (coloured). */
-#define demo_font_logo ((ALLEGRO_FONT *)demo_data[DEMO_FONT_LOGO].dat)
+#define demo_font_logo ((A5O_FONT *)demo_data[DEMO_FONT_LOGO].dat)
 
 /* Font made of default allegro font (monochrome). */
 #define plain_font demo_font
 
-extern ALLEGRO_DISPLAY *screen;
+extern A5O_DISPLAY *screen;
 
 
 /*
@@ -140,7 +140,7 @@ extern void unload_data(void);
    Text alignment is selected with a parameter.
 
    Parameters:
-      ALLEGRO_BITMAP *canvas, int x, int y, int col and char *format have
+      A5O_BITMAP *canvas, int x, int y, int col and char *format have
          exactly the same meaning as in the equivalent Allegro built-in
          text output functions.
       FONT *font can be either plain Allegro font or a font converted with
@@ -150,20 +150,20 @@ extern void unload_data(void);
    Returns:
       nothing
 */
-extern void demo_textprintf_ex(const ALLEGRO_FONT * font, int x, int y,
-      ALLEGRO_COLOR col, int align, const char *format, ...);
-extern void demo_textprintf(const ALLEGRO_FONT * font, int x, int y,
-      ALLEGRO_COLOR col, const char *format, ...);
-extern void demo_textprintf_right(const ALLEGRO_FONT * font, int x, int y,
-      ALLEGRO_COLOR col, const char *format, ...);
-extern void demo_textprintf_centre(const ALLEGRO_FONT * font, int x, int y,
-      ALLEGRO_COLOR col, const char *format, ...);
-extern void demo_textout(const ALLEGRO_FONT *f, const char *s, int x,
-      int y, ALLEGRO_COLOR color);
-extern void demo_textout_right(const ALLEGRO_FONT *f, const char *s,
-      int x, int y, ALLEGRO_COLOR color);
-extern void demo_textout_centre(const ALLEGRO_FONT *f, const char *s,
-      int x, int y, ALLEGRO_COLOR color);
+extern void demo_textprintf_ex(const A5O_FONT * font, int x, int y,
+      A5O_COLOR col, int align, const char *format, ...);
+extern void demo_textprintf(const A5O_FONT * font, int x, int y,
+      A5O_COLOR col, const char *format, ...);
+extern void demo_textprintf_right(const A5O_FONT * font, int x, int y,
+      A5O_COLOR col, const char *format, ...);
+extern void demo_textprintf_centre(const A5O_FONT * font, int x, int y,
+      A5O_COLOR col, const char *format, ...);
+extern void demo_textout(const A5O_FONT *f, const char *s, int x,
+      int y, A5O_COLOR color);
+extern void demo_textout_right(const A5O_FONT *f, const char *s,
+      int x, int y, A5O_COLOR color);
+extern void demo_textout_centre(const A5O_FONT *f, const char *s,
+      int x, int y, A5O_COLOR color);
 
 /*
    Custom text output function. Similar to the Allegro's built-in functions
@@ -172,7 +172,7 @@ extern void demo_textout_centre(const ALLEGRO_FONT *f, const char *s,
    shadow_offset variable.
 
    Parameters:
-      ALLEGRO_BITMAP *canvas, FONT *font, int x, int y, int col and char *text have
+      A5O_BITMAP *canvas, FONT *font, int x, int y, int col and char *text have
          exactly the same meaning as in the equivalent Allegro built-in
          text output functions.
       int align - defines alignemnt: 0 = left, 1 = right, 2 = centre
@@ -180,8 +180,8 @@ extern void demo_textout_centre(const ALLEGRO_FONT *f, const char *s,
    Returns:
       nothing
 */
-extern void shadow_textprintf(ALLEGRO_FONT * font, int x, int y,
-      ALLEGRO_COLOR col, int align, const char *text, ...);
+extern void shadow_textprintf(A5O_FONT * font, int x, int y,
+      A5O_COLOR col, int align, const char *text, ...);
 
 typedef struct DATA_ENTRY {
    int id;
@@ -198,10 +198,10 @@ extern DATA_ENTRY *demo_data;
 
 void unload_data_entries(DATA_ENTRY *data);
 
-int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
+int get_config_int(const A5O_CONFIG *cfg, const char *section,
 		   const char *name, int def);
 
-void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
+void set_config_int(A5O_CONFIG *cfg, const char *section, const char *name,
 		    int val);
 
 int my_stricmp(const char *s1, const char *s2);

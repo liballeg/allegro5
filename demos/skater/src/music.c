@@ -29,7 +29,7 @@ void play_music(int id, int loop)
    stop_music();
    
    al_set_audio_stream_playmode(demo_data[id].dat,
-      loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
+      loop ? A5O_PLAYMODE_LOOP : A5O_PLAYMODE_ONCE);
    
    al_set_audio_stream_gain(demo_data[id].dat, volume_music);
    
@@ -49,9 +49,9 @@ void stop_music(void)
 }
 
 
-void play_sound(ALLEGRO_SAMPLE *s, int vol, int pan, int freq, int loop)
+void play_sound(A5O_SAMPLE *s, int vol, int pan, int freq, int loop)
 {
-   int playmode = loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE;
+   int playmode = loop ? A5O_PLAYMODE_LOOP : A5O_PLAYMODE_ONCE;
     if (!s)
         return;
    if (freq < 0) {

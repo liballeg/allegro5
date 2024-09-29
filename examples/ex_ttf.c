@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include <stdio.h>
 #include <allegro5/allegro.h>
@@ -15,13 +15,13 @@ const char *font_file = "data/DejaVuSans.ttf";
 struct Example
 {
     double fps;
-    ALLEGRO_FONT *f1, *f2, *f3, *f4, *f5, *f6;
-    ALLEGRO_FONT *f_alex;
-    ALLEGRO_CONFIG *config;
+    A5O_FONT *f1, *f2, *f3, *f4, *f5, *f6;
+    A5O_FONT *f_alex;
+    A5O_CONFIG *config;
     int ranges_count;
 } ex;
 
-static void print_ranges(ALLEGRO_FONT *f)
+static void print_ranges(A5O_FONT *f)
 {
     int ranges[MAX_RANGES * 2];
     int count;
@@ -42,28 +42,28 @@ static const char *get_string(const char *key)
     return (v) ? v : key;
 }
 
-static int ustr_at(ALLEGRO_USTR *string, int index)
+static int ustr_at(A5O_USTR *string, int index)
 {
    return al_ustr_get(string, al_ustr_offset(string, index));
 }
 
 static void render(void)
 {
-    ALLEGRO_COLOR white = al_map_rgba_f(1, 1, 1, 1);
-    ALLEGRO_COLOR black = al_map_rgba_f(0, 0, 0, 1);
-    ALLEGRO_COLOR red = al_map_rgba_f(1, 0, 0, 1);
-    ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
-    ALLEGRO_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
-    ALLEGRO_COLOR purple = al_map_rgba_f(0.3, 0.1, 0.2, 1);
+    A5O_COLOR white = al_map_rgba_f(1, 1, 1, 1);
+    A5O_COLOR black = al_map_rgba_f(0, 0, 0, 1);
+    A5O_COLOR red = al_map_rgba_f(1, 0, 0, 1);
+    A5O_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
+    A5O_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
+    A5O_COLOR purple = al_map_rgba_f(0.3, 0.1, 0.2, 1);
     int x, y, w, h, as, de, xpos, ypos;
     unsigned int index;
     int target_w, target_h;
-    ALLEGRO_USTR_INFO info, sub_info;
-    const ALLEGRO_USTR *u;
-    ALLEGRO_USTR *tulip = al_ustr_new("Tulip");
-    ALLEGRO_USTR *dimension_text = al_ustr_new("Tulip");
-    ALLEGRO_USTR *vertical_text  = al_ustr_new("Rose.");
-    ALLEGRO_USTR *dimension_label = al_ustr_new("(dimensions)");
+    A5O_USTR_INFO info, sub_info;
+    const A5O_USTR *u;
+    A5O_USTR *tulip = al_ustr_new("Tulip");
+    A5O_USTR *dimension_text = al_ustr_new("Tulip");
+    A5O_USTR *vertical_text  = al_ustr_new("Rose.");
+    A5O_USTR *dimension_label = al_ustr_new("(dimensions)");
     int prev_cp = -1;
 
     al_clear_to_color(white);
@@ -82,13 +82,13 @@ static void render(void)
        al_draw_rectangle(x + bbx + 0.5, y + bby + 0.5, x + bbx + bbw - 0.5, y + bby + bbh - 0.5, blue, 1);
        al_draw_rectangle(x + 0.5, y + 0.5, x + bbx + bbw - 0.5, y + bby + bbh - 0.5, green, 1);
        al_draw_glyph(ex.f2, purple, x, y, cp);
-       x += al_get_glyph_advance(ex.f2, cp, ALLEGRO_NO_KERNING);
+       x += al_get_glyph_advance(ex.f2, cp, A5O_NO_KERNING);
     }
     al_draw_line(50.5, y+0.5, x+0.5, y+0.5, red, 1);
 
     for (index = 0; index < al_ustr_length(dimension_label); index++) {
        int cp = ustr_at(dimension_label, index);
-       ALLEGRO_GLYPH g;
+       A5O_GLYPH g;
        if (al_get_glyph(ex.f2, prev_cp, cp, &g)) {
           al_draw_tinted_bitmap_region(g.bitmap, black, g.x, g.y, g.w, g.h, x + 10 + g.kerning + g.offset_x, y + g.offset_y, 0);
           x += g.advance;
@@ -125,13 +125,13 @@ static void render(void)
 
     al_draw_textf(ex.f5, black, 50, 395, 0, "forced monochrome");
 
-    ALLEGRO_TRANSFORM t;
+    A5O_TRANSFORM t;
     al_identity_transform(&t);
     al_rotate_transform(&t, al_get_time());
     al_translate_transform(&t, 550, 300);
     al_use_transform(&t);
     al_draw_textf(ex.f6, black, 0, -al_get_font_line_height(ex.f6) / 2,
-            ALLEGRO_ALIGN_CENTRE, "T");
+            A5O_ALIGN_CENTRE, "T");
     al_identity_transform(&t);
     al_use_transform(&t);
 
@@ -144,7 +144,7 @@ static void render(void)
        int cp  = ustr_at(tulip, index);
        /* Use al_get_glyph_advance for the stride, with no kerning. */
        al_draw_glyph(ex.f3, red, x, y, cp);
-       x += al_get_glyph_advance(ex.f3, cp, ALLEGRO_NO_KERNING);
+       x += al_get_glyph_advance(ex.f3, cp, A5O_NO_KERNING);
     }
 
     x = 50;
@@ -156,7 +156,7 @@ static void render(void)
     for (index = 0; index < al_ustr_length(tulip); index ++) {
       int cp  = ustr_at(tulip, index);
       int ncp = (index < (al_ustr_length(tulip) - 1)) ?
-         ustr_at(tulip, index + 1) : ALLEGRO_NO_KERNING;
+         ustr_at(tulip, index + 1) : A5O_NO_KERNING;
       /* Use al_get_glyph_advance for the stride and apply kerning. */
       al_draw_glyph(ex.f3, green, x, y, cp);
       x += al_get_glyph_advance(ex.f3, cp, ncp);
@@ -225,7 +225,7 @@ static void render(void)
 
     al_hold_bitmap_drawing(true);
 
-    al_draw_textf(ex.f3, black, target_w, 0, ALLEGRO_ALIGN_RIGHT,
+    al_draw_textf(ex.f3, black, target_w, 0, A5O_ALIGN_RIGHT,
        "%.1f FPS", ex.fps);
 
     al_draw_textf(ex.f3, black, 0, 0, 0, "%s: %d unicode ranges", font_file,
@@ -236,9 +236,9 @@ static void render(void)
 
 int main(int argc, char **argv)
 {
-    ALLEGRO_DISPLAY *display;
-    ALLEGRO_TIMER *timer;
-    ALLEGRO_EVENT_QUEUE *queue;
+    A5O_DISPLAY *display;
+    A5O_TIMER *timer;
+    A5O_EVENT_QUEUE *queue;
     int redraw = 0;
     double t = 0;
 
@@ -255,8 +255,8 @@ int main(int argc, char **argv)
     al_init_image_addon();
     init_platform_specific();
 
-#ifdef ALLEGRO_IPHONE
-    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+#ifdef A5O_IPHONE
+    al_set_new_display_flags(A5O_FULLSCREEN_WINDOW);
 #endif
     display = al_create_display(640, 480);
     if (!display) {
@@ -269,25 +269,25 @@ int main(int argc, char **argv)
     }
 
     ex.f1 = al_load_font(font_file, 48, 0);
-    ex.f2 = al_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
+    ex.f2 = al_load_font(font_file, 48, A5O_TTF_NO_KERNING);
     ex.f3 = al_load_font(font_file, 12, 0);
     /* Specifying negative values means we specify the glyph height
      * in pixels, not the usual font size.
      */
     ex.f4 = al_load_font(font_file, -140, 0);
-    ex.f5 = al_load_font(font_file, 12, ALLEGRO_TTF_MONOCHROME);
+    ex.f5 = al_load_font(font_file, 12, A5O_TTF_MONOCHROME);
 
-    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+    al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
     ex.f6 = al_load_font(font_file, -140, 0);
     al_set_new_bitmap_flags(0);
 
     {
         int ranges[] = {0x1F40A, 0x1F40A};
-        ALLEGRO_BITMAP *icon = al_load_bitmap("data/icon.png");
+        A5O_BITMAP *icon = al_load_bitmap("data/icon.png");
         if (!icon) {
             abort_example("Couldn't load data/icon.png.\n");
         }
-        ALLEGRO_BITMAP *glyph = al_create_bitmap(50, 50);
+        A5O_BITMAP *glyph = al_create_bitmap(50, 50);
         al_set_target_bitmap(glyph);
         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
         al_draw_rectangle(0.5, 0.5, 49.5, 49.5, al_map_rgb_f(1, 1, 0),
@@ -320,15 +320,15 @@ int main(int argc, char **argv)
 
     al_start_timer(timer);
     while (true) {
-        ALLEGRO_EVENT event;
+        A5O_EVENT event;
         al_wait_for_event(queue, &event);
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        if (event.type == A5O_EVENT_DISPLAY_CLOSE)
             break;
-        if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-                event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+        if (event.type == A5O_EVENT_KEY_DOWN &&
+                event.keyboard.keycode == A5O_KEY_ESCAPE) {
             break;
         }
-        if (event.type == ALLEGRO_EVENT_TIMER)
+        if (event.type == A5O_EVENT_TIMER)
             redraw++;
 
         while (redraw > 0 && al_is_event_queue_empty(queue)) {

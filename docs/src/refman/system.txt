@@ -11,7 +11,7 @@ These functions are declared in the main Allegro header file:
 Initialize the Allegro system. No other Allegro functions can be called
 before this (with one or two exceptions).
 
-The version field should always be set to ALLEGRO_VERSION_INT.
+The version field should always be set to A5O_VERSION_INT.
 
 If atexit_ptr is non-NULL, and if hasn't been done already,
 [al_uninstall_system] will be registered as an atexit
@@ -27,7 +27,7 @@ The version compatibility check works as follows. Let A = xa.ya.za.* be the
 version of Allegro you  compiled with, and B = xb.yb.zb.* be the version of
 Allegro found in the system shared library.
 
-If you defined `ALLEGRO_UNSTABLE` before including Allegro headers, then
+If you defined `A5O_UNSTABLE` before including Allegro headers, then
 version A is compatible with B only if xa.ya.za = xb.yb.zb. Otherwise, A is
 compatible with B only if xa.ya = xb.yb.
 
@@ -89,7 +89,7 @@ the same on some platforms), so you should be sure your filenames are unique
 if you need to avoid naming collisions. Also, a returned path may not actually
 exist on the file system.
 
-ALLEGRO_RESOURCES_PATH
+A5O_RESOURCES_PATH
 :   If you bundle data in a location relative to your executable, then you
     should use this path to locate that data. On most platforms, this is the
     directory that contains the executable file. 
@@ -107,16 +107,16 @@ ALLEGRO_RESOURCES_PATH
     /usr/share or C:\\ProgramData), then you are responsible for keeping track
     of that yourself.    
     
-ALLEGRO_TEMP_PATH
+A5O_TEMP_PATH
 :   Path to the directory for temporary files.
 
-ALLEGRO_USER_HOME_PATH
+A5O_USER_HOME_PATH
 :   This is the user's home directory. You should not normally write files into
     this directory directly, or create any sub folders in it, without explicit
     permission from the user.  One practical application of this path
     would be to use it as the starting place of a file selector in a GUI.
     
-ALLEGRO_USER_DOCUMENTS_PATH
+A5O_USER_DOCUMENTS_PATH
 :   This location is easily accessible by the user, and is the place
     to store documents and files that the user might want to later open with
     an external program or transfer to another place. 
@@ -124,19 +124,19 @@ ALLEGRO_USER_DOCUMENTS_PATH
     You should not save files here unless the user expects it, usually by
     explicit permission.
 
-ALLEGRO_USER_DATA_PATH
+A5O_USER_DATA_PATH
 :   If your program saves any data that the user doesn't need to access 
     externally, then you should place it here. This is generally the least
     intrusive place to store data. This path will usually not be present on the
     file system, so make sure to create it before writing to it.
     
-ALLEGRO_USER_SETTINGS_PATH
+A5O_USER_SETTINGS_PATH
 :   If you are saving configuration files (especially if the user may want to
     edit them outside of your program), then you should place them here. This
     path will usually not be present on the file system, so make sure to create
     it before writing to it.
     
-ALLEGRO_EXENAME_PATH
+A5O_EXENAME_PATH
 :   The full path to the executable.
 
 Returns NULL on failure.  The returned path should be freed with
@@ -147,7 +147,7 @@ See also: [al_set_app_name], [al_set_org_name], [al_destroy_path], [al_set_exe_n
 ## API: al_set_exe_name
 
 This override the executable name used by [al_get_standard_path] for
-ALLEGRO_EXENAME_PATH and ALLEGRO_RESOURCES_PATH.
+A5O_EXENAME_PATH and A5O_RESOURCES_PATH.
 
 One possibility where changing this can be useful is if you use the
 Python wrapper. Allegro would then by default think that the system's
@@ -220,7 +220,7 @@ Note that Allegro will not look into that file unless you make a copy of it and
 place it next to your executable!
 
 ~~~~ini
-__ALLEGRO_5_CFG
+__A5O_5_CFG
 ~~~~
 
 ## API: al_get_system_id
@@ -229,7 +229,7 @@ Returns the platform that Allegro is running on.
 
 Since: 5.2.5
 
-See also: [ALLEGRO_SYSTEM_ID]
+See also: [A5O_SYSTEM_ID]
 
 ## API: al_register_assert_handler
 
@@ -296,19 +296,19 @@ This function may be called prior to [al_install_system] or [al_init].
 
 Since: 5.1.12
 
-## API: ALLEGRO_SYSTEM_ID
+## API: A5O_SYSTEM_ID
 
 The system Allegro is running on.
 
-* ALLEGRO_SYSTEM_ID_UNKNOWN - Unknown system.
-* ALLEGRO_SYSTEM_ID_XGLX - Xglx
-* ALLEGRO_SYSTEM_ID_WINDOWS - Windows
-* ALLEGRO_SYSTEM_ID_MACOSX - macOS
-* ALLEGRO_SYSTEM_ID_ANDROID - Android
-* ALLEGRO_SYSTEM_ID_IPHONE - iOS
-* ALLEGRO_SYSTEM_ID_GP2XWIZ - GP2XWIZ
-* ALLEGRO_SYSTEM_ID_RASPBERRYPI - Raspberry Pi
-* ALLEGRO_SYSTEM_ID_SDL - SDL
+* A5O_SYSTEM_ID_UNKNOWN - Unknown system.
+* A5O_SYSTEM_ID_XGLX - Xglx
+* A5O_SYSTEM_ID_WINDOWS - Windows
+* A5O_SYSTEM_ID_MACOSX - macOS
+* A5O_SYSTEM_ID_ANDROID - Android
+* A5O_SYSTEM_ID_IPHONE - iOS
+* A5O_SYSTEM_ID_GP2XWIZ - GP2XWIZ
+* A5O_SYSTEM_ID_RASPBERRYPI - Raspberry Pi
+* A5O_SYSTEM_ID_SDL - SDL
 
 Since: 5.2.5
 

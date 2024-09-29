@@ -207,7 +207,7 @@ Contributors
    set_window_title() under BeOS, potentially unsafe constructs in the
    Windows code, the installall makefile target under Windows, added 
    set_allegro_resource_path(), fixed make uninstall with mingw make,
-   added ALLEGRO_LIB_BUILD flag for gcc variants not using configure,
+   added A5O_LIB_BUILD flag for gcc variants not using configure,
    fixed a bunch of warnings in MinGW and did plenty of other things too.
 
    Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>

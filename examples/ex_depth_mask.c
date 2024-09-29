@@ -10,9 +10,9 @@
 #define COUNT 80
 
 struct Example {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *mysha, *obp;
-   ALLEGRO_FONT *font, *font2;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *mysha, *obp;
+   A5O_FONT *font, *font2;
    double direct_speed_measure;
 
    struct Sprite {
@@ -24,18 +24,18 @@ struct Example {
 
 static void redraw(void)
 {
-   ALLEGRO_TRANSFORM t;
+   A5O_TRANSFORM t;
    int i;
 
    /* We first draw the Obp background and clear the depth buffer to 1. */
 
-   al_set_render_state(ALLEGRO_ALPHA_TEST, true);
-   al_set_render_state(ALLEGRO_ALPHA_FUNCTION, ALLEGRO_RENDER_GREATER);
-   al_set_render_state(ALLEGRO_ALPHA_TEST_VALUE, 0);
+   al_set_render_state(A5O_ALPHA_TEST, true);
+   al_set_render_state(A5O_ALPHA_FUNCTION, A5O_RENDER_GREATER);
+   al_set_render_state(A5O_ALPHA_TEST_VALUE, 0);
 
-   al_set_render_state(ALLEGRO_DEPTH_TEST, false);
+   al_set_render_state(A5O_DEPTH_TEST, false);
 
-   al_set_render_state(ALLEGRO_WRITE_MASK, ALLEGRO_MASK_DEPTH | ALLEGRO_MASK_RGBA);
+   al_set_render_state(A5O_WRITE_MASK, A5O_MASK_DEPTH | A5O_MASK_RGBA);
 
    al_clear_depth_buffer(1);
    al_clear_to_color(al_map_rgb_f(0, 0, 0));
@@ -46,9 +46,9 @@ static void redraw(void)
     * of 0).
     */
 
-   al_set_render_state(ALLEGRO_DEPTH_TEST, true);
-   al_set_render_state(ALLEGRO_DEPTH_FUNCTION, ALLEGRO_RENDER_ALWAYS);   
-   al_set_render_state(ALLEGRO_WRITE_MASK, ALLEGRO_MASK_DEPTH);
+   al_set_render_state(A5O_DEPTH_TEST, true);
+   al_set_render_state(A5O_DEPTH_FUNCTION, A5O_RENDER_ALWAYS);   
+   al_set_render_state(A5O_WRITE_MASK, A5O_MASK_DEPTH);
 
    for (i = 0; i < COUNT; i++) {
       struct Sprite *s = example.sprites + i;
@@ -61,7 +61,7 @@ static void redraw(void)
             al_translate_transform(&t, s->x + x, s->y + y);
             al_use_transform(&t);
             al_draw_text(example.font, al_map_rgb(0, 0, 0), 0, 0,
-               ALLEGRO_ALIGN_CENTER, "Allegro 5");
+               A5O_ALIGN_CENTER, "Allegro 5");
          }
        }
        al_hold_bitmap_drawing(false);
@@ -73,15 +73,15 @@ static void redraw(void)
     * sprites have been drawn before.
     */
 
-   al_set_render_state(ALLEGRO_DEPTH_FUNCTION, ALLEGRO_RENDER_EQUAL);  
-   al_set_render_state(ALLEGRO_WRITE_MASK, ALLEGRO_MASK_RGBA);
+   al_set_render_state(A5O_DEPTH_FUNCTION, A5O_RENDER_EQUAL);  
+   al_set_render_state(A5O_WRITE_MASK, A5O_MASK_RGBA);
    al_draw_scaled_bitmap(example.mysha, 0, 0, 320, 200, 0, 0, 320 * 480 / 200, 480, 0);
 
    /* Finally we draw an FPS counter. */
-   al_set_render_state(ALLEGRO_DEPTH_TEST, false);
+   al_set_render_state(A5O_DEPTH_TEST, false);
 
    al_draw_textf(example.font2, al_map_rgb_f(1, 1, 1), 640, 0,
-      ALLEGRO_ALIGN_RIGHT, "%.1f FPS", 1.0 / example.direct_speed_measure);
+      A5O_ALIGN_RIGHT, "%.1f FPS", 1.0 / example.direct_speed_measure);
 }
 
 static void update(void)
@@ -92,7 +92,7 @@ static void update(void)
       s->x -= 4;
       if (s->x < 80)
          s->x += 640;
-      s->angle += i * ALLEGRO_PI / 180 / COUNT;
+      s->angle += i * A5O_PI / 180 / COUNT;
    }
 }
 
@@ -108,9 +108,9 @@ static void init(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_MONITOR_INFO info;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_MONITOR_INFO info;
    int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
@@ -140,21 +140,21 @@ int main(int argc, char **argv)
    al_get_monitor_info(0, &info);
 
    int flags = 0;
-   #ifdef ALLEGRO_IPHONE
-   flags |= ALLEGRO_FULLSCREEN_WINDOW;
+   #ifdef A5O_IPHONE
+   flags |= A5O_FULLSCREEN_WINDOW;
    #endif
 
    if (argc > 1 && strcmp(argv[1], "shader") == 0) {
-      flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+      flags |= A5O_PROGRAMMABLE_PIPELINE;
    }
    al_set_new_display_flags(flags);
    
-   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
-      ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SUPPORTED_ORIENTATIONS,
+      A5O_DISPLAY_ORIENTATION_ALL, A5O_SUGGEST);
 
-   al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 8, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_DEPTH_SIZE, 8, A5O_SUGGEST);
 
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
 
    example.display = al_create_display(w, h);
    if (!example.display) {
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       w = al_get_display_width(example.display);
       h = al_get_display_height(example.display);
 
@@ -216,31 +216,31 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_CHAR:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_CHAR:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                done = true;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+         case A5O_EVENT_DISPLAY_HALT_DRAWING:
 
             background = true;
             al_acknowledge_drawing_halt(event.display.source);
 
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+         case A5O_EVENT_DISPLAY_RESUME_DRAWING:
             background = false;
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+         case A5O_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
               
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             update();
             need_redraw = true;
             break;

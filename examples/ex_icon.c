@@ -5,11 +5,11 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *icon1;
-   ALLEGRO_BITMAP *icon2;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *icon1;
+   A5O_BITMAP *icon2;
+   A5O_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
    int i;
 
    (void)argc;
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
    }
 
    /* Second icon: Create it. */
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    icon2 = al_create_bitmap(16, 16);
    al_set_target_bitmap(icon2);
    for (i = 0; i < 256; i++) {
@@ -56,17 +56,17 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    for (;;) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          al_set_display_icon(display, (event.timer.count & 1) ? icon2 : icon1);
       }
    }

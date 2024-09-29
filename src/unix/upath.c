@@ -29,28 +29,28 @@
 #include "allegro5/fshook.h"
 #include "allegro5/path.h"
 
-#ifdef ALLEGRO_HAVE_SYS_UTSNAME_H
+#ifdef A5O_HAVE_SYS_UTSNAME_H
    #include <sys/utsname.h>
 #endif
 
-#ifdef ALLEGRO_HAVE_SV_PROCFS_H
+#ifdef A5O_HAVE_SV_PROCFS_H
    #include <sys/procfs.h>
    #include <sys/ioctl.h>
    #include <fcntl.h>
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("upath")
+A5O_DEBUG_CHANNEL("upath")
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
 /* _find_executable_file:
  *  Helper function: searches path and current directory for executable.
  *  Returns 1 on succes, 0 on failure.
  */
-static ALLEGRO_PATH *_find_executable_file(const char *filename)
+static A5O_PATH *_find_executable_file(const char *filename)
 {
    char *env;
 
@@ -67,7 +67,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
          /* Prepend current directory */
          cwd = al_get_current_directory();
          if (cwd) {
-            ALLEGRO_PATH *path = al_create_path_for_directory(cwd);
+            A5O_PATH *path = al_create_path_for_directory(cwd);
             al_free(cwd);
             al_set_path_filename(path, filename);
 
@@ -85,17 +85,17 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
     */
    else if ((env = getenv("PATH"))) {
       struct stat finfo;
-      ALLEGRO_USTR *us = al_ustr_new(env);
+      A5O_USTR *us = al_ustr_new(env);
       int start_pos = 0;
       while (start_pos >= 0) {
          int next_start_pos = al_ustr_find_chr(us, start_pos + 1, ':');
          int end_pos = next_start_pos;
          if (next_start_pos < 0)
             end_pos = al_ustr_size(us);
-         ALLEGRO_USTR_INFO info;
-         const ALLEGRO_USTR *sub = al_ref_ustr(&info, us, start_pos, end_pos);
+         A5O_USTR_INFO info;
+         const A5O_USTR *sub = al_ref_ustr(&info, us, start_pos, end_pos);
 
-         ALLEGRO_PATH *path = al_create_path_for_directory(al_cstr(sub));
+         A5O_PATH *path = al_create_path_for_directory(al_cstr(sub));
          al_set_path_filename(path, filename);
 
          if (stat(al_path_cstr(path, '/'), &finfo) == 0 &&
@@ -117,11 +117,11 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
 /* Return full path to the current executable, use proc fs if
  * available.
  */
-static ALLEGRO_PATH *get_executable_name(void)
+static A5O_PATH *get_executable_name(void)
 {
-   ALLEGRO_PATH *path;
+   A5O_PATH *path;
 
-   #ifdef ALLEGRO_HAVE_GETEXECNAME
+   #ifdef A5O_HAVE_GETEXECNAME
    {
       const char *s = getexecname();
       if (s) {
@@ -155,7 +155,7 @@ static ALLEGRO_PATH *get_executable_name(void)
    }
 
    /* Use System V procfs calls if available */
-#ifdef ALLEGRO_HAVE_SV_PROCFS_H
+#ifdef A5O_HAVE_SV_PROCFS_H
    struct prpsinfo psinfo;
    int fd;
    sprintf(linkname, "/proc/%d/exe", (int)pid);
@@ -165,7 +165,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       close(fd);
    
       /* Use argv[0] directly if we can */
-#ifdef ALLEGRO_HAVE_PROCFS_ARGCV
+#ifdef A5O_HAVE_PROCFS_ARGCV
       if (psinfo.pr_argv && psinfo.pr_argc) {
           path = _find_executable_file(psinfo.pr_argv[0]);
           if (path)
@@ -206,7 +206,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       /* The first line of output is a header */
       ret = fgets(linkname, sizeof(linkname), pipe);
       if (!ret)
-         ALLEGRO_ERROR("Failed to read the name of the executable file.\n");
+         A5O_ERROR("Failed to read the name of the executable file.\n");
       
       /* The information we want is in the last column; find it */
       int len = strlen(linkname);
@@ -216,7 +216,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       /* The second line contains the info we want */
       ret = fgets(linkname, sizeof(linkname), pipe);
       if (!ret)
-         ALLEGRO_ERROR("Failed to read the name of the executable file.\n");
+         A5O_ERROR("Failed to read the name of the executable file.\n");
       pclose(pipe);
 
       /* Treat special cases: filename between [] and - for login shell */
@@ -243,7 +243,7 @@ static ALLEGRO_PATH *get_executable_name(void)
    return al_create_path("");
 }
 
-static ALLEGRO_PATH *follow_symlinks(ALLEGRO_PATH *path)
+static A5O_PATH *follow_symlinks(A5O_PATH *path)
 {
    for (;;) {
       const char *path_str = al_path_cstr(path, '/');
@@ -261,7 +261,7 @@ static ALLEGRO_PATH *follow_symlinks(ALLEGRO_PATH *path)
    /* Make absolute path. */
    {
       const char *cwd = al_get_current_directory();
-      ALLEGRO_PATH *cwd_path = al_create_path_for_directory(cwd);
+      A5O_PATH *cwd_path = al_create_path_for_directory(cwd);
       if (al_rebase_path(cwd_path, path))
          al_make_path_canonical(path);
       al_destroy_path(cwd_path);
@@ -277,11 +277,11 @@ static ALLEGRO_PATH *follow_symlinks(ALLEGRO_PATH *path)
 
 /* get_xdg_path - locate an XDG user dir
  */
-static ALLEGRO_PATH *_get_xdg_path(const char *location)
+static A5O_PATH *_get_xdg_path(const char *location)
 {
-   ALLEGRO_PATH *location_path = NULL;
-   ALLEGRO_PATH *xdg_config_path = NULL;
-   ALLEGRO_FILE *xdg_config_file = NULL;   
+   A5O_PATH *location_path = NULL;
+   A5O_PATH *xdg_config_path = NULL;
+   A5O_FILE *xdg_config_file = NULL;   
    const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
    int fd;
 
@@ -291,7 +291,7 @@ static ALLEGRO_PATH *_get_xdg_path(const char *location)
    }
    else {
       /* the default XDG location is ~/.config */
-      xdg_config_path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
+      xdg_config_path = al_get_standard_path(A5O_USER_HOME_PATH);
       if (!xdg_config_path) return NULL;      
       al_append_path_component(xdg_config_path, ".config");
    }   
@@ -338,7 +338,7 @@ static ALLEGRO_PATH *_get_xdg_path(const char *location)
       if (!strncmp(p, "$HOME", 5)) {
          /* $HOME is the only environment variable that the path is 
             allowed to use, and it must be first, by specification. */
-         location_path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
+         location_path = al_get_standard_path(A5O_USER_HOME_PATH);
          p += 5;
       }
       else {
@@ -376,7 +376,7 @@ static ALLEGRO_PATH *_get_xdg_path(const char *location)
    return location_path;
 }
 
-static ALLEGRO_PATH *_unix_find_home(void)
+static A5O_PATH *_unix_find_home(void)
 {
    char *home_env = getenv("HOME");
 
@@ -405,10 +405,10 @@ static ALLEGRO_PATH *_unix_find_home(void)
    }
 }
 
-ALLEGRO_PATH *_al_unix_get_path(int id)
+A5O_PATH *_al_unix_get_path(int id)
 {
    switch (id) {
-      case ALLEGRO_TEMP_PATH: {
+      case A5O_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
          char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
          uint32_t i = 0;
@@ -422,8 +422,8 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          /* next try: /tmp /var/tmp /usr/tmp */
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
-            ALLEGRO_FS_ENTRY *fse = al_create_fs_entry(paths[i]);
-            bool found = (al_get_fs_entry_mode(fse) & ALLEGRO_FILEMODE_ISDIR) != 0;
+            A5O_FS_ENTRY *fse = al_create_fs_entry(paths[i]);
+            bool found = (al_get_fs_entry_mode(fse) & A5O_FILEMODE_ISDIR) != 0;
             al_destroy_fs_entry(fse);
             if (found) {
                return al_create_path_for_directory(paths[i]);
@@ -434,17 +434,17 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          return NULL;
       } break;
 
-      case ALLEGRO_RESOURCES_PATH: {
-         ALLEGRO_PATH *exe = get_executable_name();
+      case A5O_RESOURCES_PATH: {
+         A5O_PATH *exe = get_executable_name();
          exe = follow_symlinks(exe);
          al_set_path_filename(exe, NULL);
          return exe;
 
       } break;
 
-      case ALLEGRO_USER_DATA_PATH:
-      case ALLEGRO_USER_SETTINGS_PATH: {
-         ALLEGRO_PATH *local_path = NULL;
+      case A5O_USER_DATA_PATH:
+      case A5O_USER_SETTINGS_PATH: {
+         A5O_PATH *local_path = NULL;
          const char *org_name = al_get_org_name();
          const char *app_name = al_get_app_name();
          
@@ -453,7 +453,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
             return NULL;
          
          /* find the appropriate path from the xdg environment variables, if possible */
-         if (id == ALLEGRO_USER_DATA_PATH) {
+         if (id == A5O_USER_DATA_PATH) {
             const char *xdg_data_home = getenv("XDG_DATA_HOME");
             local_path = al_create_path_for_directory(xdg_data_home ? xdg_data_home : ".local/share");
          }
@@ -467,7 +467,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          
          /* if the path is relative, prepend the user's home directory */
          if (al_path_cstr(local_path, '/')[0] != '/') {
-            ALLEGRO_PATH *home_path = _unix_find_home();
+            A5O_PATH *home_path = _unix_find_home();
             if (!home_path)
                return NULL;
             
@@ -485,15 +485,15 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
         return local_path;
       } break;
 
-      case ALLEGRO_USER_HOME_PATH:
+      case A5O_USER_HOME_PATH:
          return _unix_find_home();
          
-      case ALLEGRO_USER_DOCUMENTS_PATH: {
-         ALLEGRO_PATH *local_path = _get_xdg_path("DOCUMENTS");
+      case A5O_USER_DOCUMENTS_PATH: {
+         A5O_PATH *local_path = _get_xdg_path("DOCUMENTS");
          return local_path ? local_path : _unix_find_home();
       } break;
 
-      case ALLEGRO_EXENAME_PATH:
+      case A5O_EXENAME_PATH:
          return get_executable_name();
          break;
 

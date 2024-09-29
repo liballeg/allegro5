@@ -68,7 +68,7 @@
       return InterlockedDecrement(ptr);
    })
 
-#elif defined(ALLEGRO_HAVE_OSATOMIC_H)
+#elif defined(A5O_HAVE_OSATOMIC_H)
 
    /* OS X, GCC < 4.1
     * These functions only work on Tiger (10.4) and above.

@@ -22,13 +22,13 @@ typedef struct {
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bitmap, *background, *pal_bitmap;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bitmap, *background, *pal_bitmap;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    bool redraw = true;
    bool show_pal = false;
-   ALLEGRO_SHADER *shader;
+   A5O_SHADER *shader;
    float pals[7][3 * 256];
    int i, j;
    float t = 0;
@@ -46,15 +46,15 @@ int main(int argc, char **argv)
    al_init_image_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE |
-      ALLEGRO_OPENGL);
+   al_set_new_display_flags(A5O_PROGRAMMABLE_PIPELINE |
+      A5O_OPENGL);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
    }
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8);
-   bitmap = al_load_bitmap_flags("data/alexlogo.bmp", ALLEGRO_KEEP_INDEX);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8);
+   bitmap = al_load_bitmap_flags("data/alexlogo.bmp", A5O_KEEP_INDEX);
    if (!bitmap) {
       abort_example("alexlogo not found or failed to load\n");
    }
@@ -62,10 +62,10 @@ int main(int argc, char **argv)
    /* Create 8 sprites. */
    for (i = 0; i < 8; i++) {
       Sprite *s = sprite + i;
-      s->angle = ALLEGRO_PI * 2 * i / 8;
+      s->angle = A5O_PI * 2 * i / 8;
       s->x = 320 + sin(s->angle) * (64 + i * 16);
       s->y = 240 - cos(s->angle) * (64 + i * 16);
-      s->flags = (i % 2) ? ALLEGRO_FLIP_HORIZONTAL : 0;
+      s->flags = (i % 2) ? A5O_FLIP_HORIZONTAL : 0;
       s->t = i / 8.0;
       s->i = i % 6;
       s->j = (s->i + 1) % 6;
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
       }
    }
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY);
    pal_bitmap = al_create_bitmap(255, 7);
    al_set_target_bitmap(pal_bitmap);
    for (int y = 0; y < 7; y++) {
@@ -107,12 +107,12 @@ int main(int argc, char **argv)
    }
    al_set_target_backbuffer(display);
 
-   shader = al_create_shader(ALLEGRO_SHADER_GLSL);
-   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-         al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
+   shader = al_create_shader(A5O_SHADER_GLSL);
+   if (!al_attach_shader_source(shader, A5O_VERTEX_SHADER,
+         al_get_default_shader_source(A5O_SHADER_AUTO, A5O_VERTEX_SHADER))) {
       abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
    }
-   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "data/ex_shader_palette_pixel.glsl")) {
+   if (!al_attach_shader_source_file(shader, A5O_PIXEL_SHADER, "data/ex_shader_palette_pixel.glsl")) {
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
    }
    if (!al_build_shader(shader))
@@ -132,18 +132,18 @@ int main(int argc, char **argv)
    log_printf("%s\n", "Press P to toggle displaying the palette");
 
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
-         if (event.keyboard.keycode == ALLEGRO_KEY_P)
+         if (event.keyboard.keycode == A5O_KEY_P)
             show_pal = !show_pal;
          
       }
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          redraw = true;
          t++;
          for (i = 0; i < 8; i++) {
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
             int dir = s->flags ? 1 : -1;
             s->x += cos(s->angle) * 2 * dir;
             s->y += sin(s->angle) * 2 * dir;
-            s->angle += ALLEGRO_PI / 180.0 * dir;
+            s->angle += A5O_PI / 180.0 * dir;
          }
       }
          
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 
          for (i = 0; i < 8; i++) {
             Sprite *s = sprite + 7 - i;
-            float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
+            float pos = (1 + sin((t / 60 + s->t) * 2 * A5O_PI)) / 2;
             al_set_shader_float("pal_set_1", s->i);
             al_set_shader_float("pal_set_2", s->j);
             al_set_shader_float("pal_interp", pos);

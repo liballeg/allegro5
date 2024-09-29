@@ -18,8 +18,8 @@
 
 /* make sure all the constants add up */
 /* the first two sticks are (x,y,z) and (rx,ry,rz) */
-ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_STICKS >= (2 + MAX_SLIDERS + MAX_POVS));
-ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
+A5O_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_STICKS >= (2 + MAX_SLIDERS + MAX_POVS));
+A5O_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
 
 
 #define GUID_EQUAL(a, b)     (0 == memcmp(&(a), &(b), sizeof(GUID)))
@@ -61,9 +61,9 @@ typedef struct
 } AXIS_MAPPING;
 
 
-typedef struct ALLEGRO_JOYSTICK_DIRECTX
+typedef struct A5O_JOYSTICK_DIRECTX
 {
-   ALLEGRO_JOYSTICK parent;          /* must be first */
+   A5O_JOYSTICK parent;          /* must be first */
    CONFIG_STATE config_state;
    bool marked;
    LPDIRECTINPUTDEVICE2 device;
@@ -71,7 +71,7 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX
    GUID product_guid;
    HANDLE waker_event;
 
-   ALLEGRO_JOYSTICK_STATE joystate;
+   A5O_JOYSTICK_STATE joystate;
    AXIS_MAPPING x_mapping;
    AXIS_MAPPING y_mapping;
    AXIS_MAPPING z_mapping;
@@ -82,7 +82,7 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX
    int pov_mapping_stick[MAX_POVS];
    char name[80];
    char all_names[512]; /* button/stick/axis names with NUL terminators */
-} ALLEGRO_JOYSTICK_DIRECTX;
+} A5O_JOYSTICK_DIRECTX;
 
 
 

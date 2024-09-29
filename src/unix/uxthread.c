@@ -26,7 +26,7 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/platform/aintunix.h"
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include "allegro5/internal/aintern_android.h"
 #endif
 
@@ -38,11 +38,11 @@ static void *thread_proc_trampoline(void *data)
 {
    _AL_THREAD *thread = data;
    /* Android is special and needs to attach/detach threads with Java */
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    _al_android_thread_created();
 #endif
    (*thread->proc)(thread, thread->arg);
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    _al_android_thread_ended();
 #endif
    return NULL;
@@ -181,9 +181,9 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
 /* most of the condition variable implementation is actually inline */
 
 int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mutex,
-   const ALLEGRO_TIMEOUT *timeout)
+   const A5O_TIMEOUT *timeout)
 {
-   ALLEGRO_TIMEOUT_UNIX *unix_timeout = (ALLEGRO_TIMEOUT_UNIX *) timeout;
+   A5O_TIMEOUT_UNIX *unix_timeout = (A5O_TIMEOUT_UNIX *) timeout;
    int retcode;
 
    retcode = pthread_cond_timedwait(&cond->cond, &mutex->mutex,

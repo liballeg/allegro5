@@ -42,10 +42,10 @@ class KeyListener implements View.OnKeyListener
                return true;
             }
          }
-         if (Key.alKey(keyCode) == Key.ALLEGRO_KEY_BACKSPACE) {
+         if (Key.alKey(keyCode) == Key.A5O_KEY_BACKSPACE) {
             unichar = '\b';
          }
-         else if (Key.alKey(keyCode) == Key.ALLEGRO_KEY_ENTER) {
+         else if (Key.alKey(keyCode) == Key.A5O_KEY_ENTER) {
             unichar = '\r';
          }
          else {

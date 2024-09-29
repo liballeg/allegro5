@@ -10,12 +10,12 @@
 #include "acodec.h"
 #include "helper.h"
 
-ALLEGRO_DEBUG_CHANNEL("wav")
+A5O_DEBUG_CHANNEL("wav")
 
 
 typedef struct WAVFILE
 {
-   ALLEGRO_FILE *f; 
+   A5O_FILE *f; 
    size_t dpos;     /* the starting position of the data chunk */
    int freq;        /* e.g., 44100 */
    short bits;      /* 8 (unsigned char) or 16 (signed short) */
@@ -29,10 +29,10 @@ typedef struct WAVFILE
 
 /* wav_open:
  *  Opens f and prepares a WAVFILE struct with the WAV format info.
- *  On a successful return, the ALLEGRO_FILE is at the beginning of the sample data.
+ *  On a successful return, the A5O_FILE is at the beginning of the sample data.
  *  returns the WAVFILE on success, or NULL on failure.
  */
-static WAVFILE *wav_open(ALLEGRO_FILE *f)
+static WAVFILE *wav_open(A5O_FILE *f)
 {
    WAVFILE *wavfile = NULL;
    char buffer[12];
@@ -43,7 +43,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
    /* prepare default values */
    wavfile = al_malloc(sizeof(WAVFILE));
    if (!wavfile) {
-      ALLEGRO_ERROR("Failed to allocate WAVFILE.\n");
+      A5O_ERROR("Failed to allocate WAVFILE.\n");
       return NULL;
    }
    wavfile->f = f;
@@ -53,12 +53,12 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
 
    /* check the header */
    if (al_fread(f, buffer, 12) != 12) {
-      ALLEGRO_ERROR("Unexpected EOF while reading the header.\n");
+      A5O_ERROR("Unexpected EOF while reading the header.\n");
       goto wav_open_error;
    }
 
    if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4)) {
-      ALLEGRO_ERROR("Bad magic number.\n");
+      A5O_ERROR("Bad magic number.\n");
       goto wav_open_error;
    }
    
@@ -70,7 +70,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
       short pcm = 0;
 
       if (al_fread(f, buffer, 4) != 4) {
-         ALLEGRO_ERROR("Unexpected EOF while reading RIFF type.\n");
+         A5O_ERROR("Unexpected EOF while reading RIFF type.\n");
          goto wav_open_error;
       }
 
@@ -79,14 +79,14 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
 
          length = al_fread32le(f);
          if (length < 16) {
-            ALLEGRO_ERROR("Bad length: %d.\n", length);
+            A5O_ERROR("Bad length: %d.\n", length);
             goto wav_open_error;
          }
 
          /* should be 1 for PCM data */
          pcm = al_fread16le(f);
          if (pcm != 1) {
-            ALLEGRO_ERROR("Bad PCM value: %d.\n", pcm);
+            A5O_ERROR("Bad PCM value: %d.\n", pcm);
             goto wav_open_error;
          }
 
@@ -94,7 +94,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
          wavfile->channels = al_fread16le(f);
 
          if ((wavfile->channels != 1) && (wavfile->channels != 2)) {
-            ALLEGRO_ERROR("Bad number of channels: %d.\n", wavfile->channels);
+            A5O_ERROR("Bad number of channels: %d.\n", wavfile->channels);
             goto wav_open_error;
          }
 
@@ -102,29 +102,29 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
          wavfile->freq = al_fread32le(f);
        
          /* skip six bytes */
-         al_fseek(f, 6, ALLEGRO_SEEK_CUR);   
+         al_fseek(f, 6, A5O_SEEK_CUR);   
 
          /* 8 or 16 bit data? */
          wavfile->bits = al_fread16le(f);
          if ((wavfile->bits != 8) && (wavfile->bits != 16)) {
-            ALLEGRO_ERROR("Bad number of bits: %d.\n", wavfile->bits);
+            A5O_ERROR("Bad number of bits: %d.\n", wavfile->bits);
             goto wav_open_error;
          }
 
          /* Skip remainder of chunk */
          length -= 16;
          if (length > 0)
-            al_fseek(f, length, ALLEGRO_SEEK_CUR);
+            al_fseek(f, length, A5O_SEEK_CUR);
       }
       else {
          if (!memcmp(buffer, "data", 4)) {
-            ALLEGRO_ERROR("Bad RIFF type.\n");
+            A5O_ERROR("Bad RIFF type.\n");
             break;
          }
-         ALLEGRO_INFO("Ignoring chunk: %c%c%c%c\n", buffer[0], buffer[1],
+         A5O_INFO("Ignoring chunk: %c%c%c%c\n", buffer[0], buffer[1],
             buffer[2], buffer[3]);
          length = al_fread32le(f);
-         al_fseek(f, length, ALLEGRO_SEEK_CUR);
+         al_fseek(f, length, A5O_SEEK_CUR);
       }
    }
 
@@ -154,7 +154,7 @@ wav_open_error:
 }
 
 /* wav_read:
- *  Reads up to 'samples' number of samples from the wav ALLEGRO_FILE into 'data'.
+ *  Reads up to 'samples' number of samples from the wav A5O_FILE into 'data'.
  *  Returns the actual number of samples written to 'data'.
  */
 static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
@@ -173,7 +173,7 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
    /* PCM data in RIFF WAV files is little endian.
     * PCM data in RIFX WAV files is big endian (which we don't support).
     */
-#ifdef ALLEGRO_BIG_ENDIAN
+#ifdef A5O_BIG_ENDIAN
    if (wavfile->bits == 16) {
       uint16_t *p = data;
       const uint16_t *const end = p + (bytes_read >> 1);
@@ -191,7 +191,7 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
 
 
 /* wav_close:
- *  Closes the ALLEGRO_FILE and frees the WAVFILE struct.
+ *  Closes the A5O_FILE and frees the WAVFILE struct.
  */
 static void wav_close(WAVFILE *wavfile)
 {
@@ -201,7 +201,7 @@ static void wav_close(WAVFILE *wavfile)
 }
 
 
-static bool wav_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
+static bool wav_stream_seek(A5O_AUDIO_STREAM * stream, double time)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    int align = (wavfile->bits / 8) * wavfile->channels;
@@ -209,7 +209,7 @@ static bool wav_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
    if (time >= wavfile->loop_end)
       return false;
    cpos += cpos % align;
-   return al_fseek(wavfile->f, wavfile->dpos + cpos, ALLEGRO_SEEK_SET);
+   return al_fseek(wavfile->f, wavfile->dpos + cpos, A5O_SEEK_SET);
 }
 
 
@@ -217,14 +217,14 @@ static bool wav_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
  *  Rewinds 'stream' to the beginning of the data chunk.
  *  Returns true on success, false on failure.
  */
-static bool wav_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
+static bool wav_stream_rewind(A5O_AUDIO_STREAM *stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    return wav_stream_seek(stream, wavfile->loop_start);
 }
 
 
-static double wav_stream_get_position(ALLEGRO_AUDIO_STREAM * stream)
+static double wav_stream_get_position(A5O_AUDIO_STREAM * stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    double samples_per = (double)((wavfile->bits / 8) * wavfile->channels) * (double)(wavfile->freq);
@@ -232,7 +232,7 @@ static double wav_stream_get_position(ALLEGRO_AUDIO_STREAM * stream)
 }
 
 
-static double wav_stream_get_length(ALLEGRO_AUDIO_STREAM * stream)
+static double wav_stream_get_length(A5O_AUDIO_STREAM * stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    double total_time = (double)(wavfile->samples) / (double)(wavfile->freq);
@@ -240,7 +240,7 @@ static double wav_stream_get_length(ALLEGRO_AUDIO_STREAM * stream)
 }
 
 
-static bool wav_stream_set_loop(ALLEGRO_AUDIO_STREAM * stream, double start, double end)
+static bool wav_stream_set_loop(A5O_AUDIO_STREAM * stream, double start, double end)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    wavfile->loop_start = start;
@@ -253,7 +253,7 @@ static bool wav_stream_set_loop(ALLEGRO_AUDIO_STREAM * stream, double start, dou
  *  Updates 'stream' with the next chunk of data.
  *  Returns the actual number of bytes written.
  */
-static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t wav_stream_update(A5O_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    int bytes_per_sample, samples, samples_read;
@@ -264,7 +264,7 @@ static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    ctime = wav_stream_get_position(stream);
    btime = ((double)buf_size / (double)bytes_per_sample) / (double)(wavfile->freq);
    
-   if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > wavfile->loop_end) {
+   if (stream->spl.loop != _A5O_PLAYMODE_STREAM_ONCE && ctime + btime > wavfile->loop_end) {
       samples = ((wavfile->loop_end - ctime) * (double)(wavfile->freq));
    }
    else {
@@ -282,7 +282,7 @@ static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 /* wav_stream_close:
  *  Closes the 'stream'.
  */
-static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
+static void wav_stream_close(A5O_AUDIO_STREAM *stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
 
@@ -296,18 +296,18 @@ static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 
 
 /* _al_load_wav:
- *  Reads a RIFF WAV format sample ALLEGRO_FILE, returning an ALLEGRO_SAMPLE
+ *  Reads a RIFF WAV format sample A5O_FILE, returning an A5O_SAMPLE
  *  structure, or NULL on error.
  */
-ALLEGRO_SAMPLE *_al_load_wav(const char *filename)
+A5O_SAMPLE *_al_load_wav(const char *filename)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_SAMPLE *spl;
+   A5O_FILE *f;
+   A5O_SAMPLE *spl;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -318,10 +318,10 @@ ALLEGRO_SAMPLE *_al_load_wav(const char *filename)
    return spl;
 }
 
-ALLEGRO_SAMPLE *_al_load_wav_f(ALLEGRO_FILE *fp)
+A5O_SAMPLE *_al_load_wav_f(A5O_FILE *fp)
 {
    WAVFILE *wavfile = wav_open(fp);
-   ALLEGRO_SAMPLE *spl = NULL;
+   A5O_SAMPLE *spl = NULL;
 
    if (wavfile) {
       size_t n = (wavfile->bits / 8) * wavfile->channels * wavfile->samples;
@@ -349,22 +349,22 @@ ALLEGRO_SAMPLE *_al_load_wav_f(ALLEGRO_FILE *fp)
 
 /* _al_load_wav_audio_stream:
 */
-ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream(const char *filename,
+A5O_AUDIO_STREAM *_al_load_wav_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
    stream = _al_load_wav_audio_stream_f(f, buffer_count, samples);
    if (!stream) {
-      ALLEGRO_ERROR("Failed to load wav stream.\n");
+      A5O_ERROR("Failed to load wav stream.\n");
       al_fclose(f);
    }
 
@@ -373,16 +373,16 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream(const char *filename,
 
 /* _al_load_wav_audio_stream_f:
 */
-ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
+A5O_AUDIO_STREAM *_al_load_wav_audio_stream_f(A5O_FILE* f,
    size_t buffer_count, unsigned int samples)
 {
    WAVFILE* wavfile;
-   ALLEGRO_AUDIO_STREAM* stream;
+   A5O_AUDIO_STREAM* stream;
 
    wavfile = wav_open(f);
    
    if (wavfile == NULL) {
-      ALLEGRO_ERROR("Failed to load wav file.\n");
+      A5O_ERROR("Failed to load wav file.\n");
       return NULL;
    }
 
@@ -404,7 +404,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
       _al_acodec_start_feed_thread(stream);
    }
    else {
-      ALLEGRO_ERROR("Failed to load wav stream.\n");
+      A5O_ERROR("Failed to load wav stream.\n");
       wav_close(wavfile);
    }
 
@@ -413,12 +413,12 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
 
 
 /* _al_save_wav:
- * Writes a sample into a wav ALLEGRO_FILE.
+ * Writes a sample into a wav A5O_FILE.
  * Returns true on success, false on error.
  */
-bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
+bool _al_save_wav(const char *filename, A5O_SAMPLE *spl)
 {
-   ALLEGRO_FILE *pf = al_fopen(filename, "wb");
+   A5O_FILE *pf = al_fopen(filename, "wb");
 
    if (pf) {
       bool rvsave = _al_save_wav_f(pf, spl);
@@ -426,7 +426,7 @@ bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
       return rvsave && rvclose;
    }
    else {
-      ALLEGRO_ERROR("Unable to open %s for writing.\n", filename);
+      A5O_ERROR("Unable to open %s for writing.\n", filename);
    }
 
    return false;   
@@ -437,7 +437,7 @@ bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
  * Writes a sample into a wav packfile.
  * Returns true on success, false on error.
  */
-bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
+bool _al_save_wav_f(A5O_FILE *pf, A5O_SAMPLE *spl)
 {
    size_t channels, bits;
    size_t data_size;
@@ -447,14 +447,14 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
    ASSERT(spl);
    ASSERT(pf);
 
-   /* XXX: makes use of ALLEGRO_SAMPLE internals */
+   /* XXX: makes use of A5O_SAMPLE internals */
 
    channels = (spl->chan_conf >> 4) + (spl->chan_conf & 0xF);
-   bits = (spl->depth == ALLEGRO_AUDIO_DEPTH_INT8 ||
-           spl->depth == ALLEGRO_AUDIO_DEPTH_UINT8) ? 8 : 16;
+   bits = (spl->depth == A5O_AUDIO_DEPTH_INT8 ||
+           spl->depth == A5O_AUDIO_DEPTH_UINT8) ? 8 : 16;
 
    if (channels < 1 || channels > 2) {
-      ALLEGRO_ERROR("Can only save samples with 1 or 2 channels as WAV.\n");
+      A5O_ERROR("Can only save samples with 1 or 2 channels as WAV.\n");
       return false;
    }
 
@@ -479,39 +479,39 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
    al_fwrite32le(pf, data_size);
 
 
-   if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT8) {
+   if (spl->depth == A5O_AUDIO_DEPTH_UINT8) {
       al_fwrite(pf, spl->buffer.u8, samples * channels);
    }
-   else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
+   else if (spl->depth == A5O_AUDIO_DEPTH_INT16) {
       al_fwrite(pf, spl->buffer.s16, samples * channels * 2);
    }
-   else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT8) {
+   else if (spl->depth == A5O_AUDIO_DEPTH_INT8) {
       int8_t *data = spl->buffer.s8;
       for (i = 0; i < samples; ++i) {
          al_fputc(pf, *data++ + 0x80);
       }
    }
-   else if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
+   else if (spl->depth == A5O_AUDIO_DEPTH_UINT16) {
       uint16_t *data = spl->buffer.u16;
       for (i = 0; i < n; ++i) {
          al_fwrite16le(pf, *data++ - 0x8000);
       }
    }
-   else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT24) {
+   else if (spl->depth == A5O_AUDIO_DEPTH_INT24) {
       int32_t *data = spl->buffer.s24;
       for (i = 0; i < n; ++i) {
          const int v = ((float)(*data++ + 0x800000) / 0x7FFFFF) * 0x7FFF - 0x8000;
          al_fwrite16le(pf, v);
       }
    }
-   else if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT24) {
+   else if (spl->depth == A5O_AUDIO_DEPTH_UINT24) {
       uint32_t *data = spl->buffer.u24;
       for (i = 0; i < n; ++i) {
          const int v = ((float)(*data++) / 0x7FFFFF) * 0x7FFF - 0x8000;
          al_fwrite16le(pf, v);
       }
    }
-   else if (spl->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
+   else if (spl->depth == A5O_AUDIO_DEPTH_FLOAT32) {
       float *data = spl->buffer.f32;
       for (i = 0; i < n; ++i) {
          al_fwrite16le(pf, *data * 0x7FFF);
@@ -519,7 +519,7 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
       }
    }
    else {
-      ALLEGRO_ERROR("Unknown audio depth (%d) when saving wav ALLEGRO_FILE.\n",
+      A5O_ERROR("Unknown audio depth (%d) when saving wav A5O_FILE.\n",
          spl->depth);
       return false;
    }
@@ -528,14 +528,14 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
 }
 
 
-bool _al_identify_wav(ALLEGRO_FILE *f)
+bool _al_identify_wav(A5O_FILE *f)
 {
    uint8_t x[4];
    if (al_fread(f, x, 4) < 4)
       return false;
    if (memcmp(x, "RIFF", 4) != 0)
       return false;
-   if (!al_fseek(f, 4, ALLEGRO_SEEK_CUR))
+   if (!al_fseek(f, 4, A5O_SEEK_CUR))
       return false;
    if (al_fread(f, x, 4) < 4)
       return false;

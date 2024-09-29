@@ -38,8 +38,8 @@ struct _AL_COND
    pthread_cond_t cond;
 };
 
-typedef struct ALLEGRO_TIMEOUT_UNIX ALLEGRO_TIMEOUT_UNIX;
-struct ALLEGRO_TIMEOUT_UNIX
+typedef struct A5O_TIMEOUT_UNIX A5O_TIMEOUT_UNIX;
+struct A5O_TIMEOUT_UNIX
 {
    struct timespec abstime;
 };

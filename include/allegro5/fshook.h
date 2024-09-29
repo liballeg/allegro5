@@ -20,7 +20,7 @@
 #include "allegro5/file.h"
 #include "allegro5/path.h"
 
-#ifdef ALLEGRO_HAVE_SYS_TYPES_H
+#ifdef A5O_HAVE_SYS_TYPES_H
    #include <sys/types.h>
 #else
 /* 4 Gig max offsets if sys/types doesn't exist. */
@@ -32,26 +32,26 @@ typedef unsigned int off_t;
 #endif
 
 
-/* Type: ALLEGRO_FS_ENTRY
+/* Type: A5O_FS_ENTRY
  */
-typedef struct ALLEGRO_FS_ENTRY ALLEGRO_FS_ENTRY;
+typedef struct A5O_FS_ENTRY A5O_FS_ENTRY;
 
-struct ALLEGRO_FS_ENTRY {
-   struct ALLEGRO_FS_INTERFACE const *vtable;
+struct A5O_FS_ENTRY {
+   struct A5O_FS_INTERFACE const *vtable;
 };
 
 
-/* Enum: ALLEGRO_FILE_MODE
+/* Enum: A5O_FILE_MODE
  */
-typedef enum ALLEGRO_FILE_MODE
+typedef enum A5O_FILE_MODE
 {
-   ALLEGRO_FILEMODE_READ    = 1,
-   ALLEGRO_FILEMODE_WRITE   = 1 << 1,
-   ALLEGRO_FILEMODE_EXECUTE = 1 << 2,
-   ALLEGRO_FILEMODE_HIDDEN  = 1 << 3,
-   ALLEGRO_FILEMODE_ISFILE  = 1 << 4,
-   ALLEGRO_FILEMODE_ISDIR   = 1 << 5
-} ALLEGRO_FILE_MODE;
+   A5O_FILEMODE_READ    = 1,
+   A5O_FILEMODE_WRITE   = 1 << 1,
+   A5O_FILEMODE_EXECUTE = 1 << 2,
+   A5O_FILEMODE_HIDDEN  = 1 << 3,
+   A5O_FILEMODE_ISFILE  = 1 << 4,
+   A5O_FILEMODE_ISDIR   = 1 << 5
+} A5O_FILE_MODE;
 
 
 #ifndef EOF
@@ -59,26 +59,26 @@ typedef enum ALLEGRO_FILE_MODE
 #endif
 
 
-/* Type: ALLEGRO_FS_INTERFACE
+/* Type: A5O_FS_INTERFACE
  */
-typedef struct ALLEGRO_FS_INTERFACE ALLEGRO_FS_INTERFACE;
+typedef struct A5O_FS_INTERFACE A5O_FS_INTERFACE;
 
-struct ALLEGRO_FS_INTERFACE {
-   AL_METHOD(ALLEGRO_FS_ENTRY *, fs_create_entry,  (const char *path));
-   AL_METHOD(void,            fs_destroy_entry,    (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(const char *,    fs_entry_name,       (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(bool,            fs_update_entry,     (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(uint32_t,        fs_entry_mode,       (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(time_t,          fs_entry_atime,      (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(time_t,          fs_entry_mtime,      (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(time_t,          fs_entry_ctime,      (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(off_t,           fs_entry_size,       (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(bool,            fs_entry_exists,     (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(bool,            fs_remove_entry,     (ALLEGRO_FS_ENTRY *e));
+struct A5O_FS_INTERFACE {
+   AL_METHOD(A5O_FS_ENTRY *, fs_create_entry,  (const char *path));
+   AL_METHOD(void,            fs_destroy_entry,    (A5O_FS_ENTRY *e));
+   AL_METHOD(const char *,    fs_entry_name,       (A5O_FS_ENTRY *e));
+   AL_METHOD(bool,            fs_update_entry,     (A5O_FS_ENTRY *e));
+   AL_METHOD(uint32_t,        fs_entry_mode,       (A5O_FS_ENTRY *e));
+   AL_METHOD(time_t,          fs_entry_atime,      (A5O_FS_ENTRY *e));
+   AL_METHOD(time_t,          fs_entry_mtime,      (A5O_FS_ENTRY *e));
+   AL_METHOD(time_t,          fs_entry_ctime,      (A5O_FS_ENTRY *e));
+   AL_METHOD(off_t,           fs_entry_size,       (A5O_FS_ENTRY *e));
+   AL_METHOD(bool,            fs_entry_exists,     (A5O_FS_ENTRY *e));
+   AL_METHOD(bool,            fs_remove_entry,     (A5O_FS_ENTRY *e));
 
-   AL_METHOD(bool,            fs_open_directory,   (ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(ALLEGRO_FS_ENTRY *, fs_read_directory,(ALLEGRO_FS_ENTRY *e));
-   AL_METHOD(bool,            fs_close_directory,  (ALLEGRO_FS_ENTRY *e));
+   AL_METHOD(bool,            fs_open_directory,   (A5O_FS_ENTRY *e));
+   AL_METHOD(A5O_FS_ENTRY *, fs_read_directory,(A5O_FS_ENTRY *e));
+   AL_METHOD(bool,            fs_close_directory,  (A5O_FS_ENTRY *e));
 
    AL_METHOD(bool,            fs_filename_exists,  (const char *path));
    AL_METHOD(bool,            fs_remove_filename,  (const char *path));
@@ -86,25 +86,25 @@ struct ALLEGRO_FS_INTERFACE {
    AL_METHOD(bool,            fs_change_directory, (const char *path));
    AL_METHOD(bool,            fs_make_directory,   (const char *path));
 
-   AL_METHOD(ALLEGRO_FILE *,  fs_open_file,        (ALLEGRO_FS_ENTRY *e,
+   AL_METHOD(A5O_FILE *,  fs_open_file,        (A5O_FS_ENTRY *e,
                                                     const char *mode));
 };
 
-AL_FUNC(ALLEGRO_FS_ENTRY *,   al_create_fs_entry,  (const char *path));
-AL_FUNC(void,                 al_destroy_fs_entry, (ALLEGRO_FS_ENTRY *e));
-AL_FUNC(const char *,         al_get_fs_entry_name,(ALLEGRO_FS_ENTRY *e));
-AL_FUNC(bool,                 al_update_fs_entry,  (ALLEGRO_FS_ENTRY *e));
-AL_FUNC(uint32_t,             al_get_fs_entry_mode,(ALLEGRO_FS_ENTRY *e));
-AL_FUNC(time_t,               al_get_fs_entry_atime,(ALLEGRO_FS_ENTRY *e));
-AL_FUNC(time_t,               al_get_fs_entry_mtime,(ALLEGRO_FS_ENTRY *e));
-AL_FUNC(time_t,               al_get_fs_entry_ctime,(ALLEGRO_FS_ENTRY *e));
-AL_FUNC(off_t,                al_get_fs_entry_size,(ALLEGRO_FS_ENTRY *e));
-AL_FUNC(bool,                 al_fs_entry_exists,  (ALLEGRO_FS_ENTRY *e));
-AL_FUNC(bool,                 al_remove_fs_entry,  (ALLEGRO_FS_ENTRY *e));
+AL_FUNC(A5O_FS_ENTRY *,   al_create_fs_entry,  (const char *path));
+AL_FUNC(void,                 al_destroy_fs_entry, (A5O_FS_ENTRY *e));
+AL_FUNC(const char *,         al_get_fs_entry_name,(A5O_FS_ENTRY *e));
+AL_FUNC(bool,                 al_update_fs_entry,  (A5O_FS_ENTRY *e));
+AL_FUNC(uint32_t,             al_get_fs_entry_mode,(A5O_FS_ENTRY *e));
+AL_FUNC(time_t,               al_get_fs_entry_atime,(A5O_FS_ENTRY *e));
+AL_FUNC(time_t,               al_get_fs_entry_mtime,(A5O_FS_ENTRY *e));
+AL_FUNC(time_t,               al_get_fs_entry_ctime,(A5O_FS_ENTRY *e));
+AL_FUNC(off_t,                al_get_fs_entry_size,(A5O_FS_ENTRY *e));
+AL_FUNC(bool,                 al_fs_entry_exists,  (A5O_FS_ENTRY *e));
+AL_FUNC(bool,                 al_remove_fs_entry,  (A5O_FS_ENTRY *e));
 
-AL_FUNC(bool,                 al_open_directory,   (ALLEGRO_FS_ENTRY *e));
-AL_FUNC(ALLEGRO_FS_ENTRY *,   al_read_directory,   (ALLEGRO_FS_ENTRY *e));
-AL_FUNC(bool,                 al_close_directory,  (ALLEGRO_FS_ENTRY *e));
+AL_FUNC(bool,                 al_open_directory,   (A5O_FS_ENTRY *e));
+AL_FUNC(A5O_FS_ENTRY *,   al_read_directory,   (A5O_FS_ENTRY *e));
+AL_FUNC(bool,                 al_close_directory,  (A5O_FS_ENTRY *e));
 
 AL_FUNC(bool,                 al_filename_exists,  (const char *path));
 AL_FUNC(bool,                 al_remove_filename,  (const char *path));
@@ -112,30 +112,30 @@ AL_FUNC(char *,               al_get_current_directory, (void));
 AL_FUNC(bool,                 al_change_directory, (const char *path));
 AL_FUNC(bool,                 al_make_directory,   (const char *path));
 
-AL_FUNC(ALLEGRO_FILE *,       al_open_fs_entry,    (ALLEGRO_FS_ENTRY *e,
+AL_FUNC(A5O_FILE *,       al_open_fs_entry,    (A5O_FS_ENTRY *e,
                                                     const char *mode));
 
 
 
 /* Helper function for iterating over a directory using a callback. */
 
-/* Type: ALLEGRO_FOR_EACH_FS_ENTRY_RESULT
+/* Type: A5O_FOR_EACH_FS_ENTRY_RESULT
  */
-typedef enum ALLEGRO_FOR_EACH_FS_ENTRY_RESULT {
-   ALLEGRO_FOR_EACH_FS_ENTRY_ERROR = -1,
-   ALLEGRO_FOR_EACH_FS_ENTRY_OK    =  0,
-   ALLEGRO_FOR_EACH_FS_ENTRY_SKIP  =  1,
-   ALLEGRO_FOR_EACH_FS_ENTRY_STOP  =  2
-} ALLEGRO_FOR_EACH_FS_ENTRY_RESULT;
+typedef enum A5O_FOR_EACH_FS_ENTRY_RESULT {
+   A5O_FOR_EACH_FS_ENTRY_ERROR = -1,
+   A5O_FOR_EACH_FS_ENTRY_OK    =  0,
+   A5O_FOR_EACH_FS_ENTRY_SKIP  =  1,
+   A5O_FOR_EACH_FS_ENTRY_STOP  =  2
+} A5O_FOR_EACH_FS_ENTRY_RESULT;
 
-AL_FUNC(int,  al_for_each_fs_entry, (ALLEGRO_FS_ENTRY *dir,
-                                     int (*callback)(ALLEGRO_FS_ENTRY *entry, void *extra),
+AL_FUNC(int,  al_for_each_fs_entry, (A5O_FS_ENTRY *dir,
+                                     int (*callback)(A5O_FS_ENTRY *entry, void *extra),
                                      void *extra));
 
 
 /* Thread-local state. */
-AL_FUNC(const ALLEGRO_FS_INTERFACE *, al_get_fs_interface, (void));
-AL_FUNC(void, al_set_fs_interface, (const ALLEGRO_FS_INTERFACE *vtable));
+AL_FUNC(const A5O_FS_INTERFACE *, al_get_fs_interface, (void));
+AL_FUNC(void, al_set_fs_interface, (const A5O_FS_INTERFACE *vtable));
 AL_FUNC(void, al_set_standard_fs_interface, (void));
 
 

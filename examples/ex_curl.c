@@ -62,7 +62,7 @@ struct CURL_FILE {
 
 
 /* forward declaration */
-static ALLEGRO_FILE_INTERFACE curl_file_vtable;
+static A5O_FILE_INTERFACE curl_file_vtable;
 
 
 /* we use a global one for convenience */
@@ -140,7 +140,7 @@ static void *curl_file_fopen(const char *path, const char *mode)
 }
 
 
-static bool curl_file_fclose(ALLEGRO_FILE *f)
+static bool curl_file_fclose(A5O_FILE *f)
 {
    CURL_FILE *cf = al_get_file_userdata(f);
 
@@ -225,7 +225,7 @@ static void use_buffer(CURL_FILE *cf, size_t size)
 }
 
 
-static size_t curl_file_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
+static size_t curl_file_fread(A5O_FILE *f, void *ptr, size_t size)
 {
    CURL_FILE *cf = al_get_file_userdata(f);
 
@@ -242,7 +242,7 @@ static size_t curl_file_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 }
 
 
-static size_t curl_file_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
+static size_t curl_file_fwrite(A5O_FILE *f, const void *ptr, size_t size)
 {
    (void)f;
    (void)ptr;
@@ -252,14 +252,14 @@ static size_t curl_file_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
 }
 
 
-static bool curl_file_fflush(ALLEGRO_FILE *f)
+static bool curl_file_fflush(A5O_FILE *f)
 {
    (void)f;
    return true;
 }
 
 
-static int64_t curl_file_ftell(ALLEGRO_FILE *f)
+static int64_t curl_file_ftell(A5O_FILE *f)
 {
    /* Not implemented. */
    (void)f;
@@ -268,9 +268,9 @@ static int64_t curl_file_ftell(ALLEGRO_FILE *f)
 }
 
 
-static bool curl_file_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
+static bool curl_file_fseek(A5O_FILE *f, int64_t offset, int whence)
 {
-   if (whence != ALLEGRO_SEEK_CUR || offset < 0) {
+   if (whence != A5O_SEEK_CUR || offset < 0) {
       /* Not implemented. */
       al_set_errno(ENOSYS);
       return false;
@@ -286,7 +286,7 @@ static bool curl_file_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
 }
 
 
-static bool curl_file_feof(ALLEGRO_FILE *f)
+static bool curl_file_feof(A5O_FILE *f)
 {
    CURL_FILE *cf = al_get_file_userdata(f);
 
@@ -294,7 +294,7 @@ static bool curl_file_feof(ALLEGRO_FILE *f)
 }
 
 
-static int curl_file_ferror(ALLEGRO_FILE *f)
+static int curl_file_ferror(A5O_FILE *f)
 {
    /* Not implemented. */
    (void)f;
@@ -302,7 +302,7 @@ static int curl_file_ferror(ALLEGRO_FILE *f)
 }
 
 
-static const char *curl_file_ferrmsg(ALLEGRO_FILE *f)
+static const char *curl_file_ferrmsg(A5O_FILE *f)
 {
    /* Not implemented. */
    (void)f;
@@ -310,14 +310,14 @@ static const char *curl_file_ferrmsg(ALLEGRO_FILE *f)
 }
 
 
-static void curl_file_fclearerr(ALLEGRO_FILE *f)
+static void curl_file_fclearerr(A5O_FILE *f)
 {
    /* Not implemented. */
    (void)f;
 }
 
 
-static int curl_file_fungetc(ALLEGRO_FILE *f, int c)
+static int curl_file_fungetc(A5O_FILE *f, int c)
 {
    /* Not implemented. */
    (void)f;
@@ -327,7 +327,7 @@ static int curl_file_fungetc(ALLEGRO_FILE *f, int c)
 }
 
 
-static off_t curl_file_fsize(ALLEGRO_FILE *f)
+static off_t curl_file_fsize(A5O_FILE *f)
 {
    /* Not implemented. */
    (void)f;
@@ -336,7 +336,7 @@ static off_t curl_file_fsize(ALLEGRO_FILE *f)
 }
 
 
-static ALLEGRO_FILE_INTERFACE curl_file_vtable =
+static A5O_FILE_INTERFACE curl_file_vtable =
 {
    curl_file_fopen,
    curl_file_fclose,
@@ -354,10 +354,10 @@ static ALLEGRO_FILE_INTERFACE curl_file_vtable =
 };
 
 
-static void show_image(ALLEGRO_BITMAP *bmp, ALLEGRO_DISPLAY *disp)
+static void show_image(A5O_BITMAP *bmp, A5O_DISPLAY *disp)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -367,11 +367,11 @@ static void show_image(ALLEGRO_BITMAP *bmp, ALLEGRO_DISPLAY *disp)
       al_draw_bitmap(bmp, 0, 0, 0);
       al_flip_display();
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN
-            && event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN
+            && event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
    }
@@ -383,8 +383,8 @@ static void show_image(ALLEGRO_BITMAP *bmp, ALLEGRO_DISPLAY *disp)
 int main(int argc, const char *argv[])
 {
    const char *url;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bmp;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bmp;
    bool wait_for_log = true;
 
    if (argc > 1)

@@ -26,20 +26,20 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_timer.h"
 
-#ifndef ALLEGRO_MSVC
-#ifndef ALLEGRO_BCC32
+#ifndef A5O_MSVC
+#ifndef A5O_BCC32
    #include <sys/time.h>
 #endif
 #endif
 
 
 /* forward declarations */
-static void timer_handle_tick(ALLEGRO_TIMER *timer);
+static void timer_handle_tick(A5O_TIMER *timer);
 
 
-struct ALLEGRO_TIMER
+struct A5O_TIMER
 {
-   ALLEGRO_EVENT_SOURCE es;
+   A5O_EVENT_SOURCE es;
    bool started;
    double speed_secs;
    int64_t count;
@@ -53,10 +53,10 @@ struct ALLEGRO_TIMER
  * The timer thread that runs in the background to drive the timers.
  */
 
-static ALLEGRO_MUTEX *timers_mutex;
-static _AL_VECTOR active_timers = _AL_VECTOR_INITIALIZER(ALLEGRO_TIMER *);
+static A5O_MUTEX *timers_mutex;
+static _AL_VECTOR active_timers = _AL_VECTOR_INITIALIZER(A5O_TIMER *);
 static _AL_THREAD * volatile timer_thread = NULL;
-static ALLEGRO_COND *timer_cond = NULL;
+static A5O_COND *timer_cond = NULL;
 static bool destroy_thread = false;
 
 // Allegro's al_get_time measures "the time since Allegro started", and so does
@@ -71,7 +71,7 @@ static bool destroy_thread = false;
 // See https://github.com/liballeg/allegro5/issues/1510
 // Note: perhaps this could move into a new public API: al_get_uptime
 
-#if defined(ALLEGRO_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
+#if defined(A5O_MACOSX) && MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
 #define USE_UPTIME
 struct timespec _al_initial_uptime;
 #endif
@@ -165,11 +165,11 @@ double _al_timer_thread_handle_tick(double interval)
     * This is to handle clock changes on platforms not using a monotonic,
     * suspense-free clock.
     */
-   interval = _ALLEGRO_CLAMP(0, interval, 10.0);
+   interval = _A5O_CLAMP(0, interval, 10.0);
 
    for (i = 0; i < _al_vector_size(&active_timers); i++) {
-      ALLEGRO_TIMER **slot = _al_vector_ref(&active_timers, i);
-      ALLEGRO_TIMER *timer = *slot;
+      A5O_TIMER **slot = _al_vector_ref(&active_timers, i);
+      A5O_TIMER *timer = *slot;
 
       timer->counter -= interval;
 
@@ -217,7 +217,7 @@ static void shutdown_timers(void)
 // logic common to al_start_timer and al_resume_timer
 // al_start_timer : passes reset_counter = true to start from the beginning
 // al_resume_timer: passes reset_counter = false to preserve the previous time
-static void enable_timer(ALLEGRO_TIMER *timer, bool reset_counter)
+static void enable_timer(A5O_TIMER *timer, bool reset_counter)
 {
    ASSERT(timer);
    {
@@ -226,7 +226,7 @@ static void enable_timer(ALLEGRO_TIMER *timer, bool reset_counter)
 
       al_lock_mutex(timers_mutex);
       {
-         ALLEGRO_TIMER **slot;
+         A5O_TIMER **slot;
 
          timer->started = true;
 
@@ -272,11 +272,11 @@ int _al_get_active_timers_count(void)
 
 /* Function: al_create_timer
  */
-ALLEGRO_TIMER *al_create_timer(double speed_secs)
+A5O_TIMER *al_create_timer(double speed_secs)
 {
    ASSERT(speed_secs > 0);
    {
-      ALLEGRO_TIMER *timer = al_malloc(sizeof *timer);
+      A5O_TIMER *timer = al_malloc(sizeof *timer);
 
       ASSERT(timer);
 
@@ -299,7 +299,7 @@ ALLEGRO_TIMER *al_create_timer(double speed_secs)
 
 /* Function: al_destroy_timer
  */
-void al_destroy_timer(ALLEGRO_TIMER *timer)
+void al_destroy_timer(A5O_TIMER *timer)
 {
    if (timer) {
       al_stop_timer(timer);
@@ -315,7 +315,7 @@ void al_destroy_timer(ALLEGRO_TIMER *timer)
 
 /* Function: al_start_timer
  */
-void al_start_timer(ALLEGRO_TIMER *timer)
+void al_start_timer(A5O_TIMER *timer)
 {
    enable_timer(timer, true); // true to reset the counter
 }
@@ -324,7 +324,7 @@ void al_start_timer(ALLEGRO_TIMER *timer)
 
 /* Function: al_resume_timer
  */
-void al_resume_timer(ALLEGRO_TIMER *timer)
+void al_resume_timer(A5O_TIMER *timer)
 {
    enable_timer(timer, false); // false to preserve the counter
 }
@@ -333,7 +333,7 @@ void al_resume_timer(ALLEGRO_TIMER *timer)
 
 /* Function: al_stop_timer
  */
-void al_stop_timer(ALLEGRO_TIMER *timer)
+void al_stop_timer(A5O_TIMER *timer)
 {
    ASSERT(timer);
    {
@@ -353,7 +353,7 @@ void al_stop_timer(ALLEGRO_TIMER *timer)
 
 /* Function: al_get_timer_started
  */
-bool al_get_timer_started(const ALLEGRO_TIMER *timer)
+bool al_get_timer_started(const A5O_TIMER *timer)
 {
    ASSERT(timer);
 
@@ -364,7 +364,7 @@ bool al_get_timer_started(const ALLEGRO_TIMER *timer)
 
 /* Function: al_get_timer_speed
  */
-double al_get_timer_speed(const ALLEGRO_TIMER *timer)
+double al_get_timer_speed(const A5O_TIMER *timer)
 {
    ASSERT(timer);
 
@@ -375,7 +375,7 @@ double al_get_timer_speed(const ALLEGRO_TIMER *timer)
 
 /* Function: al_set_timer_speed
  */
-void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
+void al_set_timer_speed(A5O_TIMER *timer, double new_speed_secs)
 {
    ASSERT(timer);
    ASSERT(new_speed_secs > 0);
@@ -396,7 +396,7 @@ void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
 
 /* Function: al_get_timer_count
  */
-int64_t al_get_timer_count(const ALLEGRO_TIMER *timer)
+int64_t al_get_timer_count(const A5O_TIMER *timer)
 {
    ASSERT(timer);
 
@@ -407,7 +407,7 @@ int64_t al_get_timer_count(const ALLEGRO_TIMER *timer)
 
 /* Function: al_set_timer_count
  */
-void al_set_timer_count(ALLEGRO_TIMER *timer, int64_t new_count)
+void al_set_timer_count(A5O_TIMER *timer, int64_t new_count)
 {
    ASSERT(timer);
 
@@ -422,7 +422,7 @@ void al_set_timer_count(ALLEGRO_TIMER *timer, int64_t new_count)
 
 /* Function: al_add_timer_count
  */
-void al_add_timer_count(ALLEGRO_TIMER *timer, int64_t diff)
+void al_add_timer_count(A5O_TIMER *timer, int64_t diff)
 {
    ASSERT(timer);
 
@@ -437,7 +437,7 @@ void al_add_timer_count(ALLEGRO_TIMER *timer, int64_t diff)
 /* timer_handle_tick: [timer thread]
  *  Handle a single tick.
  */
-static void timer_handle_tick(ALLEGRO_TIMER *timer)
+static void timer_handle_tick(A5O_TIMER *timer)
 {
    /* Lock out event source helper functions (e.g. the release hook
     * could be invoked simultaneously with this function).
@@ -449,8 +449,8 @@ static void timer_handle_tick(ALLEGRO_TIMER *timer)
 
       /* Generate an event, maybe.  */
       if (_al_event_source_needs_to_generate_event(&timer->es)) {
-         ALLEGRO_EVENT event;
-         event.timer.type = ALLEGRO_EVENT_TIMER;
+         A5O_EVENT event;
+         event.timer.type = A5O_EVENT_TIMER;
          event.timer.timestamp = al_get_time();
          event.timer.count = timer->count;
          event.timer.error = -timer->counter;
@@ -464,7 +464,7 @@ static void timer_handle_tick(ALLEGRO_TIMER *timer)
 
 /* Function: al_get_timer_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_timer_event_source(ALLEGRO_TIMER *timer)
+A5O_EVENT_SOURCE *al_get_timer_event_source(A5O_TIMER *timer)
 {
    return &timer->es;
 }

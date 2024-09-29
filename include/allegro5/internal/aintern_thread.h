@@ -1,7 +1,7 @@
 #ifndef __al_included_allegro5_aintern_thread_h
 #define __al_included_allegro5_aintern_thread_h
 
-#include ALLEGRO_INTERNAL_THREAD_HEADER
+#include A5O_INTERNAL_THREAD_HEADER
 
 #ifdef __cplusplus
    extern "C" {
@@ -31,7 +31,7 @@ void _al_mutex_destroy(_AL_MUTEX*);
  * FIXME: Why are they all inline? And if they have to be, why not treat them
  * the same as the two functions above?
  */
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
 void _al_cond_init(_AL_COND*);
 void _al_cond_destroy(_AL_COND*);
 void _al_cond_wait(_AL_COND*, _AL_MUTEX*);
@@ -39,7 +39,7 @@ void _al_cond_broadcast(_AL_COND*);
 void _al_cond_signal(_AL_COND*);
 #endif
 
-int _al_cond_timedwait(_AL_COND*, _AL_MUTEX*, const ALLEGRO_TIMEOUT *timeout);
+int _al_cond_timedwait(_AL_COND*, _AL_MUTEX*, const A5O_TIMEOUT *timeout);
 
 
 #ifdef __cplusplus

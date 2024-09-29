@@ -23,14 +23,14 @@
 #include "allegro5/internal/aintern_tri_soft.h"
 #include <math.h>
 
-#define MIN _ALLEGRO_MIN
-#define MAX _ALLEGRO_MAX
+#define MIN _A5O_MIN
+#define MAX _A5O_MAX
 
 static void _al_draw_transformed_scaled_bitmap_memory(
-   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
+   A5O_BITMAP *src, A5O_COLOR tint,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh,
    int flags);
-static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
+static void _al_draw_bitmap_region_memory_fast(A5O_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags);
 
@@ -130,8 +130,8 @@ static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
 }
 
 
-void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
-   ALLEGRO_COLOR tint,
+void _al_draw_bitmap_region_memory(A5O_BITMAP *src,
+   A5O_COLOR tint,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
 {
@@ -161,20 +161,20 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
 }
 
 
-static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
-   ALLEGRO_COLOR tint,
+static void _al_draw_transformed_bitmap_memory(A5O_BITMAP *src,
+   A5O_COLOR tint,
    int sx, int sy, int sw, int sh, int dw, int dh,
-   ALLEGRO_TRANSFORM* local_trans, int flags)
+   A5O_TRANSFORM* local_trans, int flags)
 {
    float xsf[4], ysf[4];
    int tl = 0, tr = 1, bl = 3, br = 2;
    int tmp;
-   ALLEGRO_VERTEX v[4];
+   A5O_VERTEX v[4];
 
    ASSERT(_al_pixel_format_is_real(al_get_bitmap_format(src)));
 
    /* Decide what order to take corners in. */
-   if (flags & ALLEGRO_FLIP_VERTICAL) {
+   if (flags & A5O_FLIP_VERTICAL) {
       tl = 3;
       tr = 2;
       bl = 0;
@@ -186,7 +186,7 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
       bl = 3;
       br = 2;
    }
-   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
+   if (flags & A5O_FLIP_HORIZONTAL) {
       tmp = tl;
       tl = tr;
       tr = tmp;
@@ -236,7 +236,7 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
    v[bl].v = sy + sh;
    v[bl].color = tint;
 
-   al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(src, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
 
    _al_triangle_2d(src, &v[tl], &v[tr], &v[br]);
    _al_triangle_2d(src, &v[tl], &v[br], &v[bl]);
@@ -246,10 +246,10 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
 
 
 static void _al_draw_transformed_scaled_bitmap_memory(
-   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
+   A5O_BITMAP *src, A5O_COLOR tint,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags)
 {
-   ALLEGRO_TRANSFORM local_trans;
+   A5O_TRANSFORM local_trans;
 
    al_identity_transform(&local_trans);
    al_translate_transform(&local_trans, dx, dy);
@@ -260,13 +260,13 @@ static void _al_draw_transformed_scaled_bitmap_memory(
 }
 
 
-static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
+static void _al_draw_bitmap_region_memory_fast(A5O_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
 {
-   ALLEGRO_LOCKED_REGION *src_region;
-   ALLEGRO_LOCKED_REGION *dst_region;
-   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   A5O_LOCKED_REGION *src_region;
+   A5O_LOCKED_REGION *dst_region;
+   A5O_BITMAP *dest = al_get_target_bitmap();
    int dw = sw, dh = sh;
 
    ASSERT(_al_pixel_format_is_real(al_get_bitmap_format(bitmap)));
@@ -282,12 +282,12 @@ static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    CLIPPER(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1, 1, flags)
 
    if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
-         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
+         A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY))) {
       return;
    }
 
    if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
-         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY))) {
+         A5O_PIXEL_FORMAT_ANY, A5O_LOCK_WRITEONLY))) {
       al_unlock_bitmap(bitmap);
       return;
    }

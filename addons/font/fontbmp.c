@@ -26,7 +26,7 @@
 
 #include "font.h"
 
-ALLEGRO_DEBUG_CHANNEL("font")
+A5O_DEBUG_CHANNEL("font")
 
 
 static void font_find_character(uint32_t *data, int pitch,
@@ -81,7 +81,7 @@ static void font_find_character(uint32_t *data, int pitch,
  */
 static int import_bitmap_font_color(uint32_t *data, int pitch,
    int bmp_w, int bmp_h,
-   ALLEGRO_BITMAP **bits, ALLEGRO_BITMAP *glyphs, int num,
+   A5O_BITMAP **bits, A5O_BITMAP *glyphs, int num,
    int *import_x, int *import_y)
 {
    int w, h, i;
@@ -90,7 +90,7 @@ static int import_bitmap_font_color(uint32_t *data, int pitch,
       font_find_character(data, pitch, bmp_w, bmp_h,
          import_x, import_y, &w, &h);
       if (w <= 0 || h <= 0) {
-         ALLEGRO_ERROR("Unable to find character %d\n", i);
+         A5O_ERROR("Unable to find character %d\n", i);
          return -1;
       }
       else {
@@ -108,14 +108,14 @@ static int import_bitmap_font_color(uint32_t *data, int pitch,
 /* bitmap_font_count:
  *  Helper for `import_bitmap_font', below.
  */
-static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
+static int bitmap_font_count(A5O_BITMAP* bmp)
 {
    int x = 0, y = 0, w = 0, h = 0;
    int num = 0;
-   ALLEGRO_LOCKED_REGION *lock;
+   A5O_LOCKED_REGION *lock;
    
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
-      ALLEGRO_LOCK_READONLY);
+   lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_RGBA_8888,
+      A5O_LOCK_READONLY);
 
    while (1) {
       font_find_character(lock->data, lock->pitch,
@@ -134,11 +134,11 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 
-ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int font_flags)
+A5O_FONT *_al_load_bitmap_font(const char *fname, int size, int font_flags)
 {
-   ALLEGRO_BITMAP *import_bmp;
-   ALLEGRO_FONT *f;
-   ALLEGRO_STATE backup;
+   A5O_BITMAP *import_bmp;
+   A5O_FONT *f;
+   A5O_STATE backup;
    int range[2];
    int bmp_flags;
    ASSERT(fname);
@@ -146,18 +146,18 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int font_flags)
    (void)size;
 
    bmp_flags = 0;
-   if (font_flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-      bmp_flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+   if (font_flags & A5O_NO_PREMULTIPLIED_ALPHA) {
+      bmp_flags |= A5O_NO_PREMULTIPLIED_ALPHA;
    }
 
-   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   al_store_state(&backup, A5O_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY_WITH_ALPHA);
    import_bmp = al_load_bitmap_flags(fname, bmp_flags);
    al_restore_state(&backup);
 
    if (!import_bmp) {
-      ALLEGRO_ERROR("Couldn't load bitmap from '%s'\n", fname);
+      A5O_ERROR("Couldn't load bitmap from '%s'\n", fname);
       return NULL;
    }
 
@@ -178,13 +178,13 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int font_flags)
 
 /* Function: al_load_bitmap_font
  */
-ALLEGRO_FONT *al_load_bitmap_font(const char *fname)
+A5O_FONT *al_load_bitmap_font(const char *fname)
 {
    int flags = 0;
 
    /* For backwards compatibility with the 5.0 branch. */
-   if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-      flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+   if (al_get_new_bitmap_flags() & A5O_NO_PREMULTIPLIED_ALPHA) {
+      flags |= A5O_NO_PREMULTIPLIED_ALPHA;
    }
 
    return _al_load_bitmap_font(fname, 0, flags);
@@ -194,7 +194,7 @@ ALLEGRO_FONT *al_load_bitmap_font(const char *fname)
 
 /* Function: al_load_bitmap_font_flags
  */
-ALLEGRO_FONT *al_load_bitmap_font_flags(const char *fname, int flags)
+A5O_FONT *al_load_bitmap_font_flags(const char *fname, int flags)
 {
    return _al_load_bitmap_font(fname, 0, flags);
 }
@@ -203,17 +203,17 @@ ALLEGRO_FONT *al_load_bitmap_font_flags(const char *fname, int flags)
 
 /* Function: al_grab_font_from_bitmap
  */
-ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
+A5O_FONT *al_grab_font_from_bitmap(A5O_BITMAP *bmp,
    int ranges_n, const int ranges[])
 {
-   ALLEGRO_FONT *f;
-   ALLEGRO_FONT_COLOR_DATA *cf, *prev = NULL;
-   ALLEGRO_STATE backup;
+   A5O_FONT *f;
+   A5O_FONT_COLOR_DATA *cf, *prev = NULL;
+   A5O_STATE backup;
    int i;
-   ALLEGRO_COLOR mask = al_get_pixel(bmp, 0, 0);
-   ALLEGRO_BITMAP *glyphs = NULL, *unmasked = NULL;
+   A5O_COLOR mask = al_get_pixel(bmp, 0, 0);
+   A5O_BITMAP *glyphs = NULL, *unmasked = NULL;
    int import_x = 0, import_y = 0;
-   ALLEGRO_LOCKED_REGION *lock = NULL;
+   A5O_LOCKED_REGION *lock = NULL;
    int w, h;
 
    ASSERT(bmp);
@@ -224,9 +224,9 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
    f = al_calloc(1, sizeof *f);
    f->vtable = &_al_font_vtable_color;
    
-   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   al_store_state(&backup, A5O_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY_WITH_ALPHA);
    unmasked = al_clone_bitmap(bmp);
    /* At least with OpenGL, texture pixels at the very border of
     * the glyph are sometimes partly sampled from the yellow mask
@@ -237,33 +237,33 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
    al_convert_mask_to_alpha(unmasked, mask);
    al_restore_state(&backup);   
 
-   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
+   al_store_state(&backup, A5O_STATE_BITMAP | A5O_STATE_BLENDER);
    // Use the users preferred format, so don't set this below!
-   //al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   //al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    for (i = 0; i < ranges_n; i++) {
       int first = ranges[i * 2];
       int last = ranges[i * 2 + 1];
       int n = 1 + last - first;
-      cf = al_calloc(1, sizeof(ALLEGRO_FONT_COLOR_DATA));
+      cf = al_calloc(1, sizeof(A5O_FONT_COLOR_DATA));
 
       if (prev)
          prev->next = cf;
       else
          f->data = cf;
       
-      cf->bitmaps = al_malloc(sizeof(ALLEGRO_BITMAP*) * n);
+      cf->bitmaps = al_malloc(sizeof(A5O_BITMAP*) * n);
       cf->bitmaps[0] = NULL;
 
       if (!glyphs) {
          glyphs = al_clone_bitmap(unmasked);
          if (!glyphs) {
-            ALLEGRO_ERROR("Unable clone bitmap.\n");
+            A5O_ERROR("Unable clone bitmap.\n");
             goto cleanup_and_fail_on_error;
          }
 
          lock = al_lock_bitmap(bmp,
-            ALLEGRO_PIXEL_FORMAT_RGBA_8888, ALLEGRO_LOCK_READONLY);
+            A5O_PIXEL_FORMAT_RGBA_8888, A5O_LOCK_READONLY);
       }
       cf->glyphs = glyphs;
 

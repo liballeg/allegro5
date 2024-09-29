@@ -4,7 +4,7 @@
  *    This program tests the polygon routines in the primitives addon.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
@@ -38,21 +38,21 @@ struct Vertex {
 };
 
 struct Example {
-   ALLEGRO_DISPLAY   *display;
-   ALLEGRO_FONT      *font;
-   ALLEGRO_FONT      *fontbmp;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_BITMAP    *dbuf;
-   ALLEGRO_COLOR     bg;
-   ALLEGRO_COLOR     fg;
+   A5O_DISPLAY   *display;
+   A5O_FONT      *font;
+   A5O_FONT      *fontbmp;
+   A5O_EVENT_QUEUE *queue;
+   A5O_BITMAP    *dbuf;
+   A5O_COLOR     bg;
+   A5O_COLOR     fg;
    Vertex            vertices[MAX_VERTICES];
    int               vertex_polygon[MAX_VERTICES];
    int               vertex_count;
    int               cur_vertex; /* -1 = none */
    int               cur_polygon;
    int               mode;
-   ALLEGRO_LINE_CAP  cap_style;
-   ALLEGRO_LINE_JOIN join_style;
+   A5O_LINE_CAP  cap_style;
+   A5O_LINE_JOIN join_style;
    float             thickness;
    float             miter_limit;
    bool              software;
@@ -68,8 +68,8 @@ static void reset(void)
    ex.vertex_count = 0;
    ex.cur_vertex = -1;
    ex.cur_polygon = 0;
-   ex.cap_style = ALLEGRO_LINE_CAP_NONE;
-   ex.join_style = ALLEGRO_LINE_JOIN_NONE;
+   ex.cap_style = A5O_LINE_CAP_NONE;
+   ex.join_style = A5O_LINE_JOIN_NONE;
    ex.thickness = 1.0f;
    ex.miter_limit = 1.0f;
    ex.software = false;
@@ -148,50 +148,50 @@ static void scroll(int mx, int my)
    ex.scroll_y += my;
 }
 
-static const char *join_style_to_string(ALLEGRO_LINE_JOIN x)
+static const char *join_style_to_string(A5O_LINE_JOIN x)
 {
    switch (x) {
-      case ALLEGRO_LINE_JOIN_NONE:
+      case A5O_LINE_JOIN_NONE:
          return "NONE";
-      case ALLEGRO_LINE_JOIN_BEVEL:
+      case A5O_LINE_JOIN_BEVEL:
          return "BEVEL";
-      case ALLEGRO_LINE_JOIN_ROUND:
+      case A5O_LINE_JOIN_ROUND:
          return "ROUND";
-      case ALLEGRO_LINE_JOIN_MITER:
+      case A5O_LINE_JOIN_MITER:
          return "MITER";
       default:
          return "unknown";
    }
 }
 
-static const char *cap_style_to_string(ALLEGRO_LINE_CAP x)
+static const char *cap_style_to_string(A5O_LINE_CAP x)
 {
    switch (x) {
-      case ALLEGRO_LINE_CAP_NONE:
+      case A5O_LINE_CAP_NONE:
          return "NONE";
-      case ALLEGRO_LINE_CAP_SQUARE:
+      case A5O_LINE_CAP_SQUARE:
          return "SQUARE";
-      case ALLEGRO_LINE_CAP_ROUND:
+      case A5O_LINE_CAP_ROUND:
          return "ROUND";
-      case ALLEGRO_LINE_CAP_TRIANGLE:
+      case A5O_LINE_CAP_TRIANGLE:
          return "TRIANGLE";
-      case ALLEGRO_LINE_CAP_CLOSED:
+      case A5O_LINE_CAP_CLOSED:
          return "CLOSED";
       default:
          return "unknown";
    }
 }
 
-static ALLEGRO_FONT *choose_font(void)
+static A5O_FONT *choose_font(void)
 {
    return (ex.software) ? ex.fontbmp : ex.font;
 }
 
 static void draw_vertices(void)
 {
-   ALLEGRO_FONT *f = choose_font();
-   ALLEGRO_COLOR vertc = al_map_rgba_f(0.7, 0, 0, 0.7);
-   ALLEGRO_COLOR textc = al_map_rgba_f(0, 0, 0, 0.7);
+   A5O_FONT *f = choose_font();
+   A5O_COLOR vertc = al_map_rgba_f(0.7, 0, 0, 0.7);
+   A5O_COLOR textc = al_map_rgba_f(0, 0, 0, 0.7);
    int i;
 
    for (i = 0; i < ex.vertex_count; i++) {
@@ -218,13 +218,13 @@ static void compute_polygon_vertex_counts(
 
 static void draw_all(void)
 {
-   ALLEGRO_FONT *f = choose_font();
-   ALLEGRO_COLOR textc = al_map_rgb(0, 0, 0);
+   A5O_FONT *f = choose_font();
+   A5O_COLOR textc = al_map_rgb(0, 0, 0);
    float texth = al_get_font_line_height(f) * 1.5;
    float textx = 5;
    float texty = 5;
-   ALLEGRO_TRANSFORM t;
-   ALLEGRO_COLOR holec;
+   A5O_TRANSFORM t;
+   A5O_COLOR holec;
 
    al_clear_to_color(ex.bg);
 
@@ -341,7 +341,7 @@ static void print_vertices(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    bool have_touch_input;
    bool mdown = false;
 
@@ -372,7 +372,7 @@ int main(int argc, char **argv)
       abort_example("Error creating builtin font\n");
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    ex.dbuf = al_create_bitmap(800, 600);
    ex.fontbmp = al_create_builtin_font();
    if (!ex.fontbmp) {
@@ -409,10 +409,10 @@ int main(int argc, char **argv)
       }
 
       al_wait_for_event(ex.queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
          switch (toupper(event.keyboard.unichar)) {
             case ' ':
@@ -420,12 +420,12 @@ int main(int argc, char **argv)
                   ex.mode = 0;
                break;
             case 'J':
-               if (++ex.join_style > ALLEGRO_LINE_JOIN_MITER)
-                  ex.join_style = ALLEGRO_LINE_JOIN_NONE;
+               if (++ex.join_style > A5O_LINE_JOIN_MITER)
+                  ex.join_style = A5O_LINE_JOIN_NONE;
                break;
             case 'C':
-               if (++ex.cap_style > ALLEGRO_LINE_CAP_CLOSED)
-                  ex.cap_style = ALLEGRO_LINE_CAP_NONE;
+               if (++ex.cap_style > A5O_LINE_CAP_CLOSED)
+                  ex.cap_style = A5O_LINE_CAP_NONE;
                break;
             case '+':
                ex.thickness += 0.25f;
@@ -459,7 +459,7 @@ int main(int argc, char **argv)
                break;
          }
       }
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          float x = event.mouse.x, y = event.mouse.y;
          transform(&x, &y);
          if (event.mouse.button == 1)
@@ -469,12 +469,12 @@ int main(int argc, char **argv)
          if (event.mouse.button == 3)
             mdown = true;
       }
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_UP) {
          ex.cur_vertex = -1;
          if (event.mouse.button == 3)
             mdown = false;
       }
-      if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+      if (event.type == A5O_EVENT_MOUSE_AXES) {
          float x = event.mouse.x, y = event.mouse.y;
          transform(&x, &y);
 

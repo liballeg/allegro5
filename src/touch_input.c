@@ -16,7 +16,7 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -27,7 +27,7 @@
 
 
 /* the active driver */
-static ALLEGRO_TOUCH_INPUT_DRIVER *touch_input_driver = NULL;
+static A5O_TOUCH_INPUT_DRIVER *touch_input_driver = NULL;
 
 
 /* Function: al_is_touch_input_installed
@@ -75,9 +75,9 @@ void al_uninstall_touch_input(void)
 }
 
 
-static ALLEGRO_TOUCH_INPUT *get_touch_input(void)
+static A5O_TOUCH_INPUT *get_touch_input(void)
 {
-   ALLEGRO_TOUCH_INPUT *touch_input;
+   A5O_TOUCH_INPUT *touch_input;
 
    ASSERT(touch_input_driver);
 
@@ -90,7 +90,7 @@ static ALLEGRO_TOUCH_INPUT *get_touch_input(void)
 
 /* Function: al_get_touch_input_state
  */
-void al_get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
+void al_get_touch_input_state(A5O_TOUCH_INPUT_STATE *ret_state)
 {
    ASSERT(touch_input_driver);
    ASSERT(ret_state);
@@ -127,9 +127,9 @@ int al_get_mouse_emulation_mode(void)
 
 /* Function: al_get_touch_input_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_touch_input_event_source(void)
+A5O_EVENT_SOURCE *al_get_touch_input_event_source(void)
 {
-   ALLEGRO_TOUCH_INPUT *touch_input = get_touch_input();
+   A5O_TOUCH_INPUT *touch_input = get_touch_input();
 
    return (touch_input) ? &touch_input->es : NULL;
 }
@@ -137,9 +137,9 @@ ALLEGRO_EVENT_SOURCE *al_get_touch_input_event_source(void)
 
 /* Function: al_get_touch_input_mouse_emulation_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_touch_input_mouse_emulation_event_source(void)
+A5O_EVENT_SOURCE *al_get_touch_input_mouse_emulation_event_source(void)
 {
-   ALLEGRO_TOUCH_INPUT *touch_input = get_touch_input();
+   A5O_TOUCH_INPUT *touch_input = get_touch_input();
 
    return (touch_input) ? &touch_input->mouse_emulation_es : NULL;
 }

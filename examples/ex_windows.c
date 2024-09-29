@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_font.h"
 #include <stdlib.h>
@@ -12,15 +12,15 @@ const int H = 200;
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *displays[2];
-   ALLEGRO_MONITOR_INFO *info;
+   A5O_DISPLAY *displays[2];
+   A5O_MONITOR_INFO *info;
    int adapter_count;
    int x, y;
    int jump_x[2], jump_y[2], jump_adapter[2];
-   ALLEGRO_FONT *myfont;
-   ALLEGRO_EVENT_QUEUE *events;
-   ALLEGRO_EVENT event;
-   ALLEGRO_TIMER *timer;
+   A5O_FONT *myfont;
+   A5O_EVENT_QUEUE *events;
+   A5O_EVENT event;
+   A5O_TIMER *timer;
    int i;
 
    (void)argc;
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
       abort_example("No adapters found!\n");
    }
 
-   info = malloc(adapter_count * sizeof(ALLEGRO_MONITOR_INFO));
+   info = malloc(adapter_count * sizeof(A5O_MONITOR_INFO));
 
    for (i = 0; i < adapter_count; i++) {
       al_get_monitor_info(i, &info[i]);
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
    }
 
    // center the first window
-   ALLEGRO_MONITOR_INFO init_info = info[0];
+   A5O_MONITOR_INFO init_info = info[0];
    x = (init_info.x1 + init_info.x2 - W) / 2;
    y = (init_info.y1 + init_info.y2 - H) / 2;
    jump_x[0] = x;
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
    al_set_new_window_position(x, y);
    al_set_new_window_title("Window 1");
 
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_RESIZABLE);
    displays[0] = al_create_display(W, H);
 
    // use the default position for the second window
@@ -94,33 +94,33 @@ int main(int argc, char **argv)
          for (i = 0; i < 2; i++) {
             int dx, dy, dw, dh;
             al_set_target_backbuffer(displays[i]);
-            al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+            al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
             if (i == 0)
               al_clear_to_color(al_map_rgb(255, 0, 255));
             else
               al_clear_to_color(al_map_rgb(155, 255, 0));
-            al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+            al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
             al_get_window_position(displays[i], &dx, &dy);
             dw = al_get_display_width(displays[i]);
             dh = al_get_display_height(displays[i]);
-            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 30, ALLEGRO_ALIGN_CENTRE, "Location: %d %d", dx, dy);
+            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 30, A5O_ALIGN_CENTRE, "Location: %d %d", dx, dy);
             if (jump_x[i] != INT_MAX && jump_y[i] != INT_MAX) {
-               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, ALLEGRO_ALIGN_CENTRE,
+               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, A5O_ALIGN_CENTRE,
                   "Last jumped to: %d %d (adapter %d)", jump_x[i], jump_y[i], jump_adapter[i]);
             }
             else {
-               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, ALLEGRO_ALIGN_CENTRE,
+               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 - 15, A5O_ALIGN_CENTRE,
                   "Last placed to default position (adapter %d)", jump_adapter[i]);
             }
-            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 0, ALLEGRO_ALIGN_CENTRE, "Size: %dx%d", dw, dh);
+            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 0, A5O_ALIGN_CENTRE, "Size: %dx%d", dw, dh);
             int bl = 0, bt = 0;
             bool b = al_get_window_borders(displays[i], &bl, &bt, NULL, NULL);
             if (b)
-               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 15, ALLEGRO_ALIGN_CENTRE, "Borders: left=%d top=%d", bl, bt);
+               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 15, A5O_ALIGN_CENTRE, "Borders: left=%d top=%d", bl, bt);
             else
-               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 15, ALLEGRO_ALIGN_CENTRE, "Borders: unknown");
-            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 30, ALLEGRO_ALIGN_CENTRE, "Click left to jump!");
-            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 45, ALLEGRO_ALIGN_CENTRE, "Click right to swap!");
+               al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 15, A5O_ALIGN_CENTRE, "Borders: unknown");
+            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 30, A5O_ALIGN_CENTRE, "Click left to jump!");
+            al_draw_textf(myfont, al_map_rgb(0, 0, 0), dw / 2, dh / 2 + 45, A5O_ALIGN_CENTRE, "Click right to swap!");
 
             al_flip_display();
          }
@@ -128,10 +128,10 @@ int main(int argc, char **argv)
       }
 
       al_wait_for_event(events, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          if (event.mouse.button == 1) {
             int a = rand() % adapter_count;
             int w = info[a].x2 - info[a].x1;
@@ -154,8 +154,8 @@ int main(int argc, char **argv)
             al_set_window_position(displays[1], jump_x[1], jump_y[1]);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+      else if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_SPACE) {
             al_get_window_position(event.keyboard.display, &x, &y);
             int i = event.mouse.display == displays[0] ? 0 : 1;
             jump_x[i] = x;
@@ -163,10 +163,10 @@ int main(int argc, char **argv)
             al_set_window_position(event.keyboard.display, x, y);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_TIMER) {
+      else if (event.type == A5O_EVENT_TIMER) {
          redraw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      else if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(event.display.source);
       }
    }

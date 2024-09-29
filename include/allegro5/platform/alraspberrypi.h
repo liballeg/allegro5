@@ -14,11 +14,11 @@
  */
 
 
-#ifndef ALLEGRO_RASPBERRYPI
+#ifndef A5O_RASPBERRYPI
    #error bad include
 #endif
 
-#ifdef ALLEGRO_LIB_BUILD
+#ifdef A5O_LIB_BUILD
 #include "allegro5/platform/aintuthr.h"
 #endif
 

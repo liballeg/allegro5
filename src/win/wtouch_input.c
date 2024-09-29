@@ -24,10 +24,10 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
 
-ALLEGRO_DEBUG_CHANNEL("touch")
+A5O_DEBUG_CHANNEL("touch")
 
-static ALLEGRO_TOUCH_INPUT_STATE touch_input_state;
-static ALLEGRO_TOUCH_INPUT touch_input;
+static A5O_TOUCH_INPUT_STATE touch_input_state;
+static A5O_TOUCH_INPUT touch_input;
 static bool installed = false;
 static size_t initiali_time_stamp = ~0;
 
@@ -81,13 +81,13 @@ bool _al_win_init_touch_input_api(void)
 
       /* Mark as 'do not try this again'. */
       touch_input_api_reference_counter = -1;
-	  ALLEGRO_WARN("failed loading the touch input API\n");
+	  A5O_WARN("failed loading the touch input API\n");
       return false;
    }
 
    /* Set initial reference count. */
    touch_input_api_reference_counter = 1;
-   ALLEGRO_INFO("touch input API installed successfully\n");
+   A5O_INFO("touch input API installed successfully\n");
    return true;
 }
 
@@ -116,18 +116,18 @@ void _al_win_exit_touch_input_api(void)
 
 /* Actual driver implementation. */
 
-static void generate_touch_input_event(int type, double timestamp, int id, float x, float y, float dx, float dy, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
+static void generate_touch_input_event(int type, double timestamp, int id, float x, float y, float dx, float dy, bool primary, A5O_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    bool want_touch_event           = _al_event_source_needs_to_generate_event(&touch_input.es);
    bool want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && primary && al_is_mouse_installed();
 
-   if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_NONE)
+   if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_NONE)
       want_mouse_emulation_event = false;
-   else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_INCLUSIVE)
+   else if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_INCLUSIVE)
       want_touch_event = want_mouse_emulation_event ? (want_touch_event && !primary) : want_touch_event;
-   else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_EXCLUSIVE)
+   else if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_EXCLUSIVE)
       want_touch_event = want_mouse_emulation_event ? false : want_touch_event;
 
    if (!want_touch_event && !want_mouse_emulation_event)
@@ -136,7 +136,7 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
    if (want_touch_event) {
 
       event.touch.type      = type;
-      event.touch.display   = (ALLEGRO_DISPLAY*)win_disp;
+      event.touch.display   = (A5O_DISPLAY*)win_disp;
       event.touch.timestamp = timestamp;
       event.touch.id        = id;
       event.touch.x         = x;
@@ -152,20 +152,20 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
 
    if (want_mouse_emulation_event) {
 
-      ALLEGRO_MOUSE_STATE state;
+      A5O_MOUSE_STATE state;
 
       switch (type) {
-         case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN; break;
-         case ALLEGRO_EVENT_TOUCH_CANCEL:
-         case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;   break;
-         case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
+         case A5O_EVENT_TOUCH_BEGIN: type = A5O_EVENT_MOUSE_BUTTON_DOWN; break;
+         case A5O_EVENT_TOUCH_CANCEL:
+         case A5O_EVENT_TOUCH_END:   type = A5O_EVENT_MOUSE_BUTTON_UP;   break;
+         case A5O_EVENT_TOUCH_MOVE:  type = A5O_EVENT_MOUSE_AXES;        break;
       }
 
       al_get_mouse_state(&state);
 
       event.mouse.type      = type;
       event.mouse.timestamp = timestamp;
-      event.mouse.display   = (ALLEGRO_DISPLAY*)win_disp;
+      event.mouse.display   = (A5O_DISPLAY*)win_disp;
       event.mouse.x         = (int)x;
       event.mouse.y         = (int)y;
       event.mouse.z         = state.z;
@@ -188,7 +188,7 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
 static bool init_touch_input(void)
 {
    unsigned i;
-   ALLEGRO_SYSTEM* system;
+   A5O_SYSTEM* system;
 
    if (installed)
       return false;
@@ -201,18 +201,18 @@ static bool init_touch_input(void)
    _al_event_source_init(&touch_input.es);
    _al_event_source_init(&touch_input.mouse_emulation_es);
 
-   touch_input.mouse_emulation_mode = ALLEGRO_MOUSE_EMULATION_TRANSPARENT;
+   touch_input.mouse_emulation_mode = A5O_MOUSE_EMULATION_TRANSPARENT;
 
    installed = true;
 
    system = al_get_system_driver();
    for (i = 0; i < _al_vector_size(&system->displays); ++i) {
       bool r;
-      ALLEGRO_DISPLAY_WIN *win_display = *((ALLEGRO_DISPLAY_WIN**)_al_vector_ref(&system->displays, i));
+      A5O_DISPLAY_WIN *win_display = *((A5O_DISPLAY_WIN**)_al_vector_ref(&system->displays, i));
       r = _al_win_register_touch_window(win_display->window, 0);
-      ALLEGRO_INFO("registering touch window %p: %d\n", win_display, r);
+      A5O_INFO("registering touch window %p: %d\n", win_display, r);
       if (!r) {
-         ALLEGRO_ERROR("RegisterTouchWindow failed: %s\n", _al_win_last_error());
+         A5O_ERROR("RegisterTouchWindow failed: %s\n", _al_win_last_error());
          return false;
       }
    }
@@ -237,13 +237,13 @@ static void exit_touch_input(void)
 }
 
 
-static ALLEGRO_TOUCH_INPUT* get_touch_input(void)
+static A5O_TOUCH_INPUT* get_touch_input(void)
 {
    return &touch_input;
 }
 
 
-static void get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
+static void get_touch_input_state(A5O_TOUCH_INPUT_STATE *ret_state)
 {
    _al_event_source_lock(&touch_input.es);
    *ret_state = touch_input_state;
@@ -257,13 +257,13 @@ static void set_mouse_emulation_mode(int mode)
 
       int i;
 
-      for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i) {
+      for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i) {
 
-         ALLEGRO_TOUCH_STATE* touch = touch_input_state.touches + i;
+         A5O_TOUCH_STATE* touch = touch_input_state.touches + i;
 
          if (touch->id > 0) {
             _al_win_touch_input_handle_cancel(touch->id, initiali_time_stamp,
-               touch->x, touch->y, touch->primary, (ALLEGRO_DISPLAY_WIN*)touch->display);
+               touch->x, touch->y, touch->primary, (A5O_DISPLAY_WIN*)touch->display);
          }
       }
 
@@ -272,11 +272,11 @@ static void set_mouse_emulation_mode(int mode)
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_free_touch_state(void)
+static A5O_TOUCH_STATE* find_free_touch_state(void)
 {
    int i;
 
-   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
+   for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
       if (touch_input_state.touches[i].id <= 0)
          return touch_input_state.touches + i;
 
@@ -284,11 +284,11 @@ static ALLEGRO_TOUCH_STATE* find_free_touch_state(void)
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_touch_state_with_id(int id)
+static A5O_TOUCH_STATE* find_touch_state_with_id(int id)
 {
    int i;
 
-   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
+   for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
       if (touch_input_state.touches[i].id == id)
          return touch_input_state.touches + i;
 
@@ -309,9 +309,9 @@ void _al_win_touch_input_set_time_stamp(size_t timestamp)
 }
 
 
-void _al_win_touch_input_handle_begin(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_touch_input_handle_begin(int id, size_t timestamp, float x, float y, bool primary, A5O_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_free_touch_state();
+   A5O_TOUCH_STATE* state = find_free_touch_state();
    if (NULL == state)
       return;
 
@@ -324,14 +324,14 @@ void _al_win_touch_input_handle_begin(int id, size_t timestamp, float x, float y
    state->primary = primary;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_BEGIN, get_time_stamp(timestamp),
+   generate_touch_input_event(A5O_EVENT_TOUCH_BEGIN, get_time_stamp(timestamp),
       state->id, state->x, state->y, state->dx, state->dy, state->primary, win_disp);
 }
 
 
-void _al_win_touch_input_handle_end(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_touch_input_handle_end(int id, size_t timestamp, float x, float y, bool primary, A5O_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_TOUCH_STATE* state;
+   A5O_TOUCH_STATE* state;
    (void)primary;
 
    state = find_touch_state_with_id(id);
@@ -345,18 +345,18 @@ void _al_win_touch_input_handle_end(int id, size_t timestamp, float x, float y, 
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_END, get_time_stamp(timestamp),
+   generate_touch_input_event(A5O_EVENT_TOUCH_END, get_time_stamp(timestamp),
       state->id, state->x, state->y, state->dx, state->dy, state->primary, win_disp);
 
    _al_event_source_lock(&touch_input.es);
-   memset(state, 0, sizeof(ALLEGRO_TOUCH_STATE));
+   memset(state, 0, sizeof(A5O_TOUCH_STATE));
    _al_event_source_unlock(&touch_input.es);
 }
 
 
-void _al_win_touch_input_handle_move(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_touch_input_handle_move(int id, size_t timestamp, float x, float y, bool primary, A5O_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_TOUCH_STATE* state;
+   A5O_TOUCH_STATE* state;
    (void)primary;
 
    state = find_touch_state_with_id(id);
@@ -370,14 +370,14 @@ void _al_win_touch_input_handle_move(int id, size_t timestamp, float x, float y,
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_MOVE, get_time_stamp(timestamp),
+   generate_touch_input_event(A5O_EVENT_TOUCH_MOVE, get_time_stamp(timestamp),
       state->id, state->x, state->y, state->dx, state->dy, state->primary, win_disp);
 }
 
 
-void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float y, bool primary, A5O_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_TOUCH_STATE* state;
+   A5O_TOUCH_STATE* state;
    (void)primary;
 
    state = find_touch_state_with_id(id);
@@ -391,11 +391,11 @@ void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float 
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_CANCEL, get_time_stamp(timestamp),
+   generate_touch_input_event(A5O_EVENT_TOUCH_CANCEL, get_time_stamp(timestamp),
       state->id, state->x, state->y, state->dx, state->dy, state->primary, win_disp);
 
    _al_event_source_lock(&touch_input.es);
-   memset(state, 0, sizeof(ALLEGRO_TOUCH_STATE));
+   memset(state, 0, sizeof(A5O_TOUCH_STATE));
    _al_event_source_unlock(&touch_input.es);
 }
 
@@ -403,7 +403,7 @@ void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float 
 /* the driver vtable */
 #define TOUCH_INPUT_WINAPI AL_ID('W','T','I','D')
 
-static ALLEGRO_TOUCH_INPUT_DRIVER touch_input_driver =
+static A5O_TOUCH_INPUT_DRIVER touch_input_driver =
 {
    TOUCH_INPUT_WINAPI,
    init_touch_input,

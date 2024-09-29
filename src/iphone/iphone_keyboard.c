@@ -2,7 +2,7 @@
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_events.h"
 
-static ALLEGRO_KEYBOARD the_keyboard;
+static A5O_KEYBOARD the_keyboard;
 
 static bool iphone_init_keyboard(void)
 {
@@ -17,7 +17,7 @@ static void iphone_exit_keyboard(void)
 }
 
 
-static ALLEGRO_KEYBOARD *iphone_get_keyboard(void)
+static A5O_KEYBOARD *iphone_get_keyboard(void)
 {
     return &the_keyboard;
 }
@@ -34,7 +34,7 @@ static char const *iphone_keycode_to_name(int keycode)
     return "none";
 }
 
-static void iphone_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
+static void iphone_get_keyboard_state(A5O_KEYBOARD_STATE *ret_state)
 {
     memset(ret_state, 0, sizeof *ret_state);
 }
@@ -44,7 +44,7 @@ static void iphone_clear_keyboard_state(void)
     return;
 }
 
-static ALLEGRO_KEYBOARD_DRIVER iphone_keyboard_driver = {
+static A5O_KEYBOARD_DRIVER iphone_keyboard_driver = {
     AL_ID('I','P','H','O'),
     "",
     "",
@@ -58,7 +58,7 @@ static ALLEGRO_KEYBOARD_DRIVER iphone_keyboard_driver = {
     iphone_clear_keyboard_state
 };
 
-ALLEGRO_KEYBOARD_DRIVER *_al_get_iphone_keyboard_driver(void)
+A5O_KEYBOARD_DRIVER *_al_get_iphone_keyboard_driver(void)
 {
     return &iphone_keyboard_driver;
 }

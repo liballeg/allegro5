@@ -15,24 +15,24 @@
 #define PERIOD             5
 
 
-static ALLEGRO_DISPLAY *display;
-static ALLEGRO_FONT *font;
-static ALLEGRO_SAMPLE *ping;
-static ALLEGRO_TIMER *timer;
-static ALLEGRO_EVENT_QUEUE *event_queue;
+static A5O_DISPLAY *display;
+static A5O_FONT *font;
+static A5O_SAMPLE *ping;
+static A5O_TIMER *timer;
+static A5O_EVENT_QUEUE *event_queue;
 
 
-static ALLEGRO_SAMPLE *create_sample_s16(int freq, int len)
+static A5O_SAMPLE *create_sample_s16(int freq, int len)
 {
    char *buf = al_malloc(freq * len * sizeof(int16_t));
 
-   return al_create_sample(buf, len, freq, ALLEGRO_AUDIO_DEPTH_INT16,
-			   ALLEGRO_CHANNEL_CONF_1, true);
+   return al_create_sample(buf, len, freq, A5O_AUDIO_DEPTH_INT16,
+			   A5O_CHANNEL_CONF_1, true);
 }
 
 
 /* Adapted from SPEED. */
-static ALLEGRO_SAMPLE *generate_ping(void)
+static A5O_SAMPLE *generate_ping(void)
 {
    float osc1, osc2, vol, ramp;
    int16_t *p;
@@ -71,8 +71,8 @@ static ALLEGRO_SAMPLE *generate_ping(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TRANSFORM trans;
-   ALLEGRO_EVENT event;
+   A5O_TRANSFORM trans;
+   A5O_EVENT event;
    int bps = 4;
    bool redraw = false;
    unsigned int last_timer = 0;
@@ -127,16 +127,16 @@ int main(int argc, char **argv)
 
    while (true) {
       al_wait_for_event(event_queue, &event);
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          const float speed = pow(21.0/20.0, (event.timer.count % PERIOD));
-         if (!al_play_sample(ping, 1.0, 0.0, speed, ALLEGRO_PLAYMODE_ONCE, NULL)) {
+         if (!al_play_sample(ping, 1.0, 0.0, speed, A5O_PLAYMODE_ONCE, NULL)) {
             log_printf("Not enough reserved samples.\n");
          }
          redraw = true;
          last_timer = event.timer.count;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      else if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
             break;
          }
          if (event.keyboard.unichar == '+' || event.keyboard.unichar == '=') {
@@ -152,19 +152,19 @@ int main(int argc, char **argv)
             }
          }
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
 
       if (redraw && al_is_event_queue_empty(event_queue)) {
-         ALLEGRO_COLOR c;
+         A5O_COLOR c;
          if (last_timer % PERIOD == 0)
             c = al_map_rgb_f(1, 1, 1);
          else
             c = al_map_rgb_f(0.5, 0.5, 1.0);
 
          al_clear_to_color(al_map_rgb(0, 0, 0));
-         al_draw_textf(font, c, 640/32, 480/32 - 4, ALLEGRO_ALIGN_CENTRE,
+         al_draw_textf(font, c, 640/32, 480/32 - 4, A5O_ALIGN_CENTRE,
             "%u", last_timer);
          al_flip_display();
       }

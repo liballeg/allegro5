@@ -34,9 +34,9 @@ function(example name)
 
     # Prepend the base libraries.
     if(ANDROID)
-        set(libs ${ALLEGRO_LINK_WITH} ${libs})
+        set(libs ${A5O_LINK_WITH} ${libs})
     else()
-        set(libs ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} ${libs})
+        set(libs ${A5O_LINK_WITH} ${A5O_MAIN_LINK_WITH} ${libs})
     endif()
 
     # Popup error messages.
@@ -46,7 +46,7 @@ function(example name)
 
     # Monolith contains all other libraries which were enabled.
     if(WANT_MONOLITH)
-        set(libs ${ALLEGRO_MONOLITH_LINK_WITH})
+        set(libs ${A5O_MONOLITH_LINK_WITH})
     endif()
 
     # Append the extra, non-Allegro libraries.

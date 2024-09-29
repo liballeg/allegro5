@@ -6,6 +6,6 @@ typedef enum {
    AttributeValue
 } XmlState;
 
-void _al_xml_parse(ALLEGRO_FILE *f,
+void _al_xml_parse(A5O_FILE *f,
         int (*callback)(XmlState state, char const *value, void *u),
         void *u);

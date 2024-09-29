@@ -19,12 +19,12 @@
 #endif
 
 
-typedef struct ALLEGRO_FS_ENTRY_PHYSFS ALLEGRO_FS_ENTRY_PHYSFS;
+typedef struct A5O_FS_ENTRY_PHYSFS A5O_FS_ENTRY_PHYSFS;
 
-struct ALLEGRO_FS_ENTRY_PHYSFS
+struct A5O_FS_ENTRY_PHYSFS
 {
-   ALLEGRO_FS_ENTRY fs_entry; /* must be first */
-   ALLEGRO_PATH *path;
+   A5O_FS_ENTRY fs_entry; /* must be first */
+   A5O_PATH *path;
    const char *path_cstr;
 
    /* For directory listing. */
@@ -34,10 +34,10 @@ struct ALLEGRO_FS_ENTRY_PHYSFS
 };
 
 /* forward declaration */
-static const ALLEGRO_FS_INTERFACE fs_phys_vtable;
+static const A5O_FS_INTERFACE fs_phys_vtable;
 
 /* current working directory */
-/* We cannot use ALLEGRO_USTR because we have nowhere to free it. */
+/* We cannot use A5O_USTR because we have nowhere to free it. */
 static char fs_phys_cwd[1024] = "/";
 
 static bool path_is_absolute(const char *path)
@@ -45,7 +45,7 @@ static bool path_is_absolute(const char *path)
    return (path && path[0] == '/');
 }
 
-static void ensure_trailing_slash(ALLEGRO_USTR *us)
+static void ensure_trailing_slash(A5O_USTR *us)
 {
    int pos = al_ustr_size(us);
    if (al_ustr_prev_get(us, &pos) != '/') {
@@ -53,11 +53,11 @@ static void ensure_trailing_slash(ALLEGRO_USTR *us)
    }
 }
 
-ALLEGRO_USTR *_al_physfs_process_path(const char *path)
+A5O_USTR *_al_physfs_process_path(const char *path)
 {
-   ALLEGRO_USTR *us;
-   ALLEGRO_PATH *p = al_create_path(path);
-   ALLEGRO_PATH *cwd = al_create_path(fs_phys_cwd);
+   A5O_USTR *us;
+   A5O_PATH *p = al_create_path(path);
+   A5O_PATH *cwd = al_create_path(fs_phys_cwd);
    al_rebase_path(cwd, p);
    al_destroy_path(cwd);
    /* PHYSFS always uses / separator. */
@@ -66,10 +66,10 @@ ALLEGRO_USTR *_al_physfs_process_path(const char *path)
    return us;
 }
 
-static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
+static A5O_FS_ENTRY *fs_phys_create_entry(const char *path)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e;
-   ALLEGRO_USTR *us;
+   A5O_FS_ENTRY_PHYSFS *e;
+   A5O_USTR *us;
 
    e = al_calloc(1, sizeof *e);
    if (!e)
@@ -99,7 +99,7 @@ static char *fs_phys_get_current_directory(void)
 
 static bool fs_phys_change_directory(const char *path)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
    bool ret;
    PHYSFS_Stat stat;
 
@@ -138,7 +138,7 @@ static bool fs_phys_change_directory(const char *path)
 
 static bool fs_phys_filename_exists(const char *path)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
    bool ret;
 
    us = _al_physfs_process_path(path);
@@ -149,7 +149,7 @@ static bool fs_phys_filename_exists(const char *path)
 
 static bool fs_phys_remove_filename(const char *path)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
    bool ret;
 
    us = _al_physfs_process_path(path);
@@ -160,7 +160,7 @@ static bool fs_phys_remove_filename(const char *path)
 
 static bool fs_phys_make_directory(const char *path)
 {
-   ALLEGRO_USTR *us;
+   A5O_USTR *us;
    bool ret;
 
    us = _al_physfs_process_path(path);
@@ -169,21 +169,21 @@ static bool fs_phys_make_directory(const char *path)
    return ret;
 }
 
-static const char *fs_phys_entry_name(ALLEGRO_FS_ENTRY *fse)
+static const char *fs_phys_entry_name(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
    return al_path_cstr(e->path, '/');
 }
 
-static bool fs_phys_update_entry(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_update_entry(A5O_FS_ENTRY *fse)
 {
    (void)fse;
    return true;
 }
 
-static off_t fs_phys_entry_size(ALLEGRO_FS_ENTRY *fse)
+static off_t fs_phys_entry_size(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
    PHYSFS_file *f = PHYSFS_openRead(e->path_cstr);
    if (f) {
       off_t s = PHYSFS_fileLength(f);
@@ -193,45 +193,45 @@ static off_t fs_phys_entry_size(ALLEGRO_FS_ENTRY *fse)
    return 0;
 }
 
-static uint32_t fs_phys_entry_mode(ALLEGRO_FS_ENTRY *fse)
+static uint32_t fs_phys_entry_mode(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
-   uint32_t mode = ALLEGRO_FILEMODE_READ;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
+   uint32_t mode = A5O_FILEMODE_READ;
    PHYSFS_Stat stat;
    if (!PHYSFS_stat(e->path_cstr, &stat))
       return mode;
 
    if (stat.filetype == PHYSFS_FILETYPE_DIRECTORY )
-      mode |= ALLEGRO_FILEMODE_ISDIR | ALLEGRO_FILEMODE_EXECUTE;
+      mode |= A5O_FILEMODE_ISDIR | A5O_FILEMODE_EXECUTE;
    else
-      mode |= ALLEGRO_FILEMODE_ISFILE;
+      mode |= A5O_FILEMODE_ISFILE;
    return mode;
 }
 
-static time_t fs_phys_entry_mtime(ALLEGRO_FS_ENTRY *fse)
+static time_t fs_phys_entry_mtime(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
    PHYSFS_Stat stat;
    if (!PHYSFS_stat(e->path_cstr, &stat))
       return -1;
    return stat.modtime;
 }
 
-static bool fs_phys_entry_exists(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_entry_exists(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
    return PHYSFS_exists(e->path_cstr) != 0;
 }
 
-static bool fs_phys_remove_entry(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_remove_entry(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
    return PHYSFS_delete(e->path_cstr) != 0;
 }
 
-static bool fs_phys_open_directory(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_open_directory(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
 
    e->file_list = PHYSFS_enumerateFiles(e->path_cstr);
    e->file_list_pos = e->file_list;
@@ -240,11 +240,11 @@ static bool fs_phys_open_directory(ALLEGRO_FS_ENTRY *fse)
    return true;
 }
 
-static ALLEGRO_FS_ENTRY *fs_phys_read_directory(ALLEGRO_FS_ENTRY *fse)
+static A5O_FS_ENTRY *fs_phys_read_directory(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
-   ALLEGRO_FS_ENTRY *next;
-   ALLEGRO_USTR *tmp;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY *next;
+   A5O_USTR *tmp;
 
    if (!e->file_list_pos)
       return NULL;
@@ -262,31 +262,31 @@ static ALLEGRO_FS_ENTRY *fs_phys_read_directory(ALLEGRO_FS_ENTRY *fse)
    return next;
 }
 
-static bool fs_phys_close_directory(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_close_directory(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
    PHYSFS_freeList(e->file_list);
    e->file_list = NULL;
    e->is_dir_open = false;
    return true;
 }
 
-static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
+static void fs_phys_destroy_entry(A5O_FS_ENTRY *fse)
 {
-   ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
+   A5O_FS_ENTRY_PHYSFS *e = (A5O_FS_ENTRY_PHYSFS *)fse;
    if (e->is_dir_open)
       fs_phys_close_directory(fse);
    al_destroy_path(e->path);
    al_free(e);
 }
 
-static ALLEGRO_FILE *fs_phys_open_file(ALLEGRO_FS_ENTRY *fse, const char *mode)
+static A5O_FILE *fs_phys_open_file(A5O_FS_ENTRY *fse, const char *mode)
 {
    return al_fopen_interface(_al_get_phys_vtable(), fs_phys_entry_name(fse),
       mode);
 }
 
-static const ALLEGRO_FS_INTERFACE fs_phys_vtable =
+static const A5O_FS_INTERFACE fs_phys_vtable =
 {
    fs_phys_create_entry,
    fs_phys_destroy_entry,

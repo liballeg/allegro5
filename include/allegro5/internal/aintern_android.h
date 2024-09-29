@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_AINTERN_ANDROID_H
-#define ALLEGRO_AINTERN_ANDROID_H
+#ifndef A5O_AINTERN_ANDROID_H
+#define A5O_AINTERN_ANDROID_H
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_system.h"
@@ -8,16 +8,16 @@
 
 #include <jni.h>
 
-typedef struct ALLEGRO_SYSTEM_ANDROID {
-   ALLEGRO_SYSTEM system;
-} ALLEGRO_SYSTEM_ANDROID;
+typedef struct A5O_SYSTEM_ANDROID {
+   A5O_SYSTEM system;
+} A5O_SYSTEM_ANDROID;
 
-typedef struct ALLEGRO_DISPLAY_ANDROID {
-   ALLEGRO_DISPLAY display;
+typedef struct A5O_DISPLAY_ANDROID {
+   A5O_DISPLAY display;
    jobject surface_object;
 
-   ALLEGRO_COND *cond;
-   ALLEGRO_MUTEX *mutex;
+   A5O_COND *cond;
+   A5O_MUTEX *mutex;
 
    bool created;
    bool recreate;
@@ -28,15 +28,15 @@ typedef struct ALLEGRO_DISPLAY_ANDROID {
    bool resumed;
    bool failed;
    bool is_destroy_display;
-} ALLEGRO_DISPLAY_ANDROID;
+} A5O_DISPLAY_ANDROID;
 
-ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface(void);
-const ALLEGRO_FILE_INTERFACE *_al_get_apk_file_vtable(void);
+A5O_SYSTEM_INTERFACE *_al_system_android_interface(void);
+const A5O_FILE_INTERFACE *_al_get_apk_file_vtable(void);
 
-ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void);
-ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void);
-ALLEGRO_MOUSE_DRIVER *_al_get_android_mouse_driver(void);
-ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void);
+A5O_DISPLAY_INTERFACE *_al_get_android_display_driver(void);
+A5O_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void);
+A5O_MOUSE_DRIVER *_al_get_android_mouse_driver(void);
+A5O_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void);
 
 int _al_android_get_display_orientation(void);
 
@@ -65,7 +65,7 @@ void __jni_checkException(JNIEnv *env, const char *file, const char *fname, int 
          name, sig);                                                          \
       bool ret = false;                                                       \
       if (method_id == NULL) {                                                \
-         ALLEGRO_DEBUG("couldn't find method %s", name);                      \
+         A5O_DEBUG("couldn't find method %s", name);                      \
       }                                                                       \
       else {                                                                  \
          ret = _jni_call(env, bool, CallBooleanMethod, obj, method_id,        \
@@ -79,8 +79,8 @@ jobject _jni_callObjectMethod(JNIEnv *env, jobject object,
          const char *name, const char *sig);
 jobject _jni_callObjectMethodV(JNIEnv *env, jobject object,
          const char *name, const char *sig, ...);
-ALLEGRO_USTR *_jni_getString(JNIEnv *env, jstring str_obj);
-ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
+A5O_USTR *_jni_getString(JNIEnv *env, jstring str_obj);
+A5O_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
          const char *name, const char *sig);
 jobject _jni_callStaticObjectMethodV(JNIEnv *env, jclass class_id,
          const char *name, const char *sig, ...);
@@ -94,7 +94,7 @@ jint _jni_callStaticIntMethodV(JNIEnv *env, jclass cls,
          name, sig);                                                          \
       int ret = -1;                                                           \
       if (method_id == NULL) {                                                \
-         ALLEGRO_DEBUG("couldn't find method %s", #name);                     \
+         A5O_DEBUG("couldn't find method %s", #name);                     \
       }                                                                       \
       else {                                                                  \
          ret = _jni_call(env, int, CallIntMethod, obj, method_id, ##args);    \
@@ -113,7 +113,7 @@ jint _jni_callStaticIntMethodV(JNIEnv *env, jclass cls,
          name, sig);                                                          \
       long ret = -1;                                                          \
       if (method_id == NULL) {                                                \
-         ALLEGRO_DEBUG("couldn't find method %s", name);                      \
+         A5O_DEBUG("couldn't find method %s", name);                      \
       }                                                                       \
       else {                                                                  \
          ret = _jni_call(env, long, CallLongMethod, obj, method_id, ##args);  \
@@ -131,7 +131,7 @@ jint _jni_callStaticIntMethodV(JNIEnv *env, jclass cls,
       jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id,  \
          name, sig);                                                          \
       if (method_id == NULL) {                                                \
-         ALLEGRO_ERROR("couldn't find method %s", name);                      \
+         A5O_ERROR("couldn't find method %s", name);                      \
       } else {                                                                \
          _jni_callv(env, CallVoidMethod, obj, method_id, ##args);             \
       }                                                                       \
@@ -141,13 +141,13 @@ jint _jni_callStaticIntMethodV(JNIEnv *env, jclass cls,
 #define _jni_callVoidMethod(env, obj, name)                                   \
    _jni_callVoidMethodV(env, obj, name, "()V");
 
-AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_android_joystick_driver);
+AL_VAR(struct A5O_JOYSTICK_DRIVER, _al_android_joystick_driver);
 
 void _al_android_create_surface(JNIEnv *env, bool post);
 void _al_android_destroy_surface(JNIEnv *env, jobject obj, bool post);
 
-ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
-ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
+A5O_BITMAP *_al_android_load_image_f(A5O_FILE *fh, int flags);
+A5O_BITMAP *_al_android_load_image(const char *filename, int flags);
 
 jobject _al_android_activity_object(void);
 jclass _al_android_input_stream_class(void);
@@ -157,8 +157,8 @@ jclass _al_android_clipboard_class(void);
 jclass _al_android_apk_fs_class(void);
 
 void _al_android_generate_mouse_event(unsigned int type, int x, int y,
-   unsigned int button, ALLEGRO_DISPLAY *d);
-void _al_android_mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
+   unsigned int button, A5O_DISPLAY *d);
+void _al_android_mouse_get_state(A5O_MOUSE_STATE *ret_state);
 
 void _al_android_generate_accelerometer_event(float x, float y, float z);
 void _al_android_generate_joystick_axis_event(int index, int stick, int axis, float value);
@@ -174,17 +174,17 @@ void _al_android_set_jnienv(JNIEnv *jnienv);
 JNIEnv *_al_android_get_jnienv(void);
 bool _al_android_is_paused(void);
 
-void _al_android_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
+void _al_android_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt);
 
-#define ALLEGRO_ANDROID_PACKAGE_NAME         org_liballeg_android
-#define ALLEGRO_ANDROID_PACKAGE_NAME_SLASH   "org/liballeg/android"
+#define A5O_ANDROID_PACKAGE_NAME         org_liballeg_android
+#define A5O_ANDROID_PACKAGE_NAME_SLASH   "org/liballeg/android"
 
 #define JNI_FUNC_PASTER(ret, cls, name, params, x) \
 	JNIEXPORT ret JNICALL Java_ ## x ## _ ## cls ## _ ## name params
 #define JNI_FUNC_EVALUATOR(ret, cls, name, params, x) \
 	JNI_FUNC_PASTER(ret, cls, name, params, x)
 #define JNI_FUNC(ret, cls, name, params) \
-	JNI_FUNC_EVALUATOR(ret, cls, name, params, ALLEGRO_ANDROID_PACKAGE_NAME)
+	JNI_FUNC_EVALUATOR(ret, cls, name, params, A5O_ANDROID_PACKAGE_NAME)
 
 /* Functions called from Java code. */
 extern JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj));
@@ -221,6 +221,6 @@ extern JNI_FUNC(void, KeyListener, nativeOnJoystickButton, (JNIEnv *env, jobject
 extern JNI_FUNC(void, AllegroActivity, nativeSendJoystickConfigurationEvent,
          (JNIEnv *env, jobject obj));
 
-#endif /* ALLEGRO_AINTERN_ANDROID_H */
+#endif /* A5O_AINTERN_ANDROID_H */
 
 /* vim: set sts=3 sw=3 et: */

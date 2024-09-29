@@ -15,41 +15,41 @@
 #include "allegro5/platform/aintxglx.h"
 
 #include <X11/Xatom.h>
-#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
+#ifdef A5O_XWINDOWS_WITH_XINPUT2
 #include <X11/extensions/XInput2.h>
 #endif
 
 #include "xicon.h"
 #include "icon.inc"
 
-ALLEGRO_DEBUG_CHANNEL("display")
+A5O_DEBUG_CHANNEL("display")
 
-static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
-static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt;
-static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *gtk_override_vt = NULL;
+static A5O_DISPLAY_INTERFACE xdpy_vt;
+static const A5O_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt;
+static const A5O_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *gtk_override_vt = NULL;
 
-static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
-static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d);
+static void xdpy_destroy_display(A5O_DISPLAY *d);
+static bool xdpy_acknowledge_resize(A5O_DISPLAY *d);
 
 
 /* XXX where does this belong? */
-static void _al_xglx_use_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static void _al_xglx_use_adapter(A5O_SYSTEM_XGLX *s, int adapter)
 {
-   ALLEGRO_DEBUG("use adapter %i\n", adapter);
+   A5O_DEBUG("use adapter %i\n", adapter);
    s->adapter_use_count++;
    s->adapter_map[adapter]++;
 }
 
 
-static void _al_xglx_unuse_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static void _al_xglx_unuse_adapter(A5O_SYSTEM_XGLX *s, int adapter)
 {
-   ALLEGRO_DEBUG("unuse adapter %i\n", adapter);
+   A5O_DEBUG("unuse adapter %i\n", adapter);
    s->adapter_use_count--;
    s->adapter_map[adapter]--;
 }
 
 
-static bool check_adapter_use_count(ALLEGRO_SYSTEM_XGLX *system)
+static bool check_adapter_use_count(A5O_SYSTEM_XGLX *system)
 {
    /* If we're in multi-head X mode, bail out if we try to use more than one
     * display as there are bugs in X/glX that cause us to hang in X if we try
@@ -57,9 +57,9 @@ static bool check_adapter_use_count(ALLEGRO_SYSTEM_XGLX *system)
     * If we're in real xinerama mode, also bail out, X makes mouse use evil.
     */
    bool true_xinerama_active = false;
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    bool xrandr_active = false;
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+#ifdef A5O_XWINDOWS_WITH_XRANDR
    xrandr_active = system->xrandr_available;
 #endif
    true_xinerama_active = !xrandr_active && system->xinerama_available;
@@ -77,7 +77,7 @@ static bool check_adapter_use_count(ALLEGRO_SYSTEM_XGLX *system)
       }
 
       if (adapter_use_count > 1) {
-         ALLEGRO_ERROR("Use of more than one adapter at once in "
+         A5O_ERROR("Use of more than one adapter at once in "
             "multi-head X or X with true Xinerama active is not possible.\n");
          return false;
       }
@@ -87,19 +87,19 @@ static bool check_adapter_use_count(ALLEGRO_SYSTEM_XGLX *system)
 }
 
 
-static int query_glx_version(ALLEGRO_SYSTEM_XGLX *system)
+static int query_glx_version(A5O_SYSTEM_XGLX *system)
 {
    int major, minor;
    int version;
 
    glXQueryVersion(system->x11display, &major, &minor);
    version = major * 100 + minor * 10;
-   ALLEGRO_INFO("GLX %.1f.\n", version / 100.f);
+   A5O_INFO("GLX %.1f.\n", version / 100.f);
    return version;
 }
 
 
-static int xdpy_swap_control(ALLEGRO_DISPLAY *display, int vsync_setting)
+static int xdpy_swap_control(A5O_DISPLAY *display, int vsync_setting)
 {
    /* We set the swap interval to 0 if vsync is forced off, and to 1
     * if it is forced on.
@@ -108,17 +108,17 @@ static int xdpy_swap_control(ALLEGRO_DISPLAY *display, int vsync_setting)
     * above extension specifies vsync on as default though, so in the
     * end with GLX we can't force vsync on, just off.
     */
-   ALLEGRO_DEBUG("requested vsync=%d.\n", vsync_setting);
+   A5O_DEBUG("requested vsync=%d.\n", vsync_setting);
 
    if (vsync_setting) {
-      if (display->ogl_extras->extension_list->ALLEGRO_GLX_SGI_swap_control) {
+      if (display->ogl_extras->extension_list->A5O_GLX_SGI_swap_control) {
          int x = (vsync_setting == 2) ? 0 : 1;
          if (glXSwapIntervalSGI(x)) {
-            ALLEGRO_WARN("glXSwapIntervalSGI(%d) failed.\n", x);
+            A5O_WARN("glXSwapIntervalSGI(%d) failed.\n", x);
          }
       }
       else {
-         ALLEGRO_WARN("no vsync, GLX_SGI_swap_control missing.\n");
+         A5O_WARN("no vsync, GLX_SGI_swap_control missing.\n");
          /* According to the specification that means it's on, but
           * the driver might have disabled it. So we do not know.
           */
@@ -139,13 +139,13 @@ static bool should_bypass_compositor(int flags)
       return false;
    }
    // default to "fullscreen_only"
-   return (flags & ALLEGRO_FULLSCREEN) || (flags & ALLEGRO_FULLSCREEN_WINDOW);
+   return (flags & A5O_FULLSCREEN) || (flags & A5O_FULLSCREEN_WINDOW);
 }
 
-static void set_compositor_bypass_flag(ALLEGRO_DISPLAY *display)
+static void set_compositor_bypass_flag(A5O_DISPLAY *display)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    const long _NET_WM_BYPASS_COMPOSITOR_HINT_ON = should_bypass_compositor(display->flags);
    Atom _NET_WM_BYPASS_COMPOSITOR;
 
@@ -158,10 +158,10 @@ static void set_compositor_bypass_flag(ALLEGRO_DISPLAY *display)
 }
 
 
-static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
-   ALLEGRO_DISPLAY_XGLX *d, int w, int h, int adapter)
+static bool xdpy_create_display_window(A5O_SYSTEM_XGLX *system,
+   A5O_DISPLAY_XGLX *d, int w, int h, int adapter)
 {
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+   A5O_DISPLAY *display = (A5O_DISPLAY *)d;
 
    /* Create a colormap. */
    Colormap cmap = XCreateColormap(system->x11display,
@@ -186,7 +186,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
       PointerMotionMask;
 
    /* We handle these events via GTK-sent XEmbed events. */
-   if (!(display->flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL)) {
+   if (!(display->flags & A5O_GTK_TOPLEVEL_INTERNAL)) {
       swa.event_mask |= FocusChangeMask;
    }
 
@@ -195,14 +195,14 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
     * enough. However in some cases like resizing, the black background
     * causes horrible flicker.
     */
-   if (!(display->flags & ALLEGRO_RESIZABLE)) {
+   if (!(display->flags & A5O_RESIZABLE)) {
       mask |= CWBackPixel;
       swa.background_pixel = BlackPixel(system->x11display, d->xvinfo->screen);
    }
 
    int x_off = INT_MAX;
    int y_off = INT_MAX;
-   if (display->flags & ALLEGRO_FULLSCREEN) {
+   if (display->flags & A5O_FULLSCREEN) {
       _al_xglx_get_display_offset(system, d->adapter, &x_off, &y_off);
    }
    else {
@@ -214,7 +214,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
       al_get_new_window_position(&x_off, &y_off);
       if (x_off != INT_MAX && y_off != INT_MAX) {
          d->need_initial_position_adjust = true;
-         ALLEGRO_DEBUG("Will adjust window position later to %d/%d\n", x_off, y_off);
+         A5O_DEBUG("Will adjust window position later to %d/%d\n", x_off, y_off);
       }
 
       if (adapter >= 0) {
@@ -236,10 +236,10 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
       w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
 
-   ALLEGRO_DEBUG("Window ID: %ld\n", (long)d->window);
+   A5O_DEBUG("Window ID: %ld\n", (long)d->window);
 
    /* Try to set full screen mode if requested, fail if we can't. */
-   if (display->flags & ALLEGRO_FULLSCREEN) {
+   if (display->flags & A5O_FULLSCREEN) {
       /* According to the spec, the window manager is supposed to disable
        * window decorations when _NET_WM_STATE_FULLSCREEN is in effect.
        * However, some WMs may not be fully compliant, e.g. Fluxbox.
@@ -248,12 +248,12 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
       _al_xwin_set_above(display, 1);
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0,
             display->refresh_rate)) {
-         ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
+         A5O_DEBUG("xdpy: failed to set fullscreen mode.\n");
          return false;
       }
    }
 
-   ALLEGRO_DEBUG("X11 window created.\n");
+   A5O_DEBUG("X11 window created.\n");
 
    /* Set the PID related to the window. */
    Atom _NET_WM_PID = XInternAtom(system->x11display, "_NET_WM_PID", False);
@@ -279,7 +279,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
    /* This seems like a good idea */
    set_compositor_bypass_flag(display);
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
+#ifdef A5O_XWINDOWS_WITH_XINPUT2
    /* listen for touchscreen events */
    XIEventMask event_mask;
    event_mask.deviceid = XIAllMasterDevices;
@@ -298,12 +298,12 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
 }
 
 
-static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
-   ALLEGRO_SYSTEM_XGLX *system, int flags, int w, int h, int adapter)
+static A5O_DISPLAY_XGLX *xdpy_create_display_locked(
+   A5O_SYSTEM_XGLX *system, int flags, int w, int h, int adapter)
 {
-   ALLEGRO_DISPLAY_XGLX *d = al_calloc(1, sizeof *d);
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
-   ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
+   A5O_DISPLAY_XGLX *d = al_calloc(1, sizeof *d);
+   A5O_DISPLAY *display = (A5O_DISPLAY *)d;
+   A5O_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
    display->ogl_extras = ogl;
 
    d->glx_version = query_glx_version(system);
@@ -314,24 +314,24 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = flags;
    // FIXME: default? Is this the right place to set this?
-   display->flags |= ALLEGRO_OPENGL;
-#ifdef ALLEGRO_CFG_OPENGLES2
-   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   display->flags |= A5O_OPENGL;
+#ifdef A5O_CFG_OPENGLES2
+   display->flags |= A5O_PROGRAMMABLE_PIPELINE;
 #endif
-#ifdef ALLEGRO_CFG_OPENGLES
-   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#ifdef A5O_CFG_OPENGLES
+   display->flags |= A5O_OPENGL_ES_PROFILE;
 #endif
 
    /* Store our initial virtual adapter, used by fullscreen and positioning
     * code.
     */
-   ALLEGRO_DEBUG("selected adapter %i\n", adapter);
+   A5O_DEBUG("selected adapter %i\n", adapter);
    if (adapter < 0)
       d->adapter = _al_xglx_get_default_adapter(system);
    else
       d->adapter = adapter;
 
-   ALLEGRO_DEBUG("xdpy: selected adapter %i\n", d->adapter);
+   A5O_DEBUG("xdpy: selected adapter %i\n", d->adapter);
    _al_xglx_use_adapter(system, d->adapter);
    if (!check_adapter_use_count(system)) {
       goto EarlyError;
@@ -341,7 +341,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
     * visual code.
     */
    d->xscreen = _al_xglx_get_xscreen(system, d->adapter);
-   ALLEGRO_DEBUG("xdpy: selected xscreen %i\n", d->xscreen);
+   A5O_DEBUG("xdpy: selected xscreen %i\n", d->xscreen);
 
    d->wm_delete_window_atom = None;
 
@@ -358,15 +358,15 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    _al_xglx_config_select_visual(d);
 
    if (!d->xvinfo) {
-      ALLEGRO_ERROR("FIXME: Need better visual selection.\n");
-      ALLEGRO_ERROR("No matching visual found.\n");
+      A5O_ERROR("FIXME: Need better visual selection.\n");
+      A5O_ERROR("No matching visual found.\n");
       goto EarlyError;
    }
 
-   ALLEGRO_INFO("Selected X11 visual %lu.\n", d->xvinfo->visualid);
+   A5O_INFO("Selected X11 visual %lu.\n", d->xvinfo->visualid);
 
    /* Add ourself to the list of displays. */
-   ALLEGRO_DISPLAY_XGLX **add;
+   A5O_DISPLAY_XGLX **add;
    add = _al_vector_alloc_back(&system->system.displays);
    *add = d;
 
@@ -383,7 +383,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
     */
    XSync(system->x11display, False);
 
-   if (display->flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL) {
+   if (display->flags & A5O_GTK_TOPLEVEL_INTERNAL) {
       ASSERT(gtk_override_vt);
       if (!gtk_override_vt->create_display_hook(display, w, h)) {
          goto LateError;
@@ -414,7 +414,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    /* In tiling WMs, we might get resize events pretty much immediately after
     * Window creation. This location seems to catch them reliably, tested with
     * dwm, awesome, xmonad and i3. */
-   if ((display->flags & ALLEGRO_RESIZABLE) && d->resize_count > 0) {
+   if ((display->flags & A5O_RESIZABLE) && d->resize_count > 0) {
       xdpy_acknowledge_resize(display);
    }
 
@@ -422,8 +422,8 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
     * window when switching to fullscreen it will use the same
     * monitor (with the MetaCity version I'm using here right now).
     */
-   if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
-      ALLEGRO_INFO("Toggling fullscreen flag for %d x %d window.\n",
+   if ((display->flags & A5O_FULLSCREEN_WINDOW)) {
+      A5O_INFO("Toggling fullscreen flag for %d x %d window.\n",
          display->w, display->h);
       _al_xwin_reset_size_hints(display);
       _al_xwin_set_fullscreen_window(display, 2);
@@ -433,11 +433,11 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       XGetWindowAttributes(system->x11display, d->window, &xwa);
       display->w = xwa.width;
       display->h = xwa.height;
-      ALLEGRO_INFO("Using ALLEGRO_FULLSCREEN_WINDOW of %d x %d\n",
+      A5O_INFO("Using A5O_FULLSCREEN_WINDOW of %d x %d\n",
          display->w, display->h);
    }
 
-   if (display->flags & ALLEGRO_FULLSCREEN) {
+   if (display->flags & A5O_FULLSCREEN) {
       /* kwin wants these here */
       /* metacity wants these here too */
       /* XXX compiz is quiky, can't seem to find a combination of hints that
@@ -459,26 +459,26 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       }
    }
 
-   if (display->flags & ALLEGRO_FRAMELESS) {
+   if (display->flags & A5O_FRAMELESS) {
       /* set_display_flag works by comparing to current flag value, so we need
        * to start with an unset state. */
-      display->flags &= ~ALLEGRO_FRAMELESS;
+      display->flags &= ~A5O_FRAMELESS;
       /* Call the vt directly to bypass system lock.
        */
-      d->overridable_vt->set_display_flag(display, ALLEGRO_FRAMELESS, true);
+      d->overridable_vt->set_display_flag(display, A5O_FRAMELESS, true);
    }
 
-   if (display->flags & ALLEGRO_DRAG_AND_DROP) {
+   if (display->flags & A5O_DRAG_AND_DROP) {
       _al_xwin_accept_drag_and_drop(display, true);
    }
 
-   if (flags & ALLEGRO_MAXIMIZED) {
+   if (flags & A5O_MAXIMIZED) {
       /* set_display_flag works by comparing to current flag value, so we need
        * to start with an unset state. */
-      display->flags &= ~ALLEGRO_MAXIMIZED;
+      display->flags &= ~A5O_MAXIMIZED;
       /* Call the vt directly to bypass system lock.
        */
-      d->overridable_vt->set_display_flag(display, ALLEGRO_MAXIMIZED, true);
+      d->overridable_vt->set_display_flag(display, A5O_MAXIMIZED, true);
    }
 
    if (!_al_xglx_config_create_context(d)) {
@@ -491,12 +491,12 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    if (d->fbc) {
       if (!glXMakeContextCurrent(system->gfxdisplay, d->glxwindow,
             d->glxwindow, d->context)) {
-         ALLEGRO_ERROR("glXMakeContextCurrent failed\n");
+         A5O_ERROR("glXMakeContextCurrent failed\n");
       }
    }
    else {
       if (!glXMakeCurrent(system->gfxdisplay, d->glxwindow, d->context)) {
-         ALLEGRO_ERROR("glXMakeCurrent failed\n");
+         A5O_ERROR("glXMakeCurrent failed\n");
       }
    }
 
@@ -504,31 +504,31 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    _al_ogl_set_extensions(ogl->extension_api);
 
    /* Print out OpenGL version info */
-   ALLEGRO_INFO("OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
-   ALLEGRO_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-   ALLEGRO_INFO("Renderer: %s\n", (const char*)glGetString(GL_RENDERER));
+   A5O_INFO("OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
+   A5O_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
+   A5O_INFO("Renderer: %s\n", (const char*)glGetString(GL_RENDERER));
 
    /* Fill in opengl version */
    const int v = display->ogl_extras->ogl_info.version;
-   display->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
-   display->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+   display->extra_settings.settings[A5O_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   display->extra_settings.settings[A5O_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
 
-   if (display->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_1_2) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
-      if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
-         ALLEGRO_ERROR("Allegro requires at least OpenGL version 1.2 to work.\n");
+   if (display->ogl_extras->ogl_info.version < _A5O_OPENGL_VERSION_1_2) {
+      A5O_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
+      if (eds->required & (1<<A5O_COMPATIBLE_DISPLAY)) {
+         A5O_ERROR("Allegro requires at least OpenGL version 1.2 to work.\n");
          goto LateError;
       }
-      display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
+      display->extra_settings.settings[A5O_COMPATIBLE_DISPLAY] = 0;
    }
 
-   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+   if (display->extra_settings.settings[A5O_COMPATIBLE_DISPLAY])
       _al_ogl_setup_gl(display);
 
    /* vsync */
-   int vsync_setting = _al_get_new_display_settings()->settings[ALLEGRO_VSYNC];
+   int vsync_setting = _al_get_new_display_settings()->settings[A5O_VSYNC];
    vsync_setting = xdpy_swap_control(display, vsync_setting);
-   display->extra_settings.settings[ALLEGRO_VSYNC] = vsync_setting;
+   display->extra_settings.settings[A5O_VSYNC] = vsync_setting;
 
    d->invisible_cursor = None; /* Will be created on demand. */
    d->current_cursor = None; /* Initially, we use the root cursor. */
@@ -550,31 +550,31 @@ LateError:
 }
 
 
-static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
+static bool xdpy_create_display_hook_default(A5O_DISPLAY *display,
    int w, int h)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *d = (A5O_DISPLAY_XGLX *)display;
    (void)w;
    (void)h;
 
    if (_al_xwin_initial_icon) {
-      ALLEGRO_BITMAP *bitmaps[] = {_al_xwin_initial_icon};
+      A5O_BITMAP *bitmaps[] = {_al_xwin_initial_icon};
       _al_xwin_set_icons(display, 1, bitmaps);
    } else {
-      ALLEGRO_STATE state;
-      al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-      ALLEGRO_BITMAP *bitmap = al_create_bitmap(ICON_WIDTH, ICON_HEIGHT);
+      A5O_STATE state;
+      al_store_state(&state, A5O_STATE_NEW_BITMAP_PARAMETERS);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+      A5O_BITMAP *bitmap = al_create_bitmap(ICON_WIDTH, ICON_HEIGHT);
       al_restore_state(&state);
 
-      ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_RGBA_8888, ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCKED_REGION *lr = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_RGBA_8888, A5O_LOCK_WRITEONLY);
       for (int y = 0; y < ICON_HEIGHT; y++) {
          memcpy((char*)lr->data + lr->pitch * y, &icon_data[ICON_WIDTH * y], ICON_WIDTH * 4);
       }
       al_unlock_bitmap(bitmap);
 
-      ALLEGRO_BITMAP *bitmaps[] = {bitmap};
+      A5O_BITMAP *bitmaps[] = {bitmap};
       _al_xwin_set_icons(display, 1, bitmaps);
       al_destroy_bitmap(bitmap);
    }
@@ -582,7 +582,7 @@ static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
    XLockDisplay(system->x11display);
 
    XMapWindow(system->x11display, d->window);
-   ALLEGRO_DEBUG("X11 window mapped.\n");
+   A5O_DEBUG("X11 window mapped.\n");
 
    d->wm_delete_window_atom = XInternAtom(system->x11display,
       "WM_DELETE_WINDOW", False);
@@ -597,31 +597,31 @@ static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
 
 
 /* Create a new X11 display, which maps directly to a GLX window. */
-static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
+static A5O_DISPLAY *xdpy_create_display(int w, int h)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *display;
    int flags;
    int adapter;
 
    if (system->x11display == NULL) {
-      ALLEGRO_WARN("Not connected to X server.\n");
+      A5O_WARN("Not connected to X server.\n");
       return NULL;
    }
 
    if (w <= 0 || h <= 0) {
-      ALLEGRO_ERROR("Invalid window size %dx%d\n", w, h);
+      A5O_ERROR("Invalid window size %dx%d\n", w, h);
       return NULL;
    }
 
    flags = al_get_new_display_flags();
-   if (flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL) {
+   if (flags & A5O_GTK_TOPLEVEL_INTERNAL) {
       if (gtk_override_vt == NULL) {
-         ALLEGRO_ERROR("GTK requested but unavailable\n");
+         A5O_ERROR("GTK requested but unavailable\n");
          return NULL;
       }
-      if (flags & ALLEGRO_FULLSCREEN) {
-         ALLEGRO_ERROR("GTK incompatible with fullscreen\n");
+      if (flags & A5O_FULLSCREEN) {
+         A5O_ERROR("GTK incompatible with fullscreen\n");
          return NULL;
       }
    }
@@ -633,49 +633,49 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    _al_mutex_unlock(&system->lock);
 
-   return (ALLEGRO_DISPLAY *)display;
+   return (A5O_DISPLAY *)display;
 }
 
 
-static void convert_display_bitmaps_to_memory_bitmap(ALLEGRO_DISPLAY *d)
+static void convert_display_bitmaps_to_memory_bitmap(A5O_DISPLAY *d)
 {
-   ALLEGRO_DEBUG("converting display bitmaps to memory bitmaps.\n");
+   A5O_DEBUG("converting display bitmaps to memory bitmaps.\n");
 
    while (d->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
-      ALLEGRO_BITMAP *b = *bptr;
+      A5O_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+      A5O_BITMAP *b = *bptr;
       _al_convert_to_memory_bitmap(b);
    }
 }
 
 
 static void transfer_display_bitmaps_to_any_other_display(
-   ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY *d)
+   A5O_SYSTEM_XGLX *s, A5O_DISPLAY *d)
 {
    size_t i;
-   ALLEGRO_DISPLAY *living = NULL;
+   A5O_DISPLAY *living = NULL;
    ASSERT(s->system.displays._size > 1);
 
    for (i = 0; i < s->system.displays._size; i++) {
-      ALLEGRO_DISPLAY **slot = _al_vector_ref(&s->system.displays, i);
+      A5O_DISPLAY **slot = _al_vector_ref(&s->system.displays, i);
       living = *slot;
       if (living != d)
          break;
    }
 
-   ALLEGRO_DEBUG("transferring display bitmaps to other display.\n");
+   A5O_DEBUG("transferring display bitmaps to other display.\n");
 
    for (i = 0; i < d->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
-      ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
+      A5O_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
+      A5O_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
       *add = *ref;
       (*add)->_display = living;
    }
 }
 
 
-static void restore_mode_if_last_fullscreen_display(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *d)
+static void restore_mode_if_last_fullscreen_display(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *d)
 {
    bool last_fullscreen = true;
    size_t i;
@@ -684,39 +684,39 @@ static void restore_mode_if_last_fullscreen_display(ALLEGRO_SYSTEM_XGLX *s,
     * we must not touch the video mode.
     */
    for (i = 0; i < s->system.displays._size; i++) {
-      ALLEGRO_DISPLAY_XGLX **slot = _al_vector_ref(&s->system.displays, i);
-      ALLEGRO_DISPLAY_XGLX *living = *slot;
+      A5O_DISPLAY_XGLX **slot = _al_vector_ref(&s->system.displays, i);
+      A5O_DISPLAY_XGLX *living = *slot;
 
       if (living == d)
          continue;
 
       /* Check for fullscreen displays on the same adapter. */
       if (living->adapter == d->adapter
-            && (living->display.flags & ALLEGRO_FULLSCREEN)) {
+            && (living->display.flags & A5O_FULLSCREEN)) {
          last_fullscreen = false;
       }
    }
 
    if (last_fullscreen) {
-      ALLEGRO_DEBUG("restore mode.\n");
+      A5O_DEBUG("restore mode.\n");
       _al_xglx_restore_video_mode(s, d->adapter);
    }
    else {
-      ALLEGRO_DEBUG("*not* restoring mode.\n");
+      A5O_DEBUG("*not* restoring mode.\n");
    }
 }
 
 
-static void xdpy_destroy_display_hook_default(ALLEGRO_DISPLAY *d, bool is_last)
+static void xdpy_destroy_display_hook_default(A5O_DISPLAY *d, bool is_last)
 {
-   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_SYSTEM_XGLX *s = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
    (void)is_last;
 
    if (glx->context) {
       glXDestroyContext(s->gfxdisplay, glx->context);
       glx->context = NULL;
-      ALLEGRO_DEBUG("destroy context.\n");
+      A5O_DEBUG("destroy context.\n");
    }
 
    if (glx->fbc) {
@@ -733,31 +733,31 @@ static void xdpy_destroy_display_hook_default(ALLEGRO_DISPLAY *d, bool is_last)
    if ((glx->glxwindow) && (glx->glxwindow != glx->window)) {
       glXDestroyWindow(s->x11display, glx->glxwindow);
       glx->glxwindow = 0;
-      ALLEGRO_DEBUG("destroy glx window\n");
+      A5O_DEBUG("destroy glx window\n");
    }
 
    _al_cond_destroy(&glx->mapped);
    _al_cond_destroy(&glx->selectioned);
 
-   ALLEGRO_DEBUG("destroy window.\n");
+   A5O_DEBUG("destroy window.\n");
    XDestroyWindow(s->x11display, glx->window);
 
    _al_xglx_unuse_adapter(s, glx->adapter);
 
-   if (d->flags & ALLEGRO_FULLSCREEN) {
+   if (d->flags & A5O_FULLSCREEN) {
       restore_mode_if_last_fullscreen_display(s, glx);
    }
 }
 
 
-static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
+static void xdpy_destroy_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+   A5O_SYSTEM_XGLX *s = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
+   A5O_OGL_EXTRAS *ogl = d->ogl_extras;
    bool is_last;
 
-   ALLEGRO_DEBUG("destroying display.\n");
+   A5O_DEBUG("destroying display.\n");
 
    /* If we're the last display, convert all bitmaps to display independent
     * (memory) bitmaps. Otherwise, pass all bitmaps to any other living
@@ -770,7 +770,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       transfer_display_bitmaps_to_any_other_display(s, d);
 
    _al_ogl_unmanage_extensions(d);
-   ALLEGRO_DEBUG("unmanaged extensions.\n");
+   A5O_DEBUG("unmanaged extensions.\n");
 
    _al_mutex_lock(&s->lock);
    _al_vector_find_and_delete(&s->system.displays, &d);
@@ -778,7 +778,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    if (ogl->backbuffer) {
       _al_ogl_destroy_backbuffer(ogl->backbuffer);
       ogl->backbuffer = NULL;
-      ALLEGRO_DEBUG("destroy backbuffer.\n");
+      A5O_DEBUG("destroy backbuffer.\n");
    }
 
    if (glx->overridable_vt) {
@@ -798,14 +798,14 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
    _al_mutex_unlock(&s->lock);
 
-   ALLEGRO_DEBUG("destroy display finished.\n");
+   A5O_DEBUG("destroy display finished.\n");
 }
 
 
-static bool xdpy_make_current(ALLEGRO_DISPLAY *d)
+static bool xdpy_make_current(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
 
    /* Make our GLX context current for reading and writing in the current
     * thread.
@@ -820,13 +820,13 @@ static bool xdpy_make_current(ALLEGRO_DISPLAY *d)
 }
 
 
-static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
+static bool xdpy_set_current_display(A5O_DISPLAY *d)
 {
    bool rc;
 
    rc = xdpy_make_current(d);
    if (rc) {
-      ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+      A5O_OGL_EXTRAS *ogl = d->ogl_extras;
       _al_ogl_set_extensions(ogl->extension_api);
       _al_ogl_update_render_state(d);
    }
@@ -835,32 +835,32 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 }
 
 
-static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
+static void xdpy_unset_current_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
    glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
    (void)d;
 }
 
 
-static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
+static void xdpy_flip_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
 
    int e = glGetError();
    if (e) {
-      ALLEGRO_ERROR("OpenGL error was not 0: %s\n", _al_gl_error_string(e));
+      A5O_ERROR("OpenGL error was not 0: %s\n", _al_gl_error_string(e));
    }
 
-   if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
+   if (d->extra_settings.settings[A5O_SINGLE_BUFFER])
       glFlush();
    else
       glXSwapBuffers(system->gfxdisplay, glx->glxwindow);
 }
 
 
-static void xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+static void xdpy_update_display_region(A5O_DISPLAY *d, int x, int y,
    int w, int h)
 {
    (void)x;
@@ -871,10 +871,10 @@ static void xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
 }
 
 
-static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
+static bool xdpy_acknowledge_resize(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
    XWindowAttributes xwa;
    unsigned int w, h;
 
@@ -894,7 +894,7 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
       d->w = w;
       d->h = h;
 
-      ALLEGRO_DEBUG("xdpy: acknowledge_resize (%d, %d)\n", d->w, d->h);
+      A5O_DEBUG("xdpy: acknowledge_resize (%d, %d)\n", d->w, d->h);
 
       /* No context yet means this is a stray call happening during
        * initialization.
@@ -916,14 +916,14 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
  * wait for the condition variable it gets auto-unlocked. For a
  * nested lock that would not be the case.
  */
-void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
+void _al_display_xglx_await_resize(A5O_DISPLAY *d, int old_resize_count,
    bool delay_hack)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   ALLEGRO_TIMEOUT timeout;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
+   A5O_TIMEOUT timeout;
 
-   ALLEGRO_DEBUG("Awaiting resize event\n");
+   A5O_DEBUG("Awaiting resize event\n");
 
    XSync(system->x11display, False);
 
@@ -933,7 +933,7 @@ void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
    al_init_timeout(&timeout, 1.0);
    while (old_resize_count == glx->resize_count) {
       if (_al_cond_timedwait(&system->resized, &system->lock, &timeout) == -1) {
-         ALLEGRO_ERROR("Timeout while waiting for resize event.\n");
+         A5O_ERROR("Timeout while waiting for resize event.\n");
          return;
       }
    }
@@ -949,10 +949,10 @@ void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
 }
 
 
-static bool xdpy_resize_display_default(ALLEGRO_DISPLAY *d, int w, int h)
+static bool xdpy_resize_display_default(A5O_DISPLAY *d, int w, int h)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
    XWindowAttributes xwa;
    int attempts;
    bool ret = false;
@@ -968,7 +968,7 @@ static bool xdpy_resize_display_default(ALLEGRO_DISPLAY *d, int w, int h)
       return false;
    }
 
-   if (d->flags & ALLEGRO_FULLSCREEN) {
+   if (d->flags & A5O_FULLSCREEN) {
       _al_xwin_set_fullscreen_window(d, 0);
       if (!_al_xglx_fullscreen_set_mode(system, glx, w, h, 0, 0)) {
          ret = false;
@@ -988,12 +988,12 @@ static bool xdpy_resize_display_default(ALLEGRO_DISPLAY *d, int w, int h)
     */
    for (; attempts >= 0; attempts--) {
       const int old_resize_count = glx->resize_count;
-      ALLEGRO_DEBUG("calling XResizeWindow, attempts=%d\n", attempts);
+      A5O_DEBUG("calling XResizeWindow, attempts=%d\n", attempts);
       _al_xwin_reset_size_hints(d);
       glx->programmatic_resize = true;
       XResizeWindow(system->x11display, glx->window, w, h);
       _al_display_xglx_await_resize(d, old_resize_count,
-         (d->flags & ALLEGRO_FULLSCREEN));
+         (d->flags & A5O_FULLSCREEN));
       glx->programmatic_resize = false;
       _al_xwin_set_size_hints(d, INT_MAX, INT_MAX);
 
@@ -1007,16 +1007,16 @@ static bool xdpy_resize_display_default(ALLEGRO_DISPLAY *d, int w, int h)
    }
 
    if (attempts == 0) {
-      ALLEGRO_ERROR("XResizeWindow didn't work; giving up\n");
+      A5O_ERROR("XResizeWindow didn't work; giving up\n");
    }
 
 skip_resize:
 
-   if (d->flags & ALLEGRO_FULLSCREEN) {
+   if (d->flags & A5O_FULLSCREEN) {
       _al_xwin_set_fullscreen_window(d, 1);
       _al_xwin_set_above(d, 1);
       _al_xglx_fullscreen_to_display(system, glx);
-      ALLEGRO_DEBUG("xdpy: resize fullscreen?\n");
+      A5O_DEBUG("xdpy: resize fullscreen?\n");
    }
 
    _al_mutex_unlock(&system->lock);
@@ -1024,24 +1024,24 @@ skip_resize:
 }
 
 
-static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
+static bool xdpy_resize_display(A5O_DISPLAY *d, int w, int h)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
 
    /* A fullscreen-window can't be resized. */
-   if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
+   if (d->flags & A5O_FULLSCREEN_WINDOW)
       return false;
 
    return glx->overridable_vt->resize_display(d, w, h);
 }
 
 
-void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
+void _al_xglx_display_configure(A5O_DISPLAY *d, int x, int y,
    int width, int height, bool setglxy)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
 
-   ALLEGRO_EVENT_SOURCE *es = &glx->display.es;
+   A5O_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
 
    _al_xwin_get_borders(d);
@@ -1055,8 +1055,8 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
          (d->w != width ||
           d->h != height)) {
       if (_al_event_source_needs_to_generate_event(es)) {
-         ALLEGRO_EVENT event;
-         event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         A5O_EVENT event;
+         event.display.type = A5O_EVENT_DISPLAY_RESIZE;
          event.display.timestamp = al_get_time();
          event.display.x = x;
          event.display.y = y;
@@ -1086,19 +1086,19 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
          // 3. Now d->x/d->y is in sync with the real position, but if
          //    we wanted a specific position it is off by the border size
          //    and so we adjust it below.
-         ALLEGRO_DEBUG("Adjusting initial position: %d/%d", glx->x - glx->border_left, glx->y - glx->border_top);
+         A5O_DEBUG("Adjusting initial position: %d/%d", glx->x - glx->border_left, glx->y - glx->border_top);
          al_set_window_position(d, glx->x - glx->border_left, glx->y - glx->border_top);
       }
    }
 
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
-   ALLEGRO_MONITOR_INFO mi;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX*)al_get_system_driver();
+   A5O_MONITOR_INFO mi;
    int center_x = (glx->x + (glx->x + width)) / 2;
    int center_y = (glx->y + (glx->y + height)) / 2;
 
    _al_xglx_get_monitor_info(system, glx->adapter, &mi);
 
-   ALLEGRO_DEBUG("xconfigure event! %ix%i\n", x, y);
+   A5O_DEBUG("xconfigure event! %ix%i\n", x, y);
 
    /* check if we're no longer inside the stored adapter */
    if ((center_x < mi.x1 && center_x > mi.x2) ||
@@ -1106,9 +1106,9 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
    {
       int new_adapter = _al_xglx_get_adapter(system, glx, true);
       if (new_adapter != glx->adapter) {
-         ALLEGRO_DEBUG("xdpy: adapter change!\n");
+         A5O_DEBUG("xdpy: adapter change!\n");
          _al_xglx_unuse_adapter(system, glx->adapter);
-         if (d->flags & ALLEGRO_FULLSCREEN)
+         if (d->flags & A5O_FULLSCREEN)
             _al_xglx_restore_video_mode(system, glx->adapter);
          glx->adapter = new_adapter;
          _al_xglx_use_adapter(system, glx->adapter);
@@ -1125,7 +1125,7 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
 /* Handle an X11 configure event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
-void _al_xglx_display_configure_event(ALLEGRO_DISPLAY *d, XEvent *xevent)
+void _al_xglx_display_configure_event(A5O_DISPLAY *d, XEvent *xevent)
 {
    /* We receive two configure events when toggling the window frame.
     * We ignore the first one as it has bogus coordinates.
@@ -1142,7 +1142,7 @@ void _al_xglx_display_configure_event(ALLEGRO_DISPLAY *d, XEvent *xevent)
 
 /* Handle X11 switch event. [X11 thread]
  */
-void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
+void _al_xwin_display_switch_handler(A5O_DISPLAY *display,
    XFocusChangeEvent *xevent)
 {
    /* Mouse click in/out tend to set NotifyNormal events. For Alt-Tab,
@@ -1158,16 +1158,16 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
 
 /* Handle X11 switch event. [X11 thread]
  */
-void _al_xwin_display_switch_handler_inner(ALLEGRO_DISPLAY *display, bool focus_in)
+void _al_xwin_display_switch_handler_inner(A5O_DISPLAY *display, bool focus_in)
 {
-   ALLEGRO_EVENT_SOURCE *es = &display->es;
+   A5O_EVENT_SOURCE *es = &display->es;
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       if (focus_in)
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+         event.display.type = A5O_EVENT_DISPLAY_SWITCH_IN;
       else
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+         event.display.type = A5O_EVENT_DISPLAY_SWITCH_OUT;
       event.display.timestamp = al_get_time();
       _al_event_source_emit_event(es, &event);
    }
@@ -1176,14 +1176,14 @@ void _al_xwin_display_switch_handler_inner(ALLEGRO_DISPLAY *display, bool focus_
 
 
 
-void _al_xwin_display_expose(ALLEGRO_DISPLAY *display,
+void _al_xwin_display_expose(A5O_DISPLAY *display,
    XExposeEvent *xevent)
 {
-   ALLEGRO_EVENT_SOURCE *es = &display->es;
+   A5O_EVENT_SOURCE *es = &display->es;
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+      A5O_EVENT event;
+      event.display.type = A5O_EVENT_DISPLAY_EXPOSE;
       event.display.timestamp = al_get_time();
       event.display.x = xevent->x;
       event.display.y = xevent->y;
@@ -1195,8 +1195,8 @@ void _al_xwin_display_expose(ALLEGRO_DISPLAY *display,
 }
 
 
-static bool xdpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bitmap)
+static bool xdpy_is_compatible_bitmap(A5O_DISPLAY *display,
+   A5O_BITMAP *bitmap)
 {
    /* All GLX bitmaps are compatible. */
    (void)display;
@@ -1205,10 +1205,10 @@ static bool xdpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
 }
 
 
-static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *title)
+static void xdpy_set_window_title_default(A5O_DISPLAY *display, const char *title)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
 
    {
       Atom WM_NAME = XInternAtom(system->x11display, "WM_NAME", False);
@@ -1226,7 +1226,7 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
    {
       XClassHint *hint = XAllocClassHint();
       if (hint) {
-         ALLEGRO_PATH *exepath = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+         A5O_PATH *exepath = al_get_standard_path(A5O_EXENAME_PATH);
          // hint doesn't use a const char*, so we use strdup to create a non const string
          hint->res_name = strdup(al_get_path_basename(exepath));
          hint->res_class = strdup(al_get_path_basename(exepath));
@@ -1240,10 +1240,10 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
 }
 
 
-static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+static void xdpy_set_window_title(A5O_DISPLAY *display, const char *title)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
 
    _al_mutex_lock(&system->lock);
    glx->overridable_vt->set_window_title(display, title);
@@ -1253,11 +1253,11 @@ static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 
 // Note: we assume x/y to be the inner window position (that is drawing
 // to 0/0 in Allegro's drawing area will draw to x/y on the desktop)
-static void xdpy_set_window_position_default(ALLEGRO_DISPLAY *display,
+static void xdpy_set_window_position_default(A5O_DISPLAY *display,
    int x, int y)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    _al_mutex_lock(&system->lock);
 
@@ -1282,16 +1282,16 @@ static void xdpy_set_window_position_default(ALLEGRO_DISPLAY *display,
 }
 
 
-static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void xdpy_set_window_position(A5O_DISPLAY *display, int x, int y)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    glx->overridable_vt->set_window_position(display, x, y);
 }
 
 
-static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void xdpy_get_window_position(A5O_DISPLAY *display, int *x, int *y)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    /* We could also query the X11 server, but it just would take longer, and
     * would not be synchronized to our events. The latter can be an advantage
     * or disadvantage.
@@ -1301,9 +1301,9 @@ static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-static bool xdpy_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *top, int *right, int *bottom)
+static bool xdpy_get_window_borders(A5O_DISPLAY *display, int *left, int *top, int *right, int *bottom)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    if (!glx->borders_known) return false;
    if (left) *left = glx->border_left;
    if (right) *right = glx->border_right;
@@ -1313,10 +1313,10 @@ static bool xdpy_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *to
 }
 
 
-static bool xdpy_set_window_constraints_default(ALLEGRO_DISPLAY *display,
+static bool xdpy_set_window_constraints_default(A5O_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
 
    glx->display.min_w = min_w;
    glx->display.min_h = min_h;
@@ -1327,19 +1327,19 @@ static bool xdpy_set_window_constraints_default(ALLEGRO_DISPLAY *display,
 }
 
 
-static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
+static bool xdpy_set_window_constraints(A5O_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    return glx->overridable_vt->set_window_constraints(display,
       min_w, min_h, max_w, max_h);
 }
 
 
-static bool xdpy_get_window_constraints(ALLEGRO_DISPLAY *display,
+static bool xdpy_get_window_constraints(A5O_DISPLAY *display,
    int *min_w, int *min_h, int *max_w, int * max_h)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
 
    *min_w = glx->display.min_w;
    *min_h = glx->display.min_h;
@@ -1350,12 +1350,12 @@ static bool xdpy_get_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 
-static void xdpy_apply_window_constraints(ALLEGRO_DISPLAY *display,
+static void xdpy_apply_window_constraints(A5O_DISPLAY *display,
    bool onoff)
 {
    int posX;
    int posY;
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
 
    _al_mutex_lock(&system->lock);
 
@@ -1372,10 +1372,10 @@ static void xdpy_apply_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 
-static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool onoff)
+static void xdpy_set_fullscreen_window_default(A5O_DISPLAY *display, bool onoff)
 {
-   if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
-      ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   if (onoff == !(display->flags & A5O_FULLSCREEN_WINDOW)) {
+      A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
       _al_mutex_lock(&system->lock);
 
       _al_xwin_reset_size_hints(display);
@@ -1384,7 +1384,7 @@ static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool on
        * property outside of Allegro so this flag may not be in sync with
        * reality.
        */
-      display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
+      display->flags ^= A5O_FULLSCREEN_WINDOW;
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
 
       set_compositor_bypass_flag(display);
@@ -1394,25 +1394,25 @@ static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool on
 }
 
 
-static bool xdpy_set_display_flag_default(ALLEGRO_DISPLAY *display, int flag,
+static bool xdpy_set_display_flag_default(A5O_DISPLAY *display, int flag,
    bool flag_onoff)
 {
    switch (flag) {
-      case ALLEGRO_FRAMELESS:
+      case A5O_FRAMELESS:
       {
-         /* The ALLEGRO_FRAMELESS flag is backwards. */
+         /* The A5O_FRAMELESS flag is backwards. */
          _al_xwin_set_frame(display, !flag_onoff);
          return true;
       }
-      case ALLEGRO_FULLSCREEN_WINDOW:
+      case A5O_FULLSCREEN_WINDOW:
       {
-         ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+         A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
          glx->overridable_vt->set_fullscreen_window(display, flag_onoff);
          return true;
       }
-      case ALLEGRO_MAXIMIZED:
+      case A5O_MAXIMIZED:
       {
-         ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+         A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
          _al_mutex_lock(&system->lock);
          _al_xwin_maximize(display, flag_onoff);
          _al_mutex_unlock(&system->lock);
@@ -1423,18 +1423,18 @@ static bool xdpy_set_display_flag_default(ALLEGRO_DISPLAY *display, int flag,
 }
 
 
-static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+static bool xdpy_set_display_flag(A5O_DISPLAY *display, int flag, bool onoff)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    return glx->overridable_vt->set_display_flag(display, flag, onoff);
 }
 
 
-static bool xdpy_wait_for_vsync(ALLEGRO_DISPLAY *display)
+static bool xdpy_wait_for_vsync(A5O_DISPLAY *display)
 {
    (void) display;
 
-   if (al_get_opengl_extension_list()->ALLEGRO_GLX_SGI_video_sync) {
+   if (al_get_opengl_extension_list()->A5O_GLX_SGI_video_sync) {
       unsigned int count;
       glXGetVideoSyncSGI(&count);
       glXWaitVideoSyncSGI(2, (count+1) & 1, &count);
@@ -1446,7 +1446,7 @@ static bool xdpy_wait_for_vsync(ALLEGRO_DISPLAY *display)
 
 
 /* Obtain a reference to this driver. */
-ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
+A5O_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
    if (xdpy_vt.create_display)
       return &xdpy_vt;
@@ -1483,7 +1483,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 }
 
 
-static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt =
+static const A5O_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt =
 {
    xdpy_create_display_hook_default,
    xdpy_destroy_display_hook_default,
@@ -1498,18 +1498,18 @@ static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt =
 
 
 bool _al_xwin_set_gtk_display_overridable_interface(uint32_t check_version,
-   const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *vt)
+   const A5O_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *vt)
 {
    /* The version of the native dialogs addon must exactly match the core
     * library version.
     */
-   if (vt && check_version == ALLEGRO_VERSION_INT) {
-      ALLEGRO_DEBUG("GTK vtable made available\n");
+   if (vt && check_version == A5O_VERSION_INT) {
+      A5O_DEBUG("GTK vtable made available\n");
       gtk_override_vt = vt;
       return true;
    }
 
-   ALLEGRO_DEBUG("GTK vtable reset\n");
+   A5O_DEBUG("GTK vtable reset\n");
    gtk_override_vt = NULL;
    return (vt == NULL);
 }

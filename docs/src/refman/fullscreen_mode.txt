@@ -6,23 +6,23 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_DISPLAY_MODE
+## API: A5O_DISPLAY_MODE
 
 Used for fullscreen mode queries. Contains information
 about a supported fullscreen modes.
 
 ~~~~c
-typedef struct ALLEGRO_DISPLAY_MODE {
+typedef struct A5O_DISPLAY_MODE {
    int width;          // Screen width
    int height;         // Screen height
    int format;         // The pixel format of the mode
    int refresh_rate;   // The refresh rate of the mode
-} ALLEGRO_DISPLAY_MODE;
+} A5O_DISPLAY_MODE;
 ~~~~
 
 The `refresh_rate` may be zero if unknown.
 
-For an explanation of what `format` means, see [ALLEGRO_PIXEL_FORMAT].
+For an explanation of what `format` means, see [A5O_PIXEL_FORMAT].
 
 See also: [al_get_display_mode]
 
@@ -32,11 +32,11 @@ Retrieves a fullscreen mode. Display parameters should not be
 changed between a call of [al_get_num_display_modes] and
 [al_get_display_mode]. index must be between 0 and the number
 returned from al_get_num_display_modes-1. mode must be an
-allocated ALLEGRO_DISPLAY_MODE structure. This function will
+allocated A5O_DISPLAY_MODE structure. This function will
 return NULL on failure, and the mode parameter that was passed
 in on success.
 
-See also: [ALLEGRO_DISPLAY_MODE], [al_get_num_display_modes]
+See also: [A5O_DISPLAY_MODE], [al_get_num_display_modes]
 
 ## API: al_get_num_display_modes
 

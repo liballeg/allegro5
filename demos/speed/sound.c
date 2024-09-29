@@ -21,16 +21,16 @@
 
 
 /* generated sample waveforms */
-static ALLEGRO_SAMPLE *zap;
-static ALLEGRO_SAMPLE *bang;
-static ALLEGRO_SAMPLE *bigbang;
-static ALLEGRO_SAMPLE *ping;
-static ALLEGRO_SAMPLE *sine;
-static ALLEGRO_SAMPLE *square;
-static ALLEGRO_SAMPLE *saw;
-static ALLEGRO_SAMPLE *bd;
-static ALLEGRO_SAMPLE *snare;
-static ALLEGRO_SAMPLE *hihat;
+static A5O_SAMPLE *zap;
+static A5O_SAMPLE *bang;
+static A5O_SAMPLE *bigbang;
+static A5O_SAMPLE *ping;
+static A5O_SAMPLE *sine;
+static A5O_SAMPLE *square;
+static A5O_SAMPLE *saw;
+static A5O_SAMPLE *bd;
+static A5O_SAMPLE *snare;
+static A5O_SAMPLE *hihat;
 
 
 
@@ -576,9 +576,9 @@ static int part_time[NUM_PARTS];
 
 static int freq_table[256];
 
-static ALLEGRO_SAMPLE_INSTANCE *part_voice[NUM_PARTS];
+static A5O_SAMPLE_INSTANCE *part_voice[NUM_PARTS];
 
-static ALLEGRO_TIMER *music_timer;
+static A5O_TIMER *music_timer;
 
 #define PAN(x)	  (((x) - 128)/128.0)
 
@@ -719,10 +719,10 @@ static void init_music()
    al_attach_sample_instance_to_mixer(part_voice[2], al_get_default_mixer());
    al_attach_sample_instance_to_mixer(part_voice[3], al_get_default_mixer());
 
-   al_set_sample_instance_playmode(part_voice[0], ALLEGRO_PLAYMODE_LOOP);
-   al_set_sample_instance_playmode(part_voice[1], ALLEGRO_PLAYMODE_LOOP);
-   al_set_sample_instance_playmode(part_voice[2], ALLEGRO_PLAYMODE_LOOP);
-   al_set_sample_instance_playmode(part_voice[3], ALLEGRO_PLAYMODE_ONCE);
+   al_set_sample_instance_playmode(part_voice[0], A5O_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(part_voice[1], A5O_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(part_voice[2], A5O_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(part_voice[3], A5O_PLAYMODE_ONCE);
 
    al_set_sample_instance_gain(part_voice[0], 192/255.0);
    al_set_sample_instance_gain(part_voice[1], 192/255.0);
@@ -734,7 +734,7 @@ static void init_music()
    al_set_sample_instance_pan(part_voice[2], PAN(32));
    al_set_sample_instance_pan(part_voice[3], PAN(128));
 
-   music_timer = al_create_timer(ALLEGRO_BPS_TO_SECS(22));
+   music_timer = al_create_timer(A5O_BPS_TO_SECS(22));
 }
 
 
@@ -743,7 +743,7 @@ static void init_music()
 static int ping_vol;
 static int ping_freq;
 static int ping_count;
-static ALLEGRO_TIMER *ping_timer;
+static A5O_TIMER *ping_timer;
 
 
 static int ping_proc(void)
@@ -761,14 +761,14 @@ static int ping_proc(void)
 
 
 /* thread to keep the music playing and the pings pinging */
-static ALLEGRO_THREAD *sound_update_thread;
+static A5O_THREAD *sound_update_thread;
 
 
 
-static void *sound_update_proc(ALLEGRO_THREAD *thread, void *arg)
+static void *sound_update_proc(A5O_THREAD *thread, void *arg)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    (void)arg;
 
    queue = al_create_event_queue();

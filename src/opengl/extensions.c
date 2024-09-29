@@ -29,45 +29,45 @@
 #include "allegro5/internal/aintern_system.h"
 
 /* We need some driver specific details not worth of a vtable entry. */
-#if defined ALLEGRO_WINDOWS
+#if defined A5O_WINDOWS
    #include "../win/wgl.h"
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#elif defined A5O_UNIX && !defined A5O_EXCLUDE_GLX
    #include "allegro5/internal/aintern_xdisplay.h"
    #include "allegro5/internal/aintern_xsystem.h"
 #endif
 
-#if defined __APPLE__ && !defined ALLEGRO_IPHONE
+#if defined __APPLE__ && !defined A5O_IPHONE
 #include <OpenGL/glu.h>
-#elif !defined ALLEGRO_CFG_OPENGLES
+#elif !defined A5O_CFG_OPENGLES
 #include <GL/glu.h>
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("opengl")
+A5O_DEBUG_CHANNEL("opengl")
 
 
-#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
+#ifdef A5O_HAVE_DYNAMIC_LINK
    #include <dlfcn.h>
    /* Handle for dynamic library libGL.so */
    static void *__libgl_handle = NULL;
    /* Pointer to glXGetProcAddressARB */
    typedef void *(*GLXGETPROCADDRESSARBPROC) (const GLubyte *);
    static GLXGETPROCADDRESSARBPROC alXGetProcAddress;
-#else /* #ifdef ALLEGRO_HAVE_DYNAMIC_LINK */
+#else /* #ifdef A5O_HAVE_DYNAMIC_LINK */
    /* Tries static linking */
-   /* FIXME: set ALLEGRO_GLXGETPROCADDRESSARB on configure time, if
+   /* FIXME: set A5O_GLXGETPROCADDRESSARB on configure time, if
     * glXGetProcAddressARB must be used!
     */
-   #if defined ALLEGRO_GLXGETPROCADDRESSARB
+   #if defined A5O_GLXGETPROCADDRESSARB
       #define alXGetProcAddress glXGetProcAddressARB
-   #elif defined ALLEGRO_RASPBERRYPI
+   #elif defined A5O_RASPBERRYPI
       #define alXGetProcAddress eglGetProcAddress
    #else
       #define alXGetProcAddress glXGetProcAddress
    #endif
-#endif /* #ifdef ALLEGRO_HAVE_DYNAMIC_LINK */
+#endif /* #ifdef A5O_HAVE_DYNAMIC_LINK */
 
 
-#ifdef ALLEGRO_MACOSX
+#ifdef A5O_MACOSX
    #include <CoreFoundation/CoreFoundation.h>
    static CFBundleRef opengl_bundle_ref;
 #endif
@@ -75,17 +75,17 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 /* Define the GL API pointers.
  * Example:
- * _ALLEGRO_glBlendEquation_t _al_glBlendEquation = NULL;
+ * _A5O_glBlendEquation_t _al_glBlendEquation = NULL;
  */
-#define AGL_API(type, name, args) _ALLEGRO_gl##name##_t _al_gl##name = NULL;
+#define AGL_API(type, name, args) _A5O_gl##name##_t _al_gl##name = NULL;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
-#ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) _ALLEGRO_wgl##name##_t _al_wgl##name = NULL;
+#ifdef A5O_WINDOWS
+#define AGL_API(type, name, args) _A5O_wgl##name##_t _al_wgl##name = NULL;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
-#elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) _ALLEGRO_glX##name##_t _al_glX##name = NULL;
+#elif defined A5O_UNIX
+#define AGL_API(type, name, args) _A5O_glX##name##_t _al_glX##name = NULL;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
@@ -117,14 +117,14 @@ static uint32_t parse_opengl_version(const char *s)
       l = strtol(p, &end, 10);
       if (errno)
          break;
-      v[n] = _ALLEGRO_CLAMP(0, l, 255);
+      v[n] = _A5O_CLAMP(0, l, 255);
       if (*end != '.')
          break;
       p = end + 1; /* skip dot */
    }
 
    ver = (v[0] << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
-   ALLEGRO_DEBUG("Parsed '%s' as 0x%08x\n", s, ver);
+   A5O_DEBUG("Parsed '%s' as 0x%08x\n", s, ver);
    return ver;
 }
 
@@ -137,7 +137,7 @@ static uint32_t _al_ogl_version(void)
       "force_opengl_version");
    if (value) {
       uint32_t v = parse_opengl_version(value);
-      ALLEGRO_INFO("OpenGL version forced to %d.%d.%d.%d.\n",
+      A5O_INFO("OpenGL version forced to %d.%d.%d.%d.\n",
          (v >> 24) & 0xff,
          (v >> 16) & 0xff,
          (v >> 8) & 0xff,
@@ -149,7 +149,7 @@ static uint32_t _al_ogl_version(void)
 
    str = (const char *)glGetString(GL_VERSION);
    if (str) {
-      #ifdef ALLEGRO_CFG_OPENGLES
+      #ifdef A5O_CFG_OPENGLES
       char *str2 = strstr(str, "ES ");
       if (str2)
          str = str2 + 3;
@@ -160,7 +160,7 @@ static uint32_t _al_ogl_version(void)
       /* The OpenGL driver does not return a version
        * number. However it probably supports at least OpenGL 1.0
        */
-      return _ALLEGRO_OPENGL_VERSION_1_0;
+      return _A5O_OPENGL_VERSION_1_0;
    }
 
 }
@@ -188,13 +188,13 @@ static void print_extensions(char const *extension)
       *start = '\0';
       if (*extension != '\0')
          extension++;
-      ALLEGRO_DEBUG("%s\n", buf);
+      A5O_DEBUG("%s\n", buf);
    }
 }
 
 
 
-#if !defined ALLEGRO_CFG_OPENGLES
+#if !defined A5O_CFG_OPENGLES
 /* Print all extensions the OpenGL 3.0 way. */ 
 static void print_extensions_3_0(void)
 {
@@ -204,7 +204,7 @@ static void print_extensions_3_0(void)
    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
    for (i = 0; i < n; i++) {
       name = glGetStringi(GL_EXTENSIONS, i);
-      ALLEGRO_DEBUG("%s\n", name);
+      A5O_DEBUG("%s\n", name);
    }
 }
 #endif
@@ -215,7 +215,7 @@ static void print_extensions_3_0(void)
  */
 uint32_t al_get_opengl_version(void)
 {
-   ALLEGRO_DISPLAY *ogl_disp;
+   A5O_DISPLAY *ogl_disp;
 
    ogl_disp = al_get_current_display();
    if (!ogl_disp || !ogl_disp->ogl_extras)
@@ -233,17 +233,17 @@ uint32_t al_get_opengl_version(void)
  */
 int al_get_opengl_variant(void)
 {
-#if defined ALLEGRO_CFG_OPENGLES
-   return ALLEGRO_OPENGL_ES;
+#if defined A5O_CFG_OPENGLES
+   return A5O_OPENGL_ES;
 #else
-   return ALLEGRO_DESKTOP_OPENGL;
+   return A5O_DESKTOP_OPENGL;
 #endif
 }
 
 /* Create the extension list */
-static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
+static A5O_OGL_EXT_LIST *create_extension_list(void)
 {
-   ALLEGRO_OGL_EXT_LIST *ret = al_calloc(1, sizeof(ALLEGRO_OGL_EXT_LIST));
+   A5O_OGL_EXT_LIST *ret = al_calloc(1, sizeof(A5O_OGL_EXT_LIST));
 
    if (!ret) {
       return NULL;
@@ -255,9 +255,9 @@ static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 
 
 /* Create the extension API table */
-static ALLEGRO_OGL_EXT_API *create_extension_api_table(void)
+static A5O_OGL_EXT_API *create_extension_api_table(void)
 {
-   ALLEGRO_OGL_EXT_API *ret = al_calloc(1, sizeof(ALLEGRO_OGL_EXT_API));
+   A5O_OGL_EXT_API *ret = al_calloc(1, sizeof(A5O_OGL_EXT_API));
 
    if (!ret) {
       return NULL;
@@ -276,22 +276,22 @@ typedef void (*VOID_FPTR)(void);
 static VOID_FPTR load_extension(const char* name)
 {
    VOID_FPTR fptr = NULL;
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    fptr = (VOID_FPTR)wglGetProcAddress(name);
-#elif defined ALLEGRO_UNIX
+#elif defined A5O_UNIX
    fptr = (VOID_FPTR)alXGetProcAddress((const GLubyte*)name);
-#elif defined ALLEGRO_MACOSX
+#elif defined A5O_MACOSX
    CFStringRef cfstr = CFStringCreateWithCStringNoCopy(NULL, name,
       kCFStringEncodingUTF8, kCFAllocatorNull);
    if (cfstr) {
       fptr = (VOID_FPTR)CFBundleGetFunctionPointerForName(opengl_bundle_ref, cfstr);
       CFRelease(cfstr);
    }
-#elif defined ALLEGRO_SDL
+#elif defined A5O_SDL
    fptr = SDL_GL_GetProcAddress(name);
 #endif
    if (fptr) {
-      ALLEGRO_DEBUG("%s successfully loaded (%p)\n", name, fptr);
+      A5O_DEBUG("%s successfully loaded (%p)\n", name, fptr);
    }
    return fptr;
 }
@@ -301,65 +301,65 @@ static VOID_FPTR load_extension(const char* name)
 /* Load the extension API addresses into the table.
  * Should only be done on context creation.
  */
-static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
+static void load_extensions(A5O_OGL_EXT_API *ext)
 {
    if (!ext) {
       return;
    }
    
-#ifdef ALLEGRO_UNIX
-#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
+#ifdef A5O_UNIX
+#ifdef A5O_HAVE_DYNAMIC_LINK
    if (!alXGetProcAddress) {
       return;
    }
 #endif
 #endif
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
 
    #define AGL_API(type, name, args)                                           \
-      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" #name);
+      ext->name = (_A5O_gl##name##_t)load_extension("gl" #name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
    #undef AGL_API
 
    #define AGL_API(type, name, args)                                           \
-      ext->name = (_ALLEGRO_wgl##name##_t)load_extension("wgl" #name);
+      ext->name = (_A5O_wgl##name##_t)load_extension("wgl" #name);
 
       #include "allegro5/opengl/GLext/wgl_ext_api.h"
 
    #undef AGL_API
 
-#elif defined ALLEGRO_UNIX
+#elif defined A5O_UNIX
 
    #define AGL_API(type, name, args)                                           \
-      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" #name);
+      ext->name = (_A5O_gl##name##_t)load_extension("gl" #name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
    #undef AGL_API
 
    #define AGL_API(type, name, args)                                           \
-      ext->name = (_ALLEGRO_glX##name##_t)load_extension("glX" #name);
+      ext->name = (_A5O_glX##name##_t)load_extension("glX" #name);
 
       #include "allegro5/opengl/GLext/glx_ext_api.h"
 
    #undef AGL_API
 
-#elif defined ALLEGRO_MACOSX
+#elif defined A5O_MACOSX
 
 #define AGL_API(type, name, args)                                              \
-      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" # name);
+      ext->name = (_A5O_gl##name##_t)load_extension("gl" # name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
    #undef AGL_API
 
-#elif defined ALLEGRO_SDL
+#elif defined A5O_SDL
 
 #define AGL_API(type, name, args)                                              \
-      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" # name);
+      ext->name = (_A5O_gl##name##_t)load_extension("gl" # name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
@@ -374,7 +374,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 /* Set the GL API pointers to the current table 
  * Should only be called on context switches.
  */
-void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
+void _al_ogl_set_extensions(A5O_OGL_EXT_API *ext)
 {
    if (!ext) {
       return;
@@ -384,12 +384,12 @@ void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
 #define AGL_API(type, name, args) _al_wgl##name = ext->name;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 
-#elif defined ALLEGRO_UNIX
+#elif defined A5O_UNIX
 #define AGL_API(type, name, args) _al_glX##name = ext->name;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
@@ -399,7 +399,7 @@ void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 
 /* Destroys the extension API table */
-static void destroy_extension_api_table(ALLEGRO_OGL_EXT_API *ext)
+static void destroy_extension_api_table(A5O_OGL_EXT_API *ext)
 {
    if (ext) {
       al_free(ext);
@@ -409,7 +409,7 @@ static void destroy_extension_api_table(ALLEGRO_OGL_EXT_API *ext)
 
 
 /* Destroys the extension list */
-static void destroy_extension_list(ALLEGRO_OGL_EXT_LIST *list)
+static void destroy_extension_list(A5O_OGL_EXT_LIST *list)
 {
    if (list) {
       al_free(list);
@@ -452,17 +452,17 @@ int _al_ogl_look_for_an_extension(const char *name, const GLubyte *extensions)
 
 
 static bool _ogl_is_extension_supported(const char *extension,
-                                       ALLEGRO_DISPLAY *disp)
+                                       A5O_DISPLAY *disp)
 {
    int ret = 0;
    GLubyte const *ext_str;
-#if !defined ALLEGRO_CFG_OPENGLES
+#if !defined A5O_CFG_OPENGLES
    int v = al_get_opengl_version();
 #endif
    (void)disp;
 
-#if !defined ALLEGRO_CFG_OPENGLES
-   if (disp->flags & ALLEGRO_OPENGL_3_0 || v >= _ALLEGRO_OPENGL_VERSION_3_0) {
+#if !defined A5O_CFG_OPENGLES
+   if (disp->flags & A5O_OPENGL_3_0 || v >= _A5O_OPENGL_VERSION_3_0) {
       int i;
       GLint ext_cnt;
       glGetIntegerv(GL_NUM_EXTENSIONS, &ext_cnt);
@@ -483,10 +483,10 @@ static bool _ogl_is_extension_supported(const char *extension,
       ret = _al_ogl_look_for_an_extension(extension, ext_str);
    }
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    if (!ret && strncmp(extension, "WGL", 3) == 0) {
-      ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
-      _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB;
+      A5O_DISPLAY_WGL *wgl_disp = (void*)disp;
+      _A5O_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB;
 
       if (!wgl_disp->dc)
          return false;
@@ -499,10 +499,10 @@ static bool _ogl_is_extension_supported(const char *extension,
       }
    }
 
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#elif defined A5O_UNIX && !defined A5O_EXCLUDE_GLX
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
-      ALLEGRO_SYSTEM_XGLX *sys = (void*)al_get_system_driver();
-      ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
+      A5O_SYSTEM_XGLX *sys = (void*)al_get_system_driver();
+      A5O_DISPLAY_XGLX *glx_disp = (void*)disp;
       char const *ext;
 
       if (!sys->gfxdisplay)
@@ -523,7 +523,7 @@ static bool _ogl_is_extension_supported(const char *extension,
 
 
 static bool _ogl_is_extension_with_version_supported(
-   const char *extension, ALLEGRO_DISPLAY *disp, uint32_t ver)
+   const char *extension, A5O_DISPLAY *disp, uint32_t ver)
 {
    char const *value;
 
@@ -538,7 +538,7 @@ static bool _ogl_is_extension_with_version_supported(
    value = al_get_config_value(al_get_system_config(),
       "opengl_disabled_extensions", extension);
    if (value) {
-      ALLEGRO_WARN("%s found in [opengl_disabled_extensions].\n",
+      A5O_WARN("%s found in [opengl_disabled_extensions].\n",
          extension);
       return false;
    }
@@ -559,13 +559,13 @@ static bool _ogl_is_extension_with_version_supported(
  */
 bool al_have_opengl_extension(const char *extension)
 {
-   ALLEGRO_DISPLAY *disp;
+   A5O_DISPLAY *disp;
    
    disp = al_get_current_display();
    if (!disp)
       return false;
 
-   if (!(disp->flags & ALLEGRO_OPENGL))
+   if (!(disp->flags & A5O_OPENGL))
       return false;
 
    return _ogl_is_extension_supported(extension, disp);
@@ -578,34 +578,34 @@ bool al_have_opengl_extension(const char *extension)
 void *al_get_opengl_proc_address(const char *name)
 {
    void *symbol = NULL;
-#ifdef ALLEGRO_MACOSX
+#ifdef A5O_MACOSX
    CFStringRef function;
 #endif
-   ALLEGRO_DISPLAY *disp;
+   A5O_DISPLAY *disp;
    
    disp = al_get_current_display();
    if (!disp)
       return NULL;
 
-   if (!(disp->flags & ALLEGRO_OPENGL))
+   if (!(disp->flags & A5O_OPENGL))
       return NULL;
 
-#if defined ALLEGRO_WINDOWS
+#if defined A5O_WINDOWS
    /* For once Windows is the easiest platform to use :)
     * It provides a standardized way to get a function address
     * But of course there is a drawback : the symbol is only valid
     * under the current context :P
     */
    {
-      ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
+      A5O_DISPLAY_WGL *wgl_disp = (void*)disp;
 
       if (!wgl_disp->dc)
          return NULL;
 
       symbol = wglGetProcAddress(name);
    }
-#elif defined ALLEGRO_UNIX
-#if defined ALLEGRO_HAVE_DYNAMIC_LINK
+#elif defined A5O_UNIX
+#if defined A5O_HAVE_DYNAMIC_LINK
    if (alXGetProcAddress)
 #endif
    {
@@ -613,13 +613,13 @@ void *al_get_opengl_proc_address(const char *name)
        * address. Unfortunately glXGetProcAddress is an extension
        * and may not be available on all platforms
        */
-#if defined ALLEGRO_RASPBERRYPI
+#if defined A5O_RASPBERRYPI
       symbol = alXGetProcAddress(name);
 #else
       symbol = alXGetProcAddress((const GLubyte *)name);
 #endif
    }
-#elif defined ALLEGRO_HAVE_DYNAMIC_LINK
+#elif defined A5O_HAVE_DYNAMIC_LINK
    else {
       /* Hack if glXGetProcAddress is not available :
        * we try to find the symbol into libGL.so
@@ -628,7 +628,7 @@ void *al_get_opengl_proc_address(const char *name)
          symbol = dlsym(__al_handle, name);
       }
    }
-#elif defined ALLEGRO_MACOSX
+#elif defined A5O_MACOSX
    function = CFStringCreateWithCString(kCFAllocatorDefault, name,
                                         kCFStringEncodingASCII);
    if (function) {
@@ -640,16 +640,16 @@ void *al_get_opengl_proc_address(const char *name)
 
    if (!symbol) {
 
-#if defined ALLEGRO_HAVE_DYNAMIC_LINK
+#if defined A5O_HAVE_DYNAMIC_LINK
       if (!alXGetProcAddress) {
-         ALLEGRO_WARN("get_proc_address: libdl::dlsym: %s\n", dlerror());
+         A5O_WARN("get_proc_address: libdl::dlsym: %s\n", dlerror());
       }
 #endif
 
-      ALLEGRO_WARN("get_proc_address : Unable to load symbol %s\n", name);
+      A5O_WARN("get_proc_address : Unable to load symbol %s\n", name);
    }
    else {
-      ALLEGRO_DEBUG("get_proc_address : Symbol %s successfully loaded\n", name);
+      A5O_DEBUG("get_proc_address : Symbol %s successfully loaded\n", name);
    }
    return symbol;
 }
@@ -692,7 +692,7 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
 
    /* Read OpenGL properties */
    info->version = _al_ogl_version();
-   ALLEGRO_INFO("Assumed OpenGL version: %d.%d.%d.%d\n",
+   A5O_INFO("Assumed OpenGL version: %d.%d.%d.%d\n",
       (info->version >> 24) & 0xff,
       (info->version >> 16) & 0xff,
       (info->version >>  8) & 0xff,
@@ -707,14 +707,14 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
  * This functions fills the extensions API table and extension list
  * structures and displays on the log file which extensions are available.
  */
-void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
+void _al_ogl_manage_extensions(A5O_DISPLAY *gl_disp)
 {
    //const GLubyte *buf;
-#if defined ALLEGRO_MACOSX
+#if defined A5O_MACOSX
    CFURLRef bundle_url;
 #endif
-   ALLEGRO_OGL_EXT_API *ext_api;
-   ALLEGRO_OGL_EXT_LIST *ext_list;
+   A5O_OGL_EXT_API *ext_api;
+   A5O_OGL_EXT_LIST *ext_list;
 
    /* Some functions depend on knowing the version of opengl in use */
    fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_extras->ogl_info));
@@ -723,16 +723,16 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
     * We should use glGetStringi(GL_EXTENSIONS, i) for OpenGL 3.0+
     * but it doesn't seem to work until later.
     */
-   if (gl_disp->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_3_0) {
-      ALLEGRO_DEBUG("OpenGL Extensions:\n");
+   if (gl_disp->ogl_extras->ogl_info.version < _A5O_OPENGL_VERSION_3_0) {
+      A5O_DEBUG("OpenGL Extensions:\n");
       print_extensions((char const *)glGetString(GL_EXTENSIONS));
    }
 
    /* Print out GLU version */
    //buf = gluGetString(GLU_VERSION);
-   //ALLEGRO_INFO("GLU Version : %s\n", buf);
+   //A5O_INFO("GLU Version : %s\n", buf);
 
-#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
+#ifdef A5O_HAVE_DYNAMIC_LINK
    /* Get glXGetProcAddress entry */
    __libgl_handle = dlopen("libGL.so", RTLD_LAZY);
    if (__libgl_handle) {
@@ -748,19 +748,19 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       }
    }
    else {
-      ALLEGRO_WARN("Failed to dlopen libGL.so : %s\n", dlerror());
+      A5O_WARN("Failed to dlopen libGL.so : %s\n", dlerror());
    }
-   ALLEGRO_INFO("glXGetProcAddress Extension: %s\n",
+   A5O_INFO("glXGetProcAddress Extension: %s\n",
          alXGetProcAddress ? "Supported" : "Unsupported");
-#elif defined ALLEGRO_UNIX
+#elif defined A5O_UNIX
 #ifdef ALLEGROGL_GLXGETPROCADDRESSARB
-   ALLEGRO_INFO("glXGetProcAddressARB Extension: supported\n");
+   A5O_INFO("glXGetProcAddressARB Extension: supported\n");
 #else
-   ALLEGRO_INFO("glXGetProcAddress Extension: supported\n");
+   A5O_INFO("glXGetProcAddress Extension: supported\n");
 #endif
 #endif
 
-#ifdef ALLEGRO_MACOSX
+#ifdef A5O_MACOSX
    bundle_url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
                                               CFSTR
                                               ("/System/Library/Frameworks/OpenGL.framework"),
@@ -769,10 +769,10 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    CFRelease(bundle_url);
 #endif
 
-#if defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
-   ALLEGRO_DEBUG("GLX Extensions:\n");
-   ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
+#if defined A5O_UNIX && !defined A5O_EXCLUDE_GLX
+   A5O_DEBUG("GLX Extensions:\n");
+   A5O_SYSTEM_XGLX *glx_sys = (void*)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
    char const *ext = glXQueryExtensionsString(
       glx_sys->gfxdisplay, glx_disp->xscreen);
    if (!ext) {
@@ -787,12 +787,12 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    load_extensions(ext_api);
    gl_disp->ogl_extras->extension_api = ext_api;
    
-#if !defined ALLEGRO_CFG_OPENGLES
+#if !defined A5O_CFG_OPENGLES
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
 
-   if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_3_0) {
-      ALLEGRO_DEBUG("OpenGL Extensions:\n");
+   if (gl_disp->ogl_extras->ogl_info.version >= _A5O_OPENGL_VERSION_3_0) {
+      A5O_DEBUG("OpenGL Extensions:\n");
       print_extensions_3_0();
    }
 #endif
@@ -803,26 +803,26 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
    /* Fill the list. */
 #define AGL_EXT(name, ver) { \
-      ext_list->ALLEGRO_GL_##name = \
+      ext_list->A5O_GL_##name = \
          _ogl_is_extension_with_version_supported("GL_" #name, gl_disp, \
-            _ALLEGRO_OPENGL_VERSION_##ver); \
+            _A5O_OPENGL_VERSION_##ver); \
    }
    #include "allegro5/opengl/GLext/gl_ext_list.h"
 #undef AGL_EXT
 
-#ifdef ALLEGRO_UNIX
+#ifdef A5O_UNIX
 #define AGL_EXT(name, ver) { \
-      ext_list->ALLEGRO_GLX_##name = \
+      ext_list->A5O_GLX_##name = \
          _ogl_is_extension_with_version_supported("GLX_" #name, gl_disp, \
-            _ALLEGRO_OPENGL_VERSION_##ver); \
+            _A5O_OPENGL_VERSION_##ver); \
    }
    #include "allegro5/opengl/GLext/glx_ext_list.h"
 #undef AGL_EXT
-#elif defined ALLEGRO_WINDOWS
+#elif defined A5O_WINDOWS
 #define AGL_EXT(name, ver) { \
-      ext_list->ALLEGRO_WGL_##name = \
+      ext_list->A5O_WGL_##name = \
          _ogl_is_extension_with_version_supported("WGL_" #name, gl_disp, \
-            _ALLEGRO_OPENGL_VERSION_##ver); \
+            _A5O_OPENGL_VERSION_##ver); \
    }
    #include "allegro5/opengl/GLext/wgl_ext_list.h"
 #undef AGL_EXT
@@ -835,12 +835,12 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    /* Note: Voodoo (even V5) don't seem to correctly support
     * packed pixel formats. Disabling them for those cards.
     */
-   ext_list->ALLEGRO_GL_EXT_packed_pixels &= !gl_disp->ogl_extras->ogl_info.is_voodoo;
+   ext_list->A5O_GL_EXT_packed_pixels &= !gl_disp->ogl_extras->ogl_info.is_voodoo;
 
 
-   if (ext_list->ALLEGRO_GL_EXT_packed_pixels) {
+   if (ext_list->A5O_GL_EXT_packed_pixels) {
 
-      ALLEGRO_INFO("Packed Pixels formats available\n");
+      A5O_INFO("Packed Pixels formats available\n");
 
       /* XXX On NV cards, we want to use BGRA instead of RGBA for speed */
       /* Fills the __allegro_gl_texture_format array */
@@ -860,51 +860,51 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    {
       const char *vendor = (const char *)glGetString(GL_VENDOR);
       if (strstr(vendor, "NVIDIA Corporation")) {
-         if (!ext_list->ALLEGRO_GL_NV_fragment_program2
-          || !ext_list->ALLEGRO_GL_NV_vertex_program3) {
-            ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
+         if (!ext_list->A5O_GL_NV_fragment_program2
+          || !ext_list->A5O_GL_NV_vertex_program3) {
+            ext_list->A5O_GL_ARB_texture_non_power_of_two = 0;
          }
       }
       else if (strstr(vendor, "ATI Technologies")) {
-         if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_3_0) {
+         if (gl_disp->ogl_extras->ogl_info.version >= _A5O_OPENGL_VERSION_3_0) {
             /* Assume okay. */
          }
          else if (!strstr((const char *)glGetString(GL_EXTENSIONS),
                "GL_ARB_texture_non_power_of_two")
-             && gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
-            ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
+             && gl_disp->ogl_extras->ogl_info.version >= _A5O_OPENGL_VERSION_2_0) {
+            ext_list->A5O_GL_ARB_texture_non_power_of_two = 0;
          }
       }
    }
    
    {
       int *s = gl_disp->extra_settings.settings;
-      glGetIntegerv(GL_MAX_TEXTURE_SIZE, s + ALLEGRO_MAX_BITMAP_SIZE);
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, s + A5O_MAX_BITMAP_SIZE);
    
-      if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0)
-         s[ALLEGRO_SUPPORT_SEPARATE_ALPHA] = 1;
+      if (gl_disp->ogl_extras->ogl_info.version >= _A5O_OPENGL_VERSION_2_0)
+         s[A5O_SUPPORT_SEPARATE_ALPHA] = 1;
 
-      s[ALLEGRO_SUPPORT_NPOT_BITMAP] =
-         ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two ||
-         ext_list->ALLEGRO_GL_OES_texture_npot;
-   ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
-      s[ALLEGRO_SUPPORT_NPOT_BITMAP] ? "enabled" : "disabled");
-#if defined ALLEGRO_CFG_OPENGLES
-   if (gl_disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] = true;
+      s[A5O_SUPPORT_NPOT_BITMAP] =
+         ext_list->A5O_GL_ARB_texture_non_power_of_two ||
+         ext_list->A5O_GL_OES_texture_npot;
+   A5O_INFO("Use of non-power-of-two textures %s.\n",
+      s[A5O_SUPPORT_NPOT_BITMAP] ? "enabled" : "disabled");
+#if defined A5O_CFG_OPENGLES
+   if (gl_disp->flags & A5O_PROGRAMMABLE_PIPELINE) {
+      s[A5O_CAN_DRAW_INTO_BITMAP] = true;
    }
    else {
-      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] =
-         ext_list->ALLEGRO_GL_OES_framebuffer_object;
+      s[A5O_CAN_DRAW_INTO_BITMAP] =
+         ext_list->A5O_GL_OES_framebuffer_object;
    }
-   ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
-      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] ? "enabled" :
+   A5O_INFO("Use of FBO to draw to textures %s.\n",
+      s[A5O_CAN_DRAW_INTO_BITMAP] ? "enabled" :
       "disabled");
 #else
-   s[ALLEGRO_CAN_DRAW_INTO_BITMAP] =
-      ext_list->ALLEGRO_GL_EXT_framebuffer_object;
-   ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
-      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] ? "enabled" :
+   s[A5O_CAN_DRAW_INTO_BITMAP] =
+      ext_list->A5O_GL_EXT_framebuffer_object;
+   A5O_INFO("Use of FBO to draw to textures %s.\n",
+      s[A5O_CAN_DRAW_INTO_BITMAP] ? "enabled" :
       "disabled");
 #endif
    }
@@ -914,14 +914,14 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
 /* Function: al_get_opengl_extension_list
  */
-ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
+A5O_OGL_EXT_LIST *al_get_opengl_extension_list(void)
 {
-   ALLEGRO_DISPLAY *disp;
+   A5O_DISPLAY *disp;
 
    disp = al_get_current_display();
    ASSERT(disp);
 
-   if (!(disp->flags & ALLEGRO_OPENGL))
+   if (!(disp->flags & A5O_OPENGL))
       return NULL;
 
    ASSERT(disp->ogl_extras);
@@ -930,17 +930,17 @@ ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
 
 
 
-void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *gl_disp)
+void _al_ogl_unmanage_extensions(A5O_DISPLAY *gl_disp)
 {
    destroy_extension_api_table(gl_disp->ogl_extras->extension_api);
    destroy_extension_list(gl_disp->ogl_extras->extension_list);
    gl_disp->ogl_extras->extension_api = NULL;
    gl_disp->ogl_extras->extension_list = NULL;
 
-#ifdef ALLEGRO_MACOSX
+#ifdef A5O_MACOSX
    CFRelease(opengl_bundle_ref);
 #endif
-#ifdef ALLEGRO_HAVE_DYNAMIC_LINK
+#ifdef A5O_HAVE_DYNAMIC_LINK
    if (__libgl_handle) {
       dlclose(__libgl_handle);
       __libgl_handle = NULL;

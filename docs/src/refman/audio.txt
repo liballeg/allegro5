@@ -16,18 +16,18 @@ simultaneously (don't forget to call [al_install_audio] beforehand). If these
 succeed, you can now call [al_play_sample], with data obtained by
 [al_load_sample], for example (don't forget to [initialize the acodec
 addon][al_init_acodec_addon]). In order to stop samples, you can use the
-[ALLEGRO_SAMPLE_ID] that al_play_sample returns.
+[A5O_SAMPLE_ID] that al_play_sample returns.
 
 If you want to play large audio files (e.g. background music) without loading
 the whole file at once you can use [al_play_audio_stream] (after calling
-[al_reserve_samples]). This will load and play an `ALLEGRO_AUDIO_STREAM`. Note
+[al_reserve_samples]). This will load and play an `A5O_AUDIO_STREAM`. Note
 that the basic API only supports one such audio stream playing at once.
 
-### API: ALLEGRO_SAMPLE_ID
+### API: A5O_SAMPLE_ID
 
-An ALLEGRO_SAMPLE_ID represents a sample being played via [al_play_sample].
+An A5O_SAMPLE_ID represents a sample being played via [al_play_sample].
 It can be used to later stop the sample with [al_stop_sample]. The underlying
-ALLEGRO_SAMPLE_INSTANCE can be extracted using [al_lock_sample_id].
+A5O_SAMPLE_INSTANCE can be extracted using [al_lock_sample_id].
 
 ### API: al_install_audio
 
@@ -85,16 +85,16 @@ Playback may fail because all the reserved sample instances are currently used.
 Parameters:
 
 * gain - relative volume at which the sample is played; 1.0 is normal.
-* pan - 0.0 is centred, -1.0 is left, 1.0 is right, or ALLEGRO_AUDIO_PAN_NONE.
+* pan - 0.0 is centred, -1.0 is left, 1.0 is right, or A5O_AUDIO_PAN_NONE.
 * speed - relative speed at which the sample is played; 1.0 is normal.
-* loop - ALLEGRO_PLAYMODE_ONCE, ALLEGRO_PLAYMODE_LOOP, or ALLEGRO_PLAYMODE_BIDIR
+* loop - A5O_PLAYMODE_ONCE, A5O_PLAYMODE_LOOP, or A5O_PLAYMODE_BIDIR
 * ret_id - if non-NULL the variable which this points to will be assigned
   an id representing the sample being played. If [al_play_sample] returns `false`,
   then the contents of ret_id are invalid and must not be used as argument to
   other functions.
 
-See also: [al_load_sample], [ALLEGRO_PLAYMODE], [ALLEGRO_AUDIO_PAN_NONE],
-[ALLEGRO_SAMPLE_ID], [al_stop_sample], [al_stop_samples], [al_lock_sample_id].
+See also: [al_load_sample], [A5O_PLAYMODE], [A5O_AUDIO_PAN_NONE],
+[A5O_SAMPLE_ID], [al_stop_sample], [al_stop_samples], [al_lock_sample_id].
 
 ### API: al_stop_sample
 
@@ -110,16 +110,16 @@ See also: [al_stop_sample]
 
 ### API: al_lock_sample_id
 
-Locks a [ALLEGRO_SAMPLE_ID], returning the underlying [ALLEGRO_SAMPLE_INSTANCE].
+Locks a [A5O_SAMPLE_ID], returning the underlying [A5O_SAMPLE_INSTANCE].
 This allows you to adjust the various properties of the instance (such as
 volume, pan, etc) while the sound is playing.
 
 This function will return `NULL` if the sound corresponding to the id is no
 longer playing.
 
-While locked, `ALLEGRO_SAMPLE_ID` will be unavailable to additional calls to
+While locked, `A5O_SAMPLE_ID` will be unavailable to additional calls to
 [al_play_sample], even if the sound stops while locked. To put the
-`ALLEGRO_SAMPLE_ID` back into the pool for reuse, make sure to call
+`A5O_SAMPLE_ID` back into the pool for reuse, make sure to call
 `al_unlock_sample_id` when you're done with the instance.
 
 See also: [al_play_sample], [al_unlock_sample_id]
@@ -130,9 +130,9 @@ Since: 5.2.3
 
 ### API: al_unlock_sample_id
 
-Unlocks a [ALLEGRO_SAMPLE_ID], allowing future calls to [al_play_sample] to
+Unlocks a [A5O_SAMPLE_ID], allowing future calls to [al_play_sample] to
 reuse it if possible. Note that after the id is unlocked, the
-[ALLEGRO_SAMPLE_INSTANCE] that was previously returned by [al_lock_sample_id]
+[A5O_SAMPLE_INSTANCE] that was previously returned by [al_lock_sample_id]
 will possibly be playing a different sound, so you should only use it after
 locking the id again.
 
@@ -165,7 +165,7 @@ Since: 5.2.8
 
 ### API: al_play_audio_stream_f
 
-Loads and plays an audio file from [ALLEGRO_FILE] stream, streaming it is
+Loads and plays an audio file from [A5O_FILE] stream, streaming it is
 needed. This API can only play one audio stream at a time. This requires a
 default mixer to be set, which is typically done via [al_reserve_samples], but
 can also be done via [al_set_default_mixer].
@@ -193,14 +193,14 @@ Since: 5.2.8
 
 ## Samples
 
-### API: ALLEGRO_SAMPLE
+### API: A5O_SAMPLE
 
-An ALLEGRO_SAMPLE object stores the data necessary for playing pre-defined
+An A5O_SAMPLE object stores the data necessary for playing pre-defined
 digital audio. It holds a user-specified PCM data buffer and information about
 its format (data length, depth, frequency, channel configuration). You can have
-the same ALLEGRO_SAMPLE playing multiple times simultaneously.
+the same A5O_SAMPLE playing multiple times simultaneously.
 
-See also: [ALLEGRO_SAMPLE_INSTANCE]
+See also: [A5O_SAMPLE_INSTANCE]
 
 ### API: al_create_sample
 
@@ -230,7 +230,7 @@ int bytes = samples * sample_size;
 void *buffer = al_malloc(bytes);
 ~~~~
 
-See also: [al_destroy_sample], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
+See also: [al_destroy_sample], [A5O_AUDIO_DEPTH], [A5O_CHANNEL_CONF]
 
 ### API: al_load_sample
 
@@ -250,7 +250,7 @@ See also: [al_register_sample_loader], [al_init_acodec_addon]
 
 ### API: al_load_sample_f
 
-Loads an audio file from an [ALLEGRO_FILE] stream into an [ALLEGRO_SAMPLE].
+Loads an audio file from an [A5O_FILE] stream into an [A5O_SAMPLE].
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
@@ -284,7 +284,7 @@ See also: [al_save_sample_f], [al_register_sample_saver],
 
 ### API: al_save_sample_f
 
-Writes a sample into a [ALLEGRO_FILE] filestream.  Currently, wav is
+Writes a sample into a [A5O_FILE] filestream.  Currently, wav is
 the only supported format, and the extension
 must be ".wav".
 
@@ -304,7 +304,7 @@ Free the sample data structure. If it was created with the `free_buf`
 parameter set to true, then the buffer will be freed with [al_free].
 
 This function will stop any sample instances which may be playing the
-buffer referenced by the [ALLEGRO_SAMPLE].
+buffer referenced by the [A5O_SAMPLE].
 
 See also: [al_destroy_sample_instance], [al_stop_sample], [al_stop_samples]
 
@@ -312,14 +312,14 @@ See also: [al_destroy_sample_instance], [al_stop_sample], [al_stop_samples]
 
 Return the channel configuration of the sample.
 
-See also: [ALLEGRO_CHANNEL_CONF], [al_get_sample_depth],
+See also: [A5O_CHANNEL_CONF], [al_get_sample_depth],
 [al_get_sample_frequency], [al_get_sample_length], [al_get_sample_data]
 
 ### API: al_get_sample_depth
 
 Return the audio depth of the sample.
 
-See also: [ALLEGRO_AUDIO_DEPTH], [al_get_sample_channels],
+See also: [A5O_AUDIO_DEPTH], [al_get_sample_channels],
 [al_get_sample_frequency], [al_get_sample_length], [al_get_sample_data]
 
 ### API: al_get_sample_frequency
@@ -369,37 +369,37 @@ is not (indirectly) attached to a voice will remain silent. For most use cases,
 one (default) mixer attached to a single voice will be sufficient. You may attach
 mixers to other mixers in order to create complex audio chains.
 
-Samples ([ALLEGRO_SAMPLE]) just represent "passive" buffers for sample data in
-memory. In order to play a sample, a sample instance ([ALLEGRO_SAMPLE_INSTANCE])
+Samples ([A5O_SAMPLE]) just represent "passive" buffers for sample data in
+memory. In order to play a sample, a sample instance ([A5O_SAMPLE_INSTANCE])
 needs to be created and attached to a mixer (or voice). Sample instances control
 *how* the underlying samples are played. Several playback parameters (position,
 speed, gain, pan, playmode, playing/paused) can be adjusted.
 Particularly, multiple instances may be created from the same sample, e.g. with
 different parameters.
 
-Audio streams ([ALLEGRO_AUDIO_STREAM]) are similar to sample instances insofar
+Audio streams ([A5O_AUDIO_STREAM]) are similar to sample instances insofar
 as they respond to the same playback parameters and have to be attached to
 mixers or voices. A single audio stream can only be played once simultaneously.
 
 For example, consider the following configuration of the audio system.
 
 ~~~~c
-ALLEGRO_VOICE* voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
-    ALLEGRO_CHANNEL_CONF_2);
+A5O_VOICE* voice = al_create_voice(44100, A5O_AUDIO_DEPTH_INT16,
+    A5O_CHANNEL_CONF_2);
 
-ALLEGRO_MIXER* mixer_1 = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-    ALLEGRO_CHANNEL_CONF_2);
-ALLEGRO_MIXER* mixer_2 = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-    ALLEGRO_CHANNEL_CONF_2);
+A5O_MIXER* mixer_1 = al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32,
+    A5O_CHANNEL_CONF_2);
+A5O_MIXER* mixer_2 = al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32,
+    A5O_CHANNEL_CONF_2);
 
 /* Load a stream, the stream starts in a playing state and just needs
  * to be attached to actually output sound. */
-ALLEGRO_AUDIO_STREAM* stream = al_load_audio_stream("music.ogg", 4, 2048);
+A5O_AUDIO_STREAM* stream = al_load_audio_stream("music.ogg", 4, 2048);
 
 /* The sample needs sample instances to output sound. */
-ALLEGRO_SAMPLE* sample = al_load_sample("sound.wav")
-ALLEGRO_SAMPLE_INSTANCE* instance_1 = al_create_sample_instance(sample);
-ALLEGRO_SAMPLE_INSTANCE* instance_2 = al_create_sample_instance(sample);
+A5O_SAMPLE* sample = al_load_sample("sound.wav")
+A5O_SAMPLE_INSTANCE* instance_1 = al_create_sample_instance(sample);
+A5O_SAMPLE_INSTANCE* instance_2 = al_create_sample_instance(sample);
 
 /* Attach everything up (see diagram). */
 al_attach_mixer_to_voice(mixer_1, voice);
@@ -433,23 +433,23 @@ instances will be attached to the default mixer, which can be changed via
 
 ## Sample instances
 
-### API: ALLEGRO_SAMPLE_INSTANCE
+### API: A5O_SAMPLE_INSTANCE
 
-An ALLEGRO_SAMPLE_INSTANCE object represents a playable instance of a predefined
+An A5O_SAMPLE_INSTANCE object represents a playable instance of a predefined
 sound effect.
 It holds information about how the effect should be played: These playback
 parameters consist of the looping mode, loop start/end points, playing position,
 speed, gain, pan and the playmode. Whether a sample instance is currently playing
 or paused is also one of its properties.
 
-An instance uses the data from an [ALLEGRO_SAMPLE] object. Multiple instances may
-be created from the same ALLEGRO_SAMPLE. An ALLEGRO_SAMPLE must not be
+An instance uses the data from an [A5O_SAMPLE] object. Multiple instances may
+be created from the same A5O_SAMPLE. An A5O_SAMPLE must not be
 destroyed while there are instances which reference it.
 
-To actually produce audio output, an ALLEGRO_SAMPLE_INSTANCE must be attached to an
-[ALLEGRO_MIXER] which eventually reaches an [ALLEGRO_VOICE] object.
+To actually produce audio output, an A5O_SAMPLE_INSTANCE must be attached to an
+[A5O_MIXER] which eventually reaches an [A5O_VOICE] object.
 
-See also: [ALLEGRO_SAMPLE]
+See also: [A5O_SAMPLE]
 
 ### API: al_create_sample_instance
 
@@ -464,7 +464,7 @@ See also: [al_destroy_sample_instance]
 ### API: al_destroy_sample_instance
 
 Detaches the sample instance from anything it may be attached to and frees
-it (the sample data, i.e. its ALLEGRO_SAMPLE, is *not* freed!).
+it (the sample data, i.e. its A5O_SAMPLE, is *not* freed!).
 
 See also: [al_create_sample_instance]
 
@@ -485,13 +485,13 @@ See also: [al_play_sample_instance]
 
 Return the channel configuration of the sample instance's sample data.
 
-See also: [ALLEGRO_CHANNEL_CONF].
+See also: [A5O_CHANNEL_CONF].
 
 ### API: al_get_sample_instance_depth
 
 Return the audio depth of the sample instance's sample data.
 
-See also: [ALLEGRO_AUDIO_DEPTH].
+See also: [A5O_AUDIO_DEPTH].
 
 ### API: al_get_sample_instance_frequency
 
@@ -570,7 +570,7 @@ See also: [al_set_sample_instance_pan].
 Set the pan value on a sample instance.  A value of -1.0 means to play the
 sample only through the left speaker; +1.0 means only through the right
 speaker; 0.0 means the sample is centre balanced.
-A special value [ALLEGRO_AUDIO_PAN_NONE] disables panning and plays the
+A special value [A5O_AUDIO_PAN_NONE] disables panning and plays the
 sample at its original level.  This will be louder than a pan value of 0.0.
 
 > Note: panning samples with more than two channels doesn't work yet.
@@ -578,7 +578,7 @@ sample at its original level.  This will be louder than a pan value of 0.0.
 Returns true on success, false on failure.
 Will fail if the sample instance is attached directly to a voice.
 
-See also: [al_get_sample_instance_pan], [ALLEGRO_AUDIO_PAN_NONE]
+See also: [al_get_sample_instance_pan], [A5O_AUDIO_PAN_NONE]
 
 ### API: al_get_sample_instance_time
 
@@ -591,7 +591,7 @@ See also: [al_get_sample_instance_length]
 
 Return the playback mode of the sample instance.
 
-See also: [ALLEGRO_PLAYMODE], [al_set_sample_instance_playmode]
+See also: [A5O_PLAYMODE], [al_set_sample_instance_playmode]
 
 ### API: al_set_sample_instance_playmode
 
@@ -599,7 +599,7 @@ Set the playback mode of the sample instance.
 
 Returns true on success, false on failure.
 
-See also: [ALLEGRO_PLAYMODE], [al_get_sample_instance_playmode]
+See also: [A5O_PLAYMODE], [al_get_sample_instance_playmode]
 
 ### API: al_get_sample_instance_playing
 
@@ -640,8 +640,8 @@ See also: [al_attach_sample_instance_to_mixer],
 Return the sample data that the sample instance plays.
 
 Note this returns a pointer to an internal structure, *not* the
-[ALLEGRO_SAMPLE] that you may have passed to [al_set_sample].
-However, the sample buffer of the returned ALLEGRO_SAMPLE will be the same as
+[A5O_SAMPLE] that you may have passed to [al_set_sample].
+However, the sample buffer of the returned A5O_SAMPLE will be the same as
 the one that was used to create the sample (passed to [al_create_sample]). You
 can use [al_get_sample_data] on the return value to retrieve and compare it.
 
@@ -707,17 +707,17 @@ Since: 5.2.3
 
 ## Audio streams
 
-### API: ALLEGRO_AUDIO_STREAM
+### API: A5O_AUDIO_STREAM
 
-An ALLEGRO_AUDIO_STREAM object is used to stream generated audio to the sound
+An A5O_AUDIO_STREAM object is used to stream generated audio to the sound
 device, in real-time. This is done by reading from a buffer, which is split
 into a number of fragments. Whenever a fragment has finished playing, the
 user can refill it with new data.
 
-As with [ALLEGRO_SAMPLE_INSTANCE] objects, streams store information necessary
+As with [A5O_SAMPLE_INSTANCE] objects, streams store information necessary
 for playback, so you may not play the same stream multiple times simultaneously.
-Streams also need to be attached to an [ALLEGRO_MIXER], which, eventually, reaches
-an [ALLEGRO_VOICE] object.
+Streams also need to be attached to an [A5O_MIXER], which, eventually, reaches
+an [A5O_VOICE] object.
 
 While playing, you must periodically fill fragments with new audio data. To
 know when a new fragment is ready to be filled, you can either directly check
@@ -725,7 +725,7 @@ with [al_get_available_audio_stream_fragments], or listen to events from the
 stream.
 
 You can register an audio stream event source to an event queue; see
-[al_get_audio_stream_event_source].  An [ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT]
+[al_get_audio_stream_event_source].  An [A5O_EVENT_AUDIO_STREAM_FRAGMENT]
 event is generated whenever a new fragment is ready.  When you receive an
 event, use [al_get_audio_stream_fragment] to obtain a pointer to the fragment
 to be filled. The size and format are determined by the parameters passed to
@@ -736,11 +736,11 @@ is provided. You must call [al_drain_audio_stream] when you're finished with
 supplying data to the stream.
 
 It is often a good idea to prefill the audio stream with data before
-[ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT] events arrive. Here is a snippet that will
+[A5O_EVENT_AUDIO_STREAM_FRAGMENT] events arrive. Here is a snippet that will
 fill the stream buffers with silence:
 
 ~~~~c
-ALLEGRO_AUDIO_STREAM *stream = al_create_audio_stream(num_buffers,
+A5O_AUDIO_STREAM *stream = al_create_audio_stream(num_buffers,
    samples_per_buffer, freq, depth, channel_conf);
 void *buf;
 while ((buf = al_get_audio_stream_fragment(stream))) {
@@ -750,12 +750,12 @@ while ((buf = al_get_audio_stream_fragment(stream))) {
 ~~~~
 
 If the stream is created by [al_load_audio_stream] or [al_play_audio_stream]
-then it will also generate an [ALLEGRO_EVENT_AUDIO_STREAM_FINISHED] event if it
+then it will also generate an [A5O_EVENT_AUDIO_STREAM_FINISHED] event if it
 reaches the end of the file and is not set to loop.
 
 ### API: al_create_audio_stream
 
-Creates an [ALLEGRO_AUDIO_STREAM]. The stream will be set to play by default.
+Creates an [A5O_AUDIO_STREAM]. The stream will be set to play by default.
 It will feed audio data from a buffer, which is split into a number of
 fragments.
 
@@ -773,9 +773,9 @@ Parameters:
 
 * freq - The frequency, in Hertz.
 
-* depth - Must be one of the values listed for [ALLEGRO_AUDIO_DEPTH].
+* depth - Must be one of the values listed for [A5O_AUDIO_DEPTH].
 
-* chan_conf - Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
+* chan_conf - Must be one of the values listed for [A5O_CHANNEL_CONF].
 
 A sample that is referred to by the *frag_samples* parameter refers to a
 sequence channel intensities. E.g. if you're making a stereo stream with the
@@ -821,7 +821,7 @@ contain *buffer_count* buffers with *samples* samples.
 
 The audio stream will start in the playing state.
 It should be attached to a voice or mixer to generate any output.
-See [ALLEGRO_AUDIO_STREAM] for more details.
+See [A5O_AUDIO_STREAM] for more details.
 
 Returns the stream on success, NULL on failure.
 
@@ -834,7 +834,7 @@ See also: [al_load_audio_stream_f], [al_register_audio_stream_loader],
 
 ### API: al_load_audio_stream_f
 
-Loads an audio file from [ALLEGRO_FILE] stream as it is needed.
+Loads an audio file from [A5O_FILE] stream as it is needed.
 
 Unlike regular streams, the one returned by this function
 need not be fed by the user; the library will automatically
@@ -846,7 +846,7 @@ name extension including the leading dot.
 
 The audio stream will start in the playing state.
 It should be attached to a voice or mixer to generate any output.
-See [ALLEGRO_AUDIO_STREAM] for more details.
+See [A5O_AUDIO_STREAM] for more details.
 
 Returns the stream on success, NULL on failure.
 On success the file should be considered owned by the audio stream,
@@ -875,7 +875,7 @@ See also: [al_drain_audio_stream].
 Retrieve the associated event source.
 
 See [al_get_audio_stream_fragment] for a description of the
-[ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT] event that audio streams emit.
+[A5O_EVENT_AUDIO_STREAM_FRAGMENT] event that audio streams emit.
 
 ### API: al_drain_audio_stream
 
@@ -900,13 +900,13 @@ Return the stream frequency (in Hz).
 
 Return the stream channel configuration.
 
-See also: [ALLEGRO_CHANNEL_CONF].
+See also: [A5O_CHANNEL_CONF].
 
 ### API: al_get_audio_stream_depth
 
 Return the stream audio depth.
 
-See also: [ALLEGRO_AUDIO_DEPTH].
+See also: [A5O_AUDIO_DEPTH].
 
 ### API: al_get_audio_stream_length
 
@@ -953,13 +953,13 @@ See also: [al_set_audio_stream_pan].
 Set the pan value on an audio stream.  A value of -1.0 means to play the
 stream only through the left speaker; +1.0 means only through the right
 speaker; 0.0 means the sample is centre balanced.
-A special value [ALLEGRO_AUDIO_PAN_NONE] disables panning and plays the
+A special value [A5O_AUDIO_PAN_NONE] disables panning and plays the
 stream at its original level.  This will be louder than a pan value of 0.0.
 
 Returns true on success, false on failure.
 Will fail if the audio stream is attached directly to a voice.
 
-See also: [al_get_audio_stream_pan], [ALLEGRO_AUDIO_PAN_NONE]
+See also: [al_get_audio_stream_pan], [A5O_AUDIO_PAN_NONE]
 
 ### API: al_get_audio_stream_playing
 
@@ -979,7 +979,7 @@ See also: [al_get_audio_stream_playing]
 
 Return the playback mode of the stream.
 
-See also: [ALLEGRO_PLAYMODE], [al_set_audio_stream_playmode].
+See also: [A5O_PLAYMODE], [al_set_audio_stream_playmode].
 
 ### API: al_set_audio_stream_playmode
 
@@ -987,7 +987,7 @@ Set the playback mode of the stream.
 
 Returns true on success, false on failure.
 
-See also: [ALLEGRO_PLAYMODE], [al_get_audio_stream_playmode].
+See also: [A5O_PLAYMODE], [al_get_audio_stream_playmode].
 
 ### API: al_get_audio_stream_attached
 
@@ -1026,7 +1026,7 @@ buffer to [al_set_audio_stream_fragment].
 If the stream is not ready for new data, the function will return NULL.
 
 > *Note:* If you listen to events from the stream, an
-[ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT] event will be generated whenever a new
+[A5O_EVENT_AUDIO_STREAM_FRAGMENT] event will be generated whenever a new
 fragment is ready. However, getting an event is *not* a guarantee that
 [al_get_audio_stream_fragment] will not return NULL, so you still must check for it.
 
@@ -1200,7 +1200,7 @@ See also: [al_register_audio_stream_loader]
 
 Register an identify handler for [al_identify_sample]. The given
 function will be used to detect files for the given extension. It will
-be called with a single argument of type [ALLEGRO_FILE] which is a
+be called with a single argument of type [A5O_FILE] which is a
 file handle opened for reading and located at the first byte of the
 file. The handler should try to read as few bytes as possible to
 safely determine if the given file contents correspond to the type
@@ -1230,7 +1230,7 @@ See also: [al_init_acodec_addon], [al_identify_sample_f], [al_register_sample_id
 
 ### API: al_identify_sample_f
 
-Tries to guess the audio file type of the open ALLEGRO_FILE by
+Tries to guess the audio file type of the open A5O_FILE by
 reading the first few bytes. By default Allegro cannot recognize any
 file types, but calling [al_init_acodec_addon] will add detection of the
 types it can read. You can also use [al_register_sample_identifier] to add
@@ -1257,7 +1257,7 @@ Recording is supported by the ALSA, AudioQueue, DirectSound8, and
 PulseAudio drivers. Enumerating or choosing other recording devices is not
 yet supported.
 
-### API: ALLEGRO_AUDIO_RECORDER
+### API: A5O_AUDIO_RECORDER
 
 An opaque datatype that represents a recording device. 
 
@@ -1265,7 +1265,7 @@ Since: 5.1.1
 
 > *[Unstable API]:* The API may need a slight redesign.
 
-### API: ALLEGRO_AUDIO_RECORDER_EVENT
+### API: A5O_AUDIO_RECORDER_EVENT
 
 Structure that holds the audio recorder event data. Every event type
 will contain:
@@ -1308,8 +1308,8 @@ frequency is the number of samples per second to record. Common values are:
 * 22050
 * 44100 - CD quality music (if 16-bit, stereo)
 
-For maximum compatibility, use a depth of ALLEGRO_AUDIO_DEPTH_UINT8 or
-ALLEGRO_AUDIO_DEPTH_INT16, and a single (mono) channel.
+For maximum compatibility, use a depth of A5O_AUDIO_DEPTH_UINT8 or
+A5O_AUDIO_DEPTH_INT16, and a single (mono) channel.
 
 The recorder will not record until you start it with [al_start_audio_recorder].
 
@@ -1323,7 +1323,7 @@ Since: 5.1.1
 
 Begin recording into the fragment buffer. Once a complete fragment has been
 captured (as specified in [al_create_audio_recorder]), an
-[ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT] event will be triggered.
+[A5O_EVENT_AUDIO_RECORDER_FRAGMENT] event will be triggered.
 
 Returns true if it was able to begin recording.
 
@@ -1358,7 +1358,7 @@ Since: 5.1.1
 
 ### API: al_get_audio_recorder_event
 
-Returns the event as an [ALLEGRO_AUDIO_RECORDER_EVENT].
+Returns the event as an [A5O_AUDIO_RECORDER_EVENT].
 
 Since: 5.1.1
 
@@ -1388,7 +1388,7 @@ Since: 5.1.1
 
 ## Audio devices
 
-### API: ALLEGRO_AUDIO_DEVICE
+### API: A5O_AUDIO_DEVICE
 
 An opaque datatype that represents an audio device.
 
@@ -1416,14 +1416,14 @@ Since: 5.2.8
 
 ## Voices
 
-### API: ALLEGRO_VOICE
+### API: A5O_VOICE
 
 A voice represents an audio device on the system, which may be a real device,
 or an abstract device provided by the operating system.
 To play back audio, you would attach a mixer, sample instance or audio stream to
 a voice.
 
-See also: [ALLEGRO_MIXER], [ALLEGRO_SAMPLE], [ALLEGRO_AUDIO_STREAM]
+See also: [A5O_MIXER], [A5O_SAMPLE], [A5O_AUDIO_STREAM]
 
 ### API: al_create_voice
 
@@ -1442,7 +1442,7 @@ the actual settings.
 Reasonable default arguments are:
 
 ~~~~c
-al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2)
+al_create_voice(44100, A5O_AUDIO_DEPTH_INT16, A5O_CHANNEL_CONF_2)
 ~~~~
 
 See also: [al_destroy_voice]
@@ -1507,13 +1507,13 @@ Return the frequency of the voice (in Hz), e.g. 44100.
 
 Return the channel configuration of the voice.
 
-See also: [ALLEGRO_CHANNEL_CONF].
+See also: [A5O_CHANNEL_CONF].
 
 ### API: al_get_voice_depth
 
 Return the audio depth of the voice.
 
-See also: [ALLEGRO_AUDIO_DEPTH].
+See also: [A5O_AUDIO_DEPTH].
 
 ### API: al_get_voice_playing
 
@@ -1560,31 +1560,31 @@ Since: 5.2.9
 
 ## Mixers
 
-### API: ALLEGRO_MIXER
+### API: A5O_MIXER
 
 A mixer mixes together attached streams into a single buffer. In the process,
 it converts channel configurations, sample frequencies and audio depths of the
 attached sample instances and audio streams accordingly. You can control the
-quality of this conversion using ALLEGRO_MIXER_QUALITY.
+quality of this conversion using A5O_MIXER_QUALITY.
 
 When going from mono to stereo (and above), the mixer reduces the volume of
 both channels by `sqrt(2)`. When going from stereo (and above) to mono, the
 mixer reduces the volume of the left and right channels by `sqrt(2)` before
 adding them to the center channel (if present).
 
-### API: ALLEGRO_MIXER_QUALITY
+### API: A5O_MIXER_QUALITY
 
-* ALLEGRO_MIXER_QUALITY_POINT - point sampling
-* ALLEGRO_MIXER_QUALITY_LINEAR - linear interpolation
-* ALLEGRO_MIXER_QUALITY_CUBIC - cubic interpolation (since: 5.0.8, 5.1.4)
+* A5O_MIXER_QUALITY_POINT - point sampling
+* A5O_MIXER_QUALITY_LINEAR - linear interpolation
+* A5O_MIXER_QUALITY_CUBIC - cubic interpolation (since: 5.0.8, 5.1.4)
 
 ### API: al_create_mixer
 
 Creates a mixer to attach sample instances, audio streams, or other mixers to.
 It will mix into a buffer at the requested frequency (in Hz) and channel count.
 
-The only supported audio depths are ALLEGRO_AUDIO_DEPTH_FLOAT32
-and ALLEGRO_AUDIO_DEPTH_INT16 (not yet complete).
+The only supported audio depths are A5O_AUDIO_DEPTH_FLOAT32
+and A5O_AUDIO_DEPTH_INT16 (not yet complete).
 
 To actually produce any output, the mixer will have to be attached to a voice
 using [al_attach_mixer_to_voice].
@@ -1592,12 +1592,12 @@ using [al_attach_mixer_to_voice].
 Reasonable default arguments are:
 
 ~~~~c
-al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2)
+al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32, A5O_CHANNEL_CONF_2)
 ~~~~
 
 Returns true on success, false on error.
 
-See also: [al_destroy_mixer], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
+See also: [al_destroy_mixer], [A5O_AUDIO_DEPTH], [A5O_CHANNEL_CONF]
 
 ### API: al_destroy_mixer
 
@@ -1707,13 +1707,13 @@ See also: [al_get_mixer_frequency]
 
 Return the mixer channel configuration.
 
-See also: [ALLEGRO_CHANNEL_CONF].
+See also: [A5O_CHANNEL_CONF].
 
 ### API: al_get_mixer_depth
 
 Return the mixer audio depth.
 
-See also: [ALLEGRO_AUDIO_DEPTH].
+See also: [A5O_AUDIO_DEPTH].
 
 ### API: al_get_mixer_gain
 
@@ -1737,7 +1737,7 @@ See also: [al_get_mixer_gain]
 
 Return the mixer quality.
 
-See also: [ALLEGRO_MIXER_QUALITY], [al_set_mixer_quality]
+See also: [A5O_MIXER_QUALITY], [al_set_mixer_quality]
 
 ### API: al_set_mixer_quality
 
@@ -1746,7 +1746,7 @@ anything attached to it.
 
 Returns true on success, false on failure.
 
-See also: [ALLEGRO_MIXER_QUALITY], [al_get_mixer_quality]
+See also: [A5O_MIXER_QUALITY], [al_get_mixer_quality]
 
 ### API: al_get_mixer_playing
 
@@ -1796,31 +1796,31 @@ was created with. The sample count and user-data pointer is also passed.
 
 ## Miscelaneous
 
-### API: ALLEGRO_AUDIO_DEPTH
+### API: A5O_AUDIO_DEPTH
 
 Sample depth and type as well as signedness. Mixers only use 32-bit signed
 float (-1..+1), or 16-bit signed integers.
 Signedness is determined by an "unsigned" bit-flag applied to the depth value.
 
-* ALLEGRO_AUDIO_DEPTH_INT8
-* ALLEGRO_AUDIO_DEPTH_INT16
-* ALLEGRO_AUDIO_DEPTH_INT24
-* ALLEGRO_AUDIO_DEPTH_FLOAT32
-* ALLEGRO_AUDIO_DEPTH_UNSIGNED
+* A5O_AUDIO_DEPTH_INT8
+* A5O_AUDIO_DEPTH_INT16
+* A5O_AUDIO_DEPTH_INT24
+* A5O_AUDIO_DEPTH_FLOAT32
+* A5O_AUDIO_DEPTH_UNSIGNED
 
 For convenience:
 
-* ALLEGRO_AUDIO_DEPTH_UINT8
-* ALLEGRO_AUDIO_DEPTH_UINT16
-* ALLEGRO_AUDIO_DEPTH_UINT24
+* A5O_AUDIO_DEPTH_UINT8
+* A5O_AUDIO_DEPTH_UINT16
+* A5O_AUDIO_DEPTH_UINT24
 
-### API: ALLEGRO_AUDIO_PAN_NONE
+### API: A5O_AUDIO_PAN_NONE
 
 A special value for the pan property of sample instances and audio streams.
 Use this value to disable panning on sample instances and audio streams, and play
 them without attentuation implied by panning support.
 
-ALLEGRO_AUDIO_PAN_NONE is different from a pan value of 0.0 (centered) because,
+A5O_AUDIO_PAN_NONE is different from a pan value of 0.0 (centered) because,
 when panning is enabled, we try to maintain a constant sound power level as a
 sample is panned from left to right.  A sound coming out of one speaker
 should sound as loud as it does when split over two speakers.
@@ -1829,51 +1829,51 @@ original level.
 
 (Please correct us if this is wrong.)
 
-### API: ALLEGRO_CHANNEL_CONF
+### API: A5O_CHANNEL_CONF
 
 Speaker configuration (mono, stereo, 2.1, etc).
 
-* ALLEGRO_CHANNEL_CONF_1
-* ALLEGRO_CHANNEL_CONF_2
-* ALLEGRO_CHANNEL_CONF_3
-* ALLEGRO_CHANNEL_CONF_4
-* ALLEGRO_CHANNEL_CONF_5_1
-* ALLEGRO_CHANNEL_CONF_6_1
-* ALLEGRO_CHANNEL_CONF_7_1
+* A5O_CHANNEL_CONF_1
+* A5O_CHANNEL_CONF_2
+* A5O_CHANNEL_CONF_3
+* A5O_CHANNEL_CONF_4
+* A5O_CHANNEL_CONF_5_1
+* A5O_CHANNEL_CONF_6_1
+* A5O_CHANNEL_CONF_7_1
 
-### API: ALLEGRO_PLAYMODE
+### API: A5O_PLAYMODE
 
 Sample and stream playback mode.
 
-* ALLEGRO_PLAYMODE_ONCE - the sample/stream is played from start to finish an
+* A5O_PLAYMODE_ONCE - the sample/stream is played from start to finish an
     then it stops.
-* ALLEGRO_PLAYMODE_LOOP - the sample/stream is played from start to finish (or
+* A5O_PLAYMODE_LOOP - the sample/stream is played from start to finish (or
     between the two loop points). When it reaches the end, it restarts from the
     beginning.
-* ALLEGRO_PLAYMODE_LOOP_ONCE - just like ALLEGRO_PLAYMODE_ONCE, but
+* A5O_PLAYMODE_LOOP_ONCE - just like A5O_PLAYMODE_ONCE, but
     respects the loop end point.
-* ALLEGRO_PLAYMODE_BIDIR - the sample is played from start to finish (or
+* A5O_PLAYMODE_BIDIR - the sample is played from start to finish (or
     between the two loop points). When it reaches the end, it reverses the
     playback direction and plays until it reaches the beginning when it
     reverses the direction back to normal. This is mode is rarely supported for
     streams.
 
-### API: ALLEGRO_AUDIO_EVENT_TYPE
+### API: A5O_AUDIO_EVENT_TYPE
 
 Events sent by [al_get_audio_stream_event_source] or [al_get_audio_recorder_event_source].
 
-#### ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT
+#### A5O_EVENT_AUDIO_STREAM_FRAGMENT
 
 Sent when a stream fragment is ready to be filled in. See [al_get_audio_stream_fragment].
 
-#### ALLEGRO_EVENT_AUDIO_STREAM_FINISHED
+#### A5O_EVENT_AUDIO_STREAM_FINISHED
 
 Sent when a stream is finished.
 
-#### ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT
+#### A5O_EVENT_AUDIO_RECORDER_FRAGMENT
 
 Sent after a user-specified number of samples have been recorded. Convert this to
-[ALLEGRO_AUDIO_RECORDER_EVENT] via [al_get_audio_recorder_event].
+[A5O_AUDIO_RECORDER_EVENT] via [al_get_audio_recorder_event].
 
 You must always check the values for the buffer and samples as they
 are not guaranteed to be exactly what was originally specified.
@@ -1890,12 +1890,12 @@ Returns the (compiled) version of the addon, in the same format as
 ### API: al_get_audio_depth_size
 
 Return the size of a sample, in bytes, for the given format. The format is one
-of the values listed under [ALLEGRO_AUDIO_DEPTH].
+of the values listed under [A5O_AUDIO_DEPTH].
 
 ### API: al_get_channel_count
 
 Return the number of channels for the given channel configuration, which is one
-of the values listed under [ALLEGRO_CHANNEL_CONF].
+of the values listed under [A5O_CHANNEL_CONF].
 
 ### API: al_fill_silence
 

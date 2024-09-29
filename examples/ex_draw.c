@@ -13,12 +13,12 @@
 
 struct Example
 {
-   ALLEGRO_FONT *font;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_COLOR background, text, white, foreground;
-   ALLEGRO_COLOR outline;
-   ALLEGRO_BITMAP *pattern;
-   ALLEGRO_BITMAP *zoom;
+   A5O_FONT *font;
+   A5O_EVENT_QUEUE *queue;
+   A5O_COLOR background, text, white, foreground;
+   A5O_COLOR outline;
+   A5O_BITMAP *pattern;
+   A5O_BITMAP *zoom;
 
    double timer[4], counter[4];
    int FPS;
@@ -38,19 +38,19 @@ char const *names[] = {
    "lines"
 };
 
-static void draw_pattern(ALLEGRO_BITMAP *b)
+static void draw_pattern(A5O_BITMAP *b)
 {
    int w = al_get_bitmap_width(b);
    int h = al_get_bitmap_height(b);
    int x, y;
-   int format = ALLEGRO_PIXEL_FORMAT_BGR_888;
-   ALLEGRO_COLOR light = al_map_rgb_f(1, 1, 1);
-   ALLEGRO_COLOR dark = al_map_rgb_f(1, 0.9, 0.8);
-   ALLEGRO_LOCKED_REGION *lock;
-   lock = al_lock_bitmap(b, format, ALLEGRO_LOCK_WRITEONLY);
+   int format = A5O_PIXEL_FORMAT_BGR_888;
+   A5O_COLOR light = al_map_rgb_f(1, 1, 1);
+   A5O_COLOR dark = al_map_rgb_f(1, 0.9, 0.8);
+   A5O_LOCKED_REGION *lock;
+   lock = al_lock_bitmap(b, format, A5O_LOCK_WRITEONLY);
    for (y = 0; y < h; y++) {
       for (x = 0; x < w; x++) {
-         ALLEGRO_COLOR c = (x + y) & 1 ? light : dark;
+         A5O_COLOR c = (x + y) & 1 ? light : dark;
          unsigned char r, g, b;
          unsigned char *data = lock->data;
          al_unmap_rgb(c, &r, &g, &b);
@@ -74,15 +74,15 @@ static void print(char const *format, ...)
 {
    va_list list;
    char message[1024];
-   ALLEGRO_STATE state;
+   A5O_STATE state;
    int th = al_get_font_line_height(ex.font);
-   al_store_state(&state, ALLEGRO_STATE_BLENDER);
+   al_store_state(&state, A5O_STATE_BLENDER);
 
    va_start(list, format);
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
    
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
    al_restore_state(&state);
    
@@ -90,7 +90,7 @@ static void print(char const *format, ...)
 }
 
 static void primitive(float l, float t, float r, float b,
-   ALLEGRO_COLOR color, bool never_fill)
+   A5O_COLOR color, bool never_fill)
 {
    float cx = (l + r) / 2;
    float cy = (t + b) / 2;
@@ -113,8 +113,8 @@ static void draw(void)
    int cx, cy, cw, ch;
    int w = al_get_bitmap_width(ex.zoom);
    int h = al_get_bitmap_height(ex.zoom);
-   ALLEGRO_BITMAP *screen = al_get_target_bitmap();
-   ALLEGRO_BITMAP *mem;
+   A5O_BITMAP *screen = al_get_target_bitmap();
+   A5O_BITMAP *mem;
    int rects_num = 16, i, j;
    float rects[16 * 4];
    for (j = 0; j < 4; j++) {
@@ -138,10 +138,10 @@ static void draw(void)
    set_xy(80, 16);
    print("Enlarged x 16");
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 
    if (ex.software) {
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
       al_set_new_bitmap_format(al_get_bitmap_format(al_get_target_bitmap()));
       mem = al_create_bitmap(w, h);
       al_set_target_bitmap(mem);
@@ -157,9 +157,9 @@ static void draw(void)
 
    /* Draw the test scene. */
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    for (i = 0; i < rects_num; i++) {
-      ALLEGRO_COLOR rgba = ex.foreground;
+      A5O_COLOR rgba = ex.foreground;
       rgba.a *= 0.5;
       primitive(
          x + rects[i * 4 + 0],
@@ -169,7 +169,7 @@ static void draw(void)
          rgba, false);
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 
    if (ex.software) {
       al_set_target_bitmap(screen);
@@ -206,7 +206,7 @@ static void draw(void)
    print("Supersampling: %dx (edit ex_draw.ini to change)", ex.samples);
 
 // FIXME: doesn't work
-//      al_get_display_option(ALLEGRO_SAMPLE_BUFFERS));
+//      al_get_display_option(A5O_SAMPLE_BUFFERS));
 }
 
 static void tick(void)
@@ -217,7 +217,7 @@ static void tick(void)
 
 static void run(void)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    bool need_draw = true;
 
    while (1) {
@@ -229,26 +229,26 @@ static void run(void)
       al_wait_for_event(ex.queue, &event);
 
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             return;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                return;
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+            if (event.keyboard.keycode == A5O_KEY_SPACE) {
                ex.what++;
                if (ex.what == 5) ex.what = 0;
             }
-            if (event.keyboard.keycode == ALLEGRO_KEY_S) {
+            if (event.keyboard.keycode == A5O_KEY_S) {
                ex.software = !ex.software;
             }
-            if (event.keyboard.keycode == ALLEGRO_KEY_T) {
+            if (event.keyboard.keycode == A5O_KEY_T) {
                ex.thickness++;
                if (ex.thickness == 2) ex.thickness = 0;
             }
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             need_draw = true;
             break;
       }
@@ -275,9 +275,9 @@ static void init(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_CONFIG *config;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_CONFIG *config;
    char const *value;
    char str[256];
 
@@ -309,8 +309,8 @@ int main(int argc, char **argv)
    al_destroy_config(config);
 
    if (ex.samples) {
-      al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
-      al_set_new_display_option(ALLEGRO_SAMPLES, ex.samples, ALLEGRO_SUGGEST);
+      al_set_new_display_option(A5O_SAMPLE_BUFFERS, 1, A5O_REQUIRE);
+      al_set_new_display_option(A5O_SAMPLES, ex.samples, A5O_SUGGEST);
    }
    display = al_create_display(640, 640);
    if (!display) {

@@ -2,7 +2,7 @@ prefix=@prefix@
 exec_prefix=${prefix}
 libdir=@libdir@
 includedir=@includedir@
-version=@ALLEGRO_VERSION@
+version=@A5O_VERSION@
 suffix=@lib_type@@lib_linkage@
 versuffix=@versuffix@
 

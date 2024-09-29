@@ -42,9 +42,9 @@ int main(int argc, char **argv)
    bool quit = false;
    bool background = false;
    TOUCH touches[MAX_TOUCHES];
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
 
    (void)argc;
    (void)argv;
@@ -74,10 +74,10 @@ int main(int argc, char **argv)
       }
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             quit = true;
             break;
-         case ALLEGRO_EVENT_TOUCH_BEGIN: {
+         case A5O_EVENT_TOUCH_BEGIN: {
             int i = num_touches;
             if (num_touches < MAX_TOUCHES) {
                touches[i].id = event.touch.id;
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
             }
             break;
          }
-         case ALLEGRO_EVENT_TOUCH_END: {
+         case A5O_EVENT_TOUCH_END: {
             int i = find_index(event.touch.id, num_touches, touches);
             if (i >= 0 && i < num_touches) {
                touches[i] = touches[num_touches - 1];
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
             }
             break;
          }
-         case ALLEGRO_EVENT_TOUCH_MOVE: {
+         case A5O_EVENT_TOUCH_MOVE: {
             int i = find_index(event.touch.id, num_touches, touches);
             if (i >= 0) {
                touches[i].x = event.touch.x;
@@ -103,15 +103,15 @@ int main(int argc, char **argv)
             }
             break;
          }
-         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+         case A5O_EVENT_DISPLAY_HALT_DRAWING:
             background = true;
             al_acknowledge_drawing_halt(event.display.source);
             break;
-         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+         case A5O_EVENT_DISPLAY_RESUME_DRAWING:
             background = false;
             al_acknowledge_drawing_resume(event.display.source);
             break;
-         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+         case A5O_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
       }

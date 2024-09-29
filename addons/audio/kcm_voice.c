@@ -14,12 +14,12 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
-ALLEGRO_DEBUG_CHANNEL("audio")
+A5O_DEBUG_CHANNEL("audio")
 
 
 /* forward declarations */
 static void stream_read(void *source, void **vbuf, unsigned int *samples,
-   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
+   A5O_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 
 
@@ -36,7 +36,7 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
  *  in the returned audio data and it may be less or equal to the requested
  *  samples count.
  */
-const void *_al_voice_update(ALLEGRO_VOICE *voice, ALLEGRO_MUTEX *mutex,
+const void *_al_voice_update(A5O_VOICE *voice, A5O_MUTEX *mutex,
    unsigned int *samples)
 {
    void *buf = NULL;
@@ -62,13 +62,13 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, ALLEGRO_MUTEX *mutex,
 
 /* Function: al_create_voice
  */
-ALLEGRO_VOICE *al_create_voice(unsigned int freq,
-   ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
+A5O_VOICE *al_create_voice(unsigned int freq,
+   A5O_AUDIO_DEPTH depth, A5O_CHANNEL_CONF chan_conf)
 {
-   ALLEGRO_VOICE *voice = NULL;
+   A5O_VOICE *voice = NULL;
 
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid Voice Frequency");
+      _al_set_error(A5O_INVALID_PARAM, "Invalid Voice Frequency");
       return NULL;
    }
 
@@ -103,7 +103,7 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
 
 /* Function: al_destroy_voice
  */
-void al_destroy_voice(ALLEGRO_VOICE *voice)
+void al_destroy_voice(A5O_VOICE *voice)
 {
    if (voice) {
       _al_kcm_unregister_destructor(voice->dtor_item);
@@ -123,8 +123,8 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
 
 /* Function: al_attach_sample_instance_to_voice
  */
-bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
-   ALLEGRO_VOICE *voice)
+bool al_attach_sample_instance_to_voice(A5O_SAMPLE_INSTANCE *spl,
+   A5O_VOICE *voice)
 {
    bool ret;
 
@@ -132,16 +132,16 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
    ASSERT(spl);
 
    if (voice->attached_stream) {
-      ALLEGRO_WARN(
+      A5O_WARN(
          "Attempted to attach to a voice that already has an attachment\n");
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to attach to a voice that already has an attachment");
       return false;
    }
 
    if (spl->parent.u.ptr) {
-      ALLEGRO_WARN("Attempted to attach a sample that is already attached\n");
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      A5O_WARN("Attempted to attach a sample that is already attached\n");
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to attach a sample that is already attached");
       return false;
    }
@@ -150,8 +150,8 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
       voice->frequency != spl->spl_data.frequency ||
       voice->depth != spl->spl_data.depth)
    {
-      ALLEGRO_WARN("Sample settings do not match voice settings\n");
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      A5O_WARN("Sample settings do not match voice settings\n");
+      _al_set_error(A5O_INVALID_OBJECT,
          "Sample settings do not match voice settings");
       return false;
    }
@@ -180,7 +180,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
       _al_kcm_stream_set_mutex(spl, NULL);
       spl->parent.u.voice = NULL;
 
-      ALLEGRO_ERROR("Unable to load sample into voice\n");
+      A5O_ERROR("Unable to load sample into voice\n");
       ret = false;
    }
    else {
@@ -197,9 +197,9 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
  *  This passes the next waiting stream buffer to the voice via vbuf.
  */
 static void stream_read(void *source, void **vbuf, unsigned int *samples,
-   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
+   A5O_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
-   ALLEGRO_AUDIO_STREAM *stream = (ALLEGRO_AUDIO_STREAM*)source;
+   A5O_AUDIO_STREAM *stream = (A5O_AUDIO_STREAM*)source;
    unsigned int len = stream->spl.spl_data.len;
    unsigned int pos = stream->spl.pos;
 
@@ -248,8 +248,8 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
 
 /* Function: al_attach_audio_stream_to_voice
  */
-bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
-   ALLEGRO_VOICE *voice)
+bool al_attach_audio_stream_to_voice(A5O_AUDIO_STREAM *stream,
+   A5O_VOICE *voice)
 {
    bool ret;
 
@@ -257,13 +257,13 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
    ASSERT(stream);
 
    if (voice->attached_stream) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to attach to a voice that already has an attachment");
       return false;
    }
 
    if (stream->spl.parent.u.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to attach a stream that is already attached");
       return false;
    }
@@ -272,7 +272,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
       voice->frequency != stream->spl.spl_data.frequency ||
       voice->depth != stream->spl.spl_data.depth)
    {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Stream settings do not match voice settings");
       return false;
    }
@@ -301,7 +301,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
       stream->spl.parent.u.voice = NULL;
       stream->spl.spl_read = NULL;
 
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "Unable to start stream");
+      _al_set_error(A5O_GENERIC_ERROR, "Unable to start stream");
       ret = false;
    }
    else {
@@ -316,7 +316,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
 
 /* Function: al_attach_mixer_to_voice
  */
-bool al_attach_mixer_to_voice(ALLEGRO_MIXER *mixer, ALLEGRO_VOICE *voice)
+bool al_attach_mixer_to_voice(A5O_MIXER *mixer, A5O_VOICE *voice)
 {
    bool ret;
 
@@ -367,7 +367,7 @@ bool al_attach_mixer_to_voice(ALLEGRO_MIXER *mixer, ALLEGRO_VOICE *voice)
 
 /* Function: al_detach_voice
  */
-void al_detach_voice(ALLEGRO_VOICE *voice)
+void al_detach_voice(A5O_VOICE *voice)
 {
    ASSERT(voice);
 
@@ -378,7 +378,7 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
    al_lock_mutex(voice->mutex);
 
    if (!voice->is_streaming) {
-      ALLEGRO_SAMPLE_INSTANCE *spl = voice->attached_stream;
+      A5O_SAMPLE_INSTANCE *spl = voice->attached_stream;
 
       spl->pos = voice->driver->get_voice_position(voice);
       spl->is_playing = voice->driver->voice_is_playing(voice);
@@ -401,7 +401,7 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
 
 /* Function: al_get_voice_frequency
  */
-unsigned int al_get_voice_frequency(const ALLEGRO_VOICE *voice)
+unsigned int al_get_voice_frequency(const A5O_VOICE *voice)
 {
    ASSERT(voice);
 
@@ -411,7 +411,7 @@ unsigned int al_get_voice_frequency(const ALLEGRO_VOICE *voice)
 
 /* Function: al_get_voice_position
  */
-unsigned int al_get_voice_position(const ALLEGRO_VOICE *voice)
+unsigned int al_get_voice_position(const A5O_VOICE *voice)
 {
    ASSERT(voice);
 
@@ -429,7 +429,7 @@ unsigned int al_get_voice_position(const ALLEGRO_VOICE *voice)
 
 /* Function: al_get_voice_channels
  */
-ALLEGRO_CHANNEL_CONF al_get_voice_channels(const ALLEGRO_VOICE *voice)
+A5O_CHANNEL_CONF al_get_voice_channels(const A5O_VOICE *voice)
 {
    ASSERT(voice);
 
@@ -439,7 +439,7 @@ ALLEGRO_CHANNEL_CONF al_get_voice_channels(const ALLEGRO_VOICE *voice)
 
 /* Function: al_get_voice_depth
  */
-ALLEGRO_AUDIO_DEPTH al_get_voice_depth(const ALLEGRO_VOICE *voice)
+A5O_AUDIO_DEPTH al_get_voice_depth(const A5O_VOICE *voice)
 {
    ASSERT(voice);
 
@@ -449,7 +449,7 @@ ALLEGRO_AUDIO_DEPTH al_get_voice_depth(const ALLEGRO_VOICE *voice)
 
 /* Function: al_get_voice_playing
  */
-bool al_get_voice_playing(const ALLEGRO_VOICE *voice)
+bool al_get_voice_playing(const A5O_VOICE *voice)
 {
    ASSERT(voice);
 
@@ -466,7 +466,7 @@ bool al_get_voice_playing(const ALLEGRO_VOICE *voice)
 
 /* Function: al_voice_has_attachments
  */
-bool al_voice_has_attachments(const ALLEGRO_VOICE* voice)
+bool al_voice_has_attachments(const A5O_VOICE* voice)
 {
    ASSERT(voice);
 
@@ -475,7 +475,7 @@ bool al_voice_has_attachments(const ALLEGRO_VOICE* voice)
 
 /* Function: al_set_voice_position
  */
-bool al_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
+bool al_set_voice_position(A5O_VOICE *voice, unsigned int val)
 {
    ASSERT(voice);
 
@@ -494,17 +494,17 @@ bool al_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 
 /* Function: al_set_voice_playing
  */
-bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
+bool al_set_voice_playing(A5O_VOICE *voice, bool val)
 {
    ASSERT(voice);
 
    if (!voice->attached_stream) {
-      ALLEGRO_DEBUG("Voice has no attachment\n");
+      A5O_DEBUG("Voice has no attachment\n");
       return false;
    }
 
    if (voice->is_streaming) {
-      ALLEGRO_WARN("Attempted to change the playing state of a voice "
+      A5O_WARN("Attempted to change the playing state of a voice "
          "with a streaming attachment (mixer or audiostreams)\n");
       return false;
    }
@@ -512,10 +512,10 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
       bool playing = al_get_voice_playing(voice);
       if (playing == val) {
          if (playing) {
-            ALLEGRO_DEBUG("Voice is already playing\n");
+            A5O_DEBUG("Voice is already playing\n");
          }
          else {
-            ALLEGRO_DEBUG("Voice is already stopped\n");
+            A5O_DEBUG("Voice is already stopped\n");
          }
          return true;
       }
@@ -525,7 +525,7 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
 }
 
 
-bool _al_kcm_set_voice_playing(ALLEGRO_VOICE *voice, ALLEGRO_MUTEX *mutex,
+bool _al_kcm_set_voice_playing(A5O_VOICE *voice, A5O_MUTEX *mutex,
    bool val)
 {
    bool ret;

@@ -110,15 +110,15 @@ class AllegroEGL
    private final int[] attribMapping(EGL10 egl)
    {
       return new int[] {
-         egl.EGL_RED_SIZE,       Const.ALLEGRO_RED_SIZE,
-         egl.EGL_GREEN_SIZE,     Const.ALLEGRO_GREEN_SIZE,
-         egl.EGL_BLUE_SIZE,      Const.ALLEGRO_BLUE_SIZE, 
-         egl.EGL_ALPHA_SIZE,     Const.ALLEGRO_ALPHA_SIZE, 
-         egl.EGL_BUFFER_SIZE,    Const.ALLEGRO_COLOR_SIZE,
-         egl.EGL_DEPTH_SIZE,     Const.ALLEGRO_DEPTH_SIZE, 
-         egl.EGL_STENCIL_SIZE,   Const.ALLEGRO_STENCIL_SIZE, 
-         egl.EGL_SAMPLE_BUFFERS, Const.ALLEGRO_SAMPLE_BUFFERS, 
-         egl.EGL_SAMPLES,        Const.ALLEGRO_SAMPLES
+         egl.EGL_RED_SIZE,       Const.A5O_RED_SIZE,
+         egl.EGL_GREEN_SIZE,     Const.A5O_GREEN_SIZE,
+         egl.EGL_BLUE_SIZE,      Const.A5O_BLUE_SIZE, 
+         egl.EGL_ALPHA_SIZE,     Const.A5O_ALPHA_SIZE, 
+         egl.EGL_BUFFER_SIZE,    Const.A5O_COLOR_SIZE,
+         egl.EGL_DEPTH_SIZE,     Const.A5O_DEPTH_SIZE, 
+         egl.EGL_STENCIL_SIZE,   Const.A5O_STENCIL_SIZE, 
+         egl.EGL_SAMPLE_BUFFERS, Const.A5O_SAMPLE_BUFFERS, 
+         egl.EGL_SAMPLES,        Const.A5O_SAMPLES
       };
    }
 

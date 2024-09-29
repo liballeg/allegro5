@@ -19,16 +19,16 @@
 #include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_pixels.h"
 
-ALLEGRO_DEBUG_CHANNEL("bitmap")
+A5O_DEBUG_CHANNEL("bitmap")
 
 
 /* Function: al_get_pixel
  */
-ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
+A5O_COLOR al_get_pixel(A5O_BITMAP *bitmap, int x, int y)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    char *data;
-   ALLEGRO_COLOR color = al_map_rgba_f(0, 0, 0, 0);
+   A5O_COLOR color = al_map_rgba_f(0, 0, 0, 0);
 
    if (bitmap->parent) {
       x += bitmap->xofs;
@@ -38,13 +38,13 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
 
    if (bitmap->locked) {
       if (_al_pixel_format_is_video_only(bitmap->locked_region.format)) {
-         ALLEGRO_ERROR("Invalid lock format.");
+         A5O_ERROR("Invalid lock format.");
          return color;
       }
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
       if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) {
-         ALLEGRO_ERROR("Out of bounds.");
+         A5O_ERROR("Out of bounds.");
          return color;
       }
 
@@ -61,7 +61,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
       }
 
       if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1,
-            ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
+            A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY))) {
          return color;
       }
 
@@ -77,9 +77,9 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
 }
 
 
-void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
+void _al_put_pixel(A5O_BITMAP *bitmap, int x, int y, A5O_COLOR color)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    char *data;
 
    if (bitmap->parent) {
@@ -95,7 +95,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 
    if (bitmap->locked) {
       if (_al_pixel_format_is_video_only(bitmap->locked_region.format)) {
-         ALLEGRO_ERROR("Invalid lock format.");
+         A5O_ERROR("Invalid lock format.");
          return;
       }
       x -= bitmap->lock_x;
@@ -112,7 +112,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
    }
    else {
       lr = al_lock_bitmap_region(bitmap, x, y, 1, 1,
-         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+         A5O_PIXEL_FORMAT_ANY, A5O_LOCK_WRITEONLY);
       if (!lr)
          return;
 
@@ -128,7 +128,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 
 /* Function: al_put_pixel
  */
-void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
+void al_put_pixel(int x, int y, A5O_COLOR color)
 {
    _al_put_pixel(al_get_target_bitmap(), x, y, color);
 }
@@ -136,10 +136,10 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
 
 /* Function: al_put_blended_pixel
  */
-void al_put_blended_pixel(int x, int y, ALLEGRO_COLOR color)
+void al_put_blended_pixel(int x, int y, A5O_COLOR color)
 {
-   ALLEGRO_COLOR result;
-   ALLEGRO_BITMAP* bitmap = al_get_target_bitmap();
+   A5O_COLOR result;
+   A5O_BITMAP* bitmap = al_get_target_bitmap();
    _al_blend_memory(&color, bitmap, x, y, &result);
    _al_put_pixel(bitmap, x, y, result);
 }

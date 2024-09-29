@@ -12,32 +12,32 @@
 
 struct Example
 {
-   ALLEGRO_BITMAP *pattern;
-   ALLEGRO_FONT *font;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_COLOR background, text, white;
+   A5O_BITMAP *pattern;
+   A5O_FONT *font;
+   A5O_EVENT_QUEUE *queue;
+   A5O_COLOR background, text, white;
 
    double timer[4], counter[4];
    int FPS;
    float text_x, text_y;
 } ex;
 
-static ALLEGRO_BITMAP *example_bitmap(int w, int h)
+static A5O_BITMAP *example_bitmap(int w, int h)
 {
    int i, j;
    float mx = w * 0.5;
    float my = h * 0.5;
-   ALLEGRO_STATE state;
-   ALLEGRO_BITMAP *pattern = al_create_bitmap(w, h);
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+   A5O_STATE state;
+   A5O_BITMAP *pattern = al_create_bitmap(w, h);
+   al_store_state(&state, A5O_STATE_TARGET_BITMAP);
    al_set_target_bitmap(pattern);
-   al_lock_bitmap(pattern, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   al_lock_bitmap(pattern, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_WRITEONLY);
    for (i = 0; i < w; i++) {
       for (j = 0; j < h; j++) {
          float a = atan2(i - mx, j - my);
          float d = sqrt(pow(i - mx, 2) + pow(j - my, 2));
          float sat = pow(1.0 - 1 / (1 + d * 0.1), 5);
-         float hue = 3 * a * 180 / ALLEGRO_PI;
+         float hue = 3 * a * 180 / A5O_PI;
          hue = (hue / 360 - floorf(hue / 360)) * 360;
          al_put_pixel(i, j, al_color_hsv(hue, sat, 1));
       }
@@ -68,7 +68,7 @@ static void print(char const *format, ...)
    va_start(list, format);
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
    ex.text_y += th;   
 }
@@ -96,12 +96,12 @@ static void draw(void)
    float x, y;
    int iw = al_get_bitmap_width(ex.pattern);
    int ih = al_get_bitmap_height(ex.pattern);
-   ALLEGRO_BITMAP *screen, *temp;
-   ALLEGRO_LOCKED_REGION *lock;
+   A5O_BITMAP *screen, *temp;
+   A5O_LOCKED_REGION *lock;
    void *data;
    int size, i, format;
    
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 
    al_clear_to_color(ex.background);
 
@@ -145,7 +145,7 @@ static void draw(void)
    get_xy(&x, &y);
    al_draw_bitmap(ex.pattern, x, y, 0);
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    temp = al_create_bitmap(iw, ih);
    al_set_target_bitmap(temp);
    al_clear_to_color(al_map_rgba_f(1, 0, 0, 1));
@@ -158,7 +158,7 @@ static void draw(void)
    set_xy(x, y + ih);
    
    al_destroy_bitmap(temp);
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(A5O_VIDEO_BITMAP);
 
    /* Test 4. */
    print("Screen -> Locked -> Screen (%.1f fps)", get_fps(3));
@@ -167,7 +167,7 @@ static void draw(void)
 
    start_timer(3);
    lock = al_lock_bitmap_region(screen, x, y, iw, ih,
-      ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+      A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
    format = lock->format;
    size = lock->pixel_size;
    data = malloc(size * iw * ih);
@@ -177,7 +177,7 @@ static void draw(void)
    al_unlock_bitmap(screen);
    
    lock = al_lock_bitmap_region(screen, x + 8 + iw, y, iw, ih, format,
-      ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCK_WRITEONLY);
    for (i = 0; i < ih; i++)
       memcpy((char*)lock->data + i * lock->pitch,
          (char*)data + i * size * iw, size * iw);
@@ -196,7 +196,7 @@ static void tick(void)
 
 static void run(void)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    bool need_draw = true;
 
    while (1) {
@@ -208,15 +208,15 @@ static void run(void)
       al_wait_for_event(ex.queue, &event);
 
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             return;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                return;
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             need_draw = true;
             break;
       }
@@ -239,8 +239,8 @@ static void init(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
 
    (void)argc;
    (void)argv;

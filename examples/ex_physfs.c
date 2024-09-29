@@ -13,10 +13,10 @@
 
 #include "common.c"
 
-static void show_image(ALLEGRO_BITMAP *bmp)
+static void show_image(A5O_BITMAP *bmp)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -25,8 +25,8 @@ static void show_image(ALLEGRO_BITMAP *bmp)
       al_draw_bitmap(bmp, 0, 0, 0);
       al_flip_display();
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN
-            && event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN
+            && event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
    }
@@ -34,7 +34,7 @@ static void show_image(ALLEGRO_BITMAP *bmp)
    al_destroy_event_queue(queue);
 }
 
-static void print_file(ALLEGRO_FS_ENTRY *entry)
+static void print_file(A5O_FS_ENTRY *entry)
 {
    int mode = al_get_fs_entry_mode(entry);
    time_t now = time(NULL);
@@ -46,21 +46,21 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
 
    log_printf("%-36s %s%s%s%s%s%s %8u %8u %8u %8u\n",
       name,
-      mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
-      mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
-      mode & ALLEGRO_FILEMODE_EXECUTE ? "x" : ".",
-      mode & ALLEGRO_FILEMODE_HIDDEN ? "h" : ".",
-      mode & ALLEGRO_FILEMODE_ISFILE ? "f" : ".",
-      mode & ALLEGRO_FILEMODE_ISDIR ? "d" : ".",
+      mode & A5O_FILEMODE_READ ? "r" : ".",
+      mode & A5O_FILEMODE_WRITE ? "w" : ".",
+      mode & A5O_FILEMODE_EXECUTE ? "x" : ".",
+      mode & A5O_FILEMODE_HIDDEN ? "h" : ".",
+      mode & A5O_FILEMODE_ISFILE ? "f" : ".",
+      mode & A5O_FILEMODE_ISDIR ? "d" : ".",
       (unsigned)(now - ctime),
       (unsigned)(now - mtime),
       (unsigned)(now - atime),
       (unsigned)size);
 }
 
-static void listdir(ALLEGRO_FS_ENTRY *entry)
+static void listdir(A5O_FS_ENTRY *entry)
 {
-   ALLEGRO_FS_ENTRY *next;
+   A5O_FS_ENTRY *next;
 
    al_open_directory(entry);
    while (1) {
@@ -69,7 +69,7 @@ static void listdir(ALLEGRO_FS_ENTRY *entry)
          break;
 
       print_file(next);
-      if (al_get_fs_entry_mode(next) & ALLEGRO_FILEMODE_ISDIR)
+      if (al_get_fs_entry_mode(next) & A5O_FILEMODE_ISDIR)
          listdir(next);
       al_destroy_fs_entry(next);
    }
@@ -78,13 +78,13 @@ static void listdir(ALLEGRO_FS_ENTRY *entry)
 
 static bool add_main_zipfile(void)
 {
-   ALLEGRO_PATH *exe;
+   A5O_PATH *exe;
    const char *ext;
    const char *zipfile;
    bool ret;
 
    /* On Android we treat the APK itself as the zip file. */
-   exe = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   exe = al_get_standard_path(A5O_EXENAME_PATH);
    ext = al_get_path_extension(exe);
    if (0 == strcmp(ext, ".apk")) {
       zipfile = al_path_cstr(exe, '/');
@@ -108,9 +108,9 @@ static bool add_main_zipfile(void)
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_FS_ENTRY *entry;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *bmp;
+   A5O_FS_ENTRY *entry;
    int i;
 
    if (!al_init()) {

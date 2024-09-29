@@ -1,4 +1,4 @@
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_opengl.h>
@@ -14,9 +14,9 @@ int main(int argc, char **argv)
 {
    float r = 0.5, g = 0.5, b = 1, ratio = 0;
    int dir = 1;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *mysha;
-   ALLEGRO_BITMAP *buffer;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *mysha;
+   A5O_BITMAP *buffer;
 
    const char *tinter_shader_src[] = {
       "uniform sampler2D backBuffer;",
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_init_image_addon();
 
-   al_set_new_display_flags(ALLEGRO_OPENGL);
+   al_set_new_display_flags(A5O_OPENGL);
    display = al_create_display(320, 200);
    if (!display) {
       abort_example("Error creating display\n");
@@ -84,9 +84,9 @@ int main(int argc, char **argv)
 
    while (1) {
       double now, diff;
-      ALLEGRO_KEYBOARD_STATE state;
+      A5O_KEYBOARD_STATE state;
       al_get_keyboard_state(&state);
-      if (al_key_down(&state, ALLEGRO_KEY_ESCAPE)) {
+      if (al_key_down(&state, A5O_KEY_ESCAPE)) {
          break;
       }
       now = al_get_time();

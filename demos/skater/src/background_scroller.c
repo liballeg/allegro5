@@ -10,7 +10,7 @@ static int offy;
 static double current_time;
 static double dt;
 
-static ALLEGRO_BITMAP *tile;
+static A5O_BITMAP *tile;
 
 void draw_background(void)
 {

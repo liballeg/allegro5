@@ -87,7 +87,7 @@ al_translate_transform(&T, 100, 0);
 al_use_transform(&T);
 ~~~~
 
-## API: ALLEGRO_TRANSFORM
+## API: A5O_TRANSFORM
 
 Defines the generic transformation type, a 4x4 matrix. 2D transforms use only
 a small subsection of this matrix, namely the top left 2x2 matrix, and the
@@ -123,7 +123,7 @@ safe to pass references to local variables.
 ~~~~c
 void setup_my_transformation(void)
 {
-   ALLEGRO_TRANSFORM transform;
+   A5O_TRANSFORM transform;
    al_translate_transform(&transform, 5, 10);
    al_use_transform(&transform);
 }
@@ -154,7 +154,7 @@ transformation. To return default behavior, call this function with an
 orthographic transform like so:
 
 ~~~~c
-ALLEGRO_TRANSFORM trans;
+A5O_TRANSFORM trans;
 al_identity_transform(&trans);
 al_orthographic_transform(&trans, 0, 0, -1.0, al_get_bitmap_width(bitmap),
                           al_get_bitmap_height(bitmap), 1.0);
@@ -281,7 +281,7 @@ transformation. Use [al_use_transform] on an identity transformation to return
 to the default.
 
 ~~~~c
-ALLEGRO_TRANSFORM t;
+A5O_TRANSFORM t;
 al_identity_transform(&t);
 al_use_transform(&t);
 ~~~~
@@ -457,11 +457,11 @@ y = h / 2 - y * h / 2
 Example:
 
 ~~~~c
-ALLEGRO_TRANSFORM t2;
+A5O_TRANSFORM t2;
 al_copy_transform(&t2, al_get_current_transform());
 al_compose_transform(&t2, al_get_current_projection_transform());
 
-ALLEGRO_TRANSFORM t3;
+A5O_TRANSFORM t3;
 al_identity_transform(&t3);
 al_scale_transform(&t3, 0.5, -0.5);
 al_translate_transform(&t3, 0.5, 0.5);
@@ -539,11 +539,11 @@ Example 1:
 
 ~~~~c
    float w = 800, h = 450; // assume our display is 800 x 450
-   float fov = tan(90 * ALLEGRO_PI / 180 / 2); // 90 degree field of view
+   float fov = tan(90 * A5O_PI / 180 / 2); // 90 degree field of view
 
    // Our projection goes from 0/0 to w/h with the near parameter set
    // for a 90 degree horizontal viewing angle.
-   ALLEGRO_TRANSFORM projection;
+   A5O_TRANSFORM projection;
    al_identity_transform(&projection);
    al_perspective_transform(&projection, 0, 0,
     w / 2 / fov,
@@ -552,7 +552,7 @@ Example 1:
    al_use_projection_transform(&projection);
 
    // Set the camera z to +400 (which is exactly the near distance)
-   ALLEGRO_TRANSFORM camera;
+   A5O_TRANSFORM camera;
    al_build_camera_transform(&camera, 0, 0, 400, 0, 0, 0, 0, 1, 0);
    al_use_transform(&camera);
 
@@ -567,7 +567,7 @@ Example 2:
 
 ~~~~c
    float w = 800, h = 450; // assume our display is 800 x 450
-   float fov = tan(90 * ALLEGRO_PI / 180 / 2); // 90 degree field of view
+   float fov = tan(90 * A5O_PI / 180 / 2); // 90 degree field of view
    float aspect = h / w;
    float zoom = 2; // enlarge x 2
 
@@ -576,7 +576,7 @@ Example 2:
    // the y axis goes from -1 at the bottom to +1 at the top, scaled by
    // the aspect ratio. We also add a zoom parameter so we can control
    // the visible portion of the scene independent of the field of view.
-   ALLEGRO_TRANSFORM projection;
+   A5O_TRANSFORM projection;
    al_identity_transform(&projection);
    al_perspective_transform(&projection,
       -1 / zoom, aspect / zoom,
@@ -586,7 +586,7 @@ Example 2:
    al_use_projection_transform(&projection);
 
    // Moves everything by -4 in the z direction.
-   ALLEGRO_TRANSFORM camera;
+   A5O_TRANSFORM camera;
    al_build_camera_transform(&camera, 0, 0, 4, 0, 0, 0, 0, 1, 0);
    al_use_transform(&camera);
 

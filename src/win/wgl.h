@@ -4,13 +4,13 @@
 #include <windows.h>
 
 
-typedef struct ALLEGRO_DISPLAY_WGL
+typedef struct A5O_DISPLAY_WGL
 {
-   ALLEGRO_DISPLAY_WIN win_display; /* This must be the first member. */
+   A5O_DISPLAY_WIN win_display; /* This must be the first member. */
 
    /* Driver specifics */
    HDC dc;
    HGLRC glrc;
-} ALLEGRO_DISPLAY_WGL;
+} A5O_DISPLAY_WGL;
 
 int _al_win_determine_adapter(void);

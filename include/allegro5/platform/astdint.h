@@ -24,12 +24,12 @@
 
 
 
-#if defined ALLEGRO_HAVE_INTTYPES_H
+#if defined A5O_HAVE_INTTYPES_H
    #include <inttypes.h>
-#elif defined ALLEGRO_HAVE_STDINT_H
+#elif defined A5O_HAVE_STDINT_H
    #include <stdint.h>
-#elif defined ALLEGRO_I386 && defined ALLEGRO_LITTLE_ENDIAN
-   #ifndef ALLEGRO_GUESS_INTTYPES_OK
+#elif defined A5O_I386 && defined A5O_LITTLE_ENDIAN
+   #ifndef A5O_GUESS_INTTYPES_OK
       #warning Guessing the definitions of fixed-width integer types.
    #endif
    #include <limits.h>
@@ -51,7 +51,7 @@
    #define INT32_MAX INT_MAX
    #define UINT32_MAX UINT_MAX
 
-   #ifdef ALLEGRO_WINDOWS
+   #ifdef A5O_WINDOWS
 
       #ifndef _INTPTR_T_DEFINED
          #ifdef  _WIN64

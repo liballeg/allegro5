@@ -8,20 +8,20 @@
 #endif
 
 
-/* Type: ALLEGRO_DISPLAY_MODE
+/* Type: A5O_DISPLAY_MODE
  */
-typedef struct ALLEGRO_DISPLAY_MODE
+typedef struct A5O_DISPLAY_MODE
 {
    int width;
    int height;
    int format;
    int refresh_rate;
-} ALLEGRO_DISPLAY_MODE;
+} A5O_DISPLAY_MODE;
 
 
 AL_FUNC(int, al_get_num_display_modes, (void));
-AL_FUNC(ALLEGRO_DISPLAY_MODE*, al_get_display_mode, (int index,
-        ALLEGRO_DISPLAY_MODE *mode));
+AL_FUNC(A5O_DISPLAY_MODE*, al_get_display_mode, (int index,
+        A5O_DISPLAY_MODE *mode));
 
 
 #ifdef __cplusplus

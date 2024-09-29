@@ -110,7 +110,7 @@ AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
  *
  * PS. Don't move the #ifs inside the AL_INLINE; BCC doesn't like it.
  */
-#if defined ALLEGRO_I386
+#if defined A5O_I386
    AL_INLINE(al_fixed, al_fixmul, (al_fixed x, al_fixed y),
    {
       return al_ftofix(al_fixtof(x) * al_fixtof(y));
@@ -137,7 +137,7 @@ AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
 #endif	    /* al_fixmul() C implementations */
 
 
-#if defined ALLEGRO_CFG_NO_FPU
+#if defined A5O_CFG_NO_FPU
 AL_INLINE(al_fixed, al_fixdiv, (al_fixed x, al_fixed y),
 {
    int64_t lres = x;

@@ -30,8 +30,8 @@
 void LoadMaterials(struct Level *NewLev)
 {
    struct Material **NewMatPtr = &NewLev->AllMats;
-#ifdef DEMO_USE_ALLEGRO_GL
-   ALLEGRO_BITMAP *TmpEdge;
+#ifdef DEMO_USE_A5O_GL
+   A5O_BITMAP *TmpEdge;
 #endif
 
    ExpectToken(TK_OPENBRACE);
@@ -55,7 +55,7 @@ void LoadMaterials(struct Level *NewLev)
 
                ExpectToken(TK_COMMA);
                ExpectToken(TK_STRING);
-#ifdef DEMO_USE_ALLEGRO_GL
+#ifdef DEMO_USE_A5O_GL
                if (!(TmpEdge = ObtainBitmap(Token.Text))) {
 #else
                if (!((*NewMatPtr)->Edge = ObtainBitmap(Token.Text))) {

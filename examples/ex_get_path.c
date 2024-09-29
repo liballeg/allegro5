@@ -5,11 +5,11 @@
 
 static void show_path(int id, const char *label)
 {
-   ALLEGRO_PATH *path;
+   A5O_PATH *path;
    const char *path_str;
 
    path = al_get_standard_path(id);
-   path_str = (path) ? al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP) : "<none>";
+   path_str = (path) ? al_path_cstr(path, A5O_NATIVE_PATH_SEP) : "<none>";
    log_printf("%s: %s\n", label, path_str);
    al_destroy_path(path);
 }
@@ -45,13 +45,13 @@ int main(int argc, char **argv)
          al_set_exe_name("/tmp/blahblah.exe");
       }
 
-      show_path(ALLEGRO_RESOURCES_PATH, "RESOURCES_PATH");
-      show_path(ALLEGRO_TEMP_PATH, "TEMP_PATH");
-      show_path(ALLEGRO_USER_DATA_PATH, "USER_DATA_PATH");
-      show_path(ALLEGRO_USER_SETTINGS_PATH, "USER_SETTINGS_PATH");
-      show_path(ALLEGRO_USER_HOME_PATH, "USER_HOME_PATH");
-      show_path(ALLEGRO_USER_DOCUMENTS_PATH, "USER_DOCUMENTS_PATH");
-      show_path(ALLEGRO_EXENAME_PATH, "EXENAME_PATH");
+      show_path(A5O_RESOURCES_PATH, "RESOURCES_PATH");
+      show_path(A5O_TEMP_PATH, "TEMP_PATH");
+      show_path(A5O_USER_DATA_PATH, "USER_DATA_PATH");
+      show_path(A5O_USER_SETTINGS_PATH, "USER_SETTINGS_PATH");
+      show_path(A5O_USER_HOME_PATH, "USER_HOME_PATH");
+      show_path(A5O_USER_DOCUMENTS_PATH, "USER_DOCUMENTS_PATH");
+      show_path(A5O_EXENAME_PATH, "EXENAME_PATH");
    }
 
    close_log(true);

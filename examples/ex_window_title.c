@@ -20,10 +20,10 @@ int bmp_flag = 0;
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_FONT *font;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_FONT *font;
    int step = 0;
    const char *text;
    char   title[TITLE_SIZE] = "";
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (redraw && al_is_event_queue_empty(queue)) {
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
@@ -85,18 +85,18 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                done = true;
-            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE)
+            else if (event.keyboard.keycode == A5O_KEY_SPACE)
                al_start_timer(timer);
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             redraw = true;
             step++;
             sprintf(title, "Title: %d", step);

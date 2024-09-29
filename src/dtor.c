@@ -35,7 +35,7 @@
  * does not it easy to make abstract away TLS API differences.
  */
 
-ALLEGRO_DEBUG_CHANNEL("dtor")
+A5O_DEBUG_CHANNEL("dtor")
 
 
 struct _AL_DTOR_LIST {
@@ -113,7 +113,7 @@ void _al_run_destructors(_AL_DTOR_LIST *dtors)
          void *object = dtor->object;
          void (*func)(void *) = dtor->func;
 
-         ALLEGRO_DEBUG("calling dtor for %s %p, func %p\n",
+         A5O_DEBUG("calling dtor for %s %p, func %p\n",
             dtor->name, object, func);
          _al_mutex_unlock(&dtors->mutex);
          {
@@ -193,12 +193,12 @@ _AL_LIST_ITEM *_al_register_destructor(_AL_DTOR_LIST *dtors, char const *name,
             new_dtor->object = object;
             new_dtor->func = func;
             new_dtor->name = name;
-            ALLEGRO_DEBUG("added dtor for %s %p, func %p\n", name,
+            A5O_DEBUG("added dtor for %s %p, func %p\n", name,
                object, func);
             ret = _al_list_push_back(dtors->dtors, new_dtor);
          }
          else {
-            ALLEGRO_WARN("failed to add dtor for %s %p\n", name,
+            A5O_WARN("failed to add dtor for %s %p\n", name,
                object);
          }
       }
@@ -224,7 +224,7 @@ void _al_unregister_destructor(_AL_DTOR_LIST *dtors, _AL_LIST_ITEM *dtor_item)
    _al_mutex_lock(&dtors->mutex);
    {
       DTOR *dtor = _al_list_item_data(dtor_item);
-      ALLEGRO_DEBUG("removed dtor for %s %p\n", dtor->name, dtor->object);
+      A5O_DEBUG("removed dtor for %s %p\n", dtor->name, dtor->object);
       al_free(dtor);
       _al_list_erase(dtors->dtors, dtor_item);
    }

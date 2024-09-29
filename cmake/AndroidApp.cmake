@@ -82,8 +82,8 @@ function(add_android_app prog sources)
         
     add_custom_command(
         OUTPUT ${AAR}
-        DEPENDS ${ALLEGRO_AAR}
-        COMMAND ${CMAKE_COMMAND} -E copy ${ALLEGRO_AAR} ${AAR}
+        DEPENDS ${A5O_AAR}
+        COMMAND ${CMAKE_COMMAND} -E copy ${A5O_AAR} ${AAR}
         )
 
     # How to make the APK.

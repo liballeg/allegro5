@@ -6,7 +6,7 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_TIMEOUT
+## API: A5O_TIMEOUT
 
 Represent a timeout value.  The size of the structure is known so it can be
 statically allocated.  The contents are private.
@@ -26,7 +26,7 @@ Set timeout value of some number of seconds after the function call.
 
 For compatibility with all platforms, `seconds` must be 2,147,483.647 seconds or less.
 
-See also: [ALLEGRO_TIMEOUT], [al_wait_for_event_until]
+See also: [A5O_TIMEOUT], [al_wait_for_event_until]
 
 ## API: al_rest
 

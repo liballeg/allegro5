@@ -1,6 +1,6 @@
 #include <allegro5/allegro.h>
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>

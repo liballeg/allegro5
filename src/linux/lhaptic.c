@@ -29,11 +29,11 @@
 #include "allegro5/internal/aintern_ljoynu.h"
 #include "allegro5/platform/aintunix.h"
 
-#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
+#ifdef A5O_HAVE_LINUX_INPUT_H
 
 #include <linux/input.h>
 
-ALLEGRO_DEBUG_CHANNEL("lhaptic")
+A5O_DEBUG_CHANNEL("lhaptic")
 
 
 /* For compatibility with older kernels. */
@@ -52,12 +52,12 @@ ALLEGRO_DEBUG_CHANNEL("lhaptic")
 
 typedef struct
 {
-   struct ALLEGRO_HAPTIC parent; /* must be first */
+   struct A5O_HAPTIC parent; /* must be first */
    bool active;
    int fd;
    int flags;
    int effects[HAPTICS_EFFECTS_MAX];
-} ALLEGRO_HAPTIC_LINUX;
+} A5O_HAPTIC_LINUX;
 
 
 #define LONG_BITS    (sizeof(long) * 8)
@@ -71,43 +71,43 @@ typedef struct
 static bool lhap_init_haptic(void);
 static void lhap_exit_haptic(void);
 
-static bool lhap_is_mouse_haptic(ALLEGRO_MOUSE *dev);
-static bool lhap_is_joystick_haptic(ALLEGRO_JOYSTICK *);
-static bool lhap_is_keyboard_haptic(ALLEGRO_KEYBOARD *dev);
-static bool lhap_is_display_haptic(ALLEGRO_DISPLAY *dev);
-static bool lhap_is_touch_input_haptic(ALLEGRO_TOUCH_INPUT *dev);
+static bool lhap_is_mouse_haptic(A5O_MOUSE *dev);
+static bool lhap_is_joystick_haptic(A5O_JOYSTICK *);
+static bool lhap_is_keyboard_haptic(A5O_KEYBOARD *dev);
+static bool lhap_is_display_haptic(A5O_DISPLAY *dev);
+static bool lhap_is_touch_input_haptic(A5O_TOUCH_INPUT *dev);
 
-static ALLEGRO_HAPTIC *lhap_get_from_mouse(ALLEGRO_MOUSE *dev);
-static ALLEGRO_HAPTIC *lhap_get_from_joystick(ALLEGRO_JOYSTICK *dev);
-static ALLEGRO_HAPTIC *lhap_get_from_keyboard(ALLEGRO_KEYBOARD *dev);
-static ALLEGRO_HAPTIC *lhap_get_from_display(ALLEGRO_DISPLAY *dev);
-static ALLEGRO_HAPTIC *lhap_get_from_touch_input(ALLEGRO_TOUCH_INPUT *dev);
+static A5O_HAPTIC *lhap_get_from_mouse(A5O_MOUSE *dev);
+static A5O_HAPTIC *lhap_get_from_joystick(A5O_JOYSTICK *dev);
+static A5O_HAPTIC *lhap_get_from_keyboard(A5O_KEYBOARD *dev);
+static A5O_HAPTIC *lhap_get_from_display(A5O_DISPLAY *dev);
+static A5O_HAPTIC *lhap_get_from_touch_input(A5O_TOUCH_INPUT *dev);
 
-static bool lhap_release(ALLEGRO_HAPTIC *haptic);
+static bool lhap_release(A5O_HAPTIC *haptic);
 
-static bool lhap_get_active(ALLEGRO_HAPTIC *hap);
-static int lhap_get_capabilities(ALLEGRO_HAPTIC *dev);
-static double lhap_get_gain(ALLEGRO_HAPTIC *dev);
-static bool lhap_set_gain(ALLEGRO_HAPTIC *dev, double);
-static int lhap_get_max_effects(ALLEGRO_HAPTIC *dev);
+static bool lhap_get_active(A5O_HAPTIC *hap);
+static int lhap_get_capabilities(A5O_HAPTIC *dev);
+static double lhap_get_gain(A5O_HAPTIC *dev);
+static bool lhap_set_gain(A5O_HAPTIC *dev, double);
+static int lhap_get_max_effects(A5O_HAPTIC *dev);
 
-static bool lhap_is_effect_ok(ALLEGRO_HAPTIC *dev, ALLEGRO_HAPTIC_EFFECT *eff);
-static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
-                               ALLEGRO_HAPTIC_EFFECT *eff,
-                               ALLEGRO_HAPTIC_EFFECT_ID *id);
-static bool lhap_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loop);
-static bool lhap_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
-static bool lhap_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id);
-static bool lhap_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
+static bool lhap_is_effect_ok(A5O_HAPTIC *dev, A5O_HAPTIC_EFFECT *eff);
+static bool lhap_upload_effect(A5O_HAPTIC *dev,
+                               A5O_HAPTIC_EFFECT *eff,
+                               A5O_HAPTIC_EFFECT_ID *id);
+static bool lhap_play_effect(A5O_HAPTIC_EFFECT_ID *id, int loop);
+static bool lhap_stop_effect(A5O_HAPTIC_EFFECT_ID *id);
+static bool lhap_is_effect_playing(A5O_HAPTIC_EFFECT_ID *id);
+static bool lhap_release_effect(A5O_HAPTIC_EFFECT_ID *id);
 
-static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev);
-static bool lhap_set_autocenter(ALLEGRO_HAPTIC *dev, double);
+static double lhap_get_autocenter(A5O_HAPTIC *dev);
+static bool lhap_set_autocenter(A5O_HAPTIC *dev, double);
 
 static void lhap_timerclear(struct input_event *evt);
 
-ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
+A5O_HAPTIC_DRIVER _al_hapdrv_linux =
 {
-   _ALLEGRO_HAPDRV_LINUX,
+   _A5O_HAPDRV_LINUX,
    "",
    "",
    "Linux haptic(s)",
@@ -146,8 +146,8 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
 };
 
 
-static ALLEGRO_HAPTIC_LINUX haptics[HAPTICS_MAX];
-static ALLEGRO_MUTEX *haptic_mutex = NULL;
+static A5O_HAPTIC_LINUX haptics[HAPTICS_MAX];
+static A5O_MUTEX *haptic_mutex = NULL;
 
 
 struct CAP_MAP {
@@ -156,22 +156,22 @@ struct CAP_MAP {
 };
 
 static const struct CAP_MAP cap_map[] = {
-   { FF_PERIODIC, ALLEGRO_HAPTIC_PERIODIC },
-   { FF_RUMBLE,   ALLEGRO_HAPTIC_RUMBLE },
-   { FF_CONSTANT, ALLEGRO_HAPTIC_CONSTANT },
-   { FF_SPRING,   ALLEGRO_HAPTIC_SPRING },
-   { FF_FRICTION, ALLEGRO_HAPTIC_FRICTION },
-   { FF_DAMPER,   ALLEGRO_HAPTIC_DAMPER },
-   { FF_INERTIA,  ALLEGRO_HAPTIC_INERTIA },
-   { FF_RAMP,     ALLEGRO_HAPTIC_RAMP },
-   { FF_SQUARE,   ALLEGRO_HAPTIC_SQUARE },
-   { FF_TRIANGLE, ALLEGRO_HAPTIC_TRIANGLE },
-   { FF_SINE,     ALLEGRO_HAPTIC_SINE },
-   { FF_SAW_UP,   ALLEGRO_HAPTIC_SAW_UP },
-   { FF_SAW_DOWN, ALLEGRO_HAPTIC_SAW_DOWN },
-   { FF_CUSTOM,   ALLEGRO_HAPTIC_CUSTOM },
-   { FF_GAIN,     ALLEGRO_HAPTIC_GAIN },
-   { FF_AUTOCENTER, ALLEGRO_HAPTIC_AUTOCENTER },
+   { FF_PERIODIC, A5O_HAPTIC_PERIODIC },
+   { FF_RUMBLE,   A5O_HAPTIC_RUMBLE },
+   { FF_CONSTANT, A5O_HAPTIC_CONSTANT },
+   { FF_SPRING,   A5O_HAPTIC_SPRING },
+   { FF_FRICTION, A5O_HAPTIC_FRICTION },
+   { FF_DAMPER,   A5O_HAPTIC_DAMPER },
+   { FF_INERTIA,  A5O_HAPTIC_INERTIA },
+   { FF_RAMP,     A5O_HAPTIC_RAMP },
+   { FF_SQUARE,   A5O_HAPTIC_SQUARE },
+   { FF_TRIANGLE, A5O_HAPTIC_TRIANGLE },
+   { FF_SINE,     A5O_HAPTIC_SINE },
+   { FF_SAW_UP,   A5O_HAPTIC_SAW_UP },
+   { FF_SAW_DOWN, A5O_HAPTIC_SAW_DOWN },
+   { FF_CUSTOM,   A5O_HAPTIC_CUSTOM },
+   { FF_GAIN,     A5O_HAPTIC_GAIN },
+   { FF_AUTOCENTER, A5O_HAPTIC_AUTOCENTER },
    { -1,          -1 }
 };
 
@@ -193,7 +193,7 @@ static bool lhap_init_haptic(void)
 }
 
 
-static ALLEGRO_HAPTIC_LINUX *lhap_get_available_haptic(void)
+static A5O_HAPTIC_LINUX *lhap_get_available_haptic(void)
 {
    int i;
 
@@ -209,9 +209,9 @@ static ALLEGRO_HAPTIC_LINUX *lhap_get_available_haptic(void)
 
 
 /* Converts a generic haptic device to a Linux-specific one. */
-static ALLEGRO_HAPTIC_LINUX *lhap_from_al(ALLEGRO_HAPTIC *hap)
+static A5O_HAPTIC_LINUX *lhap_from_al(A5O_HAPTIC *hap)
 {
-   return (ALLEGRO_HAPTIC_LINUX *)hap;
+   return (A5O_HAPTIC_LINUX *)hap;
 }
 
 
@@ -228,28 +228,28 @@ static bool lhap_type2lin(__u16 *res, int type)
    ASSERT(res);
 
    switch (type) {
-      case ALLEGRO_HAPTIC_RUMBLE:
+      case A5O_HAPTIC_RUMBLE:
          (*res) = FF_RUMBLE;
          break;
-      case ALLEGRO_HAPTIC_PERIODIC:
+      case A5O_HAPTIC_PERIODIC:
          (*res) = FF_PERIODIC;
          break;
-      case ALLEGRO_HAPTIC_CONSTANT:
+      case A5O_HAPTIC_CONSTANT:
          (*res) = FF_CONSTANT;
          break;
-      case ALLEGRO_HAPTIC_SPRING:
+      case A5O_HAPTIC_SPRING:
          (*res) = FF_SPRING;
          break;
-      case ALLEGRO_HAPTIC_FRICTION:
+      case A5O_HAPTIC_FRICTION:
          (*res) = FF_FRICTION;
          break;
-      case ALLEGRO_HAPTIC_DAMPER:
+      case A5O_HAPTIC_DAMPER:
          (*res) = FF_DAMPER;
          break;
-      case ALLEGRO_HAPTIC_INERTIA:
+      case A5O_HAPTIC_INERTIA:
          (*res) = FF_INERTIA;
          break;
-      case ALLEGRO_HAPTIC_RAMP:
+      case A5O_HAPTIC_RAMP:
          (*res) = FF_RAMP;
          break;
       default:
@@ -264,22 +264,22 @@ static bool lhap_wave2lin(__u16 *res, int type)
    ASSERT(res);
 
    switch (type) {
-      case ALLEGRO_HAPTIC_SQUARE:
+      case A5O_HAPTIC_SQUARE:
          (*res) = FF_SQUARE;
          break;
-      case ALLEGRO_HAPTIC_TRIANGLE:
+      case A5O_HAPTIC_TRIANGLE:
          (*res) = FF_TRIANGLE;
          break;
-      case ALLEGRO_HAPTIC_SINE:
+      case A5O_HAPTIC_SINE:
          (*res) = FF_SINE;
          break;
-      case ALLEGRO_HAPTIC_SAW_UP:
+      case A5O_HAPTIC_SAW_UP:
          (*res) = FF_SAW_UP;
          break;
-      case ALLEGRO_HAPTIC_SAW_DOWN:
+      case A5O_HAPTIC_SAW_DOWN:
          (*res) = FF_SAW_DOWN;
          break;
-      case ALLEGRO_HAPTIC_CUSTOM:
+      case A5O_HAPTIC_CUSTOM:
          (*res) = FF_CUSTOM;
          break;
       default:
@@ -319,7 +319,7 @@ static bool lhap_stime2lin(__s16 *res, double sec)
 
 /* Converts replay data to Linux-compatible data. */
 static bool lhap_replay2lin(struct ff_replay *lin,
-   struct ALLEGRO_HAPTIC_REPLAY *al)
+   struct A5O_HAPTIC_REPLAY *al)
 {
    return lhap_time2lin(&lin->delay, al->delay)
       && lhap_time2lin(&lin->length, al->length);
@@ -356,7 +356,7 @@ static bool lhap_slevel2lin(__s16 *res, double level)
 
 /* Converts an Allegro haptic effect envelope to Linux input API. */
 static bool lhap_envelope2lin(struct ff_envelope *lin,
-   struct ALLEGRO_HAPTIC_ENVELOPE *al)
+   struct A5O_HAPTIC_ENVELOPE *al)
 {
    return lhap_time2lin(&lin->attack_length, al->attack_length)
       && lhap_time2lin(&lin->fade_length, al->fade_length)
@@ -367,7 +367,7 @@ static bool lhap_envelope2lin(struct ff_envelope *lin,
 
 /* Converts a rumble effect to Linux input API. */
 static bool lhap_rumble2lin(struct ff_rumble_effect *lin,
-   struct ALLEGRO_HAPTIC_RUMBLE_EFFECT *al)
+   struct A5O_HAPTIC_RUMBLE_EFFECT *al)
 {
    return lhap_level2lin(&lin->strong_magnitude, al->strong_magnitude)
       && lhap_level2lin(&lin->weak_magnitude, al->weak_magnitude);
@@ -376,7 +376,7 @@ static bool lhap_rumble2lin(struct ff_rumble_effect *lin,
 
 /* Converts a constant effect to Linux input API. */
 static bool lhap_constant2lin(struct ff_constant_effect *lin,
-   struct ALLEGRO_HAPTIC_CONSTANT_EFFECT *al)
+   struct A5O_HAPTIC_CONSTANT_EFFECT *al)
 {
    return lhap_envelope2lin(&lin->envelope, &al->envelope)
       && lhap_slevel2lin(&lin->level, al->level);
@@ -385,7 +385,7 @@ static bool lhap_constant2lin(struct ff_constant_effect *lin,
 
 /* Converts a ramp effect to Linux input API. */
 static bool lhap_ramp2lin(struct ff_ramp_effect *lin,
-   struct ALLEGRO_HAPTIC_RAMP_EFFECT *al)
+   struct A5O_HAPTIC_RAMP_EFFECT *al)
 {
    return lhap_envelope2lin(&lin->envelope, &al->envelope)
       && lhap_slevel2lin(&lin->start_level, al->start_level)
@@ -395,7 +395,7 @@ static bool lhap_ramp2lin(struct ff_ramp_effect *lin,
 
 /* Converts a ramp effect to Linux input API. */
 static bool lhap_condition2lin(struct ff_condition_effect *lin,
-   struct ALLEGRO_HAPTIC_CONDITION_EFFECT *al)
+   struct A5O_HAPTIC_CONDITION_EFFECT *al)
 {
    return lhap_slevel2lin(&lin->center, al->center)
       && lhap_level2lin(&lin->deadband, al->deadband)
@@ -408,7 +408,7 @@ static bool lhap_condition2lin(struct ff_condition_effect *lin,
 
 /* Converts a periodic effect to linux input API. */
 static bool lhap_periodic2lin(struct ff_periodic_effect *lin,
-   struct ALLEGRO_HAPTIC_PERIODIC_EFFECT *al)
+   struct A5O_HAPTIC_PERIODIC_EFFECT *al)
 {
    /* Custom data is not supported yet, because currently no Linux
     * haptic driver supports it.
@@ -426,7 +426,7 @@ static bool lhap_periodic2lin(struct ff_periodic_effect *lin,
 
 
 /* Converts Allegro haptic effect to Linux input API. */
-static bool lhap_effect2lin(struct ff_effect *lin, ALLEGRO_HAPTIC_EFFECT *al)
+static bool lhap_effect2lin(struct ff_effect *lin, A5O_HAPTIC_EFFECT *al)
 {
    memset(lin, 0, sizeof(*lin));
 
@@ -458,14 +458,14 @@ static bool lhap_effect2lin(struct ff_effect *lin, ALLEGRO_HAPTIC_EFFECT *al)
 }
 
 
-static bool lhap_get_active(ALLEGRO_HAPTIC *haptic)
+static bool lhap_get_active(A5O_HAPTIC *haptic)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(haptic);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(haptic);
    return lhap->active;
 }
 
 
-static bool lhap_is_mouse_haptic(ALLEGRO_MOUSE *mouse)
+static bool lhap_is_mouse_haptic(A5O_MOUSE *mouse)
 {
    (void)mouse;
    return false;
@@ -486,9 +486,9 @@ static bool lhap_fd_can_ff(int fd)
 }
 
 
-static bool lhap_is_joystick_haptic(ALLEGRO_JOYSTICK *joy)
+static bool lhap_is_joystick_haptic(A5O_JOYSTICK *joy)
 {
-   ALLEGRO_JOYSTICK_LINUX *ljoy = (ALLEGRO_JOYSTICK_LINUX *) joy;
+   A5O_JOYSTICK_LINUX *ljoy = (A5O_JOYSTICK_LINUX *) joy;
    if (!al_is_joystick_installed())
       return false;
    if (!al_get_joystick_active(joy))
@@ -499,28 +499,28 @@ static bool lhap_is_joystick_haptic(ALLEGRO_JOYSTICK *joy)
 }
 
 
-static bool lhap_is_display_haptic(ALLEGRO_DISPLAY *dev)
+static bool lhap_is_display_haptic(A5O_DISPLAY *dev)
 {
    (void)dev;
    return false;
 }
 
 
-static bool lhap_is_keyboard_haptic(ALLEGRO_KEYBOARD *dev)
+static bool lhap_is_keyboard_haptic(A5O_KEYBOARD *dev)
 {
    (void)dev;
    return false;
 }
 
 
-static bool lhap_is_touch_input_haptic(ALLEGRO_TOUCH_INPUT *dev)
+static bool lhap_is_touch_input_haptic(A5O_TOUCH_INPUT *dev)
 {
    (void)dev;
    return false;
 }
 
 
-static ALLEGRO_HAPTIC *lhap_get_from_mouse(ALLEGRO_MOUSE *mouse)
+static A5O_HAPTIC *lhap_get_from_mouse(A5O_MOUSE *mouse)
 {
    (void)mouse;
    return NULL;
@@ -534,7 +534,7 @@ static bool get_haptic_capabilities(int fd, int *capabilities)
    int i;
 
    if (ioctl(fd, EVIOCGBIT(EV_FF, sizeof(bitmask)), bitmask) < 0) {
-      ALLEGRO_ERROR("EVIOCGBIT failed for fd %d", fd);
+      A5O_ERROR("EVIOCGBIT failed for fd %d", fd);
       return false;
    }
 
@@ -545,15 +545,15 @@ static bool get_haptic_capabilities(int fd, int *capabilities)
       }
    }
    (*capabilities) = caps;
-   ALLEGRO_INFO("Capabilities: 0x%x\n", caps);
+   A5O_INFO("Capabilities: 0x%x\n", caps);
    return true;
 }
 
 
-static ALLEGRO_HAPTIC *lhap_get_from_joystick(ALLEGRO_JOYSTICK *joy)
+static A5O_HAPTIC *lhap_get_from_joystick(A5O_JOYSTICK *joy)
 {
-   ALLEGRO_JOYSTICK_LINUX *ljoy = (ALLEGRO_JOYSTICK_LINUX *) joy;
-   ALLEGRO_HAPTIC_LINUX *lhap;
+   A5O_JOYSTICK_LINUX *ljoy = (A5O_JOYSTICK_LINUX *) joy;
+   A5O_HAPTIC_LINUX *lhap;
    int i;
 
    if (!al_is_joystick_haptic(joy))
@@ -585,40 +585,40 @@ static ALLEGRO_HAPTIC *lhap_get_from_joystick(ALLEGRO_JOYSTICK *joy)
 }
 
 
-static ALLEGRO_HAPTIC *lhap_get_from_display(ALLEGRO_DISPLAY *dev)
+static A5O_HAPTIC *lhap_get_from_display(A5O_DISPLAY *dev)
 {
    (void)dev;
    return NULL;
 }
 
 
-static ALLEGRO_HAPTIC *lhap_get_from_keyboard(ALLEGRO_KEYBOARD *dev)
+static A5O_HAPTIC *lhap_get_from_keyboard(A5O_KEYBOARD *dev)
 {
    (void)dev;
    return NULL;
 }
 
 
-static ALLEGRO_HAPTIC *lhap_get_from_touch_input(ALLEGRO_TOUCH_INPUT *dev)
+static A5O_HAPTIC *lhap_get_from_touch_input(A5O_TOUCH_INPUT *dev)
 {
    (void)dev;
    return NULL;
 }
 
 
-static int lhap_get_capabilities(ALLEGRO_HAPTIC *dev)
+static int lhap_get_capabilities(A5O_HAPTIC *dev)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    return lhap->flags;
 }
 
 
-static double lhap_get_gain(ALLEGRO_HAPTIC *dev)
+static double lhap_get_gain(A5O_HAPTIC *dev)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    (void)dev;
 
-   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_GAIN)) {
+   if(!al_is_haptic_capable(dev, A5O_HAPTIC_GAIN)) {
      return 0.0;
    }
 
@@ -629,9 +629,9 @@ static double lhap_get_gain(ALLEGRO_HAPTIC *dev)
 }
 
 
-static bool lhap_set_gain(ALLEGRO_HAPTIC *dev, double gain)
+static bool lhap_set_gain(A5O_HAPTIC *dev, double gain)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    struct input_event ie;
 
    lhap->parent.gain = gain;
@@ -646,9 +646,9 @@ static bool lhap_set_gain(ALLEGRO_HAPTIC *dev, double gain)
 }
 
 
-static bool lhap_set_autocenter(ALLEGRO_HAPTIC *dev, double autocenter)
+static bool lhap_set_autocenter(A5O_HAPTIC *dev, double autocenter)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    struct input_event ie;
 
    lhap->parent.autocenter = autocenter;
@@ -662,12 +662,12 @@ static bool lhap_set_autocenter(ALLEGRO_HAPTIC *dev, double autocenter)
    return true;
 }
 
-static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev)
+static double lhap_get_autocenter(A5O_HAPTIC *dev)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    (void)dev;
 
-   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_AUTOCENTER)) {
+   if(!al_is_haptic_capable(dev, A5O_HAPTIC_AUTOCENTER)) {
      return 0.0;
    }
 
@@ -677,13 +677,13 @@ static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev)
    return lhap->parent.autocenter;
 }
 
-int lhap_get_max_effects(ALLEGRO_HAPTIC *dev)
+int lhap_get_max_effects(A5O_HAPTIC *dev)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    int n_effects;
 
    if (ioctl(lhap->fd, EVIOCGEFFECTS, &n_effects) < 0) {
-      ALLEGRO_WARN("EVIOCGEFFECTS failed on fd %d\n", lhap->fd);
+      A5O_WARN("EVIOCGEFFECTS failed on fd %d\n", lhap->fd);
       n_effects = HAPTICS_EFFECTS_MAX;
    }
 
@@ -694,8 +694,8 @@ int lhap_get_max_effects(ALLEGRO_HAPTIC *dev)
 }
 
 
-static bool lhap_is_effect_ok(ALLEGRO_HAPTIC *haptic,
-                              ALLEGRO_HAPTIC_EFFECT *effect)
+static bool lhap_is_effect_ok(A5O_HAPTIC *haptic,
+                              A5O_HAPTIC_EFFECT *effect)
 {
    int caps;
    struct ff_effect leff;
@@ -708,10 +708,10 @@ static bool lhap_is_effect_ok(ALLEGRO_HAPTIC *haptic,
 }
 
 
-static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
-   ALLEGRO_HAPTIC_EFFECT *effect, ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool lhap_upload_effect(A5O_HAPTIC *dev,
+   A5O_HAPTIC_EFFECT *effect, A5O_HAPTIC_EFFECT_ID *id)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    struct ff_effect leff;
    int found;
    int i;
@@ -726,7 +726,7 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
    id->_handle = -1;
 
    if (!lhap_effect2lin(&leff, effect)) {
-      ALLEGRO_WARN("lhap_effect2lin failed");
+      A5O_WARN("lhap_effect2lin failed");
       return false;
    }
 
@@ -741,14 +741,14 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
 
    /* No more space for an effect. */
    if (found < 0) {
-      ALLEGRO_WARN("No free effect slot.");
+      A5O_WARN("No free effect slot.");
       return false;
    }
 
    /* Upload effect. */
    leff.id = -1;
    if (ioctl(lhap->fd, EVIOCSFF, &leff) < 0) {
-      ALLEGRO_ERROR("EVIOCSFF failed for fd %d\n", lhap->fd);
+      A5O_ERROR("EVIOCSFF failed for fd %d\n", lhap->fd);
       return false;
    }
 
@@ -765,9 +765,9 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
 }
 
 
-static bool lhap_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loops)
+static bool lhap_play_effect(A5O_HAPTIC_EFFECT_ID *id, int loops)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = (ALLEGRO_HAPTIC_LINUX *) id->_haptic;
+   A5O_HAPTIC_LINUX *lhap = (A5O_HAPTIC_LINUX *) id->_haptic;
    struct input_event play;
    int fd;
    double now;
@@ -785,7 +785,7 @@ static bool lhap_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loops)
    play.value = loops; /* play: 1, stop: 0 */
 
    if (write(fd, (const void *)&play, sizeof(play)) < 0) {
-      ALLEGRO_ERROR("Effect play failed.\n");
+      A5O_ERROR("Effect play failed.\n");
       return false;
    }
 
@@ -800,9 +800,9 @@ static bool lhap_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loops)
 }
 
 
-static bool lhap_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool lhap_stop_effect(A5O_HAPTIC_EFFECT_ID *id)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = (ALLEGRO_HAPTIC_LINUX *) id->_haptic;
+   A5O_HAPTIC_LINUX *lhap = (A5O_HAPTIC_LINUX *) id->_haptic;
    struct input_event play;
 
    if (!lhap)
@@ -814,7 +814,7 @@ static bool lhap_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
    play.code = id->_handle;
    play.value = 0;
    if (write(lhap->fd, (const void *)&play, sizeof(play)) < 0) {
-      ALLEGRO_ERROR("Stop effect failed.\n");
+      A5O_ERROR("Stop effect failed.\n");
       return false;
    }
    id->_playing = false;
@@ -822,7 +822,7 @@ static bool lhap_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
 }
 
 
-static bool lhap_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool lhap_is_effect_playing(A5O_HAPTIC_EFFECT_ID *id)
 {
    ASSERT(id);
 
@@ -833,14 +833,14 @@ static bool lhap_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
 }
 
 
-static bool lhap_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool lhap_release_effect(A5O_HAPTIC_EFFECT_ID *id)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = (ALLEGRO_HAPTIC_LINUX *)id->_haptic;
+   A5O_HAPTIC_LINUX *lhap = (A5O_HAPTIC_LINUX *)id->_haptic;
 
    lhap_stop_effect(id);
 
    if (ioctl(lhap->fd, EVIOCRMFF, id->_handle) < 0) {
-      ALLEGRO_ERROR("EVIOCRMFF failed.\n");
+      A5O_ERROR("EVIOCRMFF failed.\n");
       return false;
    }
    lhap->effects[id->_id] = -1; /* not in use */
@@ -848,9 +848,9 @@ static bool lhap_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
 }
 
 
-static bool lhap_release(ALLEGRO_HAPTIC *haptic)
+static bool lhap_release(A5O_HAPTIC *haptic)
 {
-   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(haptic);
+   A5O_HAPTIC_LINUX *lhap = lhap_from_al(haptic);
    ASSERT(haptic);
 
    if (!lhap->active)
@@ -867,7 +867,7 @@ void lhap_timerclear(struct input_event* evt)
    evt->input_event_usec = 0;
 }
 
-#endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
+#endif /* A5O_HAVE_LINUX_INPUT_H */
 
 
 /* vim: set sts=3 sw=3 et: */

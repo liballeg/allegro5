@@ -306,14 +306,14 @@ void draw_view()
    int SCREEN_H = al_get_display_height(screen);
    int (*project)(float *f, int *i, int c);
    int r, g, b;
-   ALLEGRO_COLOR c;
+   A5O_COLOR c;
    int i, n, x, y;
    float point[6];
    int ipoint[6];
 
    al_clear_to_color(makecol(0, 0, 0));
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
 
    for (i=0; i<4; i++) {
 

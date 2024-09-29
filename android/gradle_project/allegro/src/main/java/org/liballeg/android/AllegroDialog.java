@@ -126,11 +126,11 @@ class AllegroMessageBox
         builder.setMessage(message);
         builder.setCancelable(true);
 
-        if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_WARN))
+        if (0 != (flags & AllegroDialogConst.A5O_MESSAGEBOX_WARN))
             builder.setIcon(android.R.drawable.ic_dialog_alert);
-        else if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_ERROR))
+        else if (0 != (flags & AllegroDialogConst.A5O_MESSAGEBOX_ERROR))
             builder.setIcon(android.R.drawable.ic_dialog_alert); // ic_delete
-        else if (0 != (flags & AllegroDialogConst.ALLEGRO_MESSAGEBOX_QUESTION))
+        else if (0 != (flags & AllegroDialogConst.A5O_MESSAGEBOX_QUESTION))
             builder.setIcon(android.R.drawable.ic_dialog_info);
 
         builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -157,7 +157,7 @@ class AllegroMessageBox
         if (!wantCustomButtons) {
             builder.setPositiveButton(android.R.string.ok, resultSetter.generate(POSITIVE_BUTTON));
 
-            if (0 != (flags & (AllegroDialogConst.ALLEGRO_MESSAGEBOX_OK_CANCEL | AllegroDialogConst.ALLEGRO_MESSAGEBOX_YES_NO))) {
+            if (0 != (flags & (AllegroDialogConst.A5O_MESSAGEBOX_OK_CANCEL | AllegroDialogConst.A5O_MESSAGEBOX_YES_NO))) {
                 // unfortunately, android.R.string.yes and android.R.string.no
                 // are deprecated and resolve to android.R.string.ok and
                 // android.R.string.cancel, respectively.
@@ -266,7 +266,7 @@ class AllegroMessageBox
         mode in a special way.
 
         Message boxes have a blocking interface. When the app is in immersive
-        mode (i.e., the ALLEGRO_FRAMELESS display flag is on), a deadlock may
+        mode (i.e., the A5O_FRAMELESS display flag is on), a deadlock may
         occur as soon as a message box is invoked. That will happen if the
         thread that calls al_acknowledge_resize() is the same thread that
         invokes the message box.
@@ -276,7 +276,7 @@ class AllegroMessageBox
         as soon as the message box is called forth. This, in turn, triggers a
         display resize event. In summary, here is what happens:
 
-        - Allegro will block the UI thread until ALLEGRO_EVENT_DISPLAY_RESIZE
+        - Allegro will block the UI thread until A5O_EVENT_DISPLAY_RESIZE
           is acknowledged.
 
         - The thread that invoked the message box from native code will remain
@@ -385,7 +385,7 @@ class AllegroFileChooser
 
             The Allegro API specifies that al_show_native_file_dialog() blocks
             the calling thread until it returns. Since there is a need to
-            handle ALLEGRO_EVENT_DISPLAY_HALT_DRAWING before this function
+            handle A5O_EVENT_DISPLAY_HALT_DRAWING before this function
             returns, this must be called from a different thread.
 
             If al_show_native_file_dialog() is not called from a different
@@ -503,7 +503,7 @@ class AllegroFileChooser
         String action = selectAction(flags);
         Intent intent = new Intent(action);
 
-        if (0 != (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_SAVE)) {
+        if (0 != (flags & AllegroDialogConst.A5O_FILECHOOSER_SAVE)) {
             // "Save file"
             if (mimeTypes.length != 1) {
                 intent.setType("*/*");
@@ -513,23 +513,23 @@ class AllegroFileChooser
             else
                 intent.setType(mimeTypes[0]);
         }
-        else if (0 == (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_FOLDER)) {
+        else if (0 == (flags & AllegroDialogConst.A5O_FILECHOOSER_FOLDER)) {
             // "Load file"
             if (mimeTypes.length != 1) {
                 intent.setType("*/*");
                 if (mimeTypes.length > 0)
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-                else if (0 != (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_PICTURES))
+                else if (0 != (flags & AllegroDialogConst.A5O_FILECHOOSER_PICTURES))
                     intent.setType("image/*");
             }
             else
                 intent.setType(mimeTypes[0]);
         }
 
-        if (0 == (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_FOLDER))
+        if (0 == (flags & AllegroDialogConst.A5O_FILECHOOSER_FOLDER))
             intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-        if (0 != (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_MULTIPLE))
+        if (0 != (flags & AllegroDialogConst.A5O_FILECHOOSER_MULTIPLE))
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
         if (Build.VERSION.SDK_INT >= 26) {
@@ -554,14 +554,14 @@ class AllegroFileChooser
 
     private String selectAction(int flags) throws UnsupportedOperationException
     {
-        if (0 != (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_FOLDER)) {
+        if (0 != (flags & AllegroDialogConst.A5O_FILECHOOSER_FOLDER)) {
             if (Build.VERSION.SDK_INT < 21)
                 throw new UnsupportedOperationException("Unsupported operation in API level " + Build.VERSION.SDK_INT);
 
             return Intent.ACTION_OPEN_DOCUMENT_TREE;
         }
 
-        if (0 != (flags & AllegroDialogConst.ALLEGRO_FILECHOOSER_SAVE)) {
+        if (0 != (flags & AllegroDialogConst.A5O_FILECHOOSER_SAVE)) {
             /*
 
             "ACTION_CREATE_DOCUMENT cannot overwrite an existing file. If your
@@ -644,18 +644,18 @@ class AllegroTextLog
 class AllegroDialogConst
 {
     // allegro_native_dialog.h
-    public static final int ALLEGRO_FILECHOOSER_FILE_MUST_EXIST = 1;
-    public static final int ALLEGRO_FILECHOOSER_SAVE = 2;
-    public static final int ALLEGRO_FILECHOOSER_FOLDER = 4;
-    public static final int ALLEGRO_FILECHOOSER_PICTURES = 8;
-    public static final int ALLEGRO_FILECHOOSER_SHOW_HIDDEN = 16;
-    public static final int ALLEGRO_FILECHOOSER_MULTIPLE = 32;
+    public static final int A5O_FILECHOOSER_FILE_MUST_EXIST = 1;
+    public static final int A5O_FILECHOOSER_SAVE = 2;
+    public static final int A5O_FILECHOOSER_FOLDER = 4;
+    public static final int A5O_FILECHOOSER_PICTURES = 8;
+    public static final int A5O_FILECHOOSER_SHOW_HIDDEN = 16;
+    public static final int A5O_FILECHOOSER_MULTIPLE = 32;
 
-    public static final int ALLEGRO_MESSAGEBOX_WARN = 1;
-    public static final int ALLEGRO_MESSAGEBOX_ERROR = 2;
-    public static final int ALLEGRO_MESSAGEBOX_OK_CANCEL = 4;
-    public static final int ALLEGRO_MESSAGEBOX_YES_NO = 8;
-    public static final int ALLEGRO_MESSAGEBOX_QUESTION = 16;
+    public static final int A5O_MESSAGEBOX_WARN = 1;
+    public static final int A5O_MESSAGEBOX_ERROR = 2;
+    public static final int A5O_MESSAGEBOX_OK_CANCEL = 4;
+    public static final int A5O_MESSAGEBOX_YES_NO = 8;
+    public static final int A5O_MESSAGEBOX_QUESTION = 16;
 }
 
 

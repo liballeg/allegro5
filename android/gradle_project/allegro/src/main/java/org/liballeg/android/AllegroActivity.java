@@ -384,7 +384,7 @@ public class AllegroActivity extends Activity
             OnBackInvokedDispatcher.PRIORITY_DEFAULT, new OnBackInvokedCallback() {
                @Override
                public void onBackInvoked() {
-                  // these will be mapped to ALLEGRO_KEY_BACK
+                  // these will be mapped to A5O_KEY_BACK
                   KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK);
                   KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK);
                   dispatchKeyEvent(keyDown);

@@ -14,7 +14,7 @@
  */
 
 
-#ifndef ALLEGRO_ANDROID
+#ifndef A5O_ANDROID
    #error bad include
 #endif
 

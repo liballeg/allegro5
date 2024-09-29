@@ -24,27 +24,27 @@
 #endif
 
 
-/* Enum: ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT
+/* Enum: A5O_TOUCH_INPUT_MAX_TOUCH_COUNT
  */
-#define ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT        16
+#define A5O_TOUCH_INPUT_MAX_TOUCH_COUNT        16
 
 
-/* Type: ALLEGRO_TOUCH_INPUT
+/* Type: A5O_TOUCH_INPUT
  */
-typedef struct ALLEGRO_TOUCH_INPUT ALLEGRO_TOUCH_INPUT;
+typedef struct A5O_TOUCH_INPUT A5O_TOUCH_INPUT;
 
 
-/* Type: ALLEGRO_TOUCH_INPUT_STATE
+/* Type: A5O_TOUCH_INPUT_STATE
  */
-typedef struct ALLEGRO_TOUCH_INPUT_STATE ALLEGRO_TOUCH_INPUT_STATE;
+typedef struct A5O_TOUCH_INPUT_STATE A5O_TOUCH_INPUT_STATE;
 
 
-/* Type: ALLEGRO_TOUCH_STATE
+/* Type: A5O_TOUCH_STATE
  */
-typedef struct ALLEGRO_TOUCH_STATE ALLEGRO_TOUCH_STATE;
+typedef struct A5O_TOUCH_STATE A5O_TOUCH_STATE;
 
 
-struct ALLEGRO_TOUCH_STATE
+struct A5O_TOUCH_STATE
 {
    /* (id) An identifier of touch. If touch is valid this number is positive.
     * (x, y) Touch position on the screen in 1:1 resolution.
@@ -56,39 +56,39 @@ struct ALLEGRO_TOUCH_STATE
    float x, y;
    float dx, dy;
    bool primary;
-   struct ALLEGRO_DISPLAY *display;
+   struct A5O_DISPLAY *display;
 };
 
-struct ALLEGRO_TOUCH_INPUT_STATE
+struct A5O_TOUCH_INPUT_STATE
 {
-   ALLEGRO_TOUCH_STATE touches[ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT];
+   A5O_TOUCH_STATE touches[A5O_TOUCH_INPUT_MAX_TOUCH_COUNT];
 };
 
 
-#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
-/* Enum: ALLEGRO_MOUSE_EMULATION_MODE
+#if defined(A5O_UNSTABLE) || defined(A5O_INTERNAL_UNSTABLE) || defined(A5O_SRC)
+/* Enum: A5O_MOUSE_EMULATION_MODE
  */
-typedef enum ALLEGRO_MOUSE_EMULATION_MODE
+typedef enum A5O_MOUSE_EMULATION_MODE
 {
-   ALLEGRO_MOUSE_EMULATION_NONE,
-   ALLEGRO_MOUSE_EMULATION_TRANSPARENT,
-   ALLEGRO_MOUSE_EMULATION_INCLUSIVE,
-   ALLEGRO_MOUSE_EMULATION_EXCLUSIVE,
-   ALLEGRO_MOUSE_EMULATION_5_0_x
-} ALLEGRO_MOUSE_EMULATION_MODE;
+   A5O_MOUSE_EMULATION_NONE,
+   A5O_MOUSE_EMULATION_TRANSPARENT,
+   A5O_MOUSE_EMULATION_INCLUSIVE,
+   A5O_MOUSE_EMULATION_EXCLUSIVE,
+   A5O_MOUSE_EMULATION_5_0_x
+} A5O_MOUSE_EMULATION_MODE;
 #endif
 
 
 AL_FUNC(bool,           al_is_touch_input_installed,     (void));
 AL_FUNC(bool,           al_install_touch_input,          (void));
 AL_FUNC(void,           al_uninstall_touch_input,        (void));
-AL_FUNC(void,           al_get_touch_input_state,        (ALLEGRO_TOUCH_INPUT_STATE *ret_state));
-AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_touch_input_event_source, (void));
+AL_FUNC(void,           al_get_touch_input_state,        (A5O_TOUCH_INPUT_STATE *ret_state));
+AL_FUNC(A5O_EVENT_SOURCE *, al_get_touch_input_event_source, (void));
 
-#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+#if defined(A5O_UNSTABLE) || defined(A5O_INTERNAL_UNSTABLE) || defined(A5O_SRC)
 AL_FUNC(void,           al_set_mouse_emulation_mode,     (int mode));
 AL_FUNC(int,            al_get_mouse_emulation_mode,     (void));
-AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_touch_input_mouse_emulation_event_source, (void));
+AL_FUNC(A5O_EVENT_SOURCE *, al_get_touch_input_mouse_emulation_event_source, (void));
 #endif
 
 #ifdef __cplusplus

@@ -19,7 +19,7 @@
 #include <jni.h>
 #include <stdarg.h>
 
-ALLEGRO_DEBUG_CHANNEL("jni")
+A5O_DEBUG_CHANNEL("jni")
 
 #define VERBOSE_DEBUG(a, ...) (void)0
 
@@ -31,7 +31,7 @@ void __jni_checkException(JNIEnv *env, const char *file, const char *func, int l
 
    exc = (*env)->ExceptionOccurred(env);
    if (exc) {
-      ALLEGRO_DEBUG("GOT AN EXCEPTION @ %s:%i %s", file, line, func);
+      A5O_DEBUG("GOT AN EXCEPTION @ %s:%i %s", file, line, func);
       /* We don't do much with the exception, except that
          we print a debug message for it, clear it, and
          throw a new exception. */
@@ -76,7 +76,7 @@ jobject _jni_callObjectMethodV(JNIEnv *env, jobject object,
    return ret;
 }
 
-ALLEGRO_USTR *_jni_getString(JNIEnv *env, jstring str_obj)
+A5O_USTR *_jni_getString(JNIEnv *env, jstring str_obj)
 {
    VERBOSE_DEBUG("GetStringUTFLength");
    jsize len = _jni_call(env, jsize, GetStringUTFLength, str_obj);
@@ -84,18 +84,18 @@ ALLEGRO_USTR *_jni_getString(JNIEnv *env, jstring str_obj)
    const char *str = _jni_call(env, const char *, GetStringUTFChars, str_obj, NULL);
 
    VERBOSE_DEBUG("al_ustr_new_from_buffer");
-   ALLEGRO_USTR *ustr = al_ustr_new_from_buffer(str, len);
+   A5O_USTR *ustr = al_ustr_new_from_buffer(str, len);
 
    _jni_callv(env, ReleaseStringUTFChars, str_obj, str);
 
    return ustr;
 }
 
-ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
+A5O_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
    const char *name, const char *sig)
 {
    jstring str_obj = (jstring)_jni_callObjectMethod(env, obj, name, sig);
-   ALLEGRO_USTR *ustr = _jni_getString(env, str_obj);
+   A5O_USTR *ustr = _jni_getString(env, str_obj);
 
    _jni_callv(env, DeleteLocalRef, str_obj);
 

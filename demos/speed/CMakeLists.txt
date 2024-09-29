@@ -49,11 +49,11 @@ fix_executable(speed)
 
 if(WANT_MONOLITH)
    target_link_libraries(speed
-       ${ALLEGRO_MONOLITH_LINK_WITH}
+       ${A5O_MONOLITH_LINK_WITH}
        )
 else(WANT_MONOLITH)
    target_link_libraries(speed
-       ${ALLEGRO_MAIN_LINK_WITH}
+       ${A5O_MAIN_LINK_WITH}
        ${AUDIO_LINK_WITH}
        ${PRIMITIVES_LINK_WITH}
        ${FONT_LINK_WITH}
@@ -61,7 +61,7 @@ else(WANT_MONOLITH)
 endif(WANT_MONOLITH)
 
 if(NOT BUILD_SHARED_LIBS)
-    set_target_properties(speed PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+    set_target_properties(speed PROPERTIES COMPILE_FLAGS "-DA5O_STATICLINK")
 endif(NOT BUILD_SHARED_LIBS)
 
 #-----------------------------------------------------------------------------#

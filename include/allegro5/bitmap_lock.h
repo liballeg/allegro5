@@ -12,16 +12,16 @@
  * Locking flags
  */
 enum {
-   ALLEGRO_LOCK_READWRITE  = 0,
-   ALLEGRO_LOCK_READONLY   = 1,
-   ALLEGRO_LOCK_WRITEONLY  = 2
+   A5O_LOCK_READWRITE  = 0,
+   A5O_LOCK_READONLY   = 1,
+   A5O_LOCK_WRITEONLY  = 2
 };
 
 
-/* Type: ALLEGRO_LOCKED_REGION
+/* Type: A5O_LOCKED_REGION
  */
-typedef struct ALLEGRO_LOCKED_REGION ALLEGRO_LOCKED_REGION;
-struct ALLEGRO_LOCKED_REGION {
+typedef struct A5O_LOCKED_REGION A5O_LOCKED_REGION;
+struct A5O_LOCKED_REGION {
    void *data;
    int format;
    int pitch;
@@ -29,13 +29,13 @@ struct ALLEGRO_LOCKED_REGION {
 };
 
 
-AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap, (ALLEGRO_BITMAP *bitmap, int format, int flags));
-AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap_region, (ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height, int format, int flags));
-AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap_blocked, (ALLEGRO_BITMAP *bitmap, int flags));
-AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap_region_blocked, (ALLEGRO_BITMAP *bitmap, int x_block, int y_block,
+AL_FUNC(A5O_LOCKED_REGION*, al_lock_bitmap, (A5O_BITMAP *bitmap, int format, int flags));
+AL_FUNC(A5O_LOCKED_REGION*, al_lock_bitmap_region, (A5O_BITMAP *bitmap, int x, int y, int width, int height, int format, int flags));
+AL_FUNC(A5O_LOCKED_REGION*, al_lock_bitmap_blocked, (A5O_BITMAP *bitmap, int flags));
+AL_FUNC(A5O_LOCKED_REGION*, al_lock_bitmap_region_blocked, (A5O_BITMAP *bitmap, int x_block, int y_block,
       int width_block, int height_block, int flags));
-AL_FUNC(void, al_unlock_bitmap, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(bool, al_is_bitmap_locked, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(void, al_unlock_bitmap, (A5O_BITMAP *bitmap));
+AL_FUNC(bool, al_is_bitmap_locked, (A5O_BITMAP *bitmap));
 
 
 #ifdef __cplusplus

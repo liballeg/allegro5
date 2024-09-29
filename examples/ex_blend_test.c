@@ -8,46 +8,46 @@
 int test_only_index = 0;
 int test_index = 0;
 bool test_display = false;
-ALLEGRO_DISPLAY *display;
+A5O_DISPLAY *display;
 
-static void print_color(ALLEGRO_COLOR c)
+static void print_color(A5O_COLOR c)
 {
    float r, g, b, a;
    al_unmap_rgba_f(c, &r, &g, &b, &a);
    log_printf("%.2f, %.2f, %.2f, %.2f", r, g, b, a);
 }
 
-static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
+static A5O_COLOR test(A5O_COLOR src_col, A5O_COLOR dst_col,
    int src_format, int dst_format,
    int src, int dst, int src_a, int dst_a,
    int operation, bool verbose)
 {
-   ALLEGRO_COLOR result;
-   ALLEGRO_BITMAP *dst_bmp;
+   A5O_COLOR result;
+   A5O_BITMAP *dst_bmp;
 
    al_set_new_bitmap_format(dst_format);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    dst_bmp = al_create_bitmap(1, 1);
    al_set_target_bitmap(dst_bmp);
    al_clear_to_color(dst_col);
    if (operation == 0) {
-      ALLEGRO_BITMAP *src_bmp;
+      A5O_BITMAP *src_bmp;
       al_set_new_bitmap_format(src_format);
       src_bmp = al_create_bitmap(1, 1);
       al_set_target_bitmap(src_bmp);
       al_clear_to_color(src_col);
       al_set_target_bitmap(dst_bmp);
-      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a);
+      al_set_separate_blender(A5O_ADD, src, dst, A5O_ADD, src_a, dst_a);
       al_draw_bitmap(src_bmp, 0, 0, 0);
       al_destroy_bitmap(src_bmp);
    }
    else  if (operation == 1) {
-      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a);
+      al_set_separate_blender(A5O_ADD, src, dst, A5O_ADD, src_a, dst_a);
       al_draw_pixel(0, 0, src_col);
    }
    else  if (operation == 2) {
-      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a);
+      al_set_separate_blender(A5O_ADD, src, dst, A5O_ADD, src_a, dst_a);
       al_draw_line(0, 0, 1, 1, src_col, 0);
    }
 
@@ -56,7 +56,7 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    al_set_target_backbuffer(display);
 
    if (test_display) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       al_draw_bitmap(dst_bmp, 0, 0, 0);
    }
 
@@ -86,7 +86,7 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    return result;
 }
 
-static bool same_color(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
+static bool same_color(A5O_COLOR c1, A5O_COLOR c2)
 {
    float r1, g1, b1, a1;
    float r2, g2, b2, a2;
@@ -108,27 +108,27 @@ static bool same_color(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
 static float get_factor(int operation, float alpha)
 {
    switch(operation) {
-       case ALLEGRO_ZERO: return 0;
-       case ALLEGRO_ONE: return 1;
-       case ALLEGRO_ALPHA: return alpha;
-       case ALLEGRO_INVERSE_ALPHA: return 1 - alpha;
+       case A5O_ZERO: return 0;
+       case A5O_ONE: return 1;
+       case A5O_ALPHA: return alpha;
+       case A5O_INVERSE_ALPHA: return 1 - alpha;
    }
    return 0;
 }
 
 static bool has_alpha(int format)
 {
-   if (format == ALLEGRO_PIXEL_FORMAT_RGB_888)
+   if (format == A5O_PIXEL_FORMAT_RGB_888)
       return false;
-   if (format == ALLEGRO_PIXEL_FORMAT_BGR_888)
+   if (format == A5O_PIXEL_FORMAT_BGR_888)
       return false;
    return true;
 }
 
 #define CLAMP(x) (x > 1 ? 1 : x)
 
-static ALLEGRO_COLOR reference_implementation(
-   ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
+static A5O_COLOR reference_implementation(
+   A5O_COLOR src_col, A5O_COLOR dst_col,
    int src_format, int dst_format,
    int src_mode, int dst_mode, int src_alpha, int dst_alpha,
    int operation)
@@ -176,12 +176,12 @@ static ALLEGRO_COLOR reference_implementation(
    return al_map_rgba_f(r, g, b, a);
 }
 
-static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
+static void do_test2(A5O_COLOR src_col, A5O_COLOR dst_col,
    int src_format, int dst_format,
    int src_mode, int dst_mode, int src_alpha, int dst_alpha,
    int operation)
 {
-   ALLEGRO_COLOR reference, result, from_display;
+   A5O_COLOR reference, result, from_display;
    test_index++;
 
    if (test_only_index && test_index != test_only_index)
@@ -230,14 +230,14 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    }
 }
 
-static void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
+static void do_test1(A5O_COLOR src_col, A5O_COLOR dst_col,
    int src_format, int dst_format)
 {
    int i, j, k, l, m;
-   int smodes[4] = {ALLEGRO_ALPHA, ALLEGRO_ZERO, ALLEGRO_ONE,
-      ALLEGRO_INVERSE_ALPHA};
-   int dmodes[4] = {ALLEGRO_INVERSE_ALPHA, ALLEGRO_ZERO, ALLEGRO_ONE,
-      ALLEGRO_ALPHA};
+   int smodes[4] = {A5O_ALPHA, A5O_ZERO, A5O_ONE,
+      A5O_INVERSE_ALPHA};
+   int dmodes[4] = {A5O_INVERSE_ALPHA, A5O_ZERO, A5O_ONE,
+      A5O_ALPHA};
    for (i = 0; i < 4; i++) {
       for (j = 0; j < 4; j++) {
          for (k = 0; k < 4; k++) {
@@ -259,15 +259,15 @@ static void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 int main(int argc, char **argv)
 {
    int i, j, l, m;
-   ALLEGRO_COLOR src_colors[2];
-   ALLEGRO_COLOR dst_colors[2];
+   A5O_COLOR src_colors[2];
+   A5O_COLOR dst_colors[2];
    int src_formats[2] = {
-      ALLEGRO_PIXEL_FORMAT_ABGR_8888,
-      ALLEGRO_PIXEL_FORMAT_BGR_888
+      A5O_PIXEL_FORMAT_ABGR_8888,
+      A5O_PIXEL_FORMAT_BGR_888
       };
    int dst_formats[2] = {
-      ALLEGRO_PIXEL_FORMAT_ABGR_8888,
-      ALLEGRO_PIXEL_FORMAT_BGR_888
+      A5O_PIXEL_FORMAT_ABGR_8888,
+      A5O_PIXEL_FORMAT_BGR_888
       };
    src_colors[0] = C(0, 0, 0, 1);
    src_colors[1] = C(1, 1, 1, 1);
@@ -311,8 +311,8 @@ int main(int argc, char **argv)
    log_printf("\nDone\n");
    
    if (test_only_index && test_display) {
-      ALLEGRO_EVENT_QUEUE *queue;
-      ALLEGRO_EVENT event;
+      A5O_EVENT_QUEUE *queue;
+      A5O_EVENT event;
       al_flip_display();
       al_install_keyboard();
       queue = al_create_event_queue();

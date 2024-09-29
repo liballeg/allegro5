@@ -28,12 +28,12 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_wunicode.h"
-#include ALLEGRO_INTERNAL_HEADER
+#include A5O_INTERNAL_HEADER
 
-ALLEGRO_DEBUG_CHANNEL("fshook")
+A5O_DEBUG_CHANNEL("fshook")
 
 /* Enable large file support in gcc/glibc. */
-#if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO
+#if defined A5O_HAVE_FTELLO && defined A5O_HAVE_FSEEKO
    #define _LARGEFILE_SOURCE
    #define _FILE_OFFSET_BITS 64
 #endif
@@ -51,24 +51,24 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_fshook.h"
 
-#ifdef ALLEGRO_HAVE_SYS_STAT_H
+#ifdef A5O_HAVE_SYS_STAT_H
    #include <sys/stat.h>
 #endif
 
-#ifdef ALLEGRO_HAVE_DIRENT_H
+#ifdef A5O_HAVE_DIRENT_H
    #include <sys/types.h>
    #include <dirent.h>
    #define NAMLEN(dirent) (strlen((dirent)->d_name))
 #else
    #define dirent direct
    #define NAMLEN(dirent) ((dirent)->d_namlen)
-   #ifdef ALLEGRO_HAVE_SYS_NDIR_H
+   #ifdef A5O_HAVE_SYS_NDIR_H
       #include <sys/ndir.h>
    #endif
-   #ifdef ALLEGRO_HAVE_SYS_DIR_H
+   #ifdef A5O_HAVE_SYS_DIR_H
       #include <sys/dir.h>
    #endif
-   #ifdef ALLEGRO_HAVE_NDIR_H
+   #ifdef A5O_HAVE_NDIR_H
       #include <ndir.h>
    #endif
 #endif
@@ -83,14 +83,14 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
    #define S_IXGRP   (0)
 #endif
 
-#ifdef ALLEGRO_HAVE_SYS_TIME
+#ifdef A5O_HAVE_SYS_TIME
    #include <sys/time.h>
 #endif
-#ifdef ALLEGRO_HAVE_TIME_H
+#ifdef A5O_HAVE_TIME_H
    #include <time.h>
 #endif
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    #include <tchar.h>
    #include "fshook_win.inc"
 
@@ -131,13 +131,13 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
 #endif
 
 
-typedef struct ALLEGRO_FS_ENTRY_STDIO ALLEGRO_FS_ENTRY_STDIO;
+typedef struct A5O_FS_ENTRY_STDIO A5O_FS_ENTRY_STDIO;
 
-struct ALLEGRO_FS_ENTRY_STDIO
+struct A5O_FS_ENTRY_STDIO
 {
-   ALLEGRO_FS_ENTRY fs_entry; /* must be first */
+   A5O_FS_ENTRY fs_entry; /* must be first */
    WRAP_CHAR *abs_path;
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    char *abs_path_utf8;
    #define ABS_PATH_UTF8   abs_path_utf8
 #else
@@ -149,8 +149,8 @@ struct ALLEGRO_FS_ENTRY_STDIO
 };
 
 
-static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio);
-static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp);
+static void fs_update_stat_mode(A5O_FS_ENTRY_STDIO *fp_stdio);
+static bool fs_stdio_update_entry(A5O_FS_ENTRY *fp);
 
 
 /* Make an absolute path given a potentially relative path.
@@ -158,7 +158,7 @@ static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp);
  */
 static WRAP_CHAR *make_absolute_path_inner(const WRAP_CHAR *tail)
 {
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    /* We use _wfullpath to get the proper drive letter semantics on Windows. */
    wchar_t *abs_path = _wfullpath(NULL, tail, 0);
 
@@ -178,12 +178,12 @@ static WRAP_CHAR *make_absolute_path_inner(const WRAP_CHAR *tail)
    return abs_path;
 #else
    char cwd[PATH_MAX];
-   ALLEGRO_PATH *cwdpath = NULL;
-   ALLEGRO_PATH *tailpath = NULL;
+   A5O_PATH *cwdpath = NULL;
+   A5O_PATH *tailpath = NULL;
    char *ret = NULL;
 
    if (!getcwd(cwd, sizeof(cwd))) {
-      ALLEGRO_WARN("Unable to get current working directory.\n");
+      A5O_WARN("Unable to get current working directory.\n");
       al_set_errno(errno);
       goto Error;
    }
@@ -202,7 +202,7 @@ static WRAP_CHAR *make_absolute_path_inner(const WRAP_CHAR *tail)
       al_make_path_canonical(tailpath);
    }
 
-   ret = strdup(al_path_cstr(tailpath, ALLEGRO_NATIVE_PATH_SEP));
+   ret = strdup(al_path_cstr(tailpath, A5O_NATIVE_PATH_SEP));
 
 Error:
 
@@ -216,7 +216,7 @@ Error:
 static WRAP_CHAR *make_absolute_path(const char *tail)
 {
    WRAP_CHAR *abs_path = NULL;
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    wchar_t *wtail = _al_win_utf8_to_utf16(tail);
    if (wtail) {
       abs_path = make_absolute_path_inner(wtail);
@@ -229,9 +229,9 @@ static WRAP_CHAR *make_absolute_path(const char *tail)
 }
 
 
-static ALLEGRO_FS_ENTRY *create_abs_path_entry(const WRAP_CHAR *abs_path)
+static A5O_FS_ENTRY *create_abs_path_entry(const WRAP_CHAR *abs_path)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fh;
+   A5O_FS_ENTRY_STDIO *fh;
    size_t len;
 
    fh = al_calloc(1, sizeof(*fh));
@@ -250,7 +250,7 @@ static ALLEGRO_FS_ENTRY *create_abs_path_entry(const WRAP_CHAR *abs_path)
    }
    memcpy(fh->abs_path, abs_path, len * sizeof(WRAP_CHAR));
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    fh->abs_path_utf8 = _al_win_utf16_to_utf8(fh->abs_path);
    if (!fh->abs_path_utf8) {
       al_free(fh->abs_path);
@@ -259,17 +259,17 @@ static ALLEGRO_FS_ENTRY *create_abs_path_entry(const WRAP_CHAR *abs_path)
    }
 #endif
 
-   ALLEGRO_DEBUG("Creating entry for %s\n", fh->ABS_PATH_UTF8);
+   A5O_DEBUG("Creating entry for %s\n", fh->ABS_PATH_UTF8);
 
-   fs_stdio_update_entry((ALLEGRO_FS_ENTRY *) fh);
+   fs_stdio_update_entry((A5O_FS_ENTRY *) fh);
 
-   return (ALLEGRO_FS_ENTRY *) fh;
+   return (A5O_FS_ENTRY *) fh;
 }
 
 
-static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *orig_path)
+static A5O_FS_ENTRY *fs_stdio_create_entry(const char *orig_path)
 {
-   ALLEGRO_FS_ENTRY *ret = NULL;
+   A5O_FS_ENTRY *ret = NULL;
    WRAP_CHAR *abs_path;
 
    abs_path = make_absolute_path(orig_path);
@@ -281,11 +281,11 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *orig_path)
 }
 
 
-#if defined(ALLEGRO_UNIX) || defined(ALLEGRO_MACOSX)
+#if defined(A5O_UNIX) || defined(A5O_MACOSX)
 static bool unix_hidden_file(const char *path)
 {
    /* Filenames beginning with dot are considered hidden. */
-   const char *p = strrchr(path, ALLEGRO_NATIVE_PATH_SEP);
+   const char *p = strrchr(path, A5O_NATIVE_PATH_SEP);
    if (p)
       p++;
    else
@@ -295,59 +295,59 @@ static bool unix_hidden_file(const char *path)
 #endif
 
 
-static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
+static void fs_update_stat_mode(A5O_FS_ENTRY_STDIO *fp_stdio)
 {
    fp_stdio->stat_mode = 0;
 
    if (S_ISDIR(fp_stdio->st.st_mode))
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_ISDIR;
+      fp_stdio->stat_mode |= A5O_FILEMODE_ISDIR;
    else /* marks special unix files as files... might want to add enum items for symlink, CHAR, BLOCK and SOCKET files. */
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_ISFILE;
+      fp_stdio->stat_mode |= A5O_FILEMODE_ISFILE;
 
    /*
    if (S_ISREG(fh->st.st_mode))
-      fh->stat_mode |= ALLEGRO_FILEMODE_ISFILE;
+      fh->stat_mode |= A5O_FILEMODE_ISFILE;
    */
 
    if (fp_stdio->st.st_mode & (S_IRUSR | S_IRGRP))
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_READ;
+      fp_stdio->stat_mode |= A5O_FILEMODE_READ;
 
    if (fp_stdio->st.st_mode & (S_IWUSR | S_IWGRP))
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_WRITE;
+      fp_stdio->stat_mode |= A5O_FILEMODE_WRITE;
 
    if (fp_stdio->st.st_mode & (S_IXUSR | S_IXGRP))
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_EXECUTE;
+      fp_stdio->stat_mode |= A5O_FILEMODE_EXECUTE;
 
-#if defined(ALLEGRO_WINDOWS)
+#if defined(A5O_WINDOWS)
    {
       DWORD attrib = GetFileAttributes(fp_stdio->abs_path);
       if (attrib & FILE_ATTRIBUTE_HIDDEN)
-         fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
+         fp_stdio->stat_mode |= A5O_FILEMODE_HIDDEN;
    }
 #endif
-#if defined(ALLEGRO_MACOSX) && defined(UF_HIDDEN)
+#if defined(A5O_MACOSX) && defined(UF_HIDDEN)
    {
       /* OSX hidden files can both start with the dot as well as having this flag set...
        * Note that this flag does not exist on all versions of OS X (Tiger
        * doesn't seem to have it) so we need to test for it.
        */
       if (fp_stdio->st.st_flags & UF_HIDDEN)
-         fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
+         fp_stdio->stat_mode |= A5O_FILEMODE_HIDDEN;
    }
 #endif
-#if defined(ALLEGRO_UNIX) || defined(ALLEGRO_MACOSX)
-   if (0 == (fp_stdio->stat_mode & ALLEGRO_FILEMODE_HIDDEN)) {
+#if defined(A5O_UNIX) || defined(A5O_MACOSX)
+   if (0 == (fp_stdio->stat_mode & A5O_FILEMODE_HIDDEN)) {
       if (unix_hidden_file(fp_stdio->abs_path)) {
-         fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
+         fp_stdio->stat_mode |= A5O_FILEMODE_HIDDEN;
       }
    }
 #endif
 }
 
 
-static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_update_entry(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
    int ret;
 
    ret = WRAP_STAT(fp_stdio->abs_path, &(fp_stdio->st));
@@ -362,11 +362,11 @@ static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
 }
 
 
-static bool fs_stdio_open_directory(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_open_directory(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
 
-   if (!(fp_stdio->stat_mode & ALLEGRO_FILEMODE_ISDIR))
+   if (!(fp_stdio->stat_mode & A5O_FILEMODE_ISDIR))
       return false;
 
    fp_stdio->dir = WRAP_OPENDIR(fp_stdio->abs_path);
@@ -379,9 +379,9 @@ static bool fs_stdio_open_directory(ALLEGRO_FS_ENTRY *fp)
 }
 
 
-static bool fs_stdio_close_directory(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_close_directory(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
    int rc;
 
    if (!fp_stdio->dir) {
@@ -400,13 +400,13 @@ static bool fs_stdio_close_directory(ALLEGRO_FS_ENTRY *fp)
 }
 
 
-static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
+static A5O_FS_ENTRY *fs_stdio_read_directory(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
    // FIXME: Must use readdir_r as Allegro allows file functions being
    // called from different threads.
    WRAP_DIRENT_TYPE *ent;
-   ALLEGRO_FS_ENTRY *ret;
+   A5O_FS_ENTRY *ret;
 
    ASSERT(fp_stdio->dir);
 
@@ -420,7 +420,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
    } while (0 == WRAP_STRCMP(ent->d_name, WRAP_LIT("."))
          || 0 == WRAP_STRCMP(ent->d_name, WRAP_LIT("..")));
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    {
       wchar_t buf[MAX_PATH];
       int buflen;
@@ -444,7 +444,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
       }
       memcpy(buf, fp_stdio->abs_path, abs_path_len);
       if (  (abs_path_len >= 1) &&
-            buf[abs_path_len - 1] == ALLEGRO_NATIVE_PATH_SEP)
+            buf[abs_path_len - 1] == A5O_NATIVE_PATH_SEP)
       {
          /* do NOT add a new separator if we have one already */
          memcpy(buf + abs_path_len, ent->d_name, ent_name_len);
@@ -452,7 +452,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
       }
       else {
          /* append separator */
-         buf[abs_path_len] = ALLEGRO_NATIVE_PATH_SEP;
+         buf[abs_path_len] = A5O_NATIVE_PATH_SEP;
          memcpy(buf + abs_path_len + 1, ent->d_name, ent_name_len);
          buf[abs_path_len + 1 + ent_name_len] = '\0';
       }
@@ -464,12 +464,12 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
 }
 
 
-static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
+static void fs_stdio_destroy_entry(A5O_FS_ENTRY *fh_)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
+   A5O_FS_ENTRY_STDIO *fh = (A5O_FS_ENTRY_STDIO *) fh_;
 
    al_free(fh->abs_path);
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    al_free(fh->abs_path_utf8);
 #endif
 
@@ -480,41 +480,41 @@ static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
 }
 
 
-static off_t fs_stdio_entry_size(ALLEGRO_FS_ENTRY *fp)
+static off_t fs_stdio_entry_size(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *ent = (A5O_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_size;
 }
 
 
-static uint32_t fs_stdio_entry_mode(ALLEGRO_FS_ENTRY *fp)
+static uint32_t fs_stdio_entry_mode(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *ent = (A5O_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->stat_mode;
 }
 
 
-static time_t fs_stdio_entry_atime(ALLEGRO_FS_ENTRY *fp)
+static time_t fs_stdio_entry_atime(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *ent = (A5O_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_atime;
 }
 
 
-static time_t fs_stdio_entry_mtime(ALLEGRO_FS_ENTRY *fp)
+static time_t fs_stdio_entry_mtime(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *ent = (A5O_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_mtime;
 }
 
 
-static time_t fs_stdio_entry_ctime(ALLEGRO_FS_ENTRY *fp)
+static time_t fs_stdio_entry_ctime(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *ent = (A5O_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_ctime;
 }
@@ -522,7 +522,7 @@ static time_t fs_stdio_entry_ctime(ALLEGRO_FS_ENTRY *fp)
 
 static char *fs_stdio_get_current_directory(void)
 {
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    wchar_t *wcwd;
    char *cwd;
    
@@ -557,7 +557,7 @@ static bool fs_stdio_change_directory(const char *path)
 {
    int ret = -1;
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    wchar_t *wpath = _al_win_utf8_to_utf16(path);
    if (wpath) {
       ret = _wchdir(wpath);
@@ -596,7 +596,7 @@ static bool do_make_directory(WRAP_CHAR *abs_path)
 
    p = abs_path + 1;
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    /* Skip drive letter. */
    if (end - abs_path >= 3
       && abs_path[1] == ':'
@@ -608,7 +608,7 @@ static bool do_make_directory(WRAP_CHAR *abs_path)
 
    for ( ; p < end; p++) {
       const WRAP_CHAR c = *p;
-      if (c == ALLEGRO_NATIVE_PATH_SEP || c == '/') {
+      if (c == A5O_NATIVE_PATH_SEP || c == '/') {
          *p = '\0';
          ret = mkdir_exists(abs_path);
          *p = c;
@@ -633,9 +633,9 @@ static bool fs_stdio_make_directory(const char *tail)
 }
 
 
-static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_entry_exists(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
    WRAP_STAT_TYPE st;
 
    if (WRAP_STAT(fp_stdio->abs_path, &st) != 0) {
@@ -655,7 +655,7 @@ static bool fs_stdio_filename_exists(const char *path)
    bool ret = false;
    ASSERT(path);
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef A5O_WINDOWS
    {
       /* Pass an path created by _wfullpath() to avoid issues
        * with stat() failing when there is a trailing slash.
@@ -680,17 +680,17 @@ static bool fs_stdio_filename_exists(const char *path)
 }
 
 
-static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_remove_entry(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
    int err;
 
    ASSERT(fp);
 
-   if (fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISDIR) {
+   if (fs_stdio_entry_mode(fp) & A5O_FILEMODE_ISDIR) {
       err = WRAP_RMDIR(fp_stdio->abs_path);
    }
-   else if (fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISFILE) {
+   else if (fs_stdio_entry_mode(fp) & A5O_FILEMODE_ISFILE) {
       err = WRAP_UNLINK(fp_stdio->abs_path);
    }
    else {
@@ -709,12 +709,12 @@ static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
 
 static bool fs_stdio_remove_filename(const char *path)
 {
-   ALLEGRO_FS_ENTRY *fp;
+   A5O_FS_ENTRY *fp;
    bool rc;
 
    fp = fs_stdio_create_entry(path);
    if (!fp) {
-      ALLEGRO_WARN("Cannot remove %s.", path);
+      A5O_WARN("Cannot remove %s.", path);
       return false;
    }
 
@@ -724,17 +724,17 @@ static bool fs_stdio_remove_filename(const char *path)
 }
 
 
-static const char *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
+static const char *fs_stdio_name(A5O_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
 
    return fp_stdio->ABS_PATH_UTF8;
 }
 
 
-static ALLEGRO_FILE *fs_stdio_open_file(ALLEGRO_FS_ENTRY *fp, const char *mode)
+static A5O_FILE *fs_stdio_open_file(A5O_FS_ENTRY *fp, const char *mode)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   A5O_FS_ENTRY_STDIO *fp_stdio = (A5O_FS_ENTRY_STDIO *) fp;
 
    /* XXX on Windows it would be nicer to use the UTF-16 abs_path field
     * directly
@@ -744,7 +744,7 @@ static ALLEGRO_FILE *fs_stdio_open_file(ALLEGRO_FS_ENTRY *fp, const char *mode)
 }
 
 
-struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
+struct A5O_FS_INTERFACE _al_fs_interface_stdio = {
    fs_stdio_create_entry,
    fs_stdio_destroy_entry,
    fs_stdio_name,

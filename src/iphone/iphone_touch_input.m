@@ -20,30 +20,30 @@
 #include "allegro5/internal/aintern_iphone.h"
 
 
-static ALLEGRO_TOUCH_INPUT_STATE touch_input_state;
-static ALLEGRO_MOUSE_STATE mouse_state;
-static ALLEGRO_TOUCH_INPUT touch_input;
+static A5O_TOUCH_INPUT_STATE touch_input_state;
+static A5O_MOUSE_STATE mouse_state;
+static A5O_TOUCH_INPUT touch_input;
 static bool installed = false;
 
-static void generate_touch_input_event(unsigned int type, double timestamp, int id, float x, float y, float dx, float dy, bool primary, ALLEGRO_DISPLAY *disp)
+static void generate_touch_input_event(unsigned int type, double timestamp, int id, float x, float y, float dx, float dy, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    bool want_touch_event           = _al_event_source_needs_to_generate_event(&touch_input.es);
    bool want_mouse_emulation_event;
 
-   if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_5_0_x) {
+   if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_5_0_x) {
       want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && al_is_mouse_installed();
    }
    else {
       want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && primary && al_is_mouse_installed();
    }
    
-   if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_NONE)
+   if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_NONE)
       want_mouse_emulation_event = false;
-   else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_INCLUSIVE)
+   else if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_INCLUSIVE)
       want_touch_event = al_is_mouse_installed() ? (want_touch_event && !primary) : want_touch_event;
-   else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_EXCLUSIVE)
+   else if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_EXCLUSIVE)
       want_touch_event = al_is_mouse_installed() ? false : want_touch_event;
 
    
@@ -53,7 +53,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
    if (want_touch_event) {
 
       event.touch.type      = type;
-      event.touch.display   = (ALLEGRO_DISPLAY*)disp;
+      event.touch.display   = (A5O_DISPLAY*)disp;
       event.touch.timestamp = timestamp;
       event.touch.id        = id;
       event.touch.x         = x;
@@ -67,27 +67,27 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
       _al_event_source_unlock(&touch_input.es);
    }
 
-   if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_NONE) {
+   if (touch_input.mouse_emulation_mode != A5O_MOUSE_EMULATION_NONE) {
       _al_event_source_lock(&touch_input.mouse_emulation_es);
       if (want_mouse_emulation_event) {
 
          switch (type) {
-            case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN; break;
-            case ALLEGRO_EVENT_TOUCH_CANCEL:
-            case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;   break;
-            case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
+            case A5O_EVENT_TOUCH_BEGIN: type = A5O_EVENT_MOUSE_BUTTON_DOWN; break;
+            case A5O_EVENT_TOUCH_CANCEL:
+            case A5O_EVENT_TOUCH_END:   type = A5O_EVENT_MOUSE_BUTTON_UP;   break;
+            case A5O_EVENT_TOUCH_MOVE:  type = A5O_EVENT_MOUSE_AXES;        break;
          }
    
          event.mouse.type      = type;
          event.mouse.timestamp = timestamp;
-         event.mouse.display   = (ALLEGRO_DISPLAY*)disp;
+         event.mouse.display   = (A5O_DISPLAY*)disp;
          event.mouse.x         = (int)x;
          event.mouse.y         = (int)y;
          event.mouse.dx        = (int)dx;
          event.mouse.dy        = (int)dy;
          event.mouse.dz        = 0;
          event.mouse.dw        = 0;
-         if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+         if (touch_input.mouse_emulation_mode != A5O_MOUSE_EMULATION_5_0_x) {
             event.mouse.button = 1;
          }
          else {
@@ -95,7 +95,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
          }
          event.mouse.pressure  = 1.0;
    
-         if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+         if (touch_input.mouse_emulation_mode != A5O_MOUSE_EMULATION_5_0_x) {
             al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
          }
    
@@ -104,9 +104,9 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
 
       mouse_state.x = (int)x;
       mouse_state.y = (int)y;
-      if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+      if (type == A5O_EVENT_MOUSE_BUTTON_DOWN)
          mouse_state.buttons |= id;
-      else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+      else if (type == A5O_EVENT_MOUSE_BUTTON_UP)
          mouse_state.buttons &= ~id;
 
       _al_event_source_unlock(&touch_input.mouse_emulation_es);
@@ -124,7 +124,7 @@ static bool init_touch_input(void)
 
    _al_event_source_init(&touch_input.es);
    _al_event_source_init(&touch_input.mouse_emulation_es);
-   touch_input.mouse_emulation_mode = ALLEGRO_MOUSE_EMULATION_TRANSPARENT;
+   touch_input.mouse_emulation_mode = A5O_MOUSE_EMULATION_TRANSPARENT;
 
    installed = true;
 
@@ -147,13 +147,13 @@ static void exit_touch_input(void)
 }
 
 
-static ALLEGRO_TOUCH_INPUT* get_touch_input(void)
+static A5O_TOUCH_INPUT* get_touch_input(void)
 {
    return &touch_input;
 }
 
 
-static void get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
+static void get_touch_input_state(A5O_TOUCH_INPUT_STATE *ret_state)
 {
    _al_event_source_lock(&touch_input.es);
    *ret_state = touch_input_state;
@@ -167,9 +167,9 @@ static void set_mouse_emulation_mode(int mode)
       
       int i;
       
-      for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i) {
+      for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i) {
       
-         ALLEGRO_TOUCH_STATE* touch = touch_input_state.touches + i;
+         A5O_TOUCH_STATE* touch = touch_input_state.touches + i;
          
          if (touch->id > 0) {
             _al_iphone_touch_input_handle_cancel(touch->id, al_get_time(),
@@ -182,11 +182,11 @@ static void set_mouse_emulation_mode(int mode)
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_free_touch_state()
+static A5O_TOUCH_STATE* find_free_touch_state()
 {
    int i;
 
-   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
+   for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
       if (touch_input_state.touches[i].id <= 0)
          return touch_input_state.touches + i;
 
@@ -194,11 +194,11 @@ static ALLEGRO_TOUCH_STATE* find_free_touch_state()
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_touch_state_with_id(int id)
+static A5O_TOUCH_STATE* find_touch_state_with_id(int id)
 {
    int i;
 
-   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
+   for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
       if (touch_input_state.touches[i].id == id)
          return touch_input_state.touches + i;
 
@@ -207,9 +207,9 @@ static ALLEGRO_TOUCH_STATE* find_touch_state_with_id(int id)
 
 
 
-void _al_iphone_touch_input_handle_begin(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+void _al_iphone_touch_input_handle_begin(int id, double timestamp, float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_free_touch_state();
+   A5O_TOUCH_STATE* state = find_free_touch_state();
    (void)primary;
    
    if (NULL == state)
@@ -225,14 +225,14 @@ void _al_iphone_touch_input_handle_begin(int id, double timestamp, float x, floa
    state->display = disp;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_BEGIN, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_BEGIN, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary, disp);
 }
 
 
-void _al_iphone_touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+void _al_iphone_touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   A5O_TOUCH_STATE* state = find_touch_state_with_id(id);
    (void)primary;
 
    if (NULL == state)
@@ -245,18 +245,18 @@ void _al_iphone_touch_input_handle_end(int id, double timestamp, float x, float 
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_END, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_END, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary, disp);
 
    _al_event_source_lock(&touch_input.es);
-   memset(state, 0, sizeof(ALLEGRO_TOUCH_STATE));
+   memset(state, 0, sizeof(A5O_TOUCH_STATE));
    _al_event_source_unlock(&touch_input.es);
 }
 
 
-void _al_iphone_touch_input_handle_move(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+void _al_iphone_touch_input_handle_move(int id, double timestamp, float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   A5O_TOUCH_STATE* state = find_touch_state_with_id(id);
    (void)primary;
 
    if (NULL == state)
@@ -269,14 +269,14 @@ void _al_iphone_touch_input_handle_move(int id, double timestamp, float x, float
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_MOVE, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_MOVE, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary, disp);
 }
 
 
-void _al_iphone_touch_input_handle_cancel(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+void _al_iphone_touch_input_handle_cancel(int id, double timestamp, float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   A5O_TOUCH_STATE* state = find_touch_state_with_id(id);
    (void)primary;
 
    if (NULL == state)
@@ -289,11 +289,11 @@ void _al_iphone_touch_input_handle_cancel(int id, double timestamp, float x, flo
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_CANCEL, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_CANCEL, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary, disp);
 
    _al_event_source_lock(&touch_input.es);
-   memset(state, 0, sizeof(ALLEGRO_TOUCH_STATE));
+   memset(state, 0, sizeof(A5O_TOUCH_STATE));
    _al_event_source_unlock(&touch_input.es);
 }
 
@@ -301,7 +301,7 @@ void _al_iphone_touch_input_handle_cancel(int id, double timestamp, float x, flo
 /* the driver vtable */
 #define TOUCH_INPUT_IPHONE AL_ID('I','T','I','D')
 
-static ALLEGRO_TOUCH_INPUT_DRIVER touch_input_driver =
+static A5O_TOUCH_INPUT_DRIVER touch_input_driver =
 {
    TOUCH_INPUT_IPHONE,
    init_touch_input,
@@ -312,12 +312,12 @@ static ALLEGRO_TOUCH_INPUT_DRIVER touch_input_driver =
    NULL
 };
 
-ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_iphone_touch_input_driver(void)
+A5O_TOUCH_INPUT_DRIVER *_al_get_iphone_touch_input_driver(void)
 {
     return &touch_input_driver;
 }
 
-void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+void imouse_get_state(A5O_MOUSE_STATE *ret_state)
 {
    _al_event_source_lock(&touch_input.es);
    *ret_state = mouse_state;

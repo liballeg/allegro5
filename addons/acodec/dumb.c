@@ -15,8 +15,8 @@
 #include "acodec.h"
 #include "helper.h"
 
-#ifndef ALLEGRO_CFG_ACODEC_DUMB
-   #error configuration problem, ALLEGRO_CFG_ACODEC_DUMB not set
+#ifndef A5O_CFG_ACODEC_DUMB
+   #error configuration problem, A5O_CFG_ACODEC_DUMB not set
 #endif
 
 // We use the deprecated duh_render in DUMB 2.
@@ -24,7 +24,7 @@
 #include <dumb.h>
 #include <stdio.h>
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
+A5O_DEBUG_CHANNEL("acodec")
 
 /* In addition to DUMB 0.9.3 at http://dumb.sourceforge.net/,
  * we support kode54's fork of DUMB at https://github.com/kode54/dumb.
@@ -34,22 +34,22 @@ ALLEGRO_DEBUG_CHANNEL("acodec")
 
 /* forward declarations */
 static bool init_libdumb(void);
-static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t modaudio_stream_update(A5O_AUDIO_STREAM *stream, void *data,
    size_t buf_size);
-static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream);
-static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time);
-static double modaudio_stream_get_position(ALLEGRO_AUDIO_STREAM *stream);
-static double modaudio_stream_get_length(ALLEGRO_AUDIO_STREAM *stream);
-static bool modaudio_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
+static bool modaudio_stream_rewind(A5O_AUDIO_STREAM *stream);
+static bool modaudio_stream_seek(A5O_AUDIO_STREAM *stream, double time);
+static double modaudio_stream_get_position(A5O_AUDIO_STREAM *stream);
+static double modaudio_stream_get_length(A5O_AUDIO_STREAM *stream);
+static bool modaudio_stream_set_loop(A5O_AUDIO_STREAM *stream,
    double start, double end);
-static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream);
+static void modaudio_stream_close(A5O_AUDIO_STREAM *stream);
 
 
 typedef struct MOD_FILE
 {
    DUH *duh;
    DUH_SIGRENDERER *sig;
-   ALLEGRO_FILE *fh;
+   A5O_FILE *fh;
    double length;
    long loop_start, loop_end;
 } MOD_FILE;
@@ -59,7 +59,7 @@ static bool libdumb_loaded = false;
 
 
 /* dynamic loading support (Windows only currently) */
-#ifdef ALLEGRO_CFG_ACODEC_DUMB_DLL
+#ifdef A5O_CFG_ACODEC_DUMB_DLL
 static void *dumb_dll = NULL;
 #endif
 
@@ -126,7 +126,7 @@ static void *dfs_open(const char *filename)
 
 static int dfs_skip(void *f, dumb_off_t n)
 {
-   return al_fseek(f, n, ALLEGRO_SEEK_CUR) ? 0 : -1;
+   return al_fseek(f, n, A5O_SEEK_CUR) ? 0 : -1;
 }
 
 static int dfs_getc(void *f)
@@ -148,7 +148,7 @@ static void dfs_close(void *f)
 #if (DUMB_MAJOR_VERSION) >= 2
 static int dfs_seek(void *f, dumb_off_t n)
 {
-   return al_fseek(f, n, ALLEGRO_SEEK_SET) ? 0 : -1;
+   return al_fseek(f, n, A5O_SEEK_SET) ? 0 : -1;
 }
 
 static dumb_off_t dfs_get_size(void *f)
@@ -166,7 +166,7 @@ static int loop_callback(void *data)
    return 0;
 }
 
-static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t modaudio_stream_update(A5O_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    MOD_FILE *const df = stream->extra;
@@ -180,7 +180,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    DUMB_IT_SIGRENDERER *it_sig = lib.duh_get_it_sigrenderer(df->sig);
    if (it_sig) {
       lib.dumb_it_set_loop_callback(it_sig,
-         stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
+         stream->spl.loop == _A5O_PLAYMODE_STREAM_ONCE
          ? lib.dumb_it_callback_terminate : loop_callback, &internal_loop);
    }
 
@@ -191,7 +191,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
       internal_loop = false;
       /* If manual looping is not enabled, then we need to implement
        * short-stopping manually. */
-      if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && df->loop_end != -1 &&
+      if (stream->spl.loop != _A5O_PLAYMODE_STREAM_ONCE && df->loop_end != -1 &&
           position + 65536 * size_to_read / 44100 >= df->loop_end) {
          size_to_read = (df->loop_end - position) * 44100 / 65536;
          if (size_to_read < 0)
@@ -214,7 +214,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    return written;
 }
 
-static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream)
+static void modaudio_stream_close(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    _al_acodec_stop_feed_thread(stream);
@@ -225,7 +225,7 @@ static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream)
       al_fclose(df->fh);
 }
 
-static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
+static bool modaudio_stream_rewind(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    lib.duh_end_sigrenderer(df->sig);
@@ -233,7 +233,7 @@ static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
    return true;
 }
 
-static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
+static bool modaudio_stream_seek(A5O_AUDIO_STREAM *stream, double time)
 {
    MOD_FILE *const df = stream->extra;
 
@@ -247,19 +247,19 @@ static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
    return true;
 }
 
-static double modaudio_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
+static double modaudio_stream_get_position(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    return lib.duh_sigrenderer_get_position(df->sig) / 65536.0;
 }
 
-static double modaudio_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
+static double modaudio_stream_get_length(A5O_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    return df->length;
 }
 
-static bool modaudio_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
+static bool modaudio_stream_set_loop(A5O_AUDIO_STREAM *stream,
    double start, double end)
 {
    MOD_FILE *const df = stream->extra;
@@ -270,7 +270,7 @@ static bool modaudio_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
    return true;
 }
 
-static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
+static A5O_AUDIO_STREAM *modaudio_stream_init(A5O_FILE* f,
    size_t buffer_count, unsigned int samples
 #if (DUMB_MAJOR_VERSION) < 2
    /* For DUMB 0.9.3, we must choose a loader function ourselves. */
@@ -278,7 +278,7 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
 #endif
 )
 {
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_AUDIO_STREAM *stream;
    DUMBFILE *df;
    DUH_SIGRENDERER *sig = NULL;
    DUH *duh = NULL;
@@ -287,7 +287,7 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
 
    df = lib.dumbfile_open_ex(f, &dfs_f);
    if (!df) {
-      ALLEGRO_ERROR("dumbfile_open_ex failed.\n");
+      A5O_ERROR("dumbfile_open_ex failed.\n");
       return NULL;
    }
 
@@ -309,13 +309,13 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
    duh = loader(df);
 #endif
    if (!duh) {
-      ALLEGRO_ERROR("Failed to create DUH.\n");
+      A5O_ERROR("Failed to create DUH.\n");
       goto Error;
    }
 
    sig = lib.duh_start_sigrenderer(duh, 0, 2, 0);
    if (!sig) {
-      ALLEGRO_ERROR("duh_start_sigrenderer failed.\n");
+      A5O_ERROR("duh_start_sigrenderer failed.\n");
       goto Error;
    }
 
@@ -326,7 +326,7 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
    }
 
    stream = al_create_audio_stream(buffer_count, samples, 44100,
-      ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+      A5O_AUDIO_DEPTH_INT16, A5O_CHANNEL_CONF_2);
 
    if (stream) {
       MOD_FILE *mf = al_malloc(sizeof(MOD_FILE));
@@ -355,7 +355,7 @@ static ALLEGRO_AUDIO_STREAM *modaudio_stream_init(ALLEGRO_FILE* f,
       _al_acodec_start_feed_thread(stream);
    }
    else {
-      ALLEGRO_ERROR("Failed to create stream.\n");
+      A5O_ERROR("Failed to create stream.\n");
       goto Error;
    }
 
@@ -373,7 +373,7 @@ Error:
 
    /* try to return back to where we started to load */
    if (start_pos != -1)
-      al_fseek(f, start_pos, ALLEGRO_SEEK_SET);
+      al_fseek(f, start_pos, A5O_SEEK_SET);
 
    return NULL;
 }
@@ -385,7 +385,7 @@ static void shutdown_libdumb(void)
       libdumb_loaded = false;
    }
 
-#ifdef ALLEGRO_CFG_ACODEC_DUMB_DLL
+#ifdef A5O_CFG_ACODEC_DUMB_DLL
    if (dumb_dll) {
       _al_close_library(dumb_dll);
       dumb_dll = NULL;
@@ -399,10 +399,10 @@ static bool init_libdumb(void)
       return true;
    }
 
-#ifdef ALLEGRO_CFG_ACODEC_DUMB_DLL
-   dumb_dll = _al_open_library(ALLEGRO_CFG_ACODEC_DUMB_DLL);
+#ifdef A5O_CFG_ACODEC_DUMB_DLL
+   dumb_dll = _al_open_library(A5O_CFG_ACODEC_DUMB_DLL);
    if (!dumb_dll) {
-      ALLEGRO_ERROR("Could not load " ALLEGRO_CFG_ACODEC_DUMB_DLL "\n");
+      A5O_ERROR("Could not load " A5O_CFG_ACODEC_DUMB_DLL "\n");
       return false;
    }
 
@@ -411,7 +411,7 @@ static bool init_libdumb(void)
       {                                                                       \
          lib.x = _al_import_symbol(dumb_dll, #x);                             \
          if (lib.x == 0) {                                                    \
-            ALLEGRO_ERROR("undefined symbol in lib structure: " #x "\n");     \
+            A5O_ERROR("undefined symbol in lib structure: " #x "\n");     \
             return false;                                                     \
          }                                                                    \
       } while(0)
@@ -469,7 +469,7 @@ static bool init_libdumb(void)
 
 #if (DUMB_MAJOR_VERSION) >= 2
 
-static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream_f(ALLEGRO_FILE *f,
+static A5O_AUDIO_STREAM *load_dumb_audio_stream_f(A5O_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -481,11 +481,11 @@ static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream_f(ALLEGRO_FILE *f,
  * DUMB 2.0 figures out the file format for us.
  * Need only one loader from disk file and one loader from DUMBFILE.
  */
-static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream(const char *filename,
+static A5O_AUDIO_STREAM *load_dumb_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
@@ -513,7 +513,7 @@ static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream(const char *filename,
  * all identical, except for the function called in the middle.
  */
 
-static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream_f(ALLEGRO_FILE *f,
+static A5O_AUDIO_STREAM *load_mod_audio_stream_f(A5O_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -521,7 +521,7 @@ static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream_f(ALLEGRO_FILE *f,
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_mod);
 }
 
-static ALLEGRO_AUDIO_STREAM *load_it_audio_stream_f(ALLEGRO_FILE *f,
+static A5O_AUDIO_STREAM *load_it_audio_stream_f(A5O_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -529,7 +529,7 @@ static ALLEGRO_AUDIO_STREAM *load_it_audio_stream_f(ALLEGRO_FILE *f,
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_it);
 }
 
-static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream_f(ALLEGRO_FILE *f,
+static A5O_AUDIO_STREAM *load_xm_audio_stream_f(A5O_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -537,7 +537,7 @@ static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream_f(ALLEGRO_FILE *f,
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_xm);
 }
 
-static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream_f(ALLEGRO_FILE *f,
+static A5O_AUDIO_STREAM *load_s3m_audio_stream_f(A5O_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -545,16 +545,16 @@ static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream_f(ALLEGRO_FILE *f,
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_s3m);
 }
 
-static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream(const char *filename,
+static A5O_AUDIO_STREAM *load_mod_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -570,16 +570,16 @@ static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream(const char *filename,
    return stream;
 }
 
-static ALLEGRO_AUDIO_STREAM *load_it_audio_stream(const char *filename,
+static A5O_AUDIO_STREAM *load_it_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -595,16 +595,16 @@ static ALLEGRO_AUDIO_STREAM *load_it_audio_stream(const char *filename,
    return stream;
 }
 
-static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream(const char *filename,
+static A5O_AUDIO_STREAM *load_xm_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -620,16 +620,16 @@ static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream(const char *filename,
    return stream;
 }
 
-static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream(const char *filename,
+static A5O_AUDIO_STREAM *load_s3m_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_FILE *f;
+   A5O_AUDIO_STREAM *stream;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 

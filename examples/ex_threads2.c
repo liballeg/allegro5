@@ -23,9 +23,9 @@
 
 
 typedef struct ThreadInfo {
-   ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_MUTEX *mutex;
-   ALLEGRO_COND *cond;
+   A5O_BITMAP *bitmap;
+   A5O_MUTEX *mutex;
+   A5O_COND *cond;
    bool is_paused;
    int random_seed;
    double target_x, target_y;
@@ -101,10 +101,10 @@ static void random_palette(unsigned char palette[256][3], int *seed)
 }
 
 
-static void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
+static void draw_mandel_line(A5O_BITMAP *bitmap, const Viewport *viewport,
    unsigned char palette[256][3], const int y)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    unsigned char *rgb;
    double xlower, ylower;
    double xscale, yscale;
@@ -117,8 +117,8 @@ static void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    w = al_get_bitmap_width(bitmap);
    h = al_get_bitmap_height(bitmap);
 
-   if (!(lr = al_lock_bitmap_region(bitmap, 0, y, w, 1, ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
-         ALLEGRO_LOCK_WRITEONLY))) {
+   if (!(lr = al_lock_bitmap_region(bitmap, 0, y, w, 1, A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA,
+         A5O_LOCK_WRITEONLY))) {
       abort_example("draw_mandel_line: al_lock_bitmap_region failed\n");
    }
 
@@ -147,7 +147,7 @@ static void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
 }
 
 
-static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
+static void *thread_func(A5O_THREAD *thr, void *arg)
 {
    ThreadInfo *info = (ThreadInfo *) arg;
    Viewport viewport;
@@ -210,7 +210,7 @@ static void show_images(void)
    int y = 0;
    int i;
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    for (i = 0; i < NUM_THREADS; i++) {
       /* for lots of threads, this is not good enough */
       al_lock_mutex(thread_info[i].mutex);
@@ -247,11 +247,11 @@ static void toggle_pausedness(int n)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_THREAD *thread[NUM_THREADS];
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_THREAD *thread[NUM_THREADS];
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    bool need_draw;
    int i;
 
@@ -293,8 +293,8 @@ int main(int argc, char **argv)
     * functions accessing the display check for it.. not sure it's worth the
     * additional complexity though.
     */
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_888);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_format(A5O_PIXEL_FORMAT_RGB_888);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    for (i = 0; i < NUM_THREADS; i++) {
       thread_info[i].bitmap = al_create_bitmap(W, H);
       if (!thread_info[i].bitmap) {
@@ -338,10 +338,10 @@ int main(int argc, char **argv)
       }
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          need_draw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          int n = (event.mouse.y / H) * IMAGES_PER_ROW + (event.mouse.x / W);
          if (n < NUM_THREADS) {
             double x = event.mouse.x - (event.mouse.x / W) * W;
@@ -354,14 +354,14 @@ int main(int argc, char **argv)
             toggle_pausedness(n);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_EXPOSE) {
          need_draw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      else if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
             break;
          }
          need_draw = true;

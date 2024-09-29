@@ -8,9 +8,9 @@
 static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 {
    state_solid_any_2d *s = (state_solid_any_2d *) state;
-   ALLEGRO_COLOR cur_color = s->cur_color;
+   A5O_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -40,7 +40,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
@@ -49,71 +49,71 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
 	       {
 		  {
 		     for (; x1 <= x2; x1++) {
-			ALLEGRO_COLOR src_color = cur_color;
+			A5O_COLOR src_color = cur_color;
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ALPHA && src_alpha == A5O_ALPHA && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
 	       {
 		  {
 		     for (; x1 <= x2; x1++) {
-			ALLEGRO_COLOR src_color = cur_color;
+			A5O_COLOR src_color = cur_color;
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_ONE && dst_alpha == ALLEGRO_ONE) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_ONE && dst_alpha == A5O_ONE) {
 
 	       {
 		  {
 		     for (; x1 <= x2; x1++) {
-			ALLEGRO_COLOR src_color = cur_color;
+			A5O_COLOR src_color = cur_color;
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
 		     }
 		  }
 	       }
-	    } else if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    } else if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
 		  }
@@ -121,11 +121,11 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 	    } else {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
@@ -142,9 +142,9 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 {
    state_solid_any_2d *s = (state_solid_any_2d *) state;
-   ALLEGRO_COLOR cur_color = s->cur_color;
+   A5O_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -177,19 +177,19 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
-		     _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
+		     _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
 		  }
 	       }
 	    } else {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
 		     _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
 
@@ -205,9 +205,9 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 {
    state_grad_any_2d *gs = (state_grad_any_2d *) state;
    state_solid_any_2d *s = &gs->solid;
-   ALLEGRO_COLOR cur_color = s->cur_color;
+   A5O_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -242,7 +242,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
@@ -251,18 +251,18 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
 	       {
 		  {
 		     for (; x1 <= x2; x1++) {
-			ALLEGRO_COLOR src_color = cur_color;
+			A5O_COLOR src_color = cur_color;
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -274,18 +274,18 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ALPHA && src_alpha == A5O_ALPHA && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
 	       {
 		  {
 		     for (; x1 <= x2; x1++) {
-			ALLEGRO_COLOR src_color = cur_color;
+			A5O_COLOR src_color = cur_color;
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -297,18 +297,18 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_ONE && dst_alpha == ALLEGRO_ONE) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_ONE && dst_alpha == A5O_ONE) {
 
 	       {
 		  {
 		     for (; x1 <= x2; x1++) {
-			ALLEGRO_COLOR src_color = cur_color;
+			A5O_COLOR src_color = cur_color;
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -320,17 +320,17 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 		     }
 		  }
 	       }
-	    } else if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    } else if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
 		     cur_color.r += gs->color_dx.r;
@@ -343,11 +343,11 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 	    } else {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
@@ -370,9 +370,9 @@ static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 {
    state_grad_any_2d *gs = (state_grad_any_2d *) state;
    state_solid_any_2d *s = &gs->solid;
-   ALLEGRO_COLOR cur_color = s->cur_color;
+   A5O_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -410,12 +410,12 @@ static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
-		     _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
+		     _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
 		     cur_color.r += gs->color_dx.r;
 		     cur_color.g += gs->color_dx.g;
@@ -427,7 +427,7 @@ static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 	    } else {
 	       {
 		  for (; x1 <= x2; x1++) {
-		     ALLEGRO_COLOR src_color = cur_color;
+		     A5O_COLOR src_color = cur_color;
 
 		     _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
 
@@ -451,7 +451,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -484,17 +484,17 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -515,9 +515,9 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -536,13 +536,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -551,13 +551,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -567,17 +567,17 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -620,13 +620,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -635,13 +635,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -651,16 +651,16 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -686,9 +686,9 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ALPHA && src_alpha == A5O_ALPHA && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -707,13 +707,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -722,13 +722,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -738,17 +738,17 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -791,13 +791,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -806,13 +806,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -822,16 +822,16 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -857,9 +857,9 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_ONE && dst_alpha == ALLEGRO_ONE) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_ONE && dst_alpha == A5O_ONE) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -878,13 +878,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -893,13 +893,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -909,17 +909,17 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -962,13 +962,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -977,13 +977,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -993,16 +993,16 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -1028,7 +1028,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     }
 		  }
 	       }
-	    } else if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    } else if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -1047,13 +1047,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -1062,13 +1062,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -1078,17 +1078,17 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
-		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+		     A5O_COLOR src_color;
+		     _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
 		     uu += du_dx;
@@ -1131,13 +1131,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -1146,13 +1146,13 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -1162,14 +1162,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
@@ -1209,7 +1209,7 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -1242,17 +1242,17 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -1273,9 +1273,9 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -1295,17 +1295,17 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -1349,16 +1349,16 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -1384,9 +1384,9 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ALPHA && src_alpha == A5O_ALPHA && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -1406,17 +1406,17 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -1460,16 +1460,16 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -1495,9 +1495,9 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_ONE && dst_alpha == ALLEGRO_ONE) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_ONE && dst_alpha == A5O_ONE) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -1517,17 +1517,17 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -1571,16 +1571,16 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -1606,7 +1606,7 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 		     }
 		  }
 	       }
-	    } else if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    } else if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -1625,13 +1625,13 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -1640,13 +1640,13 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -1656,17 +1656,17 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
-		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+		     A5O_COLOR src_color;
+		     _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
 		     uu += du_dx;
@@ -1709,13 +1709,13 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -1724,13 +1724,13 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -1740,14 +1740,14 @@ static void shader_texture_solid_any_draw_shade_repeat(uintptr_t state, int x1, 
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
@@ -1787,7 +1787,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -1820,17 +1820,17 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -1851,9 +1851,9 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -1872,13 +1872,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -1887,13 +1887,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -1903,15 +1903,15 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -1954,13 +1954,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -1969,13 +1969,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -1985,14 +1985,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2018,9 +2018,9 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ALPHA && src_alpha == A5O_ALPHA && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -2039,13 +2039,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -2054,13 +2054,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -2070,15 +2070,15 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -2121,13 +2121,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -2136,13 +2136,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -2152,14 +2152,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2185,9 +2185,9 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_ONE && dst_alpha == ALLEGRO_ONE) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_ONE && dst_alpha == A5O_ONE) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -2206,13 +2206,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -2221,13 +2221,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -2237,15 +2237,15 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -2288,13 +2288,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -2303,13 +2303,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -2319,14 +2319,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2352,7 +2352,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     }
 		  }
 	       }
-	    } else if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    } else if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -2371,13 +2371,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -2386,13 +2386,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -2402,15 +2402,15 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
-		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+		     A5O_COLOR src_color;
+		     _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
 		     uu += du_dx;
@@ -2453,13 +2453,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -2468,13 +2468,13 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -2484,12 +2484,12 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
@@ -2529,7 +2529,7 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -2562,17 +2562,17 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -2593,9 +2593,9 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -2615,15 +2615,15 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -2667,14 +2667,14 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2700,9 +2700,9 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ALPHA && src_alpha == A5O_ALPHA && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -2722,15 +2722,15 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -2774,14 +2774,14 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2807,9 +2807,9 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_ONE && dst_alpha == ALLEGRO_ONE) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_ONE && dst_alpha == A5O_ONE) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -2829,15 +2829,15 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -2881,14 +2881,14 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2914,7 +2914,7 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 		     }
 		  }
 	       }
-	    } else if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    } else if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -2933,13 +2933,13 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -2948,13 +2948,13 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -2964,15 +2964,15 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
-		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+		     A5O_COLOR src_color;
+		     _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
 		     uu += du_dx;
@@ -3015,13 +3015,13 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -3030,13 +3030,13 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -3046,12 +3046,12 @@ static void shader_texture_solid_any_draw_shade_white_repeat(uintptr_t state, in
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
@@ -3091,7 +3091,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -3125,10 +3125,10 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -3149,7 +3149,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -3169,13 +3169,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -3184,13 +3184,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -3200,12 +3200,12 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
 
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
 			uu += du_dx;
 			vv += dv_dx;
@@ -3225,13 +3225,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -3240,13 +3240,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -3256,12 +3256,12 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
-		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+		     A5O_COLOR src_color;
+		     _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
 
-		     _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
+		     _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
 		     uu += du_dx;
 		     vv += dv_dx;
@@ -3304,13 +3304,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -3319,13 +3319,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -3335,7 +3335,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, s->cur_color);
@@ -3360,13 +3360,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -3375,13 +3375,13 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -3391,7 +3391,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
@@ -3432,7 +3432,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -3466,10 +3466,10 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -3510,13 +3510,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -3525,13 +3525,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -3577,13 +3577,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -3592,13 +3592,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -3667,13 +3667,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -3682,13 +3682,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -3734,13 +3734,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -3749,13 +3749,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -3824,13 +3824,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -3839,13 +3839,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -3891,13 +3891,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -3906,13 +3906,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -3981,13 +3981,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -3996,13 +3996,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -4012,7 +4012,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
@@ -4035,13 +4035,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -4050,13 +4050,13 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -4066,7 +4066,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
@@ -4102,12 +4102,12 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 {
    state_texture_grad_any_2d *gs = (state_texture_grad_any_2d *) state;
    state_texture_solid_any_2d *s = &gs->solid;
-   ALLEGRO_COLOR cur_color = s->cur_color;
+   A5O_COLOR cur_color = s->cur_color;
 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -4145,17 +4145,17 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
-      ALLEGRO_COLOR const_color;
+      A5O_COLOR const_color;
       al_get_separate_bitmap_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
       const_color = al_get_blend_color();
 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -4176,9 +4176,9 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -4197,13 +4197,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -4212,13 +4212,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -4228,17 +4228,17 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -4286,13 +4286,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -4301,13 +4301,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -4317,16 +4317,16 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -4357,9 +4357,9 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ALPHA && src_alpha == A5O_ALPHA && op_alpha == A5O_ADD && dst_mode == A5O_INVERSE_ALPHA && dst_alpha == A5O_INVERSE_ALPHA) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -4378,13 +4378,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -4393,13 +4393,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -4409,17 +4409,17 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -4467,13 +4467,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -4482,13 +4482,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -4498,16 +4498,16 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -4538,9 +4538,9 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     }
 		  }
 	       }
-	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_ONE && dst_alpha == ALLEGRO_ONE) {
+	    } else if (op == A5O_ADD && src_mode == A5O_ONE && src_alpha == A5O_ONE && op_alpha == A5O_ADD && dst_mode == A5O_ONE && dst_alpha == A5O_ONE) {
 
-	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	       if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
 		  const int src_pitch = texture->locked_region.pitch;
 		  const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -4559,13 +4559,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -4574,13 +4574,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -4590,17 +4590,17 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
-			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
-			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
+			   _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
+			   _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
 			uu += du_dx;
@@ -4648,13 +4648,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			int src_y = (vv >> 16) + vv_ofs;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -4663,13 +4663,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -4679,16 +4679,16 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
 
 			{
-			   ALLEGRO_COLOR dst_color;
-			   ALLEGRO_COLOR result;
+			   A5O_COLOR dst_color;
+			   A5O_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, A5O_ADD, A5O_ONE, A5O_ONE, A5O_ADD, A5O_ONE, A5O_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -4719,7 +4719,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     }
 		  }
 	       }
-	    } else if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    } else if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -4738,13 +4738,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -4753,13 +4753,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -4769,17 +4769,17 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
-		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+		     A5O_COLOR src_color;
+		     _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
 		     uu += du_dx;
@@ -4827,13 +4827,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -4842,13 +4842,13 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -4858,14 +4858,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);
 
 		     {
-			ALLEGRO_COLOR dst_color;
-			ALLEGRO_COLOR result;
+			A5O_COLOR dst_color;
+			A5O_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
 			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
@@ -4907,12 +4907,12 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 {
    state_texture_grad_any_2d *gs = (state_texture_grad_any_2d *) state;
    state_texture_solid_any_2d *s = &gs->solid;
-   ALLEGRO_COLOR cur_color = s->cur_color;
+   A5O_COLOR cur_color = s->cur_color;
 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = s->target;
+   A5O_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -4951,10 +4951,10 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
-	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
+	 A5O_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = texture->locked_region.pixel_size;
-	 ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+	 A5O_BITMAP_WRAP wrap_u, wrap_v;
 	 _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 	 int tile_u = (int) (floorf(u / s->w));
 	 int tile_v = (int) (floorf(v / s->h));
@@ -4975,7 +4975,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    if (dst_format == A5O_PIXEL_FORMAT_ARGB_8888 && src_format == A5O_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const al_fixed du_dx = al_ftofix(s->du_dx);
@@ -4995,13 +4995,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -5010,13 +5010,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -5026,12 +5026,12 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
-			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+			A5O_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
 
-			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
+			_AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
 			uu += du_dx;
 			vv += dv_dx;
@@ -5056,13 +5056,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -5071,13 +5071,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -5087,12 +5087,12 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
-		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+		     A5O_COLOR src_color;
+		     _AL_INLINE_GET_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);
 
-		     _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
+		     _AL_INLINE_PUT_PIXEL(A5O_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
 		     uu += du_dx;
 		     vv += dv_dx;
@@ -5140,13 +5140,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 			int src_y = (vv >> 16) + 0;
 
 			switch (wrap_u) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_u < 0)
 			      src_x = 0;
 			   if (tile_u > 0)
 			      src_x = s->w - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_u % 2)
 			      src_x = s->w - 1 - src_x;
 			   // REPEAT and DEFAULT.
@@ -5155,13 +5155,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 			}
 
 			switch (wrap_v) {
-			case ALLEGRO_BITMAP_WRAP_CLAMP:
+			case A5O_BITMAP_WRAP_CLAMP:
 			   if (tile_v < 0)
 			      src_y = 0;
 			   if (tile_v > 0)
 			      src_y = s->h - 1;
 			   break;
-			case ALLEGRO_BITMAP_WRAP_MIRROR:
+			case A5O_BITMAP_WRAP_MIRROR:
 			   if (tile_v % 2)
 			      src_y = s->h - 1 - src_y;
 			   // REPEAT and DEFAULT.
@@ -5171,7 +5171,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-			ALLEGRO_COLOR src_color;
+			A5O_COLOR src_color;
 			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 			SHADE_COLORS(src_color, cur_color);
@@ -5201,13 +5201,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 		     int src_y = (vv >> 16) + vv_ofs;
 
 		     switch (wrap_u) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_u < 0)
 			   src_x = 0;
 			if (tile_u > 0)
 			   src_x = s->w - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_u % 2)
 			   src_x = s->w - 1 - src_x;
 			// REPEAT and DEFAULT.
@@ -5216,13 +5216,13 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 		     }
 
 		     switch (wrap_v) {
-		     case ALLEGRO_BITMAP_WRAP_CLAMP:
+		     case A5O_BITMAP_WRAP_CLAMP:
 			if (tile_v < 0)
 			   src_y = 0;
 			if (tile_v > 0)
 			   src_y = s->h - 1;
 			break;
-		     case ALLEGRO_BITMAP_WRAP_MIRROR:
+		     case A5O_BITMAP_WRAP_MIRROR:
 			if (tile_v % 2)
 			   src_y = s->h - 1 - src_y;
 			// REPEAT and DEFAULT.
@@ -5232,7 +5232,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 		     uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
 
-		     ALLEGRO_COLOR src_color;
+		     A5O_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);

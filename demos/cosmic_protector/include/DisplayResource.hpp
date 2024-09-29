@@ -8,11 +8,11 @@ public:
    void destroy(void);
    bool load(void);
    void* get(void);
-   ALLEGRO_EVENT_QUEUE *getEventQueue(void);
+   A5O_EVENT_QUEUE *getEventQueue(void);
    DisplayResource(void);
 private:
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *events;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *events;
 };
 
 extern bool useFullScreenMode;

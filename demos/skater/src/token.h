@@ -79,7 +79,7 @@ struct Tok {
 };
 
 extern struct Tok Token;
-extern ALLEGRO_FILE *input;		/* the file from which level input is read */
+extern A5O_FILE *input;		/* the file from which level input is read */
 
 extern void GetToken(void);
 extern void ExpectToken(enum TokenTypes Type);

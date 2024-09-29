@@ -22,18 +22,18 @@
 #include "gtk_xgtk.h"
 
 typedef struct {
-   ALLEGRO_DISPLAY         *display;
-   ALLEGRO_NATIVE_DIALOG   *dialog;
+   A5O_DISPLAY         *display;
+   A5O_NATIVE_DIALOG   *dialog;
 } GTK_FILE_DIALOG_MESSAGE;
 
 /* [nd_gtk thread] */
 static gboolean create_gtk_file_dialog(gpointer data)
 {
    GTK_FILE_DIALOG_MESSAGE *msg = data;
-   ALLEGRO_DISPLAY *display = msg->display;
-   ALLEGRO_NATIVE_DIALOG *fd = msg->dialog;
-   bool save = fd->flags & ALLEGRO_FILECHOOSER_SAVE;
-   bool folder = fd->flags & ALLEGRO_FILECHOOSER_FOLDER;
+   A5O_DISPLAY *display = msg->display;
+   A5O_NATIVE_DIALOG *fd = msg->dialog;
+   bool save = fd->flags & A5O_FILECHOOSER_SAVE;
+   bool folder = fd->flags & A5O_FILECHOOSER_FOLDER;
    gint result;
 
    GtkWidget *window;
@@ -55,12 +55,12 @@ static gboolean create_gtk_file_dialog(gpointer data)
    if (fd->fc_initial_path) {
       bool is_dir;
       bool exists;
-      const char *path = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+      const char *path = al_path_cstr(fd->fc_initial_path, A5O_NATIVE_PATH_SEP);
 
       if (al_filename_exists(path)) {
          exists = true;
-         ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(path);
-         is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
+         A5O_FS_ENTRY *fs = al_create_fs_entry(path);
+         is_dir = al_get_fs_entry_mode(fs) & A5O_FILEMODE_ISDIR;
          al_destroy_fs_entry(fs);
       }
       else {
@@ -71,20 +71,20 @@ static gboolean create_gtk_file_dialog(gpointer data)
       if (is_dir) {
          gtk_file_chooser_set_current_folder
             (GTK_FILE_CHOOSER(window),
-             al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
+             al_path_cstr(fd->fc_initial_path, A5O_NATIVE_PATH_SEP));
       }
       else if (exists) {
          gtk_file_chooser_set_filename
              (GTK_FILE_CHOOSER(window),
-              al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
+              al_path_cstr(fd->fc_initial_path, A5O_NATIVE_PATH_SEP));
       }
       else {
-         ALLEGRO_PATH *dir_path = al_clone_path(fd->fc_initial_path);
+         A5O_PATH *dir_path = al_clone_path(fd->fc_initial_path);
          if (dir_path) {
             al_set_path_filename(dir_path, NULL);
             gtk_file_chooser_set_current_folder
                (GTK_FILE_CHOOSER(window),
-                al_path_cstr(dir_path, ALLEGRO_NATIVE_PATH_SEP));
+                al_path_cstr(dir_path, A5O_NATIVE_PATH_SEP));
             if (save) {
                gtk_file_chooser_set_current_name
                   (GTK_FILE_CHOOSER(window),
@@ -95,13 +95,13 @@ static gboolean create_gtk_file_dialog(gpointer data)
       }
    }
 
-   if (fd->flags & ALLEGRO_FILECHOOSER_MULTIPLE)
+   if (fd->flags & A5O_FILECHOOSER_MULTIPLE)
       gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(window), true);
 
    for (size_t i = 0; i < _al_vector_size(&fd->fc_patterns); i++)
    {
       _AL_PATTERNS_AND_DESC *patterns_and_desc = _al_vector_ref(&fd->fc_patterns, i);
-      const ALLEGRO_USTR *desc = al_ref_info(&patterns_and_desc->desc);
+      const A5O_USTR *desc = al_ref_info(&patterns_and_desc->desc);
       GtkFileFilter* filter = gtk_file_filter_new();
       if (al_ustr_size(desc) > 0) {
          char *cstr = al_cstr_dup(desc);
@@ -149,8 +149,8 @@ static gboolean create_gtk_file_dialog(gpointer data)
 }
 
 /* [user thread] */
-bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
-   ALLEGRO_NATIVE_DIALOG *fd)
+bool _al_show_native_file_dialog(A5O_DISPLAY *display,
+   A5O_NATIVE_DIALOG *fd)
 {
    GTK_FILE_DIALOG_MESSAGE msg;
 

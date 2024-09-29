@@ -25,15 +25,15 @@
 #include <string.h>
 #include <poll.h>
 
-ALLEGRO_DEBUG_CHANNEL("oss")
+A5O_DEBUG_CHANNEL("oss")
 
-#if defined ALLEGRO_HAVE_SOUNDCARD_H
+#if defined A5O_HAVE_SOUNDCARD_H
   #include <soundcard.h>
-#elif defined ALLEGRO_HAVE_SYS_SOUNDCARD_H
+#elif defined A5O_HAVE_SYS_SOUNDCARD_H
   #include <sys/soundcard.h>
-#elif defined ALLEGRO_HAVE_LINUX_SOUNDCARD_H
+#elif defined A5O_HAVE_LINUX_SOUNDCARD_H
   #include <linux/soundcard.h>
-#elif defined ALLEGRO_HAVE_MACHINE_SOUNDCARD_H
+#elif defined A5O_HAVE_MACHINE_SOUNDCARD_H
   #include <machine/soundcard.h>
 #endif
 
@@ -44,14 +44,14 @@ ALLEGRO_DEBUG_CHANNEL("oss")
 #endif
 
 #ifndef AFMT_S16_NE
-   #ifdef ALLEGRO_BIG_ENDIAN
+   #ifdef A5O_BIG_ENDIAN
       #define AFMT_S16_NE AFMT_S16_BE
    #else
       #define AFMT_S16_NE AFMT_S16_LE
    #endif
 #endif
 #ifndef AFMT_U16_NE
-   #ifdef ALLEGRO_BIG_ENDIAN
+   #ifdef A5O_BIG_ENDIAN
       #define AFMT_U16_NE AFMT_U16_BE
    #else
       #define AFMT_U16_NE AFMT_U16_LE
@@ -86,14 +86,14 @@ typedef struct OSS_VOICE {
    int fd;
    int volume;
 
-   /* Copied from the parent ALLEGRO_VOICE. Used for convenince. */
+   /* Copied from the parent A5O_VOICE. Used for convenince. */
    unsigned int len; /* in frames */
    unsigned int frame_size; /* in bytes */
 
    volatile bool stopped;
    volatile bool stop;
 
-   ALLEGRO_THREAD *poll_thread;
+   A5O_THREAD *poll_thread;
 } OSS_VOICE;
 
 
@@ -107,17 +107,17 @@ static int oss_open_ver4()
       switch (errno) {
          case ENXIO:
          case ENODEV:
-            ALLEGRO_ERROR("Open Sound System is not running in your system.\n");
+            A5O_ERROR("Open Sound System is not running in your system.\n");
          break;
 
          case ENOENT:
-            ALLEGRO_ERROR("No /dev/mixer device available in your system.\n");
-            ALLEGRO_ERROR("Perhaps Open Sound System is not installed or "
+            A5O_ERROR("No /dev/mixer device available in your system.\n");
+            A5O_ERROR("Perhaps Open Sound System is not installed or "
                           "running.\n");
          break;
 
          default:
-            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+            A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       }
 
       return 1;
@@ -125,15 +125,15 @@ static int oss_open_ver4()
 
    if (ioctl(mixer_fd, SNDCTL_SYSINFO, &sysinfo) == -1) {
       if (errno == ENXIO) {
-         ALLEGRO_ERROR("OSS has not detected any supported sound hardware in "
+         A5O_ERROR("OSS has not detected any supported sound hardware in "
                        "your system.\n");
       }
       else if (errno == EINVAL) {
-         ALLEGRO_INFO("The version of OSS installed on the system is not "
+         A5O_INFO("The version of OSS installed on the system is not "
                       "compatible with OSS4.\n");
       }
       else
-         ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+         A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
 
       close(mixer_fd);
       return 1;
@@ -142,20 +142,20 @@ static int oss_open_ver4()
    /* Some OSS implementations (ALSA emulation) don't fail on SNDCTL_SYSINFO even
     * though they don't support OSS4. They *seem* to set numcards to 0. */
    if (sysinfo.numcards < 1) {
-      ALLEGRO_WARN("The version of OSS installed on the system is not "
+      A5O_WARN("The version of OSS installed on the system is not "
                    "compatible with OSS4.\n");
       return 1;
    }
 
-   ALLEGRO_INFO("OSS Version: %s\n", sysinfo.version);
-   ALLEGRO_INFO("Found %i sound cards.\n", sysinfo.numcards);
+   A5O_INFO("OSS Version: %s\n", sysinfo.version);
+   A5O_INFO("Found %i sound cards.\n", sysinfo.numcards);
 
    for (i = 0; i < sysinfo.numcards; i++) {
       oss_audioinfo audioinfo;
       memset(&audioinfo, 0, sizeof(oss_audioinfo));
       audioinfo.dev = i;
 
-      ALLEGRO_INFO("Trying sound card no. %i ...\n", audioinfo.dev);
+      A5O_INFO("Trying sound card no. %i ...\n", audioinfo.dev);
 
       ioctl(mixer_fd, SNDCTL_AUDIOINFO, &audioinfo);
 
@@ -167,20 +167,20 @@ static int oss_open_ver4()
             sprintf(oss_audio_device, "/dev/dsp%i", audioinfo.legacy_device);
          }
          else {
-            ALLEGRO_ERROR("Cannot find device name.\n");
+            A5O_ERROR("Cannot find device name.\n");
          }
 
-         ALLEGRO_INFO("Using device: %s\n", oss_audio_device);
+         A5O_INFO("Using device: %s\n", oss_audio_device);
 
          break;
       }
       else {
-         ALLEGRO_INFO("Device disabled.\n");
+         A5O_INFO("Device disabled.\n");
       }
    }
 
    if (i == sysinfo.numcards) {
-      ALLEGRO_ERROR("Couldn't find a suitable device.\n");
+      A5O_ERROR("Couldn't find a suitable device.\n");
       close(mixer_fd);
       return 1;
    }
@@ -206,19 +206,19 @@ static int oss_open_ver3(void)
       switch (errno) {
          case ENXIO:
          case ENODEV:
-            ALLEGRO_ERROR("Open Sound System is not running in your "
+            A5O_ERROR("Open Sound System is not running in your "
                           "system.\n");
          break;
 
          case ENOENT:
-            ALLEGRO_ERROR("No '%s' device available in your system.\n",
+            A5O_ERROR("No '%s' device available in your system.\n",
                oss_audio_device_ver3);
-            ALLEGRO_ERROR("Perhaps Open Sound System is not installed "
+            A5O_ERROR("Perhaps Open Sound System is not installed "
                           "or running.\n");
          break;
 
          default:
-            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+            A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       }
 
       return 1;
@@ -226,7 +226,7 @@ static int oss_open_ver3(void)
 
    close(fd);
    strncpy(oss_audio_device, oss_audio_device_ver3, 511);
-   ALLEGRO_INFO("Using device: %s\n", oss_audio_device);
+   A5O_INFO("Using device: %s\n", oss_audio_device);
 
    using_ver_4 = false;
 
@@ -244,25 +244,25 @@ static int oss_open(void)
       force_oss3 = strcmp(force_oss3_cfg, "yes") ? false : true;
 
    if (force_oss3) {
-      ALLEGRO_WARN("Skipping OSS4 probe.\n");
+      A5O_WARN("Skipping OSS4 probe.\n");
    }
 
 #ifdef OSS_VER_4
    bool inited = false;
    if (!force_oss3) {
       if (oss_open_ver4())
-         ALLEGRO_WARN("OSS ver. 4 init failed, trying ver. 3...\n");
+         A5O_WARN("OSS ver. 4 init failed, trying ver. 3...\n");
       else
          inited = true;
    }
    if (!inited && oss_open_ver3()) {
-      ALLEGRO_ERROR("Failed to init OSS.\n");
+      A5O_ERROR("Failed to init OSS.\n");
       return 1;
    }
 #else
-   ALLEGRO_INFO("OSS4 support not compiled in. Skipping OSS4 probe.\n");
+   A5O_INFO("OSS4 support not compiled in. Skipping OSS4 probe.\n");
    if (oss_open_ver3()) {
-      ALLEGRO_ERROR("Failed to init OSS.\n");
+      A5O_ERROR("Failed to init OSS.\n");
       return 1;
    }
 #endif
@@ -276,7 +276,7 @@ static void oss_close(void)
 }
 
 
-static void oss_deallocate_voice(ALLEGRO_VOICE *voice)
+static void oss_deallocate_voice(A5O_VOICE *voice)
 {
    OSS_VOICE *oss_voice = voice->extra;
 
@@ -293,7 +293,7 @@ static void oss_deallocate_voice(ALLEGRO_VOICE *voice)
 }
 
 
-static int oss_start_voice(ALLEGRO_VOICE *voice)
+static int oss_start_voice(A5O_VOICE *voice)
 {
    OSS_VOICE *ex_data = voice->extra;
    ex_data->stop = false;
@@ -301,7 +301,7 @@ static int oss_start_voice(ALLEGRO_VOICE *voice)
 }
 
 
-static int oss_stop_voice(ALLEGRO_VOICE *voice)
+static int oss_stop_voice(A5O_VOICE *voice)
 {
    OSS_VOICE *ex_data = voice->extra;
 
@@ -317,7 +317,7 @@ static int oss_stop_voice(ALLEGRO_VOICE *voice)
 }
 
 
-static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
+static int oss_load_voice(A5O_VOICE *voice, const void *data)
 {
    OSS_VOICE *ex_data = voice->extra;
 
@@ -326,8 +326,8 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
     * mmap(2) the FD and write reversed samples into that. To much trouble for
     * an optional feature IMO. -- milan
     */
-   if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
-      ALLEGRO_INFO("Backwards playing not supported by the driver.\n");
+   if (voice->attached_stream->loop == A5O_PLAYMODE_BIDIR) {
+      A5O_INFO("Backwards playing not supported by the driver.\n");
       return -1;
    }
 
@@ -339,26 +339,26 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
 }
 
 
-static void oss_unload_voice(ALLEGRO_VOICE *voice)
+static void oss_unload_voice(A5O_VOICE *voice)
 {
    (void)voice;
 }
 
 
-static bool oss_voice_is_playing(const ALLEGRO_VOICE *voice)
+static bool oss_voice_is_playing(const A5O_VOICE *voice)
 {
    OSS_VOICE *ex_data = voice->extra;
    return !ex_data->stopped;
 }
 
 
-static unsigned int oss_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int oss_get_voice_position(const A5O_VOICE *voice)
 {
    return voice->attached_stream->pos;
 }
 
 
-static int oss_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
+static int oss_set_voice_position(A5O_VOICE *voice, unsigned int val)
 {
    voice->attached_stream->pos = val;
    return 0;
@@ -374,7 +374,7 @@ static int oss_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
  * Updates 'stop', 'pos' and 'reversed' fields of the supplied voice to the
  * future position.
  */
-static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *bytes)
+static int oss_update_nonstream_voice(A5O_VOICE *voice, void **buf, int *bytes)
 {
    OSS_VOICE *oss_voice = voice->extra;
    int bpos = voice->attached_stream->pos * oss_voice->frame_size;
@@ -384,14 +384,14 @@ static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *byt
 
    if (bpos + *bytes > blen) {
       *bytes = blen - bpos;
-      if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
+      if (voice->attached_stream->loop == A5O_PLAYMODE_ONCE) {
          oss_voice->stop = true;
          voice->attached_stream->pos = 0;
       }
-      if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_LOOP) {
+      if (voice->attached_stream->loop == A5O_PLAYMODE_LOOP) {
          voice->attached_stream->pos = 0;
       }
-      /*else if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
+      /*else if (voice->attached_stream->loop == A5O_PLAYMODE_BIDIR) {
          oss_voice->reversed = true;
          voice->attached_stream->pos = oss_voice->len;
       }*/
@@ -404,7 +404,7 @@ static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *byt
 }
 
 
-static void oss_update_silence(ALLEGRO_VOICE *voice, OSS_VOICE *oss_voice)
+static void oss_update_silence(A5O_VOICE *voice, OSS_VOICE *oss_voice)
 {
    char sil_buf[SIL_BUF_SIZE];
    unsigned int silent_samples;
@@ -414,14 +414,14 @@ static void oss_update_silence(ALLEGRO_VOICE *voice, OSS_VOICE *oss_voice)
        al_get_channel_count(voice->chan_conf));
    al_fill_silence(sil_buf, silent_samples, voice->depth, voice->chan_conf);
    if (write(oss_voice->fd, sil_buf, SIL_BUF_SIZE) == -1) {
-      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+      A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
    }
 }
 
 
-static void* oss_update(ALLEGRO_THREAD *self, void *arg)
+static void* oss_update(A5O_THREAD *self, void *arg)
 {
-   ALLEGRO_VOICE *voice = arg;
+   A5O_VOICE *voice = arg;
    OSS_VOICE *oss_voice = voice->extra;
    (void)self;
 
@@ -432,7 +432,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
       audio_buf_info bi;
 
       if (ioctl(oss_voice->fd, SNDCTL_DSP_GETOSPACE, &bi) == -1) {
-         ALLEGRO_ERROR("Error SNDCTL_DSP_GETOSPACE, errno=%i (%s)\n",
+         A5O_ERROR("Error SNDCTL_DSP_GETOSPACE, errno=%i (%s)\n",
             errno, strerror(errno));
          return NULL;
       }
@@ -458,7 +458,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          oss_update_nonstream_voice(voice, &buf, &bytes);
          frames = bytes / oss_voice->frame_size;
          if (write(oss_voice->fd, buf, bytes) == -1) {
-            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+            A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
             if (errno != EINTR)
                return NULL;
          }
@@ -470,7 +470,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
             continue;
          }
          if (write(oss_voice->fd, data, frames * oss_voice->frame_size) == -1) {
-            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+            A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
             if (errno != EINTR)
                return NULL;
          }
@@ -485,7 +485,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
 }
 
 
-static int oss_allocate_voice(ALLEGRO_VOICE *voice)
+static int oss_allocate_voice(A5O_VOICE *voice)
 {
    int format;
    int chan_count;
@@ -496,9 +496,9 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
 
    ex_data->fd = open(oss_audio_device, O_WRONLY/*, O_NONBLOCK*/);
    if (ex_data->fd == -1) {
-      ALLEGRO_ERROR("Failed to open audio device '%s'.\n",
+      A5O_ERROR("Failed to open audio device '%s'.\n",
             oss_audio_device);
-      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+      A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       al_free(ex_data);
       return 1;
    }
@@ -512,22 +512,22 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->stop = true;
    ex_data->stopped = true;
 
-   if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT8)
+   if (voice->depth == A5O_AUDIO_DEPTH_INT8)
       format = AFMT_S8;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
+   else if (voice->depth == A5O_AUDIO_DEPTH_UINT8)
       format = AFMT_U8;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+   else if (voice->depth == A5O_AUDIO_DEPTH_INT16)
       format = AFMT_S16_NE;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
+   else if (voice->depth == A5O_AUDIO_DEPTH_UINT16)
       format = AFMT_U16_NE;
 #ifdef OSS_VER_4
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT24)
+   else if (voice->depth == A5O_AUDIO_DEPTH_INT24)
       format = AFMT_S24_NE;
-   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+   else if (voice->depth == A5O_AUDIO_DEPTH_FLOAT32)
       format = AFMT_FLOAT;
 #endif
    else {
-      ALLEGRO_ERROR("Unsupported OSS sound format.\n");
+      A5O_ERROR("Unsupported OSS sound format.\n");
       goto Error;
    }
 
@@ -540,49 +540,49 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
 #ifdef OSS_VER_4
       int tmp_oss_timing_policy = oss_timing_policy;
       if (ioctl(ex_data->fd, SNDCTL_DSP_POLICY, &tmp_oss_timing_policy) == -1) {
-         ALLEGRO_ERROR("Failed to set_timig policity to '%i'.\n",
+         A5O_ERROR("Failed to set_timig policity to '%i'.\n",
                tmp_oss_timing_policy);
-         ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+         A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
          goto Error;
       }
-      ALLEGRO_INFO("Accepted timing policy value: %i\n", tmp_oss_timing_policy);
+      A5O_INFO("Accepted timing policy value: %i\n", tmp_oss_timing_policy);
 #endif
    }
    else {
       if (ioctl(ex_data->fd, SNDCTL_DSP_SETFRAGMENT, &tmp_oss_fragsize) == -1) {
-          ALLEGRO_ERROR("Failed to set fragment size.\n");
-          ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+          A5O_ERROR("Failed to set fragment size.\n");
+          A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
           goto Error;
       }
    }
 
    if (ioctl(ex_data->fd, SNDCTL_DSP_SETFMT, &tmp_format) == -1) {
-      ALLEGRO_ERROR("Failed to set sample format.\n");
-      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+      A5O_ERROR("Failed to set sample format.\n");
+      A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       goto Error;
    }
    if (tmp_format != format) {
-      ALLEGRO_ERROR("Sample format not supported by the driver.\n");
+      A5O_ERROR("Sample format not supported by the driver.\n");
       goto Error;
    }
 
    if (ioctl(ex_data->fd, SNDCTL_DSP_CHANNELS, &tmp_chan_count)) {
-      ALLEGRO_ERROR("Failed to set channel count.\n");
-      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+      A5O_ERROR("Failed to set channel count.\n");
+      A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       goto Error;
    }
    if (tmp_chan_count != chan_count) {
-      ALLEGRO_ERROR("Requested sample channe count %i, got %i.\n",
+      A5O_ERROR("Requested sample channe count %i, got %i.\n",
             tmp_chan_count, chan_count);
    }
 
    if (ioctl(ex_data->fd, SNDCTL_DSP_SPEED, &tmp_freq) == -1) {
-      ALLEGRO_ERROR("Failed to set sample rate.\n");
-      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+      A5O_ERROR("Failed to set sample rate.\n");
+      A5O_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       goto Error;
    }
    if (voice->frequency != tmp_freq) {
-      ALLEGRO_ERROR("Requested sample rate %u, got %iu.\n", voice->frequency,
+      A5O_ERROR("Requested sample rate %u, got %iu.\n", voice->frequency,
             tmp_freq);
    }
 
@@ -599,7 +599,7 @@ Error:
 }
 
 
-ALLEGRO_AUDIO_DRIVER _al_kcm_oss_driver =
+A5O_AUDIO_DRIVER _al_kcm_oss_driver =
 {
    "OSS",
 

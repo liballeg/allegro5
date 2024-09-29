@@ -4,7 +4,7 @@
  *    Demonstrate 'simple' audio interface.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <math.h>
 #include <stdio.h>
 #include "allegro5/allegro.h"
@@ -26,15 +26,15 @@ const char *default_files[] = {NULL, "data/welcome.wav",
 
 int main(int argc, const char *argv[])
 {
-   ALLEGRO_SAMPLE *sample_data[MAX_SAMPLE_DATA] = {NULL};
-   ALLEGRO_DISPLAY *display = NULL;
-   ALLEGRO_EVENT_QUEUE *event_queue;
-   ALLEGRO_EVENT event;
-   ALLEGRO_SAMPLE_ID sample_id;
+   A5O_SAMPLE *sample_data[MAX_SAMPLE_DATA] = {NULL};
+   A5O_DISPLAY *display = NULL;
+   A5O_EVENT_QUEUE *event_queue;
+   A5O_EVENT event;
+   A5O_SAMPLE_ID sample_id;
    bool sample_id_valid = false;
-   ALLEGRO_TIMER* timer;
-   ALLEGRO_FONT* font;
-   ALLEGRO_AUDIO_STREAM *music = NULL;
+   A5O_TIMER* timer;
+   A5O_FONT* font;
+   A5O_AUDIO_STREAM *music = NULL;
    int i;
    bool panning = false;
 
@@ -103,8 +103,8 @@ Restart:
 
    while (true) {
       al_wait_for_event(event_queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
             break;
          }
          if (event.keyboard.unichar == ' ') {
@@ -115,31 +115,31 @@ Restart:
             }
          }
 
-         if (event.keyboard.keycode >= ALLEGRO_KEY_0 && event.keyboard.keycode <= ALLEGRO_KEY_9) {
-            bool loop = event.keyboard.modifiers & ALLEGRO_KEYMOD_ALT;
-            bool bidir = event.keyboard.modifiers & ALLEGRO_KEYMOD_CTRL;
-            bool reversed = event.keyboard.modifiers & ALLEGRO_KEYMOD_SHIFT;
-            i = (event.keyboard.keycode - ALLEGRO_KEY_0 + 9) % 10;
+         if (event.keyboard.keycode >= A5O_KEY_0 && event.keyboard.keycode <= A5O_KEY_9) {
+            bool loop = event.keyboard.modifiers & A5O_KEYMOD_ALT;
+            bool bidir = event.keyboard.modifiers & A5O_KEYMOD_CTRL;
+            bool reversed = event.keyboard.modifiers & A5O_KEYMOD_SHIFT;
+            i = (event.keyboard.keycode - A5O_KEY_0 + 9) % 10;
             if (sample_data[i]) {
-               ALLEGRO_SAMPLE_ID new_sample_id;
-               ALLEGRO_PLAYMODE playmode;
+               A5O_SAMPLE_ID new_sample_id;
+               A5O_PLAYMODE playmode;
                const char* playmode_str;
                if (loop) {
-                  playmode = ALLEGRO_PLAYMODE_LOOP;
+                  playmode = A5O_PLAYMODE_LOOP;
                   playmode_str = "on a loop";
                }
                else if (bidir) {
-                  playmode = ALLEGRO_PLAYMODE_BIDIR;
+                  playmode = A5O_PLAYMODE_BIDIR;
                   playmode_str = "on a bidirectional loop";
                }
                else {
-                  playmode = ALLEGRO_PLAYMODE_ONCE;
+                  playmode = A5O_PLAYMODE_ONCE;
                   playmode_str = "once";
                }
                bool ret = al_play_sample(sample_data[i], 1.0, 0.0, 1.0,
                   playmode, &new_sample_id);
                if (reversed) {
-                  ALLEGRO_SAMPLE_INSTANCE* inst = al_lock_sample_id(&new_sample_id);
+                  A5O_SAMPLE_INSTANCE* inst = al_lock_sample_id(&new_sample_id);
                   al_set_sample_instance_position(inst, al_get_sample_instance_length(inst) - 1);
                   al_set_sample_instance_speed(inst, -1);
                   al_unlock_sample_id(&new_sample_id);
@@ -188,14 +188,14 @@ Restart:
             goto Restart;
          }
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_TIMER) {
+      else if (event.type == A5O_EVENT_TIMER) {
          int y = 12;
          int dy = 12;
          if (panning && sample_id_valid) {
-            ALLEGRO_SAMPLE_INSTANCE* instance = al_lock_sample_id(&sample_id);
+            A5O_SAMPLE_INSTANCE* instance = al_lock_sample_id(&sample_id);
             if (instance) {
                al_set_sample_instance_pan(instance, sin(al_get_time()));
             }
@@ -203,35 +203,35 @@ Restart:
          }
          al_clear_to_color(al_map_rgb_f(0., 0., 0.));
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "CONTROLS");
+            A5O_ALIGN_LEFT, "CONTROLS");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "1-9 - play the sounds");
+            A5O_ALIGN_LEFT, "1-9 - play the sounds");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "SPACE - stop all sounds");
+            A5O_ALIGN_LEFT, "SPACE - stop all sounds");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "Ctrl 1-9 - play sounds with bidirectional looping");
+            A5O_ALIGN_LEFT, "Ctrl 1-9 - play sounds with bidirectional looping");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "Alt 1-9 - play sounds with regular looping");
+            A5O_ALIGN_LEFT, "Alt 1-9 - play sounds with regular looping");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "Shift 1-9 - play sounds reversed");
+            A5O_ALIGN_LEFT, "Shift 1-9 - play sounds reversed");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "p - pan the last played sound");
+            A5O_ALIGN_LEFT, "p - pan the last played sound");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "m - play music");
+            A5O_ALIGN_LEFT, "m - play music");
          y += 2 * dy;
          al_draw_text(font, al_map_rgb_f(0.5, 1., 0.5), 12, y,
-            ALLEGRO_ALIGN_LEFT, "SOUNDS");
+            A5O_ALIGN_LEFT, "SOUNDS");
          y += dy;
          for (i = 0; i < argc && i < MAX_SAMPLE_DATA; i++) {
             al_draw_textf(font, al_map_rgb_f(0.5, 1., 0.5), 12, y,
-               ALLEGRO_ALIGN_LEFT, "%d - %s", i + 1, argv[i]);
+               A5O_ALIGN_LEFT, "%d - %s", i + 1, argv[i]);
             y += dy;
          }
          al_flip_display();

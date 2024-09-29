@@ -10,7 +10,7 @@
 #define ACK_OPENED   ((void *)0x3333)
 #define ACK_CLOSED   ((void *)0x4444)
 
-void _al_gtk_make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window);
+void _al_gtk_make_transient(A5O_DISPLAY *display, GtkWidget *window);
 
 
 bool _al_gtk_ensure_thread(void);
@@ -24,8 +24,8 @@ typedef struct ARGS_BASE ARGS_BASE;
 
 struct ARGS_BASE
 {
-   ALLEGRO_MUTEX *mutex;
-   ALLEGRO_COND *cond;
+   A5O_MUTEX *mutex;
+   A5O_COND *cond;
    bool done;
    bool response;
 };

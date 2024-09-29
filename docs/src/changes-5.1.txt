@@ -37,7 +37,7 @@ Android port:
 
   - Fix Android crash on file access.
 
-  - Implement ALLEGRO_FULLSCREEN_WINDOW on Android.
+  - Implement A5O_FULLSCREEN_WINDOW on Android.
 
   - Fix crash if display is destroyed while the app is switched out.
 
@@ -95,7 +95,7 @@ Python:
 
   - Fix ordering issue for HAPTIC* structs.
 
-  - Fix missing ALLEGRO_PRIM_ATTR_NUM.
+  - Fix missing A5O_PRIM_ATTR_NUM.
 
 Other:
 
@@ -149,12 +149,12 @@ Graphics:
 
   - Add `al_set_blend_color` and `al_set_blender`, for additional blending modes.
 
-  - Add `ALLEGRO_MAXIMIZED` display flag.
+  - Add `A5O_MAXIMIZED` display flag.
 
   - Add `al_reparent_bitmap`, `al_get_bitmap_x/y`. This allows changing the
     offset of a sub-bitmap.
 
-  - Make `ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA` actually pick a format without an
+  - Make `A5O_PIXEL_FORMAT_ANY_NO_ALPHA` actually pick a format without an
     alpha channel.
 
   - Add `al_premul_rgba` and `al_premul_rgba_f` convenience functions for
@@ -246,16 +246,16 @@ Video addon:
 
   - Reduce latency of `al_get_video_frame` for the Theora backend.
 
-  - Make the Theora backend send the `ALLEGRO_VIDEO_FRAME_SHOW` events.
+  - Make the Theora backend send the `A5O_VIDEO_FRAME_SHOW` events.
 
   - Rename `al_get_video_width/height` to `al_get_video_scaled_width/height`
     which now return the aspect corrected size of the video frame.
 
   - Rename `al_pause_video/al_is_video_paused` to `al_get/set_video_playing`.
 
-  - Add `ALLEGRO_EVENT_VIDEO_FINISHED` event.
+  - Add `A5O_EVENT_VIDEO_FINISHED` event.
 
-  - Remove `ALLEGRO_EVENT_VIDEO_FRAME_ALLOC` event.
+  - Remove `A5O_EVENT_VIDEO_FRAME_ALLOC` event.
 
   - Remove `al_get_video_aspect_ratio`.
 
@@ -400,7 +400,7 @@ iOS port:
 
   - Hack around iOS not creating mipmaps (jmasterx).
 
-  - If the supported orientation is `ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN`,
+  - If the supported orientation is `A5O_DISPLAY_ORIENTATION_UNKNOWN`,
     default to supporting all orientations.
 
   - Get Cosmic Protector to compile again.
@@ -443,7 +443,7 @@ Audio addon:
 
   - Disable processing of the XM zero-speed event.
 
-  - Disable processing of module loop points if `ALLEGRO_PLAYMODE_ONCE` is set.
+  - Disable processing of module loop points if `A5O_PLAYMODE_ONCE` is set.
 
   - Fix a buffer overflow bug.
 
@@ -519,7 +519,7 @@ Input:
 Graphics:
 
   - Add block compression pixel formats
-	  (ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1/DXT3/DXT5) for compressed video
+	  (A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1/DXT3/DXT5) for compressed video
 	  bitmaps. This includes an API to fetch compressed block size
 	  (`al_get_pixel_block_width/height/size`) as well as API to load and unload
 	  compressed bitmap data without paying a runtime compression cost
@@ -625,11 +625,11 @@ Core:
 
 Graphics:
 
-  - Spell ALLEGRO_DST_COLOR, ALLEGRO_INVERSE_DST_COLOR with "DEST"
+  - Spell A5O_DST_COLOR, A5O_INVERSE_DST_COLOR with "DEST"
     (with compatibility defines).
 
-  - Fix bug which meant ALLEGRO_INVERSE_SRC_COLOR and
-    ALLEGRO_INVERSE_DEST_COLOR never actually worked on D3D.
+  - Fix bug which meant A5O_INVERSE_SRC_COLOR and
+    A5O_INVERSE_DEST_COLOR never actually worked on D3D.
 
   - Fix horizontal and vertical shears which were not composing with
     translations correctly.
@@ -651,13 +651,13 @@ Graphics:
 
   - Fix al_get_d3d_texture_size returning zeros.
 
-  - Remove ALLEGRO_FORCE_LOCKING flag.
+  - Remove A5O_FORCE_LOCKING flag.
 
   - Setup GL viewport and projection in al_acknowledge_resize on Android.
 
   - Improve implementation of display options on Android: use the same display
     setting scoring code as other ports; handle SUGGEST display options
-    properly; map ALLEGRO_COLOR_SIZE to EGL_BUFFER_SIZE attributes.
+    properly; map A5O_COLOR_SIZE to EGL_BUFFER_SIZE attributes.
 
 Filesystem:
 
@@ -752,7 +752,7 @@ Audio codec addon:
 Image addon:
 
   - Fix many problems in Android native image loader, including:
-    supporting ALLEGRO_NO_PREMULTIPLIED_ALPHA, respecting the new bitmap
+    supporting A5O_NO_PREMULTIPLIED_ALPHA, respecting the new bitmap
     format, working for non-APK assets, not crashing on failure.
 
 Native dialogs addon:
@@ -772,7 +772,7 @@ Primitives addon:
 
   - Add indexed buffer API.
 
-  - Polylines with ALLEGRO_LINE_CAP_CLOSED cap style did not draw correctly
+  - Polylines with A5O_LINE_CAP_CLOSED cap style did not draw correctly
     with thickness == 0.
 
   - Take into account the projection matrix when computing the scale of the
@@ -963,7 +963,7 @@ Shaders:
 
   - Shader variable setters operate on the shader of the target bitmap.
 
-  - Rename ALLEGRO_USE_PROGRAMMABLE_PIPELINE to ALLEGRO_PROGRAMMABLE_PIPELINE.
+  - Rename A5O_USE_PROGRAMMABLE_PIPELINE to A5O_PROGRAMMABLE_PIPELINE.
 
   - Rename al_link_shader to al_build_shader.
 
@@ -1011,7 +1011,7 @@ Displays:
 
   - Switch to new NSTrackingArea API (OS X).
 
-  - Set ALLEGRO_NO_PRESERVE_TEXTURE on backbuffer (OpenGL).
+  - Set A5O_NO_PRESERVE_TEXTURE on backbuffer (OpenGL).
 
 Graphics:
 
@@ -1079,9 +1079,9 @@ Primitives addon:
 
   - Fix a few incorrect usages of al_lock_vertex_buffer
 
-  - Disallow 3 component vectors for ALLEGRO_PRIM_TEX_COORD.
+  - Disallow 3 component vectors for A5O_PRIM_TEX_COORD.
 
-  - Add a whole bunch of new ALLEGRO_PRIM_STORAGE values.
+  - Add a whole bunch of new A5O_PRIM_STORAGE values.
 
   - Primitives addon was ignoring the filter settings of textures in the D3D
     backend.
@@ -1160,7 +1160,7 @@ Displays:
 -  Fix windows not having a minimise button when set to
    windowed state from fullscreen window state.
 
--  Respect ALLEGRO_FRAMELESS flag properly when toggling from
+-  Respect A5O_FRAMELESS flag properly when toggling from
    fullscreen window state to windowed state (Windows).
 
 -  Don't generate DISPLAY_LOST events when resizing a fullscreen display.
@@ -1173,7 +1173,7 @@ Displays:
 
 -  Add al_set_display_icons (plural), implemented for X11 and Windows.
 
--  Add ALLEGRO_GTK_TOPLEVEL display flag for X11.
+-  Add A5O_GTK_TOPLEVEL display flag for X11.
 
 -  Fix window resizing when using shaders (X11).
 
@@ -1203,10 +1203,10 @@ File I/O:
 
 Filesystem:
 
--  Keep absolute path in ALLEGRO_FS_ENTRYs so that later changes to the
+-  Keep absolute path in A5O_FS_ENTRYs so that later changes to the
    current working directory do not affect the interpretation of the path.
 
--  Set ALLEGRO_FILEMODE_HIDDEN properly on Unix.
+-  Set A5O_FILEMODE_HIDDEN properly on Unix.
 
 -  Make sure stat mode bits are cleared in default implementation of
    al_update_fs_entry.
@@ -1226,9 +1226,9 @@ Audio addons:
 
 Font addon:
 
--  Avoid making x offset non-integral for ALLEGRO_ALIGN_CENTRE.
+-  Avoid making x offset non-integral for A5O_ALIGN_CENTRE.
 
--  Make al_draw_justified_* respect ALLEGRO_ALIGN_INTEGER.
+-  Make al_draw_justified_* respect A5O_ALIGN_INTEGER.
 
 TTF addon:
 
@@ -1258,7 +1258,7 @@ Native dialogs addon:
 
 -  Add al_shutdown_native_dialog_addon.
 
--  Add native menu support on X11 (requires ALLEGRO_GTK_TOPLEVEL).
+-  Add native menu support on X11 (requires A5O_GTK_TOPLEVEL).
 
 -  Add native menu support on OS X.
 
@@ -1360,7 +1360,7 @@ Image addon:
 
 Font addons:
 
--  Added ALLEGRO_ALIGN_INTEGER text drawing flag (Todd Cope).
+-  Added A5O_ALIGN_INTEGER text drawing flag (Todd Cope).
 
 -  Added a new al_get_font_ranges function.
 
@@ -1387,7 +1387,7 @@ Audio addon:
 
 Android port:
 
--  Support ALLEGRO_KEYBOARD_STATE.
+-  Support A5O_KEYBOARD_STATE.
 
 -  Fix return type of APK_tell (Todd Cope).
 
@@ -1442,7 +1442,7 @@ Displays:
 
 -  Fixed missing/incorrect resize events under Windows.
 
--  Fixed ALLEGRO_FULLSCREEN_WINDOW under OS X.
+-  Fixed A5O_FULLSCREEN_WINDOW under OS X.
 
 -  Fix al_set_new_display_adapter on OS X.
 
@@ -1543,7 +1543,7 @@ Core:
 -  Add userdata to Windows window callbacks and rename the functions
    (Matthew Leverton).
 
--  Fix ALLEGRO_STATIC_ASSERT collisions from different files included in the
+-  Fix A5O_STATIC_ASSERT collisions from different files included in the
    same translation unit.  Reported by tobing.
 
 -  Make al_ustr_empty_string const correct.
@@ -1554,7 +1554,7 @@ Filesystem:
 
 -  Make stdio al_fopen implementation set proper errno on failure.
 
--  Make al_get_standard_path(ALLEGRO_TEMP_PATH) treat environment values
+-  Make al_get_standard_path(A5O_TEMP_PATH) treat environment values
    as directory names even without a trailing slash on Unix.
 
 -  Fix typo preventing get_executable_name from using System V procfs
@@ -1565,17 +1565,17 @@ Displays:
 -  Fixed bug on Windows where two SWITCH_IN events were fired when window was
    minimized/restored (Michael Swiger).
 
--  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic under Windows
+-  Fixed inverted al_toggle_display_flag(A5O_NOFRAME) logic under Windows
    as well as a bug where repeatedly setting the flag to on would make the
    window grow bigger and bigger (Michael Swiger).
 
--  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic in X11.
+-  Fixed inverted al_toggle_display_flag(A5O_NOFRAME) logic in X11.
 
 -  Rename al_toggle_display_flag to al_set_display_flag, retaining
    the older name for compatibility.
 
--  Add ALLEGRO_FRAMELESS as a preferred synonym for the confusing
-   ALLEGRO_NOFRAME flag.
+-  Add A5O_FRAMELESS as a preferred synonym for the confusing
+   A5O_NOFRAME flag.
 
 -  Set WM_NAME for some window managers (X11).
 
@@ -1583,7 +1583,7 @@ Displays:
 
 -  Make al_destroy_display handle display disconnection properly.
    The user will need to clean up then call al_destroy_display after receiving
-   ALLEGRO_EVENT_DISPLAY_DISCONNECTED (iOS).
+   A5O_EVENT_DISPLAY_DISCONNECTED (iOS).
 
 Graphics:
 
@@ -1598,9 +1598,9 @@ Graphics:
 
 -  Added al_create_custom_bitmap.
 
--  Remove ALLEGRO_PRESERVE_TEXTURE flag. The idea is to always preserve
+-  Remove A5O_PRESERVE_TEXTURE flag. The idea is to always preserve
    textures unless directed otherwise by the user with
-   ALLEGRO_NO_PRESERVE_TEXTURE.
+   A5O_NO_PRESERVE_TEXTURE.
 
 -  Added al_clear_depth_buffer and al_set_render_state functions.
 
@@ -1614,7 +1614,7 @@ OpenGL:
 -  Fix null pointer dereference if backbuffer creation fails.
    Reported by Max Savenkov.
 
--  Made the ALLEGRO_OPENGL_FORWARD_COMPATIBLE flag work with al_draw_bitmap.
+-  Made the A5O_OPENGL_FORWARD_COMPATIBLE flag work with al_draw_bitmap.
 
 -  Texture should be 'complete' (min/mag and wrap set) before glTexImage2D.
 
@@ -1664,7 +1664,7 @@ Input:
 -  Do not permanently change the locale for the X11 keyboard driver.
    Set LC_CTYPE only, not LC_ALL.
 
--  Update ALLEGRO_MOUSE_STATE even if mouse emulation event source isn't
+-  Update A5O_MOUSE_STATE even if mouse emulation event source isn't
    attached to an event queue (Android and iOS).
 
 -  Don't report shakes at program start accidentally (iOS).
@@ -1679,7 +1679,7 @@ Android port:
 
 -  Go fullscreen (no title/status bar).
 
--  Generate ALLEGRO_EVENT_DISPLAY_HALT_DRAWING, RESUME_DRAWING events instead
+-  Generate A5O_EVENT_DISPLAY_HALT_DRAWING, RESUME_DRAWING events instead
    of SWITCH_IN/OUT.
 
 -  Add an APK file driver for reading assets directly from Android app bundles.
@@ -1728,7 +1728,7 @@ Font addon:
 
 TTF addon:
 
--  Added ALLEGRO_TTF_NO_AUTOHINT font loading flag to disable the Auto Hinter
+-  Added A5O_TTF_NO_AUTOHINT font loading flag to disable the Auto Hinter
    which is enabled by default in newer version of FreeType (Michał Cichoń).
 
 -  Unlock glyph cache page at end of text_length and get_text_dimensions
@@ -1808,8 +1808,8 @@ Ports:
 
 Core:
 
--  Make al_ref_cstr, al_ref_ustr and al_ref_buffer return const ALLEGRO_USTR*
-   instead of just an ALLEGRO_USTR* (Paul Suntsov).
+-  Make al_ref_cstr, al_ref_ustr and al_ref_buffer return const A5O_USTR*
+   instead of just an A5O_USTR* (Paul Suntsov).
 
 Graphics:
 
@@ -1821,7 +1821,7 @@ Displays:
 -  Fixed a problem with wrong window size when restoring a minimised window, in
    code that was added to support window constraints (jmasterx).
 
--  Set ALLEGRO_MINIMIZED display flag on Windows (Zac Evans).
+-  Set A5O_MINIMIZED display flag on Windows (Zac Evans).
 
 -  Prevent a deadlock during display creation on X.
 
@@ -1906,22 +1906,22 @@ Core:
 Graphics:
 
 -  Added bitmap conversion API: al_convert_bitmap, al_convert_bitmaps, with
-   bitmap flag ALLEGRO_CONVERT_BITMAP and display option
-   ALLEGRO_AUTO_CONVERT_BITMAPS.  Automatic bitmap conversion is enabled by
+   bitmap flag A5O_CONVERT_BITMAP and display option
+   A5O_AUTO_CONVERT_BITMAPS.  Automatic bitmap conversion is enabled by
    default.
 
 -  Added al_draw_tinted_scaled_rotated_bitmap_region.
 
--  Added new ALLEGRO_PIXEL_FORMAT_LUMINANCE_8 format.
+-  Added new A5O_PIXEL_FORMAT_LUMINANCE_8 format.
 
--  Added a new bitmap flag ALLEGRO_KEEP_INDEX.
+-  Added a new bitmap flag A5O_KEEP_INDEX.
 
 -  Separate bitmap loader flags from bitmap flags.  This adds three functions:
    al_load_bitmap_flags, al_load_bitmap_flags_f and al_load_bitmap_font_flags.
 
--  Add ALLEGRO_SRC_COLOR, ALLEGRO_DST_COLOR blending modes (Jon Rafkind).
+-  Add A5O_SRC_COLOR, A5O_DST_COLOR blending modes (Jon Rafkind).
 
--  Add ALLEGRO_INVERSE_SRC_COLOR and ALLEGRO_INVERSE_DST_COLOR blending modes.
+-  Add A5O_INVERSE_SRC_COLOR and A5O_INVERSE_DST_COLOR blending modes.
 
 -  Made al_compose_transform do a full 3d multiply.
 
@@ -1939,15 +1939,15 @@ Displays:
 
 -  Added al_get_display_orientation.
 
--  Added a new display option ALLEGRO_SUPPORTED_ORIENTATIONS to specify the
+-  Added a new display option A5O_SUPPORTED_ORIENTATIONS to specify the
    supported orientations (default is just portrait as before).
 
 -  Added al_change_display_option function, initially only for
-   ALLEGRO_SUPPORTED_ORIENTATIONS.
+   A5O_SUPPORTED_ORIENTATIONS.
 
 -  Add two new display events (only implemented on iOS right now).
-   ALLEGRO_EVENT_DISPLAY_HALT_DRAWING tells the app to stop all drawing and
-   ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING tells it it can start drawing again.
+   A5O_EVENT_DISPLAY_HALT_DRAWING tells the app to stop all drawing and
+   A5O_EVENT_DISPLAY_RESUME_DRAWING tells it it can start drawing again.
    SWITCH_OUT/IN on iOS were redefined from "going into/out of background" to
    "going active/inactive".
 

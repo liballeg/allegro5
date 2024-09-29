@@ -14,21 +14,21 @@
 typedef float CGFloat;
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("OSXIIO")
+A5O_DEBUG_CHANNEL("OSXIIO")
 
 // Just to make sure it's never al_malloc.
 #define apple_malloc malloc
 
-static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
+static A5O_BITMAP *really_load_image(char *buffer, int size, int flags)
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
-   ALLEGRO_BITMAP *bmp = NULL;
+   A5O_BITMAP *bmp = NULL;
    void *pixels = NULL;
    /* Note: buffer is now owned (and later freed) by the data object. */
    NSData *nsdata = [[NSData alloc] initWithBytesNoCopy:buffer length:size];
    NSImage *image = [[NSImage alloc] initWithData:nsdata];
    [nsdata release];
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & A5O_NO_PREMULTIPLIED_ALPHA);
 
    if (!image)
        goto done;
@@ -52,13 +52,13 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
    int h = [image_rep pixelsHigh];
    int bits = [bitmap_rep bitsPerPixel];
    int samples = bits / 8;
-   ALLEGRO_DEBUG("Read image of size %dx%dx%d\n", w, h, bits);
+   A5O_DEBUG("Read image of size %dx%dx%d\n", w, h, bits);
 
    /* Then create a bitmap out of the memory buffer. */
    bmp = al_create_bitmap(w, h);
    if (bmp) {
-      ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
-            ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+      A5O_LOCKED_REGION *lock = al_lock_bitmap(bmp,
+            A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_WRITEONLY);
       int i, j;
       {
          for (i = 0; i < h; i++) {
@@ -120,15 +120,15 @@ done:
 }
 
 
-static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f, int flags)
+static A5O_BITMAP *_al_osx_load_image_f(A5O_FILE *f, int flags)
 {
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
    ASSERT(f);
     
    int64_t size = al_fsize(f);
    if (size <= 0) {
       // TODO: Read from stream until we have the whole image
-      ALLEGRO_ERROR("Couldn't determine file size.\n");
+      A5O_ERROR("Couldn't determine file size.\n");
       return NULL;
    }
    /* Note: This *MUST* be the Apple malloc and not any wrapper, as the
@@ -143,17 +143,17 @@ static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f, int flags)
 }
 
 
-static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename, int flags)
+static A5O_BITMAP *_al_osx_load_image(const char *filename, int flags)
 {
-   ALLEGRO_FILE *fp;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *fp;
+   A5O_BITMAP *bmp;
 
    ASSERT(filename);
 
-   ALLEGRO_DEBUG("Using native loader to read %s\n", filename);
+   A5O_DEBUG("Using native loader to read %s\n", filename);
    fp = al_fopen(filename, "rb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable open %s for reading.\n", filename);
+      A5O_ERROR("Unable open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -165,9 +165,9 @@ static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename, int flags)
 }
 
 
-extern NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
+extern NSImage* NSImageFromAllegroBitmap(A5O_BITMAP* bmp);
 
-bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bmp)
+bool _al_osx_save_image_f(A5O_FILE *f, const char *ident, A5O_BITMAP *bmp)
 {
    NSBitmapImageFileType type;
    
@@ -187,7 +187,7 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
       type = NSPNGFileType;
    }
    else {
-      ALLEGRO_ERROR("Unsupported image format: %s.\n", ident);
+      A5O_ERROR("Unsupported image format: %s.\n", ident);
       return false;
    }
 
@@ -208,15 +208,15 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
 }
 
 
-bool _al_osx_save_image(const char *filename, ALLEGRO_BITMAP *bmp)
+bool _al_osx_save_image(const char *filename, A5O_BITMAP *bmp)
 {
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
    bool retsave = false;
    bool retclose = false;
 
    fp = al_fopen(filename, "wb");
    if (fp) {
-      ALLEGRO_PATH *path = al_create_path(filename);
+      A5O_PATH *path = al_create_path(filename);
       if (path) {
          retsave = _al_osx_save_image_f(fp, al_get_path_extension(path), bmp);
          al_destroy_path(path);
@@ -224,29 +224,29 @@ bool _al_osx_save_image(const char *filename, ALLEGRO_BITMAP *bmp)
       retclose = al_fclose(fp);
    }
    else {
-      ALLEGRO_ERROR("Unable open %s for writing.\n", filename);
+      A5O_ERROR("Unable open %s for writing.\n", filename);
    }
 
    return retsave && retclose;
 }
 
 
-bool _al_osx_save_png_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_osx_save_png_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_osx_save_image_f(f, ".png", bmp);
 }
 
-bool _al_osx_save_jpg_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_osx_save_jpg_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_osx_save_image_f(f, ".jpg", bmp);
 }
 
-bool _al_osx_save_tif_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_osx_save_tif_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_osx_save_image_f(f, ".tif", bmp);
 }
 
-bool _al_osx_save_gif_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_osx_save_gif_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    return _al_osx_save_image_f(f, ".gif", bmp);
 }
@@ -276,7 +276,7 @@ bool _al_osx_register_image_loader(void)
       al_register_bitmap_loader(s, NULL);
       al_register_bitmap_loader_f(s, NULL);
 
-      ALLEGRO_DEBUG("Registering native loader for bitmap type %s\n", s);
+      A5O_DEBUG("Registering native loader for bitmap type %s\n", s);
       success |= al_register_bitmap_loader(s, _al_osx_load_image);
       success |= al_register_bitmap_loader_f(s, _al_osx_load_image_f);
    }
@@ -284,7 +284,7 @@ bool _al_osx_register_image_loader(void)
    char const *extensions[] = { ".tif", ".tiff", ".gif", ".png", ".jpg", ".jpeg", NULL };
    
    for (i = 0; extensions[i]; i++) {
-      ALLEGRO_DEBUG("Registering native saver for bitmap type %s\n", extensions[i]);
+      A5O_DEBUG("Registering native saver for bitmap type %s\n", extensions[i]);
       success |= al_register_bitmap_saver(extensions[i], _al_osx_save_image);
    }
 

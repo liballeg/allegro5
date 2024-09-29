@@ -4,45 +4,45 @@
 #include <sys/stat.h>
 #include <ctime>
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #define snprintf _snprintf
 #endif
 
 static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
 {
    ResourceManager& rm = ResourceManager::getInstance();
-   ALLEGRO_BITMAP *bg = (ALLEGRO_BITMAP *)rm.getData(RES_BACKGROUND);
+   A5O_BITMAP *bg = (A5O_BITMAP *)rm.getData(RES_BACKGROUND);
    Input *input = (Input *)rm.getData(RES_INPUT);
-   ALLEGRO_BITMAP *logo = (ALLEGRO_BITMAP *)rm.getData(RES_LOGO);
+   A5O_BITMAP *logo = (A5O_BITMAP *)rm.getData(RES_LOGO);
    int lw = al_get_bitmap_width(logo);
    int lh = al_get_bitmap_height(logo);
-#ifndef ALLEGRO_IPHONE
-   ALLEGRO_FONT *myfont = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
+#ifndef A5O_IPHONE
+   A5O_FONT *myfont = (A5O_FONT *)rm.getData(RES_SMALLFONT);
 #endif
 
    bool redraw = true;
 
    for (;;) {
       /* Catch close button presses */
-      ALLEGRO_EVENT_QUEUE *events = ((DisplayResource *)rm.getResource(RES_DISPLAY))->getEventQueue();
+      A5O_EVENT_QUEUE *events = ((DisplayResource *)rm.getResource(RES_DISPLAY))->getEventQueue();
       while (!al_is_event_queue_empty(events)) {
-         ALLEGRO_EVENT event;
+         A5O_EVENT event;
          al_get_next_event(events, &event);
-#ifdef ALLEGRO_IPHONE
-         if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING || event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_OUT) {
-            switch_game_out(event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING);
+#ifdef A5O_IPHONE
+         if (event.type == A5O_EVENT_DISPLAY_HALT_DRAWING || event.type == A5O_EVENT_DISPLAY_SWITCH_OUT) {
+            switch_game_out(event.type == A5O_EVENT_DISPLAY_HALT_DRAWING);
          }
-         else if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING || event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
+         else if (event.type == A5O_EVENT_DISPLAY_RESUME_DRAWING || event.type == A5O_EVENT_DISPLAY_SWITCH_IN) {
             switch_game_in();
          }
 #else
-         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+         if (event.type == A5O_EVENT_DISPLAY_CLOSE)
             exit(0);
 #endif
       }
 
       input->poll();
-#if defined ALLEGRO_IPHONE
+#if defined A5O_IPHONE
       float ud;
       if (is_joypad_connected()) {
          ud = input->ud();
@@ -67,14 +67,14 @@ static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
          if (!widgets[selected]->activate())
             return selected;
       }
-#ifndef ALLEGRO_IPHONE
+#ifndef A5O_IPHONE
       if (input->esc())
          return -1;
 #endif
 
       redraw = true;
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
       if (switched_out) {
          redraw = false;
       }
@@ -95,17 +95,17 @@ static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
 
       al_draw_bitmap(logo, (BB_W-lw)/2, (BB_H-lh)/4, 0);
       
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-#ifndef ALLEGRO_IPHONE
-      al_draw_textf(myfont, al_map_rgb(255, 255, 0), BB_W/2, BB_H/2, ALLEGRO_ALIGN_CENTRE, "z/y to start");
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
+#ifndef A5O_IPHONE
+      al_draw_textf(myfont, al_map_rgb(255, 255, 0), BB_W/2, BB_H/2, A5O_ALIGN_CENTRE, "z/y to start");
 #endif
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
       for (unsigned int i = 0; i < widgets.size(); i++) {
          widgets[i]->render(i == selected);
       }
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
 	input->draw();
 #endif
       
@@ -162,22 +162,22 @@ static void insert_score(char *name, int score)
    highScores[i].score = score;
 }
 
-static ALLEGRO_PATH *userResourcePath()
+static A5O_PATH *userResourcePath()
 {
-#ifdef ALLEGRO_IPHONE
-   return al_get_standard_path(ALLEGRO_USER_DOCUMENTS_PATH);
+#ifdef A5O_IPHONE
+   return al_get_standard_path(A5O_USER_DOCUMENTS_PATH);
 #else
-   return al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
+   return al_get_standard_path(A5O_USER_SETTINGS_PATH);
 #endif
 }
 
 static void read_scores(void)
 {
-   ALLEGRO_PATH *fn = userResourcePath();
+   A5O_PATH *fn = userResourcePath();
 
-   if (al_make_directory(al_path_cstr(fn, ALLEGRO_NATIVE_PATH_SEP))) {
+   if (al_make_directory(al_path_cstr(fn, A5O_NATIVE_PATH_SEP))) {
       al_set_path_filename(fn, "scores.cfg");
-      ALLEGRO_CONFIG *cfg = al_load_config_file(al_path_cstr(fn, ALLEGRO_NATIVE_PATH_SEP));
+      A5O_CONFIG *cfg = al_load_config_file(al_path_cstr(fn, A5O_NATIVE_PATH_SEP));
       if (cfg) {
          for (int i = 0; i < NUM_SCORES; i++) {
             char name[]  = {'n', (char)('0'+i), '\0'};
@@ -203,7 +203,7 @@ static void read_scores(void)
 
 static void write_scores(void)
 {
-   ALLEGRO_CONFIG *cfg = al_create_config();
+   A5O_CONFIG *cfg = al_create_config();
    for (int i = 0; i < NUM_SCORES; i++) {
       char name[]  = {'n', (char)('0'+i), '\0'};
       char score[] = {'s', (char)('0'+i), '\0'};
@@ -214,9 +214,9 @@ static void write_scores(void)
       al_set_config_value(cfg, "scores", score, sc);
    }
 
-   ALLEGRO_PATH *fn = userResourcePath();
+   A5O_PATH *fn = userResourcePath();
    al_set_path_filename(fn, "scores.cfg");
-   al_save_config_file(al_path_cstr(fn, ALLEGRO_NATIVE_PATH_SEP), cfg);
+   al_save_config_file(al_path_cstr(fn, A5O_NATIVE_PATH_SEP), cfg);
    al_destroy_path(fn);
 
    al_destroy_config(cfg);
@@ -228,8 +228,8 @@ void do_highscores(int score)
 
    ResourceManager& rm = ResourceManager::getInstance();
    Input *input = (Input *)rm.getData(RES_INPUT);
-   ALLEGRO_FONT *sm_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
-   ALLEGRO_FONT *big_font = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
+   A5O_FONT *sm_font = (A5O_FONT *)rm.getData(RES_SMALLFONT);
+   A5O_FONT *big_font = (A5O_FONT *)rm.getData(RES_LARGEFONT);
    
    bool is_high = score >= highScores[NUM_SCORES-1].score;
    bool entering = is_high;
@@ -243,19 +243,19 @@ void do_highscores(int score)
 
    for (;;) {
       /* Catch close button presses */
-      ALLEGRO_EVENT_QUEUE *events = ((DisplayResource *)rm.getResource(RES_DISPLAY))->getEventQueue();
+      A5O_EVENT_QUEUE *events = ((DisplayResource *)rm.getResource(RES_DISPLAY))->getEventQueue();
       while (!al_is_event_queue_empty(events)) {
-         ALLEGRO_EVENT event;
+         A5O_EVENT event;
          al_get_next_event(events, &event);
-#ifdef ALLEGRO_IPHONE
-         if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING || event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_OUT) {
-            switch_game_out(event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING);
+#ifdef A5O_IPHONE
+         if (event.type == A5O_EVENT_DISPLAY_HALT_DRAWING || event.type == A5O_EVENT_DISPLAY_SWITCH_OUT) {
+            switch_game_out(event.type == A5O_EVENT_DISPLAY_HALT_DRAWING);
          }
-         else if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING || event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
+         else if (event.type == A5O_EVENT_DISPLAY_RESUME_DRAWING || event.type == A5O_EVENT_DISPLAY_SWITCH_IN) {
             switch_game_in();
          }
 #else
-         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+         if (event.type == A5O_EVENT_DISPLAY_CLOSE)
             exit(0);
 #endif
       }
@@ -308,7 +308,7 @@ void do_highscores(int score)
 
       al_rest(0.010);
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
       if (switched_out) {
          continue;
       }
@@ -317,8 +317,8 @@ void do_highscores(int score)
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
       if (entering) {
-         float a = ALLEGRO_PI*3/2;
-         float ainc = ALLEGRO_PI*2 / 26;
+         float a = A5O_PI*3/2;
+         float ainc = A5O_PI*2 / 26;
          double elapsed = al_get_time() - spin_start;
          if (elapsed < 0.1) {
             a += (elapsed / 0.1) * ainc * spin_dir;
@@ -341,19 +341,19 @@ void do_highscores(int score)
          for (int i = 0; i < 3 && name[i] != ' '; i++) {
             tmp[i] = name[i];
          }
-         al_draw_textf(big_font, al_map_rgb(0, 255, 0), BB_W/2, BB_H/2-20, ALLEGRO_ALIGN_CENTRE, "%s", tmp);
-         al_draw_text(sm_font, al_map_rgb(200, 200, 200), BB_W/2, BB_H/2-20+5+al_get_font_line_height(big_font), ALLEGRO_ALIGN_CENTRE, "high score!");
+         al_draw_textf(big_font, al_map_rgb(0, 255, 0), BB_W/2, BB_H/2-20, A5O_ALIGN_CENTRE, "%s", tmp);
+         al_draw_text(sm_font, al_map_rgb(200, 200, 200), BB_W/2, BB_H/2-20+5+al_get_font_line_height(big_font), A5O_ALIGN_CENTRE, "high score!");
       }
       else {
          int yy = BB_H/2 - al_get_font_line_height(big_font)*NUM_SCORES/2;
          for (int i = 0; i < NUM_SCORES; i++) {
-            al_draw_textf(big_font, al_map_rgb(255, 255, 255), BB_W/2-10, yy, ALLEGRO_ALIGN_RIGHT, "%s", highScores[i].name);
-            al_draw_textf(big_font, al_map_rgb(255, 255, 0), BB_W/2+10, yy, ALLEGRO_ALIGN_LEFT, "%d", highScores[i].score);
+            al_draw_textf(big_font, al_map_rgb(255, 255, 255), BB_W/2-10, yy, A5O_ALIGN_RIGHT, "%s", highScores[i].name);
+            al_draw_textf(big_font, al_map_rgb(255, 255, 0), BB_W/2+10, yy, A5O_ALIGN_LEFT, "%d", highScores[i].score);
             yy += al_get_font_line_height(big_font);
          }
       }
 
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_IPHONE
       input->draw();
 #endif
 

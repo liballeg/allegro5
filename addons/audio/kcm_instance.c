@@ -16,7 +16,7 @@
 #include "allegro5/internal/aintern_audio_cfg.h"
 
 
-static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
+static void maybe_lock_mutex(A5O_MUTEX *mutex)
 {
    if (mutex) {
       al_lock_mutex(mutex);
@@ -24,7 +24,7 @@ static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
 }
 
 
-static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
+static void maybe_unlock_mutex(A5O_MUTEX *mutex)
 {
    if (mutex) {
       al_unlock_mutex(mutex);
@@ -34,10 +34,10 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
 
 /* _al_kcm_stream_set_mutex:
  *  This function sets a sample's mutex pointer to the specified value. It is
- *  ALLEGRO_MIXER aware, and will recursively set any attached streams' mutex
+ *  A5O_MIXER aware, and will recursively set any attached streams' mutex
  *  to the same value.
  */
-void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MUTEX *mutex)
+void _al_kcm_stream_set_mutex(A5O_SAMPLE_INSTANCE *stream, A5O_MUTEX *mutex)
 {
    ASSERT(stream);
 
@@ -49,12 +49,12 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MUTEX *mu
     * set the same mutex.
     */
    if (stream->is_mixer) {
-      ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)stream;
+      A5O_MIXER *mixer = (A5O_MIXER *)stream;
       int i;
 
       for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
-         ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
+         A5O_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+         A5O_SAMPLE_INSTANCE *spl = *slot;
          _al_kcm_stream_set_mutex(spl, mutex);
       }
    }
@@ -62,24 +62,24 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MUTEX *mu
 
 
 /* stream_free:
- *  This function is ALLEGRO_MIXER aware and frees the memory associated with
+ *  This function is A5O_MIXER aware and frees the memory associated with
  *  the sample or mixer, and detaches any attached streams or mixers.
  */
-static void stream_free(ALLEGRO_SAMPLE_INSTANCE *spl)
+static void stream_free(A5O_SAMPLE_INSTANCE *spl)
 {
    if (spl) {
       /* Make sure we free the mixer buffer and de-reference the attached
        * streams if this is a mixer stream.
        */
       if (spl->is_mixer) {
-         ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)spl;
+         A5O_MIXER *mixer = (A5O_MIXER *)spl;
          int i;
 
          _al_kcm_stream_set_mutex(&mixer->ss, NULL);
 
          for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-            ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
-            ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
+            A5O_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+            A5O_SAMPLE_INSTANCE *spl = *slot;
 
             spl->parent.u.ptr = NULL;
             spl->spl_read = NULL;
@@ -108,9 +108,9 @@ static void stream_free(ALLEGRO_SAMPLE_INSTANCE *spl)
  *  This detaches the sample, stream, or mixer from anything it may be attached
  *  to.
  */
-void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
+void _al_kcm_detach_from_parent(A5O_SAMPLE_INSTANCE *spl)
 {
-   ALLEGRO_MIXER *mixer;
+   A5O_MIXER *mixer;
    int i;
 
    if (!spl || !spl->parent.u.ptr)
@@ -125,7 +125,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
 
    /* Search through the streams and check for this one */
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+      A5O_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
 
       if (*slot == spl) {
          maybe_lock_mutex(mixer->ss.mutex);
@@ -149,13 +149,13 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_create_sample_instance
  */
-ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
+A5O_SAMPLE_INSTANCE *al_create_sample_instance(A5O_SAMPLE *sample_data)
 {
-   ALLEGRO_SAMPLE_INSTANCE *spl;
+   A5O_SAMPLE_INSTANCE *spl;
 
    spl = al_calloc(1, sizeof(*spl));
    if (!spl) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Out of memory allocating sample object");
       return NULL;
    }
@@ -165,7 +165,7 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
    }
    spl->spl_data.free_buf = false;
 
-   spl->loop = ALLEGRO_PLAYMODE_ONCE;
+   spl->loop = A5O_PLAYMODE_ONCE;
    spl->speed = 1.0f;
    spl->gain = 1.0f;
    spl->pan = 0.0f;
@@ -189,10 +189,10 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
 }
 
 
-/* This function is ALLEGRO_MIXER aware */
+/* This function is A5O_MIXER aware */
 /* Function: al_destroy_sample_instance
  */
-void al_destroy_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
+void al_destroy_sample_instance(A5O_SAMPLE_INSTANCE *spl)
 {
    _al_kcm_destroy_sample(spl, true);
 }
@@ -200,7 +200,7 @@ void al_destroy_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Internal function: _al_kcm_destroy_sample
  */
-void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *spl, bool unregister)
+void _al_kcm_destroy_sample(A5O_SAMPLE_INSTANCE *spl, bool unregister)
 {
    if (spl) {
       if (unregister) {
@@ -215,7 +215,7 @@ void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *spl, bool unregister)
 
 /* Function: al_play_sample_instance
  */
-bool al_play_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_play_sample_instance(A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -225,7 +225,7 @@ bool al_play_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_stop_sample_instance
  */
-bool al_stop_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_stop_sample_instance(A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -235,7 +235,7 @@ bool al_stop_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_frequency
  */
-unsigned int al_get_sample_instance_frequency(const ALLEGRO_SAMPLE_INSTANCE *spl)
+unsigned int al_get_sample_instance_frequency(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -245,7 +245,7 @@ unsigned int al_get_sample_instance_frequency(const ALLEGRO_SAMPLE_INSTANCE *spl
 
 /* Function: al_get_sample_instance_length
  */
-unsigned int al_get_sample_instance_length(const ALLEGRO_SAMPLE_INSTANCE *spl)
+unsigned int al_get_sample_instance_length(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -255,12 +255,12 @@ unsigned int al_get_sample_instance_length(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_position
  */
-unsigned int al_get_sample_instance_position(const ALLEGRO_SAMPLE_INSTANCE *spl)
+unsigned int al_get_sample_instance_position(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      ALLEGRO_VOICE *voice = spl->parent.u.voice;
+      A5O_VOICE *voice = spl->parent.u.voice;
       return al_get_voice_position(voice);
    }
 
@@ -270,7 +270,7 @@ unsigned int al_get_sample_instance_position(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_speed
  */
-float al_get_sample_instance_speed(const ALLEGRO_SAMPLE_INSTANCE *spl)
+float al_get_sample_instance_speed(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -280,7 +280,7 @@ float al_get_sample_instance_speed(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_gain
  */
-float al_get_sample_instance_gain(const ALLEGRO_SAMPLE_INSTANCE *spl)
+float al_get_sample_instance_gain(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -290,7 +290,7 @@ float al_get_sample_instance_gain(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_pan
  */
-float al_get_sample_instance_pan(const ALLEGRO_SAMPLE_INSTANCE *spl)
+float al_get_sample_instance_pan(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -300,7 +300,7 @@ float al_get_sample_instance_pan(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_time
  */
-float al_get_sample_instance_time(const ALLEGRO_SAMPLE_INSTANCE *spl)
+float al_get_sample_instance_time(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -311,7 +311,7 @@ float al_get_sample_instance_time(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_depth
  */
-ALLEGRO_AUDIO_DEPTH al_get_sample_instance_depth(const ALLEGRO_SAMPLE_INSTANCE *spl)
+A5O_AUDIO_DEPTH al_get_sample_instance_depth(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -321,8 +321,8 @@ ALLEGRO_AUDIO_DEPTH al_get_sample_instance_depth(const ALLEGRO_SAMPLE_INSTANCE *
 
 /* Function: al_get_sample_instance_channels
  */
-ALLEGRO_CHANNEL_CONF al_get_sample_instance_channels(
-   const ALLEGRO_SAMPLE_INSTANCE *spl)
+A5O_CHANNEL_CONF al_get_sample_instance_channels(
+   const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -332,7 +332,7 @@ ALLEGRO_CHANNEL_CONF al_get_sample_instance_channels(
 
 /* Function: al_get_sample_instance_playmode
  */
-ALLEGRO_PLAYMODE al_get_sample_instance_playmode(const ALLEGRO_SAMPLE_INSTANCE *spl)
+A5O_PLAYMODE al_get_sample_instance_playmode(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -342,12 +342,12 @@ ALLEGRO_PLAYMODE al_get_sample_instance_playmode(const ALLEGRO_SAMPLE_INSTANCE *
 
 /* Function: al_get_sample_instance_playing
  */
-bool al_get_sample_instance_playing(const ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_get_sample_instance_playing(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      ALLEGRO_VOICE *voice = spl->parent.u.voice;
+      A5O_VOICE *voice = spl->parent.u.voice;
       return al_get_voice_playing(voice);
    }
 
@@ -357,7 +357,7 @@ bool al_get_sample_instance_playing(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_attached
  */
-bool al_get_sample_instance_attached(const ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_get_sample_instance_attached(const A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -367,13 +367,13 @@ bool al_get_sample_instance_attached(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_set_sample_instance_position
  */
-bool al_set_sample_instance_position(ALLEGRO_SAMPLE_INSTANCE *spl,
+bool al_set_sample_instance_position(A5O_SAMPLE_INSTANCE *spl,
    unsigned int val)
 {
    ASSERT(spl);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      ALLEGRO_VOICE *voice = spl->parent.u.voice;
+      A5O_VOICE *voice = spl->parent.u.voice;
       if (!al_set_voice_position(voice, val))
          return false;
    }
@@ -389,13 +389,13 @@ bool al_set_sample_instance_position(ALLEGRO_SAMPLE_INSTANCE *spl,
 
 /* Function: al_set_sample_instance_length
  */
-bool al_set_sample_instance_length(ALLEGRO_SAMPLE_INSTANCE *spl,
+bool al_set_sample_instance_length(A5O_SAMPLE_INSTANCE *spl,
    unsigned int val)
 {
    ASSERT(spl);
 
    if (spl->is_playing) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
+      _al_set_error(A5O_INVALID_OBJECT,
          "Attempted to change the length of a playing sample");
       return false;
    }
@@ -408,25 +408,25 @@ bool al_set_sample_instance_length(ALLEGRO_SAMPLE_INSTANCE *spl,
 
 /* Function: al_set_sample_instance_speed
  */
-bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
+bool al_set_sample_instance_speed(A5O_SAMPLE_INSTANCE *spl, float val)
 {
    ASSERT(spl);
 
    if (fabsf(val) < (1.0f/64.0f)) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
+      _al_set_error(A5O_INVALID_PARAM,
          "Attempted to set zero speed");
       return false;
    }
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set voice playback speed");
       return false;
    }
 
    spl->speed = val;
    if (spl->parent.u.mixer) {
-      ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
+      A5O_MIXER *mixer = spl->parent.u.mixer;
 
       maybe_lock_mutex(spl->mutex);
 
@@ -449,12 +449,12 @@ bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
 
 /* Function: al_set_sample_instance_gain
  */
-bool al_set_sample_instance_gain(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
+bool al_set_sample_instance_gain(A5O_SAMPLE_INSTANCE *spl, float val)
 {
    ASSERT(spl);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set gain of sample attached to voice");
       return false;
    }
@@ -466,7 +466,7 @@ bool al_set_sample_instance_gain(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
        * matrix to take into account the gain.
        */
       if (spl->parent.u.mixer) {
-         ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
+         A5O_MIXER *mixer = spl->parent.u.mixer;
 
          maybe_lock_mutex(spl->mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
@@ -480,17 +480,17 @@ bool al_set_sample_instance_gain(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
 
 /* Function: al_set_sample_instance_pan
  */
-bool al_set_sample_instance_pan(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
+bool al_set_sample_instance_pan(A5O_SAMPLE_INSTANCE *spl, float val)
 {
    ASSERT(spl);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set panning of sample attached to voice");
       return false;
    }
-   if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
+   if (val != A5O_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
+      _al_set_error(A5O_GENERIC_ERROR, "Invalid pan value");
       return false;
    }
 
@@ -501,7 +501,7 @@ bool al_set_sample_instance_pan(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
        * matrix to take into account the panning.
        */
       if (spl->parent.u.mixer) {
-         ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
+         A5O_MIXER *mixer = spl->parent.u.mixer;
 
          maybe_lock_mutex(spl->mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
@@ -515,13 +515,13 @@ bool al_set_sample_instance_pan(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
 
 /* Function: al_set_sample_instance_playmode
  */
-bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
-   ALLEGRO_PLAYMODE val)
+bool al_set_sample_instance_playmode(A5O_SAMPLE_INSTANCE *spl,
+   A5O_PLAYMODE val)
 {
    ASSERT(spl);
 
-   if (val < ALLEGRO_PLAYMODE_ONCE || val > ALLEGRO_PLAYMODE_BIDIR) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
+   if (val < A5O_PLAYMODE_ONCE || val > A5O_PLAYMODE_BIDIR) {
+      _al_set_error(A5O_INVALID_PARAM,
          "Invalid loop mode");
       return false;
    }
@@ -529,7 +529,7 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
    maybe_lock_mutex(spl->mutex);
 
    spl->loop = val;
-   if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
+   if (spl->loop != A5O_PLAYMODE_ONCE) {
       if (spl->pos < spl->loop_start)
          spl->pos = spl->loop_start;
       else if (spl->pos > spl->loop_end-1)
@@ -544,7 +544,7 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
 
 /* Function: al_set_sample_instance_playing
  */
-bool al_set_sample_instance_playing(ALLEGRO_SAMPLE_INSTANCE *spl, bool val)
+bool al_set_sample_instance_playing(A5O_SAMPLE_INSTANCE *spl, bool val)
 {
    ASSERT(spl);
 
@@ -555,7 +555,7 @@ bool al_set_sample_instance_playing(ALLEGRO_SAMPLE_INSTANCE *spl, bool val)
 
    if (spl->parent.is_voice) {
       /* parent is voice */
-      ALLEGRO_VOICE *voice = spl->parent.u.voice;
+      A5O_VOICE *voice = spl->parent.u.voice;
 
       return al_set_voice_playing(voice, val);
    }
@@ -572,7 +572,7 @@ bool al_set_sample_instance_playing(ALLEGRO_SAMPLE_INSTANCE *spl, bool val)
 
 /* Function: al_detach_sample_instance
  */
-bool al_detach_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_detach_sample_instance(A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -584,7 +584,7 @@ bool al_detach_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_set_sample
  */
-bool al_set_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data)
+bool al_set_sample(A5O_SAMPLE_INSTANCE *spl, A5O_SAMPLE *data)
 {
    sample_parent_t old_parent;
    bool need_reattach;
@@ -649,7 +649,7 @@ bool al_set_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data)
 
 /* Function: al_get_sample
  */
-ALLEGRO_SAMPLE *al_get_sample(ALLEGRO_SAMPLE_INSTANCE *spl)
+A5O_SAMPLE *al_get_sample(A5O_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -659,19 +659,19 @@ ALLEGRO_SAMPLE *al_get_sample(ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_set_sample_instance_channel_matrix
  */
-bool al_set_sample_instance_channel_matrix(ALLEGRO_SAMPLE_INSTANCE *spl, const float *matrix)
+bool al_set_sample_instance_channel_matrix(A5O_SAMPLE_INSTANCE *spl, const float *matrix)
 {
    ASSERT(spl);
    ASSERT(matrix);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
+      _al_set_error(A5O_GENERIC_ERROR,
          "Could not set channel matrix of sample attached to voice");
       return false;
    }
 
    if (spl->parent.u.mixer) {
-      ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
+      A5O_MIXER *mixer = spl->parent.u.mixer;
       size_t dst_chans = al_get_channel_count(mixer->ss.spl_data.chan_conf);
       size_t src_chans = al_get_channel_count(spl->spl_data.chan_conf);
       ASSERT(spl->matrix);

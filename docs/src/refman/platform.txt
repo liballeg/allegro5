@@ -67,10 +67,10 @@ These functions are declared in the following header file:
 
 Sets the orientation of the status bar, which can be one of the following:
 
--  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT
--  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN
--  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT
--  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT
+-  A5O_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT
+-  A5O_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN
+-  A5O_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT
+-  A5O_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT
 
 Since: 5.1.0
 
@@ -96,7 +96,7 @@ These functions are declared in the following header file:
 
 ### API: al_android_set_apk_file_interface
 
-This function will set up a custom [ALLEGRO_FILE_INTERFACE] that makes all
+This function will set up a custom [A5O_FILE_INTERFACE] that makes all
 future calls of [al_fopen] read from the applicatons's APK file.
 
 > *Note:* Currently, access to the APK file after calling this function is read
@@ -106,7 +106,7 @@ Since: 5.1.2
 
 ### API: al_android_set_apk_fs_interface
 
-This function will set up a custom [ALLEGRO_FS_INTERFACE] which allows
+This function will set up a custom [A5O_FS_INTERFACE] which allows
 working within the APK filesystem. The filesystem root is your assets
 directory and there is read-only access to all files within.
 
@@ -179,7 +179,7 @@ const char *content_uri = "content://...";
 int fd = al_android_open_fd(content_uri, "r");
 
 if (fd >= 0) {
-    ALLEGRO_FILE *f = al_fopen_fd(fd, "r");
+    A5O_FILE *f = al_fopen_fd(fd, "r");
 
     if (f != NULL) {
         do_something_with(f);

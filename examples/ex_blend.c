@@ -1,7 +1,7 @@
 /* An example demonstrating different blending modes.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
@@ -15,11 +15,11 @@
 /* A structure holding all variables of our example program. */
 struct Example
 {
-   ALLEGRO_BITMAP *example; /* Our example bitmap. */
-   ALLEGRO_BITMAP *offscreen; /* An offscreen buffer, for testing. */
-   ALLEGRO_BITMAP *memory; /* A memory buffer, for testing. */
-   ALLEGRO_FONT *myfont; /* Our font. */
-   ALLEGRO_EVENT_QUEUE *queue; /* Our events queue. */
+   A5O_BITMAP *example; /* Our example bitmap. */
+   A5O_BITMAP *offscreen; /* An offscreen buffer, for testing. */
+   A5O_BITMAP *memory; /* A memory buffer, for testing. */
+   A5O_FONT *myfont; /* Our font. */
+   A5O_EVENT_QUEUE *queue; /* Our events queue. */
    int image; /* Which test image to use. */
    int mode; /* How to draw it. */
    int BUTTONS_X; /* Where to draw buttons. */
@@ -35,7 +35,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
 {
    va_list list;
    char message[1024];
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
    int h;
    int j;
 
@@ -43,7 +43,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    h = al_get_font_line_height(ex.myfont);
 
    for (j = 0; j < 2; j++) {
@@ -54,10 +54,10 @@ static void print(int x, int y, bool vertical, char const *format, ...)
 
       if (vertical) {
          int i;
-         ALLEGRO_USTR_INFO ui;
-         const ALLEGRO_USTR *us = al_ref_cstr(&ui, message);
+         A5O_USTR_INFO ui;
+         const A5O_USTR *us = al_ref_cstr(&ui, message);
          for (i = 0; i < (int)al_ustr_length(us); i++) {
-            ALLEGRO_USTR_INFO letter;
+            A5O_USTR_INFO letter;
             al_draw_ustr(ex.myfont, color, x + 1 - j, y + 1 - j + h * i, 0,
                al_ref_ustr(&letter, us, al_ustr_offset(us, i),
                al_ustr_offset(us, i + 1)));
@@ -70,15 +70,15 @@ static void print(int x, int y, bool vertical, char const *format, ...)
 }
 
 /* Create an example bitmap. */
-static ALLEGRO_BITMAP *create_example_bitmap(void)
+static A5O_BITMAP *create_example_bitmap(void)
 {
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    int i, j;
-   ALLEGRO_LOCKED_REGION *locked;
+   A5O_LOCKED_REGION *locked;
    unsigned char *data;
 
    bitmap = al_create_bitmap(100, 100);
-   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+   locked = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ABGR_8888, A5O_LOCK_WRITEONLY);
    data = locked->data;
  
    for (j = 0; j < 100; j++) {
@@ -103,13 +103,13 @@ static ALLEGRO_BITMAP *create_example_bitmap(void)
 /* Draw our example scene. */
 static void draw(void)
 {
-   ALLEGRO_COLOR test[5];
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   A5O_COLOR test[5];
+   A5O_BITMAP *target = al_get_target_bitmap();
 
    char const *blend_names[] = {"ZERO", "ONE", "ALPHA", "INVERSE"};
    char const *blend_vnames[] = {"ZERO", "ONE", "ALPHA", "INVER"};
-   int blend_modes[] = {ALLEGRO_ZERO, ALLEGRO_ONE, ALLEGRO_ALPHA,
-      ALLEGRO_INVERSE_ALPHA};
+   int blend_modes[] = {A5O_ZERO, A5O_ONE, A5O_ALPHA,
+      A5O_INVERSE_ALPHA};
    float x = 40, y = 40;
    int i, j;
 
@@ -128,7 +128,7 @@ static void draw(void)
       print(20, y + i * 110, true, blend_vnames[i]);
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    if (ex.mode >= 1 && ex.mode <= 5) {
       al_set_target_bitmap(ex.offscreen);
       al_clear_to_color(test[ex.mode - 1]);
@@ -140,7 +140,7 @@ static void draw(void)
 
    for (j = 0; j < 4; j++) {
       for (i = 0; i < 4; i++) {
-         al_set_blender(ALLEGRO_ADD, blend_modes[j], blend_modes[i]);
+         al_set_blender(A5O_ADD, blend_modes[j], blend_modes[i]);
          if (ex.image == 0)
             al_draw_bitmap(ex.example, x + i * 110, y + j * 110, 0);
          else if (ex.image >= 1 && ex.image <= 6) {
@@ -152,12 +152,12 @@ static void draw(void)
    }
 
    if (ex.mode >= 1 && ex.mode <= 5) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       al_set_target_bitmap(target);
       al_draw_bitmap_region(ex.offscreen, x, y, 430, 430, x, y, 0);
    }
    if (ex.mode >= 6 && ex.mode <= 10) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       al_set_target_bitmap(target);
       al_draw_bitmap_region(ex.memory, x, y, 430, 430, x, y, 0);
    }
@@ -209,7 +209,7 @@ static void tick(void)
 /* Run our test. */
 static void run(void)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    float x, y;
    bool need_draw = true;
 
@@ -224,22 +224,22 @@ static void run(void)
 
       switch (event.type) {
          /* Was the X button on the window pressed? */
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             return;
 
          /* Was a key pressed? */
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                return;
             break;
 
          /* Is it time for the next timer tick? */
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             need_draw = true;
             break;
 
          /* Mouse click? */
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+         case A5O_EVENT_MOUSE_BUTTON_UP:
             x = event.mouse.x;
             y = event.mouse.y;
             if (x >= ex.BUTTONS_X) {
@@ -283,14 +283,14 @@ static void init(void)
    ex.example = create_example_bitmap();
 
    ex.offscreen = al_create_bitmap(640, 480);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    ex.memory = al_create_bitmap(640, 480);
 }
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
 
    (void)argc;
    (void)argv;

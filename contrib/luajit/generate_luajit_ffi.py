@@ -30,9 +30,9 @@ class Allegro:
                 self.functions.append(proto)
                 continue
             # anonymous structs have no name at all
-            if name and not name.startswith("ALLEGRO_"):
+            if name and not name.startswith("A5O_"):
                 continue
-            if name == "ALLEGRO_OGL_EXT_API":
+            if name == "A5O_OGL_EXT_API":
                 continue
 
             if pwords[0] in ('union', 'struct'):
@@ -108,9 +108,9 @@ def typeorder(decls, declared):
     ordered = []
     todo = decls[:]
 
-    seen.add('ALLEGRO_EVENT_TYPE')
-    seen.add('ALLEGRO_KEY_MAX')
-    seen.add('ALLEGRO_USER_EVENT_DESCRIPTOR')
+    seen.add('A5O_EVENT_TYPE')
+    seen.add('A5O_KEY_MAX')
+    seen.add('A5O_USER_EVENT_DESCRIPTOR')
 
     def info(t):
         brk, brk2 = t.find('{'), t.rfind('}')
@@ -129,8 +129,8 @@ def typeorder(decls, declared):
         if name:
             decl.add(name)
 
-    reall = re.compile('(ALLEGRO_\w+\s*\*?)')
-    retname = re.compile('(ALLEGRO_\w+)')
+    reall = re.compile('(A5O_\w+\s*\*?)')
+    retname = re.compile('(A5O_\w+)')
     c = 0
     while True:
         lb = len(todo)
@@ -141,7 +141,7 @@ def typeorder(decls, declared):
             # print aldeps
             for rdep in aldeps:
                 dep = retname.match(rdep).group(1)
-                if dep.startswith('ALLEGRO_GL_'):
+                if dep.startswith('A5O_GL_'):
                     continue    # ignore
                 if dep in decl and rdep[-1] == '*':
                     continue    # ok, seen type and ptr
@@ -216,8 +216,8 @@ typedef int64_t time_t;
 typedef void* va_list;
 typedef int al_fixed;
 typedef unsigned int GLuint;
-typedef unsigned int ALLEGRO_EVENT_TYPE;
-enum { ALLEGRO_KEY_MAX = 227 };
+typedef unsigned int A5O_EVENT_TYPE;
+enum { A5O_KEY_MAX = 227 };
 """)
 
     # enums

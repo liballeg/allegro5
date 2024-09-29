@@ -47,8 +47,8 @@
  * round to nearest integer, and backtransform that.
  */
 static void align_to_integer_pixel_inner(
-   ALLEGRO_TRANSFORM const *fwd,
-   ALLEGRO_TRANSFORM const *inv,
+   A5O_TRANSFORM const *fwd,
+   A5O_TRANSFORM const *inv,
    float *x, float *y)
 {
    al_transform_coordinates(fwd, x, y);
@@ -59,8 +59,8 @@ static void align_to_integer_pixel_inner(
 
 static void align_to_integer_pixel(float *x, float *y)
 {
-   ALLEGRO_TRANSFORM const *fwd;
-   ALLEGRO_TRANSFORM inv;
+   A5O_TRANSFORM const *fwd;
+   A5O_TRANSFORM inv;
 
    fwd = al_get_current_transform();
    al_copy_transform(&inv, fwd);
@@ -72,24 +72,24 @@ static void align_to_integer_pixel(float *x, float *y)
 
 /* Function: al_draw_ustr
  */
-void al_draw_ustr(const ALLEGRO_FONT *font,
-   ALLEGRO_COLOR color, float x, float y, int flags,
-   const ALLEGRO_USTR *ustr) 
+void al_draw_ustr(const A5O_FONT *font,
+   A5O_COLOR color, float x, float y, int flags,
+   const A5O_USTR *ustr) 
 {
    ASSERT(font);
    ASSERT(ustr);
 
-   if (flags & ALLEGRO_ALIGN_CENTRE) {
+   if (flags & A5O_ALIGN_CENTRE) {
       /* Use integer division to avoid introducing a fractional
        * component to an integer x value.
        */
       x -= font->vtable->text_length(font, ustr) / 2;
    }
-   else if (flags & ALLEGRO_ALIGN_RIGHT) {
+   else if (flags & A5O_ALIGN_RIGHT) {
       x -= font->vtable->text_length(font, ustr);
    }
 
-   if (flags & ALLEGRO_ALIGN_INTEGER)
+   if (flags & A5O_ALIGN_INTEGER)
       align_to_integer_pixel(&x, &y);
 
    font->vtable->render(font, color, ustr, x, y);
@@ -99,11 +99,11 @@ void al_draw_ustr(const ALLEGRO_FONT *font,
 
 /* Function: al_draw_text
  */
-void al_draw_text(const ALLEGRO_FONT *font,
-   ALLEGRO_COLOR color, float x, float y, int flags,
+void al_draw_text(const A5O_FONT *font,
+   A5O_COLOR color, float x, float y, int flags,
    char const *text) 
 {
-   ALLEGRO_USTR_INFO info;
+   A5O_USTR_INFO info;
    ASSERT(text);
    al_draw_ustr(font, color, x, y, flags, al_ref_cstr(&info, text));
 }
@@ -112,21 +112,21 @@ void al_draw_text(const ALLEGRO_FONT *font,
 
 /* Function: al_draw_justified_ustr
  */
-void al_draw_justified_ustr(const ALLEGRO_FONT *font,
-   ALLEGRO_COLOR color, float x1, float x2,
-   float y, float diff, int flags, const ALLEGRO_USTR *ustr)
+void al_draw_justified_ustr(const A5O_FONT *font,
+   A5O_COLOR color, float x1, float x2,
+   float y, float diff, int flags, const A5O_USTR *ustr)
 {
    const char *whitespace = " \t\n\r";
-   ALLEGRO_USTR_INFO word_info;
-   const ALLEGRO_USTR *word;
+   A5O_USTR_INFO word_info;
+   const A5O_USTR *word;
    int pos1, pos2;
    int minlen;
    int num_words;
    int space;
    float fleft, finc;
    int advance;
-   ALLEGRO_TRANSFORM const *fwd = NULL;
-   ALLEGRO_TRANSFORM inv;
+   A5O_TRANSFORM const *fwd = NULL;
+   A5O_TRANSFORM inv;
 
    ASSERT(font);
 
@@ -154,7 +154,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
 
    if ((space <= 0) || (space > diff) || (num_words < 2)) {
       /* can't justify */
-      if (flags & ALLEGRO_ALIGN_INTEGER)
+      if (flags & A5O_ALIGN_INTEGER)
          align_to_integer_pixel(&x1, &y);
       font->vtable->render(font, color, ustr, x1, y);
       return; 
@@ -165,7 +165,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
    finc = (float)space / (float)(num_words-1);
    pos1 = 0;
 
-   if (flags & ALLEGRO_ALIGN_INTEGER) {
+   if (flags & A5O_ALIGN_INTEGER) {
       fwd = al_get_current_transform();
       al_copy_transform(&inv, fwd);
       al_invert_transform(&inv);
@@ -180,7 +180,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
          pos2 = al_ustr_size(ustr);
 
       word = al_ref_ustr(&word_info, ustr, pos1, pos2);
-      if (flags & ALLEGRO_ALIGN_INTEGER) {
+      if (flags & A5O_ALIGN_INTEGER) {
          float drawx = fleft;
          float drawy = y;
          align_to_integer_pixel_inner(fwd, &inv, &drawx, &drawy);
@@ -197,11 +197,11 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
 
 /* Function: al_draw_justified_text
  */
-void al_draw_justified_text(const ALLEGRO_FONT *font,
-   ALLEGRO_COLOR color, float x1, float x2,
+void al_draw_justified_text(const A5O_FONT *font,
+   A5O_COLOR color, float x1, float x2,
    float y, float diff, int flags, const char *text)
 {
-   ALLEGRO_USTR_INFO info;
+   A5O_USTR_INFO info;
    ASSERT(text);
    al_draw_justified_ustr(font, color, x1, x2, y, diff, flags,
       al_ref_cstr(&info, text));
@@ -210,11 +210,11 @@ void al_draw_justified_text(const ALLEGRO_FONT *font,
 
 /* Function: al_draw_textf
  */
-void al_draw_textf(const ALLEGRO_FONT *font, ALLEGRO_COLOR color,
+void al_draw_textf(const A5O_FONT *font, A5O_COLOR color,
    float x, float y, int flags,
    const char *format, ...)
 {
-   ALLEGRO_USTR *buf;
+   A5O_USTR *buf;
    va_list ap;
    const char *s;
    ASSERT(font);
@@ -243,11 +243,11 @@ void al_draw_textf(const ALLEGRO_FONT *font, ALLEGRO_COLOR color,
 
 /* Function: al_draw_justified_textf
  */
-void al_draw_justified_textf(const ALLEGRO_FONT *f,
-   ALLEGRO_COLOR color, float x1, float x2, float y,
+void al_draw_justified_textf(const A5O_FONT *f,
+   A5O_COLOR color, float x1, float x2, float y,
    float diff, int flags, const char *format, ...)
 {
-   ALLEGRO_USTR *buf;
+   A5O_USTR *buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
@@ -266,7 +266,7 @@ void al_draw_justified_textf(const ALLEGRO_FONT *f,
 
 /* Function: al_get_ustr_width
  */
-int al_get_ustr_width(const ALLEGRO_FONT *f, ALLEGRO_USTR const *ustr)
+int al_get_ustr_width(const A5O_FONT *f, A5O_USTR const *ustr)
 {
    ASSERT(f);
    ASSERT(ustr);
@@ -278,10 +278,10 @@ int al_get_ustr_width(const ALLEGRO_FONT *f, ALLEGRO_USTR const *ustr)
 
 /* Function: al_get_text_width
  */
-int al_get_text_width(const ALLEGRO_FONT *f, const char *str)
+int al_get_text_width(const A5O_FONT *f, const char *str)
 {
-   ALLEGRO_USTR_INFO str_info;
-   const ALLEGRO_USTR *ustr;
+   A5O_USTR_INFO str_info;
+   const A5O_USTR *ustr;
    ASSERT(f);
    ASSERT(str);
 
@@ -294,7 +294,7 @@ int al_get_text_width(const ALLEGRO_FONT *f, const char *str)
 
 /* Function: al_get_font_line_height
  */
-int al_get_font_line_height(const ALLEGRO_FONT *f)
+int al_get_font_line_height(const A5O_FONT *f)
 {
    ASSERT(f);
    return f->vtable->font_height(f);
@@ -304,7 +304,7 @@ int al_get_font_line_height(const ALLEGRO_FONT *f)
 
 /* Function: al_get_font_ascent
  */
-int al_get_font_ascent(const ALLEGRO_FONT *f)
+int al_get_font_ascent(const A5O_FONT *f)
 {
    ASSERT(f);
    return f->vtable->font_ascent(f);
@@ -314,7 +314,7 @@ int al_get_font_ascent(const ALLEGRO_FONT *f)
 
 /* Function: al_get_font_descent
  */
-int al_get_font_descent(const ALLEGRO_FONT *f)
+int al_get_font_descent(const A5O_FONT *f)
 {
    ASSERT(f);
    return f->vtable->font_descent(f);
@@ -324,8 +324,8 @@ int al_get_font_descent(const ALLEGRO_FONT *f)
 
 /* Function: al_get_ustr_dimensions
  */
-void al_get_ustr_dimensions(const ALLEGRO_FONT *f,
-   ALLEGRO_USTR const *ustr,
+void al_get_ustr_dimensions(const A5O_FONT *f,
+   A5O_USTR const *ustr,
    int *bbx, int *bby, int *bbw, int *bbh)
 {
    ASSERT(f);
@@ -338,11 +338,11 @@ void al_get_ustr_dimensions(const ALLEGRO_FONT *f,
 
 /* Function: al_get_text_dimensions
  */
-void al_get_text_dimensions(const ALLEGRO_FONT *f,
+void al_get_text_dimensions(const A5O_FONT *f,
    char const *text,
    int *bbx, int *bby, int *bbw, int *bbh)
 {
-   ALLEGRO_USTR_INFO info;
+   A5O_USTR_INFO info;
    ASSERT(f);
    ASSERT(text);
 
@@ -354,7 +354,7 @@ void al_get_text_dimensions(const ALLEGRO_FONT *f,
 
 /* Function: al_destroy_font
  */
-void al_destroy_font(ALLEGRO_FONT *f)
+void al_destroy_font(A5O_FONT *f)
 {
    if (!f)
       return;
@@ -367,14 +367,14 @@ void al_destroy_font(ALLEGRO_FONT *f)
 
 /* Function: al_get_font_ranges
  */
-int al_get_font_ranges(ALLEGRO_FONT *f, int ranges_count, int *ranges)
+int al_get_font_ranges(A5O_FONT *f, int ranges_count, int *ranges)
 {
    return f->vtable->get_font_ranges(f, ranges_count, ranges);
 }
 
 /* Function: al_draw_glyph
  */
-void al_draw_glyph(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, float x, float y,
+void al_draw_glyph(const A5O_FONT *f, A5O_COLOR color, float x, float y,
    int codepoint)
 {
    f->vtable->render_char(f, color, codepoint, x, y);
@@ -382,14 +382,14 @@ void al_draw_glyph(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, float x, float y,
 
 /* Function: al_get_glyph_width
  */
-int al_get_glyph_width(const ALLEGRO_FONT *f, int codepoint)
+int al_get_glyph_width(const A5O_FONT *f, int codepoint)
 {
    return f->vtable->char_length(f, codepoint);
 }
 
 /* Function: al_get_glyph_dimensions
  */
-bool al_get_glyph_dimensions(const ALLEGRO_FONT *f,
+bool al_get_glyph_dimensions(const A5O_FONT *f,
    int codepoint, int *bbx, int *bby, int *bbw, int *bbh)
 {
    return f->vtable->get_glyph_dimensions(f, codepoint, bbx, bby, bbw, bbh);
@@ -397,14 +397,14 @@ bool al_get_glyph_dimensions(const ALLEGRO_FONT *f,
 
 /* Function: al_get_glyph_advance
  */
-int al_get_glyph_advance(const ALLEGRO_FONT *f, int codepoint1, int codepoint2)
+int al_get_glyph_advance(const A5O_FONT *f, int codepoint1, int codepoint2)
 {
    return f->vtable->get_glyph_advance(f, codepoint1, codepoint2);
 }
 
 /* Function: al_get_glyph
  */
-bool al_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
+bool al_get_glyph(const A5O_FONT *f, int prev_codepoint, int codepoint, A5O_GLYPH *glyph)
 {
    return f->vtable->get_glyph(f, prev_codepoint, codepoint, glyph);
 };
@@ -417,10 +417,10 @@ bool al_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLE
  * Pos is updated to byte index of character after the delimiter or
  * to the end of the string.
  */
-static const ALLEGRO_USTR *ustr_split_next(const ALLEGRO_USTR *ustr,
-   ALLEGRO_USTR_INFO *info, int *pos, const char *delimiter)
+static const A5O_USTR *ustr_split_next(const A5O_USTR *ustr,
+   A5O_USTR_INFO *info, int *pos, const char *delimiter)
 {
-   const ALLEGRO_USTR *result;
+   const A5O_USTR *result;
    int end, size;
 
    size = al_ustr_size(ustr);
@@ -451,11 +451,11 @@ static const ALLEGRO_USTR *ustr_split_next(const ALLEGRO_USTR *ustr,
  * line was split, but pos will be set to point to after that trailing
  * space so iteration can continue easily.
  */
-static const ALLEGRO_USTR *get_next_soft_line(const ALLEGRO_USTR *ustr,
-   ALLEGRO_USTR_INFO *info, int *pos,
-   const ALLEGRO_FONT *font, float max_width)
+static const A5O_USTR *get_next_soft_line(const A5O_USTR *ustr,
+   A5O_USTR_INFO *info, int *pos,
+   const A5O_FONT *font, float max_width)
 {
-   const ALLEGRO_USTR *result = NULL;
+   const A5O_USTR *result = NULL;
    const char *whitespace = " \t";
    int old_end = 0;
    int end = 0;
@@ -513,14 +513,14 @@ static const ALLEGRO_USTR *get_next_soft_line(const ALLEGRO_USTR *ustr,
 
 /* Function: al_do_multiline_ustr
  */
-void al_do_multiline_ustr(const ALLEGRO_FONT *font, float max_width,
-   const ALLEGRO_USTR *ustr,
-   bool (*cb)(int line_num, const ALLEGRO_USTR * line, void *extra),
+void al_do_multiline_ustr(const A5O_FONT *font, float max_width,
+   const A5O_USTR *ustr,
+   bool (*cb)(int line_num, const A5O_USTR * line, void *extra),
    void *extra)
 {
    const char *linebreak  = "\n";
-   const ALLEGRO_USTR *hard_line, *soft_line;
-   ALLEGRO_USTR_INFO hard_line_info, soft_line_info;
+   const A5O_USTR *hard_line, *soft_line;
+   A5O_USTR_INFO hard_line_info, soft_line_info;
    int hard_line_pos = 0, soft_line_pos = 0;
    int line_num = 0;
    bool proceed;
@@ -568,7 +568,7 @@ typedef struct DO_MULTILINE_TEXT_EXTRA {
 /* The functions do_multiline_text_cb is the helper callback
  * that "adapts" al_do_multiline_ustr to al_do_multiline_text.
  */
-static bool do_multiline_text_cb(int line_num, const ALLEGRO_USTR *line,
+static bool do_multiline_text_cb(int line_num, const A5O_USTR *line,
    void *extra) {
    DO_MULTILINE_TEXT_EXTRA *s = extra;
 
@@ -579,12 +579,12 @@ static bool do_multiline_text_cb(int line_num, const ALLEGRO_USTR *line,
 
 /* Function: al_do_multiline_text
  */
-void al_do_multiline_text(const ALLEGRO_FONT *font,
+void al_do_multiline_text(const A5O_FONT *font,
    float max_width, const char *text,
    bool (*cb)(int line_num, const char *line, int size, void *extra),
    void *extra)
 {
-   ALLEGRO_USTR_INFO info;
+   A5O_USTR_INFO info;
    DO_MULTILINE_TEXT_EXTRA extra2;
    ASSERT(font);
    ASSERT(text);
@@ -599,8 +599,8 @@ void al_do_multiline_text(const ALLEGRO_FONT *font,
 
 /* Helper struct for al_draw_multiline_ustr. */
 typedef struct DRAW_MULTILINE_USTR_EXTRA {
-   const ALLEGRO_FONT *font;
-   ALLEGRO_COLOR color;
+   const A5O_FONT *font;
+   A5O_COLOR color;
    float x;
    float y;
    float line_height;
@@ -612,7 +612,7 @@ typedef struct DRAW_MULTILINE_USTR_EXTRA {
 /* The function draw_multiline_ustr_cb is the helper callback
  * that implements the actual drawing for al_draw_multiline_ustr.
  */
-static bool draw_multiline_ustr_cb(int line_num, const ALLEGRO_USTR *line,
+static bool draw_multiline_ustr_cb(int line_num, const A5O_USTR *line,
    void *extra) {
    DRAW_MULTILINE_USTR_EXTRA *s = extra;
    float y;
@@ -626,9 +626,9 @@ static bool draw_multiline_ustr_cb(int line_num, const ALLEGRO_USTR *line,
 
 /* Function: al_draw_multiline_ustr
  */
-void al_draw_multiline_ustr(const ALLEGRO_FONT *font,
-     ALLEGRO_COLOR color, float x, float y, float max_width, float line_height,
-     int flags, const ALLEGRO_USTR *ustr)
+void al_draw_multiline_ustr(const A5O_FONT *font,
+     A5O_COLOR color, float x, float y, float max_width, float line_height,
+     int flags, const A5O_USTR *ustr)
 {
    DRAW_MULTILINE_USTR_EXTRA extra;
    ASSERT(font);
@@ -653,11 +653,11 @@ void al_draw_multiline_ustr(const ALLEGRO_FONT *font,
 
 /* Function: al_draw_multiline_text
  */
-void al_draw_multiline_text(const ALLEGRO_FONT *font,
-     ALLEGRO_COLOR color, float x, float y, float max_width, float line_height,
+void al_draw_multiline_text(const A5O_FONT *font,
+     A5O_COLOR color, float x, float y, float max_width, float line_height,
      int flags, const char *text)
 {
-   ALLEGRO_USTR_INFO info;
+   A5O_USTR_INFO info;
    ASSERT(font);
    ASSERT(text);
 
@@ -669,11 +669,11 @@ void al_draw_multiline_text(const ALLEGRO_FONT *font,
 
 /* Function: al_draw_multiline_textf
  */
-void al_draw_multiline_textf(const ALLEGRO_FONT *font,
-     ALLEGRO_COLOR color, float x, float y, float max_width, float line_height,
+void al_draw_multiline_textf(const A5O_FONT *font,
+     A5O_COLOR color, float x, float y, float max_width, float line_height,
      int flags, const char *format, ...)
 {
-   ALLEGRO_USTR *buf;
+   A5O_USTR *buf;
    va_list ap;
    ASSERT(font);
    ASSERT(format);
@@ -692,14 +692,14 @@ void al_draw_multiline_textf(const ALLEGRO_FONT *font,
 
 /* Function: al_set_fallback_font
  */
-void al_set_fallback_font(ALLEGRO_FONT *font, ALLEGRO_FONT *fallback)
+void al_set_fallback_font(A5O_FONT *font, A5O_FONT *fallback)
 {
    font->fallback = fallback;
 }
 
 /* Function: al_get_fallback_font
  */
-ALLEGRO_FONT *al_get_fallback_font(ALLEGRO_FONT *font)
+A5O_FONT *al_get_fallback_font(A5O_FONT *font)
 {
    return font->fallback;
 }

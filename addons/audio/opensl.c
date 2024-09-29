@@ -27,7 +27,7 @@ static const int MAX_FRAMES = 2048;
 /* Number of opensl buffers to use */
 #define MAX_BUFFERS 2
 
-ALLEGRO_DEBUG_CHANNEL("opensl")
+A5O_DEBUG_CHANNEL("opensl")
 
 static SLObjectItf engine;
 
@@ -62,7 +62,7 @@ static SLEngineItf getEngine(SLObjectItf engine){
     if (result == SL_RESULT_SUCCESS){
         return interface;
     } else {
-        ALLEGRO_ERROR("Could not get opensl engine: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not get opensl engine: %s\n", opensl_get_error_string(result));
         return NULL;
     }
 }
@@ -82,13 +82,13 @@ static SLObjectItf createOutputMixer(SLEngineItf engine){
 
     result = (*engine)->CreateOutputMix(engine, &output, 0, ids, required);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not create output mix: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not create output mix: %s\n", opensl_get_error_string(result));
         return NULL;
     }
 
     result = (*output)->Realize(output, SL_BOOLEAN_FALSE);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not realize the output mix: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not realize the output mix: %s\n", opensl_get_error_string(result));
         (*output)->Destroy(output);
         return NULL;
     }
@@ -110,7 +110,7 @@ static int _opensl_open(void)
 
     result = slCreateEngine(&engine, 1, options, 0, NULL, NULL);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not open audio device: %s\n",
+        A5O_ERROR("Could not open audio device: %s\n",
                       opensl_get_error_string(result));
         return 1;
     }
@@ -172,7 +172,7 @@ typedef struct OpenSLData{
 
     /* Size of a single sample: depth * channels */
     int frame_size;
-    ALLEGRO_THREAD * poll_thread;
+    A5O_THREAD * poll_thread;
 
     /* local buffers to keep opensl fed since it doesn't copy
      * data by default.
@@ -180,7 +180,7 @@ typedef struct OpenSLData{
     char * buffers[MAX_BUFFERS];
 } OpenSLData;
 
-static SLDataFormat_PCM setupFormat(ALLEGRO_VOICE * voice){
+static SLDataFormat_PCM setupFormat(A5O_VOICE * voice){
     SLDataFormat_PCM format;
     format.formatType = SL_DATAFORMAT_PCM;
 
@@ -188,29 +188,29 @@ static SLDataFormat_PCM setupFormat(ALLEGRO_VOICE * voice){
 
     /* TODO: review the channelMasks */
     switch (voice->chan_conf){
-        case ALLEGRO_CHANNEL_CONF_1: {
+        case A5O_CHANNEL_CONF_1: {
             /* Not sure if center is right.. */
             format.channelMask = SL_SPEAKER_FRONT_CENTER;
             break;
         }
-        case ALLEGRO_CHANNEL_CONF_2: {
+        case A5O_CHANNEL_CONF_2: {
             format.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
             break;
         }
-        case ALLEGRO_CHANNEL_CONF_3: {
+        case A5O_CHANNEL_CONF_3: {
             format.channelMask = SL_SPEAKER_FRONT_LEFT |
                                  SL_SPEAKER_FRONT_RIGHT |
                                  SL_SPEAKER_FRONT_CENTER;
             break;
         }
-        case ALLEGRO_CHANNEL_CONF_4: {
+        case A5O_CHANNEL_CONF_4: {
             format.channelMask = SL_SPEAKER_FRONT_LEFT |
                                  SL_SPEAKER_BACK_LEFT |
                                  SL_SPEAKER_FRONT_RIGHT |
                                  SL_SPEAKER_BACK_RIGHT;
             break;
         }
-        case ALLEGRO_CHANNEL_CONF_5_1: {
+        case A5O_CHANNEL_CONF_5_1: {
             format.channelMask = SL_SPEAKER_FRONT_LEFT |
                                  SL_SPEAKER_BACK_LEFT |
                                  SL_SPEAKER_FRONT_RIGHT |
@@ -219,7 +219,7 @@ static SLDataFormat_PCM setupFormat(ALLEGRO_VOICE * voice){
                                  SL_SPEAKER_LOW_FREQUENCY;
             break;
         }
-        case ALLEGRO_CHANNEL_CONF_6_1: {
+        case A5O_CHANNEL_CONF_6_1: {
             format.channelMask = SL_SPEAKER_FRONT_LEFT |
                                  SL_SPEAKER_BACK_LEFT |
                                  SL_SPEAKER_FRONT_RIGHT |
@@ -231,7 +231,7 @@ static SLDataFormat_PCM setupFormat(ALLEGRO_VOICE * voice){
 
             break;
         }
-        case ALLEGRO_CHANNEL_CONF_7_1: {
+        case A5O_CHANNEL_CONF_7_1: {
             format.channelMask = SL_SPEAKER_FRONT_LEFT |
                                  SL_SPEAKER_BACK_LEFT |
                                  SL_SPEAKER_FRONT_RIGHT |
@@ -244,7 +244,7 @@ static SLDataFormat_PCM setupFormat(ALLEGRO_VOICE * voice){
             break;
         }
         default: {
-            ALLEGRO_ERROR("Cannot allocate voice with unknown channel configuration\n");
+            A5O_ERROR("Cannot allocate voice with unknown channel configuration\n");
         }
     }
 
@@ -263,42 +263,42 @@ static SLDataFormat_PCM setupFormat(ALLEGRO_VOICE * voice){
         case 96000: format.samplesPerSec = SL_SAMPLINGRATE_96; break;
         case 192000: format.samplesPerSec = SL_SAMPLINGRATE_192; break;
         default: {
-            ALLEGRO_ERROR("Unsupported frequency %d. Using 44100 instead.\n", voice->frequency);
+            A5O_ERROR("Unsupported frequency %d. Using 44100 instead.\n", voice->frequency);
             format.samplesPerSec = SL_SAMPLINGRATE_44_1;
             voice->frequency = 44100;
         }
     }
 
     switch (voice->depth) {
-        case ALLEGRO_AUDIO_DEPTH_UINT8:
-        case ALLEGRO_AUDIO_DEPTH_INT8: {
+        case A5O_AUDIO_DEPTH_UINT8:
+        case A5O_AUDIO_DEPTH_INT8: {
             format.bitsPerSample = 8;
             format.containerSize = 8;
             break;
         }
-        case ALLEGRO_AUDIO_DEPTH_UINT16:
-        case ALLEGRO_AUDIO_DEPTH_INT16: {
+        case A5O_AUDIO_DEPTH_UINT16:
+        case A5O_AUDIO_DEPTH_INT16: {
             format.bitsPerSample = 16;
             format.containerSize = 16;
             break;
         }
-        case ALLEGRO_AUDIO_DEPTH_UINT24:
-        case ALLEGRO_AUDIO_DEPTH_INT24: {
+        case A5O_AUDIO_DEPTH_UINT24:
+        case A5O_AUDIO_DEPTH_INT24: {
             format.bitsPerSample = 24;
             format.containerSize = 32;
             break;
         }
-        case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+        case A5O_AUDIO_DEPTH_FLOAT32: {
             format.bitsPerSample = 32;
             format.containerSize = 32;
             break;
         }
         default: {
-            ALLEGRO_WARN("Cannot allocate unknown voice depth\n");
+            A5O_WARN("Cannot allocate unknown voice depth\n");
         }
     }
 
-#ifdef ALLEGRO_BIG_ENDIAN
+#ifdef A5O_BIG_ENDIAN
     format.endianness = SL_BYTEORDER_BIGENDIAN;
 #else
     format.endianness = SL_BYTEORDER_LITTLEENDIAN;
@@ -311,18 +311,18 @@ static SLDataFormat_PCM setupFormat(ALLEGRO_VOICE * voice){
 
     /*
     switch (voice->depth){
-        case ALLEGRO_AUDIO_DEPTH_UINT8:
-        case ALLEGRO_AUDIO_DEPTH_UINT16:
-        case ALLEGRO_AUDIO_DEPTH_UINT24: {
+        case A5O_AUDIO_DEPTH_UINT8:
+        case A5O_AUDIO_DEPTH_UINT16:
+        case A5O_AUDIO_DEPTH_UINT24: {
             format.representation = SL_PCM_REPRESENTATION_UNSIGNED_INT;
         }
-        case ALLEGRO_AUDIO_DEPTH_INT8:
-        case ALLEGRO_AUDIO_DEPTH_INT16:
-        case ALLEGRO_AUDIO_DEPTH_INT24: {
+        case A5O_AUDIO_DEPTH_INT8:
+        case A5O_AUDIO_DEPTH_INT16:
+        case A5O_AUDIO_DEPTH_INT24: {
             format.representation = SL_PCM_REPRESENTATION_SIGNED_INT;
             break;
         }
-        case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+        case A5O_AUDIO_DEPTH_FLOAT32: {
             format.representation = SL_PCM_REPRESENTATION_FLOAT;
             break;
         }
@@ -344,21 +344,21 @@ static SLObjectItf createAudioPlayer(SLEngineItf engine, SLDataSource * source, 
 
     result = (*engine)->CreateAudioPlayer(engine, &player, source, sink, 1, ids, required);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not create audio player: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not create audio player: %s\n", opensl_get_error_string(result));
         return NULL;
     }
 
     result = (*player)->Realize(player, SL_BOOLEAN_FALSE);
     
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not realize audio player: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not realize audio player: %s\n", opensl_get_error_string(result));
         return NULL;
     }
 
     return player;
 }
 
-static SLObjectItf makeStreamingPlayer(ALLEGRO_VOICE * voice, SLObjectItf mixer){
+static SLObjectItf makeStreamingPlayer(A5O_VOICE * voice, SLObjectItf mixer){
     SLDataFormat_PCM format = setupFormat(voice);
     SLDataLocator_BufferQueue bufferQueue;
     SLDataSource audioSource;
@@ -384,7 +384,7 @@ static SLObjectItf makeStreamingPlayer(ALLEGRO_VOICE * voice, SLObjectItf mixer)
     SLVolumeItf volume;
     result = (*extra->output)->GetInterface(extra->output, SL_IID_VOLUME, &volume);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not get volume interface: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not get volume interface: %s\n", opensl_get_error_string(result));
         return 1;
     }
     */
@@ -409,15 +409,15 @@ static void enqueue(SLObjectItf player, const void * data, int bytes){
 
     result = (*player)->GetInterface(player, SL_IID_BUFFERQUEUE, &queue);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not get bufferqueue interface: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not get bufferqueue interface: %s\n", opensl_get_error_string(result));
         return;
     }
 
-    // ALLEGRO_DEBUG("Play voice data %p\n", data);
+    // A5O_DEBUG("Play voice data %p\n", data);
         
     result = (*queue)->Enqueue(queue, data, bytes);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not enqueue data: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not enqueue data: %s\n", opensl_get_error_string(result));
         return;
     }
 
@@ -429,20 +429,20 @@ static void enqueue(SLObjectItf player, const void * data, int bytes){
     result = (*play)->SetPlayState(play, SL_PLAYSTATE_PLAYING);
 
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not set play state on OpenSL stream\n");
+        A5O_ERROR("Could not set play state on OpenSL stream\n");
     }
 
     /*
     SLBufferQueueState state;
     result = (*queue)->GetState(queue, &state);
     if (result == SL_RESULT_SUCCESS){
-        ALLEGRO_DEBUG("Buffer queue state count %d index %d\n", state.count, state.playIndex);
+        A5O_DEBUG("Buffer queue state count %d index %d\n", state.count, state.playIndex);
     }
     */
 }
 
-static void * opensl_update(ALLEGRO_THREAD * self, void * data){
-    ALLEGRO_VOICE *voice = data;
+static void * opensl_update(A5O_THREAD * self, void * data){
+    A5O_VOICE *voice = data;
     OpenSLData * opensl = voice->extra;
 
     int bufferIndex = 0;
@@ -471,7 +471,7 @@ static void * opensl_update(ALLEGRO_THREAD * self, void * data){
                     al_rest(0.001);
                 }
             } else {
-                ALLEGRO_ERROR("Unimplemented direct audio\n");
+                A5O_ERROR("Unimplemented direct audio\n");
                 /*
                 // direct buffer audio
                 al_lock_mutex(pv->buffer_mutex);
@@ -482,7 +482,7 @@ static void * opensl_update(ALLEGRO_THREAD * self, void * data){
                     len = pv->buffer_end - data;
                     pv->buffer = voice->attached_stream->spl_data.buffer.ptr;
                     voice->attached_stream->pos = 0;
-                    if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
+                    if (voice->attached_stream->loop == A5O_PLAYMODE_ONCE) {
                         pv->status = PV_STOPPING;
                     }
                 } else {
@@ -508,7 +508,7 @@ static void * opensl_update(ALLEGRO_THREAD * self, void * data){
     return NULL;
 }
 
-static int _opensl_allocate_voice(ALLEGRO_VOICE *voice)
+static int _opensl_allocate_voice(A5O_VOICE *voice)
 {
     OpenSLData * data;
     int i;
@@ -545,7 +545,7 @@ static int _opensl_allocate_voice(ALLEGRO_VOICE *voice)
     return 0;
 }
 
-static void _opensl_deallocate_voice(ALLEGRO_VOICE *voice)
+static void _opensl_deallocate_voice(A5O_VOICE *voice)
 {
     OpenSLData * data = (OpenSLData*) voice->extra;
     int i;
@@ -576,13 +576,13 @@ static void _opensl_deallocate_voice(ALLEGRO_VOICE *voice)
 /* load_voice is only called by attach_sample_instance_to_voice which
  * isn't really used, so we leave it unimplemented for now.
  */
-static int _opensl_load_voice(ALLEGRO_VOICE *voice, const void *data)
+static int _opensl_load_voice(A5O_VOICE *voice, const void *data)
 {
     (void) voice;
     (void) data;
     /*
     OpenSLData * extra = (OpenSLData*) voice->extra;
-    ALLEGRO_DEBUG("Load voice data %p\n", data);
+    A5O_DEBUG("Load voice data %p\n", data);
     extra->data = data;
     extra->position = 0;
     */
@@ -590,7 +590,7 @@ static int _opensl_load_voice(ALLEGRO_VOICE *voice, const void *data)
     return 1;
 }
 
-static void _opensl_unload_voice(ALLEGRO_VOICE *voice)
+static void _opensl_unload_voice(A5O_VOICE *voice)
 {
     (void) voice;
     /*
@@ -610,14 +610,14 @@ static void updateQueue(SLBufferQueueItf queue, void * context){
         }
 
         SLresult result;
-        ALLEGRO_DEBUG("Enqueue %d bytes\n", bytes);
+        A5O_DEBUG("Enqueue %d bytes\n", bytes);
         result = (*queue)->Enqueue(queue, (char*) data->data + data->position, bytes);
         data->position += bytes;
     }
 }
 */
 
-static int _opensl_start_voice(ALLEGRO_VOICE *voice)
+static int _opensl_start_voice(A5O_VOICE *voice)
 {
     OpenSLData * extra = (OpenSLData*) voice->extra;
     
@@ -626,22 +626,22 @@ static int _opensl_start_voice(ALLEGRO_VOICE *voice)
     /*
     result = (*extra->player)->GetInterface(extra->player, SL_IID_BUFFERQUEUE, &queue);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not get bufferqueue interface: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not get bufferqueue interface: %s\n", opensl_get_error_string(result));
         return 1;
     }
 
-    ALLEGRO_DEBUG("Start playing voice data %p\n", extra->data);
+    A5O_DEBUG("Start playing voice data %p\n", extra->data);
         
     result = (*queue)->Enqueue(queue, (char*) extra->data + extra->position, extra->frame_size * 32);
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not enqueue data: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not enqueue data: %s\n", opensl_get_error_string(result));
     }
     extra->position += extra->frame_size * 32;
 
     result = (*queue)->RegisterCallback(queue, updateQueue, extra);
 
     if (result != SL_RESULT_SUCCESS){
-        ALLEGRO_ERROR("Could not register callback: %s\n", opensl_get_error_string(result));
+        A5O_ERROR("Could not register callback: %s\n", opensl_get_error_string(result));
     }
 
     // result = (*volume)->SetVolumeLevel(volume, -300);
@@ -650,19 +650,19 @@ static int _opensl_start_voice(ALLEGRO_VOICE *voice)
     result = (*play)->SetPlayState(play, SL_PLAYSTATE_PLAYING);
 
     if (result == SL_RESULT_SUCCESS){
-        ALLEGRO_DEBUG("Started new OpenSL stream\n");
+        A5O_DEBUG("Started new OpenSL stream\n");
     }
 
     result = (*queue)->GetState(queue, &state);
     if (result == SL_RESULT_SUCCESS){
-        ALLEGRO_DEBUG("Buffer queue state count %d index %d\n", state.count, state.playIndex);
+        A5O_DEBUG("Buffer queue state count %d index %d\n", state.count, state.playIndex);
     }
     */
 
     return 0;
 }
 
-static int _opensl_stop_voice(ALLEGRO_VOICE* voice)
+static int _opensl_stop_voice(A5O_VOICE* voice)
 {
     OpenSLData * data = (OpenSLData*) voice->extra;
     if (data->status == PLAYING){
@@ -676,30 +676,30 @@ static int _opensl_stop_voice(ALLEGRO_VOICE* voice)
     return 0;
 }
 
-static bool _opensl_voice_is_playing(const ALLEGRO_VOICE *voice)
+static bool _opensl_voice_is_playing(const A5O_VOICE *voice)
 {
     OpenSLData * extra = (OpenSLData*) voice->extra;
     return extra->status == PLAYING;
 }
 
-static unsigned int _opensl_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int _opensl_get_voice_position(const A5O_VOICE *voice)
 {
     /* TODO */
     (void) voice;
-    ALLEGRO_ERROR("Unimplemented: _opensl_get_voice_position\n");
+    A5O_ERROR("Unimplemented: _opensl_get_voice_position\n");
     return 0;
 }
 
-static int _opensl_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
+static int _opensl_set_voice_position(A5O_VOICE *voice, unsigned int val)
 {
     /* TODO */
     (void) voice;
     (void) val;
-    ALLEGRO_ERROR("Unimplemented: _opensl_set_voice_position\n");
+    A5O_ERROR("Unimplemented: _opensl_set_voice_position\n");
     return 1;
 }
 
-ALLEGRO_AUDIO_DRIVER _al_kcm_opensl_driver = {
+A5O_AUDIO_DRIVER _al_kcm_opensl_driver = {
    "OpenSL",
 
    _opensl_open,

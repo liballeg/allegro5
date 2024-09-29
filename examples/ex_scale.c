@@ -14,15 +14,15 @@ int main(int argc, char **argv)
    const int display_w = 640;
    const int display_h = 480;
 
-   ALLEGRO_DISPLAY *dpy;
-   ALLEGRO_BITMAP *buf;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_BITMAP *mem_bmp;
-   ALLEGRO_BITMAP *src_bmp;
+   A5O_DISPLAY *dpy;
+   A5O_BITMAP *buf;
+   A5O_BITMAP *bmp;
+   A5O_BITMAP *mem_bmp;
+   A5O_BITMAP *src_bmp;
    int bmp_w;
    int bmp_h;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    double theta = 0;
    double k = 1.0;
    int mode = 0;
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
    bool trans_mode = false;
    int flags = 0;
    bool clip_mode = false;
-   ALLEGRO_COLOR tint;
+   A5O_COLOR tint;
 
    (void)argc;
    (void)argv;
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
       abort_example("Unable to load image\n");
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!mem_bmp) {
       abort_example("Unable to load image\n");
@@ -83,8 +83,8 @@ int main(int argc, char **argv)
 
    while (true) {
       if (al_get_next_event(queue, &event)) {
-         if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         if (event.type == A5O_EVENT_KEY_CHAR) {
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                break;
             if (event.keyboard.unichar == ' ') {
                mode = !mode;
@@ -105,9 +105,9 @@ int main(int argc, char **argv)
             if (event.keyboard.unichar == 't')
                trans_mode = !trans_mode;
             if (event.keyboard.unichar == 'h')
-               flags ^= ALLEGRO_FLIP_HORIZONTAL;
+               flags ^= A5O_FLIP_HORIZONTAL;
             if (event.keyboard.unichar == 'v')
-               flags ^= ALLEGRO_FLIP_VERTICAL;
+               flags ^= A5O_FLIP_VERTICAL;
             if (event.keyboard.unichar == 'c')
                clip_mode = !clip_mode;
          }
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
       src_bmp = (mem_src_mode) ? mem_bmp : bmp;
       k = (wide_mode) ? 2.0 : 1.0;
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       tint = al_map_rgba_f(1, 1, 1, 1);
       if (mode == 0)
          al_clear_to_color(al_map_rgba_f(1, 0, 0, 1));
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
          al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
 
       if (trans_mode) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
          tint = al_map_rgba_f(1, 1, 1, 0.5);
       }
 
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
       if (mode == 0) {
          al_set_target_backbuffer(dpy);
          al_set_clipping_rectangle(0, 0, display_w, display_h);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
          al_draw_bitmap(buf, 0, 0, 0);
       }
 

@@ -6,7 +6,7 @@
 
 #include "common.c"
 
-ALLEGRO_DEBUG_CHANNEL("main")
+A5O_DEBUG_CHANNEL("main")
 
 #define FPS 60
 #define MAX_SPRITES 1024
@@ -28,20 +28,20 @@ struct Example {
    Sprite sprites[MAX_SPRITES];
    bool use_memory_bitmaps;
    int blending;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *mysha, *bitmap;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *mysha, *bitmap;
    bool hold_bitmap_drawing;
    int bitmap_size;
    int sprite_count;
    bool show_help;
-   ALLEGRO_FONT *font;
+   A5O_FONT *font;
 
    int t;
 
-   ALLEGRO_COLOR white;
-   ALLEGRO_COLOR half_white;
-   ALLEGRO_COLOR dark;
-   ALLEGRO_COLOR red;
+   A5O_COLOR white;
+   A5O_COLOR half_white;
+   A5O_COLOR dark;
+   A5O_COLOR red;
 
    double direct_speed_measure;
 
@@ -121,11 +121,11 @@ static void change_size(int size)
    if (example.bitmap)
       al_destroy_bitmap(example.bitmap);
    al_set_new_bitmap_flags(
-      example.use_memory_bitmaps ? ALLEGRO_MEMORY_BITMAP : ALLEGRO_VIDEO_BITMAP);
+      example.use_memory_bitmaps ? A5O_MEMORY_BITMAP : A5O_VIDEO_BITMAP);
    example.bitmap = al_create_bitmap(size, size);
    example.bitmap_size = size;
    al_set_target_bitmap(example.bitmap);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
    bw = al_get_bitmap_width(example.mysha);
    bh = al_get_bitmap_height(example.mysha);
@@ -171,7 +171,7 @@ static void update(void)
 
    example.t++;
    if (example.t == 60) {
-      ALLEGRO_DEBUG("tick");
+      A5O_DEBUG("tick");
       example.t = 0;
    }
 }
@@ -185,32 +185,32 @@ static void redraw(void)
    int fh = al_get_font_line_height(example.font);
    char const *info[] = {"textures", "memory buffers"};
    char const *binfo[] = {"alpha", "additive", "tinted", "solid", "alpha test"};
-   ALLEGRO_COLOR tint = example.white;
+   A5O_COLOR tint = example.white;
 
    if (example.blending == 0) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       tint = example.half_white;
    }
    else if (example.blending == 1) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       tint = example.dark;
    }
    else if (example.blending == 2) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       tint = example.red;
    }
    else if (example.blending == 3) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    }
 
    if (example.blending == 4) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-      al_set_render_state(ALLEGRO_ALPHA_TEST, true);
-      al_set_render_state(ALLEGRO_ALPHA_FUNCTION, ALLEGRO_RENDER_GREATER);
-      al_set_render_state(ALLEGRO_ALPHA_TEST_VALUE, 128);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
+      al_set_render_state(A5O_ALPHA_TEST, true);
+      al_set_render_state(A5O_ALPHA_FUNCTION, A5O_RENDER_GREATER);
+      al_set_render_state(A5O_ALPHA_TEST_VALUE, 128);
    }
    else {
-      al_set_render_state(ALLEGRO_ALPHA_TEST, false);
+      al_set_render_state(A5O_ALPHA_TEST, false);
    }
 
    if (example.hold_bitmap_drawing) {
@@ -224,7 +224,7 @@ static void redraw(void)
       al_hold_bitmap_drawing(false);
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    if (example.show_help) {
       int dh = fh * 3.5;
       for (i = 5; i >= 0; i--) {
@@ -243,18 +243,18 @@ static void redraw(void)
       binfo[example.blending]);
 
    get_fps(&f1, &f2);
-   al_draw_textf(example.font, example.white, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d +- %-4d",
+   al_draw_textf(example.font, example.white, w, 0, A5O_ALIGN_RIGHT, "FPS: %4d +- %-4d",
       f1, f2);
-   al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "%4d / sec",
+   al_draw_textf(example.font, example.white, w, fh, A5O_ALIGN_RIGHT, "%4d / sec",
       (int)(1.0 / example.direct_speed_measure));
    
 }
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_MONITOR_INFO info;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_MONITOR_INFO info;
    const char* bitmap_filename;
    int w = 640, h = 480;
    bool done = false;
@@ -285,8 +285,8 @@ int main(int argc, char **argv)
    
    al_get_monitor_info(0, &info);
 
-   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
-                             ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
+   al_set_new_display_option(A5O_SUPPORTED_ORIENTATIONS,
+                             A5O_DISPLAY_ORIENTATION_ALL, A5O_SUGGEST);
    example.display = al_create_display(w, h);
    if (!example.display) {
       abort_example("Error creating display.\n");
@@ -338,7 +338,7 @@ int main(int argc, char **argv)
 
    while (!done) {
       float x, y;
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       w = al_get_display_width(example.display);
       h = al_get_display_height(example.display);
 
@@ -355,69 +355,69 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_CHAR: /* includes repeats */
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_CHAR: /* includes repeats */
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                done = true;
-            else if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
+            else if (event.keyboard.keycode == A5O_KEY_UP) {
                add_sprites(1);
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+            else if (event.keyboard.keycode == A5O_KEY_DOWN) {
                remove_sprites(1);
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
+            else if (event.keyboard.keycode == A5O_KEY_LEFT) {
                change_size(example.bitmap_size - 1);
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+            else if (event.keyboard.keycode == A5O_KEY_RIGHT) {
                change_size(example.bitmap_size + 1);
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_F1) {
+            else if (event.keyboard.keycode == A5O_KEY_F1) {
                example.show_help ^= 1;
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+            else if (event.keyboard.keycode == A5O_KEY_SPACE) {
                example.use_memory_bitmaps ^= 1;
                change_size(example.bitmap_size);
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_B) {
+            else if (event.keyboard.keycode == A5O_KEY_B) {
                example.blending++;
                if (example.blending == 5)
                   example.blending = 0;
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_H) {
+            else if (event.keyboard.keycode == A5O_KEY_H) {
                example.hold_bitmap_drawing ^= 1;
             }
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+         case A5O_EVENT_DISPLAY_HALT_DRAWING:
 
             background = true;
             al_acknowledge_drawing_halt(event.display.source);
 
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+         case A5O_EVENT_DISPLAY_RESUME_DRAWING:
             background = false;
             al_acknowledge_drawing_resume(event.display.source);
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+         case A5O_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
               
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             update();
             need_redraw = true;
             break;
          
-         case ALLEGRO_EVENT_TOUCH_BEGIN:
+         case A5O_EVENT_TOUCH_BEGIN:
             x = event.touch.x;
             y = event.touch.y;
             goto click;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+         case A5O_EVENT_MOUSE_BUTTON_UP:
             x = event.mouse.x;
             y = event.mouse.y;
             goto click;

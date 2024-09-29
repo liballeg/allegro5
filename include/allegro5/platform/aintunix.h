@@ -23,7 +23,7 @@
 #include "allegro5/internal/aintern_driver.h"
 
 /* Need right now for XKeyEvent --pw */
-#ifdef ALLEGRO_WITH_XWINDOWS
+#ifdef A5O_WITH_XWINDOWS
 #include <X11/Xlib.h>
 #endif
 
@@ -31,10 +31,10 @@
 extern "C" {
 #endif
 
-ALLEGRO_PATH *_al_unix_get_path(int id);
+A5O_PATH *_al_unix_get_path(int id);
 double _al_unix_get_time(void);
 void _al_unix_rest(double seconds);
-void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
+void _al_unix_init_timeout(A5O_TIMEOUT *timeout, double seconds);
 
 
 #ifdef __cplusplus
@@ -42,7 +42,7 @@ void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
 #endif
 
 
-#ifdef ALLEGRO_LINUX
+#ifdef A5O_LINUX
    #include "allegro5/platform/aintlnx.h"
 #endif
 
@@ -72,18 +72,18 @@ void _al_unix_stop_watching_fd(int fd);
 
 /* ljoynu.c */
 /* This isn't in aintlnx.h because it's needed for the X11 port as well. */
-#define _ALLEGRO_JOYDRV_LINUX    AL_ID('L','N','X','A')
+#define _A5O_JOYDRV_LINUX    AL_ID('L','N','X','A')
 
-#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
-AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_linux);
+#ifdef A5O_HAVE_LINUX_INPUT_H
+AL_VAR(struct A5O_JOYSTICK_DRIVER, _al_joydrv_linux);
 #endif
 
 /* lhaptic.c */
 /* This isn't in aintlnx.h because it's needed for the X11 port as well. */
-#define _ALLEGRO_HAPDRV_LINUX    AL_ID('L','N','X','H')
+#define _A5O_HAPDRV_LINUX    AL_ID('L','N','X','H')
 
-#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
-AL_VAR(struct ALLEGRO_HAPTIC_DRIVER, _al_hapdrv_linux);
+#ifdef A5O_HAVE_LINUX_INPUT_H
+AL_VAR(struct A5O_HAPTIC_DRIVER, _al_hapdrv_linux);
 #endif
 
 

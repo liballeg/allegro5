@@ -54,8 +54,8 @@ Displays:
 
 Graphics:
 
-  - Add ALLEGRO_SRC_COLOR, ALLEGRO_DEST_COLOR, ALLEGRO_INVERSE_SRC_COLOR,
-    ALLEGRO_INVERSE_DEST_COLOR blending modes (initially by Jon Rafkind and
+  - Add A5O_SRC_COLOR, A5O_DEST_COLOR, A5O_INVERSE_SRC_COLOR,
+    A5O_INVERSE_DEST_COLOR blending modes (initially by Jon Rafkind and
     Elias Pschernig).
 
   - Let al_destroy_bitmap implicitly untarget the bitmap on the calling
@@ -96,7 +96,7 @@ Font addons:
 
 Primitives addon:
 
-  - Disallow 3 component vectors for ALLEGRO_PRIM_TEX_COORD.
+  - Disallow 3 component vectors for A5O_PRIM_TEX_COORD.
 
   - Check that the vertex declaration is valid before creating it.
 
@@ -181,10 +181,10 @@ Input:
 
 Filesystem:
 
--  Keep absolute path in ALLEGRO_FS_ENTRYs so that later changes to the
+-  Keep absolute path in A5O_FS_ENTRYs so that later changes to the
    working directory do not affect the interpretation of the path.
 
--  Set ALLEGRO_FILEMODE_HIDDEN properly on Unix.
+-  Set A5O_FILEMODE_HIDDEN properly on Unix.
 
 -  Make sure stat mode bits are cleared in default implementation of
    al_update_fs_entry.
@@ -245,7 +245,7 @@ Elias Pschernig, Paul Suntsov, Peter Wang.
 
 Core:
 
--  Added alternate spelling: ALLEGRO_ALIGN_CENTER.
+-  Added alternate spelling: A5O_ALIGN_CENTER.
 
 Displays:
 
@@ -272,14 +272,14 @@ Displays:
 -  Fix windows not having a minimise button when set to
    windowed state from fullscreen window state.
 
--  Respect ALLEGRO_FRAMELESS flag properly when toggling from
+-  Respect A5O_FRAMELESS flag properly when toggling from
    fullscreen window state to windowed state (Windows).
 
 -  Don't generate DISPLAY_LOST events when resizing a fullscreen display.
 
 -  Scale window icon to sizes returned by GetSystemMetrics (Windows).
 
--  Fixed ALLEGRO_FULLSCREEN_WINDOW under OS X.
+-  Fixed A5O_FULLSCREEN_WINDOW under OS X.
 
 -  Added al_osx_get_window function (Dennis Gooden).
 
@@ -337,7 +337,7 @@ Font addons:
 
 -  Add builtin font creation function.
 
--  Added ALLEGRO_ALIGN_INTEGER text drawing flag (Todd Cope).
+-  Added A5O_ALIGN_INTEGER text drawing flag (Todd Cope).
 
 -  Made TTF addon include padding on the top and left edges of pages
    (Todd Cope).
@@ -399,11 +399,11 @@ The main developers this time were: Trent Gamblin, Elias Pschernig, Peter Wang.
 
 Core:
 
--  Fix ALLEGRO_STATIC_ASSERT collisions from different files included in the
+-  Fix A5O_STATIC_ASSERT collisions from different files included in the
    same translation unit.  Reported by tobing.
 
--  Make al_ref_cstr, al_ref_ustr and al_ref_buffer return const ALLEGRO_USTR*
-   instead of just an ALLEGRO_USTR* (Paul Suntsov).
+-  Make al_ref_cstr, al_ref_ustr and al_ref_buffer return const A5O_USTR*
+   instead of just an A5O_USTR* (Paul Suntsov).
 
 -  Make al_ustr_empty_string const correct.
 
@@ -414,8 +414,8 @@ Core:
 
 Displays:
 
--  Add ALLEGRO_FRAMELESS as a preferred synonym for the confusing
-   ALLEGRO_NOFRAME flag.
+-  Add A5O_FRAMELESS as a preferred synonym for the confusing
+   A5O_NOFRAME flag.
 
 -  Rename al_toggle_display_flag to al_set_display_flag, retaining
    the older name for compatibility.
@@ -527,7 +527,7 @@ Graphics:
 
 Displays:
 
--  Set ALLEGRO_MINIMIZED display flag on Windows (Zac Evans).
+-  Set A5O_MINIMIZED display flag on Windows (Zac Evans).
 
 -  Don't generate bogus resize events after restoring minimised window on
    Windows.
@@ -535,11 +535,11 @@ Displays:
 -  Fixed bug on Windows where two SWITCH_IN events were fired when window was
    minimized/restored (Michael Swiger).
 
--  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic under Windows
+-  Fixed inverted al_toggle_display_flag(A5O_NOFRAME) logic under Windows
    as well as a bug where repeatedly setting the flag to on would make the
    window grow bigger and bigger (Michael Swiger).
 
--  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic in X11.
+-  Fixed inverted al_toggle_display_flag(A5O_NOFRAME) logic in X11.
 
 -  Prevent a deadlock during display creation on X.
 
@@ -558,7 +558,7 @@ Filesystem:
 -  Added al_set_exe_name which allows overriding Allegro's idea of the path
    to the current executable.
 
--  Make al_get_standard_path(ALLEGRO_TEMP_PATH) treat the value of TMPDIR
+-  Make al_get_standard_path(A5O_TEMP_PATH) treat the value of TMPDIR
    et al. as a directory name even without a trailing slash. (Unix)
 
 -  Make stdio al_fopen implementation set proper errno on failure.
@@ -585,7 +585,7 @@ TTF addon:
 
 -  Added al_load_ttf_font_stretch functions (tobing).
 
--  Added ALLEGRO_TTF_NO_AUTOHINT font loading flag to disable the Auto Hinter
+-  Added A5O_TTF_NO_AUTOHINT font loading flag to disable the Auto Hinter
    which is enabled by default in newer version of FreeType (Michał Cichoń).
 
 -  Clear locked region so pixel borders aren't random garbage that can be seen
@@ -621,7 +621,7 @@ The main developers this time were: Elias Pschernig and Trent Gamblin.
 Graphics:
 
 -  Fixed several instances of windows being positioned wrong on Windows:
-   regular windows, WGL FULLSCREEN_WINDOW, and ALLEGRO_NOFRAME windows.
+   regular windows, WGL FULLSCREEN_WINDOW, and A5O_NOFRAME windows.
 
 -  Don't re-bind the FBO in al_set_target_bitmap if the new target
    bitmap shares the parent bitmap with the new target bitmap (Paul Suntsov).
@@ -629,7 +629,7 @@ Graphics:
 -  Zero out fake refresh rate information from the nvidia proprietary driver
    on X11 (Peter Wang).
 
--  Implemented the ALLEGRO_FULLSCREEN_WINDOW flag for iOS.
+-  Implemented the A5O_FULLSCREEN_WINDOW flag for iOS.
 
 Input:
 
@@ -660,8 +660,8 @@ Native dialogs addon:
 
 Other:
 
--  Use .../Library/Application Support for ALLEGRO_USER_SETTINGS_PATH and
-   ALLEGRO_USER_DATA_PATH on iOS.
+-  Use .../Library/Application Support for A5O_USER_SETTINGS_PATH and
+   A5O_USER_DATA_PATH on iOS.
 
 -  Listen for applicationDidBecomeActive and applicationWillResignActive
    instead of applicationWillEnterForeground and applicationDidEnterBackground
@@ -708,7 +708,7 @@ Graphics:
 
 -  Fix incorrect number of display formats in D3D (tobing).
 
--  Honor ALLEGRO_VSYNC in the WGL driver.
+-  Honor A5O_VSYNC in the WGL driver.
 
 -  Make titlebar icons the right size on Windows.
 
@@ -718,7 +718,7 @@ Graphics:
 
 -  Specialise ADD/ONE/INVERSE_ALPHA blend mode software scanline drawers.
 
--  Toggle ALLEGRO_VIDEO_BITMAP flag off when creating a memory bitmap (both
+-  Toggle A5O_VIDEO_BITMAP flag off when creating a memory bitmap (both
    bits were previously on).
 
 -  Add null bitmap assertion to al_clone_bitmap.
@@ -781,7 +781,7 @@ Build system:
 
 Examples:
 
--  Add multisampling to SPEED example.  Change examples to use ALLEGRO_SUGGEST
+-  Add multisampling to SPEED example.  Change examples to use A5O_SUGGEST
    for multisampling.
 
 -  Include the font for speed.app under OSX within the bundle so it can be run
@@ -809,7 +809,7 @@ Changes from 5.0.2.1 to 5.0.3 (May 2011)
 Input:
 
 -  Fixed keyboard repeat for extended keys on Windows.
-   Added ALLEGRO_KEY_MENU. (torhu)
+   Added A5O_KEY_MENU. (torhu)
 
 -  Make Delete key in Windows send KEY_CHAR event with unichar code 127
    (Peter Wang).
@@ -862,7 +862,7 @@ Input:
 -  Make unicode field in KEY_CHAR events zero for Fn, arrow keys, etc.
    for OS X (jmasterx, Peter Hull).
 
--  Support ALLEGRO_KEY_PAD_ENTER and detect left/right Alt and Ctrl
+-  Support A5O_KEY_PAD_ENTER and detect left/right Alt and Ctrl
    keys independently on Windows (torhu, Matthew Leverton).
 
 
@@ -968,12 +968,12 @@ Graphics:
 -  Make al_get_monitor_info return success code.
 
 -  Replace al_set_new_display_adaptor(-1) with a named constant
-   ALLEGRO_DEFAULT_DISPLAY_ADAPTER.
+   A5O_DEFAULT_DISPLAY_ADAPTER.
 
 -  Fix numerous bugs in X mode setting and multi monitor related code, and
    introduce new xrandr code.
 
--  Generate ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY when mouse leaves OS X window
+-  Generate A5O_EVENT_MOUSE_LEAVE_DISPLAY when mouse leaves OS X window
    (Evert Glebbeek).
 
 -  Hide OS X window during exiting fullscreen window mode, to prevent the
@@ -1002,7 +1002,7 @@ Keyboard:
 -  x11: Get rid of historic behaviour where the unicode field is always zero
    when Alt is held down.
 
--  Rename ALLEGRO_KEY_EQUALS_PAD to ALLEGRO_KEY_PAD_EQUALS for consistency.
+-  Rename A5O_KEY_EQUALS_PAD to A5O_KEY_PAD_EQUALS for consistency.
 
 Mouse:
 
@@ -1028,7 +1028,7 @@ Filesystem:
    PROGRAM paths; add RESOURCES and USER_DOCUMENTS paths.
    Use system API calls if possible.
 
--  Implement ALLEGRO_USER_DATA_PATH under Linux. Honor XDG_DATA/CONFIG_HOME
+-  Implement A5O_USER_DATA_PATH under Linux. Honor XDG_DATA/CONFIG_HOME
    environment variables.
 
 -  Fix al_make_directory on Windows due to problems with calls to stat() with
@@ -1037,11 +1037,11 @@ Filesystem:
 Native dialogs addon:
 
 -  Use string arguments to al_create_native_file_dialog() and
-   al_get_native_file_dialog_path() instead of ALLEGRO_PATH.
+   al_get_native_file_dialog_path() instead of A5O_PATH.
 
 -  Enhance the Windows file selector (initial patch by Todd Cope):
 
-    - Use Windows' folder selector for ALLEGRO_FILECHOOSER_FOLDER.
+    - Use Windows' folder selector for A5O_FILECHOOSER_FOLDER.
 
     - Implement patterns.
 
@@ -1097,7 +1097,7 @@ Input:
 
 File I/O:
 
--  Change the way user code implements new ALLEGRO_FILE structures.
+-  Change the way user code implements new A5O_FILE structures.
    This adds al_create_file_handle and al_get_file_userdata.
 
 -  Implement default ungetc behavior - used if the interface does not supply
@@ -1121,7 +1121,7 @@ Image I/O addon:
 
 Other:
 
--  Use _NSGetExecutablePath for al_get_standard_path(ALLEGRO_EXENAME_PATH) on
+-  Use _NSGetExecutablePath for al_get_standard_path(A5O_EXENAME_PATH) on
    OS X (Jeff Connelly).
 
 -  Minor bug fixes and documentation updates.
@@ -1149,8 +1149,8 @@ Graphics:
 Input:
 
 -  Separate character inputs from physical key down events.  This removes
-   unichar and modifiers fields from ALLEGRO_EVENT_KEY_DOWN, and replaces
-   ALLEGRO_EVENT_KEY_REPEAT by ALLEGRO_EVENT_KEY_CHAR.  We decided this design
+   unichar and modifiers fields from A5O_EVENT_KEY_DOWN, and replaces
+   A5O_EVENT_KEY_REPEAT by A5O_EVENT_KEY_CHAR.  We decided this design
    flaw was better fixed now than later.
 
 -  Make Mac OS X keyboard driver properly distinguish key down and key repeat
@@ -1158,7 +1158,7 @@ Input:
 
 TTF addon:
 
--  Respect ALLEGRO_NO_PREMULTIPLIED_ALPHA flag when loading TTF fonts.
+-  Respect A5O_NO_PREMULTIPLIED_ALPHA flag when loading TTF fonts.
 
 Other:
 
@@ -1185,9 +1185,9 @@ System:
 Graphics:
 
 -  Change to using premultiplied alpha by default.  The new bitmap flag
-   ALLEGRO_NO_PREMULTIPLIED_ALPHA was added.
+   A5O_NO_PREMULTIPLIED_ALPHA was added.
 
--  Change the value of ALLEGRO_VIDEO_BITMAP to non-zero.
+-  Change the value of A5O_VIDEO_BITMAP to non-zero.
 
 -  Change al_get_opengl_version to return a packed integer.
 
@@ -1195,7 +1195,7 @@ Graphics:
    rather than an attempted estimate at a desktop GL version.
 
 -  Added function al_get_opengl_variant that returns either
-   ALLEGRO_DESKTOP_OPENGL or ALLEGRO_OPENGL_ES.
+   A5O_DESKTOP_OPENGL or A5O_OPENGL_ES.
 
 -  Make al_have_opengl_extension return bool.
 
@@ -1267,7 +1267,7 @@ Graphics:
 -  Make al_resize_display keep the original resolution (or change back) if it
    can't set the users request, on Windows.
 
--  Do not emit ALLEGRO_DISPLAY_RESIZE events from the Windows and X11 display
+-  Do not emit A5O_DISPLAY_RESIZE events from the Windows and X11 display
    drivers when using al_resize_display.
 
 -  [X11] Make al_get_num_display_modes and al_get_display_mode work if the
@@ -1277,7 +1277,7 @@ Graphics:
 -  [X11] Use _NET_WM_STATE_FULLSCREEN hint for "true" fullscreen displays.
    Enable mouse grabbing in fullscreen modes.
 
--  Added ALLEGRO_EVENT_DISPLAY_ORIENTATION and implement it on iOS.
+-  Added A5O_EVENT_DISPLAY_ORIENTATION and implement it on iOS.
 
 -  Dennis Busch fixed a problem with displays not showing up on the
    primary display by default in some dual head setups, on Windows.
@@ -1305,7 +1305,7 @@ Events:
 Filesystem:
 
 -  Make al_get_fs_entry_name and al_get_current_directory return strings
-   instead of ALLEGRO_PATH.
+   instead of A5O_PATH.
 
 -  Make al_make_directory create parent directories as needed.
 
@@ -1354,7 +1354,7 @@ Image I/O addon:
 
 TTF addon:
 
--  Add a flag for loading TTFs without anti-aliasing (ALLEGRO_TTF_MONOCHROME).
+-  Add a flag for loading TTFs without anti-aliasing (A5O_TTF_MONOCHROME).
 
 Primitives addon:
 
@@ -1416,7 +1416,7 @@ Graphics:
 -  Reimplemented bitmap software rendering routines using newly optimised
    software triangle renderer, formerly in the primitives addon.
 
--  Add pixel_size field to ALLEGRO_LOCKED_REGION.
+-  Add pixel_size field to A5O_LOCKED_REGION.
 
 -  Fix bugs to do with pixel alignment on OpenGL.
 
@@ -1434,8 +1434,8 @@ Graphics:
 
 -  Added al_add_new_bitmap_flag convenience function.
 
--  Added three new bitmaps flags ALLEGRO_MAG_LINEAR, ALLEGRO_MIN_LINEAR,
-   ALLEGRO_MIPMAP.  Removed the config settings for linear/anisotropic min/mag
+-  Added three new bitmaps flags A5O_MAG_LINEAR, A5O_MIN_LINEAR,
+   A5O_MIPMAP.  Removed the config settings for linear/anisotropic min/mag
    filtering.  DirectX side not yet updated.
 
 -  Register destructors for bitmaps, so they will be implicitly destroyed when
@@ -1517,7 +1517,7 @@ File I/O:
 
 -  Add al_fclearerr.
 
--  Set ALLEGRO_FILEMODE_HIDDEN flag on entries for file names beginning with
+-  Set A5O_FILEMODE_HIDDEN flag on entries for file names beginning with
    dot (OS X).
 
 -  Remove al_is_path_present, al_fs_entry_is_directory, al_fs_entry_is_file
@@ -1546,8 +1546,8 @@ Native dialogs addon:
 
 -  Add Windows and OS X text log implementations.
 
--  Add ALLEGRO_FILECHOOSER and ALLEGRO_TEXTLOG types instead of conflating
-   them into ALLEGRO_NATIVE_DIALOG.
+-  Add A5O_FILECHOOSER and A5O_TEXTLOG types instead of conflating
+   them into A5O_NATIVE_DIALOG.
 
 -  Fix race condition in al_open_native_text_log.
 
@@ -1672,7 +1672,7 @@ Graphics:
 
 -  Move the new display video adapter and new window position to thread-local
    state, like other new display parameters.  Make al_store_state also save
-   those parameters with ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS.
+   those parameters with A5O_STATE_NEW_DISPLAY_PARAMETERS.
 
 -  Rename al_transform_transform to al_compose_transform.  Switched the order
    of parameters in al_compose_transform and al_copy_transform to match the
@@ -1685,7 +1685,7 @@ Graphics:
 -  Make al_create_display abort early when the new_display_adapter is
    greater than the screen count (X11).
 
--  Added ALLEGRO_MINIMIZED flag to the X11 port.
+-  Added A5O_MINIMIZED flag to the X11 port.
 
 -  Fixed OpenGL version string parsing (bug #3016654).
 
@@ -1782,8 +1782,8 @@ Graphics:
    bitmap file type registration.  Image codecs remain in allegro_image.
 
 -  Added a simple display capabilities querying capability to
-   al_get_display_option: ALLEGRO_MAX_BITMAP_SIZE, ALLEGRO_SUPPORT_NPOT_BITMAP,
-   ALLEGRO_CAN_DRAW_INTO_BITMAP, ALLEGRO_SUPPORT_SEPARATE_ALPHA.
+   al_get_display_option: A5O_MAX_BITMAP_SIZE, A5O_SUPPORT_NPOT_BITMAP,
+   A5O_CAN_DRAW_INTO_BITMAP, A5O_SUPPORT_SEPARATE_ALPHA.
    (OpenGL only for now)
 
 -  Fix in OpenGL 3.0 context creation.
@@ -1798,7 +1798,7 @@ Graphics:
 -  Fix some locking issues by setting GL_PACK_ALIGNMENT and GL_UNPACK_ALIGNMENT
    before reading/writing pixels.
 
--  Partial implementation of ALLEGRO_FULLSCREEN_WINDOW on OS X (Snow Leopard,
+-  Partial implementation of A5O_FULLSCREEN_WINDOW on OS X (Snow Leopard,
    probably Leopard).
 
 -  Started X11 fullscreen support (resolution switching).
@@ -1872,7 +1872,7 @@ Primitives addon:
 
 -  Added al_init_primitives addon function.  This is now required.
 
--  Removed ALLEGRO_PRIM_COLOR; ALLEGRO_COLOR can now be used where it was
+-  Removed A5O_PRIM_COLOR; A5O_COLOR can now be used where it was
    required.
 
 -  v textures coordinates were off for OpenGL non-power-of-two textures.
@@ -1928,7 +1928,7 @@ Documentation:
 
 -  Added documentation for the public Direct3D specific functions.
 
--  Documented ALLEGRO_OPENGL_3_0 and ALLEGRO_OPENGL_FORWARD_COMPATIBLE.
+-  Documented A5O_OPENGL_3_0 and A5O_OPENGL_FORWARD_COMPATIBLE.
 
 Other:
 
@@ -1962,9 +1962,9 @@ Graphics:
 
 -  Don't clear the transformation when setting the target bitmap in OpenGL.
 
--  Implemented ALLEGRO_NOFRAME and ALLEGRO_FULLSCREEN_WINDOW in WGL.
+-  Implemented A5O_NOFRAME and A5O_FULLSCREEN_WINDOW in WGL.
 
--  Set the ALLEGRO_DISPLAY->refresh_rate variable for fullscreen modes under D3D.
+-  Set the A5O_DISPLAY->refresh_rate variable for fullscreen modes under D3D.
 
 -  Make d3d_clear return immediately if the display is in a lost state.
 
@@ -2071,9 +2071,9 @@ Graphics:
 
 -  Added subtractive blending.  al_set_blender() takes another parameter.
 
--  Added ALLEGRO_FULLSCREEN_WINDOW display flag (X11 and D3D for now).
+-  Added A5O_FULLSCREEN_WINDOW display flag (X11 and D3D for now).
 
--  Allow changing ALLEGRO_FULLSCREEN_WINDOW with al_toggle_display_flag.
+-  Allow changing A5O_FULLSCREEN_WINDOW with al_toggle_display_flag.
 
 -  Figured out how to switch display modes using Carbon on OS X 10.6.
 
@@ -2207,7 +2207,7 @@ Examples:
    alongside Allegro (currently GLX only).  Commented out in the build system
    for now.
 
--  ex_fs_window: New example to test ALLEGRO_FULLSCREEN_WINDOW flag and
+-  ex_fs_window: New example to test A5O_FULLSCREEN_WINDOW flag and
    al_toggle_display_flag.
 
 -  ex_blend2: Updated to test subtractive blending, including scaled/rotated
@@ -2250,7 +2250,7 @@ Core:
     should be "int main(int, char **)", or the code will not compile on OS X.
     For C, either of the normal ANSI forms is fine.
 
-    \#define ALLEGRO_NO_MAGIC_MAIN disables the \#pragma or name mangling, so
+    \#define A5O_NO_MAGIC_MAIN disables the \#pragma or name mangling, so
     you can write a WinMain() or use al_run_main() yourself.
 
 Graphics:
@@ -2411,7 +2411,7 @@ Graphics:
 -  Fixed a strange bug with textured primitives (u/v repeat flags were being
    ignored on occasion).
 
--  Added ALLEGRO_VIDEO_BITMAP for consistency.
+-  Added A5O_VIDEO_BITMAP for consistency.
 
 Input:
 
@@ -2485,7 +2485,7 @@ Audio addon:
 
 -  Add al_uninstall_audio exit function.
 
--  Added ALLEGRO_EVENT_AUDIO_STREAM_FINISHED event to signify when non-looping
+-  Added A5O_EVENT_AUDIO_STREAM_FINISHED event to signify when non-looping
    streams made with al_load_audio_stream reach the end of the file.
 
 -  Fixed a deadlock when destroying voices.
@@ -2526,7 +2526,7 @@ Graphics:
 
 -  Make al_set_current_display(NULL); unset the current display.
 
--  Added ALLEGRO_LOCK_READWRITE flag for al_lock_bitmap (in place of 0).
+-  Added A5O_LOCK_READWRITE flag for al_lock_bitmap (in place of 0).
 
 -  Fixed window titles which contain non-ASCII characters in X11.
 
@@ -2548,7 +2548,7 @@ Filesystem:
 -  Renamed the filesystem entry functions, mainly to include "fs_entry" in
    their names instead of just "entry".
 
--  Reordered and renamed ALLEGRO_FS_INTERFACE members.
+-  Reordered and renamed A5O_FS_INTERFACE members.
 
 -  Make al_read_directory() not return . and .. directory entries.
 
@@ -2558,7 +2558,7 @@ Filesystem:
 
 Events:
 
--  Exported ALLEGRO_EVENT_TYPE_IS_USER.
+-  Exported A5O_EVENT_TYPE_IS_USER.
 
 Threads:
 
@@ -2588,7 +2588,7 @@ Image addon:
 
 -  Renamed the IIO addon to "allegro_image".
 
--  Renamed \*\_entry functions that take ALLEGRO_FILE * arguments to *_stream.
+-  Renamed \*\_entry functions that take A5O_FILE * arguments to *_stream.
 
 -  Fixed off-by-one error in greyscale JPEG loader.
 
@@ -2596,7 +2596,7 @@ Audio addons:
 
 -  Renamed the kcm_audio addon to "allegro_audio".
 
--  Renamed ALLEGRO_STREAM and stream functions to ALLEGRO\_AUDIO\_STREAM
+-  Renamed A5O_STREAM and stream functions to ALLEGRO\_AUDIO\_STREAM
    and al\_\*audio_stream\*.
 
 -  Renamed al_stream_from_file to al_load_audio_stream
@@ -2643,7 +2643,7 @@ Primitives addon:
    correspond to (x=0, y=0) on the texture bitmap.
 
 -  Added a way to use texture coordinates measured in pixels. Changed
-   ALLEGRO_VERTEX to use them by default.
+   A5O_VERTEX to use them by default.
 
 PhysicsFS:
 
@@ -2700,19 +2700,19 @@ Graphics:
 
 -  Made is_wgl_extension_supported() fail gracefuly.
 
--  Added ALLEGRO_ALPHA_TEST bitmap flag.
+-  Added A5O_ALPHA_TEST bitmap flag.
 
 -  Minor optimizations in some memory blitting routines.
 
 Input:
 
--  Replaced (ALLEGRO_EVENT_SOURCE *) casting with type-safe functions, namely
+-  Replaced (A5O_EVENT_SOURCE *) casting with type-safe functions, namely
    al_get_keyboard_event_source, al_get_mouse_event_source,
    al_get_joystick_event_source, al_get_display_event_source,
    al_get_timer_event_source, etc.
 
 -  Made it so that users can derive their own structures from
-   ALLEGRO_EVENT_SOURCE.  al_create_user_event_source() is replaced by
+   A5O_EVENT_SOURCE.  al_create_user_event_source() is replaced by
    al_init_user_event_source().
 
 -  Fixed a problem on Windows where the joystick never regains focus when
@@ -2720,8 +2720,8 @@ Input:
 
 -  Fixed a problem with missing key repeat with broken X.Org drivers.
 
--  Implemented ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY,
-   ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY for X11.
+-  Implemented A5O_EVENT_MOUSE_ENTER_DISPLAY,
+   A5O_EVENT_MOUSE_LEAVE_DISPLAY for X11.
 
 Image I/O addon:
 
@@ -2757,7 +2757,7 @@ Audio addons:
 -  Renamed a few streaming functions to refer to fragments/buffers
    as fragments consistently.
 
--  Added missing getters for ALLEGRO_SAMPLE fields.
+-  Added missing getters for A5O_SAMPLE fields.
 
 -  Fixed mutex locking problems with kcm_audio objects.
 
@@ -2793,7 +2793,7 @@ Changes from 4.9.11 to 4.9.12 (July 2009)
 
 -  Fixed bugs in Windows keyboard driver (Todd Cope).
 
--  Fixed problems with ALLEGRO_MOUSE_STATE buttons on Windows (Milan Mimica).
+-  Fixed problems with A5O_MOUSE_STATE buttons on Windows (Milan Mimica).
 
 -  Fixed problems with PhysicsFS addon DLL on MSVC (Peter Wang).
 
@@ -2853,16 +2853,16 @@ Input:
 
 Filesystem:
 
--  Merged ALLEGRO_FS_HOOK_ENTRY_INTERFACE into ALLEGRO_FS_INTERFACE
-   and made ALLEGRO_FS_INTERFACE public.
+-  Merged A5O_FS_HOOK_ENTRY_INTERFACE into A5O_FS_INTERFACE
+   and made A5O_FS_INTERFACE public.
 
 -  Added al_set_fs_interface and al_get_fs_interface.
 
--  Made al_opendir take an ALLEGRO_FS_ENTRY.
+-  Made al_opendir take an A5O_FS_ENTRY.
 
 -  Removed functions which are obsolete or probably have no use.
 
--  Made al_get_standard_path(ALLEGRO_PROGRAM_PATH) return a path
+-  Made al_get_standard_path(A5O_PROGRAM_PATH) return a path
    with an empty filename.
 
 Path routines:
@@ -2877,7 +2877,7 @@ Primitives addon:
 
 -  Added support for textured primitives in software.
 
--  Introduced ALLEGRO_PRIM_COLOR, removed ALLEGRO_VBUFFER.
+-  Introduced A5O_PRIM_COLOR, removed A5O_VBUFFER.
 
 -  Exposed the software line and triangle drawers to the user.
 
@@ -2941,10 +2941,10 @@ Graphics:
 -  Changed the direction of rotation for al_draw_rotated* from
    counter-clockwise to clockwise.
 
--  Added new pixel format ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE which guanrantees
+-  Added new pixel format A5O_PIXEL_FORMAT_ABGR_8888_LE which guanrantees
    component ordering.
 
--  Added ALLEGRO_NO_PRESERVE_TEXTURE flag.
+-  Added A5O_NO_PRESERVE_TEXTURE flag.
 
 -  Fixed horizontal flipping in plain software blitting routines.
 
@@ -2990,21 +2990,21 @@ File I/O:
 
 -  Change al_fputs() not to do its own CR insertion.
 
--  Add al_fopen_fd() to create an ALLEGRO_FILE from an existing file
+-  Add al_fopen_fd() to create an A5O_FILE from an existing file
    descriptor.
 
 Filesystem:
 
--  Changed al_getcwd, al_get_entry_name to return ALLEGRO_PATHs.
+-  Changed al_getcwd, al_get_entry_name to return A5O_PATHs.
 
--  Renamed al_get_path to al_get_standard_path, and to return an ALLEGRO_PATH.
+-  Renamed al_get_path to al_get_standard_path, and to return an A5O_PATH.
 
--  Changed al_readdir to return an ALLEGRO_FS_ENTRY.
+-  Changed al_readdir to return an A5O_FS_ENTRY.
 
 -  Added al_path_create_dir.
 
 -  Removed some filesystem querying functions which take string paths
-   (ALLEGRO_FS_ENTRY versions will do).
+   (A5O_FS_ENTRY versions will do).
 
 Config routines:
 
@@ -3041,9 +3041,9 @@ Font addons:
 
    - functions are called "draw_text" instead of "textout"
    - centre/right alignment handled by a flag instead of functions
-   - functions accepting ALLEGRO_USTR arguments provided
+   - functions accepting A5O_USTR arguments provided
    - substring support is removed so 'count' arguments not needed in usual
-     case, however ALLEGRO_USTR functions provide similar thing.
+     case, however A5O_USTR functions provide similar thing.
 
 -  Removed al_font_is_compatible_font.
 
@@ -3078,7 +3078,7 @@ Primitives addon:
 
 -  Removed global state flags.
 
--  Removed normals from ALLEGRO_VERTEX.
+-  Removed normals from A5O_VERTEX.
 
 -  Removed read/write flags from vertex buffers.
 
@@ -3148,13 +3148,13 @@ Graphics:
 
 -  Fixed bugs in software scaled/rotated blit routines.
 
--  Added a new pixel format ALLEGRO_PIXEL_FORMAT_ABGR_F32.
-   Removed ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
-   ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA.
+-  Added a new pixel format A5O_PIXEL_FORMAT_ABGR_F32.
+   Removed A5O_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
+   A5O_PIXEL_FORMAT_ANY_24_WITH_ALPHA.
 
 -  Added support for creating OpenGL 3.0 contexts (untested; only WGL/GLX for
-   now).  Relevant display flags are ALLEGRO_OPENGL_3_0 and
-   ALLEGRO_OPENGL_FORWARD_COMPATIBLE.
+   now).  Relevant display flags are A5O_OPENGL_3_0 and
+   A5O_OPENGL_FORWARD_COMPATIBLE.
 
 -  Allow disabling any OpenGL extensions from allegro.cfg to
    test alternative rendering paths.
@@ -3167,7 +3167,7 @@ Input:
 
 -  Implemented al_set_mouse_xy under X11.
 
--  Added ALLEGRO_EVENT_MOUSE_WARPED event for al_set_mouse_xy().
+-  Added A5O_EVENT_MOUSE_WARPED event for al_set_mouse_xy().
 
 Path routines:
 
@@ -3182,19 +3182,19 @@ Path routines:
 
 Unicode:
 
--  Changed type of ALLEGRO_USTR; now you should use pointers to ALLEGRO_USTRs.
+-  Changed type of A5O_USTR; now you should use pointers to A5O_USTRs.
 
 -  Added UTF-16 conversion routines.
 
 Other core:
 
--  Added ALLEGRO_GET_EVENT_TYPE for constructing integers for event type IDs.
+-  Added A5O_GET_EVENT_TYPE for constructing integers for event type IDs.
 
 -  Renamed configuration function names to conform to conventions.
 
 -  Removed public MIN/MAX/ABS/MID/SGN/CLAMP/TRUE/FALSE macros.
 
--  Replaced AL_PI by ALLEGRO_PI and documented it as part of public API.
+-  Replaced AL_PI by A5O_PI and documented it as part of public API.
 
 Audio addons:
 
@@ -3212,7 +3212,7 @@ Font addons:
 
 Image I/O addon:
 
--  Made the capability to load/save images from/to ALLEGRO_FS_ENTRYs public.
+-  Made the capability to load/save images from/to A5O_FS_ENTRYs public.
 
 -  Added missing locking to .png save function.
 
@@ -3305,7 +3305,7 @@ Graphics:
 
 -  Added separate alpha blending.
 
--  Added ALLEGRO_PIXEL_FORMAT_ANY.
+-  Added A5O_PIXEL_FORMAT_ANY.
 
 -  Honour al_set_new_window_position() in X11 port.
 
@@ -3322,7 +3322,7 @@ Input:
 
 -  Fixed a bug in wmouse.c where y was not changed in al_set_mouse_xy.
 
--  Support ALLEGRO_EVENT_MOUSE_ENTER/LEAVE_DISPLAY events in Windows.
+-  Support A5O_EVENT_MOUSE_ENTER/LEAVE_DISPLAY events in Windows.
 
 Addons:
 
@@ -3450,7 +3450,7 @@ Addons:
 
 Examples:
 
--  Add an example to test the ALLEGRO_KEYBOARD_STATE `display' field.
+-  Add an example to test the A5O_KEYBOARD_STATE `display' field.
 
 -  Add an example for testing config routines.
 
@@ -3480,7 +3480,7 @@ General:
 Graphics:
 
 -  Added allegro5/a5_opengl.h, which has to be included by programs
-   to use OpenGL specifics.  ALLEGRO_EXCLUDE_GLX and ALLEGRO_EXCLUDE_WGL can
+   to use OpenGL specifics.  A5O_EXCLUDE_GLX and A5O_EXCLUDE_WGL can
    be #defined to exclude GLX and WGL OpenGL extensions respectively.
 
 -  Added allegro/a5_direct3d.h, which has to be included by programs
@@ -3581,14 +3581,14 @@ Events:
 
 Audio addons:
 
--  Made ALLEGRO_STREAM objects emit events for empty fragments that need
+-  Made A5O_STREAM objects emit events for empty fragments that need
    to be refilled.
 
 -  Added a possiblity to drain a stream created by al_stream_from_file().
 
 -  Added a function to rewind a stream.
 
--  Added gain support to ALLEGRO_STREAM and ALLEGRO_SAMPLE objects.
+-  Added gain support to A5O_STREAM and A5O_SAMPLE objects.
 
 -  Made it possible to attach a sample to a mixer that isn't already attached
    to something.
@@ -3625,7 +3625,7 @@ Examples:
 
 -  Split ex_events into smaller examples.
 
--  Made the demo use ALLEGRO_STREAM to play music.
+-  Made the demo use A5O_STREAM to play music.
 
 -  Build an app bundle from the demo, on Mac OS X.
 
@@ -3891,7 +3891,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 
 -  Jon Rafkind fixed up allegro-config.
 
--  Trent Gamblin added some documentation on ALLEGRO_MSESTATE.
+-  Trent Gamblin added some documentation on A5O_MSESTATE.
 
 -  Trent Gamblin listed the examples in readme_a5.txt.
 
@@ -3926,14 +3926,14 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Elias Pschernig added a script to automatically upload the
    naturaldocs generated documentation to the website.
 
--  Peter Wang fixed missed renamings from AL_ to ALLEGRO_ in the
+-  Peter Wang fixed missed renamings from AL_ to A5O_ in the
    Linux and X code.
 
 -  Elias Pschernig merged 4.9-newgfx back to 4.9.
 
--  Peter Wang fixed a "ALLEGRO__JOYSTICK" typo.
+-  Peter Wang fixed a "A5O__JOYSTICK" typo.
 
--  Trent Gamblin renamed AL_ to ALLEGRO_ in input, events, and timer
+-  Trent Gamblin renamed AL_ to A5O_ in input, events, and timer
    code.
 
 -  Elias Pschernig implemented outline flag and blending for
@@ -3955,7 +3955,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Peter Wang mergedd changes in r7948:10859 on 4.9 branch to
    4.9-newgfx  branch.
 
--  Peter Wang enabled WANT_D3D by default. Only set ALLEGRO_D3D
+-  Peter Wang enabled WANT_D3D by default. Only set A5O_D3D
    on Windows.
 
 -  Trent Gamblin made al_acknowledge_resize take the display as a
@@ -3964,7 +3964,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Trent Gamblin fixed some warnings and made the MinGW build compilable
    statically with gcc 4.2.1.
 
--  Peter Wang fixed a bug in ALLEGRO_CONVERT_BGR_565_TO_ARGB_4444.
+-  Peter Wang fixed a bug in A5O_CONVERT_BGR_565_TO_ARGB_4444.
 
 -  Peter Wang renamed al_memory_management_functions() to
    al_set_memory_management_functions() and added some extra
@@ -4008,7 +4008,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Trent Gamblin made 60hz the default refresh rate of the D3D driver.
 
 -  Trent Gamblin changed al_create_mouse_cursor to accept
-   ALLEGRO_BITMAP structures.
+   A5O_BITMAP structures.
 
 -  Trent Gamblin renamed __al_unmap_rgba to al_unmap_rgba_ex in the
    glx driver.
@@ -4102,20 +4102,20 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Elias Pschernig removed masking from the GLX driver.
 
 -  Trent Gamblin implemented blending for memory bitmaps
-   (very slow unless the blend mode is ALLEGRO_ONE,ALLEGRO_ZERO with a
+   (very slow unless the blend mode is A5O_ONE,A5O_ZERO with a
    pure white blend color).
 
 -  Trent Gamblin implemented blending for the D3D driver.
 
 -  Trent Gamblin added
-   ALLEGRO_PIXEL_FORMAT_ANY_(15|16|24|32)_(WITH_ALPHA|NO_ALPHA)
-   formats, used ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA in locking
+   A5O_PIXEL_FORMAT_ANY_(15|16|24|32)_(WITH_ALPHA|NO_ALPHA)
+   formats, used A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA in locking
    examples, and ixed some formatting.
 
 -  Trent Gamblin added al_clone_bitmap which makes an exact copy of the
    color-data of a bitmap.
 
--  Trent Gamblin added a ALLEGRO_KEEP_BITMAP_FORMAT flag that forces
+-  Trent Gamblin added a A5O_KEEP_BITMAP_FORMAT flag that forces
    Allegro to use the same format as the disk file when loading bitmaps.
 
 -  Elias Pschernig implemented video bitmap masking for the GLX driver (by
@@ -4123,16 +4123,16 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 
 -  Elias Pschernig fixed clipping in the GLX driver.
 
--  Trent Gamblin removed ALLEGRO_MASK_SOURCE flag in favor of
-   ALLEGRO_USE_MASKING. Mask color is now a bitmap property. Removed
-   ALLEGRO_NO_ALPHA flag and changed the meaning of
-   ALLEGRO_USE_ALPHA to mean do alpha blending or not. Added
+-  Trent Gamblin removed A5O_MASK_SOURCE flag in favor of
+   A5O_USE_MASKING. Mask color is now a bitmap property. Removed
+   A5O_NO_ALPHA flag and changed the meaning of
+   A5O_USE_ALPHA to mean do alpha blending or not. Added
    al_set/get_bitmap_mask_color and removed al_set/get_mask_color.
    New masking example added (exnew_masking).
 
 -  Trent Gamblin added proper clipping to al_put_pixel.
 
--  Trent Gamblin renamed graphics stuff from AL_ to ALLEGRO_ and removed
+-  Trent Gamblin renamed graphics stuff from AL_ to A5O_ and removed
    patterned drawing.
 
 -  Elias Pschernig implemented clipping for the X11 GLX driver (only for
@@ -4428,7 +4428,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Matthew Leverton submitted a fix for MSVC 6 regarding MSVC's
    lack of a \_\_FUNCTION\_\_ macro.
 
--  orz, Matthew Leverton, and Peter Wang made the ALLEGRO_USE_C=1
+-  orz, Matthew Leverton, and Peter Wang made the A5O_USE_C=1
    option to work under MinGW and MSVC.
 
 -  Anthony Cassidy fixed a typo.

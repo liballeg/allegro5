@@ -10,7 +10,7 @@ public:
    void* get(void);
    BitmapResource(const char* filename);
 private:
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    std::string filename;
 };
 

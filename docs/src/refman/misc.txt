@@ -6,7 +6,7 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_PI
+## API: A5O_PI
 
 C99 compilers have no predefined value like M_PI for the constant π, but
 you can use this one instead.

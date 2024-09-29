@@ -33,10 +33,10 @@
 
 
 
-struct ALLEGRO_EVENT_QUEUE
+struct A5O_EVENT_QUEUE
 {
-   _AL_VECTOR sources;  /* vector of (ALLEGRO_EVENT_SOURCE *) */
-   _AL_VECTOR events;   /* vector of ALLEGRO_EVENT, used as circular array */
+   _AL_VECTOR sources;  /* vector of (A5O_EVENT_SOURCE *) */
+   _AL_VECTOR events;   /* vector of A5O_EVENT, used as circular array */
    unsigned int events_head;  /* write end of circular array */
    unsigned int events_tail;  /* read end of circular array */
    bool paused;
@@ -54,13 +54,13 @@ static _AL_MUTEX user_event_refcount_mutex = _AL_MUTEX_UNINITED;
 
 /* forward declarations */
 static void shutdown_events(void);
-static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout);
-static void copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src);
-static void ref_if_user_event(ALLEGRO_EVENT *event);
-static void unref_if_user_event(ALLEGRO_EVENT *event);
-static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
-   const ALLEGRO_EVENT_SOURCE *source);
+static bool do_wait_for_event(A5O_EVENT_QUEUE *queue,
+   A5O_EVENT *ret_event, A5O_TIMEOUT *timeout);
+static void copy_event(A5O_EVENT *dest, const A5O_EVENT *src);
+static void ref_if_user_event(A5O_EVENT *event);
+static void unref_if_user_event(A5O_EVENT *event);
+static void discard_events_of_source(A5O_EVENT_QUEUE *queue,
+   const A5O_EVENT_SOURCE *source);
 
 
 
@@ -87,16 +87,16 @@ static void shutdown_events(void)
 
 /* Function: al_create_event_queue
  */
-ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
+A5O_EVENT_QUEUE *al_create_event_queue(void)
 {
-   ALLEGRO_EVENT_QUEUE *queue = al_malloc(sizeof *queue);
+   A5O_EVENT_QUEUE *queue = al_malloc(sizeof *queue);
 
    ASSERT(queue);
 
    if (queue) {
-      _al_vector_init(&queue->sources, sizeof(ALLEGRO_EVENT_SOURCE *));
+      _al_vector_init(&queue->sources, sizeof(A5O_EVENT_SOURCE *));
 
-      _al_vector_init(&queue->events, sizeof(ALLEGRO_EVENT));
+      _al_vector_init(&queue->events, sizeof(A5O_EVENT));
       _al_vector_alloc_back(&queue->events);
       queue->events_head = 0;
       queue->events_tail = 0;
@@ -117,14 +117,14 @@ ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
 
 /* Function: al_destroy_event_queue
  */
-void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
+void al_destroy_event_queue(A5O_EVENT_QUEUE *queue)
 {
    if (queue) {
       _al_unregister_destructor(_al_dtor_list, queue->dtor_item);
 
       /* Unregister any event sources registered with this queue.  */
       while (_al_vector_is_nonempty(&queue->sources)) {
-         ALLEGRO_EVENT_SOURCE** slot = _al_vector_ref_back(&queue->sources);
+         A5O_EVENT_SOURCE** slot = _al_vector_ref_back(&queue->sources);
          al_unregister_event_source(queue, *slot);
       }
 
@@ -144,8 +144,8 @@ void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 
 /* Function: al_is_event_source_registered
  */
-bool al_is_event_source_registered(ALLEGRO_EVENT_QUEUE *queue, 
-      ALLEGRO_EVENT_SOURCE *source)
+bool al_is_event_source_registered(A5O_EVENT_QUEUE *queue, 
+      A5O_EVENT_SOURCE *source)
 {
    ASSERT(queue);
    ASSERT(source);
@@ -158,10 +158,10 @@ bool al_is_event_source_registered(ALLEGRO_EVENT_QUEUE *queue,
 
 /* Function: al_register_event_source
  */
-void al_register_event_source(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT_SOURCE *source)
+void al_register_event_source(A5O_EVENT_QUEUE *queue,
+   A5O_EVENT_SOURCE *source)
 {
-   ALLEGRO_EVENT_SOURCE **slot;
+   A5O_EVENT_SOURCE **slot;
    ASSERT(queue);
    ASSERT(source);
 
@@ -178,8 +178,8 @@ void al_register_event_source(ALLEGRO_EVENT_QUEUE *queue,
 
 /* Function: al_unregister_event_source
  */
-void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT_SOURCE *source)
+void al_unregister_event_source(A5O_EVENT_QUEUE *queue,
+   A5O_EVENT_SOURCE *source)
 {
    bool found;
    ASSERT(queue);
@@ -205,7 +205,7 @@ void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
 
 /* Function: al_pause_event_queue
  */
-void al_pause_event_queue(ALLEGRO_EVENT_QUEUE *queue, bool pause)
+void al_pause_event_queue(A5O_EVENT_QUEUE *queue, bool pause)
 {
    ASSERT(queue);
 
@@ -218,7 +218,7 @@ void al_pause_event_queue(ALLEGRO_EVENT_QUEUE *queue, bool pause)
 
 /* Function: al_is_event_queue_paused
  */
-bool al_is_event_queue_paused(const ALLEGRO_EVENT_QUEUE *queue)
+bool al_is_event_queue_paused(const A5O_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
@@ -229,14 +229,14 @@ bool al_is_event_queue_paused(const ALLEGRO_EVENT_QUEUE *queue)
 
 static void heartbeat(void)
 {
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
    if (system->vt->heartbeat)
       system->vt->heartbeat();
 }
 
 
 
-static bool is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
+static bool is_event_queue_empty(A5O_EVENT_QUEUE *queue)
 {
    return (queue->events_head == queue->events_tail);
 }
@@ -245,7 +245,7 @@ static bool is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
 
 /* Function: al_is_event_queue_empty
  */
-bool al_is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
+bool al_is_event_queue_empty(A5O_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
@@ -276,10 +276,10 @@ static unsigned int circ_array_next(const _AL_VECTOR *vector, unsigned int i)
  *  responsibility).  The event queue must be locked before entering
  *  this function.
  */
-static ALLEGRO_EVENT *get_next_event_if_any(ALLEGRO_EVENT_QUEUE *queue,
+static A5O_EVENT *get_next_event_if_any(A5O_EVENT_QUEUE *queue,
    bool delete)
 {
-   ALLEGRO_EVENT *event;
+   A5O_EVENT *event;
 
    if (is_event_queue_empty(queue)) {
       return NULL;
@@ -296,9 +296,9 @@ static ALLEGRO_EVENT *get_next_event_if_any(ALLEGRO_EVENT_QUEUE *queue,
 
 /* Function: al_get_next_event
  */
-bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
+bool al_get_next_event(A5O_EVENT_QUEUE *queue, A5O_EVENT *ret_event)
 {
-   ALLEGRO_EVENT *next_event;
+   A5O_EVENT *next_event;
    ASSERT(queue);
    ASSERT(ret_event);
 
@@ -321,9 +321,9 @@ bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
 /* Function: al_peek_next_event
  */
-bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
+bool al_peek_next_event(A5O_EVENT_QUEUE *queue, A5O_EVENT *ret_event)
 {
-   ALLEGRO_EVENT *next_event;
+   A5O_EVENT *next_event;
    ASSERT(queue);
    ASSERT(ret_event);
 
@@ -346,9 +346,9 @@ bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
 /* Function: al_drop_next_event
  */
-bool al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
+bool al_drop_next_event(A5O_EVENT_QUEUE *queue)
 {
-   ALLEGRO_EVENT *next_event;
+   A5O_EVENT *next_event;
    ASSERT(queue);
 
    heartbeat();
@@ -369,7 +369,7 @@ bool al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
 
 /* Function: al_flush_event_queue
  */
-void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
+void al_flush_event_queue(A5O_EVENT_QUEUE *queue)
 {
    unsigned int i;
    ASSERT(queue);
@@ -381,7 +381,7 @@ void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
    /* Decrement reference counts on all user events. */
    i = queue->events_tail;
    while (i != queue->events_head) {
-      ALLEGRO_EVENT *old_ev = _al_vector_ref(&queue->events, i);
+      A5O_EVENT *old_ev = _al_vector_ref(&queue->events, i);
       unref_if_user_event(old_ev);
       i = circ_array_next(&queue->events, i);
    }
@@ -395,9 +395,9 @@ void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 /* [primary thread] */
 /* Function: al_wait_for_event
  */
-void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
+void al_wait_for_event(A5O_EVENT_QUEUE *queue, A5O_EVENT *ret_event)
 {
-   ALLEGRO_EVENT *next_event = NULL;
+   A5O_EVENT *next_event = NULL;
 
    ASSERT(queue);
 
@@ -406,7 +406,7 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
    _al_mutex_lock(&queue->mutex);
    {
       while (is_event_queue_empty(queue)) {
-         #ifdef ALLEGRO_WAIT_EVENT_SLEEP
+         #ifdef A5O_WAIT_EVENT_SLEEP
          al_rest(0.001);
          heartbeat();
          #else
@@ -427,10 +427,10 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 /* [primary thread] */
 /* Function: al_wait_for_event_timed
  */
-bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *ret_event, float secs)
+bool al_wait_for_event_timed(A5O_EVENT_QUEUE *queue,
+   A5O_EVENT *ret_event, float secs)
 {
-   ALLEGRO_TIMEOUT timeout;
+   A5O_TIMEOUT timeout;
 
    ASSERT(queue);
    ASSERT(secs >= 0);
@@ -449,8 +449,8 @@ bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
 
 /* Function: al_wait_for_event_until
  */
-bool al_wait_for_event_until(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
+bool al_wait_for_event_until(A5O_EVENT_QUEUE *queue,
+   A5O_EVENT *ret_event, A5O_TIMEOUT *timeout)
 {
    ASSERT(queue);
 
@@ -461,11 +461,11 @@ bool al_wait_for_event_until(ALLEGRO_EVENT_QUEUE *queue,
 
 
 
-static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
+static bool do_wait_for_event(A5O_EVENT_QUEUE *queue,
+   A5O_EVENT *ret_event, A5O_TIMEOUT *timeout)
 {
    bool timed_out = false;
-   ALLEGRO_EVENT *next_event = NULL;
+   A5O_EVENT *next_event = NULL;
 
    _al_mutex_lock(&queue->mutex);
    {
@@ -499,7 +499,7 @@ static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
 /* expand_events_array:
  *  Expand the circular array holding events.
  */
-static void expand_events_array(ALLEGRO_EVENT_QUEUE *queue)
+static void expand_events_array(A5O_EVENT_QUEUE *queue)
 {
    /* The underlying vector grows by powers of two. */
    const size_t old_size = _al_vector_size(&queue->events);
@@ -513,8 +513,8 @@ static void expand_events_array(ALLEGRO_EVENT_QUEUE *queue)
    /* Move wrapped-around elements at the start of the array to the back. */
    if (queue->events_head < queue->events_tail) {
       for (i = 0; i < queue->events_head; i++) {
-         ALLEGRO_EVENT *old_ev = _al_vector_ref(&queue->events, i);
-         ALLEGRO_EVENT *new_ev = _al_vector_ref(&queue->events, old_size + i);
+         A5O_EVENT *old_ev = _al_vector_ref(&queue->events, i);
+         A5O_EVENT *new_ev = _al_vector_ref(&queue->events, old_size + i);
          copy_event(new_ev, old_ev);
       }
       queue->events_head += old_size;
@@ -528,9 +528,9 @@ static void expand_events_array(ALLEGRO_EVENT_QUEUE *queue)
  *
  *  [runs in background threads]
  */
-static ALLEGRO_EVENT *alloc_event(ALLEGRO_EVENT_QUEUE *queue)
+static A5O_EVENT *alloc_event(A5O_EVENT_QUEUE *queue)
 {
-   ALLEGRO_EVENT *event;
+   A5O_EVENT *event;
    unsigned int adv_head;
 
    adv_head = circ_array_next(&queue->events, queue->events_head);
@@ -549,7 +549,7 @@ static ALLEGRO_EVENT *alloc_event(ALLEGRO_EVENT_QUEUE *queue)
 /* copy_event:
  *  Copies the contents of the event SRC to DEST.
  */
-static void copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src)
+static void copy_event(A5O_EVENT *dest, const A5O_EVENT *src)
 {
    ASSERT(dest);
    ASSERT(src);
@@ -562,10 +562,10 @@ static void copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src)
 /* Increment a user event's reference count, if the event passed is a user
  * event and requires it.
  */
-static void ref_if_user_event(ALLEGRO_EVENT *event)
+static void ref_if_user_event(A5O_EVENT *event)
 {
-   if (ALLEGRO_EVENT_TYPE_IS_USER(event->type)) {
-      ALLEGRO_USER_EVENT_DESCRIPTOR *descr = event->user.__internal__descr;
+   if (A5O_EVENT_TYPE_IS_USER(event->type)) {
+      A5O_USER_EVENT_DESCRIPTOR *descr = event->user.__internal__descr;
       if (descr) {
          _al_mutex_lock(&user_event_refcount_mutex);
          descr->refcount++;
@@ -579,9 +579,9 @@ static void ref_if_user_event(ALLEGRO_EVENT *event)
 /* Decrement a user event's reference count, if the event passed is a user
  * event and requires it.
  */
-static void unref_if_user_event(ALLEGRO_EVENT *event)
+static void unref_if_user_event(A5O_EVENT *event)
 {
-   if (ALLEGRO_EVENT_TYPE_IS_USER(event->type)) {
+   if (A5O_EVENT_TYPE_IS_USER(event->type)) {
       al_unref_user_event(&event->user);
    }
 }
@@ -596,10 +596,10 @@ static void unref_if_user_event(ALLEGRO_EVENT *event)
  *  If no event queues can accept the event, the event should be
  *  returned to the event source's list of recyclable events.
  */
-void _al_event_queue_push_event(ALLEGRO_EVENT_QUEUE *queue,
-   const ALLEGRO_EVENT *orig_event)
+void _al_event_queue_push_event(A5O_EVENT_QUEUE *queue,
+   const A5O_EVENT *orig_event)
 {
-   ALLEGRO_EVENT *new_event;
+   A5O_EVENT *new_event;
    ASSERT(queue);
    ASSERT(orig_event);
 
@@ -626,10 +626,10 @@ void _al_event_queue_push_event(ALLEGRO_EVENT_QUEUE *queue,
  *  Return true iff the event queue contains an event from the given source.
  *  The queue must be locked.
  */
-static bool contains_event_of_source(const ALLEGRO_EVENT_QUEUE *queue,
-   const ALLEGRO_EVENT_SOURCE *source)
+static bool contains_event_of_source(const A5O_EVENT_QUEUE *queue,
+   const A5O_EVENT_SOURCE *source)
 {
-   ALLEGRO_EVENT *event;
+   A5O_EVENT *event;
    unsigned int i;
 
    i = queue->events_tail;
@@ -660,12 +660,12 @@ static int pot(int x)
  *  Discard all the events in the queue that belong to the source.
  *  The queue must be locked.
  */
-static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
-   const ALLEGRO_EVENT_SOURCE *source)
+static void discard_events_of_source(A5O_EVENT_QUEUE *queue,
+   const A5O_EVENT_SOURCE *source)
 {
    _AL_VECTOR old_events;
-   ALLEGRO_EVENT *old_event;
-   ALLEGRO_EVENT *new_event;
+   A5O_EVENT *old_event;
+   A5O_EVENT *new_event;
    size_t old_size;
    size_t new_size;
    unsigned int i;
@@ -676,7 +676,7 @@ static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
 
    /* Copy elements we want to keep from the old vector to a new one. */
    old_events = queue->events;
-   _al_vector_init(&queue->events, sizeof(ALLEGRO_EVENT));
+   _al_vector_init(&queue->events, sizeof(A5O_EVENT));
 
    i = queue->events_tail;
    while (i != queue->events_head) {
@@ -708,9 +708,9 @@ static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
 
 /* Function: al_unref_user_event
  */
-void al_unref_user_event(ALLEGRO_USER_EVENT *event)
+void al_unref_user_event(A5O_USER_EVENT *event)
 {
-   ALLEGRO_USER_EVENT_DESCRIPTOR *descr;
+   A5O_USER_EVENT_DESCRIPTOR *descr;
    int refcount;
 
    ASSERT(event);

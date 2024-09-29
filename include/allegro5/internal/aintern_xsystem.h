@@ -1,30 +1,30 @@
 #ifndef __al_included_allegro5_aintern_xsystem_h
 #define __al_included_allegro5_aintern_xsystem_h
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#ifdef A5O_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+#ifdef A5O_XWINDOWS_WITH_XRANDR
 #include <X11/extensions/Xrandr.h>
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XSCREENSAVER
+#ifdef A5O_XWINDOWS_WITH_XSCREENSAVER
 #include <X11/extensions/scrnsaver.h>
 #endif
 
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_xdnd.h"
 
-/* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
-struct ALLEGRO_SYSTEM_XGLX
+/* This is our version of A5O_SYSTEM with driver specific extra data. */
+struct A5O_SYSTEM_XGLX
 {
    /* This must be the first member, we "derive" from it. */
-   ALLEGRO_SYSTEM system;
+   A5O_SYSTEM system;
 
    /* Driver specifics. */
 
@@ -61,19 +61,19 @@ struct ALLEGRO_SYSTEM_XGLX
    _AL_MUTEX lock; /* thread lock for whenever we access internals. */
    // FIXME: One condition variable really would be enough.
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
-   ALLEGRO_DISPLAY *mouse_grab_display; /* Best effort: may be inaccurate. */
+   A5O_DISPLAY *mouse_grab_display; /* Best effort: may be inaccurate. */
    int toggle_mouse_grab_keycode; /* Disabled if zero */
    unsigned int toggle_mouse_grab_modifiers;
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
    bool screen_saver_query_available;
 
    bool mmon_interface_inited;
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef A5O_XWINDOWS_WITH_XINERAMA
    int xinerama_available;
    int xinerama_screen_count;
    XineramaScreenInfo *xinerama_screen_info;
 #endif
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#ifdef A5O_XWINDOWS_WITH_XF86VIDMODE
    /* For VidMode extension. */
    int xfvm_available;
    int xfvm_screen_count;
@@ -83,7 +83,7 @@ struct ALLEGRO_SYSTEM_XGLX
       XF86VidModeModeInfo *original_mode;
    } *xfvm_screen;
 #endif
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+#ifdef A5O_XWINDOWS_WITH_XRANDR
    int xrandr_available;
    int xrandr_event_base;
    _AL_VECTOR xrandr_screens;

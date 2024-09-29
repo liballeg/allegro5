@@ -13,8 +13,8 @@
 /* A structure holding all variables of our example program. */
 struct Example
 {
-   ALLEGRO_FONT *myfont; /* Our font. */
-   ALLEGRO_EVENT_QUEUE *queue; /* Our events queue. */
+   A5O_FONT *myfont; /* Our font. */
+   A5O_EVENT_QUEUE *queue; /* Our events queue. */
 
    double FPS; /* How often to update per second. */
 
@@ -94,7 +94,7 @@ static void draw(void)
 }
 
 /* Called a fixed amount of times per second. */
-static void tick(ALLEGRO_TIMER_EVENT* timer_event)
+static void tick(A5O_TIMER_EVENT* timer_event)
 {
    int i;
 
@@ -138,22 +138,22 @@ static void tick(ALLEGRO_TIMER_EVENT* timer_event)
 /* Run our test. */
 static void run(void)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    while (1) {
       al_wait_for_event(ex.queue, &event);
       switch (event.type) {
          /* Was the X button on the window pressed? */
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             return;
 
          /* Was a key pressed? */
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                return;
             break;
 
          /* Is it time for the next timer tick? */
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             tick(&event.timer);
             break;
       }
@@ -162,8 +162,8 @@ static void run(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
 
    (void)argc;
    (void)argv;

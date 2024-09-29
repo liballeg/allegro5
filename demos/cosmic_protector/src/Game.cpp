@@ -2,11 +2,11 @@
 #include "cosmic_protector.hpp"
 #include "joypad_c.h"
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    #include "allegro5/allegro_android.h"
    #define IS_ANDROID   (true)
    #define IS_MSVC      (false)
-#elif defined(ALLEGRO_MSVC)
+#elif defined(A5O_MSVC)
    #define IS_ANDROID   (false)
    #define IS_MSVC      (true)
    #define snprintf     _snprintf
@@ -22,16 +22,16 @@ bool joy_installed = false;
  * Return the path to user resources (save states, configuration)
  */
 
-static ALLEGRO_PATH* getDir()
+static A5O_PATH* getDir()
 {
-   ALLEGRO_PATH *dir;
+   A5O_PATH *dir;
 
    if (IS_ANDROID) {
       /* Path within the APK, not normal filesystem. */
       dir = al_create_path_for_directory("data");
    }
    else {
-      dir = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+      dir = al_get_standard_path(A5O_RESOURCES_PATH);
       if (IS_MSVC) {
          /* Hack to cope automatically with MSVC workspaces. */
          const char *last = al_get_path_component(dir, -1);
@@ -51,8 +51,8 @@ const char* getResource(const char* fmt, ...)
 {
    va_list ap;
    static char res[512];
-   static ALLEGRO_PATH *dir;
-   static ALLEGRO_PATH *path;
+   static A5O_PATH *dir;
+   static A5O_PATH *path;
 
    va_start(ap, fmt);
    memset(res, 0, 512);
@@ -139,7 +139,7 @@ bool init(void)
    al_init_font_addon();
    al_init_acodec_addon();
    al_init_primitives_addon();
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    al_android_set_apk_file_interface();
 #endif
 
@@ -157,7 +157,7 @@ void done(void)
    al_stop_samples();
    ResourceManager& rm = ResourceManager::getInstance();
    for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
-      ALLEGRO_AUDIO_STREAM *s = (ALLEGRO_AUDIO_STREAM *)rm.getData(i);
+      A5O_AUDIO_STREAM *s = (A5O_AUDIO_STREAM *)rm.getData(i);
       if (s)
          al_set_audio_stream_playing(s, false);
    }

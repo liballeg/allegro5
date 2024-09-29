@@ -19,7 +19,7 @@
 
 #define _AL_NO_BLEND_INLINE_FUNC
 
-#define ALLEGRO_INTERNAL_UNSTABLE
+#define A5O_INTERNAL_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -28,12 +28,12 @@
 #include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>
 
-int _al_fix_texcoord(float var, int max_var, ALLEGRO_BITMAP_WRAP wrap)
+int _al_fix_texcoord(float var, int max_var, A5O_BITMAP_WRAP wrap)
 {
    int ivar = (int)floorf(var);
    float ret;
    switch (wrap) {
-      case ALLEGRO_BITMAP_WRAP_CLAMP:
+      case A5O_BITMAP_WRAP_CLAMP:
          if (ivar < 0)
             ret = 0;
          else if (ivar > max_var - 1)
@@ -41,7 +41,7 @@ int _al_fix_texcoord(float var, int max_var, ALLEGRO_BITMAP_WRAP wrap)
          else
             ret = ivar;
          break;
-      case ALLEGRO_BITMAP_WRAP_MIRROR: {
+      case A5O_BITMAP_WRAP_MIRROR: {
          ret = ivar % max_var;
          if(ret < 0)
             ret += max_var;
@@ -58,11 +58,11 @@ int _al_fix_texcoord(float var, int max_var, ALLEGRO_BITMAP_WRAP wrap)
    return ret;
 }
 
-void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
+void _al_point_2d(A5O_BITMAP* texture, A5O_VERTEX* v)
 {
    int shade = 1;
    int op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR vc;
+   A5O_COLOR vc;
    int clip_min_x, clip_min_y, clip_max_x, clip_max_y;
    int x = (int)floorf(v->x);
    int y = (int)floorf(v->x);
@@ -82,11 +82,11 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
    }
    
    if (texture) {
-      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+      A5O_BITMAP_WRAP wrap_u, wrap_v;
       _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
       int iu = _al_fix_texcoord(v->u, al_get_bitmap_width(texture), wrap_u);
       int iv = _al_fix_texcoord(v->v, al_get_bitmap_height(texture), wrap_v);
-      ALLEGRO_COLOR color = al_get_pixel(texture, iu, iv);
+      A5O_COLOR color = al_get_pixel(texture, iu, iv);
 
       if(vc.r != 1 || vc.g != 1 || vc.b != 1 || vc.a != 1) {
          color.r *= vc.r;
@@ -101,7 +101,7 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
          al_put_pixel(v->x, v->y, color);
       }
    } else {
-      ALLEGRO_COLOR color = al_map_rgba_f(vc.r, vc.g, vc.b, vc.a);
+      A5O_COLOR color = al_map_rgba_f(vc.r, vc.g, vc.b, vc.a);
       if (shade) {
          al_put_blended_pixel(v->x, v->y, color);
       } else {

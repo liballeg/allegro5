@@ -50,10 +50,10 @@ static void gen_square(Square *sq, int w, int h)
    sq->dy = 3.0 * rand11();
    sq->size = 10 + (rand() % 10);
    sq->dsize = rand11();
-   sq->rot = ALLEGRO_PI * rand01();
+   sq->rot = A5O_PI * rand01();
    sq->drot = rand11() / 3.0;
    sq->life = 0.0;
-   sq->dlife = (ALLEGRO_PI / 100.0) + (ALLEGRO_PI / 30.0) * rand01();
+   sq->dlife = (A5O_PI / 100.0) + (A5O_PI / 30.0) * rand01();
 }
 
 
@@ -65,8 +65,8 @@ static void animate_square(Square *sq)
    sq->rot += sq->drot;
    sq->life += sq->dlife;
 
-   if (sq->size < 1.0 || sq->life > ALLEGRO_PI) {
-      ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+   if (sq->size < 1.0 || sq->life > A5O_PI) {
+      A5O_BITMAP *bmp = al_get_target_bitmap();
       gen_square(sq, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
    }
 }
@@ -74,16 +74,16 @@ static void animate_square(Square *sq)
 
 static void draw_square(Square *sq)
 {
-   ALLEGRO_TRANSFORM trans;
+   A5O_TRANSFORM trans;
    float alpha;
    float size;
-   ALLEGRO_COLOR tint;
+   A5O_COLOR tint;
 
    al_build_transform(&trans, sq->cx, sq->cy, 1.0, 1.0, sq->rot);
    al_use_transform(&trans);
 
    alpha = sin(sq->life);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_ONE);
    tint = al_map_rgba_f(0.5, 0.3, 0, alpha);
 
    size = sq->size;
@@ -94,16 +94,16 @@ static void draw_square(Square *sq)
 }
 
 
-static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
+static void *thread_func(A5O_THREAD *thr, void *arg)
 {
    const int INITIAL_WIDTH = 300;
    const int INITIAL_HEIGHT = 300;
    const Background *background = (Background *) arg;
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue = NULL;
-   ALLEGRO_TIMER *timer = NULL;
-   ALLEGRO_EVENT event;
-   ALLEGRO_STATE state;
+   A5O_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue = NULL;
+   A5O_TIMER *timer = NULL;
+   A5O_EVENT event;
+   A5O_STATE state;
    Square squares[MAX_SQUARES];
    double theta = 0.0;
    bool redraw = true;
@@ -111,7 +111,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 
    (void)thr;
 
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_RESIZABLE);
 
    display = al_create_display(INITIAL_WIDTH, INITIAL_HEIGHT);
    if (!display) {
@@ -139,14 +139,14 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    while (true) {
       if (al_is_event_queue_empty(queue) && redraw) {
          double r = 0.7 + 0.3 * (sin(theta) + 1.0) / 2.0;
-         ALLEGRO_COLOR c = al_map_rgb_f(
+         A5O_COLOR c = al_map_rgb_f(
             background->rmax * r,
             background->gmax * r,
             background->bmax * r
          );
          al_clear_to_color(c);
 
-         al_store_state(&state, ALLEGRO_STATE_BLENDER | ALLEGRO_STATE_TRANSFORM);
+         al_store_state(&state, A5O_STATE_BLENDER | A5O_STATE_TRANSFORM);
          for (i = 0; i < MAX_SQUARES; i++) {
             draw_square(&squares[i]);
          }
@@ -157,21 +157,21 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
       }
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (event.type == A5O_EVENT_TIMER) {
          for (i = 0; i < MAX_SQUARES; i++) {
             animate_square(&squares[i]);
          }
          theta += 0.1;
          redraw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN
-            && event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      else if (event.type == A5O_EVENT_KEY_DOWN
+            && event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+      else if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(event.display.source);
       }
    }
@@ -194,7 +194,7 @@ Quit:
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_THREAD *thread[MAX_THREADS];
+   A5O_THREAD *thread[MAX_THREADS];
    Background background[MAX_BACKGROUNDS] = {
       { 1.0, 0.5, 0.5 },
       { 0.5, 1.0, 0.5 },

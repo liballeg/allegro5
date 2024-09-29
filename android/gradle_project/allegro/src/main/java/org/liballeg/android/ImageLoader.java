@@ -77,13 +77,13 @@ class ImageLoader
    {
       switch (bitmap.getConfig()) {
          case ALPHA_8:
-            return Const.ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8; // not really
+            return Const.A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8; // not really
          case ARGB_4444:
-            return Const.ALLEGRO_PIXEL_FORMAT_RGBA_4444;
+            return Const.A5O_PIXEL_FORMAT_RGBA_4444;
          case ARGB_8888:
-            return Const.ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+            return Const.A5O_PIXEL_FORMAT_ABGR_8888;
          case RGB_565:
-            return Const.ALLEGRO_PIXEL_FORMAT_BGR_565; // untested
+            return Const.A5O_PIXEL_FORMAT_BGR_565; // untested
          default:
             assert(false);
             return -1;

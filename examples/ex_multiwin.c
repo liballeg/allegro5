@@ -9,11 +9,11 @@ const int H = 400;
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display[2];
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_QUEUE *events;
-   ALLEGRO_BITMAP *pictures[2];
-   ALLEGRO_BITMAP *target;
+   A5O_DISPLAY *display[2];
+   A5O_EVENT event;
+   A5O_EVENT_QUEUE *events;
+   A5O_BITMAP *pictures[2];
+   A5O_BITMAP *target;
    int width, height;
    int i;
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
    events = al_create_event_queue();
 
-   al_set_new_display_flags(ALLEGRO_WINDOWED|ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_WINDOWED|A5O_RESIZABLE);
 
    /* Create two windows. */
    display[0] = al_create_display(W, H);
@@ -62,23 +62,23 @@ int main(int argc, char **argv)
       /* read input */
       while (!al_is_event_queue_empty(events)) {
          al_get_next_event(events, &event);
-         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            ALLEGRO_KEYBOARD_EVENT *key = &event.keyboard;
-            if (key->keycode == ALLEGRO_KEY_ESCAPE) {
+         if (event.type == A5O_EVENT_KEY_DOWN) {
+            A5O_KEYBOARD_EVENT *key = &event.keyboard;
+            if (key->keycode == A5O_KEY_ESCAPE) {
                goto done;
             }
          }
-         if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-            ALLEGRO_DISPLAY_EVENT *de = &event.display;
+         if (event.type == A5O_EVENT_DISPLAY_RESIZE) {
+            A5O_DISPLAY_EVENT *de = &event.display;
             al_acknowledge_resize(de->source);
          }
-         if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
+         if (event.type == A5O_EVENT_DISPLAY_SWITCH_IN) {
             log_printf("%p switching in\n", event.display.source);
          }
-         if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_OUT) {
+         if (event.type == A5O_EVENT_DISPLAY_SWITCH_OUT) {
             log_printf("%p switching out\n", event.display.source);
          }
-         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+         if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
             int i;
             for (i = 0; i < 2; i++) {
                if (display[i] == event.display.source)

@@ -8,30 +8,30 @@
 extern "C" {
 #endif
 
-#if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC)
-   #ifndef ALLEGRO_STATICLINK
-      #ifdef ALLEGRO_ACODEC_SRC
-         #define _ALLEGRO_ACODEC_DLL __declspec(dllexport)
+#if (defined A5O_MINGW32) || (defined A5O_MSVC)
+   #ifndef A5O_STATICLINK
+      #ifdef A5O_ACODEC_SRC
+         #define _A5O_ACODEC_DLL __declspec(dllexport)
       #else
-         #define _ALLEGRO_ACODEC_DLL __declspec(dllimport)
+         #define _A5O_ACODEC_DLL __declspec(dllimport)
       #endif
    #else
-      #define _ALLEGRO_ACODEC_DLL
+      #define _A5O_ACODEC_DLL
    #endif
 #endif
 
-#if defined ALLEGRO_MSVC
-   #define ALLEGRO_ACODEC_FUNC(type, name, args)      _ALLEGRO_ACODEC_DLL type __cdecl name args
-#elif defined ALLEGRO_MINGW32
-   #define ALLEGRO_ACODEC_FUNC(type, name, args)      extern type name args
+#if defined A5O_MSVC
+   #define A5O_ACODEC_FUNC(type, name, args)      _A5O_ACODEC_DLL type __cdecl name args
+#elif defined A5O_MINGW32
+   #define A5O_ACODEC_FUNC(type, name, args)      extern type name args
 #else
-   #define ALLEGRO_ACODEC_FUNC      AL_FUNC
+   #define A5O_ACODEC_FUNC      AL_FUNC
 #endif
 
 
-ALLEGRO_ACODEC_FUNC(bool, al_init_acodec_addon, (void));
-ALLEGRO_ACODEC_FUNC(bool, al_is_acodec_addon_initialized, (void));
-ALLEGRO_ACODEC_FUNC(uint32_t, al_get_allegro_acodec_version, (void));
+A5O_ACODEC_FUNC(bool, al_init_acodec_addon, (void));
+A5O_ACODEC_FUNC(bool, al_is_acodec_addon_initialized, (void));
+A5O_ACODEC_FUNC(uint32_t, al_get_allegro_acodec_version, (void));
 
 
 #ifdef __cplusplus

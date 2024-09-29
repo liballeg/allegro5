@@ -9,20 +9,20 @@
 #include "allegro5/internal/aintern_xsystem.h"
 #include "allegro5/internal/aintern_xwindow.h"
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
-#define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
-#define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
+#define A5O_SYSTEM_XGLX A5O_SYSTEM_RASPBERRYPI
+#define A5O_DISPLAY_XGLX A5O_DISPLAY_RASPBERRYPI
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("xwindow")
+A5O_DEBUG_CHANNEL("xwindow")
 
 #define X11_ATOM(x)  XInternAtom(x11, #x, False);
 
-void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
+void _al_xwin_set_size_hints(A5O_DISPLAY *d, int x_off, int y_off)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (void *)d;
    XSizeHints *sizehints;
    XWMHints *wmhints;
    XClassHint *classhints;
@@ -31,7 +31,7 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    sizehints = XAllocSizeHints();
    sizehints->flags = 0;
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
    int x, y;
    _al_raspberrypi_get_screen_info(&x, &y, &w, &h);
 #else
@@ -41,14 +41,14 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 
    /* Do not force the size of the window on resizeable or fullscreen windows */
    /* on fullscreen windows, it confuses most X Window Managers */
-   if (!(d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
+   if (!(d->flags & A5O_RESIZABLE) && !(d->flags & A5O_FULLSCREEN)) {
       sizehints->flags |= PMinSize | PMaxSize | PBaseSize;
       sizehints->min_width  = sizehints->max_width  = sizehints->base_width  = w;
       sizehints->min_height = sizehints->max_height = sizehints->base_height = h;
    }
 
    /* Constrain the window if needed. */
-   if (d->use_constraints && (d->flags & ALLEGRO_RESIZABLE) &&
+   if (d->use_constraints && (d->flags & A5O_RESIZABLE) &&
       (d->min_w > 0 || d->min_h > 0 || d->max_w > 0 || d->max_h > 0))
    {
       sizehints->flags |= PMinSize | PMaxSize | PBaseSize;
@@ -63,13 +63,13 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    // Tell WMs to respect our chosen position, otherwise the x_off/y_off
    // positions passed to XCreateWindow will be ignored by most WMs.
    if (x_off != INT_MAX && y_off != INT_MAX) {
-      ALLEGRO_DEBUG("Force window position to %d, %d.\n", x_off, y_off);
+      A5O_DEBUG("Force window position to %d, %d.\n", x_off, y_off);
       sizehints->flags |= PPosition;
       sizehints->x = x_off;
       sizehints->y = y_off;
    }
 
-   if (d->flags & ALLEGRO_FULLSCREEN) {
+   if (d->flags & A5O_FULLSCREEN) {
       /* kwin will improperly layer a panel over our window on a second display without this.
        * some other Size flags may cause glitches with various WMs, but this seems to be ok
        * with metacity and kwin. As noted in xdpy_create_display, compiz is just broken.
@@ -84,7 +84,7 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    wmhints->input = True;
    wmhints->flags = InputHint;
    
-   ALLEGRO_PATH *exepath = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   A5O_PATH *exepath = al_get_standard_path(A5O_EXENAME_PATH);
    
    /* Setup the class hints so we can get an icon (AfterStep)
     * We must use the executable filename here.
@@ -107,10 +107,10 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 }
 
 
-void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
+void _al_xwin_reset_size_hints(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (void *)d;
    XSizeHints *hints;
 
    hints  = XAllocSizeHints();
@@ -129,16 +129,16 @@ void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
 /* Note: The system mutex must be locked (exactly once) before
  * calling this as we call _al_display_xglx_await_resize.
  */
-void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
+void _al_xwin_set_fullscreen_window(A5O_DISPLAY *display, int value)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
-#ifndef ALLEGRO_RASPBERRYPI
+#ifndef A5O_RASPBERRYPI
    int old_resize_count = glx->resize_count;
 #endif
 
-   ALLEGRO_DEBUG("Toggling _NET_WM_STATE_FULLSCREEN hint: %d\n", value);
+   A5O_DEBUG("Toggling _NET_WM_STATE_FULLSCREEN hint: %d\n", value);
 
    XEvent xev;
    xev.xclient.type = ClientMessage;
@@ -159,7 +159,7 @@ void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 
    XSendEvent(
       x11,
-#if !defined ALLEGRO_RASPBERRYPI
+#if !defined A5O_RASPBERRYPI
       RootWindowOfScreen(ScreenOfDisplay(x11, glx->xscreen)),
 #else
       RootWindowOfScreen(ScreenOfDisplay(x11, DefaultScreen(x11))),
@@ -167,7 +167,7 @@ void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
       False,
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 
-#if !defined ALLEGRO_RASPBERRYPI
+#if !defined A5O_RASPBERRYPI
    if (value == 2) {
       /* Only wait for a resize if toggling. */
       _al_display_xglx_await_resize(display, old_resize_count, true);
@@ -176,13 +176,13 @@ void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 }
 
 
-void _al_xwin_set_above(ALLEGRO_DISPLAY *display, int value)
+void _al_xwin_set_above(A5O_DISPLAY *display, int value)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
 
-   ALLEGRO_DEBUG("Toggling _NET_WM_STATE_ABOVE hint: %d\n", value);
+   A5O_DEBUG("Toggling _NET_WM_STATE_ABOVE hint: %d\n", value);
 
    XEvent xev;
    xev.xclient.type = ClientMessage;
@@ -206,10 +206,10 @@ void _al_xwin_set_above(ALLEGRO_DISPLAY *display, int value)
 }
 
 
-void _al_xwin_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
+void _al_xwin_set_frame(A5O_DISPLAY *display, bool frame_on)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
    Atom hints;
 
@@ -232,9 +232,9 @@ void _al_xwin_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
          (void *)&motif, sizeof motif / 4);
 
       if (frame_on)
-         display->flags &= ~ALLEGRO_FRAMELESS;
+         display->flags &= ~A5O_FRAMELESS;
       else
-         display->flags |= ALLEGRO_FRAMELESS;
+         display->flags |= A5O_FRAMELESS;
    }
 #endif
 }
@@ -248,12 +248,12 @@ void _al_xwin_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
  * and draw the window yourself?
  */
 static bool xdpy_set_icon_inner(Display *x11display, Window window,
-   ALLEGRO_BITMAP *bitmap, int prop_mode)
+   A5O_BITMAP *bitmap, int prop_mode)
 {
    int w, h;
    int data_size;
    unsigned long *data; /* Yes, unsigned long, even on 64-bit platforms! */
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    bool ret;
 
    w = al_get_bitmap_width(bitmap);
@@ -263,11 +263,11 @@ static bool xdpy_set_icon_inner(Display *x11display, Window window,
    if (!data)
       return false;
 
-   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
-      ALLEGRO_LOCK_READONLY);
+   lr = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ANY_WITH_ALPHA,
+      A5O_LOCK_READONLY);
    if (lr) {
       int x, y;
-      ALLEGRO_COLOR c;
+      A5O_COLOR c;
       unsigned char r, g, b, a;
       Atom _NET_WM_ICON;
 
@@ -299,11 +299,11 @@ static bool xdpy_set_icon_inner(Display *x11display, Window window,
 }
 
 
-void _al_xwin_set_icons(ALLEGRO_DISPLAY *d,
-   int num_icons, ALLEGRO_BITMAP *bitmaps[])
+void _al_xwin_set_icons(A5O_DISPLAY *d,
+   int num_icons, A5O_BITMAP *bitmaps[])
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   A5O_SYSTEM_XGLX *system = (A5O_SYSTEM_XGLX *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
    int prop_mode = PropModeReplace;
    int i;
 
@@ -323,13 +323,13 @@ void _al_xwin_set_icons(ALLEGRO_DISPLAY *d,
 /* Note: The system mutex must be locked (exactly once) before
  * calling this as we call _al_display_xglx_await_resize.
  */
-void _al_xwin_maximize(ALLEGRO_DISPLAY *display, bool maximized)
+void _al_xwin_maximize(A5O_DISPLAY *display, bool maximized)
 {
-#ifndef ALLEGRO_RASPBERRYPI
-   if (!!(display->flags & ALLEGRO_MAXIMIZED) == maximized)
+#ifndef A5O_RASPBERRYPI
+   if (!!(display->flags & A5O_MAXIMIZED) == maximized)
       return;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
    int old_resize_count = glx->resize_count;
 
@@ -357,11 +357,11 @@ void _al_xwin_maximize(ALLEGRO_DISPLAY *display, bool maximized)
 }
 
 
-void _al_xwin_check_maximized(ALLEGRO_DISPLAY *display)
+void _al_xwin_check_maximized(A5O_DISPLAY *display)
 {
-#ifndef ALLEGRO_RASPBERRYPI
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+#ifndef A5O_RASPBERRYPI
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
    Atom type;
    Atom horz = X11_ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
@@ -384,26 +384,26 @@ void _al_xwin_check_maximized(ALLEGRO_DISPLAY *display)
          maximized |= 2;
    }
    XFree(p8);
-   display->flags &= ~ALLEGRO_MAXIMIZED;
+   display->flags &= ~A5O_MAXIMIZED;
    if (maximized == 3)
-      display->flags |= ALLEGRO_MAXIMIZED;
+      display->flags |= A5O_MAXIMIZED;
 #endif
 }
 
 
 /* Function: al_get_x_window_id
  */
-XID al_get_x_window_id(ALLEGRO_DISPLAY *display)
+XID al_get_x_window_id(A5O_DISPLAY *display)
 {
    ASSERT(display != NULL);
-   return ((ALLEGRO_DISPLAY_XGLX*)display)->window;
+   return ((A5O_DISPLAY_XGLX*)display)->window;
 }
 
 
 // Note: this only seems to work after the window has been mapped
-void _al_xwin_get_borders(ALLEGRO_DISPLAY *display) {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+void _al_xwin_get_borders(A5O_DISPLAY *display) {
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *x11 = system->x11display;
 
    Atom type;
@@ -420,16 +420,16 @@ void _al_xwin_get_borders(ALLEGRO_DISPLAY *display) {
          glx->border_top = (int)((long *)property)[2];
          glx->border_bottom = (int)((long *)property)[3];
          glx->borders_known = true;
-         ALLEGRO_DEBUG("_NET_FRAME_EXTENTS: %d %d %d %d\n", glx->border_left, glx->border_top,
+         A5O_DEBUG("_NET_FRAME_EXTENTS: %d %d %d %d\n", glx->border_left, glx->border_top,
             glx->border_right, glx->border_bottom);
       }
       else {
-         ALLEGRO_DEBUG("Unexpected _NET_FRAME_EXTENTS format: nitems=%lu\n", nitems);
+         A5O_DEBUG("Unexpected _NET_FRAME_EXTENTS format: nitems=%lu\n", nitems);
       }
       XFree(property);
    }
    else {
-      ALLEGRO_DEBUG("Could not read _NET_FRAME_EXTENTS\n");
+      A5O_DEBUG("Could not read _NET_FRAME_EXTENTS\n");
    }
 }
 

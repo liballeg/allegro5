@@ -22,17 +22,17 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_touch_input.h"
 
-ALLEGRO_DEBUG_CHANNEL("android")
+A5O_DEBUG_CHANNEL("android")
 
 
 /* forward declaration */
 static void android_touch_input_handle_cancel(int id, double timestamp,
-   float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
+   float x, float y, bool primary, A5O_DISPLAY *disp);
 
 
-static ALLEGRO_TOUCH_INPUT_STATE touch_input_state;
-static ALLEGRO_MOUSE_STATE mouse_state;
-static ALLEGRO_TOUCH_INPUT touch_input;
+static A5O_TOUCH_INPUT_STATE touch_input_state;
+static A5O_MOUSE_STATE mouse_state;
+static A5O_TOUCH_INPUT touch_input;
 static bool installed = false;
 
 
@@ -40,7 +40,7 @@ static void reset_touch_input_state(void)
 {
    int i;
 
-   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; i++) {
+   for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; i++) {
       touch_input_state.touches[i].id = -1;
    }
 }
@@ -48,25 +48,25 @@ static void reset_touch_input_state(void)
 
 static void generate_touch_input_event(unsigned int type, double timestamp,
    int id, float x, float y, float dx, float dy, bool primary,
-   ALLEGRO_DISPLAY *disp)
+   A5O_DISPLAY *disp)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
 
    bool want_touch_event           = _al_event_source_needs_to_generate_event(&touch_input.es);
    bool want_mouse_emulation_event;
 
-   if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_5_0_x) {
+   if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_5_0_x) {
       want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && al_is_mouse_installed();
    }
    else {
       want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && primary && al_is_mouse_installed();
    }
    
-   if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_NONE)
+   if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_NONE)
       want_mouse_emulation_event = false;
-   else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_INCLUSIVE)
+   else if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_INCLUSIVE)
       want_touch_event = al_is_mouse_installed() ? (want_touch_event && !primary) : want_touch_event;
-   else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_EXCLUSIVE)
+   else if (touch_input.mouse_emulation_mode == A5O_MOUSE_EMULATION_EXCLUSIVE)
       want_touch_event = al_is_mouse_installed() ? false : want_touch_event;
 
    
@@ -76,7 +76,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
    if (want_touch_event) {
 
       event.touch.type      = type;
-      event.touch.display   = (ALLEGRO_DISPLAY*)disp;
+      event.touch.display   = (A5O_DISPLAY*)disp;
       event.touch.timestamp = timestamp;
       event.touch.id        = id;
       event.touch.x         = x;
@@ -90,12 +90,12 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
       _al_event_source_unlock(&touch_input.es);
    }
 
-   if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_NONE) {
+   if (touch_input.mouse_emulation_mode != A5O_MOUSE_EMULATION_NONE) {
       mouse_state.x = (int)x;
       mouse_state.y = (int)y;
-      if (type == ALLEGRO_EVENT_TOUCH_BEGIN)
+      if (type == A5O_EVENT_TOUCH_BEGIN)
          mouse_state.buttons++;
-      else if (type == ALLEGRO_EVENT_TOUCH_END)
+      else if (type == A5O_EVENT_TOUCH_END)
          mouse_state.buttons--;
 
       mouse_state.pressure = mouse_state.buttons ? 1.0 : 0.0; /* TODO */
@@ -104,22 +104,22 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
       if (want_mouse_emulation_event) {
 
          switch (type) {
-            case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN; break;
-            case ALLEGRO_EVENT_TOUCH_CANCEL:
-            case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;   break;
-            case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
+            case A5O_EVENT_TOUCH_BEGIN: type = A5O_EVENT_MOUSE_BUTTON_DOWN; break;
+            case A5O_EVENT_TOUCH_CANCEL:
+            case A5O_EVENT_TOUCH_END:   type = A5O_EVENT_MOUSE_BUTTON_UP;   break;
+            case A5O_EVENT_TOUCH_MOVE:  type = A5O_EVENT_MOUSE_AXES;        break;
          }
    
          event.mouse.type      = type;
          event.mouse.timestamp = timestamp;
-         event.mouse.display   = (ALLEGRO_DISPLAY*)disp;
+         event.mouse.display   = (A5O_DISPLAY*)disp;
          event.mouse.x         = (int)x;
          event.mouse.y         = (int)y;
          event.mouse.dx        = (int)dx;
          event.mouse.dy        = (int)dy;
          event.mouse.dz        = 0;
          event.mouse.dw        = 0;
-         if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+         if (touch_input.mouse_emulation_mode != A5O_MOUSE_EMULATION_5_0_x) {
             event.mouse.button = 1;
          }
          else {
@@ -127,7 +127,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
          }
          event.mouse.pressure  = mouse_state.pressure;
    
-         if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+         if (touch_input.mouse_emulation_mode != A5O_MOUSE_EMULATION_5_0_x) {
             al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
          }
    
@@ -148,7 +148,7 @@ static bool init_touch_input(void)
 
    _al_event_source_init(&touch_input.es);
    _al_event_source_init(&touch_input.mouse_emulation_es);
-   touch_input.mouse_emulation_mode = ALLEGRO_MOUSE_EMULATION_TRANSPARENT;
+   touch_input.mouse_emulation_mode = A5O_MOUSE_EMULATION_TRANSPARENT;
 
    installed = true;
 
@@ -171,13 +171,13 @@ static void exit_touch_input(void)
 }
 
 
-static ALLEGRO_TOUCH_INPUT* get_touch_input(void)
+static A5O_TOUCH_INPUT* get_touch_input(void)
 {
    return &touch_input;
 }
 
 
-static void get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
+static void get_touch_input_state(A5O_TOUCH_INPUT_STATE *ret_state)
 {
    _al_event_source_lock(&touch_input.es);
    *ret_state = touch_input_state;
@@ -191,9 +191,9 @@ static void set_mouse_emulation_mode(int mode)
       
       int i;
       
-      for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i) {
+      for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i) {
       
-         ALLEGRO_TOUCH_STATE* touch = touch_input_state.touches + i;
+         A5O_TOUCH_STATE* touch = touch_input_state.touches + i;
          
          if (touch->id > 0) {
             android_touch_input_handle_cancel(touch->id, al_get_time(),
@@ -206,11 +206,11 @@ static void set_mouse_emulation_mode(int mode)
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_free_touch_state(void)
+static A5O_TOUCH_STATE* find_free_touch_state(void)
 {
    int i;
 
-   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
+   for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
       if (touch_input_state.touches[i].id < 0)
          return touch_input_state.touches + i;
 
@@ -218,11 +218,11 @@ static ALLEGRO_TOUCH_STATE* find_free_touch_state(void)
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_touch_state_with_id(int id)
+static A5O_TOUCH_STATE* find_touch_state_with_id(int id)
 {
    int i;
 
-   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
+   for (i = 0; i < A5O_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
       if (touch_input_state.touches[i].id == id)
          return touch_input_state.touches + i;
 
@@ -231,9 +231,9 @@ static ALLEGRO_TOUCH_STATE* find_touch_state_with_id(int id)
 
 
 static void android_touch_input_handle_begin(int id, double timestamp,
-   float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+   float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_free_touch_state();
+   A5O_TOUCH_STATE* state = find_free_touch_state();
    (void)primary;
    
    if (NULL == state)
@@ -249,16 +249,16 @@ static void android_touch_input_handle_begin(int id, double timestamp,
    state->display = disp;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_BEGIN, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_BEGIN, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary,
       disp);
 }
 
 
 static void android_touch_input_handle_end(int id, double timestamp,
-   float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+   float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   A5O_TOUCH_STATE* state = find_touch_state_with_id(id);
    (void)primary;
 
    if (NULL == state)
@@ -271,7 +271,7 @@ static void android_touch_input_handle_end(int id, double timestamp,
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_END, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_END, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary,
       disp);
 
@@ -282,9 +282,9 @@ static void android_touch_input_handle_end(int id, double timestamp,
 
 
 static void android_touch_input_handle_move(int id, double timestamp,
-   float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+   float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   A5O_TOUCH_STATE* state = find_touch_state_with_id(id);
    (void)primary;
 
    if (NULL == state)
@@ -297,16 +297,16 @@ static void android_touch_input_handle_move(int id, double timestamp,
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_MOVE, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_MOVE, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary,
       disp);
 }
 
 
 static void android_touch_input_handle_cancel(int id, double timestamp,
-   float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
+   float x, float y, bool primary, A5O_DISPLAY *disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   A5O_TOUCH_STATE* state = find_touch_state_with_id(id);
    (void)primary;
 
    if (NULL == state)
@@ -319,7 +319,7 @@ static void android_touch_input_handle_cancel(int id, double timestamp,
    state->y       = y;
    _al_event_source_unlock(&touch_input.es);
 
-   generate_touch_input_event(ALLEGRO_EVENT_TOUCH_CANCEL, timestamp,
+   generate_touch_input_event(A5O_EVENT_TOUCH_CANCEL, timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary, disp);
 
    _al_event_source_lock(&touch_input.es);
@@ -334,36 +334,36 @@ JNI_FUNC(void, TouchListener, nativeOnTouch, (JNIEnv *env, jobject obj,
    (void)env;
    (void)obj;
 
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_SYSTEM *system = al_get_system_driver();
    ASSERT(system != NULL);
 
-   ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
-   ALLEGRO_DISPLAY *display = *dptr;
+   A5O_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
+   A5O_DISPLAY *display = *dptr;
    ASSERT(display != NULL);
 
    switch (action) {
-      case ALLEGRO_EVENT_TOUCH_BEGIN:
+      case A5O_EVENT_TOUCH_BEGIN:
          android_touch_input_handle_begin(id, al_get_time(), x, y, primary,
             display);
          break;
 
-      case ALLEGRO_EVENT_TOUCH_END:
+      case A5O_EVENT_TOUCH_END:
          android_touch_input_handle_end(id, al_get_time(), x, y, primary,
             display);
          break;
 
-      case ALLEGRO_EVENT_TOUCH_MOVE:
+      case A5O_EVENT_TOUCH_MOVE:
          android_touch_input_handle_move(id, al_get_time(), x, y, primary,
             display);
          break;
 
-      case ALLEGRO_EVENT_TOUCH_CANCEL:
+      case A5O_EVENT_TOUCH_CANCEL:
          android_touch_input_handle_cancel(id, al_get_time(), x, y,
             primary, display);
          break;
 
       default:
-         ALLEGRO_ERROR("unknown touch action: %i", action);
+         A5O_ERROR("unknown touch action: %i", action);
          break;
    }
 }
@@ -372,7 +372,7 @@ JNI_FUNC(void, TouchListener, nativeOnTouch, (JNIEnv *env, jobject obj,
 /* the driver vtable */
 #define TOUCH_INPUT_ANDROID AL_ID('A','T','I','D')
 
-static ALLEGRO_TOUCH_INPUT_DRIVER touch_input_driver =
+static A5O_TOUCH_INPUT_DRIVER touch_input_driver =
 {
    TOUCH_INPUT_ANDROID,
    init_touch_input,
@@ -384,13 +384,13 @@ static ALLEGRO_TOUCH_INPUT_DRIVER touch_input_driver =
 };
 
 
-ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void)
+A5O_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void)
 {
     return &touch_input_driver;
 }
 
 
-void _al_android_mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+void _al_android_mouse_get_state(A5O_MOUSE_STATE *ret_state)
 {
    _al_event_source_lock(&touch_input.es);
    *ret_state = mouse_state;

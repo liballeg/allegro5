@@ -754,7 +754,7 @@ static void poly_do_triangulate(POLY* polygon)
 # if POLY_DEBUG
       if (g_poly_debug_step == g_poly_debug_step_current) {
          _AL_LIST_ITEM* item;
-         ALLEGRO_COLOR color;
+         A5O_COLOR color;
          int second = 0;
 
          al_draw_filled_triangle(v0[0], v0[1], v1[0], v1[1], v2[0], v2[1], al_map_rgba(0, 0, 255, 64));

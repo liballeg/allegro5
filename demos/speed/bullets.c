@@ -130,8 +130,8 @@ void update_bullets()
 void draw_bullets(int r, int g, int b, int (*project)(float *f, int *i, int c))
 {
    BULLET *bul = bullets;
-   ALLEGRO_COLOR c1 = makecol(128+r/2, 128+g/2, 128+b/2);
-   ALLEGRO_COLOR c2 = (g) ? makecol(r/5, g/5, b/5) : makecol(r/4, g/4, b/4);
+   A5O_COLOR c1 = makecol(128+r/2, 128+g/2, 128+b/2);
+   A5O_COLOR c2 = (g) ? makecol(r/5, g/5, b/5) : makecol(r/4, g/4, b/4);
    float shape[6];
    int ishape[6];
    int i;

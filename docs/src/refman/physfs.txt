@@ -9,7 +9,7 @@ For example, that means you can use the Image I/O addon to load
 images from .zip files.
 
 You must set up PhysicsFS through its own API.  When you want to open an
-ALLEGRO_FILE using PhysicsFS, first call [al_set_physfs_file_interface],
+A5O_FILE using PhysicsFS, first call [al_set_physfs_file_interface],
 then [al_fopen] or another function that calls [al_fopen].
 
 
@@ -22,8 +22,8 @@ Link with allegro_physfs.
 
 ## API: al_set_physfs_file_interface
 
-This function sets *both* the [ALLEGRO_FILE_INTERFACE] and
-[ALLEGRO_FS_INTERFACE] for the calling thread.
+This function sets *both* the [A5O_FILE_INTERFACE] and
+[A5O_FS_INTERFACE] for the calling thread.
 
 Subsequent calls to [al_fopen] on the calling thread will be handled by
 PHYSFS_open(). Operations on the files returned by [al_fopen] will then be
@@ -36,7 +36,7 @@ To remember and restore another file I/O backend, you can use
 
 > *Note:* due to an oversight, this function differs from
 [al_set_new_file_interface] and [al_set_standard_file_interface]
-which only alter the current [ALLEGRO_FILE_INTERFACE].
+which only alter the current [A5O_FILE_INTERFACE].
 
 > *Note:* PhysFS does not support the text-mode reading and writing, which means
 that Windows-style newlines will not be preserved.

@@ -3,7 +3,7 @@
 void LargeBullet::render(int offx, int offy)
 {
    al_draw_rotated_bitmap(bitmap, radius, radius, offx + x, offy + y,
-      angle+(ALLEGRO_PI/2), 0);
+      angle+(A5O_PI/2), 0);
 }
 
 LargeBullet::LargeBullet(float x, float y, float angle, Entity *shooter) :

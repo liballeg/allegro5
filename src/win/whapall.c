@@ -16,7 +16,7 @@
  */
 
 
-#define ALLEGRO_NO_COMPATIBILITY
+#define A5O_NO_COMPATIBILITY
 
 #define DIRECTINPUT_VERSION 0x0800
 
@@ -32,51 +32,51 @@
 #include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
-#ifdef ALLEGRO_CFG_XINPUT
+#ifdef A5O_CFG_XINPUT
 /* Don't compile this lot if xinput and directinput isn't supported. */
 
 #include "allegro5/internal/aintern_wjoyall.h"
 
-ALLEGRO_DEBUG_CHANNEL("haptic")
+A5O_DEBUG_CHANNEL("haptic")
 
 /* forward declarations */
 static bool hapall_init_haptic(void);
 static void hapall_exit_haptic(void);
 
-static bool hapall_is_mouse_haptic(ALLEGRO_MOUSE *dev);
-static bool hapall_is_joystick_haptic(ALLEGRO_JOYSTICK *);
-static bool hapall_is_keyboard_haptic(ALLEGRO_KEYBOARD *dev);
-static bool hapall_is_display_haptic(ALLEGRO_DISPLAY *dev);
-static bool hapall_is_touch_input_haptic(ALLEGRO_TOUCH_INPUT *dev);
+static bool hapall_is_mouse_haptic(A5O_MOUSE *dev);
+static bool hapall_is_joystick_haptic(A5O_JOYSTICK *);
+static bool hapall_is_keyboard_haptic(A5O_KEYBOARD *dev);
+static bool hapall_is_display_haptic(A5O_DISPLAY *dev);
+static bool hapall_is_touch_input_haptic(A5O_TOUCH_INPUT *dev);
 
-static ALLEGRO_HAPTIC *hapall_get_from_mouse(ALLEGRO_MOUSE *dev);
-static ALLEGRO_HAPTIC *hapall_get_from_joystick(ALLEGRO_JOYSTICK *dev);
-static ALLEGRO_HAPTIC *hapall_get_from_keyboard(ALLEGRO_KEYBOARD *dev);
-static ALLEGRO_HAPTIC *hapall_get_from_display(ALLEGRO_DISPLAY *dev);
-static ALLEGRO_HAPTIC *hapall_get_from_touch_input(ALLEGRO_TOUCH_INPUT *dev);
+static A5O_HAPTIC *hapall_get_from_mouse(A5O_MOUSE *dev);
+static A5O_HAPTIC *hapall_get_from_joystick(A5O_JOYSTICK *dev);
+static A5O_HAPTIC *hapall_get_from_keyboard(A5O_KEYBOARD *dev);
+static A5O_HAPTIC *hapall_get_from_display(A5O_DISPLAY *dev);
+static A5O_HAPTIC *hapall_get_from_touch_input(A5O_TOUCH_INPUT *dev);
 
-static bool hapall_release(ALLEGRO_HAPTIC *haptic);
+static bool hapall_release(A5O_HAPTIC *haptic);
 
-static bool hapall_get_active(ALLEGRO_HAPTIC *hap);
-static int hapall_get_capabilities(ALLEGRO_HAPTIC *dev);
-static double hapall_get_gain(ALLEGRO_HAPTIC *dev);
-static bool hapall_set_gain(ALLEGRO_HAPTIC *dev, double);
-static int hapall_get_max_effects(ALLEGRO_HAPTIC *dev);
+static bool hapall_get_active(A5O_HAPTIC *hap);
+static int hapall_get_capabilities(A5O_HAPTIC *dev);
+static double hapall_get_gain(A5O_HAPTIC *dev);
+static bool hapall_set_gain(A5O_HAPTIC *dev, double);
+static int hapall_get_max_effects(A5O_HAPTIC *dev);
 
-static bool hapall_is_effect_ok(ALLEGRO_HAPTIC *dev, ALLEGRO_HAPTIC_EFFECT *eff);
-static bool hapall_upload_effect(ALLEGRO_HAPTIC *dev,
-                                 ALLEGRO_HAPTIC_EFFECT *eff,
-                                 ALLEGRO_HAPTIC_EFFECT_ID *id);
-static bool hapall_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loop);
-static bool hapall_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
-static bool hapall_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id);
-static bool hapall_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
+static bool hapall_is_effect_ok(A5O_HAPTIC *dev, A5O_HAPTIC_EFFECT *eff);
+static bool hapall_upload_effect(A5O_HAPTIC *dev,
+                                 A5O_HAPTIC_EFFECT *eff,
+                                 A5O_HAPTIC_EFFECT_ID *id);
+static bool hapall_play_effect(A5O_HAPTIC_EFFECT_ID *id, int loop);
+static bool hapall_stop_effect(A5O_HAPTIC_EFFECT_ID *id);
+static bool hapall_is_effect_playing(A5O_HAPTIC_EFFECT_ID *id);
+static bool hapall_release_effect(A5O_HAPTIC_EFFECT_ID *id);
 
-static double hapall_get_autocenter(ALLEGRO_HAPTIC *dev);
-static bool hapall_set_autocenter(ALLEGRO_HAPTIC *dev, double);
+static double hapall_get_autocenter(A5O_HAPTIC *dev);
+static bool hapall_set_autocenter(A5O_HAPTIC *dev, double);
 
 
-ALLEGRO_HAPTIC_DRIVER _al_hapdrv_windows_all =
+A5O_HAPTIC_DRIVER _al_hapdrv_windows_all =
 {
    AL_HAPTIC_TYPE_WINDOWS_ALL,
    "",
@@ -118,7 +118,7 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_windows_all =
 
 
 /* Mutex for thread protection. */
-static ALLEGRO_MUTEX  *hapall_mutex = NULL;
+static A5O_MUTEX  *hapall_mutex = NULL;
 
 
 /* Initializes the combined haptic system. */
@@ -147,20 +147,20 @@ static void hapall_exit_haptic(void)
    hapall_mutex = NULL;
 }
 
-static bool hapall_get_active(ALLEGRO_HAPTIC *haptic)
+static bool hapall_get_active(A5O_HAPTIC *haptic)
 {
    return haptic->driver->get_active(haptic);
 }
 
 
-static bool hapall_is_mouse_haptic(ALLEGRO_MOUSE *mouse)
+static bool hapall_is_mouse_haptic(A5O_MOUSE *mouse)
 {
    (void)mouse;
    return false;
 }
 
 
-static bool hapall_is_joystick_haptic(ALLEGRO_JOYSTICK *joy)
+static bool hapall_is_joystick_haptic(A5O_JOYSTICK *joy)
 {
    bool dx_ok = false, xi_ok = false;
    ASSERT(joy->driver);
@@ -175,37 +175,37 @@ static bool hapall_is_joystick_haptic(ALLEGRO_JOYSTICK *joy)
 }
 
 
-static bool hapall_is_display_haptic(ALLEGRO_DISPLAY *dev)
+static bool hapall_is_display_haptic(A5O_DISPLAY *dev)
 {
    (void)dev;
    return false;
 }
 
 
-static bool hapall_is_keyboard_haptic(ALLEGRO_KEYBOARD *dev)
+static bool hapall_is_keyboard_haptic(A5O_KEYBOARD *dev)
 {
    (void)dev;
    return false;
 }
 
 
-static bool hapall_is_touch_input_haptic(ALLEGRO_TOUCH_INPUT *dev)
+static bool hapall_is_touch_input_haptic(A5O_TOUCH_INPUT *dev)
 {
    (void)dev;
    return false;
 }
 
 
-static ALLEGRO_HAPTIC *hapall_get_from_mouse(ALLEGRO_MOUSE *mouse)
+static A5O_HAPTIC *hapall_get_from_mouse(A5O_MOUSE *mouse)
 {
    (void)mouse;
    return NULL;
 }
 
 
-static ALLEGRO_HAPTIC *hapall_get_from_joystick(ALLEGRO_JOYSTICK *joy)
+static A5O_HAPTIC *hapall_get_from_joystick(A5O_JOYSTICK *joy)
 {
-   ALLEGRO_HAPTIC *haptic = NULL;
+   A5O_HAPTIC *haptic = NULL;
    if (!al_is_joystick_haptic(joy))
       return NULL;
 
@@ -229,108 +229,108 @@ static ALLEGRO_HAPTIC *hapall_get_from_joystick(ALLEGRO_JOYSTICK *joy)
 }
 
 
-static ALLEGRO_HAPTIC *hapall_get_from_display(ALLEGRO_DISPLAY *dev)
+static A5O_HAPTIC *hapall_get_from_display(A5O_DISPLAY *dev)
 {
    (void)dev;
    return NULL;
 }
 
 
-static ALLEGRO_HAPTIC *hapall_get_from_keyboard(ALLEGRO_KEYBOARD *dev)
+static A5O_HAPTIC *hapall_get_from_keyboard(A5O_KEYBOARD *dev)
 {
    (void)dev;
    return NULL;
 }
 
 
-static ALLEGRO_HAPTIC *hapall_get_from_touch_input(ALLEGRO_TOUCH_INPUT *dev)
+static A5O_HAPTIC *hapall_get_from_touch_input(A5O_TOUCH_INPUT *dev)
 {
    (void)dev;
    return NULL;
 }
 
 
-static int hapall_get_capabilities(ALLEGRO_HAPTIC *dev)
+static int hapall_get_capabilities(A5O_HAPTIC *dev)
 {
    return dev->driver->get_capabilities(dev);
 }
 
 
-static double hapall_get_gain(ALLEGRO_HAPTIC *dev)
+static double hapall_get_gain(A5O_HAPTIC *dev)
 {
    return dev->driver->get_gain(dev);
 }
 
 
-static bool hapall_set_gain(ALLEGRO_HAPTIC *dev, double gain)
+static bool hapall_set_gain(A5O_HAPTIC *dev, double gain)
 {
    return dev->driver->set_gain(dev, gain);
 }
 
 
-double hapall_get_autocenter(ALLEGRO_HAPTIC *dev)
+double hapall_get_autocenter(A5O_HAPTIC *dev)
 {
    return dev->driver->get_autocenter(dev);
 }
 
-static bool hapall_set_autocenter(ALLEGRO_HAPTIC *dev, double intensity)
+static bool hapall_set_autocenter(A5O_HAPTIC *dev, double intensity)
 {
    return dev->driver->set_autocenter(dev, intensity);
 }
 
-static int hapall_get_max_effects(ALLEGRO_HAPTIC *dev)
+static int hapall_get_max_effects(A5O_HAPTIC *dev)
 {
    return dev->driver->get_max_effects(dev);
 }
 
 
-static bool hapall_is_effect_ok(ALLEGRO_HAPTIC *dev,
-                                ALLEGRO_HAPTIC_EFFECT *effect)
+static bool hapall_is_effect_ok(A5O_HAPTIC *dev,
+                                A5O_HAPTIC_EFFECT *effect)
 {
    return dev->driver->is_effect_ok(dev, effect);
 }
 
 
-static bool hapall_upload_effect(ALLEGRO_HAPTIC *dev,
-                                 ALLEGRO_HAPTIC_EFFECT *effect, ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool hapall_upload_effect(A5O_HAPTIC *dev,
+                                 A5O_HAPTIC_EFFECT *effect, A5O_HAPTIC_EFFECT_ID *id)
 {
    /* store the driver we'll need it later. */
    id->driver = dev->driver;
    return dev->driver->upload_effect(dev, effect, id);
 }
 
-static bool hapall_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loops)
+static bool hapall_play_effect(A5O_HAPTIC_EFFECT_ID *id, int loops)
 {
-   ALLEGRO_HAPTIC_DRIVER      *driver = id->driver;
+   A5O_HAPTIC_DRIVER      *driver = id->driver;
    /* Use the stored driver to perform the operation. */
    return driver->play_effect(id, loops);
 }
 
 
-static bool hapall_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool hapall_stop_effect(A5O_HAPTIC_EFFECT_ID *id)
 {
-   ALLEGRO_HAPTIC_DRIVER *driver = id->driver;
+   A5O_HAPTIC_DRIVER *driver = id->driver;
    /* Use the stored driver to perform the operation. */
    return driver->stop_effect(id);
 }
 
 
-static bool hapall_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool hapall_is_effect_playing(A5O_HAPTIC_EFFECT_ID *id)
 {
-   ALLEGRO_HAPTIC_DRIVER  *driver = id->driver;
+   A5O_HAPTIC_DRIVER  *driver = id->driver;
    /* Use the stored driver to perform the operation. */
    return driver->is_effect_playing(id);
 }
 
-static bool hapall_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
+static bool hapall_release_effect(A5O_HAPTIC_EFFECT_ID *id)
 {
-   ALLEGRO_HAPTIC_DRIVER *driver = id->driver;
+   A5O_HAPTIC_DRIVER *driver = id->driver;
    /* Use the stored driver to perform the operation. */
    return driver->release_effect(id);
 }
 
 
-static bool hapall_release(ALLEGRO_HAPTIC *haptic)
+static bool hapall_release(A5O_HAPTIC *haptic)
 {
    if (!haptic)
       return false;

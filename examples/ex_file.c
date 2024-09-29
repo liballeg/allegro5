@@ -20,7 +20,7 @@ static int error = 0;
 
 static void read_test(void)
 {
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
    uint8_t bs[8];
    int32_t sz;
 
@@ -57,26 +57,26 @@ static void read_test(void)
 
    /* Test: seek absolute. */
    SEP();
-   CHECK(al_fseek(f, 13, ALLEGRO_SEEK_SET), bool, true);
+   CHECK(al_fseek(f, 13, A5O_SEEK_SET), bool, true);
    CHECK(al_ftell(f), int64_t, 13);
    CHECK(al_fgetc(f), int, 0x02);
 
    /* Test: seek nowhere. */
    SEP();
-   CHECK(al_fseek(f, 0, ALLEGRO_SEEK_CUR), bool, true);
+   CHECK(al_fseek(f, 0, A5O_SEEK_CUR), bool, true);
    CHECK(al_ftell(f), int64_t, 14);
    CHECK(al_fgetc(f), int, 0xe0);
 
    /* Test: seek nowhere with pushback. */
    SEP();
    CHECK(al_fungetc(f, 0x55), bool, true);
-   CHECK(al_fseek(f, 0, ALLEGRO_SEEK_CUR), bool, true);
+   CHECK(al_fseek(f, 0, A5O_SEEK_CUR), bool, true);
    CHECK(al_ftell(f), int64_t, 14);
    CHECK(al_fgetc(f), int, 0xe0);
 
    /* Test: seek relative backwards. */
    SEP();
-   CHECK(al_fseek(f, -3, ALLEGRO_SEEK_CUR), bool, true);
+   CHECK(al_fseek(f, -3, A5O_SEEK_CUR), bool, true);
    CHECK(al_ftell(f), int64_t, 12);
    CHECK(al_fgetc(f), int, 0x80);
 
@@ -85,13 +85,13 @@ static void read_test(void)
    CHECK(al_ftell(f), int64_t, 13);
    CHECK(al_fungetc(f, 0x66),  bool, true);
    CHECK(al_ftell(f), int64_t, 12);
-   CHECK(al_fseek(f, -2, ALLEGRO_SEEK_CUR), bool, true);
+   CHECK(al_fseek(f, -2, A5O_SEEK_CUR), bool, true);
    CHECK(al_ftell(f), int64_t, 10);
    CHECK(al_fgetc(f), int, 0xc7);
 
    /* Test: seek relative to end. */
    SEP();
-   CHECK(al_fseek(f, 0, ALLEGRO_SEEK_END), bool, true);
+   CHECK(al_fseek(f, 0, A5O_SEEK_END), bool, true);
    CHECK(al_feof(f), bool, false);
    CHECK(al_ftell(f), int64_t, 0xab06);
 
@@ -103,18 +103,18 @@ static void read_test(void)
 
    /* Test: seek clears EOF indicator. */
    SEP();
-   CHECK(al_fseek(f, 0, ALLEGRO_SEEK_END), bool, true);
+   CHECK(al_fseek(f, 0, A5O_SEEK_END), bool, true);
    CHECK(al_feof(f), bool, false);
    CHECK(al_ftell(f), int64_t, 0xab06);
 
    /* Test: seek backwards from end. */
    SEP();
-   CHECK(al_fseek(f, -20, ALLEGRO_SEEK_END), bool, true);
+   CHECK(al_fseek(f, -20, A5O_SEEK_END), bool, true);
    CHECK(al_ftell(f), int64_t, 0xaaf2);
 
    /* Test: seek forwards from end. */
    SEP();
-   CHECK(al_fseek(f, 20, ALLEGRO_SEEK_END), bool, true);
+   CHECK(al_fseek(f, 20, A5O_SEEK_END), bool, true);
    CHECK(al_ftell(f), int64_t, 0xab1a);
    CHECK(al_fgetc(f), int, -1);
    CHECK(al_feof(f), bool, true);

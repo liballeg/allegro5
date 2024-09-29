@@ -21,25 +21,25 @@
 #include "allegro5/internal/aintern_display.h"
 #include <math.h>
 
-ALLEGRO_DEBUG_CHANNEL("display")
+A5O_DEBUG_CHANNEL("display")
 
 
 /* Function: al_set_new_display_option
  */
 void al_set_new_display_option(int option, int value, int importance)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
+   A5O_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
    switch (importance) {
-      case ALLEGRO_REQUIRE:
+      case A5O_REQUIRE:
          extras->required |= (int64_t)1 << option;
          extras->suggested &= ~((int64_t)1 << option);
          break;
-      case ALLEGRO_SUGGEST:
+      case A5O_SUGGEST:
          extras->suggested |= (int64_t)1 << option;
          extras->required &= ~((int64_t)1 << option);
          break;
-      case ALLEGRO_DONTCARE:
+      case A5O_DONTCARE:
          extras->required &= ~((int64_t)1 << option);
          extras->suggested &= ~((int64_t)1 << option);
          break;
@@ -48,10 +48,10 @@ void al_set_new_display_option(int option, int value, int importance)
 }
 
 
-int _al_get_suggested_display_option(ALLEGRO_DISPLAY *d,
+int _al_get_suggested_display_option(A5O_DISPLAY *d,
    int option, int default_value)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *s = &d->extra_settings;
+   A5O_EXTRA_DISPLAY_SETTINGS *s = &d->extra_settings;
    uint64_t flags = s->required | s->suggested;
    if (flags & ((uint64_t)1 << option))
       return s->settings[option];
@@ -63,25 +63,25 @@ int _al_get_suggested_display_option(ALLEGRO_DISPLAY *d,
  */
 int al_get_new_display_option(int option, int *importance)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
+   A5O_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
    if (extras->required & ((int64_t)1 << option)) {
-      if (importance) *importance = ALLEGRO_REQUIRE;
+      if (importance) *importance = A5O_REQUIRE;
       return extras->settings[option];
    }
    if (extras->suggested & ((int64_t)1 << option)) {
-      if (importance) *importance = ALLEGRO_SUGGEST;
+      if (importance) *importance = A5O_SUGGEST;
       return extras->settings[option];
    }
-   if (importance) *importance = ALLEGRO_DONTCARE;
+   if (importance) *importance = A5O_DONTCARE;
    return 0;
 }
 
 /* Function: al_set_display_option
  */
-void al_set_display_option(ALLEGRO_DISPLAY *display, int option, int value)
+void al_set_display_option(A5O_DISPLAY *display, int option, int value)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
+   A5O_EXTRA_DISPLAY_SETTINGS *extras;
    extras = &display->extra_settings;
    extras->settings[option] = value;
    if (display->vt->set_display_option) {
@@ -91,9 +91,9 @@ void al_set_display_option(ALLEGRO_DISPLAY *display, int option, int value)
 
 /* Function: al_get_display_option
  */
-int al_get_display_option(ALLEGRO_DISPLAY *display, int option)
+int al_get_display_option(A5O_DISPLAY *display, int option)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
+   A5O_EXTRA_DISPLAY_SETTINGS *extras;
    extras = &display->extra_settings;
    return extras->settings[option];
 }
@@ -103,7 +103,7 @@ int al_get_display_option(ALLEGRO_DISPLAY *display, int option)
  */
 void al_reset_new_display_options(void)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
+   A5O_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
    _al_fill_display_settings(extras);
 }
@@ -116,128 +116,128 @@ void al_reset_new_display_options(void)
 /* _al_fill_display_settings()
  * Will fill in missing settings by 'guessing' what the user intended.
  */
-void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
+void _al_fill_display_settings(A5O_EXTRA_DISPLAY_SETTINGS *ref)
 {
-   int all_components = (1<<ALLEGRO_RED_SIZE)
-                      | (1<<ALLEGRO_GREEN_SIZE)
-                      | (1<<ALLEGRO_BLUE_SIZE)
-                      | (1<<ALLEGRO_ALPHA_SIZE);
+   int all_components = (1<<A5O_RED_SIZE)
+                      | (1<<A5O_GREEN_SIZE)
+                      | (1<<A5O_BLUE_SIZE)
+                      | (1<<A5O_ALPHA_SIZE);
 
    ASSERT(ref);
 
    /* If all color components were set, but not the color depth */
-   if ((((req | sug) & (1<<ALLEGRO_COLOR_SIZE)) == 0)
+   if ((((req | sug) & (1<<A5O_COLOR_SIZE)) == 0)
     && (((req | sug) & all_components) == all_components)) {
 
-       ref->settings[ALLEGRO_COLOR_SIZE] = ref->settings[ALLEGRO_RED_SIZE]
-                                         + ref->settings[ALLEGRO_GREEN_SIZE]
-                                         + ref->settings[ALLEGRO_BLUE_SIZE]
-                                         + ref->settings[ALLEGRO_ALPHA_SIZE];
+       ref->settings[A5O_COLOR_SIZE] = ref->settings[A5O_RED_SIZE]
+                                         + ref->settings[A5O_GREEN_SIZE]
+                                         + ref->settings[A5O_BLUE_SIZE]
+                                         + ref->settings[A5O_ALPHA_SIZE];
 
       /* Round depth to 8 bits */
-      ref->settings[ALLEGRO_COLOR_SIZE] = (ref->settings[ALLEGRO_COLOR_SIZE] + 7) / 8;
+      ref->settings[A5O_COLOR_SIZE] = (ref->settings[A5O_COLOR_SIZE] + 7) / 8;
    }
    /* If only some components were set, guess the others */
    else if ((req | sug) & all_components) {
-      int avg = ((req | sug) & (1<<ALLEGRO_RED_SIZE)   ? ref->settings[ALLEGRO_RED_SIZE]: 0)
-              + ((req | sug) & (1<<ALLEGRO_GREEN_SIZE) ? ref->settings[ALLEGRO_GREEN_SIZE]: 0)
-              + ((req | sug) & (1<<ALLEGRO_BLUE_SIZE)  ? ref->settings[ALLEGRO_BLUE_SIZE]: 0)
-              + ((req | sug) & (1<<ALLEGRO_ALPHA_SIZE) ? ref->settings[ALLEGRO_ALPHA_SIZE]: 0);
+      int avg = ((req | sug) & (1<<A5O_RED_SIZE)   ? ref->settings[A5O_RED_SIZE]: 0)
+              + ((req | sug) & (1<<A5O_GREEN_SIZE) ? ref->settings[A5O_GREEN_SIZE]: 0)
+              + ((req | sug) & (1<<A5O_BLUE_SIZE)  ? ref->settings[A5O_BLUE_SIZE]: 0)
+              + ((req | sug) & (1<<A5O_ALPHA_SIZE) ? ref->settings[A5O_ALPHA_SIZE]: 0);
 
-      int num = ((req | sug) & (1<<ALLEGRO_RED_SIZE)   ? 1 : 0)
-              + ((req | sug) & (1<<ALLEGRO_GREEN_SIZE) ? 1 : 0)
-              + ((req | sug) & (1<<ALLEGRO_BLUE_SIZE)  ? 1 : 0)
-              + ((req | sug) & (1<<ALLEGRO_ALPHA_SIZE) ? 1 : 0);
+      int num = ((req | sug) & (1<<A5O_RED_SIZE)   ? 1 : 0)
+              + ((req | sug) & (1<<A5O_GREEN_SIZE) ? 1 : 0)
+              + ((req | sug) & (1<<A5O_BLUE_SIZE)  ? 1 : 0)
+              + ((req | sug) & (1<<A5O_ALPHA_SIZE) ? 1 : 0);
 
       avg /= (num ? num : 1);
 
-      if (((req | sug) & (1<<ALLEGRO_RED_SIZE) )== 0) {
-         sug |= (1<<ALLEGRO_RED_SIZE);
-         ref->settings[ALLEGRO_RED_SIZE] = avg;
+      if (((req | sug) & (1<<A5O_RED_SIZE) )== 0) {
+         sug |= (1<<A5O_RED_SIZE);
+         ref->settings[A5O_RED_SIZE] = avg;
       }
-      if (((req | sug) & (1<<ALLEGRO_GREEN_SIZE)) == 0) {
-         sug |= (1<<ALLEGRO_GREEN_SIZE);
-         ref->settings[ALLEGRO_GREEN_SIZE] = avg;
+      if (((req | sug) & (1<<A5O_GREEN_SIZE)) == 0) {
+         sug |= (1<<A5O_GREEN_SIZE);
+         ref->settings[A5O_GREEN_SIZE] = avg;
       }
-      if (((req | sug) & (1<<ALLEGRO_BLUE_SIZE)) == 0) {
-         sug |= (1<<ALLEGRO_BLUE_SIZE);
-         ref->settings[ALLEGRO_BLUE_SIZE] = avg;
+      if (((req | sug) & (1<<A5O_BLUE_SIZE)) == 0) {
+         sug |= (1<<A5O_BLUE_SIZE);
+         ref->settings[A5O_BLUE_SIZE] = avg;
       }
-      if (((req | sug) & (1<<ALLEGRO_ALPHA_SIZE)) == 0) {
-         sug |= (1<<ALLEGRO_ALPHA_SIZE);
-         ref->settings[ALLEGRO_ALPHA_SIZE] = avg;
+      if (((req | sug) & (1<<A5O_ALPHA_SIZE)) == 0) {
+         sug |= (1<<A5O_ALPHA_SIZE);
+         ref->settings[A5O_ALPHA_SIZE] = avg;
       }
 
       /* If color depth wasn't defined, figure it out */
-      if (((req | sug) & (1<<ALLEGRO_COLOR_SIZE)) == 0) {
+      if (((req | sug) & (1<<A5O_COLOR_SIZE)) == 0) {
          _al_fill_display_settings(ref);
       }
    }
 
    /* Require double-buffering */
-   if (!((req | sug) & (1<<ALLEGRO_SINGLE_BUFFER))) {
-      al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 0, ALLEGRO_REQUIRE);
+   if (!((req | sug) & (1<<A5O_SINGLE_BUFFER))) {
+      al_set_new_display_option(A5O_SINGLE_BUFFER, 0, A5O_REQUIRE);
    }
 
    /* Prefer no multisamping */
-   if (!((req | sug) & ((1<<ALLEGRO_SAMPLE_BUFFERS) | (1<<ALLEGRO_SAMPLES)))) {
-      al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_SUGGEST);
-      al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
+   if (!((req | sug) & ((1<<A5O_SAMPLE_BUFFERS) | (1<<A5O_SAMPLES)))) {
+      al_set_new_display_option(A5O_SAMPLE_BUFFERS, 0, A5O_SUGGEST);
+      al_set_new_display_option(A5O_SAMPLES, 0, A5O_SUGGEST);
    }
 
    /* Prefer monoscopic */
-   if (!((req | sug) & (1<<ALLEGRO_STEREO))) {
-      al_set_new_display_option(ALLEGRO_STEREO, 0, ALLEGRO_SUGGEST);
+   if (!((req | sug) & (1<<A5O_STEREO))) {
+      al_set_new_display_option(A5O_STEREO, 0, A5O_SUGGEST);
    }
 
    /* Prefer accelerated */
-   if (!((req | sug) & (1<<ALLEGRO_RENDER_METHOD))) {
-      al_set_new_display_option(ALLEGRO_RENDER_METHOD, 1, ALLEGRO_SUGGEST);
+   if (!((req | sug) & (1<<A5O_RENDER_METHOD))) {
+      al_set_new_display_option(A5O_RENDER_METHOD, 1, A5O_SUGGEST);
    }
 
    /* Prefer unsigned normalized buffers */
-   if (!((req | sug) & ((1<<ALLEGRO_FLOAT_COLOR) | (1<<ALLEGRO_FLOAT_DEPTH)))) {
-      al_set_new_display_option(ALLEGRO_FLOAT_DEPTH, 0, ALLEGRO_SUGGEST);
-      al_set_new_display_option(ALLEGRO_FLOAT_COLOR, 0, ALLEGRO_SUGGEST);
+   if (!((req | sug) & ((1<<A5O_FLOAT_COLOR) | (1<<A5O_FLOAT_DEPTH)))) {
+      al_set_new_display_option(A5O_FLOAT_DEPTH, 0, A5O_SUGGEST);
+      al_set_new_display_option(A5O_FLOAT_COLOR, 0, A5O_SUGGEST);
    }
 
    /* The display must meet Allegro requrements. */
-   if (!((req | sug) & (1<<ALLEGRO_COMPATIBLE_DISPLAY))) {
-      al_set_new_display_option(ALLEGRO_COMPATIBLE_DISPLAY, 1, ALLEGRO_REQUIRE);
+   if (!((req | sug) & (1<<A5O_COMPATIBLE_DISPLAY))) {
+      al_set_new_display_option(A5O_COMPATIBLE_DISPLAY, 1, A5O_REQUIRE);
    }
 
-   al_set_new_display_option(ALLEGRO_DEFAULT_SHADER_PLATFORM, ALLEGRO_SHADER_AUTO, ALLEGRO_REQUIRE);
+   al_set_new_display_option(A5O_DEFAULT_SHADER_PLATFORM, A5O_SHADER_AUTO, A5O_REQUIRE);
 }
 
-static void debug_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+static void debug_display_settings(A5O_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   ALLEGRO_DEBUG("color: %d (rgba %d%d%d%d), depth: %d, stencil: %d, "
+   A5O_DEBUG("color: %d (rgba %d%d%d%d), depth: %d, stencil: %d, "
          "acc: %d%d%d%d, samples: %d/%d\n",
-      eds->settings[ALLEGRO_COLOR_SIZE],
-      eds->settings[ALLEGRO_RED_SIZE],
-      eds->settings[ALLEGRO_GREEN_SIZE],
-      eds->settings[ALLEGRO_BLUE_SIZE],
-      eds->settings[ALLEGRO_ALPHA_SIZE],
-      eds->settings[ALLEGRO_DEPTH_SIZE],
-      eds->settings[ALLEGRO_STENCIL_SIZE],
-      eds->settings[ALLEGRO_ACC_RED_SIZE],
-      eds->settings[ALLEGRO_ACC_RED_SIZE],
-      eds->settings[ALLEGRO_ACC_RED_SIZE],
-      eds->settings[ALLEGRO_ACC_RED_SIZE],
-      eds->settings[ALLEGRO_SAMPLES],
-      eds->settings[ALLEGRO_SAMPLE_BUFFERS]);
+      eds->settings[A5O_COLOR_SIZE],
+      eds->settings[A5O_RED_SIZE],
+      eds->settings[A5O_GREEN_SIZE],
+      eds->settings[A5O_BLUE_SIZE],
+      eds->settings[A5O_ALPHA_SIZE],
+      eds->settings[A5O_DEPTH_SIZE],
+      eds->settings[A5O_STENCIL_SIZE],
+      eds->settings[A5O_ACC_RED_SIZE],
+      eds->settings[A5O_ACC_RED_SIZE],
+      eds->settings[A5O_ACC_RED_SIZE],
+      eds->settings[A5O_ACC_RED_SIZE],
+      eds->settings[A5O_SAMPLES],
+      eds->settings[A5O_SAMPLE_BUFFERS]);
 }
 
-int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
-                               ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
+int _al_score_display_settings(A5O_EXTRA_DISPLAY_SETTINGS *eds,
+                               A5O_EXTRA_DISPLAY_SETTINGS *ref)
 {
    int score = 0;
 
    debug_display_settings(eds);
 
-   if (eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] != ref->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
-      if (req & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
-         ALLEGRO_DEBUG("Display not compatible with Allegro.\n");
+   if (eds->settings[A5O_COMPATIBLE_DISPLAY] != ref->settings[A5O_COMPATIBLE_DISPLAY]) {
+      if (req & (1<<A5O_COMPATIBLE_DISPLAY)) {
+         A5O_DEBUG("Display not compatible with Allegro.\n");
          return -1;
       }
    }
@@ -245,9 +245,9 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       score += 128;
    }
 
-   if (eds->settings[ALLEGRO_VSYNC] != ref->settings[ALLEGRO_VSYNC]) {
-      if (req & (1<<ALLEGRO_VSYNC)) {
-         ALLEGRO_DEBUG("Vsync requirement not met.\n");
+   if (eds->settings[A5O_VSYNC] != ref->settings[A5O_VSYNC]) {
+      if (req & (1<<A5O_VSYNC)) {
+         A5O_DEBUG("Vsync requirement not met.\n");
          return -1;
       }
    }
@@ -255,9 +255,9 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       score += 128;
    }
 
-   if (eds->settings[ALLEGRO_COLOR_SIZE] != ref->settings[ALLEGRO_COLOR_SIZE]) {
-      if (req & (1<<ALLEGRO_COLOR_SIZE)) {
-         ALLEGRO_DEBUG("Color depth requirement not met.\n");
+   if (eds->settings[A5O_COLOR_SIZE] != ref->settings[A5O_COLOR_SIZE]) {
+      if (req & (1<<A5O_COLOR_SIZE)) {
+         A5O_DEBUG("Color depth requirement not met.\n");
          return -1;
       }
    }
@@ -266,267 +266,267 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       score += 128;
    }
 
-   if (sug & (1<<ALLEGRO_COLOR_SIZE)) {
-      if (eds->settings[ALLEGRO_COLOR_SIZE] < ref->settings[ALLEGRO_COLOR_SIZE])
-         score += (96 * eds->settings[ALLEGRO_COLOR_SIZE]) / ref->settings[ALLEGRO_COLOR_SIZE];
+   if (sug & (1<<A5O_COLOR_SIZE)) {
+      if (eds->settings[A5O_COLOR_SIZE] < ref->settings[A5O_COLOR_SIZE])
+         score += (96 * eds->settings[A5O_COLOR_SIZE]) / ref->settings[A5O_COLOR_SIZE];
       else
-         score += 96 + 96 / (1 + eds->settings[ALLEGRO_COLOR_SIZE] - ref->settings[ALLEGRO_COLOR_SIZE]);
+         score += 96 + 96 / (1 + eds->settings[A5O_COLOR_SIZE] - ref->settings[A5O_COLOR_SIZE]);
    }
 
    /* check colour component widths here and Allegro formatness */
-   if ((req & (1<<ALLEGRO_RED_SIZE))
-    && (eds->settings[ALLEGRO_RED_SIZE] != ref->settings[ALLEGRO_RED_SIZE])) {
-      ALLEGRO_DEBUG("Red depth requirement not met.\n");
+   if ((req & (1<<A5O_RED_SIZE))
+    && (eds->settings[A5O_RED_SIZE] != ref->settings[A5O_RED_SIZE])) {
+      A5O_DEBUG("Red depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_RED_SIZE)) {
-      if (eds->settings[ALLEGRO_RED_SIZE] < ref->settings[ALLEGRO_RED_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_RED_SIZE]) / ref->settings[ALLEGRO_RED_SIZE];
+   if (sug & (1<<A5O_RED_SIZE)) {
+      if (eds->settings[A5O_RED_SIZE] < ref->settings[A5O_RED_SIZE]) {
+         score += (16 * eds->settings[A5O_RED_SIZE]) / ref->settings[A5O_RED_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_RED_SIZE] - ref->settings[ALLEGRO_RED_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_RED_SIZE] - ref->settings[A5O_RED_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_GREEN_SIZE))
-    && (eds->settings[ALLEGRO_GREEN_SIZE] != ref->settings[ALLEGRO_GREEN_SIZE])) {
-      ALLEGRO_DEBUG("Green depth requirement not met.\n");
+   if ((req & (1<<A5O_GREEN_SIZE))
+    && (eds->settings[A5O_GREEN_SIZE] != ref->settings[A5O_GREEN_SIZE])) {
+      A5O_DEBUG("Green depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_GREEN_SIZE)) {
-      if (eds->settings[ALLEGRO_GREEN_SIZE] < ref->settings[ALLEGRO_GREEN_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_GREEN_SIZE]) / ref->settings[ALLEGRO_GREEN_SIZE];
+   if (sug & (1<<A5O_GREEN_SIZE)) {
+      if (eds->settings[A5O_GREEN_SIZE] < ref->settings[A5O_GREEN_SIZE]) {
+         score += (16 * eds->settings[A5O_GREEN_SIZE]) / ref->settings[A5O_GREEN_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_GREEN_SIZE] - ref->settings[ALLEGRO_GREEN_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_GREEN_SIZE] - ref->settings[A5O_GREEN_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_BLUE_SIZE))
-    && (eds->settings[ALLEGRO_BLUE_SIZE] != ref->settings[ALLEGRO_BLUE_SIZE])) {
-      ALLEGRO_DEBUG("Blue depth requirement not met.\n");
+   if ((req & (1<<A5O_BLUE_SIZE))
+    && (eds->settings[A5O_BLUE_SIZE] != ref->settings[A5O_BLUE_SIZE])) {
+      A5O_DEBUG("Blue depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_BLUE_SIZE)) {
-      if (eds->settings[ALLEGRO_BLUE_SIZE] < ref->settings[ALLEGRO_BLUE_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_BLUE_SIZE]) / ref->settings[ALLEGRO_BLUE_SIZE];
+   if (sug & (1<<A5O_BLUE_SIZE)) {
+      if (eds->settings[A5O_BLUE_SIZE] < ref->settings[A5O_BLUE_SIZE]) {
+         score += (16 * eds->settings[A5O_BLUE_SIZE]) / ref->settings[A5O_BLUE_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_BLUE_SIZE] - ref->settings[ALLEGRO_BLUE_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_BLUE_SIZE] - ref->settings[A5O_BLUE_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_ALPHA_SIZE))
-    && (eds->settings[ALLEGRO_ALPHA_SIZE] != ref->settings[ALLEGRO_ALPHA_SIZE])) {
-      ALLEGRO_DEBUG("Alpha depth requirement not met (%d instead of %d).\n",
-         eds->settings[ALLEGRO_ALPHA_SIZE], ref->settings[ALLEGRO_ALPHA_SIZE]);
+   if ((req & (1<<A5O_ALPHA_SIZE))
+    && (eds->settings[A5O_ALPHA_SIZE] != ref->settings[A5O_ALPHA_SIZE])) {
+      A5O_DEBUG("Alpha depth requirement not met (%d instead of %d).\n",
+         eds->settings[A5O_ALPHA_SIZE], ref->settings[A5O_ALPHA_SIZE]);
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_ALPHA_SIZE)) {
-      if (eds->settings[ALLEGRO_ALPHA_SIZE] < ref->settings[ALLEGRO_ALPHA_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_ALPHA_SIZE]) / ref->settings[ALLEGRO_ALPHA_SIZE];
+   if (sug & (1<<A5O_ALPHA_SIZE)) {
+      if (eds->settings[A5O_ALPHA_SIZE] < ref->settings[A5O_ALPHA_SIZE]) {
+         score += (16 * eds->settings[A5O_ALPHA_SIZE]) / ref->settings[A5O_ALPHA_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_ALPHA_SIZE] - ref->settings[ALLEGRO_ALPHA_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_ALPHA_SIZE] - ref->settings[A5O_ALPHA_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_ACC_RED_SIZE))
-    && (eds->settings[ALLEGRO_ACC_RED_SIZE] != ref->settings[ALLEGRO_ACC_RED_SIZE])) {
-      ALLEGRO_DEBUG("Accumulator Red depth requirement not met.\n");
+   if ((req & (1<<A5O_ACC_RED_SIZE))
+    && (eds->settings[A5O_ACC_RED_SIZE] != ref->settings[A5O_ACC_RED_SIZE])) {
+      A5O_DEBUG("Accumulator Red depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_ACC_RED_SIZE)) {
-      if (eds->settings[ALLEGRO_ACC_RED_SIZE] < ref->settings[ALLEGRO_ACC_RED_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_ACC_RED_SIZE]) / ref->settings[ALLEGRO_ACC_RED_SIZE];
+   if (sug & (1<<A5O_ACC_RED_SIZE)) {
+      if (eds->settings[A5O_ACC_RED_SIZE] < ref->settings[A5O_ACC_RED_SIZE]) {
+         score += (16 * eds->settings[A5O_ACC_RED_SIZE]) / ref->settings[A5O_ACC_RED_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_ACC_RED_SIZE] - ref->settings[ALLEGRO_ACC_RED_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_ACC_RED_SIZE] - ref->settings[A5O_ACC_RED_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_ACC_GREEN_SIZE))
-    && (eds->settings[ALLEGRO_ACC_GREEN_SIZE] != ref->settings[ALLEGRO_ACC_GREEN_SIZE])) {
-      ALLEGRO_DEBUG("Accumulator Green depth requirement not met.\n");
+   if ((req & (1<<A5O_ACC_GREEN_SIZE))
+    && (eds->settings[A5O_ACC_GREEN_SIZE] != ref->settings[A5O_ACC_GREEN_SIZE])) {
+      A5O_DEBUG("Accumulator Green depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_ACC_GREEN_SIZE)) {
-      if (eds->settings[ALLEGRO_ACC_GREEN_SIZE] < ref->settings[ALLEGRO_ACC_GREEN_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_ACC_GREEN_SIZE]) / ref->settings[ALLEGRO_ACC_GREEN_SIZE];
+   if (sug & (1<<A5O_ACC_GREEN_SIZE)) {
+      if (eds->settings[A5O_ACC_GREEN_SIZE] < ref->settings[A5O_ACC_GREEN_SIZE]) {
+         score += (16 * eds->settings[A5O_ACC_GREEN_SIZE]) / ref->settings[A5O_ACC_GREEN_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_ACC_GREEN_SIZE] - ref->settings[ALLEGRO_ACC_GREEN_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_ACC_GREEN_SIZE] - ref->settings[A5O_ACC_GREEN_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_ACC_BLUE_SIZE))
-    && (eds->settings[ALLEGRO_ACC_BLUE_SIZE] != ref->settings[ALLEGRO_ACC_BLUE_SIZE])) {
-      ALLEGRO_DEBUG("Accumulator Blue depth requirement not met.\n");
+   if ((req & (1<<A5O_ACC_BLUE_SIZE))
+    && (eds->settings[A5O_ACC_BLUE_SIZE] != ref->settings[A5O_ACC_BLUE_SIZE])) {
+      A5O_DEBUG("Accumulator Blue depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_ACC_BLUE_SIZE)) {
-      if (eds->settings[ALLEGRO_ACC_BLUE_SIZE] < ref->settings[ALLEGRO_ACC_BLUE_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_ACC_BLUE_SIZE]) / ref->settings[ALLEGRO_ACC_BLUE_SIZE];
+   if (sug & (1<<A5O_ACC_BLUE_SIZE)) {
+      if (eds->settings[A5O_ACC_BLUE_SIZE] < ref->settings[A5O_ACC_BLUE_SIZE]) {
+         score += (16 * eds->settings[A5O_ACC_BLUE_SIZE]) / ref->settings[A5O_ACC_BLUE_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_ACC_BLUE_SIZE] - ref->settings[ALLEGRO_ACC_BLUE_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_ACC_BLUE_SIZE] - ref->settings[A5O_ACC_BLUE_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_ACC_ALPHA_SIZE))
-    && (eds->settings[ALLEGRO_ACC_ALPHA_SIZE] != ref->settings[ALLEGRO_ACC_ALPHA_SIZE])) {
-      ALLEGRO_DEBUG("Accumulator Alpha depth requirement not met.\n");
+   if ((req & (1<<A5O_ACC_ALPHA_SIZE))
+    && (eds->settings[A5O_ACC_ALPHA_SIZE] != ref->settings[A5O_ACC_ALPHA_SIZE])) {
+      A5O_DEBUG("Accumulator Alpha depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_ACC_ALPHA_SIZE)) {
-      if (eds->settings[ALLEGRO_ACC_ALPHA_SIZE] < ref->settings[ALLEGRO_ACC_ALPHA_SIZE]) {
-         score += (16 * eds->settings[ALLEGRO_ACC_ALPHA_SIZE]) / ref->settings[ALLEGRO_ACC_ALPHA_SIZE];
+   if (sug & (1<<A5O_ACC_ALPHA_SIZE)) {
+      if (eds->settings[A5O_ACC_ALPHA_SIZE] < ref->settings[A5O_ACC_ALPHA_SIZE]) {
+         score += (16 * eds->settings[A5O_ACC_ALPHA_SIZE]) / ref->settings[A5O_ACC_ALPHA_SIZE];
       }
       else {
-         score += 16 + 16 / (1 + eds->settings[ALLEGRO_ACC_ALPHA_SIZE] - ref->settings[ALLEGRO_ACC_ALPHA_SIZE]);
+         score += 16 + 16 / (1 + eds->settings[A5O_ACC_ALPHA_SIZE] - ref->settings[A5O_ACC_ALPHA_SIZE]);
       }
    }
 
-   if (!eds->settings[ALLEGRO_SINGLE_BUFFER] != !ref->settings[ALLEGRO_SINGLE_BUFFER]) {
-      if (req & (1<<ALLEGRO_SINGLE_BUFFER)) {
-         ALLEGRO_DEBUG("Single Buffer requirement not met.\n");
+   if (!eds->settings[A5O_SINGLE_BUFFER] != !ref->settings[A5O_SINGLE_BUFFER]) {
+      if (req & (1<<A5O_SINGLE_BUFFER)) {
+         A5O_DEBUG("Single Buffer requirement not met.\n");
          return -1;
       }
    }
    else {
-      score += (sug & (1<<ALLEGRO_SINGLE_BUFFER)) ? 256 : 1;
+      score += (sug & (1<<A5O_SINGLE_BUFFER)) ? 256 : 1;
    }
 
-   if (!eds->settings[ALLEGRO_STEREO] != !ref->settings[ALLEGRO_STEREO]) {
-      if (req & (1<<ALLEGRO_STEREO)) {
-         ALLEGRO_DEBUG("Stereo Buffer requirement not met.\n");
+   if (!eds->settings[A5O_STEREO] != !ref->settings[A5O_STEREO]) {
+      if (req & (1<<A5O_STEREO)) {
+         A5O_DEBUG("Stereo Buffer requirement not met.\n");
          return -1;
       }
    }
    else {
-      if (sug & (1<<ALLEGRO_STEREO)) {
+      if (sug & (1<<A5O_STEREO)) {
          score += 128;
       }
    }
 
-   if ((req & (1<<ALLEGRO_AUX_BUFFERS)) &&
-      (eds->settings[ALLEGRO_AUX_BUFFERS] < ref->settings[ALLEGRO_AUX_BUFFERS])) {
-      ALLEGRO_DEBUG("Aux Buffer requirement not met.\n");
+   if ((req & (1<<A5O_AUX_BUFFERS)) &&
+      (eds->settings[A5O_AUX_BUFFERS] < ref->settings[A5O_AUX_BUFFERS])) {
+      A5O_DEBUG("Aux Buffer requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_AUX_BUFFERS)) {
-      if (eds->settings[ALLEGRO_AUX_BUFFERS] < ref->settings[ALLEGRO_AUX_BUFFERS]) {
-         score += (64 * eds->settings[ALLEGRO_AUX_BUFFERS]) / ref->settings[ALLEGRO_AUX_BUFFERS];
+   if (sug & (1<<A5O_AUX_BUFFERS)) {
+      if (eds->settings[A5O_AUX_BUFFERS] < ref->settings[A5O_AUX_BUFFERS]) {
+         score += (64 * eds->settings[A5O_AUX_BUFFERS]) / ref->settings[A5O_AUX_BUFFERS];
       }
       else {
-         score += 64 + 64 / (1 + eds->settings[ALLEGRO_AUX_BUFFERS] - ref->settings[ALLEGRO_AUX_BUFFERS]);
+         score += 64 + 64 / (1 + eds->settings[A5O_AUX_BUFFERS] - ref->settings[A5O_AUX_BUFFERS]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_DEPTH_SIZE)) &&
-      (eds->settings[ALLEGRO_DEPTH_SIZE] != ref->settings[ALLEGRO_DEPTH_SIZE])) {
-      ALLEGRO_DEBUG("Z-Buffer requirement not met.\n");
+   if ((req & (1<<A5O_DEPTH_SIZE)) &&
+      (eds->settings[A5O_DEPTH_SIZE] != ref->settings[A5O_DEPTH_SIZE])) {
+      A5O_DEBUG("Z-Buffer requirement not met.\n");
       return -1;
    }
-   if (sug & (1<<ALLEGRO_DEPTH_SIZE)) {
-      if (eds->settings[ALLEGRO_DEPTH_SIZE] < ref->settings[ALLEGRO_DEPTH_SIZE]) {
-         score += (64 * eds->settings[ALLEGRO_DEPTH_SIZE]) / ref->settings[ALLEGRO_DEPTH_SIZE];
+   if (sug & (1<<A5O_DEPTH_SIZE)) {
+      if (eds->settings[A5O_DEPTH_SIZE] < ref->settings[A5O_DEPTH_SIZE]) {
+         score += (64 * eds->settings[A5O_DEPTH_SIZE]) / ref->settings[A5O_DEPTH_SIZE];
       }
       else {
-         score += 64 + 64 / (1 + eds->settings[ALLEGRO_DEPTH_SIZE] - ref->settings[ALLEGRO_DEPTH_SIZE]);
+         score += 64 + 64 / (1 + eds->settings[A5O_DEPTH_SIZE] - ref->settings[A5O_DEPTH_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_STENCIL_SIZE))
-    && (eds->settings[ALLEGRO_STENCIL_SIZE] != ref->settings[ALLEGRO_STENCIL_SIZE])) {
-      ALLEGRO_DEBUG("Stencil depth requirement not met.\n");
+   if ((req & (1<<A5O_STENCIL_SIZE))
+    && (eds->settings[A5O_STENCIL_SIZE] != ref->settings[A5O_STENCIL_SIZE])) {
+      A5O_DEBUG("Stencil depth requirement not met.\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_STENCIL_SIZE)) {
-      if (eds->settings[ALLEGRO_STENCIL_SIZE] < ref->settings[ALLEGRO_STENCIL_SIZE]) {
-         score += (64 * eds->settings[ALLEGRO_STENCIL_SIZE]) / ref->settings[ALLEGRO_STENCIL_SIZE];
+   if (sug & (1<<A5O_STENCIL_SIZE)) {
+      if (eds->settings[A5O_STENCIL_SIZE] < ref->settings[A5O_STENCIL_SIZE]) {
+         score += (64 * eds->settings[A5O_STENCIL_SIZE]) / ref->settings[A5O_STENCIL_SIZE];
       }
       else {
-         score += 64 + 64 / (1 + eds->settings[ALLEGRO_STENCIL_SIZE] - ref->settings[ALLEGRO_STENCIL_SIZE]);
+         score += 64 + 64 / (1 + eds->settings[A5O_STENCIL_SIZE] - ref->settings[A5O_STENCIL_SIZE]);
       }
    }
 
-   if ((req & (1<<ALLEGRO_RENDER_METHOD))
-     && ((eds->settings[ALLEGRO_RENDER_METHOD] != ref->settings[ALLEGRO_RENDER_METHOD])
-     || (ref->settings[ALLEGRO_RENDER_METHOD] == 2))) {
-      ALLEGRO_DEBUG("Render Method requirement not met.\n");
+   if ((req & (1<<A5O_RENDER_METHOD))
+     && ((eds->settings[A5O_RENDER_METHOD] != ref->settings[A5O_RENDER_METHOD])
+     || (ref->settings[A5O_RENDER_METHOD] == 2))) {
+      A5O_DEBUG("Render Method requirement not met.\n");
       return -1;
    }
 
-   if ((sug & (1<<ALLEGRO_RENDER_METHOD))
-      && (eds->settings[ALLEGRO_RENDER_METHOD] == ref->settings[ALLEGRO_RENDER_METHOD])) {
+   if ((sug & (1<<A5O_RENDER_METHOD))
+      && (eds->settings[A5O_RENDER_METHOD] == ref->settings[A5O_RENDER_METHOD])) {
       score += 1024;
    }
-   else if (eds->settings[ALLEGRO_RENDER_METHOD] == 1) {
+   else if (eds->settings[A5O_RENDER_METHOD] == 1) {
       score++; /* Add 1 for hw accel */
    }
 
-   if ((req & (1<<ALLEGRO_SAMPLE_BUFFERS))
-    && (eds->settings[ALLEGRO_SAMPLE_BUFFERS] != ref->settings[ALLEGRO_SAMPLE_BUFFERS])) {
-         ALLEGRO_DEBUG("Multisample Buffers requirement not met\n");
+   if ((req & (1<<A5O_SAMPLE_BUFFERS))
+    && (eds->settings[A5O_SAMPLE_BUFFERS] != ref->settings[A5O_SAMPLE_BUFFERS])) {
+         A5O_DEBUG("Multisample Buffers requirement not met\n");
          return -1;
    }
-   else if (sug & (1<<ALLEGRO_SAMPLE_BUFFERS)) {
-      if (eds->settings[ALLEGRO_SAMPLE_BUFFERS] == ref->settings[ALLEGRO_SAMPLE_BUFFERS]) {
+   else if (sug & (1<<A5O_SAMPLE_BUFFERS)) {
+      if (eds->settings[A5O_SAMPLE_BUFFERS] == ref->settings[A5O_SAMPLE_BUFFERS]) {
          score += 128;
       }
    }
 
-   if ((req & (1<<ALLEGRO_SAMPLES))
-      && (eds->settings[ALLEGRO_SAMPLES] != ref->settings[ALLEGRO_SAMPLES])) {
-      ALLEGRO_DEBUG("Multisample Samples requirement not met\n");
+   if ((req & (1<<A5O_SAMPLES))
+      && (eds->settings[A5O_SAMPLES] != ref->settings[A5O_SAMPLES])) {
+      A5O_DEBUG("Multisample Samples requirement not met\n");
       return -1;
    }
 
-   if (sug & (1<<ALLEGRO_SAMPLES)) {
-      if (eds->settings[ALLEGRO_SAMPLES] < ref->settings[ALLEGRO_SAMPLES]) {
-         score += (64 * eds->settings[ALLEGRO_SAMPLES]) / ref->settings[ALLEGRO_SAMPLES];
+   if (sug & (1<<A5O_SAMPLES)) {
+      if (eds->settings[A5O_SAMPLES] < ref->settings[A5O_SAMPLES]) {
+         score += (64 * eds->settings[A5O_SAMPLES]) / ref->settings[A5O_SAMPLES];
       }
       else {
-         score += 64 + 64 / (1 + eds->settings[ALLEGRO_SAMPLES] - ref->settings[ALLEGRO_SAMPLES]);
+         score += 64 + 64 / (1 + eds->settings[A5O_SAMPLES] - ref->settings[A5O_SAMPLES]);
       }
    }
 
-   if (!eds->settings[ALLEGRO_FLOAT_COLOR] != !ref->settings[ALLEGRO_FLOAT_COLOR]) {
-      if (req & (1<<ALLEGRO_FLOAT_COLOR)) {
-         ALLEGRO_DEBUG("Float Color requirement not met.\n");
+   if (!eds->settings[A5O_FLOAT_COLOR] != !ref->settings[A5O_FLOAT_COLOR]) {
+      if (req & (1<<A5O_FLOAT_COLOR)) {
+         A5O_DEBUG("Float Color requirement not met.\n");
          return -1;
       }
    }
    else {
-      if (sug & (1<<ALLEGRO_FLOAT_COLOR)) {
+      if (sug & (1<<A5O_FLOAT_COLOR)) {
          score += 128;
       }
    }
 
-   if (!eds->settings[ALLEGRO_FLOAT_DEPTH] != !ref->settings[ALLEGRO_FLOAT_DEPTH]) {
-      if (req & (1<<ALLEGRO_FLOAT_DEPTH)) {
-         ALLEGRO_DEBUG("Float Depth requirement not met.\n");
+   if (!eds->settings[A5O_FLOAT_DEPTH] != !ref->settings[A5O_FLOAT_DEPTH]) {
+      if (req & (1<<A5O_FLOAT_DEPTH)) {
+         A5O_DEBUG("Float Depth requirement not met.\n");
          return -1;
       }
    }
    else {
-      if (sug & (1<<ALLEGRO_FLOAT_DEPTH)) {
+      if (sug & (1<<A5O_FLOAT_DEPTH)) {
          score += 128;
       }
    }
 
-   ALLEGRO_DEBUG("Score is : %i\n", score);
+   A5O_DEBUG("Score is : %i\n", score);
    return score;
 }
 
@@ -537,8 +537,8 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 /* Helper function for sorting pixel formats by score */
 int _al_display_settings_sorter(const void *p0, const void *p1)
 {
-   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f0 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p0);
-   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f1 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p1);
+   const A5O_EXTRA_DISPLAY_SETTINGS *f0 = *((A5O_EXTRA_DISPLAY_SETTINGS **)p0);
+   const A5O_EXTRA_DISPLAY_SETTINGS *f1 = *((A5O_EXTRA_DISPLAY_SETTINGS **)p1);
 
    if (!f0 && !f1)
       return 0;
@@ -553,175 +553,175 @@ int _al_display_settings_sorter(const void *p0, const void *p1)
 }
 
 
-int _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+int _al_deduce_color_format(A5O_EXTRA_DISPLAY_SETTINGS *eds)
 {
    /* dummy value to check if the format was detected */
-   int format = ALLEGRO_PIXEL_FORMAT_ANY;
+   int format = A5O_PIXEL_FORMAT_ANY;
 
-   if (eds->settings[ALLEGRO_RED_SIZE]   == 8 &&
-       eds->settings[ALLEGRO_GREEN_SIZE] == 8 &&
-       eds->settings[ALLEGRO_BLUE_SIZE]  == 8) {
-      if (eds->settings[ALLEGRO_ALPHA_SIZE] == 8 &&
-          eds->settings[ALLEGRO_COLOR_SIZE] == 32) {
-         if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 0 &&
-             eds->settings[ALLEGRO_BLUE_SHIFT]  == 8 &&
-             eds->settings[ALLEGRO_GREEN_SHIFT] == 16 &&
-             eds->settings[ALLEGRO_RED_SHIFT]   == 24) {
-            format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+   if (eds->settings[A5O_RED_SIZE]   == 8 &&
+       eds->settings[A5O_GREEN_SIZE] == 8 &&
+       eds->settings[A5O_BLUE_SIZE]  == 8) {
+      if (eds->settings[A5O_ALPHA_SIZE] == 8 &&
+          eds->settings[A5O_COLOR_SIZE] == 32) {
+         if (eds->settings[A5O_ALPHA_SHIFT] == 0 &&
+             eds->settings[A5O_BLUE_SHIFT]  == 8 &&
+             eds->settings[A5O_GREEN_SHIFT] == 16 &&
+             eds->settings[A5O_RED_SHIFT]   == 24) {
+            format = A5O_PIXEL_FORMAT_RGBA_8888;
          }
-         else if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 24 &&
-                  eds->settings[ALLEGRO_RED_SHIFT]   == 0 &&
-                  eds->settings[ALLEGRO_GREEN_SHIFT] == 8 &&
-                  eds->settings[ALLEGRO_BLUE_SHIFT] == 16) {
-            format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+         else if (eds->settings[A5O_ALPHA_SHIFT] == 24 &&
+                  eds->settings[A5O_RED_SHIFT]   == 0 &&
+                  eds->settings[A5O_GREEN_SHIFT] == 8 &&
+                  eds->settings[A5O_BLUE_SHIFT] == 16) {
+            format = A5O_PIXEL_FORMAT_ABGR_8888;
          }
-         else if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 24 &&
-                  eds->settings[ALLEGRO_RED_SHIFT] == 16 &&
-                  eds->settings[ALLEGRO_GREEN_SHIFT] == 8 &&
-                  eds->settings[ALLEGRO_BLUE_SHIFT] == 0) {
-            format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-         }
-      }
-      else if (eds->settings[ALLEGRO_ALPHA_SIZE] == 0 &&
-               eds->settings[ALLEGRO_COLOR_SIZE] == 24) {
-         if (eds->settings[ALLEGRO_BLUE_SHIFT] == 0 &&
-             eds->settings[ALLEGRO_GREEN_SHIFT] == 8 &&
-             eds->settings[ALLEGRO_RED_SHIFT] == 16) {
-            format = ALLEGRO_PIXEL_FORMAT_RGB_888;
-         }
-         else if (eds->settings[ALLEGRO_RED_SHIFT] == 0 &&
-                  eds->settings[ALLEGRO_GREEN_SHIFT] == 8 &&
-                  eds->settings[ALLEGRO_BLUE_SHIFT] == 16) {
-            format = ALLEGRO_PIXEL_FORMAT_BGR_888;
+         else if (eds->settings[A5O_ALPHA_SHIFT] == 24 &&
+                  eds->settings[A5O_RED_SHIFT] == 16 &&
+                  eds->settings[A5O_GREEN_SHIFT] == 8 &&
+                  eds->settings[A5O_BLUE_SHIFT] == 0) {
+            format = A5O_PIXEL_FORMAT_ARGB_8888;
          }
       }
-      else if (eds->settings[ALLEGRO_ALPHA_SIZE] == 0 &&
-               eds->settings[ALLEGRO_COLOR_SIZE] == 32) {
-         if (eds->settings[ALLEGRO_BLUE_SHIFT] == 0 &&
-             eds->settings[ALLEGRO_GREEN_SHIFT] == 8 &&
-             eds->settings[ALLEGRO_RED_SHIFT] == 16) {
-            format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+      else if (eds->settings[A5O_ALPHA_SIZE] == 0 &&
+               eds->settings[A5O_COLOR_SIZE] == 24) {
+         if (eds->settings[A5O_BLUE_SHIFT] == 0 &&
+             eds->settings[A5O_GREEN_SHIFT] == 8 &&
+             eds->settings[A5O_RED_SHIFT] == 16) {
+            format = A5O_PIXEL_FORMAT_RGB_888;
          }
-         else if (eds->settings[ALLEGRO_RED_SHIFT] == 0 &&
-                  eds->settings[ALLEGRO_GREEN_SHIFT] == 8 &&
-                  eds->settings[ALLEGRO_BLUE_SHIFT] == 16) {
-            format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
-         }
-         else if (eds->settings[ALLEGRO_RED_SHIFT] == 24 &&
-                  eds->settings[ALLEGRO_GREEN_SHIFT] == 16 &&
-                  eds->settings[ALLEGRO_BLUE_SHIFT] == 8) {
-            format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
+         else if (eds->settings[A5O_RED_SHIFT] == 0 &&
+                  eds->settings[A5O_GREEN_SHIFT] == 8 &&
+                  eds->settings[A5O_BLUE_SHIFT] == 16) {
+            format = A5O_PIXEL_FORMAT_BGR_888;
          }
       }
-   }
-   else if (eds->settings[ALLEGRO_RED_SIZE] == 5 &&
-            eds->settings[ALLEGRO_GREEN_SIZE] == 6 &&
-            eds->settings[ALLEGRO_BLUE_SIZE] == 5) {
-      if (eds->settings[ALLEGRO_RED_SHIFT] == 0 &&
-          eds->settings[ALLEGRO_GREEN_SHIFT] == 5 &&
-          eds->settings[ALLEGRO_BLUE_SHIFT] == 11) {
-         format = ALLEGRO_PIXEL_FORMAT_BGR_565;
-      }
-      else if (eds->settings[ALLEGRO_BLUE_SHIFT] == 0 &&
-               eds->settings[ALLEGRO_GREEN_SHIFT] == 5 &&
-               eds->settings[ALLEGRO_RED_SHIFT] == 11) {
-         format = ALLEGRO_PIXEL_FORMAT_RGB_565;
-      }
-   }
-   else if (eds->settings[ALLEGRO_RED_SIZE] == 5 &&
-            eds->settings[ALLEGRO_GREEN_SIZE] == 5 &&
-            eds->settings[ALLEGRO_BLUE_SIZE] == 5) {
-      if (eds->settings[ALLEGRO_ALPHA_SIZE] == 1 &&
-          eds->settings[ALLEGRO_COLOR_SIZE] == 16) {
-         if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 0 &&
-             eds->settings[ALLEGRO_BLUE_SHIFT]  == 1 &&
-             eds->settings[ALLEGRO_GREEN_SHIFT] == 6 &&
-             eds->settings[ALLEGRO_RED_SHIFT]   == 11) {
-            format = ALLEGRO_PIXEL_FORMAT_RGBA_5551;
+      else if (eds->settings[A5O_ALPHA_SIZE] == 0 &&
+               eds->settings[A5O_COLOR_SIZE] == 32) {
+         if (eds->settings[A5O_BLUE_SHIFT] == 0 &&
+             eds->settings[A5O_GREEN_SHIFT] == 8 &&
+             eds->settings[A5O_RED_SHIFT] == 16) {
+            format = A5O_PIXEL_FORMAT_XRGB_8888;
          }
-         if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 15 &&
-             eds->settings[ALLEGRO_BLUE_SHIFT]  == 0 &&
-             eds->settings[ALLEGRO_GREEN_SHIFT] == 5 &&
-             eds->settings[ALLEGRO_RED_SHIFT]   == 10) {
-            format = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
+         else if (eds->settings[A5O_RED_SHIFT] == 0 &&
+                  eds->settings[A5O_GREEN_SHIFT] == 8 &&
+                  eds->settings[A5O_BLUE_SHIFT] == 16) {
+            format = A5O_PIXEL_FORMAT_XBGR_8888;
+         }
+         else if (eds->settings[A5O_RED_SHIFT] == 24 &&
+                  eds->settings[A5O_GREEN_SHIFT] == 16 &&
+                  eds->settings[A5O_BLUE_SHIFT] == 8) {
+            format = A5O_PIXEL_FORMAT_RGBX_8888;
          }
       }
    }
-   else if (eds->settings[ALLEGRO_RED_SIZE] == 4 &&
-            eds->settings[ALLEGRO_GREEN_SIZE] == 4 &&
-            eds->settings[ALLEGRO_BLUE_SIZE] == 4) {
-      if (eds->settings[ALLEGRO_ALPHA_SIZE] == 4 &&
-          eds->settings[ALLEGRO_COLOR_SIZE] == 16) {
-         if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 12 &&
-             eds->settings[ALLEGRO_BLUE_SHIFT]  == 0 &&
-             eds->settings[ALLEGRO_GREEN_SHIFT] == 4 &&
-             eds->settings[ALLEGRO_RED_SHIFT]   == 8) {
-            format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+   else if (eds->settings[A5O_RED_SIZE] == 5 &&
+            eds->settings[A5O_GREEN_SIZE] == 6 &&
+            eds->settings[A5O_BLUE_SIZE] == 5) {
+      if (eds->settings[A5O_RED_SHIFT] == 0 &&
+          eds->settings[A5O_GREEN_SHIFT] == 5 &&
+          eds->settings[A5O_BLUE_SHIFT] == 11) {
+         format = A5O_PIXEL_FORMAT_BGR_565;
+      }
+      else if (eds->settings[A5O_BLUE_SHIFT] == 0 &&
+               eds->settings[A5O_GREEN_SHIFT] == 5 &&
+               eds->settings[A5O_RED_SHIFT] == 11) {
+         format = A5O_PIXEL_FORMAT_RGB_565;
+      }
+   }
+   else if (eds->settings[A5O_RED_SIZE] == 5 &&
+            eds->settings[A5O_GREEN_SIZE] == 5 &&
+            eds->settings[A5O_BLUE_SIZE] == 5) {
+      if (eds->settings[A5O_ALPHA_SIZE] == 1 &&
+          eds->settings[A5O_COLOR_SIZE] == 16) {
+         if (eds->settings[A5O_ALPHA_SHIFT] == 0 &&
+             eds->settings[A5O_BLUE_SHIFT]  == 1 &&
+             eds->settings[A5O_GREEN_SHIFT] == 6 &&
+             eds->settings[A5O_RED_SHIFT]   == 11) {
+            format = A5O_PIXEL_FORMAT_RGBA_5551;
          }
-         else if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 12 &&
-             eds->settings[ALLEGRO_BLUE_SHIFT]  == 8 &&
-             eds->settings[ALLEGRO_GREEN_SHIFT] == 4 &&
-             eds->settings[ALLEGRO_RED_SHIFT]   == 0) {
-            format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
+         if (eds->settings[A5O_ALPHA_SHIFT] == 15 &&
+             eds->settings[A5O_BLUE_SHIFT]  == 0 &&
+             eds->settings[A5O_GREEN_SHIFT] == 5 &&
+             eds->settings[A5O_RED_SHIFT]   == 10) {
+            format = A5O_PIXEL_FORMAT_ARGB_1555;
+         }
+      }
+   }
+   else if (eds->settings[A5O_RED_SIZE] == 4 &&
+            eds->settings[A5O_GREEN_SIZE] == 4 &&
+            eds->settings[A5O_BLUE_SIZE] == 4) {
+      if (eds->settings[A5O_ALPHA_SIZE] == 4 &&
+          eds->settings[A5O_COLOR_SIZE] == 16) {
+         if (eds->settings[A5O_ALPHA_SHIFT] == 12 &&
+             eds->settings[A5O_BLUE_SHIFT]  == 0 &&
+             eds->settings[A5O_GREEN_SHIFT] == 4 &&
+             eds->settings[A5O_RED_SHIFT]   == 8) {
+            format = A5O_PIXEL_FORMAT_ARGB_4444;
+         }
+         else if (eds->settings[A5O_ALPHA_SHIFT] == 12 &&
+             eds->settings[A5O_BLUE_SHIFT]  == 8 &&
+             eds->settings[A5O_GREEN_SHIFT] == 4 &&
+             eds->settings[A5O_RED_SHIFT]   == 0) {
+            format = A5O_PIXEL_FORMAT_RGBA_4444;
          }
       }
    }
 
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      ALLEGRO_WARN(
+   if (format == A5O_PIXEL_FORMAT_ANY) {
+      A5O_WARN(
          "Could not deduce color format, sizes = (%d,%d,%d,%d,%d), shifts = (%d,%d,%d,%d)\n",
-          eds->settings[ALLEGRO_RED_SIZE],
-          eds->settings[ALLEGRO_GREEN_SIZE],
-          eds->settings[ALLEGRO_BLUE_SIZE],
-          eds->settings[ALLEGRO_ALPHA_SIZE],
-          eds->settings[ALLEGRO_COLOR_SIZE],
-          eds->settings[ALLEGRO_RED_SHIFT],
-          eds->settings[ALLEGRO_GREEN_SHIFT],
-          eds->settings[ALLEGRO_BLUE_SHIFT],
-          eds->settings[ALLEGRO_ALPHA_SHIFT]);
+          eds->settings[A5O_RED_SIZE],
+          eds->settings[A5O_GREEN_SIZE],
+          eds->settings[A5O_BLUE_SIZE],
+          eds->settings[A5O_ALPHA_SIZE],
+          eds->settings[A5O_COLOR_SIZE],
+          eds->settings[A5O_RED_SHIFT],
+          eds->settings[A5O_GREEN_SHIFT],
+          eds->settings[A5O_BLUE_SHIFT],
+          eds->settings[A5O_ALPHA_SHIFT]);
    }
 
    return format;
 }
 
 
-void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
+void _al_set_color_components(int format, A5O_EXTRA_DISPLAY_SETTINGS *eds,
                               int importance)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS old_eds;
+   A5O_EXTRA_DISPLAY_SETTINGS old_eds;
    memcpy(&old_eds, _al_get_new_display_settings(), sizeof(old_eds));
    _al_set_new_display_settings(eds);
 
-   al_set_new_display_option(ALLEGRO_RED_SIZE,    0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_GREEN_SIZE,  0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_BLUE_SIZE,   0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_ALPHA_SIZE,  0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, ALLEGRO_DONTCARE);
-   al_set_new_display_option(ALLEGRO_COLOR_SIZE,  0, ALLEGRO_DONTCARE);
+   al_set_new_display_option(A5O_RED_SIZE,    0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_RED_SHIFT,   0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_GREEN_SIZE,  0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_GREEN_SHIFT, 0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_BLUE_SIZE,   0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_BLUE_SHIFT,  0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_ALPHA_SIZE,  0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_ALPHA_SHIFT, 0, A5O_DONTCARE);
+   al_set_new_display_option(A5O_COLOR_SIZE,  0, A5O_DONTCARE);
 
    switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
+      case A5O_PIXEL_FORMAT_ANY_NO_ALPHA:
+         al_set_new_display_option(A5O_ALPHA_SIZE,   0, importance);
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   8, importance);
+      case A5O_PIXEL_FORMAT_ANY_WITH_ALPHA:
+         al_set_new_display_option(A5O_ALPHA_SIZE,   8, importance);
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE,   16, importance);
+      case A5O_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+         al_set_new_display_option(A5O_ALPHA_SIZE,   0, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE,   16, importance);
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   1, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE,   16, importance);
+      case A5O_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         al_set_new_display_option(A5O_ALPHA_SIZE,   1, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE,   16, importance);
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE,   24, importance);
+      case A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         al_set_new_display_option(A5O_ALPHA_SIZE,   0, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE,   24, importance);
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+      case A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA:
          /* With OpenGL drivers, we never "know" the actual pixel
           * format. We use glReadPixels when we lock the screen, so
           * we can always lock the screen in any format we want. There
@@ -733,167 +733,167 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
           * the number of bits used for red/green/blue/alpha to us only.
           * They never report any "X bits".).
           */
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE,   32, ALLEGRO_SUGGEST);
+         al_set_new_display_option(A5O_ALPHA_SIZE,   0, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE,   32, A5O_SUGGEST);
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   8, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE,   32, importance);
+      case A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         al_set_new_display_option(A5O_ALPHA_SIZE,   8, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE,   32, importance);
          break;
    }
 
    switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
-      case ALLEGRO_PIXEL_FORMAT_ABGR_8888:
-      case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
-      case ALLEGRO_PIXEL_FORMAT_RGB_888:
-      case ALLEGRO_PIXEL_FORMAT_BGR_888:
-      case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
-      case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
-      case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
-         al_set_new_display_option(ALLEGRO_RED_SIZE,   8, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SIZE, 8, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SIZE,  8, importance);
+      case A5O_PIXEL_FORMAT_RGBA_8888:
+      case A5O_PIXEL_FORMAT_ABGR_8888:
+      case A5O_PIXEL_FORMAT_ARGB_8888:
+      case A5O_PIXEL_FORMAT_RGB_888:
+      case A5O_PIXEL_FORMAT_BGR_888:
+      case A5O_PIXEL_FORMAT_RGBX_8888:
+      case A5O_PIXEL_FORMAT_XRGB_8888:
+      case A5O_PIXEL_FORMAT_XBGR_8888:
+         al_set_new_display_option(A5O_RED_SIZE,   8, importance);
+         al_set_new_display_option(A5O_GREEN_SIZE, 8, importance);
+         al_set_new_display_option(A5O_BLUE_SIZE,  8, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_BGR_565:
-      case ALLEGRO_PIXEL_FORMAT_RGB_565:
-         al_set_new_display_option(ALLEGRO_RED_SIZE,   5, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SIZE, 6, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SIZE,  5, importance);
+      case A5O_PIXEL_FORMAT_BGR_565:
+      case A5O_PIXEL_FORMAT_RGB_565:
+         al_set_new_display_option(A5O_RED_SIZE,   5, importance);
+         al_set_new_display_option(A5O_GREEN_SIZE, 6, importance);
+         al_set_new_display_option(A5O_BLUE_SIZE,  5, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_RGBA_5551:
-      case ALLEGRO_PIXEL_FORMAT_ARGB_1555:
-         al_set_new_display_option(ALLEGRO_RED_SIZE,   5, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SIZE, 5, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SIZE,  5, importance);
+      case A5O_PIXEL_FORMAT_RGBA_5551:
+      case A5O_PIXEL_FORMAT_ARGB_1555:
+         al_set_new_display_option(A5O_RED_SIZE,   5, importance);
+         al_set_new_display_option(A5O_GREEN_SIZE, 5, importance);
+         al_set_new_display_option(A5O_BLUE_SIZE,  5, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
-      case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
-         al_set_new_display_option(ALLEGRO_RED_SIZE,   4, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SIZE, 4, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SIZE,  4, importance);
-      break;
-   }
-
-   switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
-      case ALLEGRO_PIXEL_FORMAT_ABGR_8888:
-      case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 8, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, importance);
-      break;
-      case ALLEGRO_PIXEL_FORMAT_RGB_888:
-      case ALLEGRO_PIXEL_FORMAT_BGR_888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 0, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE, 24, importance);
-      break;
-      case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
-      case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
-      case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 0, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, importance);
-      break;
-      case ALLEGRO_PIXEL_FORMAT_BGR_565:
-      case ALLEGRO_PIXEL_FORMAT_RGB_565:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 0, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, importance);
-      break;
-      case ALLEGRO_PIXEL_FORMAT_RGBA_5551:
-      case ALLEGRO_PIXEL_FORMAT_ARGB_1555:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 1, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, importance);
-      break;
-      case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
-      case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
-         al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 4, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, importance);
+      case A5O_PIXEL_FORMAT_ARGB_4444:
+      case A5O_PIXEL_FORMAT_RGBA_4444:
+         al_set_new_display_option(A5O_RED_SIZE,   4, importance);
+         al_set_new_display_option(A5O_GREEN_SIZE, 4, importance);
+         al_set_new_display_option(A5O_BLUE_SIZE,  4, importance);
       break;
    }
 
    switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 16, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   24, importance);
+      case A5O_PIXEL_FORMAT_RGBA_8888:
+      case A5O_PIXEL_FORMAT_ABGR_8888:
+      case A5O_PIXEL_FORMAT_ARGB_8888:
+         al_set_new_display_option(A5O_ALPHA_SIZE, 8, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE, 32, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_ABGR_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 24, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  16, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, importance);
+      case A5O_PIXEL_FORMAT_RGB_888:
+      case A5O_PIXEL_FORMAT_BGR_888:
+         al_set_new_display_option(A5O_ALPHA_SIZE, 0, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE, 24, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 24, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   16, importance);
+      case A5O_PIXEL_FORMAT_RGBX_8888:
+      case A5O_PIXEL_FORMAT_XRGB_8888:
+      case A5O_PIXEL_FORMAT_XBGR_8888:
+         al_set_new_display_option(A5O_ALPHA_SIZE, 0, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE, 32, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_RGB_888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   16, importance);
+      case A5O_PIXEL_FORMAT_BGR_565:
+      case A5O_PIXEL_FORMAT_RGB_565:
+         al_set_new_display_option(A5O_ALPHA_SIZE, 0, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE, 16, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_BGR_888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  16, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, importance);
+      case A5O_PIXEL_FORMAT_RGBA_5551:
+      case A5O_PIXEL_FORMAT_ARGB_1555:
+         al_set_new_display_option(A5O_ALPHA_SIZE, 1, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE, 16, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   16, importance);
+      case A5O_PIXEL_FORMAT_ARGB_4444:
+      case A5O_PIXEL_FORMAT_RGBA_4444:
+         al_set_new_display_option(A5O_ALPHA_SIZE, 4, importance);
+         al_set_new_display_option(A5O_COLOR_SIZE, 16, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 16, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   24, importance);
+   }
+
+   switch (format) {
+      case A5O_PIXEL_FORMAT_RGBA_8888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  8, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 16, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   24, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  16, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, importance);
+      case A5O_PIXEL_FORMAT_ABGR_8888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 24, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  16, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   0, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_BGR_565:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  11, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 5, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, importance);
+      case A5O_PIXEL_FORMAT_ARGB_8888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 24, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  0, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   16, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_RGB_565:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 5, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   11, importance);      
+      case A5O_PIXEL_FORMAT_RGB_888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  0, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   16, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_RGBA_5551:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  1, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 6, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   11, importance);      
+      case A5O_PIXEL_FORMAT_BGR_888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  16, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   0, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_ARGB_1555:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 15, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 5, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   10, importance);      
+      case A5O_PIXEL_FORMAT_XRGB_8888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  0, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   16, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 12, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 4, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   8, importance);      
+      case A5O_PIXEL_FORMAT_RGBX_8888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  8, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 16, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   24, importance);
       break;
-      case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
-         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  4, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   12, importance);      
+      case A5O_PIXEL_FORMAT_XBGR_8888:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  16, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   0, importance);
+      break;
+      case A5O_PIXEL_FORMAT_BGR_565:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  11, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 5, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   0, importance);
+      break;
+      case A5O_PIXEL_FORMAT_RGB_565:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  0, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 5, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   11, importance);      
+      break;
+      case A5O_PIXEL_FORMAT_RGBA_5551:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  1, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 6, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   11, importance);      
+      break;
+      case A5O_PIXEL_FORMAT_ARGB_1555:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 15, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  0, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 5, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   10, importance);      
+      break;
+      case A5O_PIXEL_FORMAT_ARGB_4444:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 12, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  0, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 4, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   8, importance);      
+      break;
+      case A5O_PIXEL_FORMAT_RGBA_4444:
+         al_set_new_display_option(A5O_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(A5O_BLUE_SHIFT,  4, importance);
+         al_set_new_display_option(A5O_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(A5O_RED_SHIFT,   12, importance);      
       break;
    }
 

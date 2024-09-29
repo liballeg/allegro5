@@ -3,7 +3,7 @@
 
 #include "cosmic_protector.hpp"
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
 /* MSVC (up to ver. 9 at least) ignores exception specifications */
 #pragma warning( disable : 4290 )
 #endif

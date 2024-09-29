@@ -10,7 +10,7 @@
  * the nice title sequence, text labels and mouse cursors.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
@@ -18,8 +18,8 @@
 
 #include "common.c"
 
-const float PI    = ALLEGRO_PI;
-const float TWOPI = ALLEGRO_PI * 2.0;
+const float PI    = A5O_PI;
+const float TWOPI = A5O_PI * 2.0;
 
 enum {
    TYPE_EARTH,
@@ -108,19 +108,19 @@ enum {
    NUM_TOKENS  = TOKENS_X * TOKENS_Y,
 };
 
-ALLEGRO_DISPLAY *display;
-ALLEGRO_TIMER  *refresh_timer;
-ALLEGRO_TIMER  *playback_timer;
+A5O_DISPLAY *display;
+A5O_TIMER  *refresh_timer;
+A5O_TIMER  *playback_timer;
 
-ALLEGRO_BITMAP *images[IMG_MAX];
-ALLEGRO_SAMPLE *element_samples[NUM_TYPES][NUM_PITCH];
-ALLEGRO_SAMPLE *select_sample;
+A5O_BITMAP *images[IMG_MAX];
+A5O_SAMPLE *element_samples[NUM_TYPES][NUM_PITCH];
+A5O_SAMPLE *select_sample;
 
 Token          tokens[NUM_TOKENS];
 Token          buttons[NUM_TYPES];
 Sprite         glow;
 Sprite         glow_overlay;
-ALLEGRO_COLOR  glow_color[NUM_TYPES];
+A5O_COLOR  glow_color[NUM_TYPES];
 Flair          *flairs = NULL;
 Token          *hover_token = NULL;
 Token          *selected_button = NULL;
@@ -391,7 +391,7 @@ static void anim_delta(Sprite *spr, float *lval, float delta,
    anim_full(spr, lval, *lval, *lval + delta, func, 0.0, duration);
 }
 
-static void anim_tint(Sprite *spr, const ALLEGRO_COLOR color, Interp func,
+static void anim_tint(Sprite *spr, const A5O_COLOR color, Interp func,
    float duration)
 {
    float r, g, b;
@@ -522,8 +522,8 @@ static void update_anims(float now)
 
 static void draw_sprite(const Sprite *spr)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_COLOR tint;
+   A5O_BITMAP *bmp;
+   A5O_COLOR tint;
    float cx, cy;
 
    bmp = images[spr->image];
@@ -548,7 +548,7 @@ static void draw_screen(void)
 
    al_clear_to_color(al_map_rgb(0, 0, 0));
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_ONE);
 
    draw_sprite(&glow);
    draw_sprite(&glow_overlay);
@@ -556,12 +556,12 @@ static void draw_screen(void)
    for (i = 0; i < NUM_TOKENS; i++)
       draw_token(&tokens[i]);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
    for (i = 0; i < NUM_TYPES; i++)
       draw_token(&buttons[i]);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_ONE);
 
    for (fl = flairs; fl != NULL; fl = fl->next)
       draw_sprite(&fl->sprite);
@@ -670,7 +670,7 @@ static void spawn_water_effects(float x, float y)
 static void play_element(int type, int pitch, float vol, float pan)
 {
    al_play_sample(element_samples[type][pitch], vol, pan, 1.0,
-      ALLEGRO_PLAYMODE_ONCE, NULL);
+      A5O_PLAYMODE_ONCE, NULL);
 }
 
 static void activate_token(Token *token)
@@ -835,7 +835,7 @@ static void select_button(Token *button)
 
    change_healthy_glow(button->type, button->x);
 
-   al_play_sample(select_sample, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+   al_play_sample(select_sample, 1.0, 0.0, 1.0, A5O_PLAYMODE_ONCE, NULL);
 }
 
 static void on_mouse_down(float x, float y, int mbut)
@@ -875,9 +875,9 @@ static void on_mouse_axes(float x, float y)
    }
 }
 
-static void main_loop(ALLEGRO_EVENT_QUEUE *queue)
+static void main_loop(A5O_EVENT_QUEUE *queue)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    bool redraw = true;
 
    for (;;) {
@@ -901,25 +901,25 @@ static void main_loop(ALLEGRO_EVENT_QUEUE *queue)
          continue;
       }
 
-      if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+      if (event.type == A5O_EVENT_MOUSE_AXES) {
          on_mouse_axes(event.mouse.x, event.mouse.y);
          continue;
       }
 
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          on_mouse_down(event.mouse.x, event.mouse.y, event.mouse.button);
          continue;
       }
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
 
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
             break;
 
-         if (event.keyboard.keycode == ALLEGRO_KEY_C)
+         if (event.keyboard.keycode == A5O_KEY_C)
             unselect_all_tokens();
       }
    }
@@ -927,7 +927,7 @@ static void main_loop(ALLEGRO_EVENT_QUEUE *queue)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_EVENT_QUEUE *queue;
 
    (void)argc;
    (void)argv;
@@ -942,7 +942,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    init_platform_specific();
 
-   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_flags(A5O_MIN_LINEAR | A5O_MAG_LINEAR);
 
    display = al_create_display(screen_w, screen_h);
    if (!display) {

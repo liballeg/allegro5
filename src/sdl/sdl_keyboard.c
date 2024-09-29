@@ -16,38 +16,38 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
 
-ALLEGRO_DEBUG_CHANNEL("SDL")
+A5O_DEBUG_CHANNEL("SDL")
 
-typedef struct ALLEGRO_KEYBOARD_SDL
+typedef struct A5O_KEYBOARD_SDL
 {
-   ALLEGRO_KEYBOARD keyboard;
+   A5O_KEYBOARD keyboard;
    int table[1024];
    int inverse[1024];
    int unicode[1024];
    int inverse_unicode[1024];
    bool create_extra_char[1024];
-   ALLEGRO_DISPLAY *display;
-} ALLEGRO_KEYBOARD_SDL;
+   A5O_DISPLAY *display;
+} A5O_KEYBOARD_SDL;
 
-static ALLEGRO_KEYBOARD_DRIVER *vt;
-static ALLEGRO_KEYBOARD_SDL *keyboard;
+static A5O_KEYBOARD_DRIVER *vt;
+static A5O_KEYBOARD_SDL *keyboard;
 
 
 static unsigned int get_modifiers(int modifiers)
 {
    int result = 0;
 
-   if (modifiers & KMOD_LSHIFT) result |= ALLEGRO_KEYMOD_SHIFT;
-   if (modifiers & KMOD_RSHIFT) result |= ALLEGRO_KEYMOD_SHIFT;
-   if (modifiers & KMOD_LCTRL) result |= ALLEGRO_KEYMOD_CTRL;
-   if (modifiers & KMOD_RCTRL) result |= ALLEGRO_KEYMOD_CTRL;  
-   if (modifiers & KMOD_LALT) result |= ALLEGRO_KEYMOD_ALT;
-   if (modifiers & KMOD_RALT) result |= ALLEGRO_KEYMOD_ALT;
-   if (modifiers & KMOD_LGUI) result |= ALLEGRO_KEYMOD_LWIN;
-   if (modifiers & KMOD_RGUI) result |= ALLEGRO_KEYMOD_RWIN;
-   if (modifiers & KMOD_NUM) result |= ALLEGRO_KEYMOD_NUMLOCK;
-   if (modifiers & KMOD_CAPS) result |= ALLEGRO_KEYMOD_CAPSLOCK;
-   if (modifiers & KMOD_MODE) result |= ALLEGRO_KEYMOD_ALTGR;
+   if (modifiers & KMOD_LSHIFT) result |= A5O_KEYMOD_SHIFT;
+   if (modifiers & KMOD_RSHIFT) result |= A5O_KEYMOD_SHIFT;
+   if (modifiers & KMOD_LCTRL) result |= A5O_KEYMOD_CTRL;
+   if (modifiers & KMOD_RCTRL) result |= A5O_KEYMOD_CTRL;  
+   if (modifiers & KMOD_LALT) result |= A5O_KEYMOD_ALT;
+   if (modifiers & KMOD_RALT) result |= A5O_KEYMOD_ALT;
+   if (modifiers & KMOD_LGUI) result |= A5O_KEYMOD_LWIN;
+   if (modifiers & KMOD_RGUI) result |= A5O_KEYMOD_RWIN;
+   if (modifiers & KMOD_NUM) result |= A5O_KEYMOD_NUMLOCK;
+   if (modifiers & KMOD_CAPS) result |= A5O_KEYMOD_CAPSLOCK;
+   if (modifiers & KMOD_MODE) result |= A5O_KEYMOD_ALTGR;
 
    return result;
 }
@@ -65,8 +65,8 @@ void _al_sdl_keyboard_event(SDL_Event *e)
       }
       return;
    }
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = &keyboard->keyboard.es;
+   A5O_EVENT event;
+   A5O_EVENT_SOURCE *es = &keyboard->keyboard.es;
    _al_event_source_lock(es);
    event.keyboard.timestamp = al_get_time();
    event.keyboard.display = NULL;
@@ -74,14 +74,14 @@ void _al_sdl_keyboard_event(SDL_Event *e)
    event.keyboard.repeat = false;
 
    if (e->type == SDL_TEXTINPUT) {
-      ALLEGRO_USTR_INFO info;
-      ALLEGRO_USTR const *u = al_ref_cstr(&info, e->text.text);
+      A5O_USTR_INFO info;
+      A5O_USTR const *u = al_ref_cstr(&info, e->text.text);
       int pos = 0;
       while (true) {
          int32_t c = al_ustr_get_next(u, &pos);
          if (c <= 0)
             break;
-         event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+         event.keyboard.type = A5O_EVENT_KEY_CHAR;
          event.keyboard.keycode = c < 1024 ? keyboard->inverse_unicode[c] : 0;
          event.keyboard.unichar = c;
          event.keyboard.display = _al_sdl_find_display(e->text.windowID);
@@ -90,7 +90,7 @@ void _al_sdl_keyboard_event(SDL_Event *e)
 
    }
    else if (e->type == SDL_KEYDOWN) {
-      event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
+      event.keyboard.type = A5O_EVENT_KEY_DOWN;
       event.keyboard.keycode = keyboard->table[e->key.keysym.scancode];
       event.keyboard.unichar = keyboard->unicode[e->key.keysym.scancode];
       event.keyboard.display = _al_sdl_find_display(e->key.windowID);
@@ -99,12 +99,12 @@ void _al_sdl_keyboard_event(SDL_Event *e)
       }
 
       if (keyboard->create_extra_char[e->key.keysym.scancode]) {
-         event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+         event.keyboard.type = A5O_EVENT_KEY_CHAR;
          _al_event_source_emit_event(es, &event);
       }
    }
    else if (e->type == SDL_KEYUP) {
-      event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+      event.keyboard.type = A5O_EVENT_KEY_UP;
       event.keyboard.keycode = keyboard->table[e->key.keysym.scancode];
       event.keyboard.unichar = keyboard->unicode[e->key.keysym.scancode];
       event.keyboard.display = _al_sdl_find_display(e->key.windowID);
@@ -119,7 +119,7 @@ void _al_sdl_keyboard_event(SDL_Event *e)
 static void adde(int sdl_scancode, int allegro_keycode, int unicode, bool extra)
 {
    if (sdl_scancode >= 1024) {
-      ALLEGRO_WARN("Cannot map SDL scancode %d.\n", sdl_scancode);
+      A5O_WARN("Cannot map SDL scancode %d.\n", sdl_scancode);
       return;
    }
    keyboard->table[sdl_scancode] = allegro_keycode;
@@ -134,9 +134,9 @@ static void add(int sdl_scancode, int allegro_keycode, int unicode)
    adde(sdl_scancode, allegro_keycode, unicode, false);
 }
 
-#define ADD_SAME(X, c) add(SDL_SCANCODE_##X, ALLEGRO_KEY_##X, c)
-#define ADD_SAMEC(X) add(SDL_SCANCODE_##X, ALLEGRO_KEY_##X, tolower(#X[0]))
-#define ADD_SAMEE(X, c) adde(SDL_SCANCODE_##X, ALLEGRO_KEY_##X, c, true)
+#define ADD_SAME(X, c) add(SDL_SCANCODE_##X, A5O_KEY_##X, c)
+#define ADD_SAMEC(X) add(SDL_SCANCODE_##X, A5O_KEY_##X, tolower(#X[0]))
+#define ADD_SAMEE(X, c) adde(SDL_SCANCODE_##X, A5O_KEY_##X, c, true)
 
 static bool sdl_init_keyboard(void)
 {
@@ -180,22 +180,22 @@ static bool sdl_init_keyboard(void)
    ADD_SAMEC(8);
    ADD_SAMEC(9);
    ADD_SAMEC(0);
-   adde(SDL_SCANCODE_RETURN, ALLEGRO_KEY_ENTER, 13, true);
+   adde(SDL_SCANCODE_RETURN, A5O_KEY_ENTER, 13, true);
    ADD_SAMEE(ESCAPE, 27);
    ADD_SAMEE(BACKSPACE, 8);
    ADD_SAMEE(TAB, 9);
    ADD_SAME(SPACE, ' ');
    ADD_SAME(MINUS, '-');
    ADD_SAME(EQUALS, '=');
-   add(SDL_SCANCODE_LEFTBRACKET, ALLEGRO_KEY_OPENBRACE, '[');
-   add(SDL_SCANCODE_RIGHTBRACKET, ALLEGRO_KEY_CLOSEBRACE, ']');
+   add(SDL_SCANCODE_LEFTBRACKET, A5O_KEY_OPENBRACE, '[');
+   add(SDL_SCANCODE_RIGHTBRACKET, A5O_KEY_CLOSEBRACE, ']');
    ADD_SAME(BACKSLASH, '\\');
    add(SDL_SCANCODE_NONUSHASH, 0, '#');
    ADD_SAME(SEMICOLON, ';');
-   add(SDL_SCANCODE_APOSTROPHE, ALLEGRO_KEY_QUOTE, '\'');
-   add(SDL_SCANCODE_GRAVE, ALLEGRO_KEY_TILDE, '~');
+   add(SDL_SCANCODE_APOSTROPHE, A5O_KEY_QUOTE, '\'');
+   add(SDL_SCANCODE_GRAVE, A5O_KEY_TILDE, '~');
    ADD_SAME(COMMA, ',');
-   add(SDL_SCANCODE_PERIOD, ALLEGRO_KEY_FULLSTOP, '.');
+   add(SDL_SCANCODE_PERIOD, A5O_KEY_FULLSTOP, '.');
    ADD_SAME(SLASH, '/');
    ADD_SAME(CAPSLOCK, 0);
    ADD_SAMEE(F1, 0);
@@ -215,35 +215,35 @@ static bool sdl_init_keyboard(void)
    ADD_SAME(PAUSE, 0);
    ADD_SAMEE(INSERT, 0);
    ADD_SAMEE(HOME, 0);
-   add(SDL_SCANCODE_PAGEUP, ALLEGRO_KEY_PGUP, 0);
+   add(SDL_SCANCODE_PAGEUP, A5O_KEY_PGUP, 0);
    ADD_SAMEE(DELETE, 0);
    ADD_SAMEE(END, 0);
-   add(SDL_SCANCODE_PAGEDOWN, ALLEGRO_KEY_PGDN, 0);
+   add(SDL_SCANCODE_PAGEDOWN, A5O_KEY_PGDN, 0);
    ADD_SAMEE(RIGHT, 0);
    ADD_SAMEE(LEFT, 0);
    ADD_SAMEE(DOWN, 0);
    ADD_SAMEE(UP, 0);
-   add(SDL_SCANCODE_NUMLOCKCLEAR, ALLEGRO_KEY_NUMLOCK, 0);
-   add(SDL_SCANCODE_KP_DIVIDE, ALLEGRO_KEY_PAD_SLASH, '/');
-   add(SDL_SCANCODE_KP_MULTIPLY, ALLEGRO_KEY_PAD_ASTERISK, '*');
-   add(SDL_SCANCODE_KP_MINUS, ALLEGRO_KEY_PAD_MINUS, '-');
-   add(SDL_SCANCODE_KP_PLUS, ALLEGRO_KEY_PAD_PLUS, '+');
-   add(SDL_SCANCODE_KP_ENTER, ALLEGRO_KEY_PAD_ENTER, 13);
-   add(SDL_SCANCODE_KP_1, ALLEGRO_KEY_PAD_1, '1');
-   add(SDL_SCANCODE_KP_2, ALLEGRO_KEY_PAD_2, '2');
-   add(SDL_SCANCODE_KP_3, ALLEGRO_KEY_PAD_3, '3');
-   add(SDL_SCANCODE_KP_4, ALLEGRO_KEY_PAD_4, '4');
-   add(SDL_SCANCODE_KP_5, ALLEGRO_KEY_PAD_5, '5');
-   add(SDL_SCANCODE_KP_6, ALLEGRO_KEY_PAD_6, '6');
-   add(SDL_SCANCODE_KP_7, ALLEGRO_KEY_PAD_7, '7');
-   add(SDL_SCANCODE_KP_8, ALLEGRO_KEY_PAD_8, '8');
-   add(SDL_SCANCODE_KP_9, ALLEGRO_KEY_PAD_9, '9');
-   add(SDL_SCANCODE_KP_0, ALLEGRO_KEY_PAD_0, '0');
-   add(SDL_SCANCODE_KP_PERIOD, ALLEGRO_KEY_PAD_DELETE, 0);
+   add(SDL_SCANCODE_NUMLOCKCLEAR, A5O_KEY_NUMLOCK, 0);
+   add(SDL_SCANCODE_KP_DIVIDE, A5O_KEY_PAD_SLASH, '/');
+   add(SDL_SCANCODE_KP_MULTIPLY, A5O_KEY_PAD_ASTERISK, '*');
+   add(SDL_SCANCODE_KP_MINUS, A5O_KEY_PAD_MINUS, '-');
+   add(SDL_SCANCODE_KP_PLUS, A5O_KEY_PAD_PLUS, '+');
+   add(SDL_SCANCODE_KP_ENTER, A5O_KEY_PAD_ENTER, 13);
+   add(SDL_SCANCODE_KP_1, A5O_KEY_PAD_1, '1');
+   add(SDL_SCANCODE_KP_2, A5O_KEY_PAD_2, '2');
+   add(SDL_SCANCODE_KP_3, A5O_KEY_PAD_3, '3');
+   add(SDL_SCANCODE_KP_4, A5O_KEY_PAD_4, '4');
+   add(SDL_SCANCODE_KP_5, A5O_KEY_PAD_5, '5');
+   add(SDL_SCANCODE_KP_6, A5O_KEY_PAD_6, '6');
+   add(SDL_SCANCODE_KP_7, A5O_KEY_PAD_7, '7');
+   add(SDL_SCANCODE_KP_8, A5O_KEY_PAD_8, '8');
+   add(SDL_SCANCODE_KP_9, A5O_KEY_PAD_9, '9');
+   add(SDL_SCANCODE_KP_0, A5O_KEY_PAD_0, '0');
+   add(SDL_SCANCODE_KP_PERIOD, A5O_KEY_PAD_DELETE, 0);
    add(SDL_SCANCODE_NONUSBACKSLASH, 0, '\\');
    add(SDL_SCANCODE_APPLICATION, 0, 0);
    add(SDL_SCANCODE_POWER, 0, 0);
-   add(SDL_SCANCODE_KP_EQUALS, ALLEGRO_KEY_PAD_EQUALS, '=');
+   add(SDL_SCANCODE_KP_EQUALS, A5O_KEY_PAD_EQUALS, '=');
    add(SDL_SCANCODE_F13, 0, 0);
    add(SDL_SCANCODE_F14, 0, 0);
    add(SDL_SCANCODE_F15, 0, 0);
@@ -350,12 +350,12 @@ static bool sdl_init_keyboard(void)
    add(SDL_SCANCODE_KP_HEXADECIMAL, 0, 0);
    ADD_SAME(LCTRL, 0);
    ADD_SAME(LSHIFT, 0);
-   add(SDL_SCANCODE_LALT, ALLEGRO_KEY_ALT, 0);
-   add(SDL_SCANCODE_LGUI, ALLEGRO_KEY_LWIN, 0);
+   add(SDL_SCANCODE_LALT, A5O_KEY_ALT, 0);
+   add(SDL_SCANCODE_LGUI, A5O_KEY_LWIN, 0);
    ADD_SAME(RCTRL, 0);
    ADD_SAME(RSHIFT, 0);
-   add(SDL_SCANCODE_RALT, ALLEGRO_KEY_ALTGR, 0);
-   add(SDL_SCANCODE_RGUI, ALLEGRO_KEY_RWIN, 0);
+   add(SDL_SCANCODE_RALT, A5O_KEY_ALTGR, 0);
+   add(SDL_SCANCODE_RGUI, A5O_KEY_RWIN, 0);
    add(SDL_SCANCODE_MODE, 0, 0);
    add(SDL_SCANCODE_AUDIONEXT, 0, 0);
    add(SDL_SCANCODE_AUDIOPREV, 0, 0);
@@ -392,7 +392,7 @@ static void sdl_exit_keyboard(void)
 {
 }
 
-static ALLEGRO_KEYBOARD *sdl_get_keyboard(void)
+static A5O_KEYBOARD *sdl_get_keyboard(void)
 {
    return &keyboard->keyboard;
 }
@@ -408,10 +408,10 @@ static char const *sdl_keycode_to_name(int keycode)
    return SDL_GetScancodeName(keyboard->inverse[keycode]);
 }
 
-static void sdl_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
+static void sdl_get_keyboard_state(A5O_KEYBOARD_STATE *ret_state)
 {
    int i, n;
-   ALLEGRO_SYSTEM_INTERFACE *sdl = _al_sdl_system_driver();
+   A5O_SYSTEM_INTERFACE *sdl = _al_sdl_system_driver();
    sdl->heartbeat();
    const Uint8 *s = SDL_GetKeyboardState(&n);
    for (i = 0; i < n; i++) {
@@ -428,7 +428,7 @@ static void sdl_clear_keyboard_state(void)
    return;
 }
 
-ALLEGRO_KEYBOARD_DRIVER *_al_sdl_keyboard_driver(void)
+A5O_KEYBOARD_DRIVER *_al_sdl_keyboard_driver(void)
 {
    if (vt)
       return vt;

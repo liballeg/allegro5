@@ -21,7 +21,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_haptic.h"
 
-#ifndef ALLEGRO_WINDOWS
+#ifndef A5O_WINDOWS
 #error something is wrong with the makefile
 #endif
 

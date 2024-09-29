@@ -12,7 +12,7 @@
 #include "allegro5/internal/aintern_xsystem.h"
 #include "allegro5/internal/aintern_xdnd.h"
 
-ALLEGRO_DEBUG_CHANNEL("xdnd")
+A5O_DEBUG_CHANNEL("xdnd")
 
 typedef struct {
     unsigned char *data;
@@ -22,7 +22,7 @@ typedef struct {
 
 static int last_drop_x, last_drop_y;
 
-void _al_display_xglx_init_dnd_atoms(ALLEGRO_SYSTEM_XGLX *s)
+void _al_display_xglx_init_dnd_atoms(A5O_SYSTEM_XGLX *s)
 {
    #define GET_ATOM(name) s->dnd_info.name = XInternAtom(s->x11display, #name, False)
    GET_ATOM(XdndEnter);
@@ -94,7 +94,7 @@ static Atom pick_target_from_atoms(Display *disp, Atom a0, Atom a1, Atom a2)
    return pick_target(disp, atom, count);
 }
 
-static void x11_reply(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *allegro_display,
+static void x11_reply(A5O_SYSTEM_XGLX *s, A5O_DISPLAY_XGLX *allegro_display,
    Window window, Atom message_type)
 {
    XClientMessageEvent m;
@@ -134,15 +134,15 @@ static void x11_reply(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *allegro_disp
    XSync(s->x11display, 0);
 }
 
-static void _send_event(ALLEGRO_DISPLAY_XGLX *allegro_display, char *text,
+static void _send_event(A5O_DISPLAY_XGLX *allegro_display, char *text,
       bool is_file, int row, bool is_complete)
 {
-   ALLEGRO_EVENT_SOURCE *es = &allegro_display->display.es;
+   A5O_EVENT_SOURCE *es = &allegro_display->display.es;
    _al_event_source_lock(es);
 
    if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT event;
-      event.drop.type = ALLEGRO_EVENT_DROP;
+      A5O_EVENT event;
+      event.drop.type = A5O_EVENT_DROP;
       event.drop.timestamp = al_get_time();
       event.drop.x = last_drop_x;
       event.drop.y = last_drop_y;
@@ -158,13 +158,13 @@ static void _send_event(ALLEGRO_DISPLAY_XGLX *allegro_display, char *text,
 /* Return true if the event is handled as a DND related event else
  * false.
  */
-bool _al_display_xglx_handle_drag_and_drop(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *allegro_display, XEvent *xevent)
+bool _al_display_xglx_handle_drag_and_drop(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *allegro_display, XEvent *xevent)
 {
-   if (!(allegro_display->display.flags & ALLEGRO_DRAG_AND_DROP))
+   if (!(allegro_display->display.flags & A5O_DRAG_AND_DROP))
       return false;
    if (xevent->xclient.message_type == s->dnd_info.XdndEnter) {
-      ALLEGRO_DEBUG("Xdnd entered\n");
+      A5O_DEBUG("Xdnd entered\n");
       bool use_list = xevent->xclient.data.l[1] & 1;
       s->dnd_info.xdnd_source = xevent->xclient.data.l[0];
 
@@ -180,7 +180,7 @@ bool _al_display_xglx_handle_drag_and_drop(ALLEGRO_SYSTEM_XGLX *s,
             xevent->xclient.data.l[4]);
       }
       if (s->dnd_info.xdnd_req == None) {
-         ALLEGRO_WARN("Xdnd action unsupported\n");
+         A5O_WARN("Xdnd action unsupported\n");
       }
       return true;
    }
@@ -205,9 +205,9 @@ bool _al_display_xglx_handle_drag_and_drop(ALLEGRO_SYSTEM_XGLX *s,
       if (s->dnd_info.xdnd_req == None) {
          x11_reply(s, allegro_display, xevent->xclient.data.l[0], s->dnd_info.XdndFinished);
          _send_event(allegro_display, NULL, false, 0, true);
-         ALLEGRO_DEBUG("Xdnd aborted\n");
+         A5O_DEBUG("Xdnd aborted\n");
       } else {
-         ALLEGRO_DEBUG("Xdnd received, converting to selection\n");
+         A5O_DEBUG("Xdnd received, converting to selection\n");
          int xdnd_version = xevent->xclient.data.l[1] >> 24;
          if(xdnd_version >= 1) {
             XConvertSelection(s->x11display, s->dnd_info.XdndSelection,
@@ -222,7 +222,7 @@ bool _al_display_xglx_handle_drag_and_drop(ALLEGRO_SYSTEM_XGLX *s,
    }
    else if (xevent->xclient.message_type == s->dnd_info.XdndLeave) {
       _send_event(allegro_display, NULL, false, 0, true);
-      ALLEGRO_DEBUG("Xdnd cancelled\n");
+      A5O_DEBUG("Xdnd cancelled\n");
    }
    return false;
 }
@@ -277,10 +277,10 @@ static char *_uri_to_filename(char *uri)
    return uri;
 }
 
-bool _al_display_xglx_handle_drag_and_drop_selection(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY_XGLX *allegro_display, XEvent *xevent)
+bool _al_display_xglx_handle_drag_and_drop_selection(A5O_SYSTEM_XGLX *s,
+   A5O_DISPLAY_XGLX *allegro_display, XEvent *xevent)
 {
-   if (!(allegro_display->display.flags & ALLEGRO_DRAG_AND_DROP))
+   if (!(allegro_display->display.flags & A5O_DRAG_AND_DROP))
       return false;
    Atom target = xevent->xselection.target;
 
@@ -288,17 +288,17 @@ bool _al_display_xglx_handle_drag_and_drop_selection(ALLEGRO_SYSTEM_XGLX *s,
       Property p;
       read_property(&p, s->x11display, allegro_display->window, s->dnd_info.PRIMARY);
       if (p.format == 8) {
-         ALLEGRO_USTR *text = al_ustr_new((char *)p.data);
+         A5O_USTR *text = al_ustr_new((char *)p.data);
          char *name = XGetAtomName(s->x11display, target);
          if (name) {
-            ALLEGRO_INFO("Xdnd data received, format '%s'\n", name);
+            A5O_INFO("Xdnd data received, format '%s'\n", name);
             int pos = 0;
             int row = 0;
             bool complete = false;
             while (!complete) {
                int pos2 = al_ustr_find_set_cstr(text, pos, "\r\n");
                if (pos2 == -1) pos2 = al_ustr_size(text);
-               ALLEGRO_USTR *token = al_ustr_dup_substr(text, pos, pos2);
+               A5O_USTR *token = al_ustr_dup_substr(text, pos, pos2);
                if (al_ustr_get(text, pos2) == '\r') al_ustr_next(text, &pos2);
                if (al_ustr_get(text, pos2) == '\n') al_ustr_next(text, &pos2);
                if (al_ustr_get(text, pos2) == -1) complete = true;
@@ -312,7 +312,7 @@ bool _al_display_xglx_handle_drag_and_drop_selection(ALLEGRO_SYSTEM_XGLX *s,
                   _send_event(allegro_display, filename, true, row, complete);
                }
                else {
-                  ALLEGRO_WARN("Attempt to drop unknown format '%s'\n", name);
+                  A5O_WARN("Attempt to drop unknown format '%s'\n", name);
                }
                al_ustr_free(token);
                row++;
@@ -327,16 +327,16 @@ bool _al_display_xglx_handle_drag_and_drop_selection(ALLEGRO_SYSTEM_XGLX *s,
       if (p.data) XFree(p.data);
       x11_reply(s, allegro_display, s->dnd_info.xdnd_source,
          s->dnd_info.XdndFinished);
-      ALLEGRO_DEBUG("Xdnd completed\n");
+      A5O_DEBUG("Xdnd completed\n");
       return true;
    }
    return false;
 }
 
-void _al_xwin_accept_drag_and_drop(ALLEGRO_DISPLAY *display, bool accept)
+void _al_xwin_accept_drag_and_drop(A5O_DISPLAY *display, bool accept)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)display;
 
    Atom XdndAware = XInternAtom(system->x11display, "XdndAware", False);
 

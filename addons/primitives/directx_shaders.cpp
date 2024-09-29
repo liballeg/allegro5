@@ -24,19 +24,19 @@
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/platform/alplatf.h"
 
-#ifdef ALLEGRO_CFG_D3D
+#ifdef A5O_CFG_D3D
 
 #include "allegro5/allegro_direct3d.h"
 #include "allegro5/internal/aintern_prim_directx.h"
 
 #include "precompiled_shaders.inc"
 
-void _al_create_primitives_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
+void _al_create_primitives_shader(void* dev, A5O_VERTEX_DECL* decl)
 {
    LPDIRECT3DDEVICE9 device = (LPDIRECT3DDEVICE9)dev;
    LPDIRECT3DVERTEXSHADER9 ret = 0;
 
-   ALLEGRO_VERTEX_ELEMENT* e;
+   A5O_VERTEX_ELEMENT* e;
 
    int position = 0;
    int texture = 0;
@@ -61,27 +61,27 @@ void _al_create_primitives_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
       }
    };
 
-   e = &decl->elements[ALLEGRO_PRIM_POSITION];
+   e = &decl->elements[A5O_PRIM_POSITION];
    if (e->attribute) {
       switch(e->storage) {
-         case ALLEGRO_PRIM_SHORT_2:
-         case ALLEGRO_PRIM_FLOAT_2:
+         case A5O_PRIM_SHORT_2:
+         case A5O_PRIM_FLOAT_2:
             position = 1;
          break;
-         case ALLEGRO_PRIM_FLOAT_3:
+         case A5O_PRIM_FLOAT_3:
             position = 2;
          break;
       }
    }
 
-   e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+   e = &decl->elements[A5O_PRIM_TEX_COORD];
    if(!e->attribute)
-      e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+      e = &decl->elements[A5O_PRIM_TEX_COORD_PIXEL];
    if(e->attribute) {
       texture = 1;
    }
 
-   e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
+   e = &decl->elements[A5O_PRIM_COLOR_ATTR];
    if(e->attribute) {
       color = 1;
    }
@@ -172,7 +172,7 @@ static void setup_transforms(IDirect3DDevice9* device)
    IDirect3DDevice9_SetVertexShaderConstantF(device, 0, (float*)&matWorldViewProj, 4);
 }
 
-void _al_setup_primitives_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl)
+void _al_setup_primitives_shader(void* dev, const A5O_VERTEX_DECL* decl)
 {
    IDirect3DDevice9* device = (IDirect3DDevice9*)dev;
    setup_transforms(device);
@@ -186,6 +186,6 @@ void _al_setup_default_primitives_shader(void* dev, void* shader)
    IDirect3DDevice9_SetVertexShader(device, (LPDIRECT3DVERTEXSHADER9)shader);
 }
 
-#endif /* ALLEGRO_CFG_D3D */
+#endif /* A5O_CFG_D3D */
 
 /* vim: set sts=3 sw=3 et: */

@@ -19,31 +19,31 @@
 #include "allegro5/internal/aintern_memdraw.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include "allegro5/internal/aintern_android.h"
 #endif
 
 #include "ogl_helpers.h"
 
-ALLEGRO_DEBUG_CHANNEL("opengl")
+A5O_DEBUG_CHANNEL("opengl")
 
 /* FIXME: For some reason x86_64 Android crashes for me when calling
  * glBlendColor - so adding this hack to disable it.
  */
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #if defined(__x86_64__) || defined(__i686__)
-#define ALLEGRO_ANDROID_HACK_X86_64
+#define A5O_ANDROID_HACK_X86_64
 #endif
 #endif
 
-static void try_const_color(ALLEGRO_DISPLAY *ogl_disp, ALLEGRO_COLOR *c)
+static void try_const_color(A5O_DISPLAY *ogl_disp, A5O_COLOR *c)
 {
-   #ifdef ALLEGRO_CFG_OPENGLES
-      #ifndef ALLEGRO_CFG_OPENGLES2
+   #ifdef A5O_CFG_OPENGLES
+      #ifndef A5O_CFG_OPENGLES2
          return;
       #endif
       // Only OpenGL ES 2.0 has glBlendColor
-      if (ogl_disp->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_2_0) {
+      if (ogl_disp->ogl_extras->ogl_info.version < _A5O_OPENGL_VERSION_2_0) {
          return;
       }
    #else
@@ -52,15 +52,15 @@ static void try_const_color(ALLEGRO_DISPLAY *ogl_disp, ALLEGRO_COLOR *c)
    glBlendColor(c->r, c->g, c->b, c->a);
 }
 
-bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
+bool _al_opengl_set_blender(A5O_DISPLAY *ogl_disp)
 {
    int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR const_color;
+   A5O_COLOR const_color;
    const int blend_modes[10] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
       GL_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_SRC_COLOR,
       GL_ONE_MINUS_DST_COLOR,
-#if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
+#if defined(A5O_CFG_OPENGLES2) || !defined(A5O_CFG_OPENGLES)
       GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR
 #else
       GL_ONE, GL_ONE
@@ -76,25 +76,25 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
       &op_alpha, &src_alpha, &dst_alpha);
    const_color = al_get_bitmap_blend_color();
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
-#if !defined ALLEGRO_CFG_OPENGLES
-   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
+#if !defined A5O_CFG_OPENGLES
+   if (ogl_disp->ogl_extras->ogl_info.version >= _A5O_OPENGL_VERSION_1_4) {
 #else
    /* FIXME: At this time (09/2014) there are a lot of Android phones that
     * don't support glBlendFuncSeparate even though they claim OpenGL ES 2.0
     * support. Rather than not work on 20-25% of phones, we just don't support
     * separate blending on Android for now.
     */
-#if defined ALLEGRO_ANDROID && !defined ALLEGRO_CFG_OPENGLES3
+#if defined A5O_ANDROID && !defined A5O_CFG_OPENGLES3
    if (false) {
 #else
-   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
+   if (ogl_disp->ogl_extras->ogl_info.version >= _A5O_OPENGL_VERSION_2_0) {
 #endif
 #endif
       glEnable(GL_BLEND);
       try_const_color(ogl_disp, &const_color);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
          blend_modes[src_alpha], blend_modes[dst_alpha]);
-      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
+      if (ogl_disp->ogl_extras->ogl_info.version >= _A5O_OPENGL_VERSION_2_0) {
          glBlendEquationSeparate(
             blend_equations[op],
             blend_equations[op_alpha]);
@@ -110,7 +110,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
       else {
-         ALLEGRO_ERROR("Blender unsupported with this OpenGL version (%d %d %d %d %d %d)\n",
+         A5O_ERROR("Blender unsupported with this OpenGL version (%d %d %d %d %d %d)\n",
             op, src_color, dst_color, op_alpha, src_alpha, dst_alpha);
          return false;
       }
@@ -122,11 +122,11 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
  * based on what the user has set up. FIXME: OpenGL only right now.
  */
 
-static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
+static void vert_ptr_on(A5O_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
 /* Only use this shader stuff with GLES2+ or equivalent */
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.pos_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
@@ -134,33 +134,33 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer(n, t, stride, v);
 #endif
    }
 }
 
-static void vert_ptr_off(ALLEGRO_DISPLAY *display)
+static void vert_ptr_off(A5O_DISPLAY *display)
 {
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.pos_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
       }
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glDisableClientState(GL_VERTEX_ARRAY);
 #endif
    }
 }
 
-static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
+static void color_ptr_on(A5O_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.color_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
@@ -168,33 +168,33 @@ static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, v
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(n, t, stride, v);
 #endif
    }
 }
 
-static void color_ptr_off(ALLEGRO_DISPLAY *display)
+static void color_ptr_off(A5O_DISPLAY *display)
 {
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.color_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
       }
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glDisableClientState(GL_COLOR_ARRAY);
 #endif
    }
 }
 
-static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
+static void tex_ptr_on(A5O_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
@@ -202,34 +202,34 @@ static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, voi
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       glTexCoordPointer(n, t, stride, v);
 #endif
    }
 }
 
-static void tex_ptr_off(ALLEGRO_DISPLAY *display)
+static void tex_ptr_off(A5O_DISPLAY *display)
 {
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
       }
 #endif
    }
    else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
    }
 }
 
-static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
+static void ogl_clear(A5O_DISPLAY *d, A5O_COLOR *color)
 {
-   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target;
+   A5O_DISPLAY *ogl_disp = (void *)d;
+   A5O_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP_EXTRA_OPENGL *ogl_target;
    float r, g, b, a;
 
    if (target->parent)
@@ -252,11 +252,11 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 }
 
 
-static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
-   ALLEGRO_COLOR *color)
+static void ogl_draw_pixel(A5O_DISPLAY *d, float x, float y,
+   A5O_COLOR *color)
 {
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target;
+   A5O_BITMAP *target = al_get_target_bitmap();
+   A5O_BITMAP_EXTRA_OPENGL *ogl_target;
    GLfloat vert[2];
    GLfloat color_array[4];
 
@@ -296,28 +296,28 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    color_ptr_off(d);
 }
 
-static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp, 
+static void* ogl_prepare_vertex_cache(A5O_DISPLAY* disp, 
                                       int num_new_vertices)
 {
    disp->num_cache_vertices += num_new_vertices;
    if (!disp->vertex_cache) {
-      disp->vertex_cache = al_malloc(num_new_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
+      disp->vertex_cache = al_malloc(num_new_vertices * sizeof(A5O_OGL_BITMAP_VERTEX));
       
       disp->vertex_cache_size = num_new_vertices;
    } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
       disp->vertex_cache = al_realloc(disp->vertex_cache, 
-                              2 * disp->num_cache_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
+                              2 * disp->num_cache_vertices * sizeof(A5O_OGL_BITMAP_VERTEX));
                               
       disp->vertex_cache_size = 2 * disp->num_cache_vertices;
    }
-   return (ALLEGRO_OGL_BITMAP_VERTEX*)disp->vertex_cache + 
+   return (A5O_OGL_BITMAP_VERTEX*)disp->vertex_cache + 
          (disp->num_cache_vertices - num_new_vertices);
 }
 
-static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
+static void ogl_flush_vertex_cache(A5O_DISPLAY *disp)
 {
    GLuint current_texture;
-   ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
+   A5O_OGL_EXTRAS *o = disp->ogl_extras;
    (void)o; /* not used in all ports */
    
    if (!disp->vertex_cache)
@@ -330,8 +330,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       return;
    }
 
-   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (disp->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (disp->ogl_extras->varlocs.use_tex_loc >= 0) {
          glUniform1i(disp->ogl_extras->varlocs.use_tex_loc, 1);
       }
@@ -346,8 +346,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
    if (current_texture != disp->cache_texture) {
-      if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+      if (disp->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
          /* Use texture unit 0 */
          glActiveTexture(GL_TEXTURE0);
          if (disp->ogl_extras->varlocs.tex_loc >= 0)
@@ -357,21 +357,21 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
 
-#if !defined(ALLEGRO_CFG_OPENGLES) && !defined(ALLEGRO_MACOSX)
-   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
+#if !defined(A5O_CFG_OPENGLES) && !defined(A5O_MACOSX)
+   if (disp->flags & A5O_PROGRAMMABLE_PIPELINE) {
+      int stride = sizeof(A5O_OGL_BITMAP_VERTEX);
       int bytes = disp->num_cache_vertices * stride;
 
       /* We create the VAO and VBO on first use. */
       if (o->vao == 0) {
          glGenVertexArrays(1, &o->vao);
-         ALLEGRO_DEBUG("new VAO: %u\n", o->vao);
+         A5O_DEBUG("new VAO: %u\n", o->vao);
       }
       glBindVertexArray(o->vao);
 
       if (o->vbo == 0) {
          glGenBuffers(1, &o->vbo);
-         ALLEGRO_DEBUG("new VBO: %u\n", o->vbo);
+         A5O_DEBUG("new VBO: %u\n", o->vbo);
       }
       glBindBuffer(GL_ARRAY_BUFFER, o->vbo);
 
@@ -383,34 +383,34 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
        */
       if (o->varlocs.pos_loc >= 0)  {
          glVertexAttribPointer(o->varlocs.pos_loc, 3, GL_FLOAT, false, stride,
-            (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
+            (void *)offsetof(A5O_OGL_BITMAP_VERTEX, x));
          glEnableVertexAttribArray(o->varlocs.pos_loc);
       }
 
       if (o->varlocs.texcoord_loc >= 0) {
          glVertexAttribPointer(o->varlocs.texcoord_loc, 2, GL_FLOAT, false, stride,
-            (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
+            (void *)offsetof(A5O_OGL_BITMAP_VERTEX, tx));
          glEnableVertexAttribArray(o->varlocs.texcoord_loc);
       }
       
       if (o->varlocs.color_loc >= 0) {
          glVertexAttribPointer(o->varlocs.color_loc, 4, GL_FLOAT, false, stride,
-            (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
+            (void *)offsetof(A5O_OGL_BITMAP_VERTEX, r));
          glEnableVertexAttribArray(o->varlocs.color_loc);
       }
    }
    else
 #endif
    {
-      vert_ptr_on(disp, 3, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
-         (char *)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
-      tex_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
-         (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
-      color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
-         (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
+      vert_ptr_on(disp, 3, GL_FLOAT, sizeof(A5O_OGL_BITMAP_VERTEX),
+         (char *)(disp->vertex_cache) + offsetof(A5O_OGL_BITMAP_VERTEX, x));
+      tex_ptr_on(disp, 2, GL_FLOAT, sizeof(A5O_OGL_BITMAP_VERTEX),
+         (char*)(disp->vertex_cache) + offsetof(A5O_OGL_BITMAP_VERTEX, tx));
+      color_ptr_on(disp, 4, GL_FLOAT, sizeof(A5O_OGL_BITMAP_VERTEX),
+         (char*)(disp->vertex_cache) + offsetof(A5O_OGL_BITMAP_VERTEX, r));
 
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
-      if (!(disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE))
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
+      if (!(disp->flags & A5O_PROGRAMMABLE_PIPELINE))
          glDisableClientState(GL_NORMAL_ARRAY);
 #endif
    }
@@ -422,13 +422,13 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    {
       int e = glGetError();
       if (e) {
-         ALLEGRO_WARN("glDrawArrays failed: %s\n", _al_gl_error_string(e));
+         A5O_WARN("glDrawArrays failed: %s\n", _al_gl_error_string(e));
       }
    }
 #endif
 
-#if !defined ALLEGRO_CFG_OPENGLES && !defined ALLEGRO_MACOSX
-   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+#if !defined A5O_CFG_OPENGLES && !defined A5O_MACOSX
+   if (disp->flags & A5O_PROGRAMMABLE_PIPELINE) {
       if (o->varlocs.pos_loc >= 0)
          glDisableVertexAttribArray(o->varlocs.pos_loc);
       if (o->varlocs.texcoord_loc >= 0)
@@ -448,8 +448,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 
    disp->num_cache_vertices = 0;
 
-   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+   if (disp->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (disp->ogl_extras->varlocs.use_tex_loc >= 0)
          glUniform1i(disp->ogl_extras->varlocs.use_tex_loc, 0);
 #endif
@@ -459,13 +459,13 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    }
 }
 
-static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
-   ALLEGRO_BITMAP *target)
+static void ogl_update_transformation(A5O_DISPLAY* disp,
+   A5O_BITMAP *target)
 {
-   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+   if (disp->flags & A5O_PROGRAMMABLE_PIPELINE) {
+#ifdef A5O_CFG_SHADER_GLSL
       GLint loc = disp->ogl_extras->varlocs.projview_matrix_loc;
-      ALLEGRO_TRANSFORM projview;
+      A5O_TRANSFORM projview;
       al_copy_transform(&projview, &target->transform);
       al_compose_transform(&projview, &target->proj_transform);
       al_copy_transform(&disp->projview_transform, &projview);
@@ -475,7 +475,7 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
       }
 #endif
    } else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+#ifdef A5O_CFG_OPENGL_FIXED_FUNCTION
       glMatrixMode(GL_PROJECTION);
       glLoadMatrixf((float *)target->proj_transform.m);
       glMatrixMode(GL_MODELVIEW);
@@ -484,7 +484,7 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    }
 
    if (target->parent) {
-      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_extra = target->parent->extra;
+      A5O_BITMAP_EXTRA_OPENGL *ogl_extra = target->parent->extra;
       /* glViewport requires the bottom-left coordinate of the corner. */
       glViewport(target->xofs, ogl_extra->true_h - (target->yofs + target->h), target->w, target->h);
    } else {
@@ -492,11 +492,11 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    }
 }
 
-static void ogl_clear_depth_buffer(ALLEGRO_DISPLAY *display, float x)
+static void ogl_clear_depth_buffer(A5O_DISPLAY *display, float x)
 {
    (void)display;
 
-#if defined(ALLEGRO_CFG_OPENGLES)
+#if defined(A5O_CFG_OPENGLES)
    glClearDepthf(x);
 #else
    glClearDepth(x);
@@ -509,7 +509,7 @@ static void ogl_clear_depth_buffer(ALLEGRO_DISPLAY *display, float x)
 }
 
 /* Add drawing commands to the vtable. */
-void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
+void _al_ogl_add_drawing_functions(A5O_DISPLAY_INTERFACE *vt)
 {
    vt->clear = ogl_clear;
    vt->draw_pixel = ogl_draw_pixel;

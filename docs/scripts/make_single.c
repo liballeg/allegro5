@@ -82,7 +82,7 @@ static void preprocess(void)
          d_printf("\n[Source Code](%s)\n", source);
          strcpy(current_api, name);
       }
-      else if (d_match(line, "^__ALLEGRO_5_CFG")) {
+      else if (d_match(line, "^__A5O_5_CFG")) {
          char *allegro5_cfg = load_allegro5_cfg();
          d_print(allegro5_cfg);
          free(allegro5_cfg);

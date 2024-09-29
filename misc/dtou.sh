@@ -37,7 +37,7 @@ then
    exit
 fi
 
-if test "$ALLEGRO_USE_CYGWIN" = "1"
+if test "$A5O_USE_CYGWIN" = "1"
 then
    with_cygwin "$@"
 else

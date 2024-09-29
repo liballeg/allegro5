@@ -72,7 +72,7 @@ int update_demo_menu(DEMO_MENU * menu)
       return DEMO_MENU_CONTINUE;
    }
 
-   if (key_pressed(ALLEGRO_KEY_ESCAPE)) {
+   if (key_pressed(A5O_KEY_ESCAPE)) {
       return DEMO_MENU_BACK;
    }
    
@@ -99,7 +99,7 @@ int update_demo_menu(DEMO_MENU * menu)
       }
    }
 
-   if (key_pressed(ALLEGRO_KEY_UP)) {
+   if (key_pressed(A5O_KEY_UP)) {
       if (selected_item != -1) {
          tmp = selected_item;
 
@@ -123,7 +123,7 @@ int update_demo_menu(DEMO_MENU * menu)
       }
    }
     
-   if (key_pressed(ALLEGRO_KEY_DOWN)) {
+   if (key_pressed(A5O_KEY_DOWN)) {
       if (selected_item != -1) {
          tmp = selected_item;
 
@@ -240,7 +240,7 @@ int demo_text_proc(DEMO_MENU * item, int msg, int extra)
 
 int demo_edit_proc(DEMO_MENU * item, int msg, int extra)
 {
-   ALLEGRO_COLOR col;
+   A5O_COLOR col;
    int w, h, x;
    int l, c;
 
@@ -307,7 +307,7 @@ int demo_edit_proc(DEMO_MENU * item, int msg, int extra)
 
 int demo_button_proc(DEMO_MENU * item, int msg, int extra)
 {
-   ALLEGRO_COLOR col;
+   A5O_COLOR col;
 
    if (msg == DEMO_MENU_MSG_DRAW) {
       if (item->flags & DEMO_MENU_SELECTED) {
@@ -344,7 +344,7 @@ int demo_choice_proc(DEMO_MENU * item, int msg, int extra)
    int choice_count = 0;
    int slider_width = screen_width / 6;
    int i, tmp;
-   ALLEGRO_COLOR col;
+   A5O_COLOR col;
 
    /* count number of choices */
    for (; item->data[choice_count] != 0; choice_count++);
@@ -398,7 +398,7 @@ int demo_choice_proc(DEMO_MENU * item, int msg, int extra)
       shadow_textprintf(demo_font, x + 8, extra, col,
                       0, (char *)(item->data)[item->extra]);
    } else if (msg == DEMO_MENU_MSG_KEY) {
-      if (key_pressed(ALLEGRO_KEY_LEFT)) {
+      if (key_pressed(A5O_KEY_LEFT)) {
          if (item->extra > 0) {
             --item->extra;
             play_sound_id(DEMO_SAMPLE_BUTTON, 255, 128, -freq_variation, 0);
@@ -409,7 +409,7 @@ int demo_choice_proc(DEMO_MENU * item, int msg, int extra)
          }
       }
             
-      if (key_pressed(ALLEGRO_KEY_RIGHT)) {
+      if (key_pressed(A5O_KEY_RIGHT)) {
          if (item->extra < choice_count - 1) {
             ++item->extra;
             play_sound_id(DEMO_SAMPLE_BUTTON, 255, 128, -freq_variation, 0);
@@ -450,7 +450,7 @@ int demo_choice_proc(DEMO_MENU * item, int msg, int extra)
 
 int demo_key_proc(DEMO_MENU * item, int msg, int extra)
 {
-   ALLEGRO_COLOR col;
+   A5O_COLOR col;
 
    if (msg == DEMO_MENU_MSG_DRAW) {
       if (item->flags & DEMO_MENU_SELECTED) {
@@ -492,7 +492,7 @@ int demo_key_proc(DEMO_MENU * item, int msg, int extra)
                item->on_activate(item);
             }
             return DEMO_MENU_LOCK;
-         } else if (key_pressed(ALLEGRO_KEY_ESCAPE)) {
+         } else if (key_pressed(A5O_KEY_ESCAPE)) {
             item->flags &= ~DEMO_MENU_EXTRA;
             return DEMO_MENU_LOCK;
          }
@@ -518,7 +518,7 @@ int demo_key_proc(DEMO_MENU * item, int msg, int extra)
 int demo_color_proc(DEMO_MENU * item, int msg, int extra)
 {
    int x, h, cw, cx, i, c;
-   ALLEGRO_COLOR col1, col2;
+   A5O_COLOR col1, col2;
    int rgb[3];
    static char buf[64];
    int changed = 0;
@@ -576,9 +576,9 @@ int demo_color_proc(DEMO_MENU * item, int msg, int extra)
    
    
 
-     if (key_pressed(ALLEGRO_KEY_LEFT)) {
+     if (key_pressed(A5O_KEY_LEFT)) {
          if (rgb[item->extra] > 0) {
-            if (key_down(ALLEGRO_KEY_LSHIFT) || key_down(ALLEGRO_KEY_RSHIFT)) {
+            if (key_down(A5O_KEY_LSHIFT) || key_down(A5O_KEY_RSHIFT)) {
                --rgb[item->extra];
             } else {
                rgb[item->extra] -= 16;
@@ -589,9 +589,9 @@ int demo_color_proc(DEMO_MENU * item, int msg, int extra)
          }
       }
 
-      if (key_pressed(ALLEGRO_KEY_RIGHT)) {
+      if (key_pressed(A5O_KEY_RIGHT)) {
          if (rgb[item->extra] < 255) {
-            if (key_down(ALLEGRO_KEY_LSHIFT) || key_down(ALLEGRO_KEY_RSHIFT)) {
+            if (key_down(A5O_KEY_LSHIFT) || key_down(A5O_KEY_RSHIFT)) {
                ++rgb[item->extra];
             } else {
                rgb[item->extra] += 16;
@@ -602,8 +602,8 @@ int demo_color_proc(DEMO_MENU * item, int msg, int extra)
          }
       }
 
-      if (key_pressed(ALLEGRO_KEY_TAB)) {
-         if (key_down(ALLEGRO_KEY_LSHIFT) || key_down(ALLEGRO_KEY_RSHIFT)) {
+      if (key_pressed(A5O_KEY_TAB)) {
+         if (key_down(A5O_KEY_LSHIFT) || key_down(A5O_KEY_RSHIFT)) {
             --item->extra;
             if (item->extra < 0) {
                item->extra += 3;

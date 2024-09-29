@@ -20,17 +20,17 @@
 
 #include <jni.h>
 
-ALLEGRO_DEBUG_CHANNEL("android")
+A5O_DEBUG_CHANNEL("android")
 
 static void
-copy_bitmap_data(ALLEGRO_BITMAP *bitmap,
-   const uint32_t *src, ALLEGRO_PIXEL_FORMAT src_format, int src_pitch,
+copy_bitmap_data(A5O_BITMAP *bitmap,
+   const uint32_t *src, A5O_PIXEL_FORMAT src_format, int src_pitch,
    int bitmap_w, int bitmap_h)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
 
-   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY,
-      ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ANY,
+      A5O_LOCK_WRITEONLY);
    ASSERT(lr);
    if (!lr)
       return;
@@ -43,14 +43,14 @@ copy_bitmap_data(ALLEGRO_BITMAP *bitmap,
 }
 
 static void
-copy_bitmap_data_multiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
+copy_bitmap_data_multiply_alpha(A5O_BITMAP *bitmap, const uint32_t *src,
    int bitmap_w, int bitmap_h)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int x, y;
 
-   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888,
-      ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ABGR_8888,
+      A5O_LOCK_WRITEONLY);
    ASSERT(lr);
    if (!lr)
       return;
@@ -72,14 +72,14 @@ copy_bitmap_data_multiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
 }
 
 static void
-copy_bitmap_data_demultiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
+copy_bitmap_data_demultiply_alpha(A5O_BITMAP *bitmap, const uint32_t *src,
    int src_format, int src_pitch, int bitmap_w, int bitmap_h)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int x, y;
 
-   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888,
-      ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(bitmap, A5O_PIXEL_FORMAT_ABGR_8888,
+      A5O_LOCK_WRITEONLY);
    ASSERT(lr);
    if (!lr)
       return;
@@ -119,7 +119,7 @@ copy_bitmap_data_demultiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
  * AllegroInputStream which in turn calls back into C to use Allegro's
  * file functions.
  */
-ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
+A5O_BITMAP *_al_android_load_image_f(A5O_FILE *fh, int flags)
 {
    JNIEnv *jnienv;
    jclass image_loader_class;
@@ -130,13 +130,13 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    uint8_t *buffer;
    jobject byte_buffer;
    jobject jbitmap;
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    int bitmap_w;
    int bitmap_h;
    int pitch;
 
-   if (flags & ALLEGRO_KEEP_INDEX) {
-      ALLEGRO_ERROR("ALLEGRO_KEEP_INDEX not yet supported\n");
+   if (flags & A5O_KEEP_INDEX) {
+      A5O_ERROR("A5O_KEEP_INDEX not yet supported\n");
       return NULL;
    }
 
@@ -150,7 +150,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    input_stream = _jni_call(jnienv, jobject, NewObject, input_stream_class,
       input_stream_ctor, (jlong)(intptr_t)fh);
    if (!input_stream) {
-      ALLEGRO_ERROR("failed to create new AllegroInputStream object");
+      A5O_ERROR("failed to create new AllegroInputStream object");
       return NULL;
    }
 
@@ -201,7 +201,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    }
 
    /* buffer already has alpha multiplied in. */
-   if (flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+   if (flags & A5O_NO_PREMULTIPLIED_ALPHA) {
       copy_bitmap_data_demultiply_alpha(bitmap, (const uint32_t *)buffer,
          src_format, pitch, bitmap_w, bitmap_h);
    }
@@ -215,7 +215,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    return bitmap;
 }
 
-static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
+static A5O_BITMAP *android_load_image_asset(const char *filename, int flags)
 {
    JNIEnv *jnienv;
    jclass image_loader_class;
@@ -224,12 +224,12 @@ static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
    jobject jbitmap;
    int bitmap_w;
    int bitmap_h;
-   ALLEGRO_BITMAP *bitmap;
+   A5O_BITMAP *bitmap;
    jintArray ia;
    jint *arr;
 
-   if (flags & ALLEGRO_KEEP_INDEX) {
-      ALLEGRO_ERROR("ALLEGRO_KEEP_INDEX not yet supported\n");
+   if (flags & A5O_KEEP_INDEX) {
+      A5O_ERROR("A5O_KEEP_INDEX not yet supported\n");
       return NULL;
    }
 
@@ -255,7 +255,7 @@ static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
 
    bitmap_w = _jni_callIntMethod(jnienv, jbitmap, "getWidth");
    bitmap_h = _jni_callIntMethod(jnienv, jbitmap, "getHeight");
-   ALLEGRO_DEBUG("bitmap dimensions: %d, %d", bitmap_w, bitmap_h);
+   A5O_DEBUG("bitmap dimensions: %d, %d", bitmap_w, bitmap_h);
 
    bitmap = al_create_bitmap(bitmap_w, bitmap_h);
    if (!bitmap) {
@@ -268,8 +268,8 @@ static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
    arr = (*jnienv)->GetIntArrayElements(jnienv, ia, 0);
 
    /* arr is an array of packed colours, NON-premultiplied alpha. */
-   if (flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-      int src_format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+   if (flags & A5O_NO_PREMULTIPLIED_ALPHA) {
+      int src_format = A5O_PIXEL_FORMAT_ARGB_8888;
       int src_pitch = bitmap_w * sizeof(uint32_t);
       copy_bitmap_data(bitmap, (const uint32_t *)arr,
          src_format, src_pitch, bitmap_w, bitmap_h);
@@ -286,12 +286,12 @@ static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
    return bitmap;
 }
 
-ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
+A5O_BITMAP *_al_android_load_image(const char *filename, int flags)
 {
-   ALLEGRO_FILE *fp;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *fp;
+   A5O_BITMAP *bmp;
 
-   /* Bypass the ALLEGRO_FILE interface when we know the underlying stream
+   /* Bypass the A5O_FILE interface when we know the underlying stream
     * implementation, to avoid a lot of shunting between C and Java.
     * We could probably do this for normal filesystem as well.
     */

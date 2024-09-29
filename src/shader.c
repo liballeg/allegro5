@@ -20,33 +20,33 @@
 #include "allegro5/internal/aintern_shader.h"
 #include "allegro5/internal/aintern_system.h"
 
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+#ifdef A5O_CFG_SHADER_GLSL
 #include "allegro5/allegro_opengl.h"
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("shader")
+A5O_DEBUG_CHANNEL("shader")
 
 #include "shader_source.inc"
 
-static ALLEGRO_SHADER_PLATFORM resolve_platform(ALLEGRO_DISPLAY *display,
-                                                ALLEGRO_SHADER_PLATFORM platform)
+static A5O_SHADER_PLATFORM resolve_platform(A5O_DISPLAY *display,
+                                                A5O_SHADER_PLATFORM platform)
 {
-   if (platform == ALLEGRO_SHADER_AUTO) {
+   if (platform == A5O_SHADER_AUTO) {
       ASSERT(display);
-      if (display->flags & ALLEGRO_OPENGL) {
-         platform = ALLEGRO_SHADER_GLSL;
+      if (display->flags & A5O_OPENGL) {
+         platform = A5O_SHADER_GLSL;
       }
       else {
-         platform = ALLEGRO_SHADER_HLSL;
+         platform = A5O_SHADER_HLSL;
       }
    }
-   if (platform == ALLEGRO_SHADER_AUTO_MINIMAL) {
+   if (platform == A5O_SHADER_AUTO_MINIMAL) {
       ASSERT(display);
-      if (display->flags & ALLEGRO_OPENGL) {
-         platform = ALLEGRO_SHADER_GLSL_MINIMAL;
+      if (display->flags & A5O_OPENGL) {
+         platform = A5O_SHADER_GLSL_MINIMAL;
       }
       else {
-         platform = ALLEGRO_SHADER_HLSL_MINIMAL;
+         platform = A5O_SHADER_HLSL_MINIMAL;
       }
    }
 
@@ -55,30 +55,30 @@ static ALLEGRO_SHADER_PLATFORM resolve_platform(ALLEGRO_DISPLAY *display,
 
 /* Function: al_create_shader
  */
-ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
+A5O_SHADER *al_create_shader(A5O_SHADER_PLATFORM platform)
 {
-   ALLEGRO_SHADER *shader = NULL;
+   A5O_SHADER *shader = NULL;
 
    platform = resolve_platform(al_get_current_display(), platform);
 
    switch (platform) {
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-      case ALLEGRO_SHADER_GLSL:
-      case ALLEGRO_SHADER_GLSL_MINIMAL:
+#ifdef A5O_CFG_SHADER_GLSL
+      case A5O_SHADER_GLSL:
+      case A5O_SHADER_GLSL_MINIMAL:
          shader = _al_create_shader_glsl(platform);
          break;
 #endif
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-      case ALLEGRO_SHADER_HLSL:
-      case ALLEGRO_SHADER_HLSL_MINIMAL:
+#ifdef A5O_CFG_SHADER_HLSL
+      case A5O_SHADER_HLSL:
+      case A5O_SHADER_HLSL_MINIMAL:
          shader = _al_create_shader_hlsl(platform, 2);
          break;
-      case ALLEGRO_SHADER_HLSL_SM_3_0:
+      case A5O_SHADER_HLSL_SM_3_0:
          shader = _al_create_shader_hlsl(platform, 3);
          break;
 #endif
-      case ALLEGRO_SHADER_AUTO:
-      case ALLEGRO_SHADER_AUTO_MINIMAL:
+      case A5O_SHADER_AUTO:
+      case A5O_SHADER_AUTO_MINIMAL:
          ASSERT(0);
          break;
       default:
@@ -92,14 +92,14 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
          (void (*)(void *))al_destroy_shader);
    }
    else {
-      ALLEGRO_WARN("Failed to create shader\n");
+      A5O_WARN("Failed to create shader\n");
    }
    return shader;
 }
 
 /* Function: al_attach_shader_source
  */
-bool al_attach_shader_source(ALLEGRO_SHADER *shader, ALLEGRO_SHADER_TYPE type,
+bool al_attach_shader_source(A5O_SHADER *shader, A5O_SHADER_TYPE type,
     const char *source)
 {
    ASSERT(shader);
@@ -108,16 +108,16 @@ bool al_attach_shader_source(ALLEGRO_SHADER *shader, ALLEGRO_SHADER_TYPE type,
 
 /* Function: al_attach_shader_source_file
  */
-bool al_attach_shader_source_file(ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type, const char *filename)
+bool al_attach_shader_source_file(A5O_SHADER *shader,
+   A5O_SHADER_TYPE type, const char *filename)
 {
-   ALLEGRO_FILE *fp;
-   ALLEGRO_USTR *str;
+   A5O_FILE *fp;
+   A5O_USTR *str;
    bool ret;
 
    fp = al_fopen(filename, "r");
    if (!fp) {
-      ALLEGRO_WARN("Failed to open %s\n", filename);
+      A5O_WARN("Failed to open %s\n", filename);
       al_ustr_free(shader->log);
       shader->log = al_ustr_newf("Failed to open %s", filename);
       return false;
@@ -126,7 +126,7 @@ bool al_attach_shader_source_file(ALLEGRO_SHADER *shader,
    for (;;) {
       char buf[512];
       size_t n;
-      ALLEGRO_USTR_INFO info;
+      A5O_USTR_INFO info;
 
       n = al_fread(fp, buf, sizeof(buf));
       if (n <= 0)
@@ -141,7 +141,7 @@ bool al_attach_shader_source_file(ALLEGRO_SHADER *shader,
 
 /* Function: al_build_shader
  */
-bool al_build_shader(ALLEGRO_SHADER *shader)
+bool al_build_shader(A5O_SHADER *shader)
 {
    ASSERT(shader);
    return shader->vt->build_shader(shader);
@@ -149,7 +149,7 @@ bool al_build_shader(ALLEGRO_SHADER *shader)
 
 /* Function: al_get_shader_log
  */
-const char *al_get_shader_log(ALLEGRO_SHADER *shader)
+const char *al_get_shader_log(A5O_SHADER *shader)
 {
    ASSERT(shader);
 
@@ -158,7 +158,7 @@ const char *al_get_shader_log(ALLEGRO_SHADER *shader)
 
 /* Function: al_get_shader_platform
  */
-ALLEGRO_SHADER_PLATFORM al_get_shader_platform(ALLEGRO_SHADER *shader)
+A5O_SHADER_PLATFORM al_get_shader_platform(A5O_SHADER *shader)
 {
    ASSERT(shader);
    return shader->platform;
@@ -166,17 +166,17 @@ ALLEGRO_SHADER_PLATFORM al_get_shader_platform(ALLEGRO_SHADER *shader)
 
 /* Function: al_use_shader
  */
-bool al_use_shader(ALLEGRO_SHADER *shader)
+bool al_use_shader(A5O_SHADER *shader)
 {
-   ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *disp;
+   A5O_BITMAP *bmp = al_get_target_bitmap();
+   A5O_DISPLAY *disp;
 
    if (!bmp) {
-      ALLEGRO_WARN("No current target bitmap.\n");
+      A5O_WARN("No current target bitmap.\n");
       return false;
    }
-   if (al_get_bitmap_flags(bmp) & ALLEGRO_MEMORY_BITMAP) {
-      ALLEGRO_WARN("Target bitmap is memory bitmap.\n");
+   if (al_get_bitmap_flags(bmp) & A5O_MEMORY_BITMAP) {
+      A5O_WARN("Target bitmap is memory bitmap.\n");
       return false;
    }
    disp = _al_get_bitmap_display(bmp);
@@ -185,12 +185,12 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
    if (shader) {
       if (shader->vt->use_shader(shader, disp, true)) {
          _al_set_bitmap_shader_field(bmp, shader);
-         ALLEGRO_DEBUG("use_shader succeeded\n");
+         A5O_DEBUG("use_shader succeeded\n");
          return true;
       }
       else {
          _al_set_bitmap_shader_field(bmp, NULL);
-         ALLEGRO_ERROR("use_shader failed\n");
+         A5O_ERROR("use_shader failed\n");
          if (disp->default_shader) {
             disp->default_shader->vt->use_shader(
                disp->default_shader, disp, true);
@@ -213,9 +213,9 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
 
 /* Function: al_get_current_shader
 */
-ALLEGRO_SHADER *al_get_current_shader()
+A5O_SHADER *al_get_current_shader()
 {
-   ALLEGRO_BITMAP* bmp = al_get_target_bitmap();
+   A5O_BITMAP* bmp = al_get_target_bitmap();
 
    if (bmp != NULL) {
       return bmp->shader;
@@ -227,9 +227,9 @@ ALLEGRO_SHADER *al_get_current_shader()
 
 /* Function: al_destroy_shader
  */
-void al_destroy_shader(ALLEGRO_SHADER *shader)
+void al_destroy_shader(A5O_SHADER *shader)
 {
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
    unsigned i;
 
    if (!shader)
@@ -240,7 +240,7 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
     */
    bmp = al_get_target_bitmap();
    if (bmp && _al_vector_contains(&shader->bitmaps, &bmp)) {
-      ALLEGRO_DEBUG("implicitly unusing shader on target bitmap\n");
+      A5O_DEBUG("implicitly unusing shader on target bitmap\n");
       al_use_shader(NULL);
    }
 
@@ -255,8 +255,8 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
 
    /* Clear references to this shader from all bitmaps. */
    for (i = 0; i < _al_vector_size(&shader->bitmaps); i++) {
-      ALLEGRO_BITMAP **slot = _al_vector_ref(&shader->bitmaps, i);
-      ALLEGRO_BITMAP *bitmap = *slot;
+      A5O_BITMAP **slot = _al_vector_ref(&shader->bitmaps, i);
+      A5O_BITMAP *bitmap = *slot;
       ASSERT(bitmap->shader == shader);
       bitmap->shader = NULL;
    }
@@ -268,10 +268,10 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
 /* Function: al_set_shader_sampler
  */
 bool al_set_shader_sampler(const char *name,
-   ALLEGRO_BITMAP *bitmap, int unit)
+   A5O_BITMAP *bitmap, int unit)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
@@ -289,10 +289,10 @@ bool al_set_shader_sampler(const char *name,
 /* Function: al_set_shader_matrix
  */
 bool al_set_shader_matrix(const char *name,
-   const ALLEGRO_TRANSFORM *matrix)
+   const A5O_TRANSFORM *matrix)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
@@ -311,8 +311,8 @@ bool al_set_shader_matrix(const char *name,
  */
 bool al_set_shader_int(const char *name, int i)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
@@ -331,8 +331,8 @@ bool al_set_shader_int(const char *name, int i)
  */
 bool al_set_shader_float(const char *name, float f)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
@@ -352,8 +352,8 @@ bool al_set_shader_float(const char *name, float f)
 bool al_set_shader_int_vector(const char *name,
    int num_components, const int *i, int num_elems)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
@@ -373,8 +373,8 @@ bool al_set_shader_int_vector(const char *name,
 bool al_set_shader_float_vector(const char *name,
    int num_components, const float *f, int num_elems)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
@@ -393,8 +393,8 @@ bool al_set_shader_float_vector(const char *name,
  */
 bool al_set_shader_bool(const char *name, bool b)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
+   A5O_BITMAP *bmp;
+   A5O_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
@@ -411,51 +411,51 @@ bool al_set_shader_bool(const char *name, bool b)
 
 /* Function: al_get_default_shader_source
  */
-char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
-   ALLEGRO_SHADER_TYPE type)
+char const *al_get_default_shader_source(A5O_SHADER_PLATFORM platform,
+   A5O_SHADER_TYPE type)
 {
    (void)type;
    switch (resolve_platform(al_get_current_display(), platform)) {
-      case ALLEGRO_SHADER_GLSL:
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+      case A5O_SHADER_GLSL:
+#ifdef A5O_CFG_SHADER_GLSL
          switch (type) {
-            case ALLEGRO_VERTEX_SHADER:
+            case A5O_VERTEX_SHADER:
                return default_glsl_vertex_source;
-            case ALLEGRO_PIXEL_SHADER:
+            case A5O_PIXEL_SHADER:
                return default_glsl_pixel_source;
          }
 #endif
          break;
-      case ALLEGRO_SHADER_GLSL_MINIMAL:
-#ifdef ALLEGRO_CFG_SHADER_GLSL
+      case A5O_SHADER_GLSL_MINIMAL:
+#ifdef A5O_CFG_SHADER_GLSL
          switch (type) {
-            case ALLEGRO_VERTEX_SHADER:
+            case A5O_VERTEX_SHADER:
                return default_glsl_vertex_source;
-            case ALLEGRO_PIXEL_SHADER:
+            case A5O_PIXEL_SHADER:
                return default_glsl_minimal_pixel_source;
          }
 #endif
          break;
-      case ALLEGRO_SHADER_HLSL:
-      case ALLEGRO_SHADER_HLSL_MINIMAL:
-      case ALLEGRO_SHADER_HLSL_SM_3_0:
-#ifdef ALLEGRO_CFG_SHADER_HLSL
+      case A5O_SHADER_HLSL:
+      case A5O_SHADER_HLSL_MINIMAL:
+      case A5O_SHADER_HLSL_SM_3_0:
+#ifdef A5O_CFG_SHADER_HLSL
          switch (type) {
-            case ALLEGRO_VERTEX_SHADER:
+            case A5O_VERTEX_SHADER:
                return default_hlsl_vertex_source;
-            case ALLEGRO_PIXEL_SHADER:
+            case A5O_PIXEL_SHADER:
                return default_hlsl_pixel_source;
          }
 #endif
          break;
-      case ALLEGRO_SHADER_AUTO:
-      case ALLEGRO_SHADER_AUTO_MINIMAL:
+      case A5O_SHADER_AUTO:
+      case A5O_SHADER_AUTO_MINIMAL:
          ASSERT(0);
    }
    return NULL;
 }
 
-void _al_set_bitmap_shader_field(ALLEGRO_BITMAP *bmp, ALLEGRO_SHADER *shader)
+void _al_set_bitmap_shader_field(A5O_BITMAP *bmp, A5O_SHADER *shader)
 {
    ASSERT(bmp);
 
@@ -470,9 +470,9 @@ void _al_set_bitmap_shader_field(ALLEGRO_BITMAP *bmp, ALLEGRO_SHADER *shader)
    }
 }
 
-void _al_register_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
+void _al_register_shader_bitmap(A5O_SHADER *shader, A5O_BITMAP *bmp)
 {
-   ALLEGRO_BITMAP **slot;
+   A5O_BITMAP **slot;
    ASSERT(shader);
    ASSERT(bmp);
 
@@ -480,7 +480,7 @@ void _al_register_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
    *slot = bmp;
 }
 
-void _al_unregister_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
+void _al_unregister_shader_bitmap(A5O_SHADER *shader, A5O_BITMAP *bmp)
 {
    bool deleted;
    ASSERT(shader);
@@ -490,12 +490,12 @@ void _al_unregister_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
    ASSERT(deleted);
 }
 
-ALLEGRO_SHADER *_al_create_default_shader(ALLEGRO_DISPLAY *display)
+A5O_SHADER *_al_create_default_shader(A5O_DISPLAY *display)
 {
-   ALLEGRO_SHADER *shader;
-   ALLEGRO_SHADER_PLATFORM platform = resolve_platform(
+   A5O_SHADER *shader;
+   A5O_SHADER_PLATFORM platform = resolve_platform(
       display,
-      display->extra_settings.settings[ALLEGRO_DEFAULT_SHADER_PLATFORM]
+      display->extra_settings.settings[A5O_DEFAULT_SHADER_PLATFORM]
    );
 
    _al_push_destructor_owner();
@@ -503,23 +503,23 @@ ALLEGRO_SHADER *_al_create_default_shader(ALLEGRO_DISPLAY *display)
    _al_pop_destructor_owner();
 
    if (!shader) {
-      ALLEGRO_ERROR("Error creating default shader.\n");
+      A5O_ERROR("Error creating default shader.\n");
       return false;
    }
-   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-         al_get_default_shader_source(platform, ALLEGRO_VERTEX_SHADER))) {
-      ALLEGRO_ERROR("al_attach_shader_source for vertex shader failed: %s\n",
+   if (!al_attach_shader_source(shader, A5O_VERTEX_SHADER,
+         al_get_default_shader_source(platform, A5O_VERTEX_SHADER))) {
+      A5O_ERROR("al_attach_shader_source for vertex shader failed: %s\n",
          al_get_shader_log(shader));
       goto fail;
    }
-   if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
-         al_get_default_shader_source(platform, ALLEGRO_PIXEL_SHADER))) {
-      ALLEGRO_ERROR("al_attach_shader_source for pixel shader failed: %s\n",
+   if (!al_attach_shader_source(shader, A5O_PIXEL_SHADER,
+         al_get_default_shader_source(platform, A5O_PIXEL_SHADER))) {
+      A5O_ERROR("al_attach_shader_source for pixel shader failed: %s\n",
          al_get_shader_log(shader));
       goto fail;
    }
    if (!al_build_shader(shader)) {
-      ALLEGRO_ERROR("al_build_shader failed: %s\n", al_get_shader_log(shader));
+      A5O_ERROR("al_build_shader failed: %s\n", al_get_shader_log(shader));
       goto fail;
    }
    return shader;

@@ -22,7 +22,7 @@
 #include "gtk_dialog.h"
 #include "gtk_xgtk.h"
 
-ALLEGRO_DEBUG_CHANNEL("menu")
+A5O_DEBUG_CHANNEL("menu")
 
 typedef struct ARGS ARGS;
 
@@ -32,8 +32,8 @@ struct ARGS
    ARGS_BASE base;
 
    GtkWidget *gtk_window;
-   ALLEGRO_MENU *menu;
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU *menu;
+   A5O_MENU_ITEM *item;
    int i;
 };
 
@@ -45,16 +45,16 @@ struct POPUP_ARGS
    ARGS_BASE base;
 
    GtkWidget *gtk_window;
-   ALLEGRO_MENU *menu;
+   A5O_MENU *menu;
    int x;
    int y;
 };
 
 
-static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu);
+static void build_menu(GtkWidget *gmenu, A5O_MENU *amenu);
 
 /* [user thread] */
-static bool clear_menu_extras(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra)
+static bool clear_menu_extras(A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra)
 {
    (void) index;
    (void) extra;
@@ -68,7 +68,7 @@ static bool clear_menu_extras(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int i
 }
 
 /* [user thread] */
-static bool make_menu_item_args(ARGS *args, ALLEGRO_MENU_ITEM *item, int i)
+static bool make_menu_item_args(ARGS *args, A5O_MENU_ITEM *item, int i)
 {
    if (_al_gtk_init_args(args, sizeof(*args))) {
       args->item = item;
@@ -79,26 +79,26 @@ static bool make_menu_item_args(ARGS *args, ALLEGRO_MENU_ITEM *item, int i)
 }
 
 /* [gtk thread] */
-static void menuitem_response(ALLEGRO_MENU_ITEM *menu_item)
+static void menuitem_response(A5O_MENU_ITEM *menu_item)
 {
    if (menu_item->parent)
       _al_emit_menu_event(menu_item->parent->display, menu_item->unique_id);
 }
 
 /* [gtk thread] */
-static void checkbox_on_toggle(ALLEGRO_MENU_ITEM *item)
+static void checkbox_on_toggle(A5O_MENU_ITEM *item)
 {
    /* make sure the menu item remains the same state */
    if (gtk_check_menu_item_get_active(item->extra1)) {
-      item->flags |= ALLEGRO_MENU_ITEM_CHECKED;
+      item->flags |= A5O_MENU_ITEM_CHECKED;
    }
    else {
-      item->flags &= ~ALLEGRO_MENU_ITEM_CHECKED;
+      item->flags &= ~A5O_MENU_ITEM_CHECKED;
    }
 }
 
 /* [gtk thread] */
-static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
+static GtkWidget *build_menu_item(A5O_MENU_ITEM *aitem)
 {
    GtkWidget *gitem;
    
@@ -106,16 +106,16 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
       gitem = gtk_separator_menu_item_new();
    }
    else {
-      ALLEGRO_USTR *caption = al_ustr_dup(aitem->caption);
+      A5O_USTR *caption = al_ustr_dup(aitem->caption);
       
       /* convert & to _ using unprintable chars as placeholders */
       al_ustr_find_replace_cstr(caption, 0, "_", "\x01\x02");
       al_ustr_find_replace_cstr(caption, 0, "&", "_");
       al_ustr_find_replace_cstr(caption, 0, "\x01\x02", "__");
       
-      if (aitem->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
+      if (aitem->flags & A5O_MENU_ITEM_CHECKBOX) {
          gitem = gtk_check_menu_item_new_with_mnemonic(al_cstr(caption));
-         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gitem), aitem->flags & ALLEGRO_MENU_ITEM_CHECKED);
+         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gitem), aitem->flags & A5O_MENU_ITEM_CHECKED);
          g_signal_connect_swapped (gitem, "toggled", G_CALLBACK(checkbox_on_toggle),
             (gpointer) aitem);
       }
@@ -127,7 +127,7 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
       
       al_ustr_free(caption);
       
-      gtk_widget_set_sensitive(gitem, !(aitem->flags & ALLEGRO_MENU_ITEM_DISABLED));
+      gtk_widget_set_sensitive(gitem, !(aitem->flags & A5O_MENU_ITEM_DISABLED));
       
       aitem->extra1 = gitem;
       
@@ -150,19 +150,19 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
 }
 
 /* [gtk thread] */
-static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu)
+static void build_menu(GtkWidget *gmenu, A5O_MENU *amenu)
 {
    size_t i;
    
    for (i = 0; i < _al_vector_size(&amenu->items); ++i) {
-      ALLEGRO_MENU_ITEM *aitem = * (ALLEGRO_MENU_ITEM **) _al_vector_ref(&amenu->items, i);
+      A5O_MENU_ITEM *aitem = * (A5O_MENU_ITEM **) _al_vector_ref(&amenu->items, i);
       GtkWidget *gitem = build_menu_item(aitem);
       gtk_menu_shell_append(GTK_MENU_SHELL(gmenu), gitem);
    }
 }
 
 /* [user thread] */
-bool _al_init_menu(ALLEGRO_MENU *menu)
+bool _al_init_menu(A5O_MENU *menu)
 {
    (void) menu;
    
@@ -172,7 +172,7 @@ bool _al_init_menu(ALLEGRO_MENU *menu)
 }
 
 /* [user thread] */
-bool _al_init_popup_menu(ALLEGRO_MENU *menu)
+bool _al_init_popup_menu(A5O_MENU *menu)
 {
    return _al_init_menu(menu);
 }
@@ -189,7 +189,7 @@ static gboolean do_destroy_menu(gpointer data)
 }
 
 /* [user thread] */
-bool _al_destroy_menu(ALLEGRO_MENU *menu)
+bool _al_destroy_menu(A5O_MENU *menu)
 {
    ARGS args;
 
@@ -220,7 +220,7 @@ static gboolean do_insert_menu_item_at(gpointer data)
 }
 
 /* [user thread] */
-bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+bool _al_insert_menu_item_at(A5O_MENU_ITEM *item, int i)
 {
    if (item->parent->extra1) {
       ARGS args;
@@ -249,7 +249,7 @@ static gboolean do_destroy_menu_item_at(gpointer data)
 }
 
 /* [user thread] */
-bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+bool _al_destroy_menu_item_at(A5O_MENU_ITEM *item, int i)
 {
    if (item->extra1) {
       ARGS args;
@@ -284,7 +284,7 @@ static gboolean do_update_menu_item_at(gpointer data)
 }
 
 /* [user thread] */
-bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+bool _al_update_menu_item_at(A5O_MENU_ITEM *item, int i)
 {
    if (item->extra1) {
       ARGS args;
@@ -320,7 +320,7 @@ static gboolean do_show_display_menu(gpointer data)
 }
 
 /* [user thread] */
-bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool _al_show_display_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
    GtkWidget *gtk_window;
    ARGS args;
@@ -352,7 +352,7 @@ static gboolean do_hide_display_menu(gpointer data)
 }
 
 /* [user thread] */
-bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool _al_hide_display_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
    GtkWidget *gtk_window;
    ARGS args;
@@ -372,7 +372,7 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 }
 
 /* [gtk thread] */
-static void popop_on_hide(ALLEGRO_MENU *menu)
+static void popop_on_hide(A5O_MENU *menu)
 {
    (void) menu;
    /* in case we want to notify on popup close */
@@ -429,11 +429,11 @@ static gboolean do_show_popup_menu(gpointer data)
    return FALSE;
 }
 
-bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool _al_show_popup_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
    GtkWidget *gtk_window;
    POPUP_ARGS args;
-   ALLEGRO_MOUSE_STATE state;
+   A5O_MOUSE_STATE state;
 
    al_get_mouse_state(&state);
 

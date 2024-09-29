@@ -30,10 +30,10 @@ enum {
 };
 
 
-ALLEGRO_DISPLAY *src_display;
-ALLEGRO_DISPLAY *dst_display;
-ALLEGRO_EVENT_QUEUE *queue;
-ALLEGRO_BITMAP *src_bmp;
+A5O_DISPLAY *src_display;
+A5O_DISPLAY *dst_display;
+A5O_EVENT_QUEUE *queue;
+A5O_BITMAP *src_bmp;
 
 int src_x1 = SRC_X;
 int src_y1 = SRC_Y;
@@ -49,9 +49,9 @@ int draw_flags = 0;
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_BITMAP *src_subbmp[2] = {NULL, NULL};
-   ALLEGRO_BITMAP *dst_subbmp[2] = {NULL, NULL};
-   ALLEGRO_EVENT event;
+   A5O_BITMAP *src_subbmp[2] = {NULL, NULL};
+   A5O_BITMAP *dst_subbmp[2] = {NULL, NULL};
+   A5O_EVENT event;
    bool mouse_down;
    bool recreate_subbitmaps;
    bool redraw;
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
    open_log();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS);
    src_display = al_create_display(SRC_WIDTH, SRC_HEIGHT);
    if (!src_display) {
       abort_example("Error creating display\n");
@@ -234,11 +234,11 @@ int main(int argc, char **argv)
       }
 
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
             break;
          }
          if (event.keyboard.unichar == '1') {
@@ -250,26 +250,26 @@ int main(int argc, char **argv)
             redraw = true;
          }
          else if (event.keyboard.unichar == 'h') {
-            draw_flags ^= ALLEGRO_FLIP_HORIZONTAL;
+            draw_flags ^= A5O_FLIP_HORIZONTAL;
             redraw = true;
          }
          else if (event.keyboard.unichar == 'v') {
-            draw_flags ^= ALLEGRO_FLIP_VERTICAL;
+            draw_flags ^= A5O_FLIP_VERTICAL;
             redraw = true;
          }
          else if (event.keyboard.unichar == 'm') {
-            ALLEGRO_BITMAP *temp = src_bmp;
+            A5O_BITMAP *temp = src_bmp;
             use_memory = !use_memory;
             log_printf("Using a %s bitmap.\n", use_memory ? "memory" : "video");
             al_set_new_bitmap_flags(use_memory ?
-               ALLEGRO_MEMORY_BITMAP : ALLEGRO_VIDEO_BITMAP);
+               A5O_MEMORY_BITMAP : A5O_VIDEO_BITMAP);
             src_bmp = al_clone_bitmap(temp);
             al_destroy_bitmap(temp);
             redraw = true;
             recreate_subbitmaps = true;
          }
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN &&
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN &&
             event.mouse.button == 1) {
          if (event.mouse.display == src_display) {
             src_x1 = src_x2 = event.mouse.x;
@@ -282,7 +282,7 @@ int main(int argc, char **argv)
          mouse_down = true;
          redraw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+      else if (event.type == A5O_EVENT_MOUSE_AXES) {
          if (mouse_down) {
             if (event.mouse.display == src_display) {
                src_x2 = event.mouse.x;
@@ -295,13 +295,13 @@ int main(int argc, char **argv)
             redraw = true;
          }
       }
-      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP &&
+      else if (event.type == A5O_EVENT_MOUSE_BUTTON_UP &&
             event.mouse.button == 1) {
          mouse_down = false;
          recreate_subbitmaps = true;
          redraw = true;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_EXPOSE) {
          redraw = true;
       }
    }

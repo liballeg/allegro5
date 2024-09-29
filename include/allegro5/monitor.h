@@ -8,24 +8,24 @@
 #endif
 
 
-/* Type: ALLEGRO_MONITOR_INFO
+/* Type: A5O_MONITOR_INFO
  */
-typedef struct ALLEGRO_MONITOR_INFO
+typedef struct A5O_MONITOR_INFO
 {
    int x1;
    int y1;
    int x2;
    int y2;
-} ALLEGRO_MONITOR_INFO;
+} A5O_MONITOR_INFO;
 
 enum {
-   ALLEGRO_DEFAULT_DISPLAY_ADAPTER = -1
+   A5O_DEFAULT_DISPLAY_ADAPTER = -1
 };
 
 AL_FUNC(int, al_get_num_video_adapters, (void));
-AL_FUNC(bool, al_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
+AL_FUNC(bool, al_get_monitor_info, (int adapter, A5O_MONITOR_INFO *info));
 AL_FUNC(int, al_get_monitor_dpi, (int adapter));
-#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+#if defined(A5O_UNSTABLE) || defined(A5O_INTERNAL_UNSTABLE) || defined(A5O_SRC)
 AL_FUNC(int, al_get_monitor_refresh_rate, (int adapter));
 #endif
 

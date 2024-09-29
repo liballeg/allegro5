@@ -9,7 +9,7 @@ Link with allegro_font.
 
 ## General font routines
 
-### API: ALLEGRO_FONT
+### API: A5O_FONT
 
 A handle identifying any kind of font. Usually you will create it with
 [al_load_font] which supports loading all kinds of TrueType fonts supported by
@@ -17,13 +17,13 @@ the FreeType library. If you instead pass the filename of a bitmap file, it will
 be loaded with [al_load_bitmap] and a font in Allegro's bitmap font format will
 be created from it with [al_grab_font_from_bitmap].
 
-### API: ALLEGRO_GLYPH
+### API: A5O_GLYPH
 
 A structure containing the properties of a character in a font.
 
 ~~~~c
-typedef struct ALLEGRO_GLYPH {
-   ALLEGRO_BITMAP *bitmap;   // the bitmap the character is on
+typedef struct A5O_GLYPH {
+   A5O_BITMAP *bitmap;   // the bitmap the character is on
    int x;                    // the x position of the glyph on bitmap
    int y;                    // the y position of the glyph on bitmap
    int w;                    // the width of the glyph in pixels
@@ -32,7 +32,7 @@ typedef struct ALLEGRO_GLYPH {
    int offset_x;             // x offset to draw the glyph at
    int offset_y;             // y offset to draw the glyph at
    int advance;              // number of pixels to advance after this character
-} ALLEGRO_GLYPH;
+} A5O_GLYPH;
 ~~~~
 
 bitmap may be a sub-bitmap in the case of color fonts. Bitmap can also be NULL
@@ -165,7 +165,7 @@ See also: [al_get_ustr_width], [al_get_font_line_height],
 
 ### API: al_get_ustr_width
 
-Like [al_get_text_width] but expects an ALLEGRO_USTR.
+Like [al_get_text_width] but expects an A5O_USTR.
 
 See also: [al_get_text_width], [al_get_ustr_dimensions]
 
@@ -176,13 +176,13 @@ Writes the NUL-terminated string `text` onto the target bitmap at position `x`,
 
 The `flags` parameter can be 0 or one of the following flags:
 
-- ALLEGRO_ALIGN_LEFT - Draw the text left-aligned (same as 0).
-- ALLEGRO_ALIGN_CENTRE - Draw the text centered around the given position.
-- ALLEGRO_ALIGN_RIGHT - Draw the text right-aligned to the given position.
+- A5O_ALIGN_LEFT - Draw the text left-aligned (same as 0).
+- A5O_ALIGN_CENTRE - Draw the text centered around the given position.
+- A5O_ALIGN_RIGHT - Draw the text right-aligned to the given position.
 
 It can also be combined with this flag:
 
-- ALLEGRO_ALIGN_INTEGER - Always draw text aligned to an integer pixel
+- A5O_ALIGN_INTEGER - Always draw text aligned to an integer pixel
   position.  This was formerly the default behaviour.  Since: 5.0.8, 5.1.4
 
 This function does not support newline characters (`\n`),
@@ -193,7 +193,7 @@ See also: [al_draw_ustr], [al_draw_textf], [al_draw_justified_text],
 
 ### API: al_draw_ustr
 
-Like [al_draw_text], except the text is passed as an ALLEGRO_USTR instead of
+Like [al_draw_text], except the text is passed as an A5O_USTR instead of
 a NUL-terminated char array.
 
 See also: [al_draw_text], [al_draw_justified_ustr], [al_draw_multiline_ustr]
@@ -209,14 +209,14 @@ left aligned.
 
 The `flags` parameter can be 0 or one of the following flags:
 
-- ALLEGRO_ALIGN_INTEGER - Draw text aligned to integer pixel positions.
+- A5O_ALIGN_INTEGER - Draw text aligned to integer pixel positions.
   Since: 5.0.8, 5.1.5
 
 See also: [al_draw_justified_textf], [al_draw_justified_ustr]
 
 ### API: al_draw_justified_ustr
 
-Like [al_draw_justified_text], except the text is passed as an ALLEGRO_USTR
+Like [al_draw_justified_text], except the text is passed as an A5O_USTR
 instead of a NUL-terminated char array.
 
 See also: [al_draw_justified_text], [al_draw_justified_textf].
@@ -255,7 +255,7 @@ See also: [al_get_text_width], [al_get_font_line_height],
 
 ### API: al_get_ustr_dimensions
 
-Like [al_get_text_dimensions], except the text is passed as an ALLEGRO_USTR
+Like [al_get_text_dimensions], except the text is passed as an A5O_USTR
 instead of a NUL-terminated char array.
 
 See also: [al_get_text_dimensions]
@@ -417,11 +417,11 @@ Kerning is the process of adjusting the spacing between glyphs in a font,
 to obtain a more visually pleasing result. Kerning adjusts the space between
 two individual glyphs with an offset determined by the author of the font.
 
-If you pass ALLEGRO_NO_KERNING as codepoint1 then al_get_glyph_advance
+If you pass A5O_NO_KERNING as codepoint1 then al_get_glyph_advance
 will return 0. this can be useful when drawing the first character of a string 
 in a loop.
 
-Pass ALLEGRO_NO_KERNING as codepoint2 to get the horizontal advance width
+Pass A5O_NO_KERNING as codepoint2 to get the horizontal advance width
 of the glyph that corresponds to codepoint1 without taking any kerning into
 consideration. This can be used, for example, when drawing the last character 
 of a string in a loop.
@@ -444,7 +444,7 @@ or effect.
 
 In the figure below is an example of what the result of al_get_glyph_advance
 may be like for two glypphs `A` and `l` of the same font that has kerning for 
-the "Al" pair, without and with the ALLEGRO_NO_KERNING flag.
+the "Al" pair, without and with the A5O_NO_KERNING flag.
 
 
     al_get_glyph_advance(font, 'A', 'l')
@@ -459,7 +459,7 @@ the "Al" pair, without and with the ALLEGRO_NO_KERNING flag.
         -------------
         
         
-    al_get_glyph_advance(font, 'A', ALLEGRO_NO_KERNING)
+    al_get_glyph_advance(font, 'A', A5O_NO_KERNING)
          ____|____
         /         \  
         ---------------
@@ -507,8 +507,8 @@ and `flags` parameters, vertically starting at `y` and with a distance of
 `line_height` between them. If `line_height` is zero (`0`), the value returned by
 calling [al_get_font_line_height] on `font` will be used as a default instead.
 
-The `flags` ALLEGRO_ALIGN_LEFT, ALLEGRO_ALIGN_CENTRE, ALLEGRO_ALIGN_RIGHT
-and ALLEGRO_ALIGN_INTEGER will be honoured by this function.
+The `flags` A5O_ALIGN_LEFT, A5O_ALIGN_CENTRE, A5O_ALIGN_RIGHT
+and A5O_ALIGN_INTEGER will be honoured by this function.
 
 If you want to calculate the size of what this function will draw without actually
 drawing it, or if you need a complex and/or custom layout, you can use [al_do_multiline_text].
@@ -520,7 +520,7 @@ See also: [al_do_multiline_text], [al_draw_multiline_ustr],
 
 ### API: al_draw_multiline_ustr
 
-Like [al_draw_multiline_text], except the text is passed as an ALLEGRO_USTR
+Like [al_draw_multiline_text], except the text is passed as an A5O_USTR
 instead of a NUL-terminated char array.
 
 Since: 5.1.9
@@ -571,7 +571,7 @@ See also: [al_draw_multiline_text]
 
 ### API: al_do_multiline_ustr
 
-Like [al_do_multiline_text], but using ALLEGRO_USTR instead of a
+Like [al_do_multiline_text], but using A5O_USTR instead of a
 NUL-terminated char array for text.
 
 Since: 5.1.9
@@ -659,7 +659,7 @@ See also: [al_load_bitmap_font_flags], [al_load_font], [al_load_bitmap_flags]
 Like [al_load_bitmap_font] but additionally takes a flags parameter
 which is a bitfield containing a combination of the following:
 
-ALLEGRO_NO_PREMULTIPLIED_ALPHA
+A5O_NO_PREMULTIPLIED_ALPHA
 :  The same meaning as for [al_load_bitmap_flags].
 
 See also: [al_load_bitmap_font], [al_load_bitmap_flags]
@@ -735,13 +735,13 @@ multiple times with different size parameters.
 
 The following flags are supported:
 
-* ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
+* A5O_TTF_NO_KERNING - Do not use any kerning even if the font file
   supports it.
 
-* ALLEGRO_TTF_MONOCHROME - Load as a monochrome font (which means no
+* A5O_TTF_MONOCHROME - Load as a monochrome font (which means no
   anti-aliasing of the font is done).
 
-* ALLEGRO_TTF_NO_AUTOHINT - Disable the Auto Hinter which is enabled by default
+* A5O_TTF_NO_AUTOHINT - Disable the Auto Hinter which is enabled by default
   in newer versions of FreeType. Since: 5.0.6, 5.1.2
 
 See also: [al_init_ttf_addon], [al_load_ttf_font_f]
@@ -751,7 +751,7 @@ See also: [al_init_ttf_addon], [al_load_ttf_font_f]
 Like [al_load_ttf_font], but the font is read from the file handle. The filename
 is only used to find possible additional files next to a font file.
 
-> *Note:* The file handle is owned by the returned ALLEGRO_FONT object and must not
+> *Note:* The file handle is owned by the returned A5O_FONT object and must not
 be freed by the caller, as FreeType expects to be able to read from it at a
 later time.
 
@@ -780,7 +780,7 @@ See also: [al_load_ttf_font], [al_load_ttf_font_stretch_f]
 Like [al_load_ttf_font_stretch], but the font is read from the file handle. The
 filename is only used to find possible additional files next to a font file.
 
-> *Note:* The file handle is owned by the returned ALLEGRO_FONT object and must not
+> *Note:* The file handle is owned by the returned A5O_FONT object and must not
 be freed by the caller, as FreeType expects to be able to read from it at a
 later time.
 
@@ -805,4 +805,4 @@ Since: 5.2.1
 
 > *[Unstable API]:* This API is new and subject to refinement.
 
-See also: [ALLEGRO_GLYPH]
+See also: [A5O_GLYPH]

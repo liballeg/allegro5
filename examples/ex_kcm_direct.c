@@ -11,8 +11,8 @@ char *default_files[] = {NULL, "data/welcome.wav"};
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_VOICE *voice;
-   ALLEGRO_SAMPLE_INSTANCE *sample;
+   A5O_VOICE *voice;
+   A5O_SAMPLE_INSTANCE *sample;
    int i;
 
    if (!al_init()) {
@@ -34,10 +34,10 @@ int main(int argc, char **argv)
    }
 
    for (i = 1; i < argc; ++i) {
-      ALLEGRO_SAMPLE *sample_data = NULL;
+      A5O_SAMPLE *sample_data = NULL;
       const char *filename = argv[i];
-      ALLEGRO_CHANNEL_CONF chan;
-      ALLEGRO_AUDIO_DEPTH depth;
+      A5O_CHANNEL_CONF chan;
+      A5O_AUDIO_DEPTH depth;
       unsigned long freq;
       float sample_time = 0;
 
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
       log_printf("Trying to create a voice with the same specs... ");
       voice = al_create_voice(freq, depth, chan);
       if (!voice) {
-         abort_example("Could not create ALLEGRO_VOICE.\n");
+         abort_example("Could not create A5O_VOICE.\n");
       }
       log_printf("done.\n");
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
       }
 
       /* Play sample in looping mode. */
-      al_set_sample_instance_playmode(sample, ALLEGRO_PLAYMODE_LOOP);
+      al_set_sample_instance_playmode(sample, A5O_PLAYMODE_LOOP);
       al_play_sample_instance(sample);
 
       sample_time = al_get_sample_instance_time(sample);

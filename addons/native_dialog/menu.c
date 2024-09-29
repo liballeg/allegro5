@@ -10,30 +10,30 @@ typedef struct DISPLAY_MENU DISPLAY_MENU;
 
 struct DISPLAY_MENU
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_MENU *menu;
+   A5O_DISPLAY *display;
+   A5O_MENU *menu;
 };
 
 static _AL_VECTOR display_menus = _AL_VECTOR_INITIALIZER(DISPLAY_MENU);
 
 /* The unique id. This is used to reverse lookup menus.
  * The primarily need for this arises from Windows, which cannot store
- * ALLEGRO_MENU_ID's wholesale.*/
+ * A5O_MENU_ID's wholesale.*/
 static uint16_t unique_id;
 static _AL_VECTOR menu_ids  = _AL_VECTOR_INITIALIZER(_AL_MENU_ID);
 
 /* The default event source is used with any menu that does not have
    its own event source enabled. */
-static ALLEGRO_EVENT_SOURCE default_menu_es;
+static A5O_EVENT_SOURCE default_menu_es;
 
 /* Private functions */
-static ALLEGRO_MENU *clone_menu(ALLEGRO_MENU *menu, bool popup);
-static ALLEGRO_MENU_ITEM *create_menu_item(char const *title, uint16_t id, int flags, ALLEGRO_MENU *popup);
-static void destroy_menu_item(ALLEGRO_MENU_ITEM *item);
-static bool find_menu_item_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra);
-static ALLEGRO_MENU_ITEM *interpret_menu_id_param(ALLEGRO_MENU **menu, int *id);
-static ALLEGRO_MENU_INFO *parse_menu_info(ALLEGRO_MENU *parent, ALLEGRO_MENU_INFO *info);
-static bool set_menu_display_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra);
+static A5O_MENU *clone_menu(A5O_MENU *menu, bool popup);
+static A5O_MENU_ITEM *create_menu_item(char const *title, uint16_t id, int flags, A5O_MENU *popup);
+static void destroy_menu_item(A5O_MENU_ITEM *item);
+static bool find_menu_item_r(A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra);
+static A5O_MENU_ITEM *interpret_menu_id_param(A5O_MENU **menu, int *id);
+static A5O_MENU_INFO *parse_menu_info(A5O_MENU *parent, A5O_MENU_INFO *info);
+static bool set_menu_display_r(A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra);
 
 /* True if the id is actually unique.
  */
@@ -49,29 +49,29 @@ static bool get_unique_id(uint16_t* id)
 /* The menu item owns the icon bitmap. It is converted to a memory bitmap
  * when set to make sure any system threads will be able to read the data. 
  */
-static void set_item_icon(ALLEGRO_MENU_ITEM *item, ALLEGRO_BITMAP *icon)
+static void set_item_icon(A5O_MENU_ITEM *item, A5O_BITMAP *icon)
 {
    item->icon = icon;
    
-   if (icon && al_get_bitmap_flags(item->icon) & ALLEGRO_VIDEO_BITMAP) {
+   if (icon && al_get_bitmap_flags(item->icon) & A5O_VIDEO_BITMAP) {
       int old_flags = al_get_new_bitmap_flags();
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
       item->icon = al_clone_bitmap(icon);
       al_destroy_bitmap(icon);
       al_set_new_bitmap_flags(old_flags);
    }
 }
       
-static ALLEGRO_MENU_ITEM *create_menu_item(char const *title, uint16_t id, int flags, ALLEGRO_MENU *popup)
+static A5O_MENU_ITEM *create_menu_item(char const *title, uint16_t id, int flags, A5O_MENU *popup)
 {
-   ALLEGRO_MENU_ITEM *item = al_calloc(1, sizeof(*item));
+   A5O_MENU_ITEM *item = al_calloc(1, sizeof(*item));
    if (!item) return NULL;
    if (!get_unique_id(&item->unique_id)) {
       return NULL;
    }
    
-   if (flags & ALLEGRO_MENU_ITEM_CHECKED)
-      flags |= ALLEGRO_MENU_ITEM_CHECKBOX;
+   if (flags & A5O_MENU_ITEM_CHECKED)
+      flags |= A5O_MENU_ITEM_CHECKBOX;
    
    if (title)
       item->caption = al_ustr_new(title);
@@ -86,10 +86,10 @@ static ALLEGRO_MENU_ITEM *create_menu_item(char const *title, uint16_t id, int f
  * and once per menu. The deepest menu is called first. If the proc returns true, then the
  * process terminates. It is not safe for the proc to modify the structure (add/remove items).
  */
-bool _al_walk_over_menu(ALLEGRO_MENU *menu,
-   bool (*proc)(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra), void *extra)
+bool _al_walk_over_menu(A5O_MENU *menu,
+   bool (*proc)(A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra), void *extra)
 {
-   ALLEGRO_MENU_ITEM **slot;
+   A5O_MENU_ITEM **slot;
    size_t i;
    ASSERT(menu);
    ASSERT(proc);
@@ -110,7 +110,7 @@ bool _al_walk_over_menu(ALLEGRO_MENU *menu,
 /* A callback proc for _al_walk_over_menu that sets each menu's display parameter
  * to the "extra" parameter.
  */
-static bool set_menu_display_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra)
+static bool set_menu_display_r(A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra)
 {
    (void) index;
 
@@ -124,9 +124,9 @@ static bool set_menu_display_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int 
 /* A callback proc for _al_walk_over_menu that searches a menu for a given id. If found it sets
  * the "parent" parameter to the menu that contains it, and the "id" parameter to the index.
  */
-static bool find_menu_item_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra)
+static bool find_menu_item_r(A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra)
 {
-   ALLEGRO_MENU_ITEM *info = (ALLEGRO_MENU_ITEM *) extra;
+   A5O_MENU_ITEM *info = (A5O_MENU_ITEM *) extra;
    
    if (item != NULL && info->id == item->id) {
       info->id = index;
@@ -139,9 +139,9 @@ static bool find_menu_item_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int in
 
 /* Like find_menu_item_r, but searches by unique_id.
  */
-static bool find_menu_item_r_unique(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra)
+static bool find_menu_item_r_unique(A5O_MENU *menu, A5O_MENU_ITEM *item, int index, void *extra)
 {
-   ALLEGRO_MENU_ITEM *info = (ALLEGRO_MENU_ITEM *) extra;
+   A5O_MENU_ITEM *info = (A5O_MENU_ITEM *) extra;
 
    if (item != NULL && info->unique_id == item->unique_id) {
       info->id = index;
@@ -155,7 +155,7 @@ static bool find_menu_item_r_unique(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item,
 /* Carefully destroy a menu item... If the item is part of a menu, it must be
  * removed from it.
  */
-static void destroy_menu_item(ALLEGRO_MENU_ITEM *item)
+static void destroy_menu_item(A5O_MENU_ITEM *item)
 {
    ASSERT(item);
 
@@ -166,7 +166,7 @@ static void destroy_menu_item(ALLEGRO_MENU_ITEM *item)
    else {
       size_t i;
       for (i = 0; i < _al_vector_size(&item->parent->items); ++i) {
-         if (*(ALLEGRO_MENU_ITEM **)_al_vector_ref(&item->parent->items, i) == item) {
+         if (*(A5O_MENU_ITEM **)_al_vector_ref(&item->parent->items, i) == item) {
             /* Notify the platform that the item is to be removed. */
             _al_destroy_menu_item_at(item, i);
 
@@ -211,10 +211,10 @@ static void destroy_menu_item(ALLEGRO_MENU_ITEM *item)
    al_free(item);
 }
 
-/* An ALLEGRO_MENU_INFO structure represents a heirarchy of menus. This function 
+/* An A5O_MENU_INFO structure represents a heirarchy of menus. This function 
  * recursively steps through it and builds the entire menu.
  */
-static ALLEGRO_MENU_INFO *parse_menu_info(ALLEGRO_MENU *parent, ALLEGRO_MENU_INFO *info)
+static A5O_MENU_INFO *parse_menu_info(A5O_MENU *parent, A5O_MENU_INFO *info)
 {
    ASSERT(parent);
    ASSERT(info);
@@ -231,10 +231,10 @@ static ALLEGRO_MENU_INFO *parse_menu_info(ALLEGRO_MENU *parent, ALLEGRO_MENU_INF
          /* An item with a sub-menu has a -> marker as part of its caption.
           * (e.g., "File->"). 
           */
-         ALLEGRO_MENU *menu = al_create_menu();
+         A5O_MENU *menu = al_create_menu();
          if (menu) {
             /* Strip the -> mark off the end. */
-            ALLEGRO_USTR *s = al_ustr_new(info->caption);
+            A5O_USTR *s = al_ustr_new(info->caption);
             al_ustr_remove_range(s, al_ustr_size(s) - 2, al_ustr_size(s));
             al_append_menu_item(parent, al_cstr(s), info->id, 0, NULL, menu);
             info = parse_menu_info(menu, info + 1);
@@ -267,7 +267,7 @@ static ALLEGRO_MENU_INFO *parse_menu_info(ALLEGRO_MENU *parent, ALLEGRO_MENU_INF
  *
  * (Note that the private OS specific functions always take a direct index.)
  */
-static ALLEGRO_MENU_ITEM *interpret_menu_id_param(ALLEGRO_MENU **menu, int *id)
+static A5O_MENU_ITEM *interpret_menu_id_param(A5O_MENU **menu, int *id)
 {
    if (*id > 0) {
       if (!al_find_menu_item(*menu, *id, menu, id))
@@ -280,23 +280,23 @@ static ALLEGRO_MENU_ITEM *interpret_menu_id_param(ALLEGRO_MENU **menu, int *id)
          return NULL;
    }
 
-   return *(ALLEGRO_MENU_ITEM **) _al_vector_ref(&((*menu)->items), (size_t) *id);   
+   return *(A5O_MENU_ITEM **) _al_vector_ref(&((*menu)->items), (size_t) *id);   
 }  
 
 /* A helper function for al_clone_menu() and al_clone_menu_for_popup().
  * Note that only the root menu is created as a "popup" (if popup == TRUE).
  */
-static ALLEGRO_MENU *clone_menu(ALLEGRO_MENU *menu, bool popup)
+static A5O_MENU *clone_menu(A5O_MENU *menu, bool popup)
 {
-   ALLEGRO_MENU *clone = NULL;
+   A5O_MENU *clone = NULL;
    size_t i;
 
    if (menu) {
       clone = popup ? al_create_popup_menu() : al_create_menu();
       
       for (i = 0; i < _al_vector_size(&menu->items); ++i) {
-         const ALLEGRO_MENU_ITEM *item = *(ALLEGRO_MENU_ITEM **)_al_vector_ref(&menu->items, i);
-         ALLEGRO_BITMAP *icon = item->icon;
+         const A5O_MENU_ITEM *item = *(A5O_MENU_ITEM **)_al_vector_ref(&menu->items, i);
+         A5O_BITMAP *icon = item->icon;
          
          if (icon)
             icon = al_clone_bitmap(icon);
@@ -311,12 +311,12 @@ static ALLEGRO_MENU *clone_menu(ALLEGRO_MENU *menu, bool popup)
 
 /* Function: al_create_menu
  */
-ALLEGRO_MENU *al_create_menu(void)
+A5O_MENU *al_create_menu(void)
 {
-   ALLEGRO_MENU *m = al_calloc(1, sizeof(*m));
+   A5O_MENU *m = al_calloc(1, sizeof(*m));
 
    if (m) {
-      _al_vector_init(&m->items, sizeof(ALLEGRO_MENU_ITEM*));
+      _al_vector_init(&m->items, sizeof(A5O_MENU_ITEM*));
 
       /* Make sure the platform actually supports menus */
       if (!_al_init_menu(m)) {
@@ -330,12 +330,12 @@ ALLEGRO_MENU *al_create_menu(void)
 
 /* Function: al_create_popup_menu
  */
-ALLEGRO_MENU *al_create_popup_menu(void)
+A5O_MENU *al_create_popup_menu(void)
 {
-   ALLEGRO_MENU *m = al_calloc(1, sizeof(*m));
+   A5O_MENU *m = al_calloc(1, sizeof(*m));
 
    if (m) {
-      _al_vector_init(&m->items, sizeof(ALLEGRO_MENU_ITEM*));
+      _al_vector_init(&m->items, sizeof(A5O_MENU_ITEM*));
 
       if (!_al_init_popup_menu(m)) {
          al_destroy_menu(m);
@@ -354,23 +354,23 @@ ALLEGRO_MENU *al_create_popup_menu(void)
 
 /* Function: al_clone_menu
  */
-ALLEGRO_MENU *al_clone_menu(ALLEGRO_MENU *menu)
+A5O_MENU *al_clone_menu(A5O_MENU *menu)
 {
    return clone_menu(menu, false);
 }
 
 /* Function: al_clone_menu_for_popup
  */
-ALLEGRO_MENU *al_clone_menu_for_popup(ALLEGRO_MENU *menu)
+A5O_MENU *al_clone_menu_for_popup(A5O_MENU *menu)
 {
    return clone_menu(menu, true);
 }
 
 /* Function: al_build_menu
  */
-ALLEGRO_MENU *al_build_menu(ALLEGRO_MENU_INFO *info)
+A5O_MENU *al_build_menu(A5O_MENU_INFO *info)
 {
-   ALLEGRO_MENU *root = al_create_menu();
+   A5O_MENU *root = al_create_menu();
 
    if (root)
       parse_menu_info(root, info);
@@ -380,8 +380,8 @@ ALLEGRO_MENU *al_build_menu(ALLEGRO_MENU_INFO *info)
 
 /* Function: al_append_menu_item
  */
-int al_append_menu_item(ALLEGRO_MENU *parent, char const *title, uint16_t id,
-   int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu)
+int al_append_menu_item(A5O_MENU *parent, char const *title, uint16_t id,
+   int flags, A5O_BITMAP *icon, A5O_MENU *submenu)
 {
    ASSERT(parent);
 
@@ -392,11 +392,11 @@ int al_append_menu_item(ALLEGRO_MENU *parent, char const *title, uint16_t id,
 
 /* Function: al_insert_menu_item
  */
-int al_insert_menu_item(ALLEGRO_MENU *parent, int pos, char const *title,
-   uint16_t id, int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu)
+int al_insert_menu_item(A5O_MENU *parent, int pos, char const *title,
+   uint16_t id, int flags, A5O_BITMAP *icon, A5O_MENU *submenu)
 {
-   ALLEGRO_MENU_ITEM *item;
-   ALLEGRO_MENU_ITEM **slot;
+   A5O_MENU_ITEM *item;
+   A5O_MENU_ITEM **slot;
    _AL_MENU_ID *menu_id;
    size_t i;
 
@@ -459,9 +459,9 @@ int al_insert_menu_item(ALLEGRO_MENU *parent, int pos, char const *title,
 
 /* Function: al_remove_menu_item
  */
-bool al_remove_menu_item(ALLEGRO_MENU *menu, int pos)
+bool al_remove_menu_item(A5O_MENU *menu, int pos)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
 
@@ -476,24 +476,24 @@ bool al_remove_menu_item(ALLEGRO_MENU *menu, int pos)
 
 /* Function: al_find_menu
  */
-ALLEGRO_MENU *al_find_menu(ALLEGRO_MENU *haystack, uint16_t id)
+A5O_MENU *al_find_menu(A5O_MENU *haystack, uint16_t id)
 {
    int index;
 
    return !al_find_menu_item(haystack, id, &haystack, &index) ? NULL :
-      (*(ALLEGRO_MENU_ITEM **)_al_vector_ref(&haystack->items, index))->popup;
+      (*(A5O_MENU_ITEM **)_al_vector_ref(&haystack->items, index))->popup;
 }
 
 /* Function: al_find_menu_item
  */
-bool al_find_menu_item(ALLEGRO_MENU *haystack, uint16_t id, ALLEGRO_MENU **menu,
+bool al_find_menu_item(A5O_MENU *haystack, uint16_t id, A5O_MENU **menu,
    int *index)
 {
-   ALLEGRO_MENU_ITEM item; 
+   A5O_MENU_ITEM item; 
 
    ASSERT(haystack);
 
-   /* Abuse the ALLEGRO_MENU_ITEM struct as a container for the _al_walk_over_menu callback.
+   /* Abuse the A5O_MENU_ITEM struct as a container for the _al_walk_over_menu callback.
     * If found, it will return true, and the "parent" field will be the menu that and
     * the "id" will be the index.
     */
@@ -513,10 +513,10 @@ bool al_find_menu_item(ALLEGRO_MENU *haystack, uint16_t id, ALLEGRO_MENU **menu,
 
 /* As al_find_menu_item, but searches by the unique id.
  */
-bool _al_find_menu_item_unique(ALLEGRO_MENU *haystack, uint16_t unique_id, ALLEGRO_MENU **menu,
+bool _al_find_menu_item_unique(A5O_MENU *haystack, uint16_t unique_id, A5O_MENU **menu,
    int *index)
 {
-   ALLEGRO_MENU_ITEM item;
+   A5O_MENU_ITEM item;
 
    ASSERT(haystack);
 
@@ -536,9 +536,9 @@ bool _al_find_menu_item_unique(ALLEGRO_MENU *haystack, uint16_t unique_id, ALLEG
 
 /* Function: al_get_menu_item_caption
  */
-const char *al_get_menu_item_caption(ALLEGRO_MENU *menu, int pos)
+const char *al_get_menu_item_caption(A5O_MENU *menu, int pos)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
 
@@ -549,9 +549,9 @@ const char *al_get_menu_item_caption(ALLEGRO_MENU *menu, int pos)
 
 /* Function: al_set_menu_item_caption
  */
-void al_set_menu_item_caption(ALLEGRO_MENU *menu, int pos, const char *caption)
+void al_set_menu_item_caption(A5O_MENU *menu, int pos, const char *caption)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
 
@@ -566,9 +566,9 @@ void al_set_menu_item_caption(ALLEGRO_MENU *menu, int pos, const char *caption)
 
 /* Function: al_get_menu_item_flags
  */
-int al_get_menu_item_flags(ALLEGRO_MENU *menu, int pos)
+int al_get_menu_item_flags(A5O_MENU *menu, int pos)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
 
@@ -578,9 +578,9 @@ int al_get_menu_item_flags(ALLEGRO_MENU *menu, int pos)
 
 /* Function: al_set_menu_item_flags
  */
-void al_set_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
+void al_set_menu_item_flags(A5O_MENU *menu, int pos, int flags)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
    
@@ -590,11 +590,11 @@ void al_set_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
       /* The CHECKBOX flag is read-only after the menu is created, and
        * the CHECKED flag can only be set if it is a CHECKBOX.
        */
-      if (item->flags & ALLEGRO_MENU_ITEM_CHECKBOX)
-         flags |= ALLEGRO_MENU_ITEM_CHECKBOX;
+      if (item->flags & A5O_MENU_ITEM_CHECKBOX)
+         flags |= A5O_MENU_ITEM_CHECKBOX;
       else {
-         flags &= ~ALLEGRO_MENU_ITEM_CHECKED;
-         flags &= ~ALLEGRO_MENU_ITEM_CHECKBOX;
+         flags &= ~A5O_MENU_ITEM_CHECKED;
+         flags &= ~A5O_MENU_ITEM_CHECKBOX;
       }
 
       item->flags = flags;
@@ -604,9 +604,9 @@ void al_set_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
 
 /* Function: al_toggle_menu_item_flags
  */
-int al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
+int al_toggle_menu_item_flags(A5O_MENU *menu, int pos, int flags)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
 
@@ -618,9 +618,9 @@ int al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
    /* The CHECKBOX flag is read-only after the menu is created, and
     * the CHECKED flag can only be set if it is a CHECKBOX.
     */
-   flags &= ~ALLEGRO_MENU_ITEM_CHECKBOX;   
-   if (!(item->flags & ALLEGRO_MENU_ITEM_CHECKBOX)) {
-      flags &= ~ALLEGRO_MENU_ITEM_CHECKED;
+   flags &= ~A5O_MENU_ITEM_CHECKBOX;   
+   if (!(item->flags & A5O_MENU_ITEM_CHECKBOX)) {
+      flags &= ~A5O_MENU_ITEM_CHECKED;
    }
 
    item->flags ^= flags;
@@ -631,9 +631,9 @@ int al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
 
 /* Function: al_get_menu_item_icon
  */
-ALLEGRO_BITMAP *al_get_menu_item_icon(ALLEGRO_MENU *menu, int pos)
+A5O_BITMAP *al_get_menu_item_icon(A5O_MENU *menu, int pos)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
 
@@ -644,9 +644,9 @@ ALLEGRO_BITMAP *al_get_menu_item_icon(ALLEGRO_MENU *menu, int pos)
 
 /* Function: al_set_menu_item_icon
  */
-void al_set_menu_item_icon(ALLEGRO_MENU *menu, int pos, ALLEGRO_BITMAP *icon)
+void al_set_menu_item_icon(A5O_MENU *menu, int pos, A5O_BITMAP *icon)
 {
-   ALLEGRO_MENU_ITEM *item;
+   A5O_MENU_ITEM *item;
 
    ASSERT(menu);
 
@@ -663,16 +663,16 @@ void al_set_menu_item_icon(ALLEGRO_MENU *menu, int pos, ALLEGRO_BITMAP *icon)
 
 /* Function: al_destroy_menu
  */
-void al_destroy_menu(ALLEGRO_MENU *menu)
+void al_destroy_menu(A5O_MENU *menu)
 {
-   ALLEGRO_MENU_ITEM **slot;
+   A5O_MENU_ITEM **slot;
    size_t i;
    ASSERT(menu);
 
    if (menu->parent) {
       /* If the menu is attached to a menu item, then this is equivelant to
          removing that menu item. */
-      ALLEGRO_MENU *parent = menu->parent->parent;
+      A5O_MENU *parent = menu->parent->parent;
       ASSERT(parent);
 
       for (i = 0; i < _al_vector_size(&parent->items); ++i) {
@@ -706,14 +706,14 @@ void al_destroy_menu(ALLEGRO_MENU *menu)
 
 /* Function: al_get_default_menu_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_default_menu_event_source(void)
+A5O_EVENT_SOURCE *al_get_default_menu_event_source(void)
 {
    return &default_menu_es;
 }
 
 /* Function: al_enable_menu_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_enable_menu_event_source(ALLEGRO_MENU *menu)
+A5O_EVENT_SOURCE *al_enable_menu_event_source(A5O_MENU *menu)
 {
    ASSERT(menu);
 
@@ -727,7 +727,7 @@ ALLEGRO_EVENT_SOURCE *al_enable_menu_event_source(ALLEGRO_MENU *menu)
 
 /* Function: al_disable_menu_event_source
  */
-void al_disable_menu_event_source(ALLEGRO_MENU *menu)
+void al_disable_menu_event_source(A5O_MENU *menu)
 {
    ASSERT(menu);
 
@@ -739,7 +739,7 @@ void al_disable_menu_event_source(ALLEGRO_MENU *menu)
 
 /* Function: al_get_display_menu
  */
-ALLEGRO_MENU *al_get_display_menu(ALLEGRO_DISPLAY *display)
+A5O_MENU *al_get_display_menu(A5O_DISPLAY *display)
 {
    size_t i;
    ASSERT(display);
@@ -757,7 +757,7 @@ ALLEGRO_MENU *al_get_display_menu(ALLEGRO_DISPLAY *display)
  
 /* Function: al_set_display_menu
  */
-bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+bool al_set_display_menu(A5O_DISPLAY *display, A5O_MENU *menu)
 {
    DISPLAY_MENU *dm = NULL;
    size_t i;
@@ -838,7 +838,7 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 
 /* Function: al_popup_menu
  */
-bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display)
+bool al_popup_menu(A5O_MENU *popup, A5O_DISPLAY *display)
 {
    bool ret;
    ASSERT(popup);
@@ -862,9 +862,9 @@ bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display)
 
 /* Function: al_remove_display_menu
  */
-ALLEGRO_MENU *al_remove_display_menu(ALLEGRO_DISPLAY *display)
+A5O_MENU *al_remove_display_menu(A5O_DISPLAY *display)
 {
-   ALLEGRO_MENU *menu;
+   A5O_MENU *menu;
 
    ASSERT(display);
 
@@ -879,7 +879,7 @@ ALLEGRO_MENU *al_remove_display_menu(ALLEGRO_DISPLAY *display)
 /* Tries to find the menu that has a child with the given id. If display
  * is not NULL, then it must also match. The first match is returned.
  */
-_AL_MENU_ID *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t unique_id)
+_AL_MENU_ID *_al_find_parent_menu_by_id(A5O_DISPLAY *display, uint16_t unique_id)
 {
    _AL_MENU_ID *menu_id;
    size_t i;
@@ -901,11 +901,11 @@ _AL_MENU_ID *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t uniqu
  * and the user is using non-unique ids, it won't know which display actually
  * triggered the menu click.
  */
-bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t unique_id)
+bool _al_emit_menu_event(A5O_DISPLAY *display, uint16_t unique_id)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    _AL_MENU_ID *menu_id = NULL;
-   ALLEGRO_EVENT_SOURCE *source = al_get_default_menu_event_source();
+   A5O_EVENT_SOURCE *source = al_get_default_menu_event_source();
 
    /* try to find the menu that triggered the event */
    menu_id = _al_find_parent_menu_by_id(display, unique_id);
@@ -919,7 +919,7 @@ bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t unique_id)
    if (menu_id) {
       /* A menu was found associated with the id. See if it has an
        * event source associated with it, and adjust "source" accordingly. */
-      ALLEGRO_MENU *m = menu_id->menu;
+      A5O_MENU *m = menu_id->menu;
       while (true) {
          if (m->is_event_source) {
             source = &m->es;
@@ -936,7 +936,7 @@ bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t unique_id)
       }
    }
 
-   event.user.type = ALLEGRO_EVENT_MENU_CLICK;
+   event.user.type = A5O_EVENT_MENU_CLICK;
    event.user.data1 = menu_id->id;
    event.user.data2 = (intptr_t) display;
    event.user.data3 = (intptr_t) menu_id->menu;

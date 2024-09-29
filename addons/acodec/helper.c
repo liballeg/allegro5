@@ -5,7 +5,7 @@
 #include "allegro5/internal/aintern_system.h"
 #include "helper.h"
 
-void _al_acodec_start_feed_thread(ALLEGRO_AUDIO_STREAM *stream)
+void _al_acodec_start_feed_thread(A5O_AUDIO_STREAM *stream)
 {
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->feed_thread_started_cond = al_create_cond();
@@ -25,9 +25,9 @@ void _al_acodec_start_feed_thread(ALLEGRO_AUDIO_STREAM *stream)
    al_unlock_mutex(stream->feed_thread_started_mutex);
 }
 
-void _al_acodec_stop_feed_thread(ALLEGRO_AUDIO_STREAM *stream)
+void _al_acodec_stop_feed_thread(A5O_AUDIO_STREAM *stream)
 {
-   ALLEGRO_EVENT quit_event;
+   A5O_EVENT quit_event;
 
    quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
    al_emit_user_event(al_get_audio_stream_event_source(stream), &quit_event, NULL);

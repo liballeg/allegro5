@@ -48,11 +48,11 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_identifier(".png", _al_identify_png);
    success |= al_register_bitmap_identifier(".jpg", _al_identify_jpg);
 
-/* ALLEGRO_CFG_IIO_HAVE_* is sufficient to know that the library
-   should be used. i.e., ALLEGRO_CFG_IIO_HAVE_GDIPLUS and
-   ALLEGRO_CFG_IIO_HAVE_PNG will never both be set. */
+/* A5O_CFG_IIO_HAVE_* is sufficient to know that the library
+   should be used. i.e., A5O_CFG_IIO_HAVE_GDIPLUS and
+   A5O_CFG_IIO_HAVE_PNG will never both be set. */
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS
+#ifdef A5O_CFG_IIO_HAVE_GDIPLUS
    {
       char const *extensions[] = {".tif", ".tiff", ".jpg", ".jpeg", ".gif",
          ".png", NULL};
@@ -75,14 +75,14 @@ bool al_init_image_addon(void)
    }
 #endif
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_PNG
+#ifdef A5O_CFG_IIO_HAVE_PNG
    success |= al_register_bitmap_loader(".png", _al_load_png);
    success |= al_register_bitmap_saver(".png", _al_save_png);
    success |= al_register_bitmap_loader_f(".png", _al_load_png_f);
    success |= al_register_bitmap_saver_f(".png", _al_save_png_f);
 #endif
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_JPG
+#ifdef A5O_CFG_IIO_HAVE_JPG
    success |= al_register_bitmap_loader(".jpg", _al_load_jpg);
    success |= al_register_bitmap_saver(".jpg", _al_save_jpg);
    success |= al_register_bitmap_loader_f(".jpg", _al_load_jpg_f);
@@ -94,7 +94,7 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_saver_f(".jpeg", _al_save_jpg_f);
 #endif
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_WEBP
+#ifdef A5O_CFG_IIO_HAVE_WEBP
    success |= al_register_bitmap_loader(".webp", _al_load_webp);
    success |= al_register_bitmap_saver(".webp", _al_save_webp);
    success |= al_register_bitmap_loader_f(".webp", _al_load_webp_f);
@@ -102,7 +102,7 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_identifier(".webp", _al_identify_webp);
 #endif
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_FREEIMAGE
+#ifdef A5O_CFG_IIO_HAVE_FREEIMAGE
    {
       char const *extensions[] = {".ico", ".jng", ".koala", ".lbm",
          ".iff", ".mng", ".pbm", ".pcd", ".pgm", ".ppm", ".ras", ".wbmp",
@@ -121,7 +121,7 @@ bool al_init_image_addon(void)
    }
 #endif
 
-#ifdef ALLEGRO_CFG_IIO_HAVE_ANDROID
+#ifdef A5O_CFG_IIO_HAVE_ANDROID
    {
       char const *extensions[] = {".webp", ".jpg", ".jpeg", ".ico", ".gif",
          ".wbmp", ".png", NULL};
@@ -137,8 +137,8 @@ bool al_init_image_addon(void)
    }
 #endif
 
-#ifdef ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER
-#ifdef ALLEGRO_IPHONE
+#ifdef A5O_CFG_WANT_NATIVE_IMAGE_LOADER
+#ifdef A5O_IPHONE
    {
       char const *extensions[] = {".tif", ".tiff", ".jpg", ".jpeg", ".gif",
          ".png", ".BMPf", ".ico", ".cur", ".xbm", NULL};
@@ -150,7 +150,7 @@ bool al_init_image_addon(void)
    }
 #endif
 
-#ifdef ALLEGRO_MACOSX
+#ifdef A5O_MACOSX
    success |= _al_osx_register_image_loader();
 #endif
 #endif
@@ -184,7 +184,7 @@ void al_shutdown_image_addon(void)
  */
 uint32_t al_get_allegro_image_version(void)
 {
-   return ALLEGRO_VERSION_INT;
+   return A5O_VERSION_INT;
 }
 
 

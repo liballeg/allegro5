@@ -10,10 +10,10 @@ set(PHYSFS_INCLUDE_DIRECTORIES ${PHYSFS_INCLUDE_DIR})
 set_our_header_properties(${PHYSFS_INCLUDE_FILES})
 
 add_our_addon_library(allegro_physfs
-   AllegroPhysfs-${ALLEGRO_SOVERSION}
+   AllegroPhysfs-${A5O_SOVERSION}
    "${PHYSFS_SOURCES};${PHYSFS_INCLUDE_FILES}"
-   "-DALLEGRO_PHYSFS_SRC"
-   "${ALLEGRO_LINK_WITH};${PHYSFS_LIBRARIES}"
+   "-DA5O_PHYSFS_SRC"
+   "${A5O_LINK_WITH};${PHYSFS_LIBRARIES}"
    )
 
 install_our_headers(${PHYSFS_INCLUDE_FILES})

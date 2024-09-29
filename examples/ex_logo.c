@@ -14,18 +14,18 @@
 
 #include "common.c"
 
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #define snprintf _snprintf
 #endif
 
-static ALLEGRO_BITMAP *logo, *logo_flash;
+static A5O_BITMAP *logo, *logo_flash;
 static int logo_x, logo_y;
-static ALLEGRO_FONT *font;
+static A5O_FONT *font;
 static int cursor;
 static int selection;
 static bool regenerate = 0, editing = 0;
-static ALLEGRO_CONFIG *config;
-static ALLEGRO_COLOR white;
+static A5O_CONFIG *config;
+static A5O_COLOR white;
 static double anim;
 
 static float clamp(float x)
@@ -56,7 +56,7 @@ static char param_values[][256] = {
  * contain another bitmap which is a white, blurred mask of the logo
  * which we use for the flash effect.
  */
-static ALLEGRO_BITMAP *generate_logo(char const *text,
+static A5O_BITMAP *generate_logo(char const *text,
                                      char const *fontname,
                                      int font_size,
                                      float shadow_offset,
@@ -65,14 +65,14 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
                                      float light_red,
                                      float light_green,
                                      float light_blue,
-                                     ALLEGRO_BITMAP **bumpmap)
+                                     A5O_BITMAP **bumpmap)
 {
-   ALLEGRO_COLOR transparent = al_map_rgba_f(0, 0, 0, 0);
+   A5O_COLOR transparent = al_map_rgba_f(0, 0, 0, 0);
    int xp, yp, w, h, i, j, x, y, br, bw, dw, dh;
-   ALLEGRO_COLOR c;
-   ALLEGRO_FONT *logofont;
-   ALLEGRO_STATE state;
-   ALLEGRO_BITMAP *blur, *light, *logo;
+   A5O_COLOR c;
+   A5O_FONT *logofont;
+   A5O_STATE state;
+   A5O_BITMAP *blur, *light, *logo;
    int left, right, top, bottom;
    float cx, cy;
 
@@ -85,7 +85,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    logofont = al_load_font(fontname, -font_size, 0);
    al_get_text_dimensions(logofont, text, &xp, &yp, &w, &h);
 
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+   al_store_state(&state, A5O_STATE_TARGET_BITMAP | A5O_STATE_BLENDER);
 
    /* Cheap blur effect to create a bump map. */
    blur = al_create_bitmap(dw, dh);
@@ -94,8 +94,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    br = blur_radius;
    bw = br * 2 + 1;
    c = al_map_rgba_f(1, 1, 1, 1.0 / (bw * bw * blur_factor));
-   al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-                           ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+   al_set_separate_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA,
+                           A5O_ADD, A5O_ONE, A5O_ONE);
    for (i = -br; i <= br; i++) {
       for (j = -br; j <= br; j++) {
          al_draw_text(logofont, c,
@@ -122,19 +122,19 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    light = al_create_bitmap(dw, dh);
    al_set_target_bitmap(light);
    al_clear_to_color(transparent);
-   al_lock_bitmap(blur, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(blur, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
    al_lock_bitmap_region(light, left, top,
       1 + right - left, 1 + bottom - top,
-      ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+      A5O_PIXEL_FORMAT_ANY, A5O_LOCK_WRITEONLY);
    for (y = top; y <= bottom; y++) {
       for (x = left; x <= right; x++) {
          float r1, g1, b1, a1;
          float r2, g2, b2, a2;
          float r, g, b, a;
          float d;
-         ALLEGRO_COLOR c = al_get_pixel(blur, x, y);
-         ALLEGRO_COLOR c1 = al_get_pixel(blur, x - 1, y - 1);
-         ALLEGRO_COLOR c2 = al_get_pixel(blur, x + 1, y + 1);
+         A5O_COLOR c = al_get_pixel(blur, x, y);
+         A5O_COLOR c1 = al_get_pixel(blur, x - 1, y - 1);
+         A5O_COLOR c2 = al_get_pixel(blur, x + 1, y + 1);
          al_unmap_rgba_f(c, &r, &g, &b, &a);
          al_unmap_rgba_f(c1, &r1, &g1, &b1, &a1);
          al_unmap_rgba_f(c2, &r2, &g2, &b2, &a2);
@@ -163,8 +163,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
 
    /* Draw a shadow. */
    c = al_map_rgba_f(0, 0, 0, 0.5 / 9);
-   al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-                           ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+   al_set_separate_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA,
+                           A5O_ADD, A5O_ONE, A5O_ONE);
    for (i = -1; i <= 1; i++)
       for (j = -1; j <= 1; j++)
          al_draw_text(logofont, c,
@@ -173,8 +173,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
                          0, text);
 
    /* Then draw the lit text we made before on top. */
-   al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-                           ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_separate_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA,
+                           A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    al_draw_bitmap(light, 0, 0, 0);
    al_destroy_bitmap(light);
 
@@ -187,7 +187,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
 /* Draw the checkerboard background. */
 static void draw_background(void)
 {
-   ALLEGRO_COLOR c[2];
+   A5O_COLOR c[2];
    int i, j;
    c[0] = al_map_rgba(0xaa, 0xaa, 0xaa, 0xff);
    c[1] = al_map_rgba(0x99, 0x99, 0x99, 0xff);
@@ -205,17 +205,17 @@ static void draw_background(void)
 static void print_parameters(void)
 {
    int i;
-   ALLEGRO_STATE state;
-   ALLEGRO_COLOR normal = al_map_rgba_f(0, 0, 0, 1);
-   ALLEGRO_COLOR light = al_map_rgba_f(0, 0, 1, 1);
-   ALLEGRO_COLOR label = al_map_rgba_f(0.2, 0.2, 0.2, 1);
+   A5O_STATE state;
+   A5O_COLOR normal = al_map_rgba_f(0, 0, 0, 1);
+   A5O_COLOR light = al_map_rgba_f(0, 0, 1, 1);
+   A5O_COLOR label = al_map_rgba_f(0.2, 0.2, 0.2, 1);
    int th;
 
-   al_store_state(&state, ALLEGRO_STATE_BLENDER);
+   al_store_state(&state, A5O_STATE_BLENDER);
 
    th = al_get_font_line_height(font) + 3;
    for (i = 0; param_names[i]; i++) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       al_draw_textf(font, label, 2, 2 + i * th, 0, "%s", param_names[i]);
    }
    for (i = 0; param_names[i]; i++) {
@@ -226,12 +226,12 @@ static void print_parameters(void)
       if (i == selection && editing &&
          (((int)(al_get_time() * 2)) & 1)) {
          int x = 75 + al_get_text_width(font, param_values[i]);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_line(x, y, x, y + th, white, 0);
       }
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
    al_draw_textf(font, normal, 400, 2, 0, "%s", "R - Randomize");
    al_draw_textf(font, normal, 400, 2 + th, 0, "%s", "S - Save as logo.png");
 
@@ -302,8 +302,8 @@ static void render(void)
    }
    if (!logo) {
       /* Generate a new logo. */
-      ALLEGRO_BITMAP *fullflash;
-      ALLEGRO_BITMAP *fulllogo = generate_logo(param_values[0],
+      A5O_BITMAP *fullflash;
+      A5O_BITMAP *fulllogo = generate_logo(param_values[0],
          param_values[1],
          strtol(param_values[2], NULL, 10),
          strtod(param_values[3], NULL),
@@ -313,13 +313,13 @@ static void render(void)
          strtod(param_values[7], NULL),
          strtod(param_values[8], NULL),
          &fullflash);
-      ALLEGRO_BITMAP *crop;
+      A5O_BITMAP *crop;
       int x, y, left = 640, top = 480, right = -1, bottom = -1;
       /* Crop out the non-transparent part. */
-      al_lock_bitmap(fulllogo, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+      al_lock_bitmap(fulllogo, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
       for (y = 0; y < 480; y++) {
          for (x = 0; x < 640; x++) {
-            ALLEGRO_COLOR c = al_get_pixel(fulllogo, x, y);
+            A5O_COLOR c = al_get_pixel(fulllogo, x, y);
             float r, g, b, a;
             al_unmap_rgba_f(c, &r, &g, &b, &a);
             if (a > 0) {
@@ -366,14 +366,14 @@ static void render(void)
 
    /* For half a second, display our flash animation. */
    if (t - anim < 0.5) {
-      ALLEGRO_STATE state;
+      A5O_STATE state;
       int i, j;
-      float f = sin(ALLEGRO_PI * ((t - anim) / 0.5));
-      ALLEGRO_COLOR c = al_map_rgb_f(f * 0.3, f * 0.3, f * 0.3);
-      al_store_state(&state, ALLEGRO_STATE_BLENDER);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      float f = sin(A5O_PI * ((t - anim) / 0.5));
+      A5O_COLOR c = al_map_rgb_f(f * 0.3, f * 0.3, f * 0.3);
+      al_store_state(&state, A5O_STATE_BLENDER);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
       al_draw_tinted_bitmap(logo, al_map_rgba_f(1, 1, 1, 1 - f), logo_x, logo_y, 0);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
       for (j = -2; j <= 2; j += 2) {
          for (i = -2; i <= 2; i += 2) {
             al_draw_tinted_bitmap(logo_flash, c, logo_x + i, logo_y + j, 0);
@@ -390,9 +390,9 @@ static void render(void)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    int redraw = 0, i;
    bool quit = false;
 
@@ -444,15 +444,15 @@ int main(int argc, char **argv)
 
    al_start_timer(timer);
    while (!quit) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
             quit = true;
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+         else if (event.keyboard.keycode == A5O_KEY_ENTER) {
             if (editing) {
                regenerate = true;
                editing = false;
@@ -462,14 +462,14 @@ int main(int argc, char **argv)
                editing = true;
             }
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
+         else if (event.keyboard.keycode == A5O_KEY_UP) {
             if (selection > 0) {
                selection--;
                cursor = strlen(param_values[selection]);
                editing = false;
             }
          }
-         else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+         else if (event.keyboard.keycode == A5O_KEY_DOWN) {
             if (param_names[selection + 1]) {
                selection++;
                cursor = strlen(param_values[selection]);
@@ -479,9 +479,9 @@ int main(int argc, char **argv)
          else {
             int c = event.keyboard.unichar;
             if (editing) {
-               if (event.keyboard.keycode == ALLEGRO_KEY_BACKSPACE) {
+               if (event.keyboard.keycode == A5O_KEY_BACKSPACE) {
                   if (cursor > 0) {
-                     ALLEGRO_USTR *u = al_ustr_new(param_values[selection]);
+                     A5O_USTR *u = al_ustr_new(param_values[selection]);
                      if (al_ustr_prev(u, &cursor)) {
                         al_ustr_remove_chr(u, cursor);
                         strncpy(param_values[selection], al_cstr(u),
@@ -491,7 +491,7 @@ int main(int argc, char **argv)
                   }
                }
                else if (c >= 32) {
-                  ALLEGRO_USTR *u = al_ustr_new(param_values[selection]);
+                  A5O_USTR *u = al_ustr_new(param_values[selection]);
                   cursor += al_ustr_set_chr(u, cursor, c);
                   al_ustr_set_chr(u, cursor, 0);
                   strncpy(param_values[selection], al_cstr(u),
@@ -507,12 +507,12 @@ int main(int argc, char **argv)
             }
          }
       }
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          if (event.mouse.button == 1) {
             mouse_click(event.mouse.x, event.mouse.y);
          }
       }
-      if (event.type == ALLEGRO_EVENT_TIMER)
+      if (event.type == A5O_EVENT_TIMER)
          redraw++;
 
       if (redraw && al_is_event_queue_empty(queue)) {

@@ -9,7 +9,7 @@
 #endif
 
 
-typedef struct ALLEGRO_MOUSE_DRIVER
+typedef struct A5O_MOUSE_DRIVER
 {
    int  msedrv_id;
    const char *msedrv_name;
@@ -17,21 +17,21 @@ typedef struct ALLEGRO_MOUSE_DRIVER
    const char *msedrv_ascii_name;
    AL_METHOD(bool, init_mouse, (void));
    AL_METHOD(void, exit_mouse, (void));
-   AL_METHOD(ALLEGRO_MOUSE*, get_mouse, (void));
+   AL_METHOD(A5O_MOUSE*, get_mouse, (void));
    AL_METHOD(unsigned int, get_mouse_num_buttons, (void));
    AL_METHOD(unsigned int, get_mouse_num_axes, (void));
-   AL_METHOD(bool, set_mouse_xy, (ALLEGRO_DISPLAY *display, int x, int y));
+   AL_METHOD(bool, set_mouse_xy, (A5O_DISPLAY *display, int x, int y));
    AL_METHOD(bool, set_mouse_axis, (int which, int value));
-   AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));
-} ALLEGRO_MOUSE_DRIVER;
+   AL_METHOD(void, get_mouse_state, (A5O_MOUSE_STATE *ret_state));
+} A5O_MOUSE_DRIVER;
 
 
 extern _AL_DRIVER_INFO _al_mouse_driver_list[];
 
 
-struct ALLEGRO_MOUSE
+struct A5O_MOUSE
 {
-   ALLEGRO_EVENT_SOURCE es;
+   A5O_EVENT_SOURCE es;
 };
 
 

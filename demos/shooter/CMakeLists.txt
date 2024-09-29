@@ -83,7 +83,7 @@ fix_executable(shooter)
 
 if(WANT_MONOLITH)
    target_link_libraries(shooter
-     ${ALLEGRO_MONOLITH_LINK_WITH}
+     ${A5O_MONOLITH_LINK_WITH}
      )
 else(WANT_MONOLITH)
    target_link_libraries(shooter
@@ -91,14 +91,14 @@ else(WANT_MONOLITH)
      ${AUDIO_LINK_WITH}
      ${FONT_LINK_WITH}
      ${IMAGE_LINK_WITH}
-     ${ALLEGRO_MAIN_LINK_WITH}
+     ${A5O_MAIN_LINK_WITH}
      ${PRIMITIVES_LINK_WITH}
      ${TTF_LINK_WITH}
      )
 endif(WANT_MONOLITH)
 
 if(NOT BUILD_SHARED_LIBS)
-    set_target_properties(shooter PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+    set_target_properties(shooter PROPERTIES COMPILE_FLAGS "-DA5O_STATICLINK")
 endif(NOT BUILD_SHARED_LIBS)
 
 # Mac OS X bundle support.

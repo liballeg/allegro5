@@ -8,13 +8,13 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *tex1, *tex2;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *tex1, *tex2;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    bool redraw = true;
-   ALLEGRO_LOCKED_REGION *lock;
-   ALLEGRO_FONT *font;
+   A5O_LOCKED_REGION *lock;
+   A5O_FONT *font;
    unsigned char *p;
    int x, y;
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
    font = al_create_builtin_font();
 
    tex1 = al_create_bitmap(8, 8);
-   lock = al_lock_bitmap(tex1, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   lock = al_lock_bitmap(tex1, A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_WRITEONLY);
    p = lock->data;
    for (y = 0; y < 8; y++) {
       unsigned char *lp = p;
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
    }
    al_unlock_bitmap(tex1);
 
-   al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
+   al_set_new_bitmap_flags(A5O_MAG_LINEAR);
    tex2 = al_clone_bitmap(tex1);
 
    timer = al_create_timer(1.0 / 30);
@@ -71,64 +71,64 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == A5O_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == A5O_KEY_ESCAPE)
              break;
          }
-      if (event.type == ALLEGRO_EVENT_TIMER)
+      if (event.type == A5O_EVENT_TIMER)
          redraw = true;
 
       if (redraw && al_is_event_queue_empty(queue)) {
          float x = 8, y = 60;
          float a, t = al_get_time();
          float th = al_get_font_line_height(font);
-         ALLEGRO_COLOR color = al_map_rgb_f(0, 0, 0);
-         ALLEGRO_COLOR color2 = al_map_rgb_f(1, 0, 0);
-         ALLEGRO_COLOR color3 = al_map_rgb_f(0, 0.5, 0);
+         A5O_COLOR color = al_map_rgb_f(0, 0, 0);
+         A5O_COLOR color2 = al_map_rgb_f(1, 0, 0);
+         A5O_COLOR color3 = al_map_rgb_f(0, 0.5, 0);
 
          t /= 10;
          a = t - floor(t);
-         a *= 2 * ALLEGRO_PI;
+         a *= 2 * A5O_PI;
 
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0.5, 0.6, 1));
          
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "not premultiplied");
          al_draw_textf(font, color, x, y + th, 0, "no filtering");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex1, 4, 4, x + 320, y, 8, 8, a, 0);
          
          y += 120;
 
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "not premultiplied");
          al_draw_textf(font, color, x, y + th, 0, "mag linear filtering");
          al_draw_textf(font, color2, x + 400, y, 0, "wrong dark border");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex2, 4, 4, x + 320, y, 8, 8, a, 0);
 
          y += 120;
 
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "premultiplied alpha");
          al_draw_textf(font, color, x, y + th, 0, "no filtering");
          al_draw_textf(font, color, x + 400, y, 0, "no difference");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex1, 4, 4, x + 320, y, 8, 8, a, 0);
          
          y += 120;
 
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "premultiplied alpha");
          al_draw_textf(font, color, x, y + th, 0, "mag linear filtering");
          al_draw_textf(font, color3, x + 400, y, 0, "correct color");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex2, 4, 4, x + 320, y, 8, 8, a, 0);
 
          al_flip_display();

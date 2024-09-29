@@ -22,7 +22,7 @@
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
 #error Something is wrong with the makefile
 #endif
 

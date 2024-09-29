@@ -26,7 +26,7 @@
 #include "allegro5/platform/aintosx.h"
 #include "./osxgl.h"
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
 #error Something is wrong with the makefile
 #endif
 
@@ -35,7 +35,7 @@
 #define NSAppKitVersionNumber10_6 1038
 #endif
 
-static NSString *osx_get_text_format(ALLEGRO_DISPLAY *display)
+static NSString *osx_get_text_format(A5O_DISPLAY *display)
 {
    (void) display;
 
@@ -54,7 +54,7 @@ static NSString *osx_get_text_format(ALLEGRO_DISPLAY *display)
 #endif
 }
 
-static bool osx_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
+static bool osx_set_clipboard_text(A5O_DISPLAY *display, const char *text)
 {
    NSAutoreleasePool *pool;
    NSPasteboard *pasteboard;
@@ -75,7 +75,7 @@ static bool osx_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    return ok == YES;
 }
 
-static char * osx_get_clipboard_text(ALLEGRO_DISPLAY *display)
+static char * osx_get_clipboard_text(A5O_DISPLAY *display)
 {
    NSAutoreleasePool *pool;
    NSPasteboard *pasteboard;
@@ -110,7 +110,7 @@ static char * osx_get_clipboard_text(ALLEGRO_DISPLAY *display)
    return text;
 }
 
-static bool osx_has_clipboard_text(ALLEGRO_DISPLAY *display)
+static bool osx_has_clipboard_text(A5O_DISPLAY *display)
 {
    NSAutoreleasePool *pool;
    NSPasteboard *pasteboard;
@@ -136,7 +136,7 @@ static bool osx_has_clipboard_text(ALLEGRO_DISPLAY *display)
    return result;
 }
 
-void _al_osx_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
+void _al_osx_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt)
 {
    vt->set_clipboard_text = osx_set_clipboard_text;
    vt->get_clipboard_text = osx_get_clipboard_text;

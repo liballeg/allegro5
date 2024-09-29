@@ -1,5 +1,5 @@
 #include <allegro5/allegro.h>
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
 #include <allegro5/allegro_android.h>
 #endif
 #include "global.h"
@@ -41,7 +41,7 @@ static GAMESTATE state[DEMO_MAX_GAMESTATES];
 static int current_state = 0, last_state;
 static int state_count = 0;
 
-ALLEGRO_EVENT_QUEUE *event_queue;
+A5O_EVENT_QUEUE *event_queue;
 
 /*
    Module for performing smooth state transition animations.
@@ -50,7 +50,7 @@ static TRANSITION *transition = NULL;
 
 
 
-static void drop_build_config_dir(ALLEGRO_PATH *path)
+static void drop_build_config_dir(A5O_PATH *path)
 {
    const char *s = al_get_path_tail(path);
    if (s) {
@@ -69,7 +69,7 @@ int init_framework(void)
 {
    int error = DEMO_OK;
    int c;
-   ALLEGRO_PATH *path;
+   A5O_PATH *path;
 
    /* Attempt to initialize Allegro. */
    if (!al_init()) {
@@ -83,19 +83,19 @@ int init_framework(void)
    /* Construct aboslute path for the configuration file. */
    al_set_app_name("Allegro Skater Demo");
    al_set_org_name("");
-   path = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
+   path = al_get_standard_path(A5O_USER_SETTINGS_PATH);
    al_make_directory(al_path_cstr(path, '/'));
    al_set_path_filename(path, DEMO_CFG);
    strncpy(config_path, al_path_cstr(path, '/'), DEMO_PATH_LENGTH);
    al_destroy_path(path);
 
    /* Construct absolute path for the datafile containing game menu data. */
-#ifdef ALLEGRO_ANDROID
+#ifdef A5O_ANDROID
    al_android_set_apk_file_interface();
    strncpy(data_path, "/data", DEMO_PATH_LENGTH);
    (void)drop_build_config_dir;
 #else
-   path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+   path = al_get_standard_path(A5O_RESOURCES_PATH);
    al_set_path_filename(path, "");
    drop_build_config_dir(path);
    al_append_path_component(path, "data");
@@ -148,7 +148,7 @@ int init_framework(void)
 
    /* Create a timer. */
    {
-      ALLEGRO_TIMER *t = al_create_timer(1.0 / logic_framerate);
+      A5O_TIMER *t = al_create_timer(1.0 / logic_framerate);
       al_register_event_source(event_queue, al_get_timer_event_source(t));
       al_start_timer(t);
    }
@@ -256,70 +256,70 @@ void run_framework(void)
    /* Do the main loop; until we're not done. */
    while (!done) {
 
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       al_wait_for_event(event_queue, &event);
       switch (event.type) {
          
-         case ALLEGRO_EVENT_MOUSE_AXES:
+         case A5O_EVENT_MOUSE_AXES:
             mouse_handle_event(&event);
             break;
          
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+         case A5O_EVENT_MOUSE_BUTTON_DOWN:
             mouse_handle_event(&event);
             break;
          
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+         case A5O_EVENT_MOUSE_BUTTON_UP:
             mouse_handle_event(&event);
             break;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
+         case A5O_EVENT_KEY_DOWN:
             keyboard_event(&event);
             break;
 
-         case ALLEGRO_EVENT_KEY_CHAR:
+         case A5O_EVENT_KEY_CHAR:
             keyboard_event(&event);
             break;
 
-         case ALLEGRO_EVENT_KEY_UP:
+         case A5O_EVENT_KEY_UP:
             keyboard_event(&event);
             break;
 
-         case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
+         case A5O_EVENT_JOYSTICK_BUTTON_DOWN:
             gamepad_event(&event);
             break;
 
-         case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
+         case A5O_EVENT_JOYSTICK_BUTTON_UP:
             gamepad_event(&event);
             break;
 
-         case ALLEGRO_EVENT_JOYSTICK_AXIS:
+         case A5O_EVENT_JOYSTICK_AXIS:
             gamepad_event(&event);
             break;
         
-         case ALLEGRO_EVENT_TOUCH_BEGIN:
+         case A5O_EVENT_TOUCH_BEGIN:
             gamepad_event(&event);
             break;
-         case ALLEGRO_EVENT_TOUCH_END:
+         case A5O_EVENT_TOUCH_END:
               gamepad_event(&event);
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             closed = true;
             break;
         
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             if (!paused)
                timer++;
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_ORIENTATION:
-            if (event.display.orientation == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES ||
-                event.display.orientation == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES)
+         case A5O_EVENT_DISPLAY_ORIENTATION:
+            if (event.display.orientation == A5O_DISPLAY_ORIENTATION_90_DEGREES ||
+                event.display.orientation == A5O_DISPLAY_ORIENTATION_270_DEGREES)
                screen_orientation = event.display.orientation;
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+         case A5O_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(screen);
             screen_width = al_get_display_width(screen);
             screen_height = al_get_display_height(screen);
@@ -329,21 +329,21 @@ void run_framework(void)
             }
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+         case A5O_EVENT_DISPLAY_HALT_DRAWING:
             background_mode = true;
             al_acknowledge_drawing_halt(screen);
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+         case A5O_EVENT_DISPLAY_RESUME_DRAWING:
             background_mode = false;
             al_acknowledge_drawing_resume(screen);
             break;
             
-         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+         case A5O_EVENT_DISPLAY_SWITCH_OUT:
             paused = true;
             break;
             
-         case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+         case A5O_EVENT_DISPLAY_SWITCH_IN:
             paused = false;
             break;
             
@@ -357,7 +357,7 @@ void run_framework(void)
 
          /* See if the user pressed F12 to see if the user wants to take
             a screenshot. */
-         if (key_pressed(ALLEGRO_KEY_F12)) {
+         if (key_pressed(A5O_KEY_F12)) {
             /* See if the F12 key was already pressed before. */
             if (F12 == 0) {
                /* The user just pressed F12 (it wasn't pressed before), so

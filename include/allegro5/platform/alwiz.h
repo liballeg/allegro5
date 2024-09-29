@@ -16,13 +16,13 @@
  */
 
 
-#ifndef ALLEGRO_GP2XWIZ
+#ifndef A5O_GP2XWIZ
    #error bad include
 #endif
 
 #define AL_JOY_TYPE_GP2XWIZ      AL_ID('W','I','Z',' ')
 
-AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_gp2xwiz);
+AL_VAR(struct A5O_JOYSTICK_DRIVER, _al_joydrv_gp2xwiz);
 
 #define _AL_JOYSTICK_DRIVER_GP2XWIZ                                     \
    { AL_JOY_TYPE_GP2XWIZ,  &_al_joydrv_gp2xwiz,    true  },

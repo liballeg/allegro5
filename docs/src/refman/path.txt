@@ -41,7 +41,7 @@ See also: [al_create_path], [al_create_path_for_directory]
 
 ## API: al_clone_path
 
-Clones an ALLEGRO_PATH structure.
+Clones an A5O_PATH structure.
 Returns NULL on failure.
 
 See also: [al_destroy_path]
@@ -214,12 +214,12 @@ Convert a path to its string representation, i.e. optional drive,
 followed by directory components separated by 'delim',
 followed by an optional filename.
 
-To use the current native path separator, use ALLEGRO_NATIVE_PATH_SEP
+To use the current native path separator, use A5O_NATIVE_PATH_SEP
 for 'delim'.
 
 The returned pointer is valid only until the path is modified in any way,
 or until the path is destroyed.  This returns a null-terminated string.  If you
-need an ALLEGRO_USTR instead, use [al_path_ustr].
+need an A5O_USTR instead, use [al_path_ustr].
 
 See also: [al_path_ustr]
 
@@ -229,11 +229,11 @@ Convert a path to its string representation, i.e. optional drive,
 followed by directory components separated by 'delim',
 followed by an optional filename.
 
-To use the current native path separator, use ALLEGRO_NATIVE_PATH_SEP
+To use the current native path separator, use A5O_NATIVE_PATH_SEP
 for 'delim'.
 
 The returned pointer is valid only until the path is modified in any way,
-or until the path is destroyed.  This returns an ALLEGRO_USTR.  If you need
+or until the path is destroyed.  This returns an A5O_USTR.  If you need
 a null-terminated string instead, use [al_path_cstr].
 
 Since: 5.2.3

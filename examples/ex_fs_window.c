@@ -5,15 +5,15 @@
 
 #include "common.c"
 
-static ALLEGRO_DISPLAY *display;
-static ALLEGRO_BITMAP *picture;
-static ALLEGRO_EVENT_QUEUE *queue;
-static ALLEGRO_FONT *font;
+static A5O_DISPLAY *display;
+static A5O_BITMAP *picture;
+static A5O_EVENT_QUEUE *queue;
+static A5O_FONT *font;
 static bool big;
 
 static void redraw(void)
 {
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
    int w = al_get_display_width(display);
    int h = al_get_display_height(display);
    int pw = al_get_bitmap_width(picture);
@@ -21,7 +21,7 @@ static void redraw(void)
    int th = al_get_font_line_height(font);
    float cx =  (w - pw) * 0.5;
    float cy =  (h - ph) * 0.5;
-   ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
+   A5O_COLOR white = al_map_rgb_f(1, 1, 1);
 
    color = al_map_rgb_f(0.8, 0.7, 0.9);
    al_clear_to_color(color);
@@ -32,14 +32,14 @@ static void redraw(void)
 
    al_draw_bitmap(picture, cx, cy, 0);
    
-   al_draw_textf(font, white, w / 2, cy + ph, ALLEGRO_ALIGN_CENTRE,
+   al_draw_textf(font, white, w / 2, cy + ph, A5O_ALIGN_CENTRE,
       "Press Space to toggle fullscreen");
-   al_draw_textf(font, white, w / 2, cy + ph + th, ALLEGRO_ALIGN_CENTRE,
+   al_draw_textf(font, white, w / 2, cy + ph + th, A5O_ALIGN_CENTRE,
       "Press Enter to toggle window size");
-   al_draw_textf(font, white, w / 2, cy + ph + th * 2, ALLEGRO_ALIGN_CENTRE,
+   al_draw_textf(font, white, w / 2, cy + ph + th * 2, A5O_ALIGN_CENTRE,
       "Window: %dx%d (%s)",
       al_get_display_width(display), al_get_display_height(display),
-      (al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW) ?
+      (al_get_display_flags(display) & A5O_FULLSCREEN_WINDOW) ?
       "fullscreen" : "not fullscreen");
    
    al_flip_display();
@@ -47,21 +47,21 @@ static void redraw(void)
 
 static void run(void)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    bool quit = false;
    while (!quit) {
       while (al_get_next_event(queue, &event)) {
-         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+         if (event.type == A5O_EVENT_DISPLAY_CLOSE)
             quit = true;
-         else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         else if (event.type == A5O_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                quit = true;
-            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-               bool opp = !(al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW);
-               al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, opp);
+            else if (event.keyboard.keycode == A5O_KEY_SPACE) {
+               bool opp = !(al_get_display_flags(display) & A5O_FULLSCREEN_WINDOW);
+               al_set_display_flag(display, A5O_FULLSCREEN_WINDOW, opp);
                redraw();
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+            else if (event.keyboard.keycode == A5O_KEY_ENTER) {
                big = !big;
                if (big)
                   al_resize_display(display, 800, 600);
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
    al_init_font_addon();
    init_platform_specific();
 
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+   al_set_new_display_flags(A5O_FULLSCREEN_WINDOW);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");

@@ -8,15 +8,15 @@ These functions are declared in the main Allegro header file:
 
 ## Colors
 
-### API: ALLEGRO_COLOR
+### API: A5O_COLOR
 
-An ALLEGRO_COLOR structure describes a color in a device
+An A5O_COLOR structure describes a color in a device
 independent way. Use [al_map_rgb] et al. and [al_unmap_rgb] et al. to
 translate from and to various color representations.
 
 ### API: al_map_rgb
 
-Convert r, g, b (ranging from 0-255) into an [ALLEGRO_COLOR],
+Convert r, g, b (ranging from 0-255) into an [A5O_COLOR],
 using 255 for alpha.
 
 This function can be called before Allegro is initialized.
@@ -25,7 +25,7 @@ See also: [al_map_rgba], [al_map_rgba_f], [al_map_rgb_f]
 
 ### API: al_map_rgb_f
 
-Convert r, g, b, (ranging from 0.0f-1.0f) into an [ALLEGRO_COLOR],
+Convert r, g, b, (ranging from 0.0f-1.0f) into an [A5O_COLOR],
 using 1.0f for alpha.
 
 This function can be called before Allegro is initialized.
@@ -34,7 +34,7 @@ See also: [al_map_rgba], [al_map_rgb], [al_map_rgba_f]
 
 ### API: al_map_rgba
 
-Convert r, g, b, a  (ranging from 0-255) into an [ALLEGRO_COLOR].
+Convert r, g, b, a  (ranging from 0-255) into an [A5O_COLOR].
 
 This function can be called before Allegro is initialized.
 
@@ -55,7 +55,7 @@ int r = 255;
 int g = 0;
 int b = 0;
 int a = 127;
-ALLEGRO_COLOR c = al_premul_rgba(r, g, b, a);
+A5O_COLOR c = al_premul_rgba(r, g, b, a);
 /* Draw the bitmap tinted red and half-transparent. */
 al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
 ~~~~
@@ -68,7 +68,7 @@ See also: [al_map_rgba], [al_premul_rgba_f]
 
 ### API: al_map_rgba_f
 
-Convert r, g, b, a (ranging from 0.0f-1.0f) into an [ALLEGRO_COLOR].
+Convert r, g, b, a (ranging from 0.0f-1.0f) into an [A5O_COLOR].
 
 This function can be called before Allegro is initialized.
 
@@ -89,7 +89,7 @@ float r = 1;
 float g = 0;
 float b = 0;
 float a = 0.5;
-ALLEGRO_COLOR c = al_premul_rgba_f(r, g, b, a);
+A5O_COLOR c = al_premul_rgba_f(r, g, b, a);
 /* Draw the bitmap tinted red and half-transparent. */
 al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
 ~~~~
@@ -102,7 +102,7 @@ See also: [al_map_rgba_f], [al_premul_rgba]
 
 ### API: al_unmap_rgb
 
-Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
+Retrieves components of an A5O_COLOR, ignoring alpha.
 Components will range from 0-255.
 
 This function can be called before Allegro is initialized.
@@ -111,7 +111,7 @@ See also: [al_unmap_rgba], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ### API: al_unmap_rgb_f
 
-Retrieves components of an [ALLEGRO_COLOR], ignoring alpha.
+Retrieves components of an [A5O_COLOR], ignoring alpha.
 Components will range from 0.0f-1.0f.
 
 This function can be called before Allegro is initialized.
@@ -120,7 +120,7 @@ See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgba_f]
 
 ### API: al_unmap_rgba
 
-Retrieves components of an [ALLEGRO_COLOR].
+Retrieves components of an [A5O_COLOR].
 Components will range from 0-255.
 
 This function can be called before Allegro is initialized.
@@ -129,7 +129,7 @@ See also: [al_unmap_rgb], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ### API: al_unmap_rgba_f
 
-Retrieves components of an [ALLEGRO_COLOR].
+Retrieves components of an [A5O_COLOR].
 Components will range from 0.0f-1.0f.
 
 This function can be called before Allegro is initialized.
@@ -140,20 +140,20 @@ See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgb_f]
 
 ## Locking and pixel formats
 
-### API: ALLEGRO_LOCKED_REGION
+### API: A5O_LOCKED_REGION
 
 Users who wish to manually edit or read from a bitmap
-are required to lock it first. The ALLEGRO_LOCKED_REGION
+are required to lock it first. The A5O_LOCKED_REGION
 structure represents the locked region of the bitmap. This
 call will work with any bitmap, including memory bitmaps.
 
 ~~~~c
-typedef struct ALLEGRO_LOCKED_REGION {
+typedef struct A5O_LOCKED_REGION {
    void *data;
    int format;
    int pitch;
    int pixel_size;
-} ALLEGRO_LOCKED_REGION;
+} A5O_LOCKED_REGION;
 ~~~~
 
 - *data* points to the leftmost pixel of the first row (row 0) of the locked
@@ -174,9 +174,9 @@ typedef struct ALLEGRO_LOCKED_REGION {
   a single pixel, but for blocked pixel formats this value is different.
 
 See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap],
-[ALLEGRO_PIXEL_FORMAT]
+[A5O_PIXEL_FORMAT]
 
-### API: ALLEGRO_PIXEL_FORMAT
+### API: A5O_PIXEL_FORMAT
 
 Pixel formats. Each pixel format specifies the exact size and bit
 layout of a pixel in memory. Components are specified from high bits
@@ -204,11 +204,11 @@ is 0xFFFF0000.
 Also note that Allegro's naming is different from OpenGL naming here,
 where a format of GL_RGBA8 merely defines the component order and the
 exact layout including endianness treatment is specified separately.
-Usually GL_RGBA8 will correspond to ALLEGRO_PIXEL_ABGR_8888 though on
+Usually GL_RGBA8 will correspond to A5O_PIXEL_ABGR_8888 though on
 little endian systems, so care must be taken (note the reversal of
 RGBA <-> ABGR).
 
-The only exception to this ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE which will always
+The only exception to this A5O_PIXEL_FORMAT_ABGR_8888_LE which will always
 have the components as 4 bytes corresponding to red, green, blue and alpha,
 in this order, independent of the endianness.
 
@@ -236,46 +236,46 @@ It is not recommended to use compressed bitmaps as target bitmaps, as that
 operation cannot be hardware accelerated. Due to proprietary algorithms used, it
 is typically impossible to create compressed memory bitmaps.
 
-* ALLEGRO_PIXEL_FORMAT_ANY -
+* A5O_PIXEL_FORMAT_ANY -
     Let the driver choose a format. This is the default format at program start.
-* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_NO_ALPHA -
     Let the driver choose a format without alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_WITH_ALPHA -
     Let the driver choose a format with alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_15_NO_ALPHA -
     Let the driver choose a 15 bit format without alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_16_NO_ALPHA -
     Let the driver choose a 16 bit format without alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_16_WITH_ALPHA -
     Let the driver choose a 16 bit format with alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_24_NO_ALPHA -
     Let the driver choose a 24 bit format without alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_32_NO_ALPHA -
     Let the driver choose a 32 bit format without alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA -
+* A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA -
     Let the driver choose a 32 bit format with alpha.
-* ALLEGRO_PIXEL_FORMAT_ARGB_8888 - 32 bit
-* ALLEGRO_PIXEL_FORMAT_RGBA_8888 - 32 bit
-* ALLEGRO_PIXEL_FORMAT_ARGB_4444 - 16 bit
-* ALLEGRO_PIXEL_FORMAT_RGB_888 - 24 bit
-* ALLEGRO_PIXEL_FORMAT_RGB_565 - 16 bit
-* ALLEGRO_PIXEL_FORMAT_RGB_555 - 15 bit
-* ALLEGRO_PIXEL_FORMAT_RGBA_5551 - 16 bit
-* ALLEGRO_PIXEL_FORMAT_ARGB_1555 - 16 bit
-* ALLEGRO_PIXEL_FORMAT_ABGR_8888 - 32 bit
-* ALLEGRO_PIXEL_FORMAT_XBGR_8888 - 32 bit
-* ALLEGRO_PIXEL_FORMAT_BGR_888 - 24 bit
-* ALLEGRO_PIXEL_FORMAT_BGR_565 - 16 bit
-* ALLEGRO_PIXEL_FORMAT_BGR_555 - 15 bit
-* ALLEGRO_PIXEL_FORMAT_RGBX_8888 - 32 bit
-* ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
-* ALLEGRO_PIXEL_FORMAT_ABGR_F32 - 128 bit
-* ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE -
+* A5O_PIXEL_FORMAT_ARGB_8888 - 32 bit
+* A5O_PIXEL_FORMAT_RGBA_8888 - 32 bit
+* A5O_PIXEL_FORMAT_ARGB_4444 - 16 bit
+* A5O_PIXEL_FORMAT_RGB_888 - 24 bit
+* A5O_PIXEL_FORMAT_RGB_565 - 16 bit
+* A5O_PIXEL_FORMAT_RGB_555 - 15 bit
+* A5O_PIXEL_FORMAT_RGBA_5551 - 16 bit
+* A5O_PIXEL_FORMAT_ARGB_1555 - 16 bit
+* A5O_PIXEL_FORMAT_ABGR_8888 - 32 bit
+* A5O_PIXEL_FORMAT_XBGR_8888 - 32 bit
+* A5O_PIXEL_FORMAT_BGR_888 - 24 bit
+* A5O_PIXEL_FORMAT_BGR_565 - 16 bit
+* A5O_PIXEL_FORMAT_BGR_555 - 15 bit
+* A5O_PIXEL_FORMAT_RGBX_8888 - 32 bit
+* A5O_PIXEL_FORMAT_XRGB_8888 - 32 bit
+* A5O_PIXEL_FORMAT_ABGR_F32 - 128 bit
+* A5O_PIXEL_FORMAT_ABGR_8888_LE -
     Like the version without _LE, but the component order is guaranteed to be
     red, green, blue, alpha. This only makes a difference on big endian
     systems, on little endian it is just an alias.
-* ALLEGRO_PIXEL_FORMAT_RGBA_4444 - 16bit
-* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 -
+* A5O_PIXEL_FORMAT_RGBA_4444 - 16bit
+* A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8 -
     A single 8-bit channel.  A pixel value maps onto the red channel when
     displayed, but it is undefined how it maps onto green, blue and alpha
     channels.  When drawing to bitmaps of this format, only the red channel is
@@ -283,15 +283,15 @@ is typically impossible to create compressed memory bitmaps.
     bitmaps of this format.  This pixel format is mainly intended for storing
     the color indices of an indexed (paletted) image, usually in conjunction
     with a pixel shader that maps indices to RGBA values.  Since 5.1.2.
-* ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1 -
+* A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1 -
     Compressed using the DXT1 compression algorithm. Each 4x4 pixel block is
     encoded in 64 bytes, resulting in 6-8x compression ratio. Only a single bit
     of alpha per pixel is supported.  Since 5.1.9.
-* ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3 -
+* A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3 -
     Compressed using the DXT3 compression algorithm. Each 4x4 pixel block is
     encoded in 128 bytes, resulting in 4x compression ratio. This format
     supports sharp alpha transitions.  Since 5.1.9.
-* ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5 -
+* A5O_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5 -
     Compressed using the DXT5 compression algorithm. Each 4x4 pixel block is
     encoded in 128 bytes, resulting in 4x compression ratio. This format
     supports smooth alpha transitions.  Since 5.1.9.
@@ -303,14 +303,14 @@ See also: [al_set_new_bitmap_format], [al_get_bitmap_format]
 Return the number of bytes that a pixel of the given format occupies. For
 blocked pixel formats (e.g. compressed formats), this returns 0.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_format_bits]
+See also: [A5O_PIXEL_FORMAT], [al_get_pixel_format_bits]
 
 ### API: al_get_pixel_format_bits
 
 Return the number of bits that a pixel of the given format occupies. For
 blocked pixel formats (e.g. compressed formats), this returns 0.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_size]
+See also: [A5O_PIXEL_FORMAT], [al_get_pixel_size]
 
 ### API: al_get_pixel_block_size
 
@@ -318,7 +318,7 @@ Return the number of bytes that a block of pixels with this format occupies.
 
 Since: 5.1.9.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_width], [al_get_pixel_block_height]
+See also: [A5O_PIXEL_FORMAT], [al_get_pixel_block_width], [al_get_pixel_block_height]
 
 ### API: al_get_pixel_block_width
 
@@ -326,7 +326,7 @@ Return the width of the the pixel block for this format.
 
 Since: 5.1.9.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_height]
+See also: [A5O_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_height]
 
 ### API: al_get_pixel_block_height
 
@@ -334,7 +334,7 @@ Return the height of the the pixel block for this format.
 
 Since: 5.1.9.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_width]
+See also: [A5O_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_width]
 
 ### API: al_lock_bitmap
 
@@ -346,37 +346,37 @@ function also returns NULL if the `format` is a compressed format.
 
 Flags are:
 
-* ALLEGRO_LOCK_READONLY - The locked region will not be written to. This can
+* A5O_LOCK_READONLY - The locked region will not be written to. This can
 be faster if the bitmap is a video texture, as it can be discarded after
 the lock instead of uploaded back to the card.
     
-* ALLEGRO_LOCK_WRITEONLY - The locked region will not be read from. This can
+* A5O_LOCK_WRITEONLY - The locked region will not be read from. This can
 be faster if the bitmap is a video texture, as no data need to be read
 from the video card. You are required to fill in all pixels before
 unlocking the bitmap again, so be careful when using this flag.
 
-* ALLEGRO_LOCK_READWRITE - The locked region can be written to and read from.
+* A5O_LOCK_READWRITE - The locked region can be written to and read from.
 Use this flag if a partial number of pixels need to be written to, even if
 reading is not needed.
 
 `format` indicates the pixel format that the returned buffer will be in.
 To lock in the same format as the bitmap stores its data internally,
 call with `al_get_bitmap_format(bitmap)` as the format or use
-ALLEGRO_PIXEL_FORMAT_ANY. Locking in the native format will usually be faster.
-If the bitmap format is compressed, using ALLEGRO_PIXEL_FORMAT_ANY will choose
+A5O_PIXEL_FORMAT_ANY. Locking in the native format will usually be faster.
+If the bitmap format is compressed, using A5O_PIXEL_FORMAT_ANY will choose
 an implementation defined non-compressed format.
 
 On some platforms, Allegro automatically backs up the contents of video bitmaps
 because they may be occasionally lost (see discussion in [al_create_bitmap]'s
 documentation). If you're completely recreating the bitmap contents often (e.g.
 every frame) then you will get much better performance by creating the target
-bitmap with ALLEGRO_NO_PRESERVE_TEXTURE flag.
+bitmap with A5O_NO_PRESERVE_TEXTURE flag.
 
 > *Note:* While a bitmap is locked, you can not use any drawing operations
 on it (with the sole exception of [al_put_pixel] and
 [al_put_blended_pixel]).
 
-See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT],
+See also: [A5O_LOCKED_REGION], [A5O_PIXEL_FORMAT],
 [al_unlock_bitmap], [al_lock_bitmap_region], [al_lock_bitmap_blocked],
 [al_lock_bitmap_region_blocked]
 
@@ -387,15 +387,15 @@ If the bitmap is a video bitmap, only that area of the texture will
 be updated when it is unlocked. Locking only the region you indend to
 modify will be faster than locking the whole bitmap.
 
-> *Note:* Using the ALLEGRO_LOCK_WRITEONLY with a blocked pixel format
+> *Note:* Using the A5O_LOCK_WRITEONLY with a blocked pixel format
 (i.e. formats for which [al_get_pixel_block_width] or
 [al_get_pixel_block_height] do not return 1) requires you to have the
 region be aligned to the block width for optimal performance. If it is
 not, then the function will have to lock the region with the
-ALLEGRO_LOCK_READWRITE instead in order to pad this region with valid
+A5O_LOCK_READWRITE instead in order to pad this region with valid
 data.
 
-See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT], [al_unlock_bitmap]
+See also: [A5O_LOCKED_REGION], [A5O_PIXEL_FORMAT], [al_unlock_bitmap]
 
 ### API: al_unlock_bitmap
 
@@ -434,7 +434,7 @@ See also: [al_lock_bitmap_region], [al_lock_bitmap_blocked]
 
 ## Bitmap creation
 
-### API: ALLEGRO_BITMAP
+### API: A5O_BITMAP
 
 Abstract type representing a bitmap (2D image).
 
@@ -444,7 +444,7 @@ Creates a new bitmap using the bitmap format and flags for the current
 thread. Blitting between bitmaps of differing formats, or blitting
 between memory bitmaps and display bitmaps may be slow.
 
-Unless you set the ALLEGRO_MEMORY_BITMAP flag, the bitmap is created
+Unless you set the A5O_MEMORY_BITMAP flag, the bitmap is created
 for the current display. Blitting to another display may be slow.
 
 If a display bitmap is created, there may be limitations on the
@@ -467,7 +467,7 @@ of that bitmap with the dimensions you requested. This can be relevant
 if you plan to use this bitmap with the primitives addon but shouldn't
 be an issue otherwise.
 
-If you create a bitmap without ALLEGRO_MEMORY_BITMAP set but there is
+If you create a bitmap without A5O_MEMORY_BITMAP set but there is
 no current display, a temporary memory bitmap will be created instead.
 You can later convert all such bitmap to video bitmap and assign to a
 display by calling [al_convert_memory_bitmaps].
@@ -479,10 +479,10 @@ contents can get lost permanently) and has performance implications. If you are
 using a bitmap as an intermediate buffer this mechanism may be wasteful. In
 this case, if you do not want Allegro to manage the bitmap contents for you,
 you can disable this mechanism by creating the bitmap with the
-ALLEGRO_NO_PRESERVE_TEXTURE flag. The bitmap contents are lost when you get the
-ALLEGRO_EVENT_DISPLAY_LOST and ALLEGRO_EVENT_DISPLAY_HALT_DRAWING and a should
-be restored when you get the ALLEGRO_EVENT_DISPLAY_FOUND and when you call
-[al_acknowledge_drawing_resume] (after ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING
+A5O_NO_PRESERVE_TEXTURE flag. The bitmap contents are lost when you get the
+A5O_EVENT_DISPLAY_LOST and A5O_EVENT_DISPLAY_HALT_DRAWING and a should
+be restored when you get the A5O_EVENT_DISPLAY_FOUND and when you call
+[al_acknowledge_drawing_resume] (after A5O_EVENT_DISPLAY_RESUME_DRAWING
 event). You can use those events to implement your own bitmap content
 restoration mechanism if Allegro's does not work well enough for you (for
 example, you can reload them all from disk).
@@ -555,7 +555,7 @@ See also: [al_create_bitmap], [al_set_new_bitmap_format],
 
 If you create a bitmap when there is no current display (for example
 because you have not called [al_create_display] in the current
-thread) and are using the ALLEGRO_CONVERT_BITMAP bitmap flag (which is
+thread) and are using the A5O_CONVERT_BITMAP bitmap flag (which is
 set by default) then the bitmap will be created successfully, but as a
 memory bitmap. This function converts all such bitmaps to proper video
 bitmaps belonging to the current display.
@@ -563,8 +563,8 @@ bitmaps belonging to the current display.
 Note that video bitmaps get automatically converted back to memory
 bitmaps when the last display is destroyed.
 
-This operation will preserve all bitmap flags except ALLEGRO_VIDEO_BITMAP and
-ALLEGRO_MEMORY_BITMAP.
+This operation will preserve all bitmap flags except A5O_VIDEO_BITMAP and
+A5O_MEMORY_BITMAP.
 
 Since: 5.2.0
 
@@ -594,14 +594,14 @@ See also: [al_set_new_bitmap_flags]
 
 Returns the format used for newly created bitmaps.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_format]
+See also: [A5O_PIXEL_FORMAT], [al_set_new_bitmap_format]
 
 ### API: al_set_new_bitmap_flags
 
 Sets the flags to use for newly created bitmaps.
 Valid flags are:
 
-ALLEGRO_MEMORY_BITMAP 
+A5O_MEMORY_BITMAP 
 :   Create a bitmap residing in system memory.
     Operations on, and with, memory bitmaps will not be hardware accelerated.
     However, direct pixel access can be relatively quick compared to video bitmaps,
@@ -610,10 +610,10 @@ ALLEGRO_MEMORY_BITMAP
     *Note*: Allegro's software rendering routines are currently somewhat
     unoptimised.
 
-    *Note:* Combining ALLEGRO_VIDEO_BITMAP and ALLEGRO_MEMORY_BITMAP flags is
+    *Note:* Combining A5O_VIDEO_BITMAP and A5O_MEMORY_BITMAP flags is
     invalid.
 
-ALLEGRO_VIDEO_BITMAP
+A5O_VIDEO_BITMAP
 :   Creates a bitmap that resides in the video card memory. These types of
     bitmaps receive the greatest benefit from hardware acceleration.
     
@@ -624,12 +624,12 @@ ALLEGRO_VIDEO_BITMAP
     
     *Note:* Bitmaps created with this flag will be converted to memory
     bitmaps when the last display is destroyed. In most cases it is
-    therefore easier to use the ALLEGRO_CONVERT_BITMAP flag instead.
+    therefore easier to use the A5O_CONVERT_BITMAP flag instead.
 
-    *Note:* Combining ALLEGRO_VIDEO_BITMAP and ALLEGRO_MEMORY_BITMAP flags is
+    *Note:* Combining A5O_VIDEO_BITMAP and A5O_MEMORY_BITMAP flags is
     invalid.
 
-ALLEGRO_CONVERT_BITMAP
+A5O_CONVERT_BITMAP
 :   This is the default. It will try to create a video bitmap and if
     that fails create a memory bitmap. Bitmaps created with this flag
     when there is no active display will be converted to video bitmaps
@@ -637,25 +637,25 @@ ALLEGRO_CONVERT_BITMAP
     if the last display is destroyed and then another is created again.
     Since 5.1.0.
     
-    *Note:* You can combine this flag with ALLEGRO_MEMORY_BITMAP or
-    ALLEGRO_VIDEO_BITMAP to force the initial type (and fail in the
+    *Note:* You can combine this flag with A5O_MEMORY_BITMAP or
+    A5O_VIDEO_BITMAP to force the initial type (and fail in the
     latter case if no video bitmap can be created) - but usually neither
     of those combinations is very useful.
     
-    You can use the display option ALLEGRO_AUTO_CONVERT_BITMAPS to
+    You can use the display option A5O_AUTO_CONVERT_BITMAPS to
     control which displays will try to auto-convert bitmaps.
 
-ALLEGRO_FORCE_LOCKING 
+A5O_FORCE_LOCKING 
 :   Does nothing since 5.1.8. Kept for backwards compatibility only.
 
-ALLEGRO_NO_PRESERVE_TEXTURE
+A5O_NO_PRESERVE_TEXTURE
 :   Normally, every effort is taken to preserve
     the contents of bitmaps, since some platforms may forget them. This can
     take extra processing time. If you know it doesn't matter if a bitmap keeps
     its pixel data, for example when it's a temporary buffer, use this flag to
     tell Allegro not to attempt to preserve its contents.
 
-ALLEGRO_ALPHA_TEST
+A5O_ALPHA_TEST
 :   This is a driver hint only. It tells the graphics
     driver to do alpha testing instead of alpha blending on bitmaps
     created with this flag. Alpha testing is usually faster and
@@ -663,19 +663,19 @@ ALLEGRO_ALPHA_TEST
     flag is currently not widely implemented (i.e., only for memory
     bitmaps).
 
-ALLEGRO_MIN_LINEAR
+A5O_MIN_LINEAR
 :   When drawing a scaled down version of the bitmap, use linear
     filtering. This usually looks better. You can also combine it with
     the MIPMAP flag for even better quality.
 
-ALLEGRO_MAG_LINEAR
+A5O_MAG_LINEAR
 
 :   When drawing a magnified version of a bitmap, use linear filtering.
     This will cause the picture to get blurry instead of creating a big
     rectangle for each pixel. It depends on how you want things to look
     like whether you want to use this or not.
 
-ALLEGRO_MIPMAP
+A5O_MIPMAP
 
 :   This can only be used for bitmaps whose width and height is a power
     of two. In that case, it will generate mipmaps and use them when
@@ -697,11 +697,11 @@ See also: [al_set_new_bitmap_flags], [al_get_new_bitmap_flags], [al_get_bitmap_f
 
 ### API: al_set_new_bitmap_format
 
-Sets the pixel format ([ALLEGRO_PIXEL_FORMAT]) for newly created bitmaps.
+Sets the pixel format ([A5O_PIXEL_FORMAT]) for newly created bitmaps.
 The default format is 0 and means the display driver will choose
 the best format.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_new_bitmap_format],
+See also: [A5O_PIXEL_FORMAT], [al_get_new_bitmap_format],
 [al_get_bitmap_format]
 
 ### API: al_set_new_bitmap_depth
@@ -771,20 +771,20 @@ the OpenGL backend.
 Sets the texture wrapping settings for newly created bitmaps (on the current
 thread). Typically you take advantage of this feature either via the primitives
 addon (see [al_draw_prim] and others) or via custom shaders (see
-[ALLEGRO_SHADER]).
+[A5O_SHADER]).
 
 > *Note:* In the context of custom shaders, Direct3D and OpenGL have different
 granularities for controlling this setting. Direct3D sets wrapping setting for
 each sampler separately, while OpenGL sets it per-texture. This interacts
 particularly poorly with the primitives addon which (for backwards
 compatibility) alters the wrapping setting. To minimize this issue, use a
-wrapping setting that's not ALLEGRO_BITMAP_WRAP_DEFAULT.
+wrapping setting that's not A5O_BITMAP_WRAP_DEFAULT.
 
 Since: 5.2.8
 
 > *[Unstable API]:* This is an experimental feature.
 
-See also: [ALLEGRO_BITMAP_WRAP]
+See also: [A5O_BITMAP_WRAP]
 
 ### API: al_get_new_bitmap_wrap
 
@@ -795,22 +795,22 @@ Since: 5.2.8
 
 > *[Unstable API]:* This is an experimental feature.
 
-See also: [ALLEGRO_BITMAP_WRAP]
+See also: [A5O_BITMAP_WRAP]
 
-### API: ALLEGRO_BITMAP_WRAP
+### API: A5O_BITMAP_WRAP
 
 Controls the how the pixel color is determined from a texture querying the
 texture coordinates are outside the usual bounds.
 
-* ALLEGRO_BITMAP_WRAP_DEFAULT - The default behavior. This corresponds to
-  ALLEGRO_BITMAP_WRAP_REPEAT when using the primitives addon and
-  ALLEGRO_BITMAP_WRAP_CLAMP otherwise.
+* A5O_BITMAP_WRAP_DEFAULT - The default behavior. This corresponds to
+  A5O_BITMAP_WRAP_REPEAT when using the primitives addon and
+  A5O_BITMAP_WRAP_CLAMP otherwise.
 
-* ALLEGRO_BITMAP_WRAP_REPEAT - The texture coordinates get shifted to the
+* A5O_BITMAP_WRAP_REPEAT - The texture coordinates get shifted to the
   opposite edge that they go past.
-* ALLEGRO_BITMAP_WRAP_CLAMP - The texture coordinates get clamped to the edges
+* A5O_BITMAP_WRAP_CLAMP - The texture coordinates get clamped to the edges
   that they go past.
-* ALLEGRO_BITMAP_WRAP_MIRROR - The texture coordinates get mirrored across the
+* A5O_BITMAP_WRAP_MIRROR - The texture coordinates get mirrored across the
   edges that they go past.
 
 ## Bitmap properties
@@ -825,7 +825,7 @@ See also: [al_set_new_bitmap_flags]
 
 Returns the pixel format of a bitmap.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_flags]
+See also: [A5O_PIXEL_FORMAT], [al_set_new_bitmap_flags]
 
 ### API: al_get_bitmap_height
 
@@ -861,7 +861,7 @@ Get a pixel's color value from the specified bitmap.  This operation is slow
 on non-memory bitmaps. Consider locking the bitmap if you are going to use this
 function multiple times on the same bitmap.
 
-See also: [ALLEGRO_COLOR], [al_put_pixel], [al_lock_bitmap]
+See also: [A5O_COLOR], [al_put_pixel], [al_lock_bitmap]
 
 ### API: al_is_bitmap_locked
 
@@ -872,8 +872,8 @@ See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap]
 ### API: al_is_compatible_bitmap
 
 D3D and OpenGL allow sharing a texture in a way so it can be used for
-multiple windows. Each [ALLEGRO_BITMAP] created with [al_create_bitmap]
-however is usually tied to a single ALLEGRO_DISPLAY. This function can
+multiple windows. Each [A5O_BITMAP] created with [al_create_bitmap]
+however is usually tied to a single A5O_DISPLAY. This function can
 be used to know if the bitmap is compatible with the given display,
 even if it is a different display to the one it was created with. It
 returns true if the bitmap is compatible (things like a cached texture
@@ -901,9 +901,9 @@ and never a sub-bitmap. This might NOT match what was passed to
 [al_create_sub_bitmap]. Consider this code, for instance:
 
 ~~~~c
-ALLEGRO_BITMAP* a = al_create_bitmap(512, 512);
-ALLEGRO_BITMAP* b = al_create_sub_bitmap(a, 128, 128, 256, 256);
-ALLEGRO_BITMAP* c = al_create_sub_bitmap(b, 64, 64, 128, 128);
+A5O_BITMAP* a = al_create_bitmap(512, 512);
+A5O_BITMAP* b = al_create_sub_bitmap(a, 128, 128, 256, 256);
+A5O_BITMAP* c = al_create_sub_bitmap(b, 64, 64, 128, 128);
 ASSERT(al_get_parent_bitmap(b) == a && al_get_parent_bitmap(c) == a);
 ~~~~
 
@@ -1010,7 +1010,7 @@ See also: [al_set_bitmap_blender], [al_reset_bitmap_blender]
 
 ### API: al_set_bitmap_blend_color
 
-Sets the color to use for `ALLEGRO_CONST_COLOR` or `ALLEGRO_INVERSE_CONST_COLOR`
+Sets the color to use for `A5O_CONST_COLOR` or `A5O_INVERSE_CONST_COLOR`
 blend operations.
 
 Since: 5.2.5
@@ -1041,7 +1041,7 @@ the last display created in a thread.
 
 Clear the complete target bitmap, but confined by the clipping rectangle.
 
-See also: [ALLEGRO_COLOR], [al_set_clipping_rectangle], [al_clear_depth_buffer]
+See also: [A5O_COLOR], [al_set_clipping_rectangle], [al_clear_depth_buffer]
 
 ### API: al_clear_depth_buffer
 
@@ -1051,7 +1051,7 @@ value. A depth buffer is only available if it was requested with
 [al_create_display] call creating the current display. Operations involving the
 depth buffer are also affected by [al_set_render_state].
 
-For example, if `ALLEGRO_DEPTH_FUNCTION` is set to `ALLEGRO_RENDER_LESS` then
+For example, if `A5O_DEPTH_FUNCTION` is set to `A5O_RENDER_LESS` then
 depth buffer value of 1 represents infinite distance, and thus is a good value
 to use when clearing the depth buffer.
 
@@ -1067,8 +1067,8 @@ to the current target bitmap (see [al_set_target_bitmap]).
 
 `flags` can be a combination of:
 
-* ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
-* ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
+* A5O_FLIP_HORIZONTAL - flip the bitmap about the y-axis
+* A5O_FLIP_VERTICAL - flip the bitmap about the x-axis
 
 > *Note:* The current target bitmap must be a different bitmap.
 Drawing a bitmap to itself (or to a sub-bitmap of itself) or
@@ -1143,7 +1143,7 @@ Draws a single pixel at x, y. This function, unlike [al_put_pixel], does
 blending and, unlike [al_put_blended_pixel], respects the transformations (that 
 is, the pixel's position is transformed, but its size is unaffected - it 
 remains a pixel). This function can be slow if called often; if you need to 
-draw a lot of pixels consider using [al_draw_prim] with ALLEGRO_PRIM_POINT_LIST 
+draw a lot of pixels consider using [al_draw_prim] with A5O_PRIM_POINT_LIST 
 from the primitives addon.
 
 * x - destination x
@@ -1155,7 +1155,7 @@ from the primitives addon.
 primitives addon documentation for details on how to control exactly where the
 pixel is drawn. 
 
-See also: [ALLEGRO_COLOR], [al_put_pixel]
+See also: [A5O_COLOR], [al_put_pixel]
 
 ### API: al_draw_rotated_bitmap
 
@@ -1177,7 +1177,7 @@ Example
 ~~~~c
 float w = al_get_bitmap_width(bitmap);
 float h = al_get_bitmap_height(bitmap);
-al_draw_rotated_bitmap(bitmap, w / 2, h / 2, x, y, ALLEGRO_PI / 2, 0);
+al_draw_rotated_bitmap(bitmap, w / 2, h / 2, x, y, A5O_PI / 2, 0);
 ~~~~
 
 The above code draws the bitmap centered on x/y and rotates it 90° clockwise.
@@ -1297,14 +1297,14 @@ bitmaps. Consider locking the bitmap if you are going to use this function
 multiple times on the same bitmap. This function is not affected by the
 transformations or the color blenders.
 
-See also: [ALLEGRO_COLOR], [al_get_pixel], [al_put_blended_pixel], [al_lock_bitmap]
+See also: [A5O_COLOR], [al_get_pixel], [al_put_blended_pixel], [al_lock_bitmap]
 
 ### API: al_put_blended_pixel
 
 Like [al_put_pixel], but the pixel color is blended using the current blenders
 before being drawn. 
 
-See also: [ALLEGRO_COLOR], [al_put_pixel]
+See also: [A5O_COLOR], [al_put_pixel]
 
 ## Target bitmap
 
@@ -1337,7 +1337,7 @@ On some platforms, Allegro automatically backs up the contents of video bitmaps
 because they may be occasionally lost (see discussion in [al_create_bitmap]'s
 documentation). If you're completely recreating the bitmap contents often (e.g.
 every frame) then you will get much better performance by creating the target
-bitmap with ALLEGRO_NO_PRESERVE_TEXTURE flag.
+bitmap with A5O_NO_PRESERVE_TEXTURE flag.
 
 OpenGL note:
 
@@ -1437,21 +1437,21 @@ And this color is drawn to a destination, which already has a color:
 The conceptional formula used by Allegro to draw any pixel then depends
 on the `op` parameter:
 
-* ALLEGRO_ADD
+* A5O_ADD
 
          r = d.r * df.r + s.r * sf.r
          g = d.g * df.g + s.g * sf.g
          b = d.b * df.b + s.b * sf.b
          a = d.a * df.a + s.a * sf.a
  
-* ALLEGRO_DEST_MINUS_SRC
+* A5O_DEST_MINUS_SRC
 
          r = d.r * df.r - s.r * sf.r
          g = d.g * df.g - s.g * sf.g
          b = d.b * df.b - s.b * sf.b
          a = d.a * df.a - s.a * sf.a
 
-* ALLEGRO_SRC_MINUS_DEST
+* A5O_SRC_MINUS_DEST
 
          r = s.r * sf.r - d.r * df.r
          g = s.g * sf.g - d.g * df.g
@@ -1462,43 +1462,43 @@ Valid values for the factors `sf` and `df` passed to this function are as
 follows, where `s` is the source color, `d` the destination color and `cc`
 the color set with [al_set_blend_color] (white by default)
 
-* ALLEGRO_ZERO
+* A5O_ZERO
 
          f = 0, 0, 0, 0
 
-* ALLEGRO_ONE
+* A5O_ONE
 
          f = 1, 1, 1, 1
 
-* ALLEGRO_ALPHA
+* A5O_ALPHA
 
          f = s.a, s.a, s.a, s.a
 
-* ALLEGRO_INVERSE_ALPHA
+* A5O_INVERSE_ALPHA
 
          f = 1 - s.a, 1 - s.a, 1 - s.a, 1 - s.a
 
-* ALLEGRO_SRC_COLOR (since: 5.0.10, 5.1.0)
+* A5O_SRC_COLOR (since: 5.0.10, 5.1.0)
 
          f = s.r, s.g, s.b, s.a
 
-* ALLEGRO_DEST_COLOR (since: 5.0.10, 5.1.8)
+* A5O_DEST_COLOR (since: 5.0.10, 5.1.8)
 
          f = d.r, d.g, d.b, d.a
 
-* ALLEGRO_INVERSE_SRC_COLOR (since: 5.0.10, 5.1.0)
+* A5O_INVERSE_SRC_COLOR (since: 5.0.10, 5.1.0)
 
          f = 1 - s.r, 1 - s.g, 1 - s.b, 1 - s.a
 
-* ALLEGRO_INVERSE_DEST_COLOR (since: 5.0.10, 5.1.8)
+* A5O_INVERSE_DEST_COLOR (since: 5.0.10, 5.1.8)
 
          f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
 
-* ALLEGRO_CONST_COLOR (since: 5.1.12, not supported on OpenGLES 1.0)
+* A5O_CONST_COLOR (since: 5.1.12, not supported on OpenGLES 1.0)
 
          f = cc.r, cc.g, cc.b, cc.a
 
-* ALLEGRO_INVERSE_CONST_COLOR (since: 5.1.12, not supported on OpenGLES 1.0)
+* A5O_INVERSE_CONST_COLOR (since: 5.1.12, not supported on OpenGLES 1.0)
 
          f = 1 - cc.r, 1 - cc.g, 1 - cc.b, 1 - cc.a
 
@@ -1508,7 +1508,7 @@ So for example, to restore the default of using premultiplied alpha
 blending, you would use:
 
 ~~~~c
-al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 ~~~~
 
 As formula:
@@ -1521,38 +1521,38 @@ As formula:
 If you are using non-pre-multiplied alpha, you could use
 
 ~~~~c
-al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
 ~~~~
 
 Additive blending would be achieved with
 
 ~~~~c
-al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
 ~~~~
 
 Copying the source to the destination (including alpha) unmodified
 
 ~~~~c
-al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
 ~~~~
 
 Multiplying source and destination components
 
 ~~~~c
-al_set_blender(ALLEGRO_ADD, ALLEGRO_DEST_COLOR, ALLEGRO_ZERO)
+al_set_blender(A5O_ADD, A5O_DEST_COLOR, A5O_ZERO)
 ~~~~
 
 Tinting the source (like [al_draw_tinted_bitmap])
 
 ~~~~c
-al_set_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_ONE);
+al_set_blender(A5O_ADD, A5O_CONST_COLOR, A5O_ONE);
 al_set_blend_color(al_map_rgb(0, 96, 255)); /* nice Chrysler blue */
 ~~~~
 
 Averaging source and destination pixels
 
 ~~~~c
-al_set_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_CONST_COLOR);
+al_set_blender(A5O_ADD, A5O_CONST_COLOR, A5O_CONST_COLOR);
 al_set_blend_color(al_map_rgba_f(0.5, 0.5, 0.5, 0.5));
 ~~~~
 
@@ -1576,8 +1576,8 @@ See also: [al_set_blender], [al_get_blender], [al_get_separate_blender]
 
 ### API: al_set_blend_color
 
-Sets the color to use for blending when using the ALLEGRO_CONST_COLOR
-or ALLEGRO_INVERSE_CONST_COLOR blend functions. See [al_set_blender] for
+Sets the color to use for blending when using the A5O_CONST_COLOR
+or A5O_INVERSE_CONST_COLOR blend functions. See [al_set_blender] for
 more information.
 
 See also: [al_set_blender], [al_get_blend_color]
@@ -1623,7 +1623,7 @@ Convert the given mask color to an alpha channel in the bitmap.
 Can be used to convert older 4.2-style bitmaps with magic pink
 to alpha-ready bitmaps.
 
-See also: [ALLEGRO_COLOR]
+See also: [A5O_COLOR]
 
 ## Deferred drawing
 
@@ -1721,7 +1721,7 @@ See also: [al_register_bitmap_saver]
 
 ### API: al_load_bitmap
 
-Loads an image file into a new [ALLEGRO_BITMAP].
+Loads an image file into a new [A5O_BITMAP].
 The file type is determined by [al_identify_bitmap], using the extension
 as a fallback in case identification is not possible.
 
@@ -1739,7 +1739,7 @@ See also: [al_load_bitmap_flags], [al_load_bitmap_f],
 
 ### API: al_load_bitmap_flags
 
-Loads an image file into a new [ALLEGRO_BITMAP].
+Loads an image file into a new [A5O_BITMAP].
 The file type is determined by [al_identify_bitmap], using the extension
 as a fallback in case identification is not possible.
 
@@ -1747,7 +1747,7 @@ Returns NULL on error.
 
 The flags parameter may be a combination of the following constants:
 
-ALLEGRO_NO_PREMULTIPLIED_ALPHA
+A5O_NO_PREMULTIPLIED_ALPHA
 :   By default, Allegro pre-multiplies the alpha channel of an image with
     the images color data when it loads it. Typically that would look
     something like this:
@@ -1769,10 +1769,10 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     ex_premulalpha, ie, using pre-multiplied alpha gives more accurate
     color results in some cases. To use alpha blending with images loaded
     with pre-multiplied alpha, you would use the default blending mode,
-    which is set with al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE,
-    ALLEGRO_INVERSE_ALPHA).
+    which is set with al_set_blender(A5O_ADD, A5O_ONE,
+    A5O_INVERSE_ALPHA).
 
-    The ALLEGRO_NO_PREMULTIPLIED_ALPHA flag being set will ensure that
+    The A5O_NO_PREMULTIPLIED_ALPHA flag being set will ensure that
     images are not loaded with alpha pre-multiplied, but are loaded with
     color values direct from the image. That looks like this:
 
@@ -1786,7 +1786,7 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     ~~~~
 
     To draw such an image using regular alpha blending, you would use
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
+    al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA)
     to set the correct blender. This has some caveats. First, as mentioned
     above, drawing such an image can result in less accurate color blending
     (when drawing an image with linear filtering on, the edges will
@@ -1795,7 +1795,7 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
 
     ~~~~c
     // Load and create bitmaps with an alpha channel
-    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+    al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
     // Load some bitmap with alpha in it
     bmp = al_load_bitmap("some_alpha_bitmap.png");
     // We will draw to this buffer and then draw this buffer to the screen
@@ -1813,7 +1813,7 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     ~~~~
 
     To explain further, if you have a pixel with 0.5 alpha, and you're using
-    (ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA) for blending, the
+    (A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA) for blending, the
     formula is:
 
         a = da * dst + sa * src
@@ -1826,12 +1826,12 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     in 0.75 alpha, then drawn again to the screen, blended in the same way,
     resulting in a pixel has 0.1875 as an alpha value.
 
-ALLEGRO_KEEP_INDEX
+A5O_KEEP_INDEX
 :   Load the palette indices of 8-bit .bmp and .pcx files instead of the rgb colors.
     Since 5.1.0.
 
-ALLEGRO_KEEP_BITMAP_FORMAT
-:   Force the resulting [ALLEGRO_BITMAP] to use the same format as the file.
+A5O_KEEP_BITMAP_FORMAT
+:   Force the resulting [A5O_BITMAP] to use the same format as the file.
 
     *This is not yet honoured.*
 
@@ -1845,7 +1845,7 @@ See also: [al_load_bitmap]
 
 ### API: al_load_bitmap_f
 
-Loads an image from an [ALLEGRO_FILE] stream into a new [ALLEGRO_BITMAP].
+Loads an image from an [A5O_FILE] stream into a new [A5O_BITMAP].
 The file type is determined by [al_identify_bitmap_f]. If identification is
 not possible, the passed 'ident' parameter, which is a file name extension
 including the leading dot, is used as a fallback, if it is not NULL.
@@ -1865,7 +1865,7 @@ See also: [al_load_bitmap_flags_f], [al_load_bitmap],
 
 ### API: al_load_bitmap_flags_f
 
-Loads an image from an [ALLEGRO_FILE] stream into a new [ALLEGRO_BITMAP].
+Loads an image from an [A5O_FILE] stream into a new [A5O_BITMAP].
 The file type is determined by [al_identify_bitmap_f]. If identification is
 not possible, the passed 'ident' parameter, which is a file name extension
 including the leading dot, is used as a fallback, if it is not NULL.
@@ -1885,7 +1885,7 @@ See also: [al_load_bitmap_f], [al_load_bitmap_flags]
 
 ### API: al_save_bitmap
 
-Saves an [ALLEGRO_BITMAP] to an image file.
+Saves an [A5O_BITMAP] to an image file.
 The file type is determined by the extension.
 
 Returns true on success, false on error.
@@ -1898,7 +1898,7 @@ See also: [al_save_bitmap_f], [al_register_bitmap_saver], [al_init_image_addon]
 
 ### API: al_save_bitmap_f
 
-Saves an [ALLEGRO_BITMAP] to an [ALLEGRO_FILE] stream.
+Saves an [A5O_BITMAP] to an [A5O_FILE] stream.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
@@ -1915,7 +1915,7 @@ See also: [al_save_bitmap], [al_register_bitmap_saver_f], [al_init_image_addon]
 
 Register an identify handler for [al_identify_bitmap]. The given
 function will be used to detect files for the given extension. It will
-be called with a single argument of type [ALLEGRO_FILE] which is a
+be called with a single argument of type [A5O_FILE] which is a
 file handle opened for reading and located at the first byte of the
 file. The handler should try to read as few bytes as possible to
 safely determine if the given file contents correspond to the type
@@ -1949,7 +1949,7 @@ See also: [al_init_image_addon], [al_identify_bitmap_f],
 
 ### API: al_identify_bitmap_f
 
-Tries to guess the bitmap file type of the open ALLEGRO_FILE by
+Tries to guess the bitmap file type of the open A5O_FILE by
 reading the first few bytes. By default Allegro cannot recognize any
 file types, but calling [al_init_image_addon] will add detection of
 (some of) the types it can read. You can also use
@@ -1967,74 +1967,74 @@ See also: [al_init_image_addon], [al_identify_bitmap],
 
 ## Render State
 
-### API: ALLEGRO_RENDER_STATE
+### API: A5O_RENDER_STATE
 
 Possible render states which can be set with [al_set_render_state]:
 
-ALLEGRO_ALPHA_TEST
-:   If this is set to 1, the values of ALLEGRO_ALPHA_FUNCTION and
-    ALLEGRO_ALPHA_TEST_VALUE define a comparison function which is performed
+A5O_ALPHA_TEST
+:   If this is set to 1, the values of A5O_ALPHA_FUNCTION and
+    A5O_ALPHA_TEST_VALUE define a comparison function which is performed
     on the alpha component of each pixel. Only if it evaluates to true
     the pixel is written. Otherwise no subsequent processing (like depth
     test or blending) is performed.
     This can be very useful, for example if a depth buffer is used but
     you do not want fully transparent pixels to modify it.
 
-ALLEGRO_ALPHA_FUNCTION
-:   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_ALPHA_TEST is 1.
+A5O_ALPHA_FUNCTION
+:   One of [A5O_RENDER_FUNCTION], only used when A5O_ALPHA_TEST is 1.
 
-ALLEGRO_ALPHA_TEST_VALUE
-:   Only used when ALLEGRO_ALPHA_TEST is 1. Should be a value of 0 - 255.
+A5O_ALPHA_TEST_VALUE
+:   Only used when A5O_ALPHA_TEST is 1. Should be a value of 0 - 255.
 
-ALLEGRO_WRITE_MASK
+A5O_WRITE_MASK
 :   This determines how the framebuffer and depthbuffer are updated whenever a
     pixel is written (in case alpha and/or depth testing is enabled: after all
     such enabled tests succeed). Depth values are only written if
-    ALLEGRO_DEPTH_TEST is 1, in addition to the write mask flag being set.
+    A5O_DEPTH_TEST is 1, in addition to the write mask flag being set.
 
-ALLEGRO_DEPTH_TEST
+A5O_DEPTH_TEST
 :   If this is set to 1, compare the depth value of any newly written pixels with
-    the depth value already in the buffer, according to ALLEGRO_DEPTH_FUNCTION.
+    the depth value already in the buffer, according to A5O_DEPTH_FUNCTION.
     Allegro primitives with no explicit z coordinate will write a value of 0 into
     the depth buffer.
 
-ALLEGRO_DEPTH_FUNCTION
-:   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_DEPTH_TEST is 1.
+A5O_DEPTH_FUNCTION
+:   One of [A5O_RENDER_FUNCTION], only used when A5O_DEPTH_TEST is 1.
 
 Since: 5.1.2
 
-See also: [al_set_render_state], [ALLEGRO_RENDER_FUNCTION],
-[ALLEGRO_WRITE_MASK_FLAGS]
+See also: [al_set_render_state], [A5O_RENDER_FUNCTION],
+[A5O_WRITE_MASK_FLAGS]
 
-### API: ALLEGRO_RENDER_FUNCTION
+### API: A5O_RENDER_FUNCTION
 
 Possible functions are:
 
--   ALLEGRO_RENDER_NEVER
--   ALLEGRO_RENDER_ALWAYS
--   ALLEGRO_RENDER_LESS
--   ALLEGRO_RENDER_EQUAL 
--   ALLEGRO_RENDER_LESS_EQUAL   
--   ALLEGRO_RENDER_GREATER        
--   ALLEGRO_RENDER_NOT_EQUAL
--   ALLEGRO_RENDER_GREATER_EQUAL
+-   A5O_RENDER_NEVER
+-   A5O_RENDER_ALWAYS
+-   A5O_RENDER_LESS
+-   A5O_RENDER_EQUAL 
+-   A5O_RENDER_LESS_EQUAL   
+-   A5O_RENDER_GREATER        
+-   A5O_RENDER_NOT_EQUAL
+-   A5O_RENDER_GREATER_EQUAL
 
 Since: 5.1.2
 
 See also: [al_set_render_state]
 
-### API: ALLEGRO_WRITE_MASK_FLAGS
+### API: A5O_WRITE_MASK_FLAGS
 
 Each enabled bit means the corresponding value is written, a disabled bit
 means it is not.
 
--  ALLEGRO_MASK_RED
--  ALLEGRO_MASK_GREEN
--  ALLEGRO_MASK_BLUE
--  ALLEGRO_MASK_ALPHA
--  ALLEGRO_MASK_DEPTH
--  ALLEGRO_MASK_RGB - Same as RED | GREEN | BLUE.
--  ALLEGRO_MASK_RGBA - Same as RGB | ALPHA.
+-  A5O_MASK_RED
+-  A5O_MASK_GREEN
+-  A5O_MASK_BLUE
+-  A5O_MASK_ALPHA
+-  A5O_MASK_DEPTH
+-  A5O_MASK_RGB - Same as RED | GREEN | BLUE.
+-  A5O_MASK_RGBA - Same as RGB | ALPHA.
 
 Since: 5.1.2
 
@@ -2042,22 +2042,22 @@ See also: [al_set_render_state]
 
 ### API: al_set_render_state
 
-Set one of several render attributes; see [ALLEGRO_RENDER_STATE]
+Set one of several render attributes; see [A5O_RENDER_STATE]
 for details.
 
 This function does nothing if the target bitmap is a memory bitmap.
 
 Since: 5.1.2
 
-See also: [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
-[ALLEGRO_WRITE_MASK_FLAGS]
+See also: [A5O_RENDER_STATE], [A5O_RENDER_FUNCTION],
+[A5O_WRITE_MASK_FLAGS]
 
 
 ### API: al_backup_dirty_bitmap
 
 On some platforms, notably Windows Direct3D and Android, textures may be
 lost at any time for events such as display resize or switching out of the
-app. On those platforms, bitmaps created without the ALLEGRO_NO_PRESERVE_TEXTURE
+app. On those platforms, bitmaps created without the A5O_NO_PRESERVE_TEXTURE
 flag automatically get backed up to system memory every time
 al_flip_display is called.
 

@@ -13,12 +13,12 @@
 const int W = 640;
 const int H = 480;
 
-ALLEGRO_DISPLAY *display;
-ALLEGRO_EVENT_QUEUE *queue;
-ALLEGRO_COLOR black;
-ALLEGRO_COLOR white;
-ALLEGRO_COLOR background;
-ALLEGRO_BITMAP *dbuf;
+A5O_DISPLAY *display;
+A5O_EVENT_QUEUE *queue;
+A5O_COLOR black;
+A5O_COLOR white;
+A5O_COLOR background;
+A5O_BITMAP *dbuf;
 
 int last_x = -1;
 int last_y = -1;
@@ -26,7 +26,7 @@ int last_y = -1;
 
 static void fade(void)
 {
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
    al_draw_filled_rectangle(0, 0, W, H, al_map_rgba_f(0.5, 0.5, 0.6, 0.2));
 }
 
@@ -53,7 +53,7 @@ static void reset_clip_rect(void)
 static void flip(void)
 {
    al_set_target_backbuffer(display);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
    al_draw_bitmap(dbuf, 0.0, 0.0, 0);
    al_flip_display();
 }
@@ -63,7 +63,7 @@ static void plonk(const int x, const int y, bool blend)
    al_set_target_bitmap(dbuf);
 
    fade();
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_ZERO);
    draw_clip_rect();
    red_dot(x, y);
 
@@ -74,7 +74,7 @@ static void plonk(const int x, const int y, bool blend)
    else {
       my_set_clip_rect();
       if (blend) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
       }
       al_draw_line(last_x, last_y, x, y, white, 0);
       last_x = last_y = -1;
@@ -91,15 +91,15 @@ static void splat(const int x, const int y, bool blend)
    al_set_target_bitmap(dbuf);
 
    fade();
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ZERO);
+   al_set_blender(A5O_ADD, A5O_ALPHA, A5O_ZERO);
    draw_clip_rect();
    red_dot(x, y);
 
    my_set_clip_rect();
    if (blend) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(A5O_ADD, A5O_ALPHA, A5O_INVERSE_ALPHA);
    }
-   for (theta = 0.0; theta < 2.0 * ALLEGRO_PI; theta += ALLEGRO_PI/16.0) {
+   for (theta = 0.0; theta < 2.0 * A5O_PI; theta += A5O_PI/16.0) {
       al_draw_line(x, y, x + 40.0 * cos(theta), y + 40.0 * sin(theta), white, 0);
    }
    reset_clip_rect();
@@ -109,8 +109,8 @@ static void splat(const int x, const int y, bool blend)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_EVENT event;
-   ALLEGRO_KEYBOARD_STATE kst;
+   A5O_EVENT event;
+   A5O_KEYBOARD_STATE kst;
    bool blend;
 
    if (!al_init()) {
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
    background = al_map_rgb_f(0.5, 0.5, 0.6);
 
    if (argc > 1 && 0 == strcmp(argv[1], "--memory-bitmap")) {
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    }
    dbuf = al_create_bitmap(W, H);
    if (!dbuf) {
@@ -149,21 +149,21 @@ int main(int argc, char **argv)
 
    while (true) {
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      if (event.type == A5O_EVENT_MOUSE_BUTTON_DOWN) {
          al_get_keyboard_state(&kst);
-         blend = al_key_down(&kst, ALLEGRO_KEY_LSHIFT) ||
-            al_key_down(&kst, ALLEGRO_KEY_RSHIFT);
+         blend = al_key_down(&kst, A5O_KEY_LSHIFT) ||
+            al_key_down(&kst, A5O_KEY_RSHIFT);
          if (event.mouse.button == 1) {
             plonk(event.mouse.x, event.mouse.y, blend);
          } else {
             splat(event.mouse.x, event.mouse.y, blend);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_OUT) {
+      else if (event.type == A5O_EVENT_DISPLAY_SWITCH_OUT) {
          last_x = last_y = -1;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-         event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      else if (event.type == A5O_EVENT_KEY_DOWN &&
+         event.keyboard.keycode == A5O_KEY_ESCAPE)
       {
          break;
       }

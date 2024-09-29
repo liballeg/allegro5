@@ -150,7 +150,7 @@ make_directory(${CMAKE_CURRENT_BINARY_DIR}/txt)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/texi)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/latex)
 
-# Stick the ALLEGRO_VERSION into a file included by the latex template
+# Stick the A5O_VERSION into a file included by the latex template
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/refman/allegro_version.tex.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/latex/allegro_version.tex

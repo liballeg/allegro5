@@ -22,7 +22,7 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <IOKit/hid/IOHIDKeys.h>
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
 #error something is wrong with the makefile
 #endif
 
@@ -51,7 +51,7 @@ typedef enum {
 #define GAMEPAD_USAGE_NUMBER       0x05
 
 typedef struct {
-   ALLEGRO_JOYSTICK parent;
+   A5O_JOYSTICK parent;
    IOHIDElementRef buttons[_AL_MAX_JOYSTICK_BUTTONS];
    IOHIDElementRef axes[_AL_MAX_JOYSTICK_STICKS][_AL_MAX_JOYSTICK_AXES];
    IOHIDElementRef dpad;
@@ -61,18 +61,18 @@ typedef struct {
    long min[_AL_MAX_JOYSTICK_STICKS][_AL_MAX_JOYSTICK_AXES];
    long max[_AL_MAX_JOYSTICK_STICKS][_AL_MAX_JOYSTICK_AXES];
    CONFIG_STATE cfg_state;
-   ALLEGRO_JOYSTICK_STATE state;
+   A5O_JOYSTICK_STATE state;
    IOHIDDeviceRef ident;
    char *name;
-} ALLEGRO_JOYSTICK_OSX;
+} A5O_JOYSTICK_OSX;
 
 static IOHIDManagerRef hidManagerRef;
 static _AL_VECTOR joysticks;
 static CONFIG_STATE new_joystick_state = JOY_STATE_ALIVE;
 static bool initialized = false;
-static ALLEGRO_MUTEX *add_mutex;
+static A5O_MUTEX *add_mutex;
 
-ALLEGRO_DEBUG_CHANNEL("MacOSX")
+A5O_DEBUG_CHANNEL("MacOSX")
 
 // function to create matching dictionary (for devices)
 static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
@@ -131,11 +131,11 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
    return result;
 }
 
-static ALLEGRO_JOYSTICK_OSX *find_joystick(IOHIDDeviceRef ident)
+static A5O_JOYSTICK_OSX *find_joystick(IOHIDDeviceRef ident)
 {
    int i;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-      ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
+      A5O_JOYSTICK_OSX *joy = *(A5O_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
       if (ident == joy->ident) {
          return joy;
       }
@@ -154,7 +154,7 @@ static const char *get_element_name(IOHIDElementRef elem, const char *default_na
       return default_name;
 }
 
-static void joy_null(ALLEGRO_JOYSTICK_OSX *joy)
+static void joy_null(A5O_JOYSTICK_OSX *joy)
 {
    int i, j;
 
@@ -170,7 +170,7 @@ static void joy_null(ALLEGRO_JOYSTICK_OSX *joy)
    }
 }
 
-static void add_axis(ALLEGRO_JOYSTICK_OSX *joy, int stick_index, int axis_index, int min, int max, char *name, IOHIDElementRef elem)
+static void add_axis(A5O_JOYSTICK_OSX *joy, int stick_index, int axis_index, int min, int max, char *name, IOHIDElementRef elem)
 {
    if (axis_index >= _AL_MAX_JOYSTICK_AXES)
       return;
@@ -183,7 +183,7 @@ static void add_axis(ALLEGRO_JOYSTICK_OSX *joy, int stick_index, int axis_index,
    joy->axes[stick_index][axis_index] = elem;
 }
 
-static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
+static void add_elements(CFArrayRef elements, A5O_JOYSTICK_OSX *joy)
 {
    int i;
    char default_name[100];
@@ -303,8 +303,8 @@ static void osx_joy_generate_configure_event(void)
 {
    if (!initialized) return;
 
-   ALLEGRO_EVENT event;
-   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
+   A5O_EVENT event;
+   event.joystick.type = A5O_EVENT_JOYSTICK_CONFIGURATION;
    event.joystick.timestamp = al_current_time();
 
    _al_generate_joystick_event(&event);
@@ -314,7 +314,7 @@ static void add_joystick_device(IOHIDDeviceRef ref, bool emit_reconfigure_event)
 {
    al_lock_mutex(add_mutex);
 
-   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
+   A5O_JOYSTICK_OSX *joy = find_joystick(ref);
 
    if (joy && (joy->cfg_state == JOY_STATE_BORN || joy->cfg_state == JOY_STATE_ALIVE))
    {
@@ -323,9 +323,9 @@ static void add_joystick_device(IOHIDDeviceRef ref, bool emit_reconfigure_event)
    }
 
    if (joy == NULL) {
-      joy = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_OSX));
+      joy = al_calloc(1, sizeof(A5O_JOYSTICK_OSX));
       joy->ident = ref;
-      ALLEGRO_JOYSTICK_OSX **back = _al_vector_alloc_back(&joysticks);
+      A5O_JOYSTICK_OSX **back = _al_vector_alloc_back(&joysticks);
       *back = joy;
    }
 
@@ -345,7 +345,7 @@ static void add_joystick_device(IOHIDDeviceRef ref, bool emit_reconfigure_event)
 
    if (emit_reconfigure_event) osx_joy_generate_configure_event();
 
-   ALLEGRO_INFO("Found joystick (%d buttons, %d sticks)\n",
+   A5O_INFO("Found joystick (%d buttons, %d sticks)\n",
       joy->parent.info.num_buttons, joy->parent.info.num_sticks);
 }
 
@@ -402,7 +402,7 @@ static void device_remove_callback(
 
    int i;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-      ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
+      A5O_JOYSTICK_OSX *joy = *(A5O_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
       if (joy->ident == ref) {
          joy->cfg_state = JOY_STATE_DYING;
          osx_joy_generate_configure_event();
@@ -411,19 +411,19 @@ static void device_remove_callback(
    }
 }
 
-static void osx_joy_generate_axis_event(ALLEGRO_JOYSTICK_OSX *joy, int stick, int axis, float pos)
+static void osx_joy_generate_axis_event(A5O_JOYSTICK_OSX *joy, int stick, int axis, float pos)
 {
    joy->state.stick[stick].axis[axis] = pos;
 
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   A5O_EVENT event;
+   A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
 
    if (!_al_event_source_needs_to_generate_event(es))
       return;
 
-   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+   event.joystick.type = A5O_EVENT_JOYSTICK_AXIS;
    event.joystick.timestamp = al_current_time();
-   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
+   event.joystick.id = (A5O_JOYSTICK *)joy;
    event.joystick.stick = stick;
    event.joystick.axis = axis;
    event.joystick.pos = pos;
@@ -432,20 +432,20 @@ static void osx_joy_generate_axis_event(ALLEGRO_JOYSTICK_OSX *joy, int stick, in
    _al_event_source_emit_event(es, &event);
 }
 
-static void osx_joy_generate_button_event(ALLEGRO_JOYSTICK_OSX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
+static void osx_joy_generate_button_event(A5O_JOYSTICK_OSX *joy, int button, A5O_EVENT_TYPE event_type)
 {
-   joy->state.button[button] = event_type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP ?
+   joy->state.button[button] = event_type == A5O_EVENT_JOYSTICK_BUTTON_UP ?
       0 : 1;;
 
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   A5O_EVENT event;
+   A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
 
    if (!_al_event_source_needs_to_generate_event(es))
       return;
 
    event.joystick.type = event_type;
    event.joystick.timestamp = al_current_time();
-   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
+   event.joystick.id = (A5O_JOYSTICK *)joy;
    event.joystick.stick = 0;
    event.joystick.axis = 0;
    event.joystick.pos = 0.0;
@@ -483,21 +483,21 @@ static void value_callback(
 
    IOHIDElementRef elem = IOHIDValueGetElement(value);
    IOHIDDeviceRef ref = IOHIDElementGetDevice(elem);
-   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
+   A5O_JOYSTICK_OSX *joy = find_joystick(ref);
 
    if (!joy) return;
 
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
    _al_event_source_lock(es);
 
    int i;
    for (i = 0; i < joy->parent.info.num_buttons; i++) {
       if (joy->buttons[i] == elem) {
-         ALLEGRO_EVENT_TYPE type;
+         A5O_EVENT_TYPE type;
          if (IOHIDValueGetIntegerValue(value) == 0)
-            type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
+            type = A5O_EVENT_JOYSTICK_BUTTON_UP;
          else
-            type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
+            type = A5O_EVENT_JOYSTICK_BUTTON_DOWN;
          osx_joy_generate_button_event(joy, i, type);
          goto done;
       }
@@ -569,7 +569,7 @@ static bool init_joystick(void)
    );
 
    if (CFGetTypeID(hidManagerRef) != IOHIDManagerGetTypeID()) {
-      ALLEGRO_ERROR("Unable to create HID Manager\n");
+      A5O_ERROR("Unable to create HID Manager\n");
       return false;
    }
 
@@ -626,7 +626,7 @@ static bool init_joystick(void)
       kCFRunLoopDefaultMode
    );
 
-   _al_vector_init(&joysticks, sizeof(ALLEGRO_JOYSTICK_OSX *));
+   _al_vector_init(&joysticks, sizeof(A5O_JOYSTICK_OSX *));
 
    al_lock_mutex(add_mutex);
 
@@ -688,7 +688,7 @@ static int num_joysticks(void)
    int i;
    int count = 0;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-      ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
+      A5O_JOYSTICK_OSX *joy = *(A5O_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
       if (joy->cfg_state == JOY_STATE_ALIVE) {
          count++;
       }
@@ -700,18 +700,18 @@ static int num_joysticks(void)
 /* get_joystick:
  * Get a pointer to a joystick structure
  */
-static ALLEGRO_JOYSTICK* get_joystick(int index)
+static A5O_JOYSTICK* get_joystick(int index)
 {
    ASSERT(index >= 0 && index < (int)_al_vector_size(&joysticks));
 
    int i;
    int count = 0;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-      ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
+      A5O_JOYSTICK_OSX *joy = *(A5O_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
       if (joy->cfg_state == JOY_STATE_ALIVE ||
          joy->cfg_state == JOY_STATE_DYING) {
             if (count == index) {
-               return (ALLEGRO_JOYSTICK *)joy;
+               return (A5O_JOYSTICK *)joy;
             }
             count++;
       }
@@ -723,7 +723,7 @@ static ALLEGRO_JOYSTICK* get_joystick(int index)
 /* release_joystick:
  * Release a pointer that has been obtained
  */
-static void release_joystick(ALLEGRO_JOYSTICK* joy __attribute__((unused)) )
+static void release_joystick(A5O_JOYSTICK* joy __attribute__((unused)) )
 {
    // No-op
 }
@@ -731,10 +731,10 @@ static void release_joystick(ALLEGRO_JOYSTICK* joy __attribute__((unused)) )
 /* get_joystick_state:
  * Get the current status of a joystick
  */
-static void get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STATE *ret_state)
+static void get_joystick_state(A5O_JOYSTICK *joy_, A5O_JOYSTICK_STATE *ret_state)
 {
-   ALLEGRO_JOYSTICK_OSX *joy = (ALLEGRO_JOYSTICK_OSX *) joy_;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   A5O_JOYSTICK_OSX *joy = (A5O_JOYSTICK_OSX *) joy_;
+   A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
 
    _al_event_source_lock(es);
    {
@@ -748,7 +748,7 @@ static bool reconfigure_joysticks(void)
    int i;
    bool ret = false;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-      ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
+      A5O_JOYSTICK_OSX *joy = *(A5O_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
       if (joy->cfg_state == JOY_STATE_DYING) {
          joy->cfg_state = JOY_STATE_UNUSED;
          for (i = 0; i < _AL_MAX_JOYSTICK_BUTTONS; i++) {
@@ -763,7 +763,7 @@ static bool reconfigure_joysticks(void)
          }
 	      joy_null(joy);
          memset(joy->buttons, 0, _AL_MAX_JOYSTICK_BUTTONS*sizeof(IOHIDElementRef));
-         memset(&joy->state, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
+         memset(&joy->state, 0, sizeof(A5O_JOYSTICK_STATE));
          joy->dpad=0;
       }
       else if (joy->cfg_state == JOY_STATE_BORN)
@@ -776,9 +776,9 @@ static bool reconfigure_joysticks(void)
    return ret;
 }
 
-static const char *get_joystick_name(ALLEGRO_JOYSTICK *joy_)
+static const char *get_joystick_name(A5O_JOYSTICK *joy_)
 {
-   ALLEGRO_JOYSTICK_OSX *joy = (ALLEGRO_JOYSTICK_OSX *)joy_;
+   A5O_JOYSTICK_OSX *joy = (A5O_JOYSTICK_OSX *)joy_;
    CFStringRef str;
 
    str = IOHIDDeviceGetProperty(joy->ident, CFSTR(kIOHIDProductKey));
@@ -798,15 +798,15 @@ static const char *get_joystick_name(ALLEGRO_JOYSTICK *joy_)
    return "Joystick";
 }
 
-static bool get_joystick_active(ALLEGRO_JOYSTICK *joy_)
+static bool get_joystick_active(A5O_JOYSTICK *joy_)
 {
-   ALLEGRO_JOYSTICK_OSX *joy = (ALLEGRO_JOYSTICK_OSX *)joy_;
+   A5O_JOYSTICK_OSX *joy = (A5O_JOYSTICK_OSX *)joy_;
    return joy->cfg_state == JOY_STATE_ALIVE || joy->cfg_state == JOY_STATE_DYING;
 }
 
-ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
+A5O_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
 {
-   static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
+   static A5O_JOYSTICK_DRIVER* vt = NULL;
    if (vt == NULL) {
       vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
@@ -832,10 +832,10 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
 
 
 
-ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void);
-ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void);
+A5O_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void);
+A5O_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void);
 
-ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
+A5O_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
 {
    if (floor(NSAppKitVersionNumber) >= NSAppKitVersionNumber10_5) {
    	return _al_osx_get_joystick_driver_10_5();

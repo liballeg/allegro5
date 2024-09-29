@@ -30,12 +30,12 @@ class Sample;
 class Audiostream;
 
 struct Context {
-   ALLEGRO_FONT *font;
-   ALLEGRO_COLOR bg;
-   ALLEGRO_COLOR fg;
-   ALLEGRO_COLOR fill;
-   ALLEGRO_COLOR disabled;
-   ALLEGRO_COLOR highlight;
+   A5O_FONT *font;
+   A5O_COLOR bg;
+   A5O_COLOR fg;
+   A5O_COLOR fill;
+   A5O_COLOR disabled;
+   A5O_COLOR highlight;
 };
 
 class Element {
@@ -90,14 +90,14 @@ private:
    bool do_attach(Audiostream & stream);
    bool do_detach();
 
-   ALLEGRO_VOICE *voice;
+   A5O_VOICE *voice;
 };
 
 class Mixer : public Element {
 public:
    Mixer();
    ~Mixer();
-   operator ALLEGRO_MIXER *() const { return mixer; }
+   operator A5O_MIXER *() const { return mixer; }
    bool is_playing() const;
    bool toggle_playing();
    float get_gain() const;
@@ -109,14 +109,14 @@ private:
    bool do_attach(Audiostream & stream);
    bool do_detach();
 
-   ALLEGRO_MIXER *mixer;
+   A5O_MIXER *mixer;
 };
 
 class SampleInstance : public Element {
 public:
    SampleInstance();
    ~SampleInstance();
-   operator ALLEGRO_SAMPLE_INSTANCE *() const { return splinst; }
+   operator A5O_SAMPLE_INSTANCE *() const { return splinst; }
    bool is_playing() const;
    bool toggle_playing();
    float get_gain() const;
@@ -126,7 +126,7 @@ public:
 private:
    bool do_detach();
 
-   ALLEGRO_SAMPLE_INSTANCE *splinst;
+   A5O_SAMPLE_INSTANCE *splinst;
    Sample const *spl;
    unsigned pos;
 };
@@ -135,11 +135,11 @@ class Sample {
 public:
    Sample(char const *filename);
    ~Sample();
-   operator ALLEGRO_SAMPLE *() const { return spl; }
+   operator A5O_SAMPLE *() const { return spl; }
    bool valid() const;
    string const& get_filename() const;
 private:
-   ALLEGRO_SAMPLE *spl;
+   A5O_SAMPLE *spl;
    string filename;
 };
 
@@ -147,7 +147,7 @@ class Audiostream : public Element {
 public:
    Audiostream(string const& filename);
    ~Audiostream();
-   operator ALLEGRO_AUDIO_STREAM *() const { return stream; }
+   operator A5O_AUDIO_STREAM *() const { return stream; }
    bool valid() const;
    bool is_playing() const;
    bool toggle_playing();
@@ -157,20 +157,20 @@ public:
 private:
    bool do_detach();
 
-   ALLEGRO_AUDIO_STREAM *stream;
+   A5O_AUDIO_STREAM *stream;
    string filename;
 };
 
 /*---------------------------------------------------------------------------*/
 
-static ALLEGRO_PATH *make_path(char const *str)
+static A5O_PATH *make_path(char const *str)
 {
-   static ALLEGRO_PATH *dir;
-   ALLEGRO_PATH *path;
+   static A5O_PATH *dir;
+   A5O_PATH *path;
 
    if (!dir) {
-      dir = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-#ifdef ALLEGRO_MSVC
+      dir = al_get_standard_path(A5O_RESOURCES_PATH);
+#ifdef A5O_MSVC
       {
          /* Hack to cope automatically with MSVC workspaces. */
          const char *last = al_get_path_component(dir, -1);
@@ -293,8 +293,8 @@ void Element::draw(Context const& ctx, bool highlight) const
       draw_arrow(ctx, x2, y2, highlight);
    }
 
-   ALLEGRO_COLOR textcol = ctx.fg;
-   ALLEGRO_COLOR boxcol = ctx.fg;
+   A5O_COLOR textcol = ctx.fg;
+   A5O_COLOR boxcol = ctx.fg;
    if (highlight)
       boxcol = ctx.highlight;
    if (!is_playing())
@@ -306,7 +306,7 @@ void Element::draw(Context const& ctx, bool highlight) const
 
    float th = al_get_font_line_height(ctx.font);
    al_draw_text(ctx.font, textcol, x + w/2, y + h/2 - th/2,
-      ALLEGRO_ALIGN_CENTRE, get_label());
+      A5O_ALIGN_CENTRE, get_label());
 
    float gain = get_gain();
    if (gain > 0.0) {
@@ -318,7 +318,7 @@ void Element::draw(Context const& ctx, bool highlight) const
 void Element::draw_arrow(Context const& ctx, float x2, float y2, bool highlight) const
 {
    float x1, y1;
-   ALLEGRO_COLOR col;
+   A5O_COLOR col;
    output_point(x1, y1);
    col = (highlight ? ctx.highlight : ctx.fg);
    al_draw_line(x1, y1, x2, y2, col, 1.0);
@@ -365,8 +365,8 @@ void Element::input_point(float & ox, float & oy) const
 Voice::Voice()
 {
    set_random_pos();
-   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
-      ALLEGRO_CHANNEL_CONF_2);
+   voice = al_create_voice(44100, A5O_AUDIO_DEPTH_INT16,
+      A5O_CHANNEL_CONF_2);
 }
 
 Voice::~Voice()
@@ -431,8 +431,8 @@ char const *Voice::get_label() const
 Mixer::Mixer()
 {
    set_random_pos();
-   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-      ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32,
+      A5O_CHANNEL_CONF_2);
 }
 
 Mixer::~Mixer()
@@ -540,7 +540,7 @@ bool SampleInstance::set_sample(Sample const & spl)
    bool rc = al_set_sample(splinst, spl);
    if (rc) {
       this->spl = &spl;
-      al_set_sample_instance_playmode(splinst, ALLEGRO_PLAYMODE_LOOP);
+      al_set_sample_instance_playmode(splinst, A5O_PLAYMODE_LOOP);
       al_set_sample_instance_playing(splinst, playing);
    }
    return rc;
@@ -587,7 +587,7 @@ Audiostream::Audiostream(string const& filename)
 
    stream = al_load_audio_stream(filename.c_str(), 4, 2048);
    if (stream) {
-      al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);
+      al_set_audio_stream_playmode(stream, A5O_PLAYMODE_LOOP);
    }
 }
 
@@ -659,8 +659,8 @@ private:
    void delete_element(Element *elt);
    void redraw();
 
-   ALLEGRO_DISPLAY *dpy;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *dpy;
+   A5O_EVENT_QUEUE *queue;
    Context ctx;
    vector<Sample const *> samples;
    vector<string> stream_paths;
@@ -722,7 +722,7 @@ void Prog::init()
 
 void Prog::add_sample(char const *filename)
 {
-   ALLEGRO_PATH *path = make_path(filename);
+   A5O_PATH *path = make_path(filename);
    Sample *spl = new Sample(al_path_cstr(path, '/'));
    if (spl) {
       samples.push_back(spl);
@@ -734,7 +734,7 @@ void Prog::add_sample(char const *filename)
 
 void Prog::add_stream_path(char const *filename)
 {
-   ALLEGRO_PATH *path = make_path(filename);
+   A5O_PATH *path = make_path(filename);
    stream_paths.push_back(al_path_cstr(path, '/'));
    al_destroy_path(path);
 }
@@ -827,18 +827,18 @@ void Prog::run()
          redraw();
       }
 
-      ALLEGRO_EVENT ev;
+      A5O_EVENT ev;
       al_wait_for_event(queue, &ev);
       switch (ev.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             return;
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+         case A5O_EVENT_MOUSE_BUTTON_DOWN:
             process_mouse_button_down(ev.mouse.button, ev.mouse.x, ev.mouse.y);
             break;
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+         case A5O_EVENT_MOUSE_BUTTON_UP:
             process_mouse_button_up(ev.mouse.button, ev.mouse.x, ev.mouse.y);
             break;
-         case ALLEGRO_EVENT_MOUSE_AXES:
+         case A5O_EVENT_MOUSE_AXES:
             if (ev.mouse.dz) {
                process_mouse_wheel(ev.mouse.dz);
             }
@@ -847,7 +847,7 @@ void Prog::run()
                   ev.mouse.dx, ev.mouse.dy);
             }
             break;
-         case ALLEGRO_EVENT_KEY_CHAR:
+         case A5O_EVENT_KEY_CHAR:
             if (ev.keyboard.unichar == 27) {
                return;
             }
@@ -984,12 +984,12 @@ void Prog::redraw()
 
    float y = al_get_display_height(dpy);
    float th = al_get_font_line_height(ctx.font);
-   al_draw_textf(ctx.font, ctx.fg, 0, y-th*2, ALLEGRO_ALIGN_LEFT,
+   al_draw_textf(ctx.font, ctx.fg, 0, y-th*2, A5O_ALIGN_LEFT,
       "Create [v]oices, [m]ixers, [s]ample instances, [a]udiostreams.   "
       "[SPACE] pause playback.    "
       "[1]-[9] set sample.    "
       "[x] delete.");
-   al_draw_textf(ctx.font, ctx.fg, 0, y-th*1, ALLEGRO_ALIGN_LEFT,
+   al_draw_textf(ctx.font, ctx.fg, 0, y-th*1, A5O_ALIGN_LEFT,
       "Mouse: [LMB] select element.   "
       "[RMB] attach sources to sinks "
       "(sample->mixer, mixer->mixer, mixer->voice, sample->voice)");

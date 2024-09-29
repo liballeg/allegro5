@@ -24,27 +24,27 @@
 #include "allegro5/internal/aintern_shader.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
 
-ALLEGRO_DEBUG_CHANNEL("display")
+A5O_DEBUG_CHANNEL("display")
 
 int _al_win_determine_adapter(void);
 
-static ALLEGRO_DISPLAY_INTERFACE *vt;
+static A5O_DISPLAY_INTERFACE *vt;
 
-float _al_sdl_get_display_pixel_ratio(ALLEGRO_DISPLAY *display)
+float _al_sdl_get_display_pixel_ratio(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   A5O_DISPLAY_SDL *sdl = (void *)display;
    int window_width, drawable_width, h;
    SDL_GetWindowSize(sdl->window, &window_width, &h);
    SDL_GL_GetDrawableSize(sdl->window, &drawable_width, &h);
    return drawable_width / (float)window_width;
 }
 
-ALLEGRO_DISPLAY *_al_sdl_find_display(uint32_t window_id) {
+A5O_DISPLAY *_al_sdl_find_display(uint32_t window_id) {
    unsigned int i;
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   A5O_SYSTEM *s = al_get_system_driver();
    for (i = 0; i < _al_vector_size(&s->displays); i++) {
       void **v = (void **)_al_vector_ref(&s->displays, i);
-      ALLEGRO_DISPLAY_SDL *d = *v;
+      A5O_DISPLAY_SDL *d = *v;
       if (SDL_GetWindowID(d->window) == window_id) {
          return &d->display;
          break;
@@ -55,33 +55,33 @@ ALLEGRO_DISPLAY *_al_sdl_find_display(uint32_t window_id) {
 
 void _al_sdl_display_event(SDL_Event *e)
 {
-   ALLEGRO_EVENT event;
+   A5O_EVENT event;
    event.display.timestamp = al_get_time();
 
-   ALLEGRO_DISPLAY *d = NULL;
+   A5O_DISPLAY *d = NULL;
 
    if (e->type == SDL_WINDOWEVENT) {
       d = _al_sdl_find_display(e->window.windowID);
       if (e->window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+         event.display.type = A5O_EVENT_DISPLAY_SWITCH_IN;
       }
       if (e->window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+         event.display.type = A5O_EVENT_DISPLAY_SWITCH_OUT;
       }
       if (e->window.event == SDL_WINDOWEVENT_CLOSE) {
-         event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+         event.display.type = A5O_EVENT_DISPLAY_CLOSE;
       }
       if (e->window.event == SDL_WINDOWEVENT_RESIZED) {
          float ratio = _al_sdl_get_display_pixel_ratio(d);
-         event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         event.display.type = A5O_EVENT_DISPLAY_RESIZE;
          event.display.width = e->window.data1 * ratio;
          event.display.height = e->window.data2 * ratio;
       }
    }
    if (e->type == SDL_QUIT) {
-      event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+      event.display.type = A5O_EVENT_DISPLAY_CLOSE;
       /* Use the first display as event source if we have any displays. */
-      ALLEGRO_SYSTEM *s = al_get_system_driver();
+      A5O_SYSTEM *s = al_get_system_driver();
       if (_al_vector_size(&s->displays) > 0) {
          void **v = (void **)_al_vector_ref(&s->displays, 0);
          d = *v;
@@ -90,7 +90,7 @@ void _al_sdl_display_event(SDL_Event *e)
 
    if (!d)
       return;
-   ALLEGRO_EVENT_SOURCE *es = &d->es;
+   A5O_EVENT_SOURCE *es = &d->es;
    _al_event_source_lock(es);
    _al_event_source_emit_event(es, &event);
    _al_event_source_unlock(es);
@@ -100,38 +100,38 @@ static void GLoption(int allegro, int sdl)
 {
    int i;
    int x = al_get_new_display_option(allegro, &i);
-   if (i == ALLEGRO_DONTCARE)
+   if (i == A5O_DONTCARE)
       return;
    SDL_GL_SetAttribute(sdl, x);
 }
 
-static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
+static A5O_DISPLAY *sdl_create_display_locked(int w, int h)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = al_calloc(1, sizeof *sdl);
-   ALLEGRO_DISPLAY *d = (void *)sdl;
+   A5O_DISPLAY_SDL *sdl = al_calloc(1, sizeof *sdl);
+   A5O_DISPLAY *d = (void *)sdl;
    d->w = w;
    d->h = h;
    d->flags = al_get_new_display_flags();
-   d->flags |= ALLEGRO_OPENGL;
-#ifdef ALLEGRO_CFG_OPENGLES2
-   d->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   d->flags |= A5O_OPENGL;
+#ifdef A5O_CFG_OPENGLES2
+   d->flags |= A5O_PROGRAMMABLE_PIPELINE;
 #endif
-#ifdef ALLEGRO_CFG_OPENGLES
-   d->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#ifdef A5O_CFG_OPENGLES
+   d->flags |= A5O_OPENGL_ES_PROFILE;
 #endif
    int flags = SDL_WINDOW_OPENGL;
-   if (d->flags & ALLEGRO_FULLSCREEN)
+   if (d->flags & A5O_FULLSCREEN)
       flags |= SDL_WINDOW_FULLSCREEN;
-   if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
+   if (d->flags & A5O_FULLSCREEN_WINDOW)
       flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-   if (d->flags & ALLEGRO_FRAMELESS)
+   if (d->flags & A5O_FRAMELESS)
       flags |= SDL_WINDOW_BORDERLESS;
-   if (d->flags & ALLEGRO_RESIZABLE)
+   if (d->flags & A5O_RESIZABLE)
       flags |= SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
 
-   if (d->flags & ALLEGRO_OPENGL_ES_PROFILE) {
+   if (d->flags & A5O_OPENGL_ES_PROFILE) {
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#ifdef ALLEGRO_CFG_OPENGLES1
+#ifdef A5O_CFG_OPENGLES1
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
 #else
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -139,29 +139,29 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
    }
 
-   GLoption(ALLEGRO_COLOR_SIZE, SDL_GL_BUFFER_SIZE);
-   GLoption(ALLEGRO_RED_SIZE, SDL_GL_RED_SIZE);
-   GLoption(ALLEGRO_GREEN_SIZE, SDL_GL_GREEN_SIZE);
-   GLoption(ALLEGRO_BLUE_SIZE, SDL_GL_BLUE_SIZE);
-   GLoption(ALLEGRO_ALPHA_SIZE, SDL_GL_ALPHA_SIZE);
-   GLoption(ALLEGRO_ACC_RED_SIZE, SDL_GL_ACCUM_RED_SIZE);
-   GLoption(ALLEGRO_ACC_GREEN_SIZE, SDL_GL_ACCUM_GREEN_SIZE);
-   GLoption(ALLEGRO_ACC_BLUE_SIZE, SDL_GL_ACCUM_BLUE_SIZE);
-   GLoption(ALLEGRO_ACC_ALPHA_SIZE, SDL_GL_ACCUM_ALPHA_SIZE);
-   GLoption(ALLEGRO_STEREO, SDL_GL_STEREO);
-   GLoption(ALLEGRO_DEPTH_SIZE, SDL_GL_DEPTH_SIZE);
-   GLoption(ALLEGRO_STENCIL_SIZE, SDL_GL_STENCIL_SIZE);
-   GLoption(ALLEGRO_SAMPLE_BUFFERS, SDL_GL_MULTISAMPLEBUFFERS);
-   GLoption(ALLEGRO_SAMPLES, SDL_GL_MULTISAMPLESAMPLES);
-   GLoption(ALLEGRO_OPENGL_MAJOR_VERSION, SDL_GL_CONTEXT_MAJOR_VERSION);
-   GLoption(ALLEGRO_OPENGL_MINOR_VERSION, SDL_GL_CONTEXT_MINOR_VERSION);
+   GLoption(A5O_COLOR_SIZE, SDL_GL_BUFFER_SIZE);
+   GLoption(A5O_RED_SIZE, SDL_GL_RED_SIZE);
+   GLoption(A5O_GREEN_SIZE, SDL_GL_GREEN_SIZE);
+   GLoption(A5O_BLUE_SIZE, SDL_GL_BLUE_SIZE);
+   GLoption(A5O_ALPHA_SIZE, SDL_GL_ALPHA_SIZE);
+   GLoption(A5O_ACC_RED_SIZE, SDL_GL_ACCUM_RED_SIZE);
+   GLoption(A5O_ACC_GREEN_SIZE, SDL_GL_ACCUM_GREEN_SIZE);
+   GLoption(A5O_ACC_BLUE_SIZE, SDL_GL_ACCUM_BLUE_SIZE);
+   GLoption(A5O_ACC_ALPHA_SIZE, SDL_GL_ACCUM_ALPHA_SIZE);
+   GLoption(A5O_STEREO, SDL_GL_STEREO);
+   GLoption(A5O_DEPTH_SIZE, SDL_GL_DEPTH_SIZE);
+   GLoption(A5O_STENCIL_SIZE, SDL_GL_STENCIL_SIZE);
+   GLoption(A5O_SAMPLE_BUFFERS, SDL_GL_MULTISAMPLEBUFFERS);
+   GLoption(A5O_SAMPLES, SDL_GL_MULTISAMPLESAMPLES);
+   GLoption(A5O_OPENGL_MAJOR_VERSION, SDL_GL_CONTEXT_MAJOR_VERSION);
+   GLoption(A5O_OPENGL_MINOR_VERSION, SDL_GL_CONTEXT_MINOR_VERSION);
 
    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
    sdl->window = SDL_CreateWindow(al_get_new_window_title(), sdl->x, sdl->y,
       d->w, d->h, flags);
    if (!sdl->window) {
-      ALLEGRO_ERROR("SDL_CreateWindow failed: %s", SDL_GetError());
+      A5O_ERROR("SDL_CreateWindow failed: %s", SDL_GetError());
       return NULL;
    }
 
@@ -171,28 +171,28 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
 
    // there's no way to query pixel ratio before creating the window, so we
    // have to compensate afterwards
-   if (d->flags & ALLEGRO_RESIZABLE &&
-        !(d->flags & ALLEGRO_FULLSCREEN || d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+   if (d->flags & A5O_RESIZABLE &&
+        !(d->flags & A5O_FULLSCREEN || d->flags & A5O_FULLSCREEN_WINDOW)) {
       int window_width, window_height;
       SDL_GetWindowSize(sdl->window, &window_width, &window_height);
       float ratio = _al_sdl_get_display_pixel_ratio(d);
 
-      ALLEGRO_DEBUG("resizing the display to %dx%d to match the scaling factor %f\n", (int)(window_width / ratio), (int)(window_height / ratio), ratio);
+      A5O_DEBUG("resizing the display to %dx%d to match the scaling factor %f\n", (int)(window_width / ratio), (int)(window_height / ratio), ratio);
 
       SDL_SetWindowSize(sdl->window, window_width / ratio, window_height / ratio);
 
       SDL_GL_GetDrawableSize(sdl->window, &d->w, &d->h);
    }
 
-   ALLEGRO_DISPLAY **add;
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_DISPLAY **add;
+   A5O_SYSTEM *system = al_get_system_driver();
    add = _al_vector_alloc_back(&system->displays);
    *add = d;
 
    _al_event_source_init(&d->es);
    d->vt = vt;
 
-   d->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = true;
+   d->extra_settings.settings[A5O_COMPATIBLE_DISPLAY] = true;
 
    d->ogl_extras = al_calloc(1, sizeof *d->ogl_extras);
    _al_ogl_manage_extensions(d);
@@ -202,64 +202,64 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
 
    /* Fill in opengl version */
    const int v = d->ogl_extras->ogl_info.version;
-   d->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
-   d->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+   d->extra_settings.settings[A5O_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   d->extra_settings.settings[A5O_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
 
    return d;
 }
 
-static ALLEGRO_DISPLAY *sdl_create_display(int w, int h)
+static A5O_DISPLAY *sdl_create_display(int w, int h)
 {
-   ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
+   A5O_SYSTEM_SDL *s = (void *)al_get_system_driver();
    al_lock_mutex(s->mutex);
-   ALLEGRO_DISPLAY *d = sdl_create_display_locked(w, h);
+   A5O_DISPLAY *d = sdl_create_display_locked(w, h);
    al_unlock_mutex(s->mutex);
    return d;
 }
 
-static void convert_display_bitmaps_to_memory_bitmap(ALLEGRO_DISPLAY *d)
+static void convert_display_bitmaps_to_memory_bitmap(A5O_DISPLAY *d)
 {
-   ALLEGRO_DEBUG("converting display bitmaps to memory bitmaps.\n");
+   A5O_DEBUG("converting display bitmaps to memory bitmaps.\n");
 
    while (d->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
-      ALLEGRO_BITMAP *b = *bptr;
+      A5O_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+      A5O_BITMAP *b = *bptr;
       _al_convert_to_memory_bitmap(b);
    }
 }
 
 static void transfer_display_bitmaps_to_any_other_display(
-   ALLEGRO_SYSTEM *s, ALLEGRO_DISPLAY *d)
+   A5O_SYSTEM *s, A5O_DISPLAY *d)
 {
    size_t i;
-   ALLEGRO_DISPLAY *living = NULL;
+   A5O_DISPLAY *living = NULL;
    ASSERT(s->displays._size > 1);
 
    for (i = 0; i < s->displays._size; i++) {
-      ALLEGRO_DISPLAY **slot = _al_vector_ref(&s->displays, i);
+      A5O_DISPLAY **slot = _al_vector_ref(&s->displays, i);
       living = *slot;
       if (living != d)
          break;
    }
 
-   ALLEGRO_DEBUG("transferring display bitmaps to other display.\n");
+   A5O_DEBUG("transferring display bitmaps to other display.\n");
 
    for (i = 0; i < d->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
-      ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
+      A5O_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
+      A5O_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
       *add = *ref;
       (*add)->_display = living;
    }
 }
 
-static void sdl_destroy_display_locked(ALLEGRO_DISPLAY *d)
+static void sdl_destroy_display_locked(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+   A5O_DISPLAY_SDL *sdl = (void *)d;
+   A5O_SYSTEM *system = al_get_system_driver();
+   A5O_OGL_EXTRAS *ogl = d->ogl_extras;
    bool is_last;
 
-   ALLEGRO_DEBUG("destroying display.\n");
+   A5O_DEBUG("destroying display.\n");
 
    /* If we're the last display, convert all bitmaps to display independent
     * (memory) bitmaps. Otherwise, pass all bitmaps to any other living
@@ -273,12 +273,12 @@ static void sdl_destroy_display_locked(ALLEGRO_DISPLAY *d)
       transfer_display_bitmaps_to_any_other_display(system, d);
 
    _al_ogl_unmanage_extensions(d);
-   ALLEGRO_DEBUG("unmanaged extensions.\n");
+   A5O_DEBUG("unmanaged extensions.\n");
 
    if (ogl->backbuffer) {
       _al_ogl_destroy_backbuffer(ogl->backbuffer);
       ogl->backbuffer = NULL;
-      ALLEGRO_DEBUG("destroy backbuffer.\n");
+      A5O_DEBUG("destroy backbuffer.\n");
    }
 
    _al_vector_free(&d->bitmaps);
@@ -295,39 +295,39 @@ static void sdl_destroy_display_locked(ALLEGRO_DISPLAY *d)
    al_free(sdl);
 }
 
-static void sdl_destroy_display(ALLEGRO_DISPLAY *d)
+static void sdl_destroy_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_SDL *s = (void *)al_get_system_driver();
+   A5O_SYSTEM_SDL *s = (void *)al_get_system_driver();
    al_lock_mutex(s->mutex);
    sdl_destroy_display_locked(d);
    al_unlock_mutex(s->mutex);
 }
 
-static bool sdl_set_current_display(ALLEGRO_DISPLAY *d)
+static bool sdl_set_current_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
+   A5O_DISPLAY_SDL *sdl = (void *)d;
    SDL_GL_MakeCurrent(sdl->window, sdl->context);
    return true;
 }
 
-static void sdl_unset_current_display(ALLEGRO_DISPLAY *d)
+static void sdl_unset_current_display(A5O_DISPLAY *d)
 {
    (void)d;
 }
 
-static void sdl_flip_display(ALLEGRO_DISPLAY *d)
+static void sdl_flip_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
+   A5O_DISPLAY_SDL *sdl = (void *)d;
    SDL_GL_SwapWindow(sdl->window);
 
    // SDL loses texture contents, for example on resize.
    al_backup_dirty_bitmaps(d);
 }
 
-static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+static void sdl_update_display_region(A5O_DISPLAY *d, int x, int y,
    	int width, int height)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
+   A5O_DISPLAY_SDL *sdl = (void *)d;
    (void)x;
    (void)y;
    (void)width;
@@ -335,81 +335,81 @@ static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
    SDL_GL_SwapWindow(sdl->window);
 }
 
-static bool sdl_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
-      ALLEGRO_BITMAP *bitmap)
+static bool sdl_is_compatible_bitmap(A5O_DISPLAY *display,
+      A5O_BITMAP *bitmap)
 {
    (void)display;
    (void)bitmap;
    return true;
 }
 
-static bool sdl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
-      ALLEGRO_MOUSE_CURSOR *cursor)
+static bool sdl_set_mouse_cursor(A5O_DISPLAY *display,
+      A5O_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_MOUSE_CURSOR_SDL *sdl_cursor = (ALLEGRO_MOUSE_CURSOR_SDL *) cursor;
+   A5O_MOUSE_CURSOR_SDL *sdl_cursor = (A5O_MOUSE_CURSOR_SDL *) cursor;
    (void)display;
    SDL_SetCursor(sdl_cursor->cursor);
    return true;
 }
 
-static bool sdl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
-      ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+static bool sdl_set_system_mouse_cursor(A5O_DISPLAY *display,
+      A5O_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    (void)display;
    (void)cursor_id;
    return false;
 }
 
-static bool sdl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+static bool sdl_show_mouse_cursor(A5O_DISPLAY *display)
 {
    (void)display;
    return SDL_ShowCursor(SDL_ENABLE) == SDL_ENABLE;
 }
 
-static bool sdl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+static bool sdl_hide_mouse_cursor(A5O_DISPLAY *display)
 {
    (void)display;
    return SDL_ShowCursor(SDL_DISABLE) == SDL_DISABLE;
 }
 
-static void sdl_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void sdl_set_window_position(A5O_DISPLAY *display, int x, int y)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   A5O_DISPLAY_SDL *sdl = (void *)display;
    SDL_SetWindowPosition(sdl->window, x, y);
 }
 
-static void sdl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void sdl_get_window_position(A5O_DISPLAY *display, int *x, int *y)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   A5O_DISPLAY_SDL *sdl = (void *)display;
    SDL_GetWindowPosition(sdl->window, x, y);
 }
 
-static void recreate_textures(ALLEGRO_DISPLAY *display)
+static void recreate_textures(A5O_DISPLAY *display)
 {
    unsigned int i;
    for (i = 0; i < _al_vector_size(&display->bitmaps); i++) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref(&display->bitmaps, i);
-      ALLEGRO_BITMAP *bitmap = *bptr;
+      A5O_BITMAP **bptr = _al_vector_ref(&display->bitmaps, i);
+      A5O_BITMAP *bitmap = *bptr;
       int bitmap_flags = al_get_bitmap_flags(bitmap);
       if (bitmap->parent)
          continue;
-      if (bitmap_flags & ALLEGRO_MEMORY_BITMAP)
+      if (bitmap_flags & A5O_MEMORY_BITMAP)
          continue;
-      if (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE)
+      if (bitmap_flags & A5O_NO_PRESERVE_TEXTURE)
          continue;
       _al_ogl_upload_bitmap_memory(bitmap, _al_get_bitmap_memory_format(
          bitmap), bitmap->memory);
    }
 }
 
-static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
+static bool sdl_acknowledge_resize(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   A5O_DISPLAY_SDL *sdl = (void *)display;
    SDL_GL_GetDrawableSize(sdl->window, &display->w, &display->h);
 
    _al_ogl_setup_gl(display);
 
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & A5O_PROGRAMMABLE_PIPELINE) {
       display->default_shader = _al_create_default_shader(display);
       al_use_shader(display->default_shader);
    }
@@ -421,15 +421,15 @@ static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
    return true;
 }
 
-static void sdl_set_window_title(ALLEGRO_DISPLAY *display, char const *title)
+static void sdl_set_window_title(A5O_DISPLAY *display, char const *title)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   A5O_DISPLAY_SDL *sdl = (void *)display;
    SDL_SetWindowTitle(sdl->window, title);
 }
 
-static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
+static bool sdl_resize_display(A5O_DISPLAY *display, int width, int height)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   A5O_DISPLAY_SDL *sdl = (void *)display;
 
    // Allegro uses pixels everywhere, while SDL uses screen space for window size
    int window_width, drawable_width, h;
@@ -442,19 +442,19 @@ static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
    return true;
 }
 
-static bool sdl_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
+static bool sdl_set_display_flag(A5O_DISPLAY *display, int flag,
    bool flag_onoff)
 {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   A5O_DISPLAY_SDL *sdl = (void *)display;
    switch (flag) {
-      case ALLEGRO_FRAMELESS:
-         /* The ALLEGRO_FRAMELESS flag is backwards. */
+      case A5O_FRAMELESS:
+         /* The A5O_FRAMELESS flag is backwards. */
          SDL_SetWindowBordered(sdl->window, !flag_onoff);
          return true;
-      case ALLEGRO_FULLSCREEN_WINDOW:
+      case A5O_FULLSCREEN_WINDOW:
          SDL_SetWindowFullscreen(sdl->window, flag_onoff ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
          return true;
-      case ALLEGRO_MAXIMIZED:
+      case A5O_MAXIMIZED:
           if (flag_onoff) {
              SDL_MaximizeWindow(sdl->window);
           } else {
@@ -465,8 +465,8 @@ static bool sdl_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
    return false;
 }
 
-static void sdl_set_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *bitmaps[]) {
-   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+static void sdl_set_icons(A5O_DISPLAY *display, int num_icons, A5O_BITMAP *bitmaps[]) {
+   A5O_DISPLAY_SDL *sdl = (void *)display;
    int w = al_get_bitmap_width(bitmaps[0]);
    int h = al_get_bitmap_height(bitmaps[0]);
    int data_size = w * h * 4;
@@ -487,13 +487,13 @@ static void sdl_set_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMA
    amask = 0xff000000;
 #endif
 
-   ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bitmaps[0], ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_READONLY);
+   A5O_LOCKED_REGION *lock = al_lock_bitmap(bitmaps[0], A5O_PIXEL_FORMAT_ABGR_8888, A5O_LOCK_READONLY);
    if (lock) {
       int i = 0, y = 0;
       for (y = 0; y < h; y++) {
          int x = 0;
          for (x = 0; x < w; x++) {
-            ALLEGRO_COLOR c = al_get_pixel(bitmaps[0], x, y);
+            A5O_COLOR c = al_get_pixel(bitmaps[0], x, y);
             al_unmap_rgba(c, data+i, data+i+1, data+i+2, data+i+3);
             i += 4;
          }
@@ -508,7 +508,7 @@ static void sdl_set_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMA
    al_free(data);
 }
 
-ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
+A5O_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
 {
    if (vt)
       return vt;

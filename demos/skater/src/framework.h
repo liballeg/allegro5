@@ -4,7 +4,7 @@
 #include <allegro5/allegro.h>
 #include "defines.h"
 
-extern ALLEGRO_EVENT_QUEUE *event_queue;
+extern A5O_EVENT_QUEUE *event_queue;
 
 /*
    Initializes Allegro, loads configuration settings, installs all

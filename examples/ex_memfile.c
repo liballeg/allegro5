@@ -8,7 +8,7 @@
 #ifdef _MSC_VER
    #pragma comment ( linker, "/SUBSYSTEM:CONSOLE")
 #endif
-#define ALLEGRO_USE_CONSOLE
+#define A5O_USE_CONSOLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_memfile.h>
 
@@ -16,7 +16,7 @@
 
 int main(void)
 {
-   ALLEGRO_FILE *memfile;
+   A5O_FILE *memfile;
    char *data;
    int i;
    const int data_size = 1024;
@@ -47,7 +47,7 @@ int main(void)
       }
    }
 
-   al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
+   al_fseek(memfile, 0, A5O_SEEK_SET);
 
    log_printf("Reading and testing data from memfile\n");
    for (i = 0; i < data_size/4; i++) {
@@ -64,7 +64,7 @@ int main(void)
    }
    
    /* testing the ungetc buffer */
-   al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
+   al_fseek(memfile, 0, A5O_SEEK_SET);
    
    for (i = 0; al_fungetc(memfile, i) != EOF; ++i) { }
    log_printf("Length of ungetc buffer: %d\n", i);
@@ -89,7 +89,7 @@ int main(void)
    }
    
    al_fputs(memfile, "legro rocks!");
-   al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
+   al_fseek(memfile, 0, A5O_SEEK_SET);
    al_fungetc(memfile, 'l');
    al_fungetc(memfile, 'A');
    al_fgets(memfile, buffer, 15);

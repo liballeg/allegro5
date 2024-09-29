@@ -4,12 +4,12 @@
 #include "global.h"
 
 struct Animation {
-   ALLEGRO_BITMAP *Animation[3], *Still, *Slow, *Medium, *Fast, *CBitmap;
-   ALLEGRO_SAMPLE_INSTANCE *SkateVoice;
+   A5O_BITMAP *Animation[3], *Still, *Slow, *Medium, *Fast, *CBitmap;
+   A5O_SAMPLE_INSTANCE *SkateVoice;
    double TimeCount;
 };
 
-extern ALLEGRO_BITMAP *GetCurrentBitmap(struct Animation *);
+extern A5O_BITMAP *GetCurrentBitmap(struct Animation *);
 extern void AdvanceAnimation(struct Animation *, double Distance,
 			     int OnPlatform);
 extern struct Animation *SeedPlayerAnimation(void);

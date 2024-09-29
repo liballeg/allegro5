@@ -5,7 +5,7 @@
 
 static void redraw(void)
 {
-    ALLEGRO_COLOR black, white;
+    A5O_COLOR black, white;
     int w, h;
 
     white = al_map_rgba_f(1, 1, 1, 1);
@@ -22,10 +22,10 @@ static void redraw(void)
 
 int main(int argc, char **argv)
 {
-    ALLEGRO_DISPLAY *display;
-    ALLEGRO_TIMER *timer;
-    ALLEGRO_EVENT_QUEUE *events;
-    ALLEGRO_EVENT event;
+    A5O_DISPLAY *display;
+    A5O_TIMER *timer;
+    A5O_EVENT_QUEUE *events;
+    A5O_EVENT event;
     int rs = 100;
     bool resize = false;
 
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     events = al_create_event_queue();
 
     /* Setup a display driver and register events from it. */
-    al_set_new_display_flags(ALLEGRO_RESIZABLE);
+    al_set_new_display_flags(A5O_RESIZABLE);
     display = al_create_display(rs, rs);
     if (!display) {
         abort_example("Could not create display.\n");
@@ -71,13 +71,13 @@ int main(int argc, char **argv)
             resize = false;
         }
         al_wait_for_event(events, &event);
-        if (event.type == ALLEGRO_EVENT_TIMER) {
+        if (event.type == A5O_EVENT_TIMER) {
             resize = true;
         }
-        else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+        else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
             break;
         }
-        else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+        else if (event.type == A5O_EVENT_KEY_DOWN) {
             break;
         }
     }

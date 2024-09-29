@@ -11,8 +11,8 @@
  */
 
 
-#ifndef A5_ANDROID_ALLEGRO_H
-#define A5_ANDROID_ALLEGRO_H
+#ifndef A5_ANDROID_A5O_H
+#define A5_ANDROID_A5O_H
 
 #include <jni.h>
 
@@ -26,17 +26,17 @@
 void al_android_set_apk_file_interface(void);
 const char *al_android_get_os_version(void);
 void al_android_set_apk_fs_interface(void);
-#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+#if defined(A5O_UNSTABLE) || defined(A5O_INTERNAL_UNSTABLE) || defined(A5O_SRC)
 JNIEnv *al_android_get_jni_env(void);
 jobject al_android_get_activity(void);
 int al_android_open_fd(const char *uri, const char *mode);
 #endif
 
 /* XXX decide if this should be public */
-void _al_android_set_capture_volume_keys(ALLEGRO_DISPLAY *display, bool onoff);
+void _al_android_set_capture_volume_keys(A5O_DISPLAY *display, bool onoff);
 
 #ifdef __cplusplus
    }
 #endif
 
-#endif /* A5_ANDROID_ALLEGRO_H */
+#endif /* A5_ANDROID_A5O_H */

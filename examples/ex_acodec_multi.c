@@ -18,10 +18,10 @@ char *default_files[] = {NULL, "data/welcome.voc",
 int main(int argc, char **argv)
 {
    int i;
-   ALLEGRO_SAMPLE **sample_data;
-   ALLEGRO_SAMPLE_INSTANCE **sample;
-   ALLEGRO_MIXER *mixer;
-   ALLEGRO_VOICE *voice;
+   A5O_SAMPLE **sample_data;
+   A5O_SAMPLE_INSTANCE **sample;
+   A5O_MIXER *mixer;
+   A5O_VOICE *voice;
    float longest_sample;
 
    if (!al_init()) {
@@ -53,14 +53,14 @@ int main(int argc, char **argv)
    }
 
    /* a voice is used for playback */
-   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
-      ALLEGRO_CHANNEL_CONF_2);
+   voice = al_create_voice(44100, A5O_AUDIO_DEPTH_INT16,
+      A5O_CHANNEL_CONF_2);
    if (!voice) {
-      abort_example("Could not create ALLEGRO_VOICE from sample\n");
+      abort_example("Could not create A5O_VOICE from sample\n");
    }
 
-   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-      ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_create_mixer(44100, A5O_AUDIO_DEPTH_FLOAT32,
+      A5O_CHANNEL_CONF_2);
    if (!mixer) {
       abort_example("al_create_mixer failed.\n");
    }

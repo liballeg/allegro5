@@ -52,8 +52,8 @@ fi
 # delete all generated files
 # echo "Cleaning the Allegro tree..."
 # 
-# sed -n -e "/CLEAN_FILES/,/^$/p; /^ALLEGRO_.*_EXES/,/^$/p" makefile.lst | \
-#    sed -e "/CLEAN_FILES/d; /ALLEGRO_.*_EXES/d; s/\\\\//g" | \
+# sed -n -e "/CLEAN_FILES/,/^$/p; /^A5O_.*_EXES/,/^$/p" makefile.lst | \
+#    sed -e "/CLEAN_FILES/d; /A5O_.*_EXES/d; s/\\\\//g" | \
 #    xargs -n 1 echo | \
 #    sed -e "s/\(.*\)/-c \"rm -f \1\"/" | \
 #    xargs -l sh

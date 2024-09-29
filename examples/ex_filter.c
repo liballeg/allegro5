@@ -9,21 +9,21 @@
 #define FPS 60
 
 static struct Example {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
-   ALLEGRO_BITMAP *bitmaps[2][9];    
-   ALLEGRO_COLOR bg, fg, info;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
+   A5O_BITMAP *bitmaps[2][9];    
+   A5O_COLOR bg, fg, info;
    int bitmap;
    int ticks;
 } example;
 
 static int const filter_flags[6] = {
    0,
-   ALLEGRO_MIN_LINEAR,
-   ALLEGRO_MIPMAP,
-   ALLEGRO_MIN_LINEAR | ALLEGRO_MIPMAP,
+   A5O_MIN_LINEAR,
+   A5O_MIPMAP,
+   A5O_MIN_LINEAR | A5O_MIPMAP,
    0,
-   ALLEGRO_MAG_LINEAR
+   A5O_MAG_LINEAR
 };
 
 static char const *filter_text[4] = {
@@ -47,12 +47,12 @@ static void redraw(void)
    for (i = 0; i < 6; i++) {
       float x = (i / 2) * w / 3 + w / 6;
       float y = (i % 2) * h / 2 + h / 4;
-      ALLEGRO_BITMAP *bmp = example.bitmaps[example.bitmap][i];
+      A5O_BITMAP *bmp = example.bitmaps[example.bitmap][i];
       float bw = al_get_bitmap_width(bmp);
       float bh = al_get_bitmap_height(bmp);
       float t = 1 - 2 * fabs((example.ticks % (FPS * 16)) / 16.0 / FPS - 0.5);
       float scale;
-      float angle = example.ticks * ALLEGRO_PI * 2 / FPS / 8;
+      float angle = example.ticks * A5O_PI * 2 / FPS / 8;
       
       if (i < 4)
          scale = 1 - t * 0.9;
@@ -60,7 +60,7 @@ static void redraw(void)
          scale = 1 + t * 9;
 
       al_draw_textf(example.font, example.fg, x, y - 64 - 14,
-         ALLEGRO_ALIGN_CENTRE, "%s", filter_text[i % 4]);
+         A5O_ALIGN_CENTRE, "%s", filter_text[i % 4]);
          
       al_set_clipping_rectangle(x - 64, y - 64, 128, 128);
       al_draw_scaled_rotated_bitmap(bmp, bw / 2, bh / 2,
@@ -68,18 +68,18 @@ static void redraw(void)
       al_set_clipping_rectangle(0, 0, w, h);
    }
    al_draw_textf(example.font, example.info, w / 2, h - 14,
-         ALLEGRO_ALIGN_CENTRE, "press space to change");
+         A5O_ALIGN_CENTRE, "press space to change");
 }
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
    int i;
-   ALLEGRO_BITMAP *mysha;
+   A5O_BITMAP *mysha;
 
    (void)argc;
    (void)argv;
@@ -121,14 +121,14 @@ int main(int argc, char **argv)
    }
 
    for (i = 0; i < 6; i++) {
-      ALLEGRO_LOCKED_REGION *lock;
+      A5O_LOCKED_REGION *lock;
       int x, y;
       /* Only power-of-two bitmaps can have mipmaps. */
       al_set_new_bitmap_flags(filter_flags[i]);
       example.bitmaps[0][i] = al_create_bitmap(1024, 1024);
       example.bitmaps[1][i] = al_clone_bitmap(mysha);
       lock = al_lock_bitmap(example.bitmaps[0][i],
-         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+         A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_WRITEONLY);
       for (y = 0; y < 1024; y++) {
          unsigned char *row = (unsigned char *)lock->data + lock->pitch * y;
          unsigned char *ptr = row;
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!done) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
 
       if (need_redraw && al_is_event_queue_empty(queue)) {
          redraw();
@@ -170,23 +170,23 @@ int main(int argc, char **argv)
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                done = true;
-            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE)
+            if (event.keyboard.keycode == A5O_KEY_SPACE)
                example.bitmap = (example.bitmap + 1) % 2;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
 
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             update();
             need_redraw = true;
             break;
         
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+         case A5O_EVENT_MOUSE_BUTTON_DOWN:
             example.bitmap = (example.bitmap + 1) % 2;
             break;
       }

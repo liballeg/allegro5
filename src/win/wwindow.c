@@ -45,12 +45,12 @@
 #include "allegro5/platform/aintwin.h"
 
 
-ALLEGRO_DEBUG_CHANNEL("wwindow")
+A5O_DEBUG_CHANNEL("wwindow")
 
 static WNDCLASS window_class;
 
 static _AL_VECTOR resizing_displays;
-static ALLEGRO_MUTEX *resize_event_thread_mutex;
+static A5O_MUTEX *resize_event_thread_mutex;
 static bool end_resize_event_thread;
 static bool resize_event_thread_ended;
 
@@ -67,15 +67,15 @@ UINT _al_win_msg_suicide = 0;
 static void display_flags_to_window_styles(int flags,
    DWORD *style, DWORD *ex_style)
 {
-   if (flags & ALLEGRO_FULLSCREEN) {
+   if (flags & A5O_FULLSCREEN) {
       *style = WS_POPUP;
       *ex_style = WS_EX_APPWINDOW;
    }
-   else if (flags & ALLEGRO_MAXIMIZED) {
+   else if (flags & A5O_MAXIMIZED) {
       *style = WS_OVERLAPPEDWINDOW;
       *ex_style = WS_EX_APPWINDOW;
    }
-   else if (flags & ALLEGRO_RESIZABLE) {
+   else if (flags & A5O_RESIZABLE) {
       *style = WS_OVERLAPPEDWINDOW;
       *ex_style = WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW;
    }
@@ -109,24 +109,24 @@ HWND _al_win_create_hidden_window()
 }
 
 static void _al_win_get_window_center(
-   ALLEGRO_DISPLAY_WIN *win_display, int width, int height, int *out_x, int *out_y)
+   A5O_DISPLAY_WIN *win_display, int width, int height, int *out_x, int *out_y)
 {
    int a = win_display->adapter;
    bool *is_fullscreen;
-   ALLEGRO_MONITOR_INFO info;
+   A5O_MONITOR_INFO info;
    RECT win_size;
 
-   ALLEGRO_SYSTEM *sys = al_get_system_driver();
+   A5O_SYSTEM *sys = al_get_system_driver();
    unsigned int num;
    unsigned int i;
    unsigned int fullscreen_found = 0;
    num = al_get_num_video_adapters();
    is_fullscreen = al_calloc(num, sizeof(bool));
    for (i = 0; i < sys->displays._size; i++) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
-      ALLEGRO_DISPLAY *d = *dptr;
-      if (d->flags & ALLEGRO_FULLSCREEN) {
-         ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
+      A5O_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
+      A5O_DISPLAY *d = *dptr;
+      if (d->flags & A5O_FULLSCREEN) {
+         A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)d;
          is_fullscreen[win_display->adapter] = true;
          fullscreen_found++;
       }
@@ -150,7 +150,7 @@ static void _al_win_get_window_center(
    *out_y = win_size.top;
 }
 
-HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags)
+HWND _al_win_create_window(A5O_DISPLAY *display, int width, int height, int flags)
 {
    HWND my_window;
    DWORD style;
@@ -158,7 +158,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    DEV_BROADCAST_DEVICEINTERFACE notification_filter;
    int pos_x, pos_y;
    bool center = false;
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    WINDOWINFO wi;
    int lsize, rsize, tsize, bsize; // left, right, top, bottom border sizes
    TCHAR* window_title;
@@ -168,7 +168,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    display_flags_to_window_styles(flags, &style, &ex_style);
 
    al_get_new_window_position(&pos_x, &pos_y);
-   if ((flags & ALLEGRO_FULLSCREEN) || (flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+   if ((flags & A5O_FULLSCREEN) || (flags & A5O_FULLSCREEN_WINDOW)) {
       pos_x = pos_y = 0;
    }
    else if (pos_x == INT_MAX) {
@@ -211,7 +211,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       SWP_NOZORDER | SWP_NOSIZE);
 
 
-   if (flags & ALLEGRO_FRAMELESS) {
+   if (flags & A5O_FRAMELESS) {
       SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
       SetWindowLong(my_window, GWL_EXSTYLE, WS_EX_APPWINDOW);
       SetWindowPos(my_window, 0, pos_x, pos_y, width, height, SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -221,7 +221,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    clear_window(my_window, width, height);
 
-   if (!(flags & ALLEGRO_RESIZABLE) && !(flags & ALLEGRO_FULLSCREEN)) {
+   if (!(flags & A5O_RESIZABLE) && !(flags & A5O_FULLSCREEN)) {
       /* Make the window non-resizable */
       HMENU menu;
       menu = GetSystemMenu(my_window, false);
@@ -230,13 +230,13 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       DrawMenuBar(my_window);
    }
 
-   _al_vector_init(&win_display->msg_callbacks, sizeof(ALLEGRO_DISPLAY_WIN_CALLBACK));
+   _al_vector_init(&win_display->msg_callbacks, sizeof(A5O_DISPLAY_WIN_CALLBACK));
 
    return my_window;
 }
 
 
-HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display,
+HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, A5O_DISPLAY *display,
     int x1, int y1, int width, int height, int refresh_rate, int flags)
 {
    HWND my_window;
@@ -246,10 +246,10 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    LONG temp;
    TCHAR* window_title;
 
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    (void)flags;
 
-   _al_vector_init(&win_display->msg_callbacks, sizeof(ALLEGRO_DISPLAY_WIN_CALLBACK));
+   _al_vector_init(&win_display->msg_callbacks, sizeof(A5O_DISPLAY_WIN_CALLBACK));
 
    style = WS_VISIBLE;
    ex_style = WS_EX_TOPMOST;
@@ -273,7 +273,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    memset(&mode, 0, sizeof(DEVMODE));
    mode.dmSize = sizeof(DEVMODE);
    mode.dmDriverExtra = 0;
-   mode.dmBitsPerPel = al_get_new_display_option(ALLEGRO_COLOR_SIZE, NULL);
+   mode.dmBitsPerPel = al_get_new_display_option(A5O_COLOR_SIZE, NULL);
    mode.dmPelsWidth = width;
    mode.dmPelsHeight = height;
    mode.dmDisplayFlags = 0;
@@ -296,7 +296,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
  * generated the this display's window. The display's window must the the
  * foreground window.
  */
-void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_grab_input(A5O_DISPLAY_WIN *win_disp)
 {
    _al_win_wnd_schedule_proc(win_disp->window,
                              _al_win_joystick_dinput_grab,
@@ -308,10 +308,10 @@ void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
  * changed size after receiving the resize event. Here we merely add the
  * event to the queue.
  */
-static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
+static void win_generate_resize_event(A5O_DISPLAY_WIN *win_display)
 {
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)win_display;
-   ALLEGRO_EVENT_SOURCE *es = &display->es;
+   A5O_DISPLAY *display = (A5O_DISPLAY *)win_display;
+   A5O_EVENT_SOURCE *es = &display->es;
    WINDOWINFO wi;
    int x, y, w, h;
 
@@ -337,8 +337,8 @@ static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
    if (display->use_constraints || display->w != w || display->h != h) {
       _al_event_source_lock(es);
       if (_al_event_source_needs_to_generate_event(es)) {
-         ALLEGRO_EVENT event;
-         event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         A5O_EVENT event;
+         event.display.type = A5O_EVENT_DISPLAY_RESIZE;
          event.display.timestamp = al_get_time();
          event.display.x = x;
          event.display.y = y;
@@ -349,8 +349,8 @@ static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
 
          /* Generate an expose event. */
          /* This seems a bit redundant after a resize. */
-         if (win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
-            event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+         if (win_display->display.flags & A5O_GENERATE_EXPOSE_EVENTS) {
+            event.display.type = A5O_EVENT_DISPLAY_EXPOSE;
             _al_event_source_emit_event(es, &event);
          }
       }
@@ -362,7 +362,7 @@ static void handle_mouse_capture(bool down, HWND hWnd)
 {
    int i;
    bool any_button_down = false;
-   ALLEGRO_MOUSE_STATE state;
+   A5O_MOUSE_STATE state;
 
    if (!al_is_mouse_installed())
       return;
@@ -380,7 +380,7 @@ static void handle_mouse_capture(bool down, HWND hWnd)
    }
 }
 
-static void break_window_message_pump(ALLEGRO_DISPLAY_WIN *win_display, HWND hWnd)
+static void break_window_message_pump(A5O_DISPLAY_WIN *win_display, HWND hWnd)
 {
   /* Get the ID of the thread which created the HWND and is processing its messages */
    DWORD wnd_thread_id = GetWindowThreadProcessId(hWnd, NULL);
@@ -404,7 +404,7 @@ static bool accept_mouse_event(void)
    return !((GetMessageExtraInfo() & _AL_MOUSEEVENTF_FROMTOUCH) == _AL_MOUSEEVENTF_FROMTOUCH);
 }
 
-/* We want to rate-limit the ALLEGRO_EVENT_DISPLAY_RESIZE events while
+/* We want to rate-limit the A5O_EVENT_DISPLAY_RESIZE events while
  * live-resizing via mouse. To this end, we detect start/end of this
  * via WM_ENTERSIZEMOVE/WM_EXITSIZEMOVE and then enable this code to
  * periodically send those events.
@@ -420,7 +420,7 @@ static void resize_event_thread_proc(void *arg)
       }
 
       for (int j = 0; j < (int)_al_vector_size(&resizing_displays); j++) {
-         ALLEGRO_DISPLAY_WIN **win_display = (ALLEGRO_DISPLAY_WIN **)_al_vector_ref(&resizing_displays, j);
+         A5O_DISPLAY_WIN **win_display = (A5O_DISPLAY_WIN **)_al_vector_ref(&resizing_displays, j);
          win_generate_resize_event(*win_display);
       }
 
@@ -433,12 +433,12 @@ static void resize_event_thread_proc(void *arg)
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
-   ALLEGRO_DISPLAY *d = NULL;
-   ALLEGRO_DISPLAY_WIN *win_display = NULL;
+   A5O_DISPLAY *d = NULL;
+   A5O_DISPLAY_WIN *win_display = NULL;
    //WINDOWINFO wi;
    unsigned int i;
-   ALLEGRO_EVENT_SOURCE *es = NULL;
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   A5O_EVENT_SOURCE *es = NULL;
+   A5O_SYSTEM *system = al_get_system_driver();
 
    //wi.cbSize = sizeof(WINDOWINFO);
 
@@ -452,7 +452,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    if (message == _al_win_msg_suicide && wParam) {
-      win_display = (ALLEGRO_DISPLAY_WIN*)wParam;
+      win_display = (A5O_DISPLAY_WIN*)wParam;
       break_window_message_pump(win_display, hWnd);
       if (_al_win_unregister_touch_window)
          _al_win_unregister_touch_window(hWnd);
@@ -464,7 +464,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    for (i = 0; i < system->displays._size; i++) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
+      A5O_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
       d = *dptr;
       win_display = (void*)d;
       if (win_display->window == hWnd) {
@@ -489,7 +489,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
    for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
       LRESULT result = TRUE;
-      ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
+      A5O_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
       if ((ptr->proc)(d, message, wParam, lParam, &result, ptr->userdata))
          return result;
    }
@@ -712,7 +712,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_CAPTURECHANGED: {
          if (al_is_mouse_installed()) {
             int i;
-            ALLEGRO_MOUSE_STATE state;
+            A5O_MOUSE_STATE state;
             if (!lParam || (HWND)lParam == hWnd)
                break;
             al_get_mouse_state(&state);
@@ -776,19 +776,19 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          }
          /* This is used by WM_GETMINMAXINFO to set constraints. */
          else if ((wParam & 0xfff0) == SC_MAXIMIZE) {
-            d->flags |= ALLEGRO_MAXIMIZED;
+            d->flags |= A5O_MAXIMIZED;
             display_flags_to_window_styles(d->flags, &style, &exstyle);
             SetWindowLong(hWnd, GWL_EXSTYLE, exstyle);
          }
          else if ((wParam & 0xfff0) == SC_RESTORE) {
-            d->flags &= ~ALLEGRO_MAXIMIZED;
+            d->flags &= ~A5O_MAXIMIZED;
             display_flags_to_window_styles(d->flags, &style, &exstyle);
             SetWindowLong(hWnd, GWL_EXSTYLE, exstyle);
          }
          break;
       }
       case WM_PAINT: {
-         if (win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
+         if (win_display->display.flags & A5O_GENERATE_EXPOSE_EVENTS) {
             RECT r;
             HRGN hrgn;
             GetWindowRect(win_display->window, &r);
@@ -809,8 +809,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                //GetWindowInfo(win_display->window, &wi);
                _al_event_source_lock(es);
                if (_al_event_source_needs_to_generate_event(es)) {
-                  ALLEGRO_EVENT event;
-                  event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+                  A5O_EVENT event;
+                  event.display.type = A5O_EVENT_DISPLAY_EXPOSE;
                   event.display.timestamp = al_get_time();
                   for (i = 0; i < n; i++) {
                      event.display.x = rects[i].left;
@@ -863,13 +863,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             break;
 
          if (HIWORD(wParam))
-            d->flags |= ALLEGRO_MINIMIZED;
+            d->flags |= A5O_MINIMIZED;
          else
-            d->flags &= ~ALLEGRO_MINIMIZED;
+            d->flags &= ~A5O_MINIMIZED;
 
          if (LOWORD(wParam) != WA_INACTIVE) {
             // Make fullscreen windows TOPMOST again
-            if (d->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+            if (d->flags & A5O_FULLSCREEN_WINDOW) {
                SetWindowPos(win_display->window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
             }
             if (d->vt->switch_in)
@@ -877,9 +877,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             _al_win_fix_modifiers();
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
-               ALLEGRO_EVENT event;
+               A5O_EVENT event;
                memset(&event, 0, sizeof(event));
-               event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+               event.display.type = A5O_EVENT_DISPLAY_SWITCH_IN;
                event.display.timestamp = al_get_time();
                _al_event_source_emit_event(es, &event);
             }
@@ -889,18 +889,18 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          }
          else {
             // Remove TOPMOST flag from fullscreen windows so we can alt-tab. Also must raise the new activated window
-            if (d->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+            if (d->flags & A5O_FULLSCREEN_WINDOW) {
                SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                SetWindowPos(GetForegroundWindow(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
             }
-            if (d->flags & ALLEGRO_FULLSCREEN) {
+            if (d->flags & A5O_FULLSCREEN) {
                d->vt->switch_out(d);
             }
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
-               ALLEGRO_EVENT event;
+               A5O_EVENT event;
                memset(&event, 0, sizeof(event));
-               event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+               event.display.type = A5O_EVENT_DISPLAY_SWITCH_OUT;
                event.display.timestamp = al_get_time();
                _al_event_source_emit_event(es, &event);
             }
@@ -913,9 +913,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_CLOSE:
          _al_event_source_lock(es);
          if (_al_event_source_needs_to_generate_event(es)) {
-            ALLEGRO_EVENT event;
+            A5O_EVENT event;
             memset(&event, 0, sizeof(event));
-            event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+            event.display.type = A5O_EVENT_DISPLAY_CLOSE;
             event.display.timestamp = al_get_time();
             _al_event_source_emit_event(es, &event);
          }
@@ -949,7 +949,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                wmin.y = (d->min_h > 0) ? d->min_h + total_border_height : p_info->ptMinTrackSize.y;
 
                /* don't use max_w & max_h constraints when window maximized */
-               if (d->flags & ALLEGRO_MAXIMIZED) {
+               if (d->flags & A5O_MAXIMIZED) {
                   wmax.x = p_info->ptMaxTrackSize.x;
                   wmax.y = p_info->ptMaxTrackSize.y;
                }
@@ -967,9 +967,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          bool generate = false;
          if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
             generate = true;
-            d->flags &= ~ALLEGRO_MAXIMIZED;
+            d->flags &= ~A5O_MAXIMIZED;
             if (wParam == SIZE_MAXIMIZED) {
-               d->flags |= ALLEGRO_MAXIMIZED;
+               d->flags |= A5O_MAXIMIZED;
             }
          }
          else if (d->use_constraints) {
@@ -992,17 +992,17 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_ENTERSIZEMOVE: {
          al_lock_mutex(resize_event_thread_mutex);
-         if (d->flags & ALLEGRO_DIRECT3D_INTERNAL) {
+         if (d->flags & A5O_DIRECT3D_INTERNAL) {
             win_display->d3d_ignore_resize = true;
          }
-         ALLEGRO_DISPLAY_WIN **add = (ALLEGRO_DISPLAY_WIN **)_al_vector_alloc_back(&resizing_displays);
+         A5O_DISPLAY_WIN **add = (A5O_DISPLAY_WIN **)_al_vector_alloc_back(&resizing_displays);
          *add = win_display;
          al_unlock_mutex(resize_event_thread_mutex);
          break;
       }
       case WM_EXITSIZEMOVE:
          al_lock_mutex(resize_event_thread_mutex);
-         if (d->flags & ALLEGRO_DIRECT3D_INTERNAL) {
+         if (d->flags & A5O_DIRECT3D_INTERNAL) {
             win_display->d3d_ignore_resize = false;
          }
          _al_vector_find_and_delete(&resizing_displays, &win_display);
@@ -1010,7 +1010,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          win_generate_resize_event(win_display);
          break;
       case WM_DPICHANGED:
-        if ((d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
+        if ((d->flags & A5O_RESIZABLE) && !(d->flags & A5O_FULLSCREEN)) {
             RECT* rect = (RECT*)lParam;
             // XXX: This doesn't seem to actually move the window... why?
             SetWindowPos(
@@ -1054,7 +1054,7 @@ int _al_win_init_window(void)
    }
 
    resize_event_thread_mutex = al_create_mutex();
-   _al_vector_init(&resizing_displays, sizeof(ALLEGRO_DISPLAY_WIN *));
+   _al_vector_init(&resizing_displays, sizeof(A5O_DISPLAY_WIN *));
    _beginthread(resize_event_thread_proc, 0, 0);
 
    return true;
@@ -1082,7 +1082,7 @@ void _al_win_shutdown_window(void)
 
 
 static int win_choose_icon_bitmap(const int sys_w, const int sys_h,
-   const int num_icons, ALLEGRO_BITMAP *bmps[])
+   const int num_icons, A5O_BITMAP *bmps[])
 {
    int best_i = 0;
    int best_score = INT_MAX;
@@ -1115,13 +1115,13 @@ static int win_choose_icon_bitmap(const int sys_w, const int sys_h,
    return best_i;
 }
 
-static void win_set_display_icon(ALLEGRO_DISPLAY_WIN *win_display,
+static void win_set_display_icon(A5O_DISPLAY_WIN *win_display,
    const WPARAM icon_type, const int sys_w, const int sys_h,
-   const int num_icons, ALLEGRO_BITMAP *bmps[])
+   const int num_icons, A5O_BITMAP *bmps[])
 {
    HICON icon;
    HICON old_icon;
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
    int bmp_w;
    int bmp_h;
    int i;
@@ -1135,19 +1135,19 @@ static void win_set_display_icon(ALLEGRO_DISPLAY_WIN *win_display,
       icon = _al_win_create_icon(win_display->window, bmp, 0, 0, false, false);
    }
    else {
-      ALLEGRO_BITMAP *tmp_bmp;
-      ALLEGRO_STATE backup;
+      A5O_BITMAP *tmp_bmp;
+      A5O_STATE backup;
 
       tmp_bmp = al_create_bitmap(sys_w, sys_h);
       if (!tmp_bmp)
          return;
 
-      al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-      al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+      al_store_state(&backup, A5O_STATE_BITMAP | A5O_STATE_BLENDER);
+      al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
+      al_set_new_bitmap_format(A5O_PIXEL_FORMAT_ARGB_8888);
 
       al_set_target_bitmap(tmp_bmp);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
       al_draw_scaled_bitmap(bmp, 0, 0, bmp_w, bmp_h, 0, 0, sys_w, sys_h, 0);
 
       al_restore_state(&backup);
@@ -1165,10 +1165,10 @@ static void win_set_display_icon(ALLEGRO_DISPLAY_WIN *win_display,
       DestroyIcon(old_icon);
 }
 
-void _al_win_set_display_icons(ALLEGRO_DISPLAY *display,
-   int num_icons, ALLEGRO_BITMAP *bmps[])
+void _al_win_set_display_icons(A5O_DISPLAY *display,
+   int num_icons, A5O_BITMAP *bmps[])
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    int sys_w;
    int sys_h;
 
@@ -1183,9 +1183,9 @@ void _al_win_set_display_icons(ALLEGRO_DISPLAY *display,
       num_icons, bmps);
 }
 
-void _al_win_destroy_display_icons(ALLEGRO_DISPLAY *display)
+void _al_win_destroy_display_icons(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    HICON old_icon;
 
    old_icon = (HICON)SendMessage(win_display->window, WM_SETICON, ICON_SMALL, 0);
@@ -1236,14 +1236,14 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
 }
 
 
-static void update_adapter(ALLEGRO_DISPLAY *display)
+static void update_adapter(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (void*)display;
+   A5O_DISPLAY_WIN *win_display = (void*)display;
    int x, y, adapter, num_adapters;
    al_get_window_position(display, &x, &y);
    num_adapters = al_get_num_video_adapters();
    for (adapter = 0; adapter < num_adapters; adapter++) {
-      ALLEGRO_MONITOR_INFO mi;
+      A5O_MONITOR_INFO mi;
       al_get_monitor_info(adapter, &mi);
       if (x >= mi.x1 && x < mi.x2 && y >= mi.y1 && y < mi.y2) {
          win_display->adapter = adapter;
@@ -1253,7 +1253,7 @@ static void update_adapter(ALLEGRO_DISPLAY *display)
 }
 
 
-void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND hWnd,
+void _al_win_set_window_frameless(A5O_DISPLAY *display, HWND hWnd,
    bool frameless)
 {
    int w = display->w;
@@ -1285,34 +1285,34 @@ void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND hWnd,
 }
 
 
-bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+bool _al_win_set_display_flag(A5O_DISPLAY *display, int flag, bool onoff)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (void*)display;
+   A5O_DISPLAY_WIN *win_display = (void*)display;
    //double timeout;
-   ALLEGRO_MONITOR_INFO mi;
+   A5O_MONITOR_INFO mi;
 
    memset(&mi, 0, sizeof(mi));
 
    switch (flag) {
-      case ALLEGRO_FRAMELESS: {
+      case A5O_FRAMELESS: {
          if (onoff) {
-            display->flags |= ALLEGRO_FRAMELESS;
+            display->flags |= A5O_FRAMELESS;
          }
          else {
-            display->flags &= ~ALLEGRO_FRAMELESS;
+            display->flags &= ~A5O_FRAMELESS;
          }
          _al_win_set_window_frameless(display, win_display->window,
-            (display->flags & ALLEGRO_FRAMELESS));
+            (display->flags & A5O_FRAMELESS));
          return true;
       }
 
-      case ALLEGRO_FULLSCREEN_WINDOW:
-         if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW) && onoff) {
-            ALLEGRO_DEBUG("Already a fullscreen window\n");
+      case A5O_FULLSCREEN_WINDOW:
+         if ((display->flags & A5O_FULLSCREEN_WINDOW) && onoff) {
+            A5O_DEBUG("Already a fullscreen window\n");
             return true;
          }
-         if (!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) && !onoff) {
-            ALLEGRO_DEBUG("Already a non-fullscreen window\n");
+         if (!(display->flags & A5O_FULLSCREEN_WINDOW) && !onoff) {
+            A5O_DEBUG("Already a non-fullscreen window\n");
             return true;
          }
 
@@ -1323,24 +1323,24 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          else {
             /* Respect display flag in windowed mode. */
             _al_win_set_window_frameless(display, win_display->window,
-               (display->flags & ALLEGRO_FRAMELESS));
+               (display->flags & A5O_FRAMELESS));
          }
 
          if (onoff) {
             update_adapter(display);
             int adapter = win_display->adapter;
             al_get_monitor_info(adapter, &mi);
-            display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
+            display->flags |= A5O_FULLSCREEN_WINDOW;
             display->w = mi.x2 - mi.x1;
             display->h = mi.y2 - mi.y1;
          }
          else {
-            display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+            display->flags &= ~A5O_FULLSCREEN_WINDOW;
             display->w = win_display->toggle_w;
             display->h = win_display->toggle_h;
          }
 
-         ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
+         ASSERT(!!(display->flags & A5O_FULLSCREEN_WINDOW) == onoff);
 
          // Hide the window temporarily
          SetWindowPos(win_display->window, 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
@@ -1379,10 +1379,10 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          // Clear the window to black
          clear_window(win_display->window, display->w, display->h);
 
-         ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
+         ASSERT(!!(display->flags & A5O_FULLSCREEN_WINDOW) == onoff);
          return true;
-      case ALLEGRO_MAXIMIZED:
-         if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
+      case A5O_MAXIMIZED:
+         if ((!!(display->flags & A5O_MAXIMIZED)) == onoff)
             return true;
          if (onoff) {
             ShowWindow(win_display->window, SW_SHOWMAXIMIZED);
@@ -1396,15 +1396,15 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 }
 
 
-void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+void _al_win_set_window_title(A5O_DISPLAY *display, const char *title)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    TCHAR *ttitle = _twin_utf8_to_tchar(title);
    SetWindowText(win_display->window, ttitle);
    al_free(ttitle);
 }
 
-bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
+bool _al_win_set_window_constraints(A5O_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
    display->min_w = min_w;
@@ -1415,31 +1415,31 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    return true;
 }
 
-void _al_win_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
+void _al_win_apply_window_constraints(A5O_DISPLAY *display, bool onoff)
 {
    if (onoff) {
-      if (!(display->flags & ALLEGRO_MAXIMIZED)) {
+      if (!(display->flags & A5O_MAXIMIZED)) {
          al_resize_display(display, display->w, display->h);
       }
    }
 }
 
-void _al_win_post_create_window(ALLEGRO_DISPLAY *display)
+void _al_win_post_create_window(A5O_DISPLAY *display)
 {
    /* Ideally the d3d/wgl window creation would already create the
     * window maximized - but that code looks too messy to me to touch
     * right now.
     */
-   if (display->flags & ALLEGRO_MAXIMIZED) {
-      display->flags &= ~ALLEGRO_MAXIMIZED;
-      al_set_display_flag(display, ALLEGRO_MAXIMIZED, true);
+   if (display->flags & A5O_MAXIMIZED) {
+      display->flags &= ~A5O_MAXIMIZED;
+      al_set_display_flag(display, A5O_MAXIMIZED, true);
    }
 }
 
-bool _al_win_get_window_constraints(ALLEGRO_DISPLAY *display,
+bool _al_win_get_window_constraints(A5O_DISPLAY *display,
    int *min_w, int *min_h, int *max_w, int *max_h)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    *min_w = win_display->display.min_w;
    *min_h = win_display->display.min_h;
    *max_w = win_display->display.max_w;
@@ -1468,18 +1468,18 @@ void _al_win_wnd_schedule_proc(HWND wnd, void (*proc) (void*), void* param)
 {
    ASSERT(_al_win_msg_call_proc);
    if (!PostMessage(wnd, _al_win_msg_call_proc, (WPARAM)proc, (LPARAM)param)) {
-      ALLEGRO_ERROR("_al_win_wnd_schedule_proc failed.\n");
+      A5O_ERROR("_al_win_wnd_schedule_proc failed.\n");
    }
 }
 
 
 /* Function: al_get_win_window_handle
  */
-HWND al_get_win_window_handle(ALLEGRO_DISPLAY *display)
+HWND al_get_win_window_handle(A5O_DISPLAY *display)
 {
    if (!display)
       return NULL;
-   return ((ALLEGRO_DISPLAY_WIN *)display)->window;
+   return ((A5O_DISPLAY_WIN *)display)->window;
 }
 
 
@@ -1489,7 +1489,7 @@ int _al_win_determine_adapter(void)
    if (a == -1) {
       int num_screens = al_get_num_video_adapters();
       int cScreen = 0;
-      ALLEGRO_MONITOR_INFO temp_info;
+      A5O_MONITOR_INFO temp_info;
       for (cScreen = 0; cScreen < num_screens; cScreen++) {
          al_get_monitor_info(cScreen, &temp_info);
          if (temp_info.x1 == 0 && temp_info.y1 == 0) { // ..probably found primary display
@@ -1501,9 +1501,9 @@ int _al_win_determine_adapter(void)
    return a;
 }
 
-bool _al_win_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *top, int *right, int *bottom)
+bool _al_win_get_window_borders(A5O_DISPLAY *display, int *left, int *top, int *right, int *bottom)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *)display;
    WINDOWINFO wi;
    wi.cbSize = sizeof(WINDOWINFO);
    GetWindowInfo(win_display->window, &wi);
@@ -1517,12 +1517,12 @@ bool _al_win_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *top, i
 
 /* Function: al_win_add_window_callback
  */
-bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *display, UINT message, WPARAM wparam,
+bool al_win_add_window_callback(A5O_DISPLAY *display,
+   bool (*callback)(A5O_DISPLAY *display, UINT message, WPARAM wparam,
    LPARAM lparam, LRESULT *result, void *userdata), void *userdata)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   ALLEGRO_DISPLAY_WIN_CALLBACK *ptr;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *) display;
+   A5O_DISPLAY_WIN_CALLBACK *ptr;
 
    if (!display || !callback) {
       return false;
@@ -1530,7 +1530,7 @@ bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
    else {
       size_t i;
       for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
-         ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
+         A5O_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
          if (ptr->proc == callback && ptr->userdata == userdata)
             return false;
       }
@@ -1546,16 +1546,16 @@ bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
 
 /* Function: al_win_remove_window_callback
  */
-bool al_win_remove_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *display, UINT message, WPARAM wparam,
+bool al_win_remove_window_callback(A5O_DISPLAY *display,
+   bool (*callback)(A5O_DISPLAY *display, UINT message, WPARAM wparam,
    LPARAM lparam, LRESULT *result, void *userdata), void *userdata)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   A5O_DISPLAY_WIN *win_display = (A5O_DISPLAY_WIN *) display;
 
    if (display && callback) {
       size_t i;
       for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
-         ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
+         A5O_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
          if (ptr->proc == callback && ptr->userdata == userdata) {
             _al_vector_delete_at(&win_display->msg_callbacks, i);
             return true;

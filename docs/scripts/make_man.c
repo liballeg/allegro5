@@ -102,8 +102,8 @@ void make_man_pages(int argc, char *argv[])
          d_assign(line, d_after_match);
       }
 
-      /* Replace [al_foo] and [ALLEGRO_foo] by al_foo(3) and ALLEGRO_foo(3). */
-      while (d_match(line, "\\[((al_|ALLEGRO_)[^\\]]*)\\]")) {
+      /* Replace [al_foo] and [A5O_foo] by al_foo(3) and A5O_foo(3). */
+      while (d_match(line, "\\[((al_|A5O_)[^\\]]*)\\]")) {
          d_printf("%s", d_before_match);
          d_printf("%s(%s)", d_submatch(1), SECTION);
          d_assign(line, d_after_match);

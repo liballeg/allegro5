@@ -46,25 +46,25 @@ It can then be accessed like this (make sure to check for errors in
 an actual program):
 
 ~~~~c
-ALLEGRO_CONFIG* cfg = al_load_config_file("test.cfg");
+A5O_CONFIG* cfg = al_load_config_file("test.cfg");
 printf("%s\n", al_get_config_value(cfg, "", "monster name")); /* Prints: Allegro Developer */
 printf("%s\n", al_get_config_value(cfg, "weapon 0", "damage")); /* Prints: 443 */
 printf("%s\n", al_get_config_value(cfg, "weapon 1", "damage")); /* Prints: 503 */
 al_destroy_config(cfg);
 ~~~~
 
-## API: ALLEGRO_CONFIG
+## API: A5O_CONFIG
 
 An abstract configuration structure.
 
-## API: ALLEGRO_CONFIG_SECTION
+## API: A5O_CONFIG_SECTION
 
 An opaque structure used for iterating across sections in a configuration
 structure.
 
 See also: [al_get_first_config_section], [al_get_next_config_section]
 
-## API: ALLEGRO_CONFIG_ENTRY
+## API: A5O_CONFIG_ENTRY
 
 An opaque structure used for iterating across entries in a configuration
 section.
@@ -145,7 +145,7 @@ See also: [al_add_config_section]
 ## API: al_get_config_value
 
 Gets a pointer to an internal character buffer that will only remain valid
-as long as the ALLEGRO_CONFIG structure is not destroyed. Copy the value
+as long as the A5O_CONFIG structure is not destroyed. Copy the value
 if you need a copy.
 The section can be NULL or "" for the global section.
 Returns NULL if the section or key do not exist.
@@ -182,7 +182,7 @@ values. The `iterator` parameter will receive an opaque iterator which is used
 by [al_get_next_config_section] to iterate over the remaining sections.
 
 The returned string and the iterator are only valid as long as no
-change is made to the passed ALLEGRO_CONFIG.
+change is made to the passed A5O_CONFIG.
 
 See also: [al_get_next_config_section]
 
@@ -201,7 +201,7 @@ config or NULL if the section is empty. The `iterator` works like the one for
 [al_get_first_config_section].
 
 The returned string and the iterator are only valid as long as no
-change is made to the passed [ALLEGRO_CONFIG].
+change is made to the passed [A5O_CONFIG].
 
 See also: [al_get_next_config_entry]
 

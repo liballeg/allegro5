@@ -6,23 +6,23 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-## API: ALLEGRO_TIMER
+## API: A5O_TIMER
 
 This is an abstract data type representing a timer object.
 
-## API: ALLEGRO_USECS_TO_SECS
+## API: A5O_USECS_TO_SECS
 
 Convert microseconds to seconds.
 
-## API: ALLEGRO_MSECS_TO_SECS
+## API: A5O_MSECS_TO_SECS
 
 Convert milliseconds to seconds.
 
-## API: ALLEGRO_BPS_TO_SECS
+## API: A5O_BPS_TO_SECS
 
 Convert beats per second to seconds.
 
-## API: ALLEGRO_BPM_TO_SECS
+## API: A5O_BPM_TO_SECS
 
 Convert beats per minute to seconds.
 
@@ -31,7 +31,7 @@ Convert beats per minute to seconds.
 Allocates and initializes a timer. If successful, a pointer to a new timer
 object is returned, otherwise NULL is returned.  *speed_secs* is in seconds per
 "tick", and must be positive. The new timer is initially stopped and needs to
-be started with [al_start_timer] before [ALLEGRO_EVENT_TIMER] events are sent.
+be started with [al_start_timer] before [A5O_EVENT_TIMER] events are sent.
 
 Usage note: typical granularity is on the order of microseconds, but with
 some drivers might only be milliseconds.
@@ -126,4 +126,4 @@ See also: [al_get_timer_speed]
 ## API: al_get_timer_event_source
 
 Retrieve the associated event source. Timers will generate events of
-type [ALLEGRO_EVENT_TIMER].
+type [A5O_EVENT_TIMER].

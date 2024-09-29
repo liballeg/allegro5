@@ -4,20 +4,20 @@
 
 #include "iio.h"
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 /* Do NOT simplify this to just (x), it doesn't work in MSVC. */
 #define INT_TO_BOOL(x)   ((x) != 0)
 
-ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
+A5O_BITMAP *_al_load_pcx_f(A5O_FILE *f, int flags)
 {
-   ALLEGRO_BITMAP *b;
+   A5O_BITMAP *b;
    int c;
    int width, height;
    int bpp, bytes_per_line;
    int x, xx, y;
    char ch;
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    unsigned char *buf;
    PalEntry pal[256];
    bool keep_index;
@@ -29,7 +29,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
 
    char color_plane = al_fgetc(f);
    if (color_plane != 8) {         /* we like 8 bit color planes */
-      ALLEGRO_ERROR("Invalid color plane %d.\n", color_plane);
+      A5O_ERROR("Invalid color plane %d.\n", color_plane);
       return NULL;
    }
 
@@ -49,14 +49,14 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    bpp = al_fgetc(f) * 8;          /* how many color planes? */
 
    if ((bpp != 8) && (bpp != 24)) {
-      ALLEGRO_ERROR("Invalid bpp %d.\n", color_plane);
+      A5O_ERROR("Invalid bpp %d.\n", color_plane);
       return NULL;
    }
 
    bytes_per_line = al_fread16le(f);
    /* It can only be this because we only support 8 bit planes */
    if (bytes_per_line != width) {
-      ALLEGRO_ERROR("Invalid bytes per line %d\n", bytes_per_line);
+      A5O_ERROR("Invalid bytes per line %d\n", bytes_per_line);
       return NULL;
    }
 
@@ -64,17 +64,17 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
       al_fgetc(f);
 
    if (al_feof(f) || al_ferror(f)) {
-      ALLEGRO_ERROR("Unexpected EOF/error.\n");
+      A5O_ERROR("Unexpected EOF/error.\n");
       return NULL;
    }
 
    b = al_create_bitmap(width, height);
    if (!b) {
-      ALLEGRO_ERROR("Failed to create bitmap.\n");
+      A5O_ERROR("Failed to create bitmap.\n");
       return NULL;
    }
    
-   keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
+   keep_index = INT_TO_BOOL(flags & A5O_KEEP_INDEX);
 
    al_set_errno(0);
 
@@ -90,13 +90,13 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    }
 
    if (bpp == 8 && keep_index) {
-      lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8, ALLEGRO_LOCK_WRITEONLY);
+      lr = al_lock_bitmap(b, A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8, A5O_LOCK_WRITEONLY);
    }
    else {
-      lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+      lr = al_lock_bitmap(b, A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_WRITEONLY);
    }
    if (!lr) {
-      ALLEGRO_ERROR("Failed to lock bitmap.\n");
+      A5O_ERROR("Failed to lock bitmap.\n");
       al_free(buf);
       return NULL;
    }
@@ -176,7 +176,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    al_free(buf);
 
    if (al_get_errno()) {
-      ALLEGRO_ERROR("Error detected: %d.\n", al_get_errno());
+      A5O_ERROR("Error detected: %d.\n", al_get_errno());
       al_destroy_bitmap(b);
       return NULL;
    }
@@ -184,7 +184,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    return b;
 }
 
-bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_save_pcx_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    int c;
    int x, y;
@@ -225,11 +225,11 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
    buf = al_malloc(w * 3);
 
-   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
 
    for (y = 0; y < h; y++) {    /* for each scanline... */
       for (x = 0; x < w; x++) {
-         ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
+         A5O_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b;
          al_unmap_rgb(c, &r, &g, &b);
          buf[x] = r;
@@ -261,22 +261,22 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    al_unlock_bitmap(bmp);
 
    if (al_get_errno()) {
-      ALLEGRO_ERROR("Error detected: %d.\n", al_get_errno());
+      A5O_ERROR("Error detected: %d.\n", al_get_errno());
       return false;
    }
    else
       return true;
 }
 
-ALLEGRO_BITMAP *_al_load_pcx(const char *filename, int flags)
+A5O_BITMAP *_al_load_pcx(const char *filename, int flags)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *f;
+   A5O_BITMAP *bmp;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -287,16 +287,16 @@ ALLEGRO_BITMAP *_al_load_pcx(const char *filename, int flags)
    return bmp;
 }
 
-bool _al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
+bool _al_save_pcx(const char *filename, A5O_BITMAP *bmp)
 {
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
    bool retsave;
    bool retclose;
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for writing.\n", filename);
+      A5O_ERROR("Unable to open %s for writing.\n", filename);
       return false;
    }
 
@@ -307,7 +307,7 @@ bool _al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
    return retsave && retclose;
 }
 
-bool _al_identify_pcx(ALLEGRO_FILE *f)
+bool _al_identify_pcx(A5O_FILE *f)
 {
    uint8_t x[4];
    al_fread(f, x, 4);

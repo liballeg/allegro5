@@ -33,7 +33,7 @@ typedef struct
     MESSAGE_TYPE type;
     int x;               // current position (x)
     int y;               // current position (y)
-    ALLEGRO_COLOR color; // valid when type == PLAYER_JOIN
+    A5O_COLOR color; // valid when type == PLAYER_JOIN
 } ServerMessage;
 
 // storage for all players
@@ -42,7 +42,7 @@ struct
    bool active;
    int x, y;   // current position
    int dx, dy; // direction of movemnt
-   ALLEGRO_COLOR color;
+   A5O_COLOR color;
 } players[MAX_PLAYER_COUNT];
 
 #endif

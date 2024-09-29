@@ -51,7 +51,7 @@ Core:
 - Add `al_can_set_keyboard_leds` and `al_can_get_mouse_cursor_position`
   (TRDario)
 
-- Allow outputting logs to STDOUT via ALLEGRO_TRACE environment variable
+- Allow outputting logs to STDOUT via A5O_TRACE environment variable
   (SiegeLord)
 
 - Add `al_get_current_shader` (TRDario)
@@ -83,7 +83,7 @@ MacOS:
 
 - Add a workaround for live resizing not working. Enable it via `[osx]
   allow_live_resize = false` in `allegro5.cfg` and then listen and respect
-  `ALLEGRO_EVENT_DISPLAY_HALT/RESUME_DRAWING` events (#1350) (SiegeLord + Elias
+  `A5O_EVENT_DISPLAY_HALT/RESUME_DRAWING` events (#1350) (SiegeLord + Elias
   Pschernig)
 
 Linux:
@@ -105,7 +105,7 @@ Linux:
 
 - Fix popup menu (#1280) (SiegeLord)
 
-- Make AltGr (right Alt) toggle the `ALLEGRO_KEYMOD_ALTGR` modifier (SiegeLord)
+- Make AltGr (right Alt) toggle the `A5O_KEYMOD_ALTGR` modifier (SiegeLord)
 
 Windows:
 
@@ -116,7 +116,7 @@ Windows:
 - Work on improving Window positioning (SiegeLord)
 
 - Make native file dialog respect the initial directory when
-  `ALLEGRO_FILECHOOSER_FOLDER` is set (José Carlos HR)
+  `A5O_FILECHOOSER_FOLDER` is set (José Carlos HR)
 
 - Fix the client area changing size on Windows when restoring a window (#1433)
   (SiegeLord)
@@ -217,7 +217,7 @@ Android:
 
 Audio addon:
 
-- Add `ALLEGRO_PLAYMODE_LOOP_ONCE` (Issue #1309).
+- Add `A5O_PLAYMODE_LOOP_ONCE` (Issue #1309).
 
 - Add `al_play_audio_stream`, a 'simple' API endpoint for audio stream playback.
 
@@ -320,7 +320,7 @@ Core:
 
 - Avoid some undefined behavior errors.
 
-- Return key modifiers in `ALLEGRO_EVENT_KEY_UP` and `ALLEGRO_EVENT_KEY_DOWN`.
+- Return key modifiers in `A5O_EVENT_KEY_UP` and `A5O_EVENT_KEY_DOWN`.
 
 - Allow calling `al_map_*` color functions before Allegro is initialized.
 
@@ -331,9 +331,9 @@ Core:
 
 Graphics:
 
-- Fix `ALLEGRO_KEEP_INDEX` flag for bitmaps.
+- Fix `A5O_KEEP_INDEX` flag for bitmaps.
 
-- Add `ALLEGRO_OPENGL_CORE_PROFILE` display flag.
+- Add `A5O_OPENGL_CORE_PROFILE` display flag.
 
 Emscripten:
 
@@ -457,7 +457,7 @@ Graphics:
   - Fix creation of the bitmap depth buffer for non-square bitmaps
     (Kevin Wellwood).
 
-  - Fix `ALLEGRO_ALPHA_TEST_VALUE` not being interpreted correctly.
+  - Fix `A5O_ALPHA_TEST_VALUE` not being interpreted correctly.
 
   - Fix reported bitshifts for `ARGB_4444` and `RGBA_4444` pixel formats.
 
@@ -473,7 +473,7 @@ Android:
 
   - Use DisplayListener to listen to orientation changes.
 
-  - Implement `ALLEGRO_FRAMELESS` on Android. This hides the navigation buttons
+  - Implement `A5O_FRAMELESS` on Android. This hides the navigation buttons
     and the bar on top.
 
 Linux:
@@ -618,7 +618,7 @@ Windows:
   - Fix `al_draw_indexed_primitive` while using Direct3D.
 
   - Fix crash when passing `NULL` display to `al_show_native_file_dialog` while
-    using `ALLEGRO_FILECHOOSER_FOLDER`.
+    using `A5O_FILECHOOSER_FOLDER`.
 
   - Fix OpenGL version reporting after display creation (Edgar Reynaldo).
 
@@ -690,7 +690,7 @@ Android port:
 
   - Remove limit on the working directory length.
 
-  - Fix `ALLEGRO_MAXIMIZED` flag.
+  - Fix `A5O_MAXIMIZED` flag.
 
   - Fix build with older Android NDKs.
 
@@ -771,7 +771,7 @@ Core:
 
   - Fix `fs_stdio_read_directory` appending an extra slash.
 
-  - Fix `al_set_window_constraints` when the flag ALLEGRO_MAXIMIZED is set.
+  - Fix `al_set_window_constraints` when the flag A5O_MAXIMIZED is set.
 
   - Fix `al_set_clipping_rectangle` when out-of-bounds (Bruce Pascoe).
 
@@ -799,7 +799,7 @@ Linux port:
 
   - Fix KEY_CHAR events under X11 with compose key enabled.
 
-  - Fix clearing the `ALLEGRO_MAXIMIZED` flag under X11.
+  - Fix clearing the `A5O_MAXIMIZED` flag under X11.
 
   - Add `al_x_set_initial_icon`.
 
@@ -834,7 +834,7 @@ Audio addon:
   - Allow setting the buffer size for ALSA.
 
   - Don't apply gain twice for sample instances and streams when pan is not
-    `ALLEGRO_PAN_NONE`.
+    `A5O_PAN_NONE`.
 
   - Disallow attaching mixers with different channel configurations.
 
@@ -868,7 +868,7 @@ Native dialog addon:
 
   - Improved path behavior in GTK native file dialog ([bk]door.maus).
 
-  - Enable `ALLEGRO_FILECHOOSER_FOLDER` On Linux (Todd Cope).
+  - Enable `A5O_FILECHOOSER_FOLDER` On Linux (Todd Cope).
 
   - Use unique ids to identify menu items internally, fixing their event
     sources.
@@ -1003,7 +1003,7 @@ Core:
   - Enforce backwards compatibility in the version check, rather than
     erroneously allowing forwards compatiblity.
 
-  - Temporarily remove new extensions in ALLEGRO_OGL_EXT_LIST as that broke ABI
+  - Temporarily remove new extensions in A5O_OGL_EXT_LIST as that broke ABI
     compatibility.
 
 OSX port:
@@ -1059,7 +1059,7 @@ OSX port:
 
   - Fix mouse warping behavior.
 
-  - Exit fullscreen mode if ALLEGRO_FULLSCREEN_WINDOW is set when destroying a
+  - Exit fullscreen mode if A5O_FULLSCREEN_WINDOW is set when destroying a
     display (otherwise if you destroy and recreate display without terminating
     the program, a white window kicks around).
 
@@ -1138,7 +1138,7 @@ Font addon:
   - Make `al_get_text_dimensions` and `al_get_glyph_dimensions` return exact
     bounding boxes (koro).
 
-  - Add `ALLEGRO_GLYPH` structure and `al_get_glyph`, allowing for some
+  - Add `A5O_GLYPH` structure and `al_get_glyph`, allowing for some
     additional optimization when drawing fonts.
 
 Examples:
@@ -1180,7 +1180,7 @@ OSX port:
 
   - Fix other various scaling issues.
 
-  - Make toggling ALLEGRO_FRAMELESS work.
+  - Make toggling A5O_FRAMELESS work.
 
   - Fix an issue where fullscreen windows would occasionally leave empty space
     for the titlebar.
@@ -1219,7 +1219,7 @@ Documentation:
 Other:
 
   - Add a stability system where some unstable APIs need to be opted into by
-    defining `ALLEGRO_UNSTABLE` before including Allegro headers.
+    defining `A5O_UNSTABLE` before including Allegro headers.
 
 Audio addon:
 

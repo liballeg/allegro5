@@ -23,18 +23,18 @@
 #endif
 
 
-/* Type: ALLEGRO_MEMORY_INTERFACE
+/* Type: A5O_MEMORY_INTERFACE
  */
-typedef struct ALLEGRO_MEMORY_INTERFACE ALLEGRO_MEMORY_INTERFACE;
+typedef struct A5O_MEMORY_INTERFACE A5O_MEMORY_INTERFACE;
 
-struct ALLEGRO_MEMORY_INTERFACE {
+struct A5O_MEMORY_INTERFACE {
    void *(*mi_malloc)(size_t n, int line, const char *file, const char *func);
    void (*mi_free)(void *ptr, int line, const char *file, const char *func);
    void *(*mi_realloc)(void *ptr, size_t n, int line, const char *file, const char *func);
    void *(*mi_calloc)(size_t count, size_t n, int line, const char *file, const char *func);
 };
 
-AL_FUNC(void, al_set_memory_interface, (ALLEGRO_MEMORY_INTERFACE *iface));
+AL_FUNC(void, al_set_memory_interface, (A5O_MEMORY_INTERFACE *iface));
 
 
 /* Function: al_malloc

@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-void _al_osx_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
+void _al_osx_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt);
 
 #ifdef __cplusplus
 }

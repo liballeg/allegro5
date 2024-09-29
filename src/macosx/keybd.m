@@ -25,7 +25,7 @@
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
 
-#ifndef ALLEGRO_MACOSX
+#ifndef A5O_MACOSX
 #error Something is wrong with the makefile
 #endif
 
@@ -35,20 +35,20 @@
  * and key codes.
  */
 static unsigned const int mod_info[5][3] = {
-   { NSAlphaShiftKeyMask, ALLEGRO_KEYMOD_CAPSLOCK, ALLEGRO_KEY_CAPSLOCK },
-   { NSShiftKeyMask,      ALLEGRO_KEYMOD_SHIFT,    ALLEGRO_KEY_LSHIFT   },
-   { NSControlKeyMask,    ALLEGRO_KEYMOD_CTRL,     ALLEGRO_KEY_LCTRL    },
-   { NSAlternateKeyMask,  ALLEGRO_KEYMOD_ALT,      ALLEGRO_KEY_ALT      },
-   { NSCommandKeyMask,    ALLEGRO_KEYMOD_COMMAND,  ALLEGRO_KEY_COMMAND  }
+   { NSAlphaShiftKeyMask, A5O_KEYMOD_CAPSLOCK, A5O_KEY_CAPSLOCK },
+   { NSShiftKeyMask,      A5O_KEYMOD_SHIFT,    A5O_KEY_LSHIFT   },
+   { NSControlKeyMask,    A5O_KEYMOD_CTRL,     A5O_KEY_LCTRL    },
+   { NSAlternateKeyMask,  A5O_KEYMOD_ALT,      A5O_KEY_ALT      },
+   { NSCommandKeyMask,    A5O_KEYMOD_COMMAND,  A5O_KEY_COMMAND  }
 };
 
 
 
 static bool osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
-static ALLEGRO_KEYBOARD* osx_get_keyboard(void);
-static ALLEGRO_KEYBOARD keyboard;
-static ALLEGRO_KEYBOARD_STATE kbdstate;
+static A5O_KEYBOARD* osx_get_keyboard(void);
+static A5O_KEYBOARD keyboard;
+static A5O_KEYBOARD_STATE kbdstate;
 
 
 
@@ -73,7 +73,7 @@ static int translate_modifier_flags(int osx_mods)
 /* _al_osx_switch_keyboard_focus:
  *  Handle a focus switch event.
  */
-void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
+void _al_osx_switch_keyboard_focus(A5O_DISPLAY *dpy, bool switch_in)
 {
    _al_event_source_lock(&keyboard.es);
 
@@ -87,15 +87,15 @@ void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
 
 
 
-static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode,
+static void _handle_key_press(A5O_DISPLAY* dpy, int unicode, int scancode,
    int modifiers, bool is_repeat)
 {
    _al_event_source_lock(&keyboard.es);
    {
       /* Generate the press event if necessary. */
       if (_al_event_source_needs_to_generate_event(&keyboard.es)) {
-         ALLEGRO_EVENT event;
-         event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
+         A5O_EVENT event;
+         event.keyboard.type = A5O_EVENT_KEY_DOWN;
          event.keyboard.timestamp = al_get_time();
          event.keyboard.display   = dpy;
          event.keyboard.keycode   = scancode;
@@ -111,7 +111,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode,
             if (unicode >= 0xF700 && unicode <= 0xF747) {
                unicode = 0;
             }
-            event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+            event.keyboard.type = A5O_EVENT_KEY_CHAR;
             event.keyboard.unichar = unicode;
             event.keyboard.modifiers = modifiers;
             event.keyboard.repeat = is_repeat;
@@ -126,14 +126,14 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode,
 
 
 
-static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int modifiers, int scancode)
+static void _handle_key_release(A5O_DISPLAY* dpy, int modifiers, int scancode)
 {
    _al_event_source_lock(&keyboard.es);
    {
       /* Generate the release event if necessary. */
       if (_al_event_source_needs_to_generate_event(&keyboard.es)) {
-         ALLEGRO_EVENT event;
-         event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+         A5O_EVENT event;
+         event.keyboard.type = A5O_EVENT_KEY_UP;
          event.keyboard.timestamp = al_get_time();
          event.keyboard.display   = dpy;
          event.keyboard.keycode   = scancode;
@@ -152,38 +152,38 @@ static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int modifiers, int scancod
 /* Mac keycode to Allegro scancode conversion table */
 static const int mac_to_scancode[128] =
 {
-   /* 0x00 */ ALLEGRO_KEY_A,        ALLEGRO_KEY_S,          ALLEGRO_KEY_D,          ALLEGRO_KEY_F,
-   /* 0x04 */ ALLEGRO_KEY_H,        ALLEGRO_KEY_G,          ALLEGRO_KEY_Z,          ALLEGRO_KEY_X,
-   /* 0x08 */ ALLEGRO_KEY_C,        ALLEGRO_KEY_V,          0,                      ALLEGRO_KEY_B,
-   /* 0x0c */ ALLEGRO_KEY_Q,        ALLEGRO_KEY_W,          ALLEGRO_KEY_E,          ALLEGRO_KEY_R,
-   /* 0x10 */ ALLEGRO_KEY_Y,        ALLEGRO_KEY_T,          ALLEGRO_KEY_1,          ALLEGRO_KEY_2,
-   /* 0x14 */ ALLEGRO_KEY_3,        ALLEGRO_KEY_4,          ALLEGRO_KEY_6,          ALLEGRO_KEY_5,
-   /* 0x18 */ ALLEGRO_KEY_EQUALS,   ALLEGRO_KEY_9,          ALLEGRO_KEY_7,          ALLEGRO_KEY_MINUS,
-   /* 0x1c */ ALLEGRO_KEY_8,        ALLEGRO_KEY_0,          ALLEGRO_KEY_CLOSEBRACE, ALLEGRO_KEY_O,
-   /* 0x20 */ ALLEGRO_KEY_U,        ALLEGRO_KEY_OPENBRACE,  ALLEGRO_KEY_I,          ALLEGRO_KEY_P,
-   /* 0x24 */ ALLEGRO_KEY_ENTER,    ALLEGRO_KEY_L,          ALLEGRO_KEY_J,          ALLEGRO_KEY_QUOTE,
-   /* 0x28 */ ALLEGRO_KEY_K,        ALLEGRO_KEY_SEMICOLON,  ALLEGRO_KEY_BACKSLASH,  ALLEGRO_KEY_COMMA,
-   /* 0x2c */ ALLEGRO_KEY_SLASH,    ALLEGRO_KEY_N,          ALLEGRO_KEY_M,          ALLEGRO_KEY_FULLSTOP,
-   /* 0x30 */ ALLEGRO_KEY_TAB,      ALLEGRO_KEY_SPACE,      ALLEGRO_KEY_BACKQUOTE,  ALLEGRO_KEY_BACKSPACE,
-   /* 0x34 */ ALLEGRO_KEY_ENTER,    ALLEGRO_KEY_ESCAPE,     0,                      ALLEGRO_KEY_COMMAND,
-   /* 0x38 */ ALLEGRO_KEY_LSHIFT,   ALLEGRO_KEY_CAPSLOCK,   ALLEGRO_KEY_ALT,        ALLEGRO_KEY_LEFT,
-   /* 0x3c */ ALLEGRO_KEY_RIGHT,    ALLEGRO_KEY_DOWN,       ALLEGRO_KEY_UP,         0,
-   /* 0x40 */ 0,                    ALLEGRO_KEY_FULLSTOP,   0,                      ALLEGRO_KEY_PAD_ASTERISK,
-   /* 0x44 */ 0,                    ALLEGRO_KEY_PAD_PLUS,   0,                      ALLEGRO_KEY_NUMLOCK,
-   /* 0x48 */ 0,                    0,                      0,                      ALLEGRO_KEY_PAD_SLASH,
-   /* 0x4c */ ALLEGRO_KEY_PAD_ENTER,0,                      ALLEGRO_KEY_PAD_MINUS,  0,
-   /* 0x50 */ 0,                    ALLEGRO_KEY_PAD_EQUALS, ALLEGRO_KEY_PAD_0,      ALLEGRO_KEY_PAD_1,
-   /* 0x54 */ ALLEGRO_KEY_PAD_2,    ALLEGRO_KEY_PAD_3,      ALLEGRO_KEY_PAD_4,      ALLEGRO_KEY_PAD_5,
-   /* 0x58 */ ALLEGRO_KEY_PAD_6,    ALLEGRO_KEY_PAD_7,      0,                      ALLEGRO_KEY_PAD_8,
-   /* 0x5c */ ALLEGRO_KEY_PAD_9,    0,                      0,                      0,
-   /* 0x60 */ ALLEGRO_KEY_F5,       ALLEGRO_KEY_F6,         ALLEGRO_KEY_F7,         ALLEGRO_KEY_F3,
-   /* 0x64 */ ALLEGRO_KEY_F8,       ALLEGRO_KEY_F9,         0,                      ALLEGRO_KEY_F11,
-   /* 0x68 */ 0,                    ALLEGRO_KEY_PRINTSCREEN,0,                      ALLEGRO_KEY_SCROLLLOCK,
-   /* 0x6c */ 0,                    ALLEGRO_KEY_F10,        0,                      ALLEGRO_KEY_F12,
-   /* 0x70 */ 0,                    ALLEGRO_KEY_PAUSE,      ALLEGRO_KEY_INSERT,     ALLEGRO_KEY_HOME,
-   /* 0x74 */ ALLEGRO_KEY_PGUP,     ALLEGRO_KEY_DELETE,     ALLEGRO_KEY_F4,         ALLEGRO_KEY_END,
-   /* 0x78 */ ALLEGRO_KEY_F2,       ALLEGRO_KEY_PGDN,       ALLEGRO_KEY_F1,         ALLEGRO_KEY_LEFT,
-   /* 0x7c */ ALLEGRO_KEY_RIGHT,    ALLEGRO_KEY_DOWN,       ALLEGRO_KEY_UP,         0
+   /* 0x00 */ A5O_KEY_A,        A5O_KEY_S,          A5O_KEY_D,          A5O_KEY_F,
+   /* 0x04 */ A5O_KEY_H,        A5O_KEY_G,          A5O_KEY_Z,          A5O_KEY_X,
+   /* 0x08 */ A5O_KEY_C,        A5O_KEY_V,          0,                      A5O_KEY_B,
+   /* 0x0c */ A5O_KEY_Q,        A5O_KEY_W,          A5O_KEY_E,          A5O_KEY_R,
+   /* 0x10 */ A5O_KEY_Y,        A5O_KEY_T,          A5O_KEY_1,          A5O_KEY_2,
+   /* 0x14 */ A5O_KEY_3,        A5O_KEY_4,          A5O_KEY_6,          A5O_KEY_5,
+   /* 0x18 */ A5O_KEY_EQUALS,   A5O_KEY_9,          A5O_KEY_7,          A5O_KEY_MINUS,
+   /* 0x1c */ A5O_KEY_8,        A5O_KEY_0,          A5O_KEY_CLOSEBRACE, A5O_KEY_O,
+   /* 0x20 */ A5O_KEY_U,        A5O_KEY_OPENBRACE,  A5O_KEY_I,          A5O_KEY_P,
+   /* 0x24 */ A5O_KEY_ENTER,    A5O_KEY_L,          A5O_KEY_J,          A5O_KEY_QUOTE,
+   /* 0x28 */ A5O_KEY_K,        A5O_KEY_SEMICOLON,  A5O_KEY_BACKSLASH,  A5O_KEY_COMMA,
+   /* 0x2c */ A5O_KEY_SLASH,    A5O_KEY_N,          A5O_KEY_M,          A5O_KEY_FULLSTOP,
+   /* 0x30 */ A5O_KEY_TAB,      A5O_KEY_SPACE,      A5O_KEY_BACKQUOTE,  A5O_KEY_BACKSPACE,
+   /* 0x34 */ A5O_KEY_ENTER,    A5O_KEY_ESCAPE,     0,                      A5O_KEY_COMMAND,
+   /* 0x38 */ A5O_KEY_LSHIFT,   A5O_KEY_CAPSLOCK,   A5O_KEY_ALT,        A5O_KEY_LEFT,
+   /* 0x3c */ A5O_KEY_RIGHT,    A5O_KEY_DOWN,       A5O_KEY_UP,         0,
+   /* 0x40 */ 0,                    A5O_KEY_FULLSTOP,   0,                      A5O_KEY_PAD_ASTERISK,
+   /* 0x44 */ 0,                    A5O_KEY_PAD_PLUS,   0,                      A5O_KEY_NUMLOCK,
+   /* 0x48 */ 0,                    0,                      0,                      A5O_KEY_PAD_SLASH,
+   /* 0x4c */ A5O_KEY_PAD_ENTER,0,                      A5O_KEY_PAD_MINUS,  0,
+   /* 0x50 */ 0,                    A5O_KEY_PAD_EQUALS, A5O_KEY_PAD_0,      A5O_KEY_PAD_1,
+   /* 0x54 */ A5O_KEY_PAD_2,    A5O_KEY_PAD_3,      A5O_KEY_PAD_4,      A5O_KEY_PAD_5,
+   /* 0x58 */ A5O_KEY_PAD_6,    A5O_KEY_PAD_7,      0,                      A5O_KEY_PAD_8,
+   /* 0x5c */ A5O_KEY_PAD_9,    0,                      0,                      0,
+   /* 0x60 */ A5O_KEY_F5,       A5O_KEY_F6,         A5O_KEY_F7,         A5O_KEY_F3,
+   /* 0x64 */ A5O_KEY_F8,       A5O_KEY_F9,         0,                      A5O_KEY_F11,
+   /* 0x68 */ 0,                    A5O_KEY_PRINTSCREEN,0,                      A5O_KEY_SCROLLLOCK,
+   /* 0x6c */ 0,                    A5O_KEY_F10,        0,                      A5O_KEY_F12,
+   /* 0x70 */ 0,                    A5O_KEY_PAUSE,      A5O_KEY_INSERT,     A5O_KEY_HOME,
+   /* 0x74 */ A5O_KEY_PGUP,     A5O_KEY_DELETE,     A5O_KEY_F4,         A5O_KEY_END,
+   /* 0x78 */ A5O_KEY_F2,       A5O_KEY_PGDN,       A5O_KEY_F1,         A5O_KEY_LEFT,
+   /* 0x7c */ A5O_KEY_RIGHT,    A5O_KEY_DOWN,       A5O_KEY_UP,         0
 };
 
 
@@ -191,11 +191,11 @@ static const int mac_to_scancode[128] =
 /* get_state:
  *  Copy a snapshot of the keyboard state into the user's structure
  */
-static void get_state(ALLEGRO_KEYBOARD_STATE *ret_state)
+static void get_state(A5O_KEYBOARD_STATE *ret_state)
 {
    _al_event_source_lock(&keyboard.es);
    {
-      memcpy(ret_state, &kbdstate, sizeof(ALLEGRO_KEYBOARD_STATE));
+      memcpy(ret_state, &kbdstate, sizeof(A5O_KEYBOARD_STATE));
    }
    _al_event_source_unlock(&keyboard.es);
 }
@@ -216,7 +216,7 @@ static void clear_state(void)
 
 
 
-static ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
+static A5O_KEYBOARD_DRIVER keyboard_macosx =
 {
    KEYBOARD_MACOSX,
    "",
@@ -225,8 +225,8 @@ static ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
    osx_keyboard_init,
    osx_keyboard_exit,
    osx_get_keyboard,
-   NULL, // ALLEGRO_METHOD(bool, set_leds, (int leds));
-   NULL, // ALLEGRO_METHOD(const char *, keycode_to_name, (int keycode));
+   NULL, // A5O_METHOD(bool, set_leds, (int leds));
+   NULL, // A5O_METHOD(const char *, keycode_to_name, (int keycode));
    get_state,
    clear_state,
 };
@@ -244,7 +244,7 @@ _AL_DRIVER_INFO _al_keyboard_driver_list[] =
 /* _al_osx_get_keyboard_driver:
  *  Returns the keyboard driver.
  */
-ALLEGRO_KEYBOARD_DRIVER* _al_osx_get_keyboard_driver(void)
+A5O_KEYBOARD_DRIVER* _al_osx_get_keyboard_driver(void)
 {
    return &keyboard_macosx;
 }
@@ -254,7 +254,7 @@ ALLEGRO_KEYBOARD_DRIVER* _al_osx_get_keyboard_driver(void)
 /* _al_osx_keyboard_handler:
  *  Keyboard "interrupt" handler.
  */
-void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
+void _al_osx_keyboard_handler(int pressed, NSEvent *event, A5O_DISPLAY* dpy)
 {
    /* We need to distinguish between the raw character code (needed for
     * ctrl and alt) and the "shifted" character code when neither of these
@@ -273,7 +273,7 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
       const unichar upper_character =([upper_characters length] > 0) ?  [upper_characters characterAtIndex: 0] : 0;
       bool is_repeat = pressed ? ([event isARepeat] == YES) : false;
       /* Special processing to send character 1 for CTRL-A, 2 for CTRL-B etc. */
-      if ((key_shifts & ALLEGRO_KEYMOD_CTRL) && (isalpha(raw_character)))
+      if ((key_shifts & A5O_KEYMOD_CTRL) && (isalpha(raw_character)))
          _handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, key_shifts, is_repeat);
       else
          _handle_key_press(dpy, upper_character, scancode, key_shifts, is_repeat);
@@ -288,7 +288,7 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 /* _al_osx_keyboard_modifier:
  *  Handles keyboard modifiers changes.
  */
-void _al_osx_keyboard_modifiers(unsigned int modifiers, ALLEGRO_DISPLAY* dpy)
+void _al_osx_keyboard_modifiers(unsigned int modifiers, A5O_DISPLAY* dpy)
 {
    static unsigned int old_modifiers = 0;
    int i, changed;
@@ -348,7 +348,7 @@ static void osx_keyboard_exit(void)
 /* osx_get_keyboard:
  *  Returns the keyboard object.
  */
-static ALLEGRO_KEYBOARD* osx_get_keyboard(void)
+static A5O_KEYBOARD* osx_get_keyboard(void)
 {
    return &keyboard;
 }

@@ -23,10 +23,10 @@ set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)
 set_our_header_properties(${PRIMITIVES_INCLUDE_FILES})
 
 add_our_addon_library(allegro_primitives
-    AllegroPrimitives-${ALLEGRO_SOVERSION}
+    AllegroPrimitives-${A5O_SOVERSION}
     "${PRIMITIVES_SOURCES};${PRIMITIVES_INCLUDE_FILES}"
-    "-DALLEGRO_PRIMITIVES_SRC"
-    "${ALLEGRO_LINK_WITH}"
+    "-DA5O_PRIMITIVES_SRC"
+    "${A5O_LINK_WITH}"
     )
 
 install_our_headers(${PRIMITIVES_INCLUDE_FILES})

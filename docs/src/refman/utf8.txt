@@ -78,7 +78,7 @@ unit (byte) or code point indices.  In general, all position parameters are
 in code unit offsets.  This may be surprising, but if you think about it, it is
 required for good performance.  (It also means some functions will work even
 if they do not contain UTF-8, since they only care about storing bytes, so
-you may actually store arbitrary data in the ALLEGRO_USTRs.)
+you may actually store arbitrary data in the A5O_USTRs.)
 
 For actual text processing, where you want to specify positions with code point
 indices, you should use [al_ustr_offset] to find the code unit offset position.
@@ -87,17 +87,17 @@ However, most of the time you would probably just work with byte offsets.
 
 ## UTF-8 string types
 
-### API: ALLEGRO_USTR
+### API: A5O_USTR
 
-An opaque type representing a string.  ALLEGRO_USTRs normally contain UTF-8
+An opaque type representing a string.  A5O_USTRs normally contain UTF-8
 encoded strings, but they may be used to hold any byte sequences, including
 NULs.
 
 
-### API: ALLEGRO_USTR_INFO
+### API: A5O_USTR_INFO
 
-A type that holds additional information for an [ALLEGRO_USTR] that references
-an external memory buffer. You can convert it back to [ALLEGRO_USTR] via
+A type that holds additional information for an [A5O_USTR] that references
+an external memory buffer. You can convert it back to [A5O_USTR] via
 [al_ref_info].
 
 See also: [al_ref_cstr], [al_ref_buffer], [al_ref_info] and [al_ref_ustr].
@@ -128,8 +128,8 @@ Create a new string using a printf-style format string.
 
 *Notes:*
 
-The "%s" specifier takes C string arguments, not ALLEGRO_USTRs.  Therefore to
-pass an ALLEGRO_USTR as a parameter you must use [al_cstr], and it must be NUL
+The "%s" specifier takes C string arguments, not A5O_USTRs.  Therefore to
+pass an A5O_USTR as a parameter you must use [al_cstr], and it must be NUL
 terminated.  If the string contains an embedded NUL byte everything from that
 byte onwards will be ignored.
 
@@ -153,19 +153,19 @@ See also: [al_ustr_new], [al_ustr_new_from_buffer], [al_ustr_newf]
 ### API: al_cstr
 
 Get a `char *` pointer to the data in a string.  This pointer will only be
-valid while the [ALLEGRO_USTR] object is not modified and not destroyed.
+valid while the [A5O_USTR] object is not modified and not destroyed.
 The pointer may be passed to functions expecting C-style strings,
 with the following caveats:
 
-* ALLEGRO_USTRs are allowed to contain embedded NUL (`'\0'`) bytes.
+* A5O_USTRs are allowed to contain embedded NUL (`'\0'`) bytes.
   That means `al_ustr_size(u)` and `strlen(al_cstr(u))` may not agree.
 
-* An ALLEGRO_USTR may be created in such a way that it is not NUL terminated.
+* An A5O_USTR may be created in such a way that it is not NUL terminated.
   A string which is dynamically allocated will always be NUL terminated,
   but a string which references the middle of another string or region
   of memory will *not* be NUL terminated.
 
-* If the ALLEGRO_USTR references another string, the returned C string will
+* If the A5O_USTR references another string, the returned C string will
   point into the referenced string. Again, no NUL terminator will be added
   to the referenced string.
 
@@ -233,8 +233,8 @@ The string is valid until the underlying C string disappears.
 Example:
 
 ~~~~c
-ALLEGRO_USTR_INFO info;
-ALLEGRO_USTR *us = al_ref_cstr(&info, "my string");
+A5O_USTR_INFO info;
+A5O_USTR *us = al_ref_cstr(&info, "my string");
 ~~~~
 
 See also: [al_ref_buffer], [al_ref_ustr]
@@ -254,7 +254,7 @@ See also: [al_ref_cstr], [al_ref_ustr]
 ### API: al_ref_ustr
 
 Create a read-only string that references the storage of another
-[ALLEGRO_USTR] string.
+[A5O_USTR] string.
 The information about the string (e.g. its size) is stored in the structure
 pointed to by the `info` parameter.  The new string will not have any other
 storage allocated of its own, so if you allocate the `info` structure on the
@@ -272,8 +272,8 @@ See also: [al_ref_cstr], [al_ref_buffer]
 
 ### API: al_ref_info
 
-Create a read-only string that references the storage of another [ALLEGRO_USTR]
-string that has already been stored in the [ALLEGRO_USTR_INFO] structure.
+Create a read-only string that references the storage of another [A5O_USTR]
+string that has already been stored in the [A5O_USTR_INFO] structure.
 
 The string is valid until the underlying string is modified or destroyed.
 
@@ -419,7 +419,7 @@ Returns true on success, false on error.
 This function can be used to append an arbitrary buffer:
 
 ~~~~c
-  ALLEGRO_USTR_INFO info;
+  A5O_USTR_INFO info;
   al_ustr_append(us, al_ref_buffer(&info, buf, size));
 ~~~~
 

@@ -1,16 +1,16 @@
-#define ALLEGRO_INTERNAL_UNSTABLE
+#define A5O_INTERNAL_UNSTABLE
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
 
-ALLEGRO_DEBUG_CHANNEL("SDL")
+A5O_DEBUG_CHANNEL("SDL")
 
 typedef struct SDL_VOICE
 {
    SDL_AudioDeviceID device;
    SDL_AudioSpec spec;
-   ALLEGRO_VOICE *voice;
+   A5O_VOICE *voice;
    bool is_playing;
 } SDL_VOICE;
 
@@ -29,8 +29,8 @@ static void audio_callback(void *userdata, Uint8 *stream, int len)
    // can't figure out what their purpose is and how would I play them...
 
    SDL_VOICE *sv = userdata;
-   ALLEGRO_SAMPLE_INSTANCE *instance = sv->voice->attached_stream;
-   ALLEGRO_SAMPLE *sample = &instance->spl_data;
+   A5O_SAMPLE_INSTANCE *instance = sv->voice->attached_stream;
+   A5O_SAMPLE *sample = &instance->spl_data;
 
    unsigned int frames = sv->spec.samples;
    const void *data = _al_voice_update(sv->voice, sv->voice->mutex, &frames);
@@ -49,25 +49,25 @@ static void sdl_close(void)
 {
 }
 
-static SDL_AudioFormat allegro_format_to_sdl(ALLEGRO_AUDIO_DEPTH d)
+static SDL_AudioFormat allegro_format_to_sdl(A5O_AUDIO_DEPTH d)
 {
-   if (d == ALLEGRO_AUDIO_DEPTH_INT8) return AUDIO_S8;
-   if (d == ALLEGRO_AUDIO_DEPTH_UINT8) return AUDIO_U8;
-   if (d == ALLEGRO_AUDIO_DEPTH_INT16) return AUDIO_S16;
-   if (d == ALLEGRO_AUDIO_DEPTH_UINT16) return AUDIO_U16;
+   if (d == A5O_AUDIO_DEPTH_INT8) return AUDIO_S8;
+   if (d == A5O_AUDIO_DEPTH_UINT8) return AUDIO_U8;
+   if (d == A5O_AUDIO_DEPTH_INT16) return AUDIO_S16;
+   if (d == A5O_AUDIO_DEPTH_UINT16) return AUDIO_U16;
    return AUDIO_F32;
 }
 
-static ALLEGRO_AUDIO_DEPTH sdl_format_to_allegro(SDL_AudioFormat d)
+static A5O_AUDIO_DEPTH sdl_format_to_allegro(SDL_AudioFormat d)
 {
-   if (d == AUDIO_S8) return ALLEGRO_AUDIO_DEPTH_INT8;
-   if (d == AUDIO_U8) return ALLEGRO_AUDIO_DEPTH_UINT8;
-   if (d == AUDIO_S16) return ALLEGRO_AUDIO_DEPTH_INT16;
-   if (d == AUDIO_U16) return ALLEGRO_AUDIO_DEPTH_UINT16;
-   return ALLEGRO_AUDIO_DEPTH_FLOAT32;
+   if (d == AUDIO_S8) return A5O_AUDIO_DEPTH_INT8;
+   if (d == AUDIO_U8) return A5O_AUDIO_DEPTH_UINT8;
+   if (d == AUDIO_S16) return A5O_AUDIO_DEPTH_INT16;
+   if (d == AUDIO_U16) return A5O_AUDIO_DEPTH_UINT16;
+   return A5O_AUDIO_DEPTH_FLOAT32;
 }
 
-static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
+static int sdl_allocate_voice(A5O_VOICE *voice)
 {
    SDL_VOICE *sv = al_malloc(sizeof *sv);
    SDL_AudioSpec want;
@@ -92,7 +92,7 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
    return 0;
 }
 
-static void sdl_deallocate_voice(ALLEGRO_VOICE *voice)
+static void sdl_deallocate_voice(A5O_VOICE *voice)
 {
    SDL_VOICE *sv = voice->extra;
    _al_list_destroy(output_device_list);
@@ -100,19 +100,19 @@ static void sdl_deallocate_voice(ALLEGRO_VOICE *voice)
    al_free(sv);
 }
 
-static int sdl_load_voice(ALLEGRO_VOICE *voice, const void *data)
+static int sdl_load_voice(A5O_VOICE *voice, const void *data)
 {
    (void)data;
    voice->attached_stream->pos = 0;
    return 0;
 }
 
-static void sdl_unload_voice(ALLEGRO_VOICE *voice)
+static void sdl_unload_voice(A5O_VOICE *voice)
 {
    (void) voice;
 }
 
-static int sdl_start_voice(ALLEGRO_VOICE *voice)
+static int sdl_start_voice(A5O_VOICE *voice)
 {
    SDL_VOICE *sv = voice->extra;
    sv->is_playing = true;
@@ -120,7 +120,7 @@ static int sdl_start_voice(ALLEGRO_VOICE *voice)
    return 0;
 }
 
-static int sdl_stop_voice(ALLEGRO_VOICE *voice)
+static int sdl_stop_voice(A5O_VOICE *voice)
 {
    SDL_VOICE *sv = voice->extra;
    sv->is_playing = false;
@@ -128,18 +128,18 @@ static int sdl_stop_voice(ALLEGRO_VOICE *voice)
    return 0;
 }
 
-static bool sdl_voice_is_playing(const ALLEGRO_VOICE *voice)
+static bool sdl_voice_is_playing(const A5O_VOICE *voice)
 {
    SDL_VOICE *sv = voice->extra;
    return sv->is_playing;
 }
 
-static unsigned int sdl_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int sdl_get_voice_position(const A5O_VOICE *voice)
 {
    return voice->attached_stream->pos;
 }
 
-static int sdl_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
+static int sdl_set_voice_position(A5O_VOICE *voice, unsigned int pos)
 {
    voice->attached_stream->pos = pos;
    return 0;
@@ -147,7 +147,7 @@ static int sdl_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
 
 static void recorder_callback(void *userdata, Uint8 *stream, int len)
 {
-   ALLEGRO_AUDIO_RECORDER *r = (ALLEGRO_AUDIO_RECORDER *) userdata;
+   A5O_AUDIO_RECORDER *r = (A5O_AUDIO_RECORDER *) userdata;
    SDL_RECORDER *sdl = (SDL_RECORDER *) r->extra;
 
    al_lock_mutex(r->mutex);
@@ -160,9 +160,9 @@ static void recorder_callback(void *userdata, Uint8 *stream, int len)
       int count = SDL_min(len, r->samples * r->sample_size);
       memcpy(r->fragments[sdl->fragment], stream, count);
 
-      ALLEGRO_EVENT user_event;
-      ALLEGRO_AUDIO_RECORDER_EVENT *e;
-      user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+      A5O_EVENT user_event;
+      A5O_AUDIO_RECORDER_EVENT *e;
+      user_event.user.type = A5O_EVENT_AUDIO_RECORDER_FRAGMENT;
       e = al_get_audio_recorder_event(&user_event);
       e->buffer = r->fragments[sdl->fragment];
       e->samples = count / r->sample_size;
@@ -178,13 +178,13 @@ static void recorder_callback(void *userdata, Uint8 *stream, int len)
    al_unlock_mutex(r->mutex);
 }
 
-static int sdl_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+static int sdl_allocate_recorder(A5O_AUDIO_RECORDER *r)
 {
    SDL_RECORDER *sdl;
 
    sdl = al_calloc(1, sizeof(*sdl));
    if (!sdl) {
-     ALLEGRO_ERROR("Unable to allocate memory for SDL_RECORDER.\n");
+     A5O_ERROR("Unable to allocate memory for SDL_RECORDER.\n");
      return 1;
    }
 
@@ -207,7 +207,7 @@ static int sdl_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    return 0;
 }
 
-static void sdl_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+static void sdl_deallocate_recorder(A5O_AUDIO_RECORDER *r)
 {
    SDL_RECORDER *sdl = (SDL_RECORDER *) r->extra;
    SDL_CloseAudioDevice(sdl->device);
@@ -218,7 +218,7 @@ static void _output_device_list_dtor(void* value, void* userdata)
 {
    (void)userdata;
 
-   ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)value;
+   A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)value;
    al_free(device->name);
    al_free(device);
 }
@@ -232,7 +232,7 @@ static _AL_LIST* sdl_get_output_devices(void)
       for (i = 0; i < count; ++i) {
          int len = strlen(SDL_GetAudioDeviceName(i, 0)) + 1;
 
-         ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
+         A5O_AUDIO_DEVICE* device = (A5O_AUDIO_DEVICE*)al_malloc(sizeof(A5O_AUDIO_DEVICE));
          device->name = (char*)al_malloc(len);
          device->identifier = device->name; // Name returned by SDL2 is used to identify devices.
          strcpy(device->name, SDL_GetAudioDeviceName(i, 0));
@@ -244,7 +244,7 @@ static _AL_LIST* sdl_get_output_devices(void)
    return output_device_list;
 }
 
-ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
+A5O_AUDIO_DRIVER _al_kcm_sdl_driver =
 {
    "SDL",
 

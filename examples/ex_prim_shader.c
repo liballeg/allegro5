@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 
@@ -27,8 +27,8 @@ static void setup_vertex(CUSTOM_VERTEX* vtx, int ring, int segment, bool inside)
 {
    float len;
    float x, y, z;
-   x = ring * RING_SIZE * cosf(2 * ALLEGRO_PI * segment / NUM_SEGMENTS);
-   y = ring * RING_SIZE * sinf(2 * ALLEGRO_PI * segment / NUM_SEGMENTS);
+   x = ring * RING_SIZE * cosf(2 * A5O_PI * segment / NUM_SEGMENTS);
+   y = ring * RING_SIZE * sinf(2 * A5O_PI * segment / NUM_SEGMENTS);
    vtx->x = x + SCREEN_WIDTH / 2;
    vtx->y = y + SCREEN_HEIGHT / 2;
 
@@ -53,15 +53,15 @@ static void setup_vertex(CUSTOM_VERTEX* vtx, int ring, int segment, bool inside)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
    bool redraw = true;
-   ALLEGRO_SHADER *shader;
-   ALLEGRO_VERTEX_DECL *vertex_decl;
-   ALLEGRO_VERTEX_ELEMENT vertex_elems[] = {
-      {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_2, offsetof(CUSTOM_VERTEX, x)},
-      {ALLEGRO_PRIM_USER_ATTR, ALLEGRO_PRIM_FLOAT_3, offsetof(CUSTOM_VERTEX, nx)},
+   A5O_SHADER *shader;
+   A5O_VERTEX_DECL *vertex_decl;
+   A5O_VERTEX_ELEMENT vertex_elems[] = {
+      {A5O_PRIM_POSITION, A5O_PRIM_FLOAT_2, offsetof(CUSTOM_VERTEX, x)},
+      {A5O_PRIM_USER_ATTR, A5O_PRIM_FLOAT_3, offsetof(CUSTOM_VERTEX, nx)},
       {0, 0, 0}
    };
    CUSTOM_VERTEX vertices[NUM_VERTICES];
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
       abort_example("Could not init primitives addon.\n");
    }
    init_platform_specific();
-   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
+   al_set_new_display_flags(A5O_PROGRAMMABLE_PIPELINE);
    display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
    if (!display) {
       abort_example("Error creating display.\n");
@@ -114,13 +114,13 @@ int main(int argc, char **argv)
       }
    }
 
-   shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+   shader = al_create_shader(A5O_SHADER_AUTO);
 
    if (!shader) {
       abort_example("Failed to create shader.");
    }
 
-   if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+   if (al_get_shader_platform(shader) == A5O_SHADER_GLSL) {
       vertex_shader_file = "data/ex_prim_shader_vertex.glsl";
       pixel_shader_file = "data/ex_prim_shader_pixel.glsl";
    }
@@ -129,11 +129,11 @@ int main(int argc, char **argv)
       pixel_shader_file = "data/ex_prim_shader_pixel.hlsl";
    }
 
-   if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vertex_shader_file)) {
+   if (!al_attach_shader_source_file(shader, A5O_VERTEX_SHADER, vertex_shader_file)) {
       abort_example("al_attach_shader_source_file for vertex shader failed: %s\n",
          al_get_shader_log(shader));
    }
-   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_shader_file)) {
+   if (!al_attach_shader_source_file(shader, A5O_PIXEL_SHADER, pixel_shader_file)) {
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n",
          al_get_shader_log(shader));
    }
@@ -160,22 +160,22 @@ int main(int argc, char **argv)
    al_start_timer(timer);
 
    while (!quit) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
 
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             quit = true;
             break;
-         case ALLEGRO_EVENT_MOUSE_AXES:
+         case A5O_EVENT_MOUSE_AXES:
             light_position[0] = event.mouse.x;
             light_position[1] = event.mouse.y;
             break;
-         case ALLEGRO_EVENT_KEY_CHAR:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_CHAR:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                quit = true;
             break;
-         case ALLEGRO_EVENT_TIMER:
+         case A5O_EVENT_TIMER:
             redraw = true;
             break;
       }
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
          al_set_shader_float_vector("light_position", 3, light_position, 1);
-         al_draw_prim(vertices, vertex_decl, NULL, 0, NUM_VERTICES, ALLEGRO_PRIM_TRIANGLE_LIST);
+         al_draw_prim(vertices, vertex_decl, NULL, 0, NUM_VERTICES, A5O_PRIM_TRIANGLE_LIST);
 
          al_flip_display();
          redraw = false;

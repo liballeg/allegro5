@@ -8,7 +8,7 @@
 
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("gtk")
+A5O_DEBUG_CHANNEL("gtk")
 
 
 /* GTK is not thread safe.  We launch a single thread which runs the GTK main
@@ -42,7 +42,7 @@ static void *nd_gtk_thread_func(void *data)
 {
    GAsyncQueue *queue = data;
 
-   ALLEGRO_DEBUG("GLIB %d.%d.%d\n",
+   A5O_DEBUG("GLIB %d.%d.%d\n",
       GLIB_MAJOR_VERSION,
       GLIB_MINOR_VERSION,
       GLIB_MICRO_VERSION);
@@ -51,7 +51,7 @@ static void *nd_gtk_thread_func(void *data)
 
    gtk_main();
 
-   ALLEGRO_INFO("GTK stopped.\n");
+   A5O_INFO("GTK stopped.\n");
    return NULL;
 }
 
@@ -73,7 +73,7 @@ bool _al_gtk_ensure_thread(void)
       int argc = 0;
       char **argv = NULL;
       if (!gtk_init_check(&argc, &argv)) {
-         ALLEGRO_ERROR("gtk_init_check failed\n");
+         A5O_ERROR("gtk_init_check failed\n");
          return false;
       }
    }

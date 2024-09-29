@@ -6,11 +6,11 @@
  *      and the big one for the alt-tab popup, for example.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include "allegro5/allegro_image.h"
 
-#ifdef ALLEGRO_UNIX
+#ifdef A5O_UNIX
 #include <allegro5/allegro_x.h>
 #endif
 
@@ -20,9 +20,9 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *icons[NUM_ICONS];
-   ALLEGRO_EVENT_QUEUE *queue;
+   A5O_DISPLAY *display;
+   A5O_BITMAP *icons[NUM_ICONS];
+   A5O_EVENT_QUEUE *queue;
    int u, v;
 
    (void)argc;
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
       abort_example("icons.tga not found\n");
    }
 
-#if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_RASPBERRYPI)
+#if defined(A5O_UNIX) && !defined(A5O_RASPBERRYPI)
    al_x_set_initial_icon(icons[0]);
 #endif
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
    al_flip_display();
 
    /* Second icon 32x32: Create it. */
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
    icons[1] = al_create_bitmap(32, 32);
    al_set_target_bitmap(icons[1]);
    for (v = 0; v < 32; v++) {
@@ -70,14 +70,14 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_display_event_source(display));
 
    for (;;) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
    }

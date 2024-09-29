@@ -50,19 +50,19 @@ typedef struct {
 } BUTTON_MAPPING;
 
 
-typedef struct ALLEGRO_JOYSTICK_LINUX
+typedef struct A5O_JOYSTICK_LINUX
 {
-   ALLEGRO_JOYSTICK parent;
+   A5O_JOYSTICK parent;
    int config_state;
    bool marked;
    int fd;
-   ALLEGRO_USTR *device_name;
+   A5O_USTR *device_name;
 
    AXIS_MAPPING axis_mapping[TOTAL_JOYSTICK_AXES];
    BUTTON_MAPPING button_mapping[_AL_MAX_JOYSTICK_BUTTONS];
-   ALLEGRO_JOYSTICK_STATE joystate;
+   A5O_JOYSTICK_STATE joystate;
    char name[100];
-} ALLEGRO_JOYSTICK_LINUX;
+} A5O_JOYSTICK_LINUX;
 
 
 #endif

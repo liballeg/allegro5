@@ -21,7 +21,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_joystick.h"
 
-#ifndef ALLEGRO_WINDOWS
+#ifndef A5O_WINDOWS
 #error something is wrong with the makefile
 #endif
 
@@ -29,7 +29,7 @@
 
 _AL_BEGIN_JOYSTICK_DRIVER_LIST
 _AL_JOYSTICK_DRIVER_DIRECTX
-#ifdef ALLEGRO_CFG_XINPUT 
+#ifdef A5O_CFG_XINPUT 
 _AL_JOYSTICK_DRIVER_XINPUT
 _AL_JOYSTICK_DRIVER_WINDOWS_ALL
 #endif

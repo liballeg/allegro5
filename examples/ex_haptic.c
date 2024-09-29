@@ -4,18 +4,18 @@
  *    This program tests haptic effects.
  */
 
-#define ALLEGRO_UNSTABLE
+#define A5O_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "common.c"
 
 
-static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
+static void test_haptic_joystick(A5O_JOYSTICK *joy)
 {
-   ALLEGRO_HAPTIC_EFFECT_ID id;
-   ALLEGRO_HAPTIC *haptic;
-   ALLEGRO_HAPTIC_EFFECT effect;
+   A5O_HAPTIC_EFFECT_ID id;
+   A5O_HAPTIC *haptic;
+   A5O_HAPTIC_EFFECT effect;
    const double intensity = 1.0;
    const double duration = 1.0;
 
@@ -39,7 +39,7 @@ static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
       al_get_haptic_capabilities(haptic));
 
    memset(&effect, 0, sizeof(effect));
-   effect.type = ALLEGRO_HAPTIC_RUMBLE;
+   effect.type = A5O_HAPTIC_RUMBLE;
    effect.data.rumble.strong_magnitude = intensity;
    effect.data.rumble.weak_magnitude = intensity;
    effect.replay.delay = 0.1;
@@ -83,7 +83,7 @@ static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
    int num_joysticks;
    int i;
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
    log_printf("Found %d joysticks.\n", num_joysticks);
    
    for (i = 0; i < num_joysticks; i++) {
-      ALLEGRO_JOYSTICK *joy = al_get_joystick(i);
+      A5O_JOYSTICK *joy = al_get_joystick(i);
       if (!joy) {
          continue;
       }

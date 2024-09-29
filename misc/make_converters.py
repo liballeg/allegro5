@@ -13,9 +13,9 @@ def read_color_h(filename):
     for line in open(filename):
         line = line.strip()
         if line == "{": continue
-        if line == "typedef enum ALLEGRO_PIXEL_FORMAT": inside_enum = True
+        if line == "typedef enum A5O_PIXEL_FORMAT": inside_enum = True
         elif inside_enum:
-            match = re.match(r"\s*ALLEGRO_PIXEL_FORMAT_(\w+)", line)
+            match = re.match(r"\s*A5O_PIXEL_FORMAT_(\w+)", line)
             if match:
                 formats.append(match.group(1))
             else:
@@ -255,12 +255,12 @@ def converter_macro(info_a, info_b):
     """
     if not info_a or not info_b: return None
 
-    name = "ALLEGRO_CONVERT_" + info_a.name + "_TO_" + info_b.name
+    name = "A5O_CONVERT_" + info_a.name + "_TO_" + info_b.name
 
     r = ""
 
     if info_a.little_endian or info_b.little_endian:
-        r += "#ifdef ALLEGRO_BIG_ENDIAN\n"
+        r += "#ifdef A5O_BIG_ENDIAN\n"
         r += "#define " + name + "(x) \\\n"
         if info_a.name == "ABGR_8888_LE":
             r += macro_lines(formats_by_name["RGBA_8888"], info_b)
@@ -315,7 +315,7 @@ def converter_function(info_a, info_b):
     params += "   int sx, int sy, int dx, int dy, int width, int height"
     declaration = "static void " + name + "(" + params + ")"
 
-    macro_name = "ALLEGRO_CONVERT_" + info_a.name + "_TO_" + info_b.name
+    macro_name = "A5O_CONVERT_" + info_a.name + "_TO_" + info_b.name
 
     types_and_sizes = {
         8 : ("uint8_t", "", 1),
@@ -323,7 +323,7 @@ def converter_function(info_a, info_b):
         16 : ("uint16_t", "", 2),
         24: ("uint8_t", " * 3", 1),
         32 : ("uint32_t", "", 4),
-        128 : ("ALLEGRO_COLOR", "", 16)}
+        128 : ("A5O_COLOR", "", 16)}
     a_type, a_count, a_size = types_and_sizes[info_a.size]
     b_type, b_count, b_size = types_and_sizes[info_b.size]
 
@@ -336,7 +336,7 @@ def converter_function(info_a, info_b):
 
         if a_count != "":
             s_conversion = """\
-         #ifdef ALLEGRO_BIG_ENDIAN
+         #ifdef A5O_BIG_ENDIAN
          int src_pixel = src_ptr[2] | (src_ptr[1] << 8) | (src_ptr[0] << 16);
          #else
          int src_pixel = src_ptr[0] | (src_ptr[1] << 8) | (src_ptr[2] << 16);
@@ -345,7 +345,7 @@ def converter_function(info_a, info_b):
 
         if b_count != "":
             d_conversion = """\
-         #ifdef ALLEGRO_BIG_ENDIAN
+         #ifdef A5O_BIG_ENDIAN
          dst_ptr[0] = dst_pixel >> 16;
          dst_ptr[1] = dst_pixel >> 8;
          dst_ptr[2] = dst_pixel;
@@ -419,8 +419,8 @@ def write_convert_c(filename):
             f.write(function)
 
     f.write("""\
-void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
-   [ALLEGRO_NUM_PIXEL_FORMATS])(const void *, int, void *, int,
+void (*_al_convert_funcs[A5O_NUM_PIXEL_FORMATS]
+   [A5O_NUM_PIXEL_FORMATS])(const void *, int, void *, int,
    int, int, int, int, int, int) = {
 """)
     for a in formats_list:

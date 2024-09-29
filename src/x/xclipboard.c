@@ -26,25 +26,25 @@
 #include "allegro5/internal/aintern_xdisplay.h"
 #include "allegro5/internal/aintern_xsystem.h"
 
-#ifdef ALLEGRO_RASPBERRYPI
+#ifdef A5O_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
-#define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
-#define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
+#define A5O_SYSTEM_XGLX A5O_SYSTEM_RASPBERRYPI
+#define A5O_DISPLAY_XGLX A5O_DISPLAY_RASPBERRYPI
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("clipboard")
+A5O_DEBUG_CHANNEL("clipboard")
 
 
-void _al_xwin_display_selection_notify(ALLEGRO_DISPLAY *display, XSelectionEvent *xselection)
+void _al_xwin_display_selection_notify(A5O_DISPLAY *display, XSelectionEvent *xselection)
 {
    (void) display; (void) xselection;
 }
 
 
-void _al_xwin_display_selection_request(ALLEGRO_DISPLAY *display, XSelectionRequestEvent *xselectionrequest)
+void _al_xwin_display_selection_request(A5O_DISPLAY *display, XSelectionRequestEvent *xselectionrequest)
 {
    (void) display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *xdisplay = system->x11display;
 
 
@@ -57,7 +57,7 @@ void _al_xwin_display_selection_request(ALLEGRO_DISPLAY *display, XSelectionRequ
 
    req = xselectionrequest;
 
-   ALLEGRO_DEBUG("window %p: SelectionRequest (requestor = %ld, target = %ld)\n", xdisplay,
+   A5O_DEBUG("window %p: SelectionRequest (requestor = %ld, target = %ld)\n", xdisplay,
                  req->requestor, req->target);
 
    memset(&sevent, 0, sizeof(sevent));
@@ -94,13 +94,13 @@ void _al_xwin_display_selection_request(ALLEGRO_DISPLAY *display, XSelectionRequ
 
 
 /* Waits for a selection (copy/paste or DND event) */
-static bool _al_display_xglx_await_selection_event(ALLEGRO_DISPLAY *d)
+static bool _al_display_xglx_await_selection_event(A5O_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   ALLEGRO_TIMEOUT timeout;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (A5O_DISPLAY_XGLX *)d;
+   A5O_TIMEOUT timeout;
 
-   ALLEGRO_DEBUG("Awaiting selection event\n");
+   A5O_DEBUG("Awaiting selection event\n");
 
    XSync(system->x11display, False);
 
@@ -109,7 +109,7 @@ static bool _al_display_xglx_await_selection_event(ALLEGRO_DISPLAY *d)
     */
    al_init_timeout(&timeout, 1.0);
    if (_al_cond_timedwait(&glx->selectioned, &system->lock, &timeout) == -1) {
-      ALLEGRO_ERROR("Timeout while waiting for selection event.\n");
+      A5O_ERROR("Timeout while waiting for selection event.\n");
       return false;
    }
 
@@ -117,11 +117,11 @@ static bool _al_display_xglx_await_selection_event(ALLEGRO_DISPLAY *d)
 }
 
 
-static bool xdpy_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
+static bool xdpy_set_clipboard_text(A5O_DISPLAY *display, const char *text)
 {
 
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (void *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 
@@ -130,7 +130,7 @@ static bool xdpy_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
 
    /* Get the window that will own the selection */
    if (xwindow == None) {
-      ALLEGRO_DEBUG("Couldn't find a window to own the selection");
+      A5O_DEBUG("Couldn't find a window to own the selection");
       return false;
    }
 
@@ -154,10 +154,10 @@ static bool xdpy_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
 }
 
 
-static char *xdpy_get_clipboard_text(ALLEGRO_DISPLAY *display)
+static char *xdpy_get_clipboard_text(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   A5O_DISPLAY_XGLX *glx = (void *)display;
+   A5O_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 
@@ -173,7 +173,7 @@ static char *xdpy_get_clipboard_text(ALLEGRO_DISPLAY *display)
 
    Atom XA_CLIPBOARD = XInternAtom(xdisplay, "CLIPBOARD", 0);
    if (XA_CLIPBOARD == None) {
-      ALLEGRO_DEBUG("Couldn't access X clipboard");
+      A5O_DEBUG("Couldn't access X clipboard");
       return NULL;
    }
 
@@ -186,7 +186,7 @@ static char *xdpy_get_clipboard_text(ALLEGRO_DISPLAY *display)
    } else {
       /* Request that the selection owner copy the data to our window. */
       owner = xwindow;
-      selection = XInternAtom(xdisplay, "ALLEGRO_SELECTION", False);
+      selection = XInternAtom(xdisplay, "A5O_SELECTION", False);
       XConvertSelection(xdisplay, XA_CLIPBOARD, format, selection, owner,
                         CurrentTime);
 
@@ -210,7 +210,7 @@ static char *xdpy_get_clipboard_text(ALLEGRO_DISPLAY *display)
    return text;
 }
 
-static bool xdpy_has_clipboard_text(ALLEGRO_DISPLAY *display)
+static bool xdpy_has_clipboard_text(A5O_DISPLAY *display)
 {
    char *text = xdpy_get_clipboard_text(display);
 
@@ -224,7 +224,7 @@ static bool xdpy_has_clipboard_text(ALLEGRO_DISPLAY *display)
 
 
 
-void _al_xwin_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
+void _al_xwin_add_clipboard_functions(A5O_DISPLAY_INTERFACE *vt)
 {
    vt->set_clipboard_text = xdpy_set_clipboard_text;
    vt->get_clipboard_text = xdpy_get_clipboard_text;

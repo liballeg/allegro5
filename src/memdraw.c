@@ -35,10 +35,10 @@ typedef struct {
 } float4;
 
 
-void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, float x, float y,
-   ALLEGRO_COLOR *color)
+void _al_draw_pixel_memory(A5O_BITMAP *bitmap, float x, float y,
+   A5O_COLOR *color)
 {
-   ALLEGRO_COLOR result;
+   A5O_COLOR result;
    int ix, iy;
    /*
     * Probably not worth it to check for identity
@@ -51,9 +51,9 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, float x, float y,
 }
 
 
-void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
+void _al_clear_bitmap_by_locking(A5O_BITMAP *bitmap, A5O_COLOR *color)
 {
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_LOCKED_REGION *lr;
    int x1, y1, w, h;
    int x, y;
    unsigned char *line_ptr;
@@ -62,7 +62,7 @@ void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
     * video bitmaps which are not the current target, or when locked.
     */
    ASSERT(bitmap);
-   ASSERT((al_get_bitmap_flags(bitmap) & (ALLEGRO_MEMORY_BITMAP | _ALLEGRO_INTERNAL_OPENGL)) ||
+   ASSERT((al_get_bitmap_flags(bitmap) & (A5O_MEMORY_BITMAP | _A5O_INTERNAL_OPENGL)) ||
           _al_pixel_format_is_compressed(al_get_bitmap_format(bitmap)));
 
    x1 = bitmap->cl;
@@ -74,7 +74,7 @@ void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
       return;
 
    /* XXX what about pre-locked bitmaps? */
-   lr = al_lock_bitmap_region(bitmap, x1, y1, w, h, ALLEGRO_PIXEL_FORMAT_ANY, 0);
+   lr = al_lock_bitmap_region(bitmap, x1, y1, w, h, A5O_PIXEL_FORMAT_ANY, 0);
    if (!lr)
       return;
 

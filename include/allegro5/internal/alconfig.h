@@ -18,8 +18,8 @@
 
 /* for backward compatibility */
 #ifdef USE_CONSOLE
-   #define ALLEGRO_NO_MAGIC_MAIN
-   #define ALLEGRO_USE_CONSOLE
+   #define A5O_NO_MAGIC_MAIN
+   #define A5O_USE_CONSOLE
 #endif
 
 
@@ -29,25 +29,25 @@
 
 
 
-#if defined ALLEGRO_WATCOM
+#if defined A5O_WATCOM
    #include "allegro5/platform/alwatcom.h"
-#elif defined ALLEGRO_MINGW32
+#elif defined A5O_MINGW32
    #include "allegro5/platform/almngw32.h"
-#elif defined ALLEGRO_BCC32
+#elif defined A5O_BCC32
    #include "allegro5/platform/albcc32.h"
-#elif defined ALLEGRO_MSVC
+#elif defined A5O_MSVC
    #include "allegro5/platform/almsvc.h"
-#elif defined ALLEGRO_IPHONE
+#elif defined A5O_IPHONE
    #include "allegro5/platform/aliphonecfg.h"
-#elif defined ALLEGRO_MACOSX
+#elif defined A5O_MACOSX
    #include "allegro5/platform/alosxcfg.h"
-#elif defined ALLEGRO_ANDROID
+#elif defined A5O_ANDROID
    #include "allegro5/platform/alandroidcfg.h"
-#elif defined ALLEGRO_RASPBERRYPI
+#elif defined A5O_RASPBERRYPI
    #include "allegro5/platform/alraspberrypicfg.h"
-#elif defined ALLEGRO_UNIX
+#elif defined A5O_UNIX
    #include "allegro5/platform/alucfg.h"
-#elif defined ALLEGRO_SDL
+#elif defined A5O_SDL
    #include "allegro5/platform/allegro_sdl_config.h"
 #else
    #error platform not supported
@@ -59,11 +59,11 @@
 
 
 /* 1 << 31 represented as a signed int */
-#define _ALLEGRO_UNSTABLE_BIT_SET INT32_MIN
+#define _A5O_UNSTABLE_BIT_SET INT32_MIN
 
 /* special definitions for the GCC compiler */
 #ifdef __GNUC__
-   #define ALLEGRO_GCC
+   #define A5O_GCC
 
    #ifndef AL_INLINE
       #ifdef __cplusplus
@@ -109,21 +109,21 @@
       #endif
    #endif
    
-   #ifdef ALLEGRO_GUESS_INTTYPES_OK
+   #ifdef A5O_GUESS_INTTYPES_OK
       #define int64_t      signed long long
       #define uint64_t     unsigned long long
    #endif
 
    #ifdef __i386__
-      #define ALLEGRO_I386
+      #define A5O_I386
    #endif
 
    #ifdef __amd64__
-      #define ALLEGRO_AMD64
+      #define A5O_AMD64
    #endif
    
    #ifdef __arm__
-      #define ALLEGRO_ARM
+      #define A5O_ARM
    #endif
 
    #ifndef AL_FUNC_DEPRECATED
@@ -225,7 +225,7 @@
 #endif
 
 /* endian-independent 3-byte accessor macros */
-#ifdef ALLEGRO_LITTLE_ENDIAN
+#ifdef A5O_LITTLE_ENDIAN
 
    #define _AL_READ3BYTES(p)   ((*(unsigned char *)(p))            \
                              | (*((unsigned char *)(p) + 1) << 8)  \
@@ -235,7 +235,7 @@
                                  (*((unsigned char *)(p) + 1) = (c) >> 8),  \
                                  (*((unsigned char *)(p) + 2) = (c) >> 16))
 
-#elif defined ALLEGRO_BIG_ENDIAN
+#elif defined A5O_BIG_ENDIAN
 
    #define _AL_READ3BYTES(p)  ((*(unsigned char *)(p) << 16)       \
                              | (*((unsigned char *)(p) + 1) << 8)  \

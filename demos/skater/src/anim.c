@@ -8,7 +8,7 @@
 double LastSpeedStore = 0, LastSpeed;
 int OnLand;
 
-ALLEGRO_BITMAP *GetCurrentBitmap(struct Animation *Anim)
+A5O_BITMAP *GetCurrentBitmap(struct Animation *Anim)
 {
    LastSpeedStore = LastSpeed;
    if (Anim->SkateVoice) {
@@ -45,7 +45,7 @@ struct Animation *SeedPlayerAnimation(void)
 {
    struct Animation *Anim =
       (struct Animation *)malloc(sizeof(struct Animation));
-   ALLEGRO_SAMPLE *Sound;
+   A5O_SAMPLE *Sound;
 
    Anim->Animation[0] = ObtainBitmap("skater2");
    Anim->Animation[1] = ObtainBitmap("skater3");
@@ -58,7 +58,7 @@ struct Animation *SeedPlayerAnimation(void)
 
    if ((Sound = ObtainSample("skating"))) {
       Anim->SkateVoice = al_create_sample_instance(Sound);
-      al_set_sample_instance_playmode(Anim->SkateVoice, ALLEGRO_PLAYMODE_BIDIR);
+      al_set_sample_instance_playmode(Anim->SkateVoice, A5O_PLAYMODE_BIDIR);
    } else
       Anim->SkateVoice = NULL;
 
@@ -93,7 +93,7 @@ void UnpauseAnimation(struct Animation *Anim)
 }
 
 /*
-ALLEGRO_BITMAP *GetCurrentBitmap(struct Animation *Anim)
+A5O_BITMAP *GetCurrentBitmap(struct Animation *Anim)
 {
 	return Anim->bmps[((int)Anim->TimeCount)&3];
 }
@@ -106,7 +106,7 @@ void AdvanceAnimation(struct Animation *Anim, double Distance, int OnPlatform, i
 struct Animation *SeedPlayerAnimation(void)
 {
 	struct Animation *Anim = (struct Animation *)malloc(sizeof(struct Animation));
-	Anim->bmps = (ALLEGRO_BITMAP **)malloc(sizeof(ALLEGRO_BITMAP *)*4);
+	Anim->bmps = (A5O_BITMAP **)malloc(sizeof(A5O_BITMAP *)*4);
 	Anim->bmps[0] = load_bitmap("man-frame1.bmp", NULL);
 	Anim->bmps[1] = load_bitmap("man-frame2.bmp", NULL);
 	Anim->bmps[2] = load_bitmap("man-frame3.bmp", NULL);

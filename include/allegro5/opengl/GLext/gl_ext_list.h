@@ -302,7 +302,7 @@ AGL_EXT(MESAX_texture_stack,           0)
 AGL_EXT(EXT_timer_query,               0)
 AGL_EXT(EXT_gpu_program_parameters,    0)
 AGL_EXT(APPLE_flush_buffer_range,      0)
-#ifdef ALLEGRO_MACOSX
+#ifdef A5O_MACOSX
 AGL_EXT(EXT_texture_rectangle,         0)
 #endif
 AGL_EXT(EXT_bindable_uniform,          0)

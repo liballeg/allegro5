@@ -1,1 +1,1 @@
-#cmakedefine ALLEGRO_CFG_TTF_FREETYPE
+#cmakedefine A5O_CFG_TTF_FREETYPE

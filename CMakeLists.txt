@@ -29,16 +29,16 @@ endif(COMMAND cmake_policy)
 #
 #-----------------------------------------------------------------------------#
 
-set(ALLEGRO_VERSION_REGEX_PATTERN "#define ALLEGRO_VERSION_STR[ ]+\"([0-9]+\\.[0-9]+\\.[0-9]+).*\"")
-file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/include/allegro5/base.h" ALLEGRO_VERSION_MATCH
-    REGEX ${ALLEGRO_VERSION_REGEX_PATTERN}
+set(A5O_VERSION_REGEX_PATTERN "#define A5O_VERSION_STR[ ]+\"([0-9]+\\.[0-9]+\\.[0-9]+).*\"")
+file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/include/allegro5/base.h" A5O_VERSION_MATCH
+    REGEX ${A5O_VERSION_REGEX_PATTERN}
     LIMIT_COUNT 1
 )
-string(REGEX REPLACE ${ALLEGRO_VERSION_REGEX_PATTERN} "\\1" ALLEGRO_VERSION "${ALLEGRO_VERSION_MATCH}")
-if("${ALLEGRO_VERSION}" VERSION_GREATER_EQUAL 5.0.0)
-    message(STATUS "[Allegro] Allegro Version: [${ALLEGRO_VERSION}]")
+string(REGEX REPLACE ${A5O_VERSION_REGEX_PATTERN} "\\1" A5O_VERSION "${A5O_VERSION_MATCH}")
+if("${A5O_VERSION}" VERSION_GREATER_EQUAL 5.0.0)
+    message(STATUS "[Allegro] Allegro Version: [${A5O_VERSION}]")
 else()
-    message(FATAL_ERROR "[Allegro] Invalid Allegro Version: [${ALLEGRO_VERSION}]")
+    message(FATAL_ERROR "[Allegro] Invalid Allegro Version: [${A5O_VERSION}]")
 endif()
 
 
@@ -49,17 +49,17 @@ endif()
 #-----------------------------------------------------------------------------#
 
 # Allow generating custom project name via command-line arguments (#1174)
-set(ALLEGRO_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
-set(ALLEGRO_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
+set(A5O_PROJECT_NAME "ALLEGRO" CACHE STRING "Project default name")
+set(A5O_PROJECT_SUFFIX "" CACHE STRING "Project suffix")
 
-project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX}
-    VERSION ${ALLEGRO_VERSION}
+project(${A5O_PROJECT_NAME}${A5O_PROJECT_SUFFIX}
+    VERSION ${A5O_VERSION}
     LANGUAGES C CXX
     DESCRIPTION "Allegro project"
     HOMEPAGE_URL "https://github.com/liballeg/allegro5"
 )
 
-set(ALLEGRO_SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+set(A5O_SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -74,7 +74,7 @@ if(ANDROID)
     option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
     set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
 endif(ANDROID)
-option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
+option(A5O_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented on Windows)" OFF)
 
 # Search in the `cmake' directory for additional CMake modules.
@@ -213,7 +213,7 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 option(WANT_RELEASE_LOGGING "Enable logging even in release mode" on)
 
 if(WANT_RELEASE_LOGGING)
-    set(ALLEGRO_CFG_RELEASE_LOGGING 1)
+    set(A5O_CFG_RELEASE_LOGGING 1)
 endif()
 
 #
@@ -234,7 +234,7 @@ option(WANT_TESTS "Build test programs" on)
 option(WANT_WAIT_EVENT_SLEEP "Use sleep instead of threads in al_wait_for_event (only useful for emscripten without web workers)" off)
 
 if(WANT_WAIT_EVENT_SLEEP)
-    set(ALLEGRO_WAIT_EVENT_SLEEP 1)
+    set(A5O_WAIT_EVENT_SLEEP 1)
 endif()
 
 #-----------------------------------------------------------------------------#
@@ -256,13 +256,13 @@ endif()
 
 if(WIN32)
     if(WANT_DLL_TLS AND SHARED)
-        set(ALLEGRO_CFG_DLL_TLS 1)
+        set(A5O_CFG_DLL_TLS 1)
     endif(WANT_DLL_TLS AND SHARED)
 endif(WIN32)
 
 if(MSVC)
     set(COMPILER_MSVC 1)
-    set(ALLEGRO_MSVC 1)
+    set(A5O_MSVC 1)
 
     # Guess VCINSTALLDIR from the value of CMAKE_C_COMPILER if it's not set.
     # XXX CMAKE_C_COMPILER will often be simply "cl" so this won't work.
@@ -286,7 +286,7 @@ endif(MSVC)
 
 if(MINGW)
     # For alplatf.h
-    set(ALLEGRO_MINGW32 1)
+    set(A5O_MINGW32 1)
 
     # Guess MINGDIR from the value of CMAKE_C_COMPILER if it's not set.
     if("$ENV{MINGDIR}" STREQUAL "")
@@ -328,7 +328,7 @@ if(MINGW)
 endif(MINGW)
 
 if(UNIX AND NOT APPLE AND NOT ANDROID)
-    set(ALLEGRO_UNIX 1)
+    set(A5O_UNIX 1)
 endif(UNIX AND NOT APPLE AND NOT ANDROID)
 
 if(APPLE AND NOT IPHONE)
@@ -336,9 +336,9 @@ if(APPLE AND NOT IPHONE)
 endif(APPLE AND NOT IPHONE)
 
 if(MACOSX)
-    set(ALLEGRO_MACOSX 1)
-    set(ALLEGRO_CFG_PTHREADS_TLS 1)
-    set(ALLEGRO_UNIX 0)
+    set(A5O_MACOSX 1)
+    set(A5O_CFG_PTHREADS_TLS 1)
+    set(A5O_UNIX 0)
     set(WANT_X11 off)
 
     # This flag is required on some versions of Mac OS X to avoid linker
@@ -348,10 +348,10 @@ if(MACOSX)
 endif(MACOSX)
 
 if(IPHONE)
-    set(ALLEGRO_CFG_PTHREADS_TLS 1)
-    set(ALLEGRO_IPHONE 1)
-    set(ALLEGRO_UNIX 0)
-    set(ALLEGRO_LITTLE_ENDIAN 1)
+    set(A5O_CFG_PTHREADS_TLS 1)
+    set(A5O_IPHONE 1)
+    set(A5O_UNIX 0)
+    set(A5O_LITTLE_ENDIAN 1)
     set(WANT_X11 off)
     set(GL_AUTO_BUILD_TYPE "gles2+")
     set(WANT_GLES3 yes)
@@ -360,37 +360,37 @@ if(IPHONE)
 endif(IPHONE)
 
 if(BORLAND)
-    set(ALLEGRO_BCC32 1)
+    set(A5O_BCC32 1)
 endif(BORLAND)
 
 if(ANDROID)
-   set(ALLEGRO_ANDROID 1)
-   set(ALLEGRO_CFG_PTHREADS_TLS 1)
+   set(A5O_ANDROID 1)
+   set(A5O_CFG_PTHREADS_TLS 1)
    set(WANT_X11 off)
    set(GL_AUTO_BUILD_TYPE "gles2+")
 endif(ANDROID)
 
-if(ALLEGRO_RASPBERRYPI)
-   set(ALLEGRO_CFG_PTHREADS_TLS 1)
+if(A5O_RASPBERRYPI)
+   set(A5O_CFG_PTHREADS_TLS 1)
    set(GL_AUTO_BUILD_TYPE "gles2+")
-   set(ALLEGRO_EXCLUDE_GLX 1)
-endif(ALLEGRO_RASPBERRYPI)
+   set(A5O_EXCLUDE_GLX 1)
+endif(A5O_RASPBERRYPI)
 
 if(EMSCRIPTEN)
    set(GL_AUTO_BUILD_TYPE "gles2+")
-   set(ALLEGRO_LITTLE_ENDIAN 1)
-   if (NOT ALLEGRO_SDL)
+   set(A5O_LITTLE_ENDIAN 1)
+   if (NOT A5O_SDL)
       message(FATAL_ERROR
-         "Emscripten support currently requires the SDL backend (set ALLEGRO_SDL)")
-   endif(NOT ALLEGRO_SDL)
+         "Emscripten support currently requires the SDL backend (set A5O_SDL)")
+   endif(NOT A5O_SDL)
 endif()
 
-if(ALLEGRO_SDL)
-   set(ALLEGRO_UNIX 0)
-   set(ALLEGRO_MACOSX 0)
+if(A5O_SDL)
+   set(A5O_UNIX 0)
+   set(A5O_MACOSX 0)
    set(WANT_X11 off)
    include(FindSDL2)
-endif(ALLEGRO_SDL)
+endif(A5O_SDL)
 
 # Tell the compiler it can use SSE instructions on x86 architectures.
 # If compatibility with Pentium 2's and below is required then the user
@@ -437,11 +437,11 @@ endif()
 if(COMPILER_GCC_OR_CLANG)
     set(WFLAGS "-W -Wall -Wpointer-arith")
     set(WFLAGS_C_ONLY "-Wmissing-declarations -Wstrict-prototypes")
-    if(ALLEGRO_UNIX)
+    if(A5O_UNIX)
         # Unfortunately we can't use this flag when magic main is used,
         # the mangled_main won't have a forward declaration.
         set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wmissing-prototypes")
-    endif(ALLEGRO_UNIX)
+    endif(A5O_UNIX)
     if(STRICT_WARN)
         set(WFLAGS "${WFLAGS} -Werror")
     endif()
@@ -503,48 +503,48 @@ include(FindPkgConfig)
 
 include(TestBigEndian)
 
-if(NOT ALLEGRO_BIG_ENDIAN AND NOT ALLEGRO_LITTLE_ENDIAN)
-    test_big_endian(ALLEGRO_BIG_ENDIAN)
-    if(NOT ALLEGRO_BIG_ENDIAN)
-        set(ALLEGRO_LITTLE_ENDIAN 1)
-    endif(NOT ALLEGRO_BIG_ENDIAN)
-endif(NOT ALLEGRO_BIG_ENDIAN AND NOT ALLEGRO_LITTLE_ENDIAN)
+if(NOT A5O_BIG_ENDIAN AND NOT A5O_LITTLE_ENDIAN)
+    test_big_endian(A5O_BIG_ENDIAN)
+    if(NOT A5O_BIG_ENDIAN)
+        set(A5O_LITTLE_ENDIAN 1)
+    endif(NOT A5O_BIG_ENDIAN)
+endif(NOT A5O_BIG_ENDIAN AND NOT A5O_LITTLE_ENDIAN)
 
-check_include_files(dirent.h ALLEGRO_HAVE_DIRENT_H)
-check_include_files(inttypes.h ALLEGRO_HAVE_INTTYPES_H)
-check_include_files(linux/input.h ALLEGRO_HAVE_LINUX_INPUT_H)
-check_include_files(stdbool.h ALLEGRO_HAVE_STDBOOL_H)
-check_include_files(stdint.h ALLEGRO_HAVE_STDINT_H)
-check_include_files(sys/io.h ALLEGRO_HAVE_SYS_IO_H)
-check_include_files(sys/stat.h ALLEGRO_HAVE_SYS_STAT_H)
-check_include_files(sys/time.h ALLEGRO_HAVE_SYS_TIME_H)
-check_include_files(time.h ALLEGRO_HAVE_TIME_H)
-check_include_files(sys/utsname.h ALLEGRO_HAVE_SYS_UTSNAME_H)
-check_include_files(sys/types.h ALLEGRO_HAVE_SYS_TYPES_H)
-check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
-check_include_files(sys/soundcard.h ALLEGRO_HAVE_SYS_SOUNDCARD_H)
-check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
-check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-check_include_files(libkern/OSAtomic.h ALLEGRO_HAVE_OSATOMIC_H)
-check_include_files(sys/inotify.h ALLEGRO_HAVE_SYS_INOTIFY_H)
-check_include_files(sal.h ALLEGRO_HAVE_SAL_H)
+check_include_files(dirent.h A5O_HAVE_DIRENT_H)
+check_include_files(inttypes.h A5O_HAVE_INTTYPES_H)
+check_include_files(linux/input.h A5O_HAVE_LINUX_INPUT_H)
+check_include_files(stdbool.h A5O_HAVE_STDBOOL_H)
+check_include_files(stdint.h A5O_HAVE_STDINT_H)
+check_include_files(sys/io.h A5O_HAVE_SYS_IO_H)
+check_include_files(sys/stat.h A5O_HAVE_SYS_STAT_H)
+check_include_files(sys/time.h A5O_HAVE_SYS_TIME_H)
+check_include_files(time.h A5O_HAVE_TIME_H)
+check_include_files(sys/utsname.h A5O_HAVE_SYS_UTSNAME_H)
+check_include_files(sys/types.h A5O_HAVE_SYS_TYPES_H)
+check_include_files(soundcard.h A5O_HAVE_SOUNDCARD_H)
+check_include_files(sys/soundcard.h A5O_HAVE_SYS_SOUNDCARD_H)
+check_include_files(machine/soundcard.h A5O_HAVE_MACHINE_SOUNDCARD_H)
+check_include_files(linux/soundcard.h A5O_HAVE_LINUX_SOUNDCARD_H)
+check_include_files(libkern/OSAtomic.h A5O_HAVE_OSATOMIC_H)
+check_include_files(sys/inotify.h A5O_HAVE_SYS_INOTIFY_H)
+check_include_files(sal.h A5O_HAVE_SAL_H)
 
-check_function_exists(getexecname ALLEGRO_HAVE_GETEXECNAME)
-check_function_exists(mkstemp ALLEGRO_HAVE_MKSTEMP)
-check_function_exists(mmap ALLEGRO_HAVE_MMAP)
-check_function_exists(mprotect ALLEGRO_HAVE_MPROTECT)
-check_function_exists(sched_yield ALLEGRO_HAVE_SCHED_YIELD)
-check_function_exists(sysconf ALLEGRO_HAVE_SYSCONF)
-check_function_exists(fseeko ALLEGRO_HAVE_FSEEKO)
-check_function_exists(ftello ALLEGRO_HAVE_FTELLO)
-check_function_exists(strerror_r ALLEGRO_HAVE_STRERROR_R)
-check_function_exists(strerror_s ALLEGRO_HAVE_STRERROR_S)
+check_function_exists(getexecname A5O_HAVE_GETEXECNAME)
+check_function_exists(mkstemp A5O_HAVE_MKSTEMP)
+check_function_exists(mmap A5O_HAVE_MMAP)
+check_function_exists(mprotect A5O_HAVE_MPROTECT)
+check_function_exists(sched_yield A5O_HAVE_SCHED_YIELD)
+check_function_exists(sysconf A5O_HAVE_SYSCONF)
+check_function_exists(fseeko A5O_HAVE_FSEEKO)
+check_function_exists(ftello A5O_HAVE_FTELLO)
+check_function_exists(strerror_r A5O_HAVE_STRERROR_R)
+check_function_exists(strerror_s A5O_HAVE_STRERROR_S)
 if(WIN32)
-    check_function_exists(_ftelli64 ALLEGRO_HAVE_FTELLI64)
-    check_function_exists(_fseeki64 ALLEGRO_HAVE_FSEEKI64)
+    check_function_exists(_ftelli64 A5O_HAVE_FTELLI64)
+    check_function_exists(_fseeki64 A5O_HAVE_FSEEKI64)
 endif()
 
-check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
+check_type_size("_Bool" A5O_HAVE__BOOL)
 
 run_c_compile_test("
     #include <sys/procfs.h>
@@ -553,7 +553,7 @@ run_c_compile_test("
         psinfo.pr_argc = 0;
         return 0;
     }"
-    ALLEGRO_HAVE_PROCFS_ARGCV
+    A5O_HAVE_PROCFS_ARGCV
     )
 
 run_c_compile_test("
@@ -564,7 +564,7 @@ run_c_compile_test("
         ioctl(0, PIOCPSINFO, &psinfo);
         return 0;
     }"
-    ALLEGRO_HAVE_SV_PROCFS_H
+    A5O_HAVE_SV_PROCFS_H
     )
 
 run_c_compile_test("
@@ -574,7 +574,7 @@ run_c_compile_test("
         va_copy(a, b);
         return 0;
     }"
-    ALLEGRO_HAVE_VA_COPY
+    A5O_HAVE_VA_COPY
     )
 
 #-----------------------------------------------------------------------------#
@@ -598,7 +598,7 @@ run_c_compile_test("
 # i.e. the user wants it and the system can support it.
 #
 # Those variables are internal to the CMake build.  Allegro header files use
-# preprocessor constants with names like ALLEGRO_WITH_* and ALLEGRO_HAVE_*.
+# preprocessor constants with names like A5O_WITH_* and A5O_HAVE_*.
 # Sometimes we make use of those variables in this CMakeFile as well, but
 # generally that's just due to sloppiness.
 #
@@ -626,10 +626,10 @@ if(WANT_OPENGL)
     if(GL_REAL_BUILD_TYPE MATCHES "gl$")
         if(OPENGL_FOUND AND OPENGL_GLU_FOUND)
             set(SUPPORT_OPENGL 1)
-            set(ALLEGRO_CFG_OPENGL 1)
-            set(ALLEGRO_CFG_OPENGL_FIXED_FUNCTION 1)
+            set(A5O_CFG_OPENGL 1)
+            set(A5O_CFG_OPENGL_FIXED_FUNCTION 1)
             # We assume that the OpenGL library is not very old.
-            set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
+            set(A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
             if(OPENGL_opengl_LIBRARY) # prefer GLVND if available
                 set(OPENGL_LIBRARIES ${OPENGL_opengl_LIBRARY} ${OPENGL_glu_LIBRARY})
             endif()
@@ -659,23 +659,23 @@ if(WANT_OPENGL)
             set(SUPPORT_OPENGL 1)
             set(SUPPORT_OPENGLES 1)
             set(SUPPORT_OPENGLES2 1)
-            set(ALLEGRO_CFG_OPENGL 1)
-            set(ALLEGRO_CFG_OPENGLES 1)
-            set(ALLEGRO_CFG_OPENGLES2 1)
-            set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
+            set(A5O_CFG_OPENGL 1)
+            set(A5O_CFG_OPENGLES 1)
+            set(A5O_CFG_OPENGLES2 1)
+            set(A5O_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
             set(OPENGL_LIBRARIES ${OPENGLES2_LIBRARIES})
             set(OPENGLES_INCLUDE_DIR ${OPENGLES2_INCLUDE_DIR})
             set(OPENGL_SUMMARY "- OpenGL: ES 2.0")
 
             if(WANT_GLES3 AND NOT ANDROID)
                 set(SUPPORT_OPENGLES3 1)
-                set(ALLEGRO_CFG_OPENGLES3 1)
+                set(A5O_CFG_OPENGLES3 1)
                 set(OPENGL_SUMMARY "- OpenGL: ES 3.0")
             elseif(WANT_GLES3 AND ANDROID)
                 find_package(OpenGLES3)
                 if(OPENGLES3_FOUND)
                     set(SUPPORT_OPENGLES3 1)
-                    set(ALLEGRO_CFG_OPENGLES3 1)
+                    set(A5O_CFG_OPENGLES3 1)
                     set(OPENGL_LIBRARIES ${OPENGLES3_LIBRARIES})
                     list(APPEND OPENGLES_INCLUDE_DIR ${OPENGLES3_INCLUDE_DIR})
                     set(OPENGL_SUMMARY "- OpenGL: ES 3.0")
@@ -707,10 +707,10 @@ if(WANT_OPENGL)
             set(SUPPORT_OPENGL 1)
             set(SUPPORT_OPENGLES 1)
             set(SUPPORT_OPENGLES1 1)
-            set(ALLEGRO_CFG_OPENGL 1)
-            set(ALLEGRO_CFG_OPENGLES 1)
-            set(ALLEGRO_CFG_OPENGLES1 1)
-            set(ALLEGRO_CFG_OPENGL_FIXED_FUNCTION 1)
+            set(A5O_CFG_OPENGL 1)
+            set(A5O_CFG_OPENGLES 1)
+            set(A5O_CFG_OPENGLES1 1)
+            set(A5O_CFG_OPENGL_FIXED_FUNCTION 1)
             set(OPENGL_SUMMARY "- OpenGL: ES 1.1")
             set(OPENGL_LIBRARIES ${OPENGLES1_LIBRARIES})
             if(NOT IPHONE)
@@ -742,9 +742,9 @@ endif(UNIX)
 # SDL
 #
 
-if(ALLEGRO_SDL AND NOT SUPPORT_OPENGL)
+if(A5O_SDL AND NOT SUPPORT_OPENGL)
     message(FATAL_ERROR "SDL support currently requires OpenGL or OpenGL ES support.")
-endif(ALLEGRO_SDL AND NOT SUPPORT_OPENGL)
+endif(A5O_SDL AND NOT SUPPORT_OPENGL)
 
 #
 # X Window System
@@ -754,14 +754,14 @@ if(WANT_X11)
     find_package(X11)
     if(X11_FOUND)
         set(SUPPORT_X11 1)
-        set(ALLEGRO_WITH_XWINDOWS 1)
+        set(A5O_WITH_XWINDOWS 1)
     endif(X11_FOUND)
 endif(WANT_X11)
 
-if(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11) # not MACOSX
+if(A5O_UNIX AND NOT SUPPORT_X11 AND WANT_X11) # not MACOSX
     message(FATAL_ERROR
         "X11 not found. You may need to install X11 development libraries.")
-endif(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11)
+endif(A5O_UNIX AND NOT SUPPORT_X11 AND WANT_X11)
 
 if(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
     message(FATAL_ERROR "X11 support currently requires OpenGL or OpenGL ES support.")
@@ -774,13 +774,13 @@ if(SUPPORT_X11)
         set(OPENGL_LIBRARIES "${OPENGL_LIBRARIES}" "${OPENGL_glx_LIBRARY}")
     endif()
 
-    if (NOT OPENGL_LIBRARIES MATCHES "(libGL\\.|libGLX\\.)" AND NOT ALLEGRO_EXCLUDE_GLX)
+    if (NOT OPENGL_LIBRARIES MATCHES "(libGL\\.|libGLX\\.)" AND NOT A5O_EXCLUDE_GLX)
        message(FATAL_ERROR "X11 support currently requires GLX (set OPENGL_glx_LIBRARY and OpenGL_GLX_FOUND).")
     endif()
 
     check_library_exists(Xcursor XcursorImageCreate "" CAN_XCURSOR)
     if(CAN_XCURSOR)
-        set(ALLEGRO_XWINDOWS_WITH_XCURSOR 1)
+        set(A5O_XWINDOWS_WITH_XCURSOR 1)
         find_library(XCURSOR_LIB "Xcursor")
         list(APPEND X11_LIBRARIES "${XCURSOR_LIB}")
     else(CAN_XCURSOR)
@@ -795,7 +795,7 @@ if(SUPPORT_X11)
     )
     if(CAN_XINPUT2 AND XINPUT2_COMPILES)
         list(APPEND X11_LIBRARIES "Xi")
-        set(ALLEGRO_XWINDOWS_WITH_XINPUT2 1)
+        set(A5O_XWINDOWS_WITH_XINPUT2 1)
     else()
         message("XInput2 library version 2.2 or higher not found, disabling touch support.")
     endif()
@@ -804,7 +804,7 @@ if(SUPPORT_X11)
         check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
         check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
         if(CAN_XF86VIDMODE AND HAVE_XF86VIDMODE_H)
-            set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
+            set(A5O_XWINDOWS_WITH_XF86VIDMODE 1)
             list(APPEND X11_LIBRARIES "Xxf86vm")
         endif()
     endif(WANT_X11_XF86VIDMODE)
@@ -813,7 +813,7 @@ if(SUPPORT_X11)
         check_include_file("X11/extensions/Xinerama.h" HAVE_XINERAMA_H)
         check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
         if(CAN_XINERAMA AND HAVE_XINERAMA_H)
-            set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
+            set(A5O_XWINDOWS_WITH_XINERAMA 1)
             find_library(XINERAMA_LIB "Xinerama")
             list(APPEND X11_LIBRARIES "${XINERAMA_LIB}")
         endif()
@@ -823,7 +823,7 @@ if(SUPPORT_X11)
         check_include_file("X11/extensions/Xrandr.h" HAVE_XRANDR_H)
         check_library_exists(Xrandr XRRQueryExtension "" CAN_XRANDR)
         if(CAN_XRANDR AND HAVE_XRANDR_H)
-            set(ALLEGRO_XWINDOWS_WITH_XRANDR 1)
+            set(A5O_XWINDOWS_WITH_XRANDR 1)
             find_library(XRANDR_LIB "Xrandr")
             list(APPEND X11_LIBRARIES "${XRANDR_LIB}")
         endif()
@@ -833,18 +833,18 @@ if(SUPPORT_X11)
         check_include_file("X11/extensions/scrnsaver.h" HAVE_XSCREENSAVER_H)
         check_library_exists(Xss XScreenSaverQueryExtension "" CAN_XSCREENSAVER)
         if(CAN_XSCREENSAVER AND HAVE_XSCREENSAVER_H)
-            set(ALLEGRO_XWINDOWS_WITH_XSCREENSAVER 1)
+            set(A5O_XWINDOWS_WITH_XSCREENSAVER 1)
             find_library(XSCREENSAVER_LIB "Xss")
             list(APPEND X11_LIBRARIES "${XSCREENSAVER_LIB}")
         endif()
     endif(WANT_X11_XSCREENSAVER)
 
-    if(NOT ALLEGRO_RASPBERRYPI)
+    if(NOT A5O_RASPBERRYPI)
         check_library_exists(X11 XOpenIM "" CAN_XIM)
         if(CAN_XIM)
-            set(ALLEGRO_XWINDOWS_WITH_XIM 1)
+            set(A5O_XWINDOWS_WITH_XIM 1)
         endif(CAN_XIM)
-    endif(NOT ALLEGRO_RASPBERRYPI)
+    endif(NOT A5O_RASPBERRYPI)
 
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
@@ -875,23 +875,23 @@ if(WIN32)
             HAVE_XINPUT_CAPABILITIES_EX
         )
         if(HAVE_XINPUT_CAPABILITIES_EX)
-            set(ALLEGRO_CFG_HAVE_XINPUT_CAPABILITIES_EX 1)
+            set(A5O_CFG_HAVE_XINPUT_CAPABILITIES_EX 1)
         endif()
         set(SUPPORT_XINPUT 1)
-        set(ALLEGRO_CFG_XINPUT 1)
+        set(A5O_CFG_XINPUT 1)
     endif(XINPUT_FOUND)
 
     if(WANT_D3D)
         if(D3D9_FOUND)
             set(SUPPORT_D3D 1)
-            set(ALLEGRO_CFG_D3D 1)
+            set(A5O_CFG_D3D 1)
         endif(D3D9_FOUND)
     endif(WANT_D3D)
 
     if(SUPPORT_D3D)
         if(D3DX9_FOUND)
             include_directories(BEFORE ${D3DX9_INCLUDE_DIR})
-            set(ALLEGRO_CFG_D3DX9 1)
+            set(A5O_CFG_D3DX9 1)
         else()
             message("D3DX9 not found. You will not be able to compress or "
                     "decompress textures on the GPU.")
@@ -899,7 +899,7 @@ if(WIN32)
     endif(SUPPORT_D3D)
 
     if(WANT_D3D9EX AND SUPPORT_D3D)
-        set(ALLEGRO_CFG_D3D9EX 1)
+        set(A5O_CFG_D3D9EX 1)
     endif(WANT_D3D9EX AND SUPPORT_D3D)
 
 endif(WIN32)
@@ -921,29 +921,29 @@ endif(WIN32 AND SHARED)
 # List of source files need to compile Allegro in this configuration on
 # this platform.
 set(LIBRARY_SOURCES
-    ${ALLEGRO_SRC_FILES}
+    ${A5O_SRC_FILES}
     )
 
 # Libraries that we always need to link against on this platform.
 set(PLATFORM_LIBS)
 
-if(ALLEGRO_UNIX) # not MACOSX
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
+if(A5O_UNIX) # not MACOSX
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_UNIX_FILES})
     list(APPEND PLATFORM_LIBS m ${CMAKE_THREAD_LIBS_INIT})
-endif(ALLEGRO_UNIX)
+endif(A5O_UNIX)
 
-if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
+if(SUPPORT_X11 AND NOT A5O_RASPBERRYPI)
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_X_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
-endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
+endif(SUPPORT_X11 AND NOT A5O_RASPBERRYPI)
 
 if(WIN32)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_WIN_FILES})
     list(APPEND PLATFORM_LIBS
         user32 gdi32 comdlg32 ole32 winmm kernel32 psapi shlwapi
         )
     if(SUPPORT_D3D)
-        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
+        list(APPEND LIBRARY_SOURCES ${A5O_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
     endif(SUPPORT_D3D)
 
@@ -953,115 +953,115 @@ if(WIN32)
     endif(MINGW AND NOT SHARED)
 endif(WIN32)
 
-if(ALLEGRO_MACOSX)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_MACOSX_FILES})
+if(A5O_MACOSX)
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_MACOSX_FILES})
     find_library(APPKIT_LIBRARY AppKit)
     find_library(IOKIT_LIBRARY IOKit)
     find_library(COREVIDEO_LIBRARY CoreVideo)
     list(APPEND PLATFORM_LIBS ${APPKIT_LIBRARY})
     list(APPEND PLATFORM_LIBS ${IOKIT_LIBRARY})
     list(APPEND PLATFORM_LIBS ${COREVIDEO_LIBRARY})
-endif(ALLEGRO_MACOSX)
+endif(A5O_MACOSX)
 
 if(IPHONE)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_IPHONE_FILES})
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_IPHONE_FILES})
 endif(IPHONE)
 
 if(ANDROID)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_ANDROID_FILES})
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_ANDROID_FILES})
     list(APPEND PLATFORM_LIBS m log)
 endif(ANDROID)
 
-if(ALLEGRO_RASPBERRYPI)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_RASPBERRYPI_FILES})
+if(A5O_RASPBERRYPI)
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_RASPBERRYPI_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
-endif(ALLEGRO_RASPBERRYPI)
+endif(A5O_RASPBERRYPI)
 
 if(SUPPORT_OPENGL)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_OPENGL_FILES})
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_OPENGL_FILES})
     if(WIN32)
-        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
+        list(APPEND LIBRARY_SOURCES ${A5O_SRC_WGL_FILES})
     endif(WIN32)
     list(APPEND PLATFORM_LIBS ${OPENGL_LIBRARIES})
 endif(SUPPORT_OPENGL)
 
-if(SUPPORT_OPENGL AND WANT_SHADERS_GL AND NOT ALLEGRO_CFG_OPENGLES1)
-    set(ALLEGRO_CFG_SHADER_GLSL 1)
+if(SUPPORT_OPENGL AND WANT_SHADERS_GL AND NOT A5O_CFG_OPENGLES1)
+    set(A5O_CFG_SHADER_GLSL 1)
 endif()
 
 if(SUPPORT_D3D AND WANT_SHADERS_D3D AND D3DX9_FOUND)
-    set(ALLEGRO_CFG_SHADER_HLSL 1)
+    set(A5O_CFG_SHADER_HLSL 1)
 endif()
 
 # Header files that we need to install.
-set(ALLEGRO_PUBLIC_HEADERS
-    ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
-    ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
-    ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
-    ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
+set(A5O_PUBLIC_HEADERS
+    ${A5O_INCLUDE_A5O_FILES}
+    ${A5O_INCLUDE_A5O_INLINE_FILES}
+    ${A5O_INCLUDE_A5O_INTERNAL_FILES}
+    ${A5O_INCLUDE_A5O_PLATFORM_FILES}
     )
 if(WIN32)
-    list(APPEND ALLEGRO_PUBLIC_HEADERS
-        ${ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES}
+    list(APPEND A5O_PUBLIC_HEADERS
+        ${A5O_INCLUDE_A5O_WINDOWS_FILES}
         )
 endif(WIN32)
 if(MACOSX)
-    list(APPEND ALLEGRO_PUBLIC_HEADERS
-        ${ALLEGRO_INCLUDE_ALLEGRO_MACOSX_FILES}
+    list(APPEND A5O_PUBLIC_HEADERS
+        ${A5O_INCLUDE_A5O_MACOSX_FILES}
         )
 endif(MACOSX)
 if(IPHONE)
-    list(APPEND ALLEGRO_PUBLIC_HEADERS
-        ${ALLEGRO_INCLUDE_ALLEGRO_IPHONE_FILES}
+    list(APPEND A5O_PUBLIC_HEADERS
+        ${A5O_INCLUDE_A5O_IPHONE_FILES}
         )
 endif(IPHONE)
-if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
-    list(APPEND ALLEGRO_PUBLIC_HEADERS
-        ${ALLEGRO_INCLUDE_ALLEGRO_X_FILES}
+if(SUPPORT_X11 AND NOT A5O_RASPBERRYPI)
+    list(APPEND A5O_PUBLIC_HEADERS
+        ${A5O_INCLUDE_A5O_X_FILES}
         )
-endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
+endif(SUPPORT_X11 AND NOT A5O_RASPBERRYPI)
 if(ANDROID)
-    list(APPEND ALLEGRO_PUBLIC_HEADERS ${ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES})
+    list(APPEND A5O_PUBLIC_HEADERS ${A5O_INCLUDE_A5O_ANDROID_FILES})
 endif(ANDROID)
 if(SUPPORT_OPENGL)
-    list(APPEND ALLEGRO_PUBLIC_HEADERS
-        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
+    list(APPEND A5O_PUBLIC_HEADERS
+        ${A5O_INCLUDE_A5O_OPENGL_FILES}
+        ${A5O_INCLUDE_A5O_OPENGL_GLEXT_FILES}
         )
 endif(SUPPORT_OPENGL)
 
-foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
-    list(APPEND ALLEGRO_PUBLIC_HEADERS
+foreach(genfile ${A5O_INCLUDE_A5O_PLATFORM_FILES_GENERATED})
+    list(APPEND A5O_PUBLIC_HEADERS
         ${CMAKE_CURRENT_BINARY_DIR}/${genfile}
         )
 endforeach(genfile)
 
-if(ALLEGRO_SDL)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_SDL_FILES})
+if(A5O_SDL)
+    list(APPEND LIBRARY_SOURCES ${A5O_SRC_SDL_FILES})
     list(APPEND PLATFORM_LIBS ${SDL2_LIBRARY} m)
     include_directories(${SDL2_INCLUDE_DIR})
-endif(ALLEGRO_SDL)
+endif(A5O_SDL)
 
-set_our_header_properties(${ALLEGRO_PUBLIC_HEADERS})
-unset(ALLEGRO_TARGETS CACHE)
+set_our_header_properties(${A5O_PUBLIC_HEADERS})
+unset(A5O_TARGETS CACHE)
 
 if(NOT WANT_MONOLITH)
-    # ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
-    # ALLEGRO_SRC is defined only while compiling the core sources (its use is
+    # A5O_LIB_BUILD is defined for all Allegro sources (core and addon)
+    # A5O_SRC is defined only while compiling the core sources (its use is
     # to get the DLL #defines right under Windows for creating DLL export
     # functions when it is defined or import DLL functions when it is not).
     add_our_library(allegro
-        Allegro-${ALLEGRO_SOVERSION}
-        "${LIBRARY_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
-        "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
+        Allegro-${A5O_SOVERSION}
+        "${LIBRARY_SOURCES};${A5O_PUBLIC_HEADERS}"
+        "${LIBRARY_CFLAGS} -DA5O_SRC"
         "${PLATFORM_LIBS}"
         )
 endif(NOT WANT_MONOLITH)
 
 # Addons and examples should link with this target.
-set(ALLEGRO_LINK_WITH allegro)
+set(A5O_LINK_WITH allegro)
 
-install_our_headers(${ALLEGRO_PUBLIC_HEADERS})
+install_our_headers(${A5O_PUBLIC_HEADERS})
 
 #-----------------------------------------------------------------------------#
 #
@@ -1086,13 +1086,13 @@ if(WANT_MONOLITH)
 
     link_directories(${MONOLITH_LINK_DIRECTORIES})
     add_our_library(allegro_monolith
-        AllegroMonolith-${ALLEGRO_SOVERSION}
-        "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
-        "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
+        AllegroMonolith-${A5O_SOVERSION}
+        "${MONOLITH_SOURCES};${A5O_PUBLIC_HEADERS}"
+        "${LIBRARY_CFLAGS} -DA5O_SRC ${MONOLITH_DEFINES}"
         "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
         )
 
-    set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
+    set(A5O_MONOLITH_LINK_WITH allegro_monolith)
 endif(WANT_MONOLITH)
 
 #-----------------------------------------------------------------------------#
@@ -1102,7 +1102,7 @@ endif(WANT_MONOLITH)
 #-----------------------------------------------------------------------------#
 
 if(NO_FPU)
-    set(ALLEGRO_CFG_NO_FPU 1)
+    set(A5O_CFG_NO_FPU 1)
 endif(NO_FPU)
 
 # All relevant variables must be set before here.
@@ -1254,11 +1254,11 @@ configure_package_config_file(
   NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
 write_basic_package_version_file(${PKG_VERSION_FILE}
-  VERSION ${ALLEGRO_VERSION}
+  VERSION ${A5O_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 install(
-  TARGETS ${ALLEGRO_TARGETS}
+  TARGETS ${A5O_TARGETS}
   EXPORT ${PKG_TARGETS_NAME}
 )
 install(

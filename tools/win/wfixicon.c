@@ -16,7 +16,7 @@
  */
 
 
-#define ALLEGRO_USE_CONSOLE
+#define A5O_USE_CONSOLE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -169,8 +169,8 @@ int save_ico(const char *filename, BITMAP *bmp[], int num, PALETTE pal[])
 
 void usage(void)
 {
-   printf("\nWindows icon converter for Allegro " ALLEGRO_VERSION_STR "\n");
-   printf("By Elias Pschernig, " ALLEGRO_DATE_STR "\n\n");
+   printf("\nWindows icon converter for Allegro " A5O_VERSION_STR "\n");
+   printf("By Elias Pschernig, " A5O_DATE_STR "\n\n");
    printf("Usage: wfixicon icon [-r[o]] bitmap [bitmap...]\n");
    printf("        or\n");
    printf("       wfixicon icon [-r[o]] -d datafile object [palette] [object...]\n");
@@ -308,11 +308,11 @@ int main(int argc, char *argv[])
       if (call_windres) {
          replace_extension(res_name, argv[1], "res", sizeof(res_name));
 
-#if defined ALLEGRO_MINGW32
+#if defined A5O_MINGW32
          sprintf(str, "windres -O coff -o %s -i %s", res_name, rc_name);
-#elif defined ALLEGRO_MSVC
+#elif defined A5O_MSVC
          sprintf(str, "rc -fo %s %s", res_name, rc_name);
-#elif defined ALLEGRO_BCC32
+#elif defined A5O_BCC32
          sprintf(str, "brc32 -r -fo %s %s", res_name, rc_name);
 #endif
 

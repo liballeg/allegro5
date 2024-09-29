@@ -10,19 +10,19 @@
 int main(int argc, char **argv)
 {
     const char *filename;
-    ALLEGRO_DISPLAY *display;
-    ALLEGRO_BITMAP *buffer, *bitmap, *subbitmap, *buffer_subbitmap;
-    ALLEGRO_BITMAP *overlay;
-    ALLEGRO_TIMER *timer;
-    ALLEGRO_EVENT_QUEUE *queue;
-    ALLEGRO_TRANSFORM transform;
+    A5O_DISPLAY *display;
+    A5O_BITMAP *buffer, *bitmap, *subbitmap, *buffer_subbitmap;
+    A5O_BITMAP *overlay;
+    A5O_TIMER *timer;
+    A5O_EVENT_QUEUE *queue;
+    A5O_TRANSFORM transform;
     bool software = false;
     bool redraw = false;
     bool blend = false;
     bool use_subbitmap = true;
     int w, h;
-    ALLEGRO_FONT* font;
-    ALLEGRO_FONT* soft_font;
+    A5O_FONT* font;
+    A5O_FONT* soft_font;
 
     if (argc > 1) {
        filename = argv[1];
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
        abort_example("data/bmpfont.tga not found or failed to load\n");
     }
 
-    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+    al_set_new_bitmap_flags(A5O_MEMORY_BITMAP);
     buffer = al_create_bitmap(640, 480);
     buffer_subbitmap = al_create_sub_bitmap(buffer, 50, 50, 640 - 50, 480 - 50);
 
@@ -87,36 +87,36 @@ int main(int argc, char **argv)
     al_use_transform(&transform);
 
     while (1) {
-        ALLEGRO_EVENT event;
+        A5O_EVENT event;
         al_wait_for_event(queue, &event);
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        if (event.type == A5O_EVENT_DISPLAY_CLOSE)
             break;
-        if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if (event.keyboard.keycode == ALLEGRO_KEY_S) {
+        if (event.type == A5O_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == A5O_KEY_S) {
                software = !software;
                if (software) {
                   /* Restore identity transform on display bitmap. */
-                  ALLEGRO_TRANSFORM identity;
+                  A5O_TRANSFORM identity;
                   al_identity_transform(&identity);
                   al_use_transform(&identity);
                }
-            } else if (event.keyboard.keycode == ALLEGRO_KEY_L) {
+            } else if (event.keyboard.keycode == A5O_KEY_L) {
                blend = !blend;
-            } else if (event.keyboard.keycode == ALLEGRO_KEY_B) {
+            } else if (event.keyboard.keycode == A5O_KEY_B) {
                use_subbitmap = !use_subbitmap;
-            } else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+            } else if (event.keyboard.keycode == A5O_KEY_ESCAPE) {
                break;
             }
         }
-        if (event.type == ALLEGRO_EVENT_TIMER)
+        if (event.type == A5O_EVENT_TIMER)
             redraw = true;
             
         if (redraw && al_is_event_queue_empty(queue)) {
             double t = 3.0 + al_get_time();
-            ALLEGRO_COLOR tint;
+            A5O_COLOR tint;
             redraw = false;
             
-            al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+            al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
             if(blend)
                tint = al_map_rgba_f(0.5, 0.5, 0.5, 0.5);
             else
@@ -151,31 +151,31 @@ int main(int argc, char **argv)
             /* Draw some stuff */
             al_clear_to_color(al_map_rgb_f(0, 0, 0));
             al_draw_tinted_bitmap(bitmap, tint, 0, 0, 0);
-            al_draw_tinted_scaled_bitmap(bitmap, tint, w / 4, h / 4, w / 2, h / 2, w, 0, w / 2, h / 4, 0);//ALLEGRO_FLIP_HORIZONTAL);
-            al_draw_tinted_bitmap_region(bitmap, tint, w / 4, h / 4, w / 2, h / 2, 0, h, ALLEGRO_FLIP_VERTICAL);
+            al_draw_tinted_scaled_bitmap(bitmap, tint, w / 4, h / 4, w / 2, h / 2, w, 0, w / 2, h / 4, 0);//A5O_FLIP_HORIZONTAL);
+            al_draw_tinted_bitmap_region(bitmap, tint, w / 4, h / 4, w / 2, h / 2, 0, h, A5O_FLIP_VERTICAL);
             al_draw_tinted_scaled_rotated_bitmap(bitmap, tint, w / 2, h / 2, w + w / 2, h + h / 2, 0.7, 0.7, 0.3, 0);
             al_draw_pixel(w + w / 2, h + h / 2, al_map_rgb_f(0, 1, 0));
             al_put_pixel(w + w / 2 + 2, h + h / 2 + 2, al_map_rgb_f(0, 1, 1));
             al_draw_circle(w, h, 50, al_map_rgb_f(1, 0.5, 0), 3);
 
-            al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+            al_set_blender(A5O_ADD, A5O_ONE, A5O_ZERO);
             if(software) {
                al_draw_text(soft_font, al_map_rgba_f(1, 1, 1, 1),
-                  640 / 2, 430, ALLEGRO_ALIGN_CENTRE, "Software Rendering");
+                  640 / 2, 430, A5O_ALIGN_CENTRE, "Software Rendering");
                al_set_target_backbuffer(display);
                al_draw_bitmap(buffer, 0, 0, 0);
             } else {
                al_draw_text(font, al_map_rgba_f(1, 1, 1, 1),
-                  640 / 2, 430, ALLEGRO_ALIGN_CENTRE, "Hardware Rendering");
+                  640 / 2, 430, A5O_ALIGN_CENTRE, "Hardware Rendering");
             }
 
             /* Each target bitmap has its own transformation matrix, so this
              * overlay is unaffected by the transformations set earlier.
              */
             al_set_target_bitmap(overlay);
-            al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+            al_set_blender(A5O_ADD, A5O_ONE, A5O_ONE);
             al_draw_text(font, al_map_rgba_f(1, 1, 0, 1),
-               0, 10, ALLEGRO_ALIGN_LEFT, "hello!");
+               0, 10, A5O_ALIGN_LEFT, "hello!");
 
             al_set_target_backbuffer(display);
             al_flip_display();

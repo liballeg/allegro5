@@ -2,14 +2,14 @@
 #ifndef __al_included_allegro5_gl_ext_h
 #define __al_included_allegro5_gl_ext_h
 
-#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+#if defined(A5O_UNSTABLE) || defined(A5O_INTERNAL_UNSTABLE) || defined(A5O_SRC)
 
 /*
  * MSVC declares the following extensions and MinGW doesn't. In order to
  * export the same symbols on both platforms we removed the extensions from
  * MSVC.
  */
-#ifdef ALLEGRO_MSVC
+#ifdef A5O_MSVC
    #undef GL_EXT_vertex_array
    #undef GL_EXT_paletted_texture
    #undef GL_WIN_swap_hint
@@ -24,12 +24,12 @@
  *
  */
 
-#if !defined ALLEGRO_CFG_OPENGLES
+#if !defined A5O_CFG_OPENGLES
 #include "allegro5/opengl/GLext/gl_ext_defs.h"
 #endif
-#if defined ALLEGRO_WINDOWS && !defined ALLEGRO_EXCLUDE_WGL
+#if defined A5O_WINDOWS && !defined A5O_EXCLUDE_WGL
 #include "allegro5/opengl/GLext/wgl_ext_defs.h"
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#elif defined A5O_UNIX && !defined A5O_EXCLUDE_GLX
 #include "allegro5/opengl/GLext/glx_ext_defs.h"
 #endif
 
@@ -37,7 +37,7 @@
 
 /* For example:
  *
- * typedef void (APIENTRY * _ALLEGRO_glBlendEquation_t (GLenum);
+ * typedef void (APIENTRY * _A5O_glBlendEquation_t (GLenum);
  *
  */
  
@@ -46,15 +46,15 @@
 #define APIENTRY_defined
 #endif
 
-#define AGL_API(type, name, args) typedef type (APIENTRY * _ALLEGRO_gl##name##_t) args;
+#define AGL_API(type, name, args) typedef type (APIENTRY * _A5O_gl##name##_t) args;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
-#ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) typedef type (APIENTRY * _ALLEGRO_wgl##name##_t) args;
+#ifdef A5O_WINDOWS
+#define AGL_API(type, name, args) typedef type (APIENTRY * _A5O_wgl##name##_t) args;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
-#elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) typedef type (APIENTRY * _ALLEGRO_glX##name##_t) args;
+#elif defined A5O_UNIX
+#define AGL_API(type, name, args) typedef type (APIENTRY * _A5O_glX##name##_t) args;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
@@ -69,21 +69,21 @@
 /* For example:
  *
  * #define glBlendEquation _al_glBlendEquation
- * extern _ALLEGRO_glBlendEquation_t _al_glBlendEquation;
+ * extern _A5O_glBlendEquation_t _al_glBlendEquation;
  *
  */
 
-#define AGL_API(type, name, args) AL_VAR(_ALLEGRO_gl##name##_t, _al_gl##name);
+#define AGL_API(type, name, args) AL_VAR(_A5O_gl##name##_t, _al_gl##name);
 # 	include "allegro5/opengl/GLext/gl_ext_alias.h"
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
-#ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) AL_VAR(_ALLEGRO_wgl##name##_t, _al_wgl##name);
+#ifdef A5O_WINDOWS
+#define AGL_API(type, name, args) AL_VAR(_A5O_wgl##name##_t, _al_wgl##name);
 # 	include "allegro5/opengl/GLext/wgl_ext_alias.h"
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
-#elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) extern _ALLEGRO_glX##name##_t _al_glX##name;
+#elif defined A5O_UNIX
+#define AGL_API(type, name, args) extern _A5O_glX##name##_t _al_glX##name;
 # 	include "allegro5/opengl/GLext/glx_ext_alias.h"
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
@@ -92,52 +92,52 @@
 /* A list of all supported extensions.
  *
  * For example:
- * int ALLEGRO_GL_ARB_imaging;
+ * int A5O_GL_ARB_imaging;
  *
  */
 
-typedef struct ALLEGRO_OGL_EXT_LIST {
-#    define AGL_EXT(name, ver) int ALLEGRO_GL_##name;
+typedef struct A5O_OGL_EXT_LIST {
+#    define AGL_EXT(name, ver) int A5O_GL_##name;
 #    include "allegro5/opengl/GLext/gl_ext_list.h"
 #    undef  AGL_EXT
 
-#ifdef ALLEGRO_UNIX
-#    define AGL_EXT(name, ver) int ALLEGRO_GLX_##name;
+#ifdef A5O_UNIX
+#    define AGL_EXT(name, ver) int A5O_GLX_##name;
 #    include "allegro5/opengl/GLext/glx_ext_list.h"
 #    undef  AGL_EXT
-#elif defined ALLEGRO_WINDOWS
-#    define AGL_EXT(name, ver) int ALLEGRO_WGL_##name;
+#elif defined A5O_WINDOWS
+#    define AGL_EXT(name, ver) int A5O_WGL_##name;
 #    include "allegro5/opengl/GLext/wgl_ext_list.h"
 #    undef  AGL_EXT
 
 #endif
-} ALLEGRO_OGL_EXT_LIST;
+} A5O_OGL_EXT_LIST;
 
 
 /* GL extension Structure. Holds the pointers to all the functions
  * of all extensions, for a single context.
  *
  * Example:
- * ALLEGRO_BlendEquation_t BlendEquation;
+ * A5O_BlendEquation_t BlendEquation;
  */
-typedef struct ALLEGRO_OGL_EXT_API {
-#define AGL_API(type, name, args) _ALLEGRO_gl##name##_t name;
+typedef struct A5O_OGL_EXT_API {
+#define AGL_API(type, name, args) _A5O_gl##name##_t name;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
-#ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) _ALLEGRO_wgl##name##_t name;
+#ifdef A5O_WINDOWS
+#define AGL_API(type, name, args) _A5O_wgl##name##_t name;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
-#elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) _ALLEGRO_glX##name##_t name;
+#elif defined A5O_UNIX
+#define AGL_API(type, name, args) _A5O_glX##name##_t name;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
-} ALLEGRO_OGL_EXT_API;
+} A5O_OGL_EXT_API;
 
 #else
 
-typedef struct ALLEGRO_OGL_EXT_LIST ALLEGRO_OGL_EXT_LIST;
+typedef struct A5O_OGL_EXT_LIST A5O_OGL_EXT_LIST;
 
 #endif
 

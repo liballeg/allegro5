@@ -64,13 +64,13 @@
 #include "allegro5/utf8.h"
 
 
-#ifndef ALLEGRO_NO_COMPATIBILITY
+#ifndef A5O_NO_COMPATIBILITY
    #include "allegro5/alcompat.h"
 #endif
 
 
-#ifdef ALLEGRO_EXTRA_HEADER
-   #include ALLEGRO_EXTRA_HEADER
+#ifdef A5O_EXTRA_HEADER
+   #include A5O_EXTRA_HEADER
 #endif
 
 

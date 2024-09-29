@@ -170,7 +170,7 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
  * Arc is defined by pivot point, radius, start and end angle.
  * Starting and ending angle are wrapped to two pi range.
  */
-static void emit_arc(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, float start, float end, float radius, int segments)
+static void emit_arc(A5O_PRIM_VERTEX_CACHE* cache, const float* pivot, float start, float end, float radius, int segments)
 {
    float arc;
    float c, s, t;
@@ -187,14 +187,14 @@ static void emit_arc(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, float
     * range [0, 2 * pi) and end angle is greater than
     * start angle.
     */
-   start = fmodf(start, ALLEGRO_PI * 2.0f);
-   end   = fmodf(end,   ALLEGRO_PI * 2.0f);
+   start = fmodf(start, A5O_PI * 2.0f);
+   end   = fmodf(end,   A5O_PI * 2.0f);
    if (end <= start)
-      end += ALLEGRO_PI * 2.0f;
+      end += A5O_PI * 2.0f;
 
    arc = end - start;
 
-   segments = (int)(segments * arc / ALLEGRO_PI * 2.0f);
+   segments = (int)(segments * arc / A5O_PI * 2.0f);
    if (segments < 1)
       segments = 1;
 
@@ -232,7 +232,7 @@ static void emit_arc(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, float
  * and double radius, first along direction second along normal
  * direction.
  */
-static void emit_square_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
+static void emit_square_end_cap(A5O_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
 {
    /* Prepare all four vertices of the rectangle. */
    float v0[2] = { pivot[0] + normal[0] * radius, pivot[1] + normal[1] * radius };
@@ -248,7 +248,7 @@ static void emit_square_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* p
 /*
  * Emits triangular cap.
  */
-static void emit_triange_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
+static void emit_triange_end_cap(A5O_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
 {
    /* Prepare all four vertices of the rectangle. */
    float v0[2] = { pivot[0] + normal[0] * radius, pivot[1] + normal[1] * radius };
@@ -262,14 +262,14 @@ static void emit_triange_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* 
 /*
  * Emits rounded cap.
  */
-static void emit_round_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
+static void emit_round_end_cap(A5O_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
 {
    float angle = atan2f(-normal[1], -normal[0]);
    /* XXX delete these parameters? */
    (void)dir;
    (void)radius;
 
-   emit_arc(cache, pivot, angle, angle + ALLEGRO_PI, radius, 16);
+   emit_arc(cache, pivot, angle, angle + A5O_PI, radius, 16);
 }
 
 /*
@@ -280,7 +280,7 @@ static void emit_round_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pi
  * in v1 and specified radius. p0 have to be located on the negative and p0 on the
  * positive half plane defined by direction vector.
  */
-static void emit_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, int cap_style, const float* v0, const float* v1, float radius)
+static void emit_end_cap(A5O_PRIM_VERTEX_CACHE* cache, int cap_style, const float* v0, const float* v1, float radius)
 {
    float dir[2];
    float normal[2];
@@ -288,21 +288,21 @@ static void emit_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, int cap_style, const 
    /* Do do not want you to call this function for closed cap.
     * It is special and there is nothing we can do with it there.
     */
-   ASSERT(cap_style != ALLEGRO_LINE_CAP_CLOSED);
+   ASSERT(cap_style != A5O_LINE_CAP_CLOSED);
 
    /* There nothing we can do for this kind of ending cap. */
-   if (cap_style == ALLEGRO_LINE_CAP_NONE)
+   if (cap_style == A5O_LINE_CAP_NONE)
       return;
 
    /* Compute normal and direction for our segment. */
    compute_direction_and_normal(v0, v1, dir, normal);
 
    /* Emit vertices for cap. */
-   if (cap_style == ALLEGRO_LINE_CAP_SQUARE)
+   if (cap_style == A5O_LINE_CAP_SQUARE)
       emit_square_end_cap(cache, v1, dir, normal, radius);
-   else if (cap_style == ALLEGRO_LINE_CAP_TRIANGLE)
+   else if (cap_style == A5O_LINE_CAP_TRIANGLE)
       emit_triange_end_cap(cache, v1, dir, normal, radius);
-   else if (cap_style == ALLEGRO_LINE_CAP_ROUND)
+   else if (cap_style == A5O_LINE_CAP_ROUND)
       emit_round_end_cap(cache, v1, dir, normal, radius);
    else {
 
@@ -313,7 +313,7 @@ static void emit_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, int cap_style, const 
 /*
  * Emits bevel join.
  */
-static void emit_bevel_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* p0, const float* p1)
+static void emit_bevel_join(A5O_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* p0, const float* p1)
 {
    _al_prim_cache_push_triangle(cache, pivot, p0, p1);
 }
@@ -321,13 +321,13 @@ static void emit_bevel_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot
 /*
  * Emits round join.
  */
-static void emit_round_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* p0, const float* p1, float radius)
+static void emit_round_join(A5O_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* p0, const float* p1, float radius)
 {
    float start = atan2f(p1[1] - pivot[1], p1[0] - pivot[0]);
    float end   = atan2f(p0[1] - pivot[1], p0[0] - pivot[0]);
 
    if (end < start)
-      end += ALLEGRO_PI * 2.0f;
+      end += A5O_PI * 2.0f;
 
    emit_arc(cache, pivot, start, end, radius, 16);
 }
@@ -335,7 +335,7 @@ static void emit_round_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot
 /*
  * Emits miter join.
  */
-static void emit_miter_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* p0, const float* p1,
+static void emit_miter_join(A5O_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* p0, const float* p1,
    float radius, const float* middle, float angle, float miter_distance, float max_miter_distance)
 {
    /* XXX delete this parameter? */
@@ -345,7 +345,7 @@ static void emit_miter_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot
 
       float normal[2] = { -middle[1], middle[0] };
 
-      float offset = (miter_distance - max_miter_distance) * tanf((ALLEGRO_PI - fabsf(angle)) * 0.5f);
+      float offset = (miter_distance - max_miter_distance) * tanf((A5O_PI - fabsf(angle)) * 0.5f);
 
       float v0[2] = {
          pivot[0] + middle[0] * max_miter_distance + normal[0] * offset,
@@ -376,19 +376,19 @@ static void emit_miter_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot
 
 /* Emit join between segments.
  */
-static void emit_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, int join_style, const float* pivot,
+static void emit_join(A5O_PRIM_VERTEX_CACHE* cache, int join_style, const float* pivot,
    const float* p0, const float* p1, float radius, const float* middle,
    float angle, float miter_distance, float miter_limit)
 {
    /* There is nothing to do for this type of join. */
-   if (join_style == ALLEGRO_LINE_JOIN_NONE)
+   if (join_style == A5O_LINE_JOIN_NONE)
       return;
 
-   if (join_style == ALLEGRO_LINE_JOIN_BEVEL)
+   if (join_style == A5O_LINE_JOIN_BEVEL)
       emit_bevel_join(cache, pivot, p0, p1);
-   else if (join_style == ALLEGRO_LINE_JOIN_ROUND)
+   else if (join_style == A5O_LINE_JOIN_ROUND)
       emit_round_join(cache, pivot, p0, p1, radius);
-   else if (join_style == ALLEGRO_LINE_JOIN_MITER)
+   else if (join_style == A5O_LINE_JOIN_MITER)
       emit_miter_join(cache, pivot, p0, p1, radius, middle, angle, miter_distance, miter_limit * radius);
    else {
 
@@ -396,7 +396,7 @@ static void emit_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, int join_style, const fl
    }
 }
 
-static void emit_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vertices, int vertex_stride, int vertex_count, int join_style, int cap_style, float thickness, float miter_limit)
+static void emit_polyline(A5O_PRIM_VERTEX_CACHE* cache, const float* vertices, int vertex_stride, int vertex_count, int join_style, int cap_style, float thickness, float miter_limit)
 {
 # define VERTEX(index)  ((const float*)(((uint8_t*)vertices) + vertex_stride * ((vertex_count + (index)) % vertex_count)))
 
@@ -418,11 +418,11 @@ static void emit_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vertice
    /* Single line cannot be closed. If user forgot to explicitly specify
    * most desired alternative cap style, we just disable capping at all.
    */
-   if (vertex_count == 2 && cap_style == ALLEGRO_LINE_CAP_CLOSED)
-      cap_style = ALLEGRO_LINE_CAP_NONE;
+   if (vertex_count == 2 && cap_style == A5O_LINE_CAP_CLOSED)
+      cap_style = A5O_LINE_CAP_NONE;
 
    /* Prepare initial set of vertices. */
-   if (cap_style != ALLEGRO_LINE_CAP_CLOSED)
+   if (cap_style != A5O_LINE_CAP_CLOSED)
    {
       /* We can emit ending caps right now.
       *
@@ -461,7 +461,7 @@ static void emit_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vertice
       const float* v2 = VERTEX(i + 1);
 
       /* Choose correct cross points. */
-      if ((cap_style == ALLEGRO_LINE_CAP_CLOSED) || (i < steps - 1)) {
+      if ((cap_style == A5O_LINE_CAP_CLOSED) || (i < steps - 1)) {
 
          float middle[2];
          float miter_distance;
@@ -493,11 +493,11 @@ static void emit_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vertice
 # undef VERTEX
 }
 
-static void do_draw_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vertices, int vertex_stride, int vertex_count, int join_style, int cap_style, ALLEGRO_COLOR color, float thickness, float miter_limit)
+static void do_draw_polyline(A5O_PRIM_VERTEX_CACHE* cache, const float* vertices, int vertex_stride, int vertex_count, int join_style, int cap_style, A5O_COLOR color, float thickness, float miter_limit)
 {
    if (thickness > 0.0f)
    {
-      _al_prim_cache_init(cache, ALLEGRO_PRIM_VERTEX_CACHE_TRIANGLE, color);
+      _al_prim_cache_init(cache, A5O_PRIM_VERTEX_CACHE_TRIANGLE, color);
       emit_polyline(cache, vertices, vertex_stride, vertex_count, join_style, cap_style, thickness, miter_limit);
       _al_prim_cache_term(cache);
    }
@@ -507,17 +507,17 @@ static void do_draw_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vert
 
       int i;
 
-      _al_prim_cache_init(cache, ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP, color);
+      _al_prim_cache_init(cache, A5O_PRIM_VERTEX_CACHE_LINE_STRIP, color);
 
       for (i = 0; i < vertex_count; ++i) {
-         if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 2))
+         if (cache->size >= (A5O_VERTEX_CACHE_SIZE - 2))
             _al_prim_cache_flush(cache);
 
          _al_prim_cache_push_point(cache, VERTEX(i));
       }
 
-      if (cap_style == ALLEGRO_LINE_CAP_CLOSED && vertex_count > 2) {
-         if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 2))
+      if (cap_style == A5O_LINE_CAP_CLOSED && vertex_count > 2) {
+         if (cache->size >= (A5O_VERTEX_CACHE_SIZE - 2))
             _al_prim_cache_flush(cache);
 
          _al_prim_cache_push_point(cache, VERTEX(0));
@@ -533,9 +533,9 @@ static void do_draw_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vert
  */
 void al_draw_polyline(const float* vertices, int vertex_stride,
    int vertex_count, int join_style, int cap_style,
-   ALLEGRO_COLOR color, float thickness, float miter_limit)
+   A5O_COLOR color, float thickness, float miter_limit)
 {
-   ALLEGRO_PRIM_VERTEX_CACHE cache;
+   A5O_PRIM_VERTEX_CACHE cache;
    do_draw_polyline(&cache, vertices, vertex_stride, vertex_count, join_style, cap_style, color, thickness, miter_limit);
 }
 

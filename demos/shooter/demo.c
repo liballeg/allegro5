@@ -12,7 +12,7 @@ int jumpstart = FALSE;
 int max_fps = FALSE;
 PALETTE *palette;
 
-ALLEGRO_COLOR get_palette(int p) {
+A5O_COLOR get_palette(int p) {
    if (!palette) return makecol(0, 0, 0);
    return palette->rgb[p];
 }
@@ -25,7 +25,7 @@ void set_palette(PALETTE *p) {
 
 void fade_out(int skip)
 {
-   ALLEGRO_BITMAP *capture = al_create_bitmap(SCREEN_W, SCREEN_H);
+   A5O_BITMAP *capture = al_create_bitmap(SCREEN_W, SCREEN_H);
    al_set_target_bitmap(capture);
    al_draw_bitmap(al_get_backbuffer(screen), 0, 0, 0);
    al_set_target_backbuffer(screen);
@@ -35,7 +35,7 @@ void fade_out(int skip)
    double t0 = al_get_time();
    for (int i = 0; i < steps; i++) {
       al_rest(t0 + (i + 1) / 120.0 - al_get_time());
-      ALLEGRO_COLOR fade = al_map_rgba_f(0, 0, 0, 1.0 * (i + 1) / steps);
+      A5O_COLOR fade = al_map_rgba_f(0, 0, 0, 1.0 * (i + 1) / steps);
       al_draw_bitmap(capture, 0, 0, 0);
       al_draw_filled_rectangle(0, 0, SCREEN_W, SCREEN_H, fade);
       al_flip_display();
@@ -83,12 +83,12 @@ int main(int argc, char *argv[])
    if (!allegro_init())
       return 1;
 
-   ALLEGRO_MONITOR_INFO info;
+   A5O_MONITOR_INFO info;
    al_get_monitor_info(0, &info);
    w = (info.x2 - info.x1) * 0.75;
    h = (info.y2 - info.y1) * 0.75;
 
-   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_flags(A5O_RESIZABLE);
    screen = al_create_display(w, h);
    if (!screen) {
       allegro_message("Error setting graphics mode\n");

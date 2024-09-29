@@ -29,14 +29,14 @@
 
 #include "iio.h"
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 
 /* raw_tga_read8:
  *  Helper for reading 256-color raw data from TGA files.
  *  Returns pointer past the end.
  */
-static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
+static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, A5O_FILE *f)
 {
    return b + al_fread(f, b, w);
 }
@@ -47,7 +47,7 @@ static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, ALLEGRO_FILE
  *  Helper for reading 256-color RLE data from TGA files.
  *  Returns pointer past the end or NULL for error.
  */
-static unsigned char *rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
+static unsigned char *rle_tga_read8(unsigned char *b, int w, A5O_FILE *f)
 {
    int value, count, c = 0;
 
@@ -84,7 +84,7 @@ static unsigned char *rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
 /* single_tga_read32:
  *  Helper for reading a single 32-bit data from TGA files.
  */
-static INLINE int32_t single_tga_read32(ALLEGRO_FILE *f)
+static INLINE int32_t single_tga_read32(A5O_FILE *f)
 {
    return al_fread32le(f);
 }
@@ -95,7 +95,7 @@ static INLINE int32_t single_tga_read32(ALLEGRO_FILE *f)
  *  Helper for reading 32-bit raw data from TGA files.
  *  Returns pointer past the end.
  */
-static unsigned int *raw_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
+static unsigned int *raw_tga_read32(unsigned int *b, int w, A5O_FILE *f)
 {
    while (w--)
       *b++ = single_tga_read32(f);
@@ -109,7 +109,7 @@ static unsigned int *raw_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
  *  Helper for reading 32-bit RLE data from TGA files.
  *  Returns pointer past the end or NULL for error.
  */
-static unsigned int *rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
+static unsigned int *rle_tga_read32(unsigned int *b, int w, A5O_FILE *f)
 {
    int color, count, c = 0;
 
@@ -145,7 +145,7 @@ static unsigned int *rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
 /* single_tga_read24:
  *  Helper for reading a single 24-bit data from TGA files.
  */
-static INLINE void single_tga_read24(ALLEGRO_FILE *f, unsigned char color[3])
+static INLINE void single_tga_read24(A5O_FILE *f, unsigned char color[3])
 {
    al_fread(f, color, 3);
 }
@@ -156,7 +156,7 @@ static INLINE void single_tga_read24(ALLEGRO_FILE *f, unsigned char color[3])
  *  Helper for reading 24-bit raw data from TGA files.
  *  Returns pointer past the end.
  */
-static unsigned char *raw_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
+static unsigned char *raw_tga_read24(unsigned char *b, int w, A5O_FILE *f)
 {
    while (w--) {
       single_tga_read24(f, b);
@@ -172,7 +172,7 @@ static unsigned char *raw_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
  *  Helper for reading 24-bit RLE data from TGA files.
  *  Returns pointer past the end or NULL for error.
  */
-static unsigned char *rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
+static unsigned char *rle_tga_read24(unsigned char *b, int w, A5O_FILE *f)
 {
    int count, c = 0;
    unsigned char color[3];
@@ -214,7 +214,7 @@ static unsigned char *rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
 /* single_tga_read16:
  *  Helper for reading a single 16-bit data from TGA files.
  */
-static INLINE int single_tga_read16(ALLEGRO_FILE *f)
+static INLINE int single_tga_read16(A5O_FILE *f)
 {
    return al_fread16le(f);
 }
@@ -225,7 +225,7 @@ static INLINE int single_tga_read16(ALLEGRO_FILE *f)
  *  Helper for reading 16-bit raw data from TGA files.
  *  Returns pointer past the end.
  */
-static unsigned short *raw_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
+static unsigned short *raw_tga_read16(unsigned short *b, int w, A5O_FILE *f)
 {
    while (w--)
       *b++ = single_tga_read16(f);
@@ -239,7 +239,7 @@ static unsigned short *raw_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
  *  Helper for reading 16-bit RLE data from TGA files.
  *  Returns pointer past the end or NULL for error.
  */
-static unsigned short *rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
+static unsigned short *rle_tga_read16(unsigned short *b, int w, A5O_FILE *f)
 {
    int color, count, c = 0;
 
@@ -273,13 +273,13 @@ static unsigned short *rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
 
 typedef unsigned char palette_entry[3];
 
-/* Like load_tga, but starts loading from the current place in the ALLEGRO_FILE
+/* Like load_tga, but starts loading from the current place in the A5O_FILE
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
+A5O_BITMAP *_al_load_tga_f(A5O_FILE *f, int flags)
 {
    unsigned char image_id[256];
    palette_entry image_palette[256];
@@ -293,10 +293,10 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    unsigned int c, i;
    int y;
    int compressed;
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_LOCKED_REGION *lr;
+   A5O_BITMAP *bmp;
+   A5O_LOCKED_REGION *lr;
    unsigned char *buf;
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & A5O_NO_PREMULTIPLIED_ALPHA);
    ASSERT(f);
 
    id_length = al_fgetc(f);
@@ -330,7 +330,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    image_type &= 7;
 
    if ((image_type < 1) || (image_type > 3)) {
-      ALLEGRO_ERROR("Invalid image type %d.\n", image_type);
+      A5O_ERROR("Invalid image type %d.\n", image_type);
       return NULL;
    }
 
@@ -340,7 +340,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          /* paletted image */
          /* Only support 8 bit palettes (up to 256 entries) though in principle the file format could have more(?)*/
          if ((palette_type != 1) || (bpp != 8) || (palette_start + palette_colors) > 256) {
-            ALLEGRO_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
+            A5O_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
 
@@ -354,7 +354,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          else if ((palette_type == 0) && ((bpp == 24) || (bpp == 32))) {
          }
          else {
-            ALLEGRO_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
+            A5O_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
          break;
@@ -362,7 +362,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
       case 3:
          /* grayscale image */
          if ((palette_type != 0) || (bpp != 8)) {
-            ALLEGRO_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
+            A5O_ERROR("Invalid image/palette/bpp combination %d/%d/%d.\n", image_type, palette_type, bpp);
             return NULL;
          }
 
@@ -374,7 +374,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
          break;
 
       default:
-         ALLEGRO_ERROR("Invalid image type %d.\n", image_type);
+         A5O_ERROR("Invalid image type %d.\n", image_type);
          return NULL;
    }
 
@@ -405,22 +405,22 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
       }
    }
    else  {
-      ALLEGRO_ERROR("Invalid palette type %d.\n", palette_type);
+      A5O_ERROR("Invalid palette type %d.\n", palette_type);
       return NULL;
    }
 
 
    bmp = al_create_bitmap(image_width, image_height);
    if (!bmp) {
-      ALLEGRO_ERROR("Failed to create bitmap.\n");
+      A5O_ERROR("Failed to create bitmap.\n");
       return NULL;
    }
 
    al_set_errno(0);
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ABGR_8888_LE, A5O_LOCK_WRITEONLY);
    if (!lr) {
-      ALLEGRO_ERROR("Failed to lock bitmap.\n");
+      A5O_ERROR("Failed to lock bitmap.\n");
       al_destroy_bitmap(bmp);
       return NULL;
    }
@@ -430,7 +430,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    if (!buf) {
       al_unlock_bitmap(bmp);
       al_destroy_bitmap(bmp);
-      ALLEGRO_ERROR("Failed to allocate enough memory.\n");
+      A5O_ERROR("Failed to allocate enough memory.\n");
       return NULL;
    }
 
@@ -450,7 +450,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                al_free(buf);
                al_unlock_bitmap(bmp);
                al_destroy_bitmap(bmp);
-               ALLEGRO_ERROR("Invalid image data.\n");
+               A5O_ERROR("Invalid image data.\n");
                return NULL;
             }
          }
@@ -464,7 +464,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                   al_free(buf);
                   al_unlock_bitmap(bmp);
                   al_destroy_bitmap(bmp);
-                  ALLEGRO_ERROR("Invalid image data.\n");
+                  A5O_ERROR("Invalid image data.\n");
                   return NULL;
                }
                palette_entry* entry = image_palette + pix;
@@ -487,7 +487,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                   al_free(buf);
                   al_unlock_bitmap(bmp);
                   al_destroy_bitmap(bmp);
-                  ALLEGRO_ERROR("Invalid image data.\n");
+                  A5O_ERROR("Invalid image data.\n");
                   return NULL;
                }
                for (i = 0; i < image_width; i++) {
@@ -495,7 +495,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                   unsigned char *dest = (unsigned char *)lr->data +
                      lr->pitch*true_y + true_x*4;
 
-#ifdef ALLEGRO_BIG_ENDIAN
+#ifdef A5O_BIG_ENDIAN
                   int a = buf[i * 4 + 0];
                   int r = buf[i * 4 + 1];
                   int g = buf[i * 4 + 2];
@@ -528,7 +528,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                   al_free(buf);
                   al_unlock_bitmap(bmp);
                   al_destroy_bitmap(bmp);
-                  ALLEGRO_ERROR("Invalid image data.\n");
+                  A5O_ERROR("Invalid image data.\n");
                   return NULL;
                }
                for (i = 0; i < image_width; i++) {
@@ -555,7 +555,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
                   al_free(buf);
                   al_unlock_bitmap(bmp);
                   al_destroy_bitmap(bmp);
-                  ALLEGRO_ERROR("Invalid image data.\n");
+                  A5O_ERROR("Invalid image data.\n");
                   return NULL;
                }
                for (i = 0; i < image_width; i++) {
@@ -582,7 +582,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    al_unlock_bitmap(bmp);
 
    if (al_get_errno()) {
-      ALLEGRO_ERROR("Error detected: %d.\n", al_get_errno());
+      A5O_ERROR("Error detected: %d.\n", al_get_errno());
       al_destroy_bitmap(bmp);
       return NULL;
    }
@@ -592,12 +592,12 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 
 
 
-/* Like save_tga but writes into the ALLEGRO_FILE given instead of a new file.
+/* Like save_tga but writes into the A5O_FILE given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-bool _al_save_tga_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_save_tga_f(A5O_FILE *f, A5O_BITMAP *bmp)
 {
    int x, y;
    int w, h;
@@ -622,11 +622,11 @@ bool _al_save_tga_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    al_fputc(f, 32);     /* bits per pixel */
    al_fputc(f, 8);      /* descriptor (bottom to top, 8-bit alpha) */
 
-   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ANY, A5O_LOCK_READONLY);
 
    for (y = h - 1; y >= 0; y--) {
       for (x = 0; x < w; x++) {
-         ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
+         A5O_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
          al_unmap_rgba(c, &r, &g, &b, &a);
          al_fputc(f, b);
@@ -642,15 +642,15 @@ bool _al_save_tga_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 }
 
 
-ALLEGRO_BITMAP *_al_load_tga(const char *filename, int flags)
+A5O_BITMAP *_al_load_tga(const char *filename, int flags)
 {
-   ALLEGRO_FILE *f;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *f;
+   A5O_BITMAP *bmp;
    ASSERT(filename);
 
    f = al_fopen(filename, "rb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -663,16 +663,16 @@ ALLEGRO_BITMAP *_al_load_tga(const char *filename, int flags)
 
 
 
-bool _al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
+bool _al_save_tga(const char *filename, A5O_BITMAP *bmp)
 {
-   ALLEGRO_FILE *f;
+   A5O_FILE *f;
    bool retsave;
    bool retclose;
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
    if (!f) {
-      ALLEGRO_ERROR("Unable to open %s for writing.\n", filename);
+      A5O_ERROR("Unable to open %s for writing.\n", filename);
       return false;
    }
 
@@ -684,7 +684,7 @@ bool _al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
 }
 
 
-bool _al_identify_tga(ALLEGRO_FILE *f)
+bool _al_identify_tga(A5O_FILE *f)
 {
    uint8_t x[4];
    al_fgetc(f); // skip id length

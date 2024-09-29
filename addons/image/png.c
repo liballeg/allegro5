@@ -12,7 +12,7 @@
 
 #include "iio.h"
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 
 /* get_gamma:
@@ -42,7 +42,7 @@ static double get_gamma(void)
 static void user_error_fn(png_structp png_ptr, png_const_charp message)
 {
    jmp_buf *jmpbuf = (jmp_buf *)png_get_error_ptr(png_ptr);
-   ALLEGRO_DEBUG("PNG error: %s\n", message);
+   A5O_DEBUG("PNG error: %s\n", message);
    longjmp(*jmpbuf, 1);
 }
 
@@ -60,7 +60,7 @@ static void user_error_fn(png_structp png_ptr, png_const_charp message)
  */
 static void read_data(png_structp png_ptr, png_bytep data, size_t length)
 {
-   ALLEGRO_FILE *f = (ALLEGRO_FILE *)png_get_io_ptr(png_ptr);
+   A5O_FILE *f = (A5O_FILE *)png_get_io_ptr(png_ptr);
    if ((png_uint_32) al_fread(f, data, length) != length)
       png_error(png_ptr, "read error (loadpng calling al_fs_entry_read)");
 }
@@ -72,11 +72,11 @@ static void read_data(png_structp png_ptr, png_bytep data, size_t length)
  */
 #define PNG_BYTES_TO_CHECK 4
 
-static int check_if_png(ALLEGRO_FILE *fp)
+static int check_if_png(A5O_FILE *fp)
 {
    unsigned char buf[PNG_BYTES_TO_CHECK];
 
-   ALLEGRO_ASSERT(fp);
+   A5O_ASSERT(fp);
 
    if (al_fread(fp, buf, PNG_BYTES_TO_CHECK) != PNG_BYTES_TO_CHECK)
       return 0;
@@ -89,10 +89,10 @@ static int check_if_png(ALLEGRO_FILE *fp)
 /* really_load_png:
  *  Worker routine, used by load_png and load_memory_png.
  */
-static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
+static A5O_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
    int flags)
 {
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
    png_uint_32 width, height, rowbytes, real_rowbytes;
    int bit_depth, color_type, interlace_type;
    double image_gamma, screen_gamma;
@@ -102,13 +102,13 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
    int num_trans = 0;
    PalEntry pal[256];
    png_bytep trans;
-   ALLEGRO_LOCKED_REGION *lock;
+   A5O_LOCKED_REGION *lock;
    unsigned char *buf;
    unsigned char *dest;
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & A5O_NO_PREMULTIPLIED_ALPHA);
    bool index_only;
 
-   ALLEGRO_ASSERT(png_ptr && info_ptr);
+   A5O_ASSERT(png_ptr && info_ptr);
 
    /* The call to png_read_info() gives us all of the information from the
     * PNG file before the first IDAT (image data chunk).
@@ -195,7 +195,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
 
    if ((bpp == 24) || (bpp == 32)) {
-#ifdef ALLEGRO_BIG_ENDIAN
+#ifdef A5O_BIG_ENDIAN
       png_set_bgr(png_ptr);
       png_set_swap_alpha(png_ptr);
 #endif
@@ -203,7 +203,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
    bmp = al_create_bitmap(width, height);
    if (!bmp) {
-      ALLEGRO_ERROR("al_create_bitmap failed while loading PNG.\n");
+      A5O_ERROR("al_create_bitmap failed while loading PNG.\n");
       return NULL;
    }
 
@@ -215,15 +215,15 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
       buf = al_malloc(real_rowbytes);
 
    if (bpp == 8 && (color_type & PNG_COLOR_MASK_PALETTE) &&
-      (flags & ALLEGRO_KEEP_INDEX))
+      (flags & A5O_KEEP_INDEX))
    {
-      lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
-         ALLEGRO_LOCK_WRITEONLY);
+      lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_SINGLE_CHANNEL_8,
+         A5O_LOCK_WRITEONLY);
       index_only = true;
    }
    else {
-      lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-         ALLEGRO_LOCK_WRITEONLY);
+      lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ABGR_8888_LE,
+         A5O_LOCK_WRITEONLY);
       index_only = false;
    }
 
@@ -319,7 +319,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
                break;
 
             default:
-               ALLEGRO_ASSERT(bpp == 8 || bpp == 24 || bpp == 32);
+               A5O_ASSERT(bpp == 8 || bpp == 24 || bpp == 32);
                break;
          }
          dest = dest_row_start + lock->pitch;
@@ -339,17 +339,17 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
 /* Load a PNG file from disk, doing colour coversion if required.
  */
-ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp, int flags)
+A5O_BITMAP *_al_load_png_f(A5O_FILE *fp, int flags)
 {
    jmp_buf jmpbuf;
-   ALLEGRO_BITMAP *bmp;
+   A5O_BITMAP *bmp;
    png_structp png_ptr;
    png_infop info_ptr;
 
-   ALLEGRO_ASSERT(fp);
+   A5O_ASSERT(fp);
 
    if (!check_if_png(fp)) {
-      ALLEGRO_ERROR("Not a png.\n");
+      A5O_ERROR("Not a png.\n");
       return NULL;
    }
 
@@ -362,7 +362,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp, int flags)
    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
                                     (void *)NULL, NULL, NULL);
    if (!png_ptr) {
-      ALLEGRO_ERROR("png_ptr == NULL\n");
+      A5O_ERROR("png_ptr == NULL\n");
       return NULL;
    }
 
@@ -370,7 +370,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp, int flags)
    info_ptr = png_create_info_struct(png_ptr);
    if (!info_ptr) {
       png_destroy_read_struct(&png_ptr, (png_infopp) NULL, (png_infopp) NULL);
-      ALLEGRO_ERROR("png_create_info_struct failed\n");
+      A5O_ERROR("png_create_info_struct failed\n");
       return NULL;
    }
 
@@ -379,7 +379,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp, int flags)
       /* Free all of the memory associated with the png_ptr and info_ptr */
       png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
       /* If we get here, we had a problem reading the file */
-      ALLEGRO_ERROR("Error reading PNG file\n");
+      A5O_ERROR("Error reading PNG file\n");
       return NULL;
    }
    png_set_error_fn(png_ptr, jmpbuf, user_error_fn, NULL);
@@ -403,16 +403,16 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp, int flags)
 
 
 
-ALLEGRO_BITMAP *_al_load_png(const char *filename, int flags)
+A5O_BITMAP *_al_load_png(const char *filename, int flags)
 {
-   ALLEGRO_FILE *fp;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *fp;
+   A5O_BITMAP *bmp;
 
-   ALLEGRO_ASSERT(filename);
+   A5O_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -438,7 +438,7 @@ ALLEGRO_BITMAP *_al_load_png(const char *filename, int flags)
  */
 static void write_data(png_structp png_ptr, png_bytep data, size_t length)
 {
-   ALLEGRO_FILE *f = (ALLEGRO_FILE *)png_get_io_ptr(png_ptr);
+   A5O_FILE *f = (A5O_FILE *)png_get_io_ptr(png_ptr);
    if ((png_uint_32) al_fwrite(f, data, length) != length)
       png_error(png_ptr, "write error (loadpng calling al_fs_entry_write)");
 }
@@ -474,14 +474,14 @@ static int translate_compression_level(const char* value) {
 /* save_rgba:
  *  Core save routine for 32 bpp images.
  */
-static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
+static int save_rgba(png_structp png_ptr, A5O_BITMAP *bmp)
 {
    const int bmp_h = al_get_bitmap_height(bmp);
-   ALLEGRO_LOCKED_REGION *lock;
+   A5O_LOCKED_REGION *lock;
    int y;
 
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-      ALLEGRO_LOCK_READONLY);
+   lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ABGR_8888_LE,
+      A5O_LOCK_READONLY);
    if (!lock)
       return 0;
 
@@ -500,7 +500,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
 /* Writes a non-interlaced, no-frills PNG, taking the usual save_xyz
  *  parameters.  Returns non-zero on error.
  */
-bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
+bool _al_save_png_f(A5O_FILE *fp, A5O_BITMAP *bmp)
 {
    jmp_buf jmpbuf;
    png_structp png_ptr = NULL;
@@ -513,20 +513,20 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
                                      (void *)NULL, NULL, NULL);
    if (!png_ptr) {
-      ALLEGRO_ERROR("Unable to create PNG write struct.\n");
+      A5O_ERROR("Unable to create PNG write struct.\n");
       goto Error;
    }
 
    /* Allocate/initialize the image information data. */
    info_ptr = png_create_info_struct(png_ptr);
    if (!info_ptr) {
-      ALLEGRO_ERROR("Unable to create PNG info struct.\n");
+      A5O_ERROR("Unable to create PNG info struct.\n");
       goto Error;
    }
 
    /* Set error handling. */
    if (setjmp(jmpbuf)) {
-      ALLEGRO_ERROR("Failed to call setjmp.\n");
+      A5O_ERROR("Failed to call setjmp.\n");
       goto Error;
    }
    png_set_error_fn(png_ptr, jmpbuf, user_error_fn, NULL);
@@ -567,7 +567,7 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
     * at the end.
     */
    if (!save_rgba(png_ptr, bmp)) {
-      ALLEGRO_ERROR("save_rgba failed.\n");
+      A5O_ERROR("save_rgba failed.\n");
       goto Error;
    }
 
@@ -590,18 +590,18 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 }
 
 
-bool _al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
+bool _al_save_png(const char *filename, A5O_BITMAP *bmp)
 {
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
    bool retsave;
    bool retclose;
 
-   ALLEGRO_ASSERT(filename);
-   ALLEGRO_ASSERT(bmp);
+   A5O_ASSERT(filename);
+   A5O_ASSERT(bmp);
 
    fp = al_fopen(filename, "wb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable to open file %s for writing\n", filename);
+      A5O_ERROR("Unable to open file %s for writing\n", filename);
       return false;
    }
 

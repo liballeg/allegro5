@@ -21,7 +21,7 @@ struct D3DVERTEX
 
 int main(int argc, char *argv[])
 {
-   ALLEGRO_DISPLAY *display;
+   A5O_DISPLAY *display;
    (void)argc;
    (void)argv;
 
@@ -32,14 +32,14 @@ int main(int argc, char *argv[])
    open_log();
 
    al_install_keyboard();
-   al_set_new_display_flags(ALLEGRO_DIRECT3D);
-   al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
+   al_set_new_display_flags(A5O_DIRECT3D);
+   al_set_new_display_option(A5O_DEPTH_SIZE, 16, A5O_SUGGEST);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display.\n");
    }
 
-   ALLEGRO_KEYBOARD_STATE state;
+   A5O_KEYBOARD_STATE state;
 
    IDirect3DDevice9 *d3dd = al_get_d3d_device(display);
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
       start = al_get_time();
       frames++;
-   } while (!al_key_down(&state, ALLEGRO_KEY_ESCAPE));
+   } while (!al_key_down(&state, A5O_KEY_ESCAPE));
 
    double elapsed = al_get_time() - start_secs;
    log_printf("%g fps\n", frames/elapsed);

@@ -29,7 +29,7 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-ALLEGRO_DEBUG_CHANNEL("android")
+A5O_DEBUG_CHANNEL("android")
 
 struct system_data_t {
    JNIEnv *env;
@@ -41,19 +41,19 @@ struct system_data_t {
    jclass clipboard_class;
    jclass apk_fs_class;
 
-   ALLEGRO_SYSTEM_ANDROID *system;
-   ALLEGRO_MUTEX *mutex;
-   ALLEGRO_COND *cond;
-   ALLEGRO_THREAD *trampoline;
+   A5O_SYSTEM_ANDROID *system;
+   A5O_MUTEX *mutex;
+   A5O_COND *cond;
+   A5O_THREAD *trampoline;
    bool trampoline_running;
 
-   ALLEGRO_USTR *user_lib_name;
-   ALLEGRO_USTR *resources_dir;
-   ALLEGRO_USTR *data_dir;
-   ALLEGRO_USTR *temp_dir;
-   ALLEGRO_USTR *apk_path;
-   ALLEGRO_USTR *model;
-   ALLEGRO_USTR *manufacturer;
+   A5O_USTR *user_lib_name;
+   A5O_USTR *resources_dir;
+   A5O_USTR *data_dir;
+   A5O_USTR *temp_dir;
+   A5O_USTR *apk_path;
+   A5O_USTR *model;
+   A5O_USTR *manufacturer;
 
    void *user_lib;
    int (*user_main)(int argc, char **argv);
@@ -113,7 +113,7 @@ static void finish_activity(JNIEnv *env);
 
 static bool already_cleaned_up = false;
 
-/* NOTE: don't put any ALLEGRO_DEBUG in here! */
+/* NOTE: don't put any A5O_DEBUG in here! */
 static void android_cleanup(bool uninstall_system)
 {
    if (already_cleaned_up) {
@@ -133,7 +133,7 @@ static void android_cleanup(bool uninstall_system)
    (*javavm)->DetachCurrentThread(javavm);
 }
 
-static void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
+static void *android_app_trampoline(A5O_THREAD *thr, void *arg)
 {
    const int argc = 1;
    const char *argv[2] = {system_data.user_lib, NULL};
@@ -142,21 +142,21 @@ static void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
    (void)thr;
    (void)arg;
 
-   ALLEGRO_DEBUG("signaling running");
+   A5O_DEBUG("signaling running");
 
    al_lock_mutex(system_data.mutex);
    system_data.trampoline_running = true;
    al_broadcast_cond(system_data.cond);
    al_unlock_mutex(system_data.mutex);
 
-   ALLEGRO_DEBUG("entering main function %p", system_data.user_main);
+   A5O_DEBUG("entering main function %p", system_data.user_main);
 
    ret = (system_data.user_main)(argc, (char **)argv);
 
    /* Can we do anything with this exit code? */
-   ALLEGRO_DEBUG("returned from main function, exit code = %d", ret);
+   A5O_DEBUG("returned from main function, exit code = %d", ret);
 
-   /* NOTE: don't put any ALLEGRO_DEBUG in here after running main! */
+   /* NOTE: don't put any A5O_DEBUG in here after running main! */
 
    android_cleanup(true);
 
@@ -173,12 +173,12 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
 JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
 {
-   ALLEGRO_SYSTEM_ANDROID *na_sys = NULL;
+   A5O_SYSTEM_ANDROID *na_sys = NULL;
    jclass iae;
    jclass aisc;
    jclass asc;
 
-   ALLEGRO_DEBUG("entered nativeOnCreate");
+   A5O_DEBUG("entered nativeOnCreate");
 
    // we're already initialized, we REALLY don't want to run all the stuff below again.
    if(system_data.system) {
@@ -186,38 +186,38 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    }
 
    pthread_t self = pthread_self();
-   ALLEGRO_DEBUG("pthread_self:%p", (void*)self);
-   ALLEGRO_DEBUG("nativeOnCreate begin");
+   A5O_DEBUG("pthread_self:%p", (void*)self);
+   A5O_DEBUG("nativeOnCreate begin");
 
    memset(&system_data, 0, sizeof(system_data));
 
-   ALLEGRO_DEBUG("grab activity global refs");
+   A5O_DEBUG("grab activity global refs");
    system_data.env             = env;
    system_data.activity_object = (*env)->NewGlobalRef(env, obj);
 
    iae = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
    system_data.illegal_argument_exception_class = (*env)->NewGlobalRef(env, iae);
 
-   aisc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroInputStream");
+   aisc = (*env)->FindClass(env, A5O_ANDROID_PACKAGE_NAME_SLASH "/AllegroInputStream");
    system_data.input_stream_class = (*env)->NewGlobalRef(env, aisc);
 
-   asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroAPKStream");
+   asc = (*env)->FindClass(env, A5O_ANDROID_PACKAGE_NAME_SLASH "/AllegroAPKStream");
    system_data.apk_stream_class = (*env)->NewGlobalRef(env, asc);
 
-   asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/ImageLoader");
+   asc = (*env)->FindClass(env, A5O_ANDROID_PACKAGE_NAME_SLASH "/ImageLoader");
    system_data.image_loader_class = (*env)->NewGlobalRef(env, asc);
 
-   asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/Clipboard");
+   asc = (*env)->FindClass(env, A5O_ANDROID_PACKAGE_NAME_SLASH "/Clipboard");
    system_data.clipboard_class = (*env)->NewGlobalRef(env, asc);
 
-   asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroAPKList");
+   asc = (*env)->FindClass(env, A5O_ANDROID_PACKAGE_NAME_SLASH "/AllegroAPKList");
    system_data.apk_fs_class = (*env)->NewGlobalRef(env, asc);
 
-   ALLEGRO_DEBUG("create mutex and cond objects");
+   A5O_DEBUG("create mutex and cond objects");
    system_data.mutex = al_create_mutex();
    system_data.cond  = al_create_cond();
 
-   ALLEGRO_DEBUG("get directories");
+   A5O_DEBUG("get directories");
    system_data.user_lib_name = _jni_callStringMethod(env, system_data.activity_object, "getUserLibName", "()Ljava/lang/String;");
    system_data.resources_dir = _jni_callStringMethod(env, system_data.activity_object, "getResourcesDir", "()Ljava/lang/String;");
    system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
@@ -225,57 +225,57 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    system_data.apk_path = _jni_callStringMethod(env, system_data.activity_object, "getApkPath", "()Ljava/lang/String;");
    system_data.model = _jni_callStringMethod(env, system_data.activity_object, "getModel", "()Ljava/lang/String;");
    system_data.manufacturer = _jni_callStringMethod(env, system_data.activity_object, "getManufacturer", "()Ljava/lang/String;");
-   ALLEGRO_DEBUG("resources_dir: %s", al_cstr(system_data.resources_dir));
-   ALLEGRO_DEBUG("data_dir: %s", al_cstr(system_data.data_dir));
-   ALLEGRO_DEBUG("temp_dir: %s", al_cstr(system_data.temp_dir));
-   ALLEGRO_DEBUG("apk_path: %s", al_cstr(system_data.apk_path));
-   ALLEGRO_DEBUG("model: %s", al_cstr(system_data.model));
-   ALLEGRO_DEBUG("manufacturer: %s", al_cstr(system_data.manufacturer));
+   A5O_DEBUG("resources_dir: %s", al_cstr(system_data.resources_dir));
+   A5O_DEBUG("data_dir: %s", al_cstr(system_data.data_dir));
+   A5O_DEBUG("temp_dir: %s", al_cstr(system_data.temp_dir));
+   A5O_DEBUG("apk_path: %s", al_cstr(system_data.apk_path));
+   A5O_DEBUG("model: %s", al_cstr(system_data.model));
+   A5O_DEBUG("manufacturer: %s", al_cstr(system_data.manufacturer));
 
-   ALLEGRO_DEBUG("creating ALLEGRO_SYSTEM_ANDROID struct");
-   na_sys = system_data.system = (ALLEGRO_SYSTEM_ANDROID*)al_malloc(sizeof *na_sys);
+   A5O_DEBUG("creating A5O_SYSTEM_ANDROID struct");
+   na_sys = system_data.system = (A5O_SYSTEM_ANDROID*)al_malloc(sizeof *na_sys);
    memset(na_sys, 0, sizeof *na_sys);
 
-   ALLEGRO_DEBUG("get system pointer");
-   ALLEGRO_SYSTEM *sys = &na_sys->system;
-   ALLEGRO_DEBUG("get system interface");
+   A5O_DEBUG("get system pointer");
+   A5O_SYSTEM *sys = &na_sys->system;
+   A5O_DEBUG("get system interface");
    sys->vt = _al_system_android_interface();
 
-   ALLEGRO_DEBUG("init display vector");
-   _al_vector_init(&sys->displays, sizeof(ALLEGRO_DISPLAY_ANDROID *));
+   A5O_DEBUG("init display vector");
+   _al_vector_init(&sys->displays, sizeof(A5O_DISPLAY_ANDROID *));
 
-   ALLEGRO_DEBUG("init time");
+   A5O_DEBUG("init time");
    _al_unix_init_time();
 
    const char *user_lib_name = al_cstr(system_data.user_lib_name);
-   ALLEGRO_DEBUG("load user lib: %s", user_lib_name);
+   A5O_DEBUG("load user lib: %s", user_lib_name);
    system_data.user_lib = dlopen(user_lib_name, RTLD_LAZY|RTLD_GLOBAL);
    if (!system_data.user_lib) {
-      ALLEGRO_ERROR("failed to load user lib: %s", user_lib_name);
-      ALLEGRO_ERROR("%s", dlerror());
+      A5O_ERROR("failed to load user lib: %s", user_lib_name);
+      A5O_ERROR("%s", dlerror());
       return false;
    }
 
    system_data.user_main = dlsym(system_data.user_lib, "main");
    if (!system_data.user_main) {
-      ALLEGRO_ERROR("failed to locate symbol main: %s", dlerror());
+      A5O_ERROR("failed to locate symbol main: %s", dlerror());
       dlclose(system_data.user_lib);
       return false;
    }
-   ALLEGRO_DEBUG("main function address: %p\n", system_data.user_main);
+   A5O_DEBUG("main function address: %p\n", system_data.user_main);
 
-   ALLEGRO_DEBUG("creating trampoline for app thread");
+   A5O_DEBUG("creating trampoline for app thread");
    system_data.trampoline = al_create_thread(android_app_trampoline, NULL);
    al_start_thread(system_data.trampoline);
 
-   ALLEGRO_DEBUG("waiting for app trampoline to signal running");
+   A5O_DEBUG("waiting for app trampoline to signal running");
    al_lock_mutex(system_data.mutex);
    while(!system_data.trampoline_running) {
       al_wait_cond(system_data.cond, system_data.mutex);
    }
    al_unlock_mutex(system_data.mutex);
 
-   ALLEGRO_DEBUG("setup done. returning to dalvik.");
+   A5O_DEBUG("setup done. returning to dalvik.");
 
    return true;
 }
@@ -286,30 +286,30 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
    (void)env;
    (void)obj;
 
-   ALLEGRO_DEBUG("pause activity\n");
+   A5O_DEBUG("pause activity\n");
 
    system_data.paused = true;
 
-   ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
+   A5O_SYSTEM *sys = (void *)al_get_system_driver();
 
    if (!system_data.system || !sys) {
-      ALLEGRO_DEBUG("no system driver");
+      A5O_DEBUG("no system driver");
       return;
    }
 
    if (!_al_vector_size(&sys->displays)) {
-      ALLEGRO_DEBUG("no display, not sending SWITCH_OUT event");
+      A5O_DEBUG("no display, not sending SWITCH_OUT event");
       return;
    }
 
-   ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
+   A5O_DISPLAY *display = *(A5O_DISPLAY**)_al_vector_ref(&sys->displays, 0);
 
    if (display) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       _al_event_source_lock(&display->es);
 
       if(_al_event_source_needs_to_generate_event(&display->es)) {
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+         event.display.type = A5O_EVENT_DISPLAY_SWITCH_OUT;
          event.display.timestamp = al_current_time();
          _al_event_source_emit_event(&display->es, &event);
       }
@@ -319,40 +319,40 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
 
 JNI_FUNC(void, AllegroActivity, nativeOnResume, (JNIEnv *env, jobject obj))
 {
-   ALLEGRO_SYSTEM *sys = &system_data.system->system;
-   ALLEGRO_DISPLAY *d = NULL;
+   A5O_SYSTEM *sys = &system_data.system->system;
+   A5O_DISPLAY *d = NULL;
 
    (void)obj;
 
    system_data.paused = false;
 
-   ALLEGRO_DEBUG("resume activity");
+   A5O_DEBUG("resume activity");
 
    if(!system_data.system || !sys) {
-      ALLEGRO_DEBUG("no system driver");
+      A5O_DEBUG("no system driver");
       return;
    }
 
    if(!_al_vector_size(&sys->displays)) {
-      ALLEGRO_DEBUG("no display, not sending SWITCH_IN event");
+      A5O_DEBUG("no display, not sending SWITCH_IN event");
       return;
    }
 
-   d = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
-   ALLEGRO_DEBUG("got display: %p", d);
+   d = *(A5O_DISPLAY**)_al_vector_ref(&sys->displays, 0);
+   A5O_DEBUG("got display: %p", d);
 
-   if(!((ALLEGRO_DISPLAY_ANDROID*)d)->created) {
+   if(!((A5O_DISPLAY_ANDROID*)d)->created) {
       _al_android_create_surface(env, true); // request android create our surface
    }
 
-   ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
+   A5O_DISPLAY *display = *(A5O_DISPLAY**)_al_vector_ref(&sys->displays, 0);
 
    if (display) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       _al_event_source_lock(&display->es);
 
       if(_al_event_source_needs_to_generate_event(&display->es)) {
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+         event.display.type = A5O_EVENT_DISPLAY_SWITCH_IN;
          event.display.timestamp = al_current_time();
          _al_event_source_emit_event(&display->es, &event);
       }
@@ -360,7 +360,7 @@ JNI_FUNC(void, AllegroActivity, nativeOnResume, (JNIEnv *env, jobject obj))
    }
 }
 
-/* NOTE: don't put any ALLEGRO_DEBUG in here! */
+/* NOTE: don't put any A5O_DEBUG in here! */
 JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
    (void)obj;
@@ -405,13 +405,13 @@ JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
 
 JNI_FUNC(void, AllegroActivity, nativeOnOrientationChange, (JNIEnv *env, jobject obj, int orientation, bool init))
 {
-   ALLEGRO_SYSTEM *sys = &system_data.system->system;
-   ALLEGRO_DISPLAY *d = NULL;
-   ALLEGRO_EVENT event;
+   A5O_SYSTEM *sys = &system_data.system->system;
+   A5O_DISPLAY *d = NULL;
+   A5O_EVENT event;
 
    (void)env; (void)obj;
 
-   ALLEGRO_DEBUG("got orientation change!");
+   A5O_DEBUG("got orientation change!");
 
    system_data.orientation = orientation;
 
@@ -419,26 +419,26 @@ JNI_FUNC(void, AllegroActivity, nativeOnOrientationChange, (JNIEnv *env, jobject
 
       /* no display, just skip */
       if (!_al_vector_size(&sys->displays)) {
-         ALLEGRO_DEBUG("no display, not sending orientation change event");
+         A5O_DEBUG("no display, not sending orientation change event");
          return;
       }
 
-      d = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
+      d = *(A5O_DISPLAY**)_al_vector_ref(&sys->displays, 0);
       ASSERT(d != NULL);
 
-      ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
+      A5O_DEBUG("locking display event source: %p %p", d, &d->es);
 
       _al_event_source_lock(&d->es);
 
       if(_al_event_source_needs_to_generate_event(&d->es)) {
-         ALLEGRO_DEBUG("emit event");
-         event.display.type = ALLEGRO_EVENT_DISPLAY_ORIENTATION;
+         A5O_DEBUG("emit event");
+         event.display.type = A5O_EVENT_DISPLAY_ORIENTATION;
          event.display.timestamp = al_current_time();
          event.display.orientation = orientation;
          _al_event_source_emit_event(&d->es, &event);
       }
 
-      ALLEGRO_DEBUG("unlocking display event source");
+      A5O_DEBUG("unlocking display event source");
       _al_event_source_unlock(&d->es);
 
    }
@@ -453,25 +453,25 @@ JNI_FUNC(void, AllegroActivity, nativeSendJoystickConfigurationEvent, (JNIEnv *e
       return;
    }
 
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   A5O_EVENT_SOURCE *es = al_get_joystick_event_source();
    _al_event_source_lock(es);
-   ALLEGRO_EVENT event;
-   event.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
+   A5O_EVENT event;
+   event.type = A5O_EVENT_JOYSTICK_CONFIGURATION;
    _al_event_source_emit_event(es, &event);
    _al_event_source_unlock(es);
 }
 
-/* NOTE: don't put any ALLEGRO_DEBUG in here! */
+/* NOTE: don't put any A5O_DEBUG in here! */
 static void finish_activity(JNIEnv *env)
 {
    _jni_callVoidMethod(env, system_data.activity_object, "postFinish");
 }
 
-static ALLEGRO_SYSTEM *android_initialize(int flags)
+static A5O_SYSTEM *android_initialize(int flags)
 {
    (void)flags;
 
-   ALLEGRO_DEBUG("android_initialize");
+   A5O_DEBUG("android_initialize");
 
    /* This was stored before user main ran, to make it easy and accessible
     * the same way for all threads, we set it in tls
@@ -481,7 +481,7 @@ static ALLEGRO_SYSTEM *android_initialize(int flags)
    return &system_data.system->system;
 }
 
-static ALLEGRO_JOYSTICK_DRIVER *android_get_joystick_driver(void)
+static A5O_JOYSTICK_DRIVER *android_get_joystick_driver(void)
 {
    return &_al_android_joystick_driver;
 }
@@ -491,7 +491,7 @@ static int android_get_num_video_adapters(void)
    return 1;
 }
 
-static bool android_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool android_get_monitor_info(int adapter, A5O_MONITOR_INFO *info)
 {
    if (adapter >= android_get_num_video_adapters())
       return false;
@@ -504,7 +504,7 @@ static bool android_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->x2 = _jni_callIntMethod(env, rect, "width");
    info->y2 = _jni_callIntMethod(env, rect, "height");
 
-   ALLEGRO_DEBUG("Monitor Info: %d:%d", info->x2, info->y2);
+   A5O_DEBUG("Monitor Info: %d:%d", info->x2, info->y2);
 
    _jni_callv(env, DeleteLocalRef, rect);
 
@@ -513,11 +513,11 @@ static bool android_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 
 static void android_shutdown_system(void)
 {
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   A5O_SYSTEM *s = al_get_system_driver();
   /* Close all open displays. */
    while (_al_vector_size(&s->displays) > 0) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
-      ALLEGRO_DISPLAY *d = *dptr;
+      A5O_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
+      A5O_DISPLAY *d = *dptr;
       al_destroy_display(d);
    }
    _al_vector_free(&s->displays);
@@ -528,9 +528,9 @@ static bool android_inhibit_screensaver(bool inhibit)
    return _jni_callBooleanMethodV(_al_android_get_jnienv(), system_data.activity_object, "inhibitScreenLock", "(Z)Z", inhibit);
 }
 
-static ALLEGRO_SYSTEM_INTERFACE *android_vt;
+static A5O_SYSTEM_INTERFACE *android_vt;
 
-ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
+A5O_SYSTEM_INTERFACE *_al_system_android_interface()
 {
    if(android_vt)
       return android_vt;
@@ -538,7 +538,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt = al_malloc(sizeof *android_vt);
    memset(android_vt, 0, sizeof *android_vt);
 
-   android_vt->id = ALLEGRO_SYSTEM_ID_ANDROID;
+   android_vt->id = A5O_SYSTEM_ID_ANDROID;
    android_vt->initialize = android_initialize;
    android_vt->get_display_driver = _al_get_android_display_driver;
    android_vt->get_keyboard_driver = _al_get_android_keyboard_driver;
@@ -557,30 +557,30 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    return android_vt;
 }
 
-ALLEGRO_PATH *_al_android_get_path(int id)
+A5O_PATH *_al_android_get_path(int id)
 {
-   ALLEGRO_PATH *path = NULL;
+   A5O_PATH *path = NULL;
 
    switch(id) {
-      case ALLEGRO_RESOURCES_PATH:
+      case A5O_RESOURCES_PATH:
          /* path to bundle's files */
          path = al_create_path_for_directory(al_cstr(system_data.resources_dir));
          break;
 
-      case ALLEGRO_TEMP_PATH:
+      case A5O_TEMP_PATH:
          /* path to the application cache */
          path = al_create_path_for_directory(al_cstr(system_data.temp_dir));
          break;
 
-      case ALLEGRO_USER_DATA_PATH:
-      case ALLEGRO_USER_HOME_PATH:
-      case ALLEGRO_USER_SETTINGS_PATH:
-      case ALLEGRO_USER_DOCUMENTS_PATH:
+      case A5O_USER_DATA_PATH:
+      case A5O_USER_HOME_PATH:
+      case A5O_USER_SETTINGS_PATH:
+      case A5O_USER_DOCUMENTS_PATH:
          /* path to sdcard */
          path = al_create_path_for_directory(al_cstr(system_data.data_dir));
          break;
 
-      case ALLEGRO_EXENAME_PATH:
+      case A5O_EXENAME_PATH:
          /* bundle path + bundle name */
          // FIXME!
          path = al_create_path(al_cstr(system_data.apk_path));
@@ -597,7 +597,7 @@ ALLEGRO_PATH *_al_android_get_path(int id)
 static const char *_real_al_android_get_os_version(JNIEnv *env)
 {
    static char buffer[25];
-   ALLEGRO_USTR *s = _jni_callStringMethod(env, system_data.activity_object, "getOsVersion", "()Ljava/lang/String;");
+   A5O_USTR *s = _jni_callStringMethod(env, system_data.activity_object, "getOsVersion", "()Ljava/lang/String;");
    strncpy(buffer, al_cstr(s), 25);
    al_ustr_free(s);
    return buffer;
@@ -618,7 +618,7 @@ void _al_android_thread_created(void)
    /* This function runs once before al_init, so before TLS is initialized
     * so we save the environment and set it later in that case.
     */
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   A5O_SYSTEM *s = al_get_system_driver();
    if (s && s->installed) {
       _al_android_set_jnienv(env);
    }
@@ -632,9 +632,9 @@ void _al_android_thread_ended(void)
    (*javavm)->DetachCurrentThread(javavm);
 }
 
-void _al_android_set_capture_volume_keys(ALLEGRO_DISPLAY *display, bool onoff)
+void _al_android_set_capture_volume_keys(A5O_DISPLAY *display, bool onoff)
 {
-   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)display;
+   A5O_DISPLAY_ANDROID *d = (A5O_DISPLAY_ANDROID *)display;
    _jni_callVoidMethodV(_al_android_get_jnienv(), d->surface_object, "setCaptureVolumeKeys", "(Z)V", onoff);
 }
 
@@ -642,7 +642,7 @@ void _al_android_set_capture_volume_keys(ALLEGRO_DISPLAY *display, bool onoff)
 
 void _al_register_system_interfaces(void)
 {
-   ALLEGRO_SYSTEM_INTERFACE **add;
+   A5O_SYSTEM_INTERFACE **add;
 
    /* add the native activity driver */
    add = _al_vector_alloc_back(&_al_system_interfaces);

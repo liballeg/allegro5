@@ -17,11 +17,11 @@ typedef struct Point
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_KEYBOARD_STATE key_state;
+   A5O_DISPLAY *display;
+   A5O_KEYBOARD_STATE key_state;
    Point stars[3][NUM_STARS/3];
    float speeds[3] = { 0.0001f, 0.05f, 0.15f };
-   ALLEGRO_COLOR colors[3];
+   A5O_COLOR colors[3];
    long start, now, elapsed, frame_count;
    int total_frames = 0;
    double program_start;
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
             Point *p = &stars[0][star];
             al_draw_pixel(p->x, p->y, colors[0]);
          }
-         al_lock_bitmap(al_get_backbuffer(display), ALLEGRO_PIXEL_FORMAT_ANY, 0);
+         al_lock_bitmap(al_get_backbuffer(display), A5O_PIXEL_FORMAT_ANY, 0);
 
          for (layer = 1; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
       al_rest(0.001);
 
       al_get_keyboard_state(&key_state);
-      if (al_key_down(&key_state, ALLEGRO_KEY_ESCAPE))
+      if (al_key_down(&key_state, A5O_KEY_ESCAPE))
          break;
    }
 

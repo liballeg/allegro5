@@ -29,7 +29,7 @@ if(SUPPORT_OGG_VIDEO)
         )
     list(APPEND VIDEO_SOURCES ogv.c)
     set(SUPPORT_VIDEO 1)
-    set(ALLEGRO_CFG_VIDEO_HAVE_OGV 1)
+    set(A5O_CFG_VIDEO_HAVE_OGV 1)
     set(VIDEO_LIBRARIES ${VIDEO_LIBRARIES} ${THEORA_LIBRARIES} ${VORBIS_LIBRARIES})
 endif(SUPPORT_OGG_VIDEO)
 
@@ -46,10 +46,10 @@ configure_file(
     )
 
 add_our_addon_library(allegro_video
-    AllegroVideo-${ALLEGRO_SOVERSION}
+    AllegroVideo-${A5O_SOVERSION}
     "${VIDEO_SOURCES};${VIDEO_INCLUDE_FILES}"
-    "-DALLEGRO_VIDEO_SRC"
-    "${ALLEGRO_LINK_WITH};${AUDIO_LINK_WITH};${VIDEO_LIBRARIES}"
+    "-DA5O_VIDEO_SRC"
+    "${A5O_LINK_WITH};${AUDIO_LINK_WITH};${VIDEO_LIBRARIES}"
     )
 
 install_our_headers(${VIDEO_INCLUDE_FILES})

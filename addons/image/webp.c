@@ -12,7 +12,7 @@
 
 #include "iio.h"
 
-ALLEGRO_DEBUG_CHANNEL("image")
+A5O_DEBUG_CHANNEL("image")
 
 
 /*****************************************************************************
@@ -20,29 +20,29 @@ ALLEGRO_DEBUG_CHANNEL("image")
  ****************************************************************************/
 
 
-static ALLEGRO_BITMAP *load_from_buffer(const uint8_t* data, size_t data_size,
+static A5O_BITMAP *load_from_buffer(const uint8_t* data, size_t data_size,
    int flags)
 {
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_LOCKED_REGION *lock;
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   A5O_BITMAP *bmp;
+   A5O_LOCKED_REGION *lock;
+   bool premul = !(flags & A5O_NO_PREMULTIPLIED_ALPHA);
 
    WebPDecoderConfig config;
    WebPInitDecoderConfig(&config);
 
    if (WebPGetFeatures(data, data_size, &config.input) != VP8_STATUS_OK) {
-      ALLEGRO_ERROR("Could not read WebP stream info\n");
+      A5O_ERROR("Could not read WebP stream info\n");
       return NULL;
    }
 
    bmp = al_create_bitmap(config.input.width, config.input.height);
    if (!bmp) {
-      ALLEGRO_ERROR("al_create_bitmap failed while loading WebP.\n");
+      A5O_ERROR("al_create_bitmap failed while loading WebP.\n");
       return NULL;
    }
 
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-      ALLEGRO_LOCK_WRITEONLY);
+   lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ABGR_8888_LE,
+      A5O_LOCK_WRITEONLY);
 
    config.output.colorspace = premul ? MODE_rgbA : MODE_RGBA;
    config.output.u.RGBA.rgba = (uint8_t*)lock->data;
@@ -51,7 +51,7 @@ static ALLEGRO_BITMAP *load_from_buffer(const uint8_t* data, size_t data_size,
    config.output.is_external_memory = 1;
 
    if (WebPDecode(data, data_size, &config) != VP8_STATUS_OK) {
-      ALLEGRO_ERROR("Could not decode WebP stream\n");
+      A5O_ERROR("Could not decode WebP stream\n");
       al_destroy_bitmap(bmp);
       return NULL;
    }
@@ -62,16 +62,16 @@ static ALLEGRO_BITMAP *load_from_buffer(const uint8_t* data, size_t data_size,
 }
 
 
-ALLEGRO_BITMAP *_al_load_webp_f(ALLEGRO_FILE *fp, int flags)
+A5O_BITMAP *_al_load_webp_f(A5O_FILE *fp, int flags)
 {
-   ALLEGRO_ASSERT(fp);
-   ALLEGRO_BITMAP *bmp;
+   A5O_ASSERT(fp);
+   A5O_BITMAP *bmp;
 
    size_t data_size = al_fsize(fp);
    uint8_t *data = al_malloc(data_size * sizeof(uint8_t));
 
    if (al_fread(fp, data, data_size) != data_size) {
-      ALLEGRO_ERROR("Could not read WebP file\n");
+      A5O_ERROR("Could not read WebP file\n");
       free(data);
       return NULL;
    }
@@ -87,16 +87,16 @@ ALLEGRO_BITMAP *_al_load_webp_f(ALLEGRO_FILE *fp, int flags)
 
 
 
-ALLEGRO_BITMAP *_al_load_webp(const char *filename, int flags)
+A5O_BITMAP *_al_load_webp(const char *filename, int flags)
 {
-   ALLEGRO_FILE *fp;
-   ALLEGRO_BITMAP *bmp;
+   A5O_FILE *fp;
+   A5O_BITMAP *bmp;
 
-   ALLEGRO_ASSERT(filename);
+   A5O_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable to open %s for reading.\n", filename);
+      A5O_ERROR("Unable to open %s for reading.\n", filename);
       return NULL;
    }
 
@@ -115,16 +115,16 @@ ALLEGRO_BITMAP *_al_load_webp(const char *filename, int flags)
  ****************************************************************************/
 
 
-bool _al_save_webp_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
+bool _al_save_webp_f(A5O_FILE *fp, A5O_BITMAP *bmp)
 {
 
-   ALLEGRO_LOCKED_REGION *lock;
+   A5O_LOCKED_REGION *lock;
    bool ret = false;
 
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-      ALLEGRO_LOCK_READONLY);
+   lock = al_lock_bitmap(bmp, A5O_PIXEL_FORMAT_ABGR_8888_LE,
+      A5O_LOCK_READONLY);
    if (!lock) {
-      ALLEGRO_ERROR("Failed to lock bitmap.\n");
+      A5O_ERROR("Failed to lock bitmap.\n");
       return false;
    }
 
@@ -158,28 +158,28 @@ bool _al_save_webp_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 }
 
 
-bool _al_save_webp(const char *filename, ALLEGRO_BITMAP *bmp)
+bool _al_save_webp(const char *filename, A5O_BITMAP *bmp)
 {
-   ALLEGRO_FILE *fp;
+   A5O_FILE *fp;
    bool retsave;
    bool retclose;
 
-   ALLEGRO_ASSERT(filename);
-   ALLEGRO_ASSERT(bmp);
+   A5O_ASSERT(filename);
+   A5O_ASSERT(bmp);
 
    fp = al_fopen(filename, "wb");
    if (!fp) {
-      ALLEGRO_ERROR("Unable to open file %s for writing\n", filename);
+      A5O_ERROR("Unable to open file %s for writing\n", filename);
       return false;
    }
 
    retsave = _al_save_webp_f(fp, bmp);
    if (!retsave) {
-      ALLEGRO_ERROR("Unable to store WebP bitmap in file %s\n", filename);
+      A5O_ERROR("Unable to store WebP bitmap in file %s\n", filename);
    }
    retclose = al_fclose(fp);
    if (!retclose) {
-      ALLEGRO_ERROR("Unable to close file %s\n", filename);
+      A5O_ERROR("Unable to close file %s\n", filename);
    }
 
    return retsave && retclose;

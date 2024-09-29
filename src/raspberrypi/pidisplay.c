@@ -18,7 +18,7 @@
 #define DEFAULT_CURSOR_WIDTH 17
 #define DEFAULT_CURSOR_HEIGHT 28
 
-static ALLEGRO_DISPLAY_INTERFACE *vt;
+static A5O_DISPLAY_INTERFACE *vt;
 
 static EGLDisplay egl_display;
 static EGLSurface egl_window;
@@ -32,7 +32,7 @@ static VC_RECT_T src_rect;
 static bool cursor_added = false;
 static float mouse_scale_ratio_x = 1.0f, mouse_scale_ratio_y = 1.0f;
 
-struct ALLEGRO_DISPLAY_RASPBERRYPI_EXTRA {
+struct A5O_DISPLAY_RASPBERRYPI_EXTRA {
 };
 
 static int pot(int n)
@@ -44,7 +44,7 @@ static int pot(int n)
 	return i;
 }
 
-static void set_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d, uint32_t *data, int width, int height)
+static void set_cursor_data(A5O_DISPLAY_RASPBERRYPI *d, uint32_t *data, int width, int height)
 {
    al_free(d->cursor_data);
    int spitch = sizeof(uint32_t) * width;
@@ -60,13 +60,13 @@ static void set_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d, uint32_t *data, int 
    d->cursor_height = height;
 }
 
-static void delete_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+static void delete_cursor_data(A5O_DISPLAY_RASPBERRYPI *d)
 {
       al_free(d->cursor_data);
       d->cursor_data = NULL;
 }
 
-static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+static void show_cursor(A5O_DISPLAY_RASPBERRYPI *d)
 {
    if (d->cursor_data == NULL) {
       return;
@@ -91,7 +91,7 @@ static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
       vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, dpitch, d->cursor_data, &r);
       vc_dispmanx_update_submit_sync(dispman_update);
 
-      ALLEGRO_MOUSE_STATE state;
+      A5O_MOUSE_STATE state;
       al_get_mouse_state(&state);
 
       dst_rect.x = state.x+d->cursor_offset_x;
@@ -123,13 +123,13 @@ static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
       cursor_added = true;
    }
    else {
-      ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY *)d;
+      A5O_DISPLAY *disp = (A5O_DISPLAY *)d;
       VC_RECT_T src, dst;
       src.x = 0;
       src.y = 0;
       src.width = d->cursor_width << 16;
       src.height = d->cursor_height << 16;
-      ALLEGRO_MOUSE_STATE st;
+      A5O_MOUSE_STATE st;
       al_get_mouse_state(&st);
       st.x = (st.x+0.5) * d->screen_width / disp->w;
       st.y = (st.y+0.5) * d->screen_height / disp->h;
@@ -153,7 +153,7 @@ static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
    }
 }
 
-static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+static void hide_cursor(A5O_DISPLAY_RASPBERRYPI *d)
 {
    (void)d;
 
@@ -169,9 +169,9 @@ static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 }
 
 /* Helper to set up GL state as we want it. */
-static void setup_gl(ALLEGRO_DISPLAY *d)
+static void setup_gl(A5O_DISPLAY *d)
 {
-    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+    A5O_OGL_EXTRAS *ogl = d->ogl_extras;
 
     if (ogl->backbuffer)
         _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
@@ -210,9 +210,9 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
             p2 += strlen("fbheight=");
             int w = atoi(p);
             int h = atoi(p2);
-            const ALLEGRO_FILE_INTERFACE *file_interface = al_get_new_file_interface();
+            const A5O_FILE_INTERFACE *file_interface = al_get_new_file_interface();
             al_set_standard_file_interface();
-            ALLEGRO_CONFIG *cfg = al_load_config_file("/boot/config.txt");
+            A5O_CONFIG *cfg = al_load_config_file("/boot/config.txt");
             if (cfg) {
                const char *disable_overscan =
                   al_get_config_value(
@@ -264,10 +264,10 @@ void _al_raspberrypi_get_mouse_scale_ratios(float *x, float *y)
 	*y = mouse_scale_ratio_y;
 }
 
-static bool pi_create_display(ALLEGRO_DISPLAY *display)
+static bool pi_create_display(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
+   A5O_DISPLAY_RASPBERRYPI *d = (void *)display;
+   A5O_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
 
    egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
    if (egl_display == EGL_NO_DISPLAY) {
@@ -291,18 +291,18 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
       EGL_NONE
    };
 
-   attrib_list[1] = eds->settings[ALLEGRO_DEPTH_SIZE];
-   attrib_list[3] = eds->settings[ALLEGRO_STENCIL_SIZE];
+   attrib_list[1] = eds->settings[A5O_DEPTH_SIZE];
+   attrib_list[3] = eds->settings[A5O_STENCIL_SIZE];
 
-   if (eds->settings[ALLEGRO_RED_SIZE] || eds->settings[ALLEGRO_GREEN_SIZE] ||
-         eds->settings[ALLEGRO_BLUE_SIZE] ||
-         eds->settings[ALLEGRO_ALPHA_SIZE]) {
-      attrib_list[5] = eds->settings[ALLEGRO_RED_SIZE];
-      attrib_list[7] = eds->settings[ALLEGRO_GREEN_SIZE];
-      attrib_list[9] = eds->settings[ALLEGRO_BLUE_SIZE];
-      attrib_list[11] = eds->settings[ALLEGRO_ALPHA_SIZE];
+   if (eds->settings[A5O_RED_SIZE] || eds->settings[A5O_GREEN_SIZE] ||
+         eds->settings[A5O_BLUE_SIZE] ||
+         eds->settings[A5O_ALPHA_SIZE]) {
+      attrib_list[5] = eds->settings[A5O_RED_SIZE];
+      attrib_list[7] = eds->settings[A5O_GREEN_SIZE];
+      attrib_list[9] = eds->settings[A5O_BLUE_SIZE];
+      attrib_list[11] = eds->settings[A5O_ALPHA_SIZE];
    }
-   else if (eds->settings[ALLEGRO_COLOR_SIZE] == 16) {
+   else if (eds->settings[A5O_COLOR_SIZE] == 16) {
       attrib_list[5] = 5;
       attrib_list[7] = 6;
       attrib_list[9] = 5;
@@ -318,7 +318,7 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
 
    eglBindAPI(EGL_OPENGL_ES_API);
 
-   int es_ver = (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) ?
+   int es_ver = (display->flags & A5O_PROGRAMMABLE_PIPELINE) ?
       2 : 1;
 
    static EGLint ctxattr[3] = {
@@ -396,36 +396,36 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
    return true;
 }
 
-static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
+static A5O_DISPLAY *raspberrypi_create_display(int w, int h)
 {
-    ALLEGRO_DISPLAY_RASPBERRYPI *d = al_calloc(1, sizeof *d);
-    ALLEGRO_DISPLAY *display = (void*)d;
-    ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
+    A5O_DISPLAY_RASPBERRYPI *d = al_calloc(1, sizeof *d);
+    A5O_DISPLAY *display = (void*)d;
+    A5O_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
     display->ogl_extras = ogl;
     display->vt = _al_get_raspberrypi_display_interface();
     display->flags = al_get_new_display_flags();
 
-    ALLEGRO_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
+    A5O_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
 
     /* Add ourself to the list of displays. */
-    ALLEGRO_DISPLAY_RASPBERRYPI **add;
+    A5O_DISPLAY_RASPBERRYPI **add;
     add = _al_vector_alloc_back(&system->system.displays);
     *add = d;
 
     /* Each display is an event source. */
     _al_event_source_init(&display->es);
 
-    display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+    display->extra_settings.settings[A5O_COMPATIBLE_DISPLAY] = 1;
 
    display->w = w;
    display->h = h;
 
-   display->flags |= ALLEGRO_OPENGL;
-#ifdef ALLEGRO_CFG_OPENGLES2
-   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+   display->flags |= A5O_OPENGL;
+#ifdef A5O_CFG_OPENGLES2
+   display->flags |= A5O_PROGRAMMABLE_PIPELINE;
 #endif
-#ifdef ALLEGRO_CFG_OPENGLES
-   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#ifdef A5O_CFG_OPENGLES
+   display->flags |= A5O_OPENGL_ES_PROFILE;
 #endif
 
    if (!pi_create_display(display)) {
@@ -475,7 +475,7 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
 
    setup_gl(display);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(A5O_ADD, A5O_ONE, A5O_INVERSE_ALPHA);
 
    if (al_is_mouse_installed() && !getenv("DISPLAY")) {
       _al_evdev_set_mouse_range(0, 0, display->w-1, display->h-1);
@@ -485,15 +485,15 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
 
    /* Fill in opengl version */
    const int v = display->ogl_extras->ogl_info.version;
-   display->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
-   display->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+   display->extra_settings.settings[A5O_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+   display->extra_settings.settings[A5O_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
 
    return display;
 }
 
-static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
+static void raspberrypi_destroy_display(A5O_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_RASPBERRYPI *pidisplay = (ALLEGRO_DISPLAY_RASPBERRYPI *)d;
+   A5O_DISPLAY_RASPBERRYPI *pidisplay = (A5O_DISPLAY_RASPBERRYPI *)d;
 
    hide_cursor(pidisplay);
    delete_cursor_data(pidisplay);
@@ -501,14 +501,14 @@ static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
    _al_set_current_display_only(d);
 
    while (d->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref_back(&d->bitmaps);
-      ALLEGRO_BITMAP *b = *bptr;
+      A5O_BITMAP **bptr = (A5O_BITMAP **)_al_vector_ref_back(&d->bitmaps);
+      A5O_BITMAP *b = *bptr;
       _al_convert_to_memory_bitmap(b);
    }
 
    _al_event_source_free(&d->es);
 
-   ALLEGRO_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
+   A5O_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
    _al_vector_find_and_delete(&system->system.displays, &d);
 
    eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -528,7 +528,7 @@ static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
    }
 }
 
-static bool raspberrypi_set_current_display(ALLEGRO_DISPLAY *d)
+static bool raspberrypi_set_current_display(A5O_DISPLAY *d)
 {
    (void)d;
 // FIXME
@@ -536,10 +536,10 @@ static bool raspberrypi_set_current_display(ALLEGRO_DISPLAY *d)
    return true;
 }
 
-static int raspberrypi_get_orientation(ALLEGRO_DISPLAY *d)
+static int raspberrypi_get_orientation(A5O_DISPLAY *d)
 {
    (void)d;
-   return ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+   return A5O_DISPLAY_ORIENTATION_0_DEGREES;
 }
 
 
@@ -547,8 +547,8 @@ static int raspberrypi_get_orientation(ALLEGRO_DISPLAY *d)
  * are compatible.
  */
 static bool raspberrypi_is_compatible_bitmap(
-   ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bitmap
+   A5O_DISPLAY *display,
+   A5O_BITMAP *bitmap
 ) {
     (void)display;
     (void)bitmap;
@@ -556,7 +556,7 @@ static bool raspberrypi_is_compatible_bitmap(
 }
 
 /* Resizing is not possible. */
-static bool raspberrypi_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
+static bool raspberrypi_resize_display(A5O_DISPLAY *d, int w, int h)
 {
     (void)d;
     (void)w;
@@ -567,7 +567,7 @@ static bool raspberrypi_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 /* The icon must be provided in the Info.plist file, it cannot be changed
  * at runtime.
  */
-static void raspberrypi_set_icons(ALLEGRO_DISPLAY *d, int num_icons, ALLEGRO_BITMAP *bitmaps[])
+static void raspberrypi_set_icons(A5O_DISPLAY *d, int num_icons, A5O_BITMAP *bitmaps[])
 {
     (void)d;
     (void)num_icons;
@@ -575,14 +575,14 @@ static void raspberrypi_set_icons(ALLEGRO_DISPLAY *d, int num_icons, ALLEGRO_BIT
 }
 
 /* There is no way to leave fullscreen so no window title is visible. */
-static void raspberrypi_set_window_title(ALLEGRO_DISPLAY *display, char const *title)
+static void raspberrypi_set_window_title(A5O_DISPLAY *display, char const *title)
 {
     (void)display;
     (void)title;
 }
 
 /* The window always spans the entire screen right now. */
-static void raspberrypi_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void raspberrypi_set_window_position(A5O_DISPLAY *display, int x, int y)
 {
     (void)display;
     (void)x;
@@ -590,7 +590,7 @@ static void raspberrypi_set_window_position(ALLEGRO_DISPLAY *display, int x, int
 }
 
 /* The window cannot be constrained. */
-static bool raspberrypi_set_window_constraints(ALLEGRO_DISPLAY *display,
+static bool raspberrypi_set_window_constraints(A5O_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
    (void)display;
@@ -602,7 +602,7 @@ static bool raspberrypi_set_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 /* Always fullscreen. */
-static bool raspberrypi_set_display_flag(ALLEGRO_DISPLAY *display,
+static bool raspberrypi_set_display_flag(A5O_DISPLAY *display,
    int flag, bool onoff)
 {
    (void)display;
@@ -611,7 +611,7 @@ static bool raspberrypi_set_display_flag(ALLEGRO_DISPLAY *display,
    return false;
 }
 
-static void raspberrypi_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+static void raspberrypi_get_window_position(A5O_DISPLAY *display, int *x, int *y)
 {
     (void)display;
     *x = 0;
@@ -619,7 +619,7 @@ static void raspberrypi_get_window_position(ALLEGRO_DISPLAY *display, int *x, in
 }
 
 /* The window cannot be constrained. */
-static bool raspberrypi_get_window_constraints(ALLEGRO_DISPLAY *display,
+static bool raspberrypi_get_window_constraints(A5O_DISPLAY *display,
    int *min_w, int *min_h, int *max_w, int *max_h)
 {
    (void)display;
@@ -630,22 +630,22 @@ static bool raspberrypi_get_window_constraints(ALLEGRO_DISPLAY *display,
    return false;
 }
 
-static bool raspberrypi_wait_for_vsync(ALLEGRO_DISPLAY *display)
+static bool raspberrypi_wait_for_vsync(A5O_DISPLAY *display)
 {
     (void)display;
     return false;
 }
 
-static void raspberrypi_flip_display(ALLEGRO_DISPLAY *disp)
+static void raspberrypi_flip_display(A5O_DISPLAY *disp)
 {
    eglSwapBuffers(egl_display, egl_window);
 
    if (cursor_added) {
-      show_cursor((ALLEGRO_DISPLAY_RASPBERRYPI *)disp);
+      show_cursor((A5O_DISPLAY_RASPBERRYPI *)disp);
    }
 }
 
-static void raspberrypi_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+static void raspberrypi_update_display_region(A5O_DISPLAY *d, int x, int y,
                                        int w, int h)
 {
     (void)x;
@@ -655,36 +655,36 @@ static void raspberrypi_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
     raspberrypi_flip_display(d);
 }
 
-static bool raspberrypi_acknowledge_resize(ALLEGRO_DISPLAY *d)
+static bool raspberrypi_acknowledge_resize(A5O_DISPLAY *d)
 {
    setup_gl(d);
    return true;
 }
 
-static bool raspberrypi_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+static bool raspberrypi_show_mouse_cursor(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   A5O_DISPLAY_RASPBERRYPI *d = (void *)display;
    hide_cursor(d);
    show_cursor(d);
    return true;
 }
 
-static bool raspberrypi_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+static bool raspberrypi_hide_mouse_cursor(A5O_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   A5O_DISPLAY_RASPBERRYPI *d = (void *)display;
    hide_cursor(d);
    return true;
 }
 
-static bool raspberrypi_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor)
+static bool raspberrypi_set_mouse_cursor(A5O_DISPLAY *display, A5O_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
-   ALLEGRO_MOUSE_CURSOR_RASPBERRYPI *pi_cursor = (void *)cursor;
+   A5O_DISPLAY_RASPBERRYPI *d = (void *)display;
+   A5O_MOUSE_CURSOR_RASPBERRYPI *pi_cursor = (void *)cursor;
    int w = al_get_bitmap_width(pi_cursor->bitmap);
    int h = al_get_bitmap_height(pi_cursor->bitmap);
    int pitch = w * sizeof(uint32_t);
    uint32_t *data = al_malloc(pitch * h);
-   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(pi_cursor->bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
+   A5O_LOCKED_REGION *lr = al_lock_bitmap(pi_cursor->bitmap, A5O_PIXEL_FORMAT_ARGB_8888, A5O_LOCK_READONLY);
    int y;
    for (y = 0; y < h; y++) {
       uint8_t *p = (uint8_t *)lr->data + lr->pitch * y;
@@ -702,17 +702,17 @@ static bool raspberrypi_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE
    return true;
 }
 
-static bool raspberrypi_set_system_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+static bool raspberrypi_set_system_mouse_cursor(A5O_DISPLAY *display, A5O_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    (void)cursor_id;
-   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   A5O_DISPLAY_RASPBERRYPI *d = (void *)display;
    delete_cursor_data(d);
    set_cursor_data(d, default_cursor, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT);
    return true;
 }
 
 /* Obtain a reference to this driver. */
-ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void)
+A5O_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void)
 {
     if (vt)
         return vt;

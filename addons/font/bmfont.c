@@ -7,7 +7,7 @@
 #include "font.h"
 #include "xml.h"
 
-ALLEGRO_DEBUG_CHANNEL("font")
+A5O_DEBUG_CHANNEL("font")
 
 typedef struct {
    int first;
@@ -37,7 +37,7 @@ struct BMFONT_RANGE {
 
 typedef struct {
    int pages_count;
-   ALLEGRO_BITMAP **pages;
+   A5O_BITMAP **pages;
    BMFONT_RANGE *range_first;
    int base;
    int line_height;
@@ -48,11 +48,11 @@ typedef struct {
 } BMFONT_DATA;
 
 typedef struct {
-   ALLEGRO_FONT *font;
-   ALLEGRO_USTR *tag;
-   ALLEGRO_USTR *attribute;
+   A5O_FONT *font;
+   A5O_USTR *tag;
+   A5O_USTR *attribute;
    BMFONT_CHAR *c;
-   ALLEGRO_PATH *path;
+   A5O_PATH *path;
 } BMFONT_PARSER;
 
 static void reallocate(BMFONT_RANGE *range) {
@@ -100,7 +100,7 @@ static void insert_new_range(BMFONT_PARSER *parser, BMFONT_RANGE *prev,
       prev->next = range;
    }
    else {
-      ALLEGRO_FONT *font = parser->font;
+      A5O_FONT *font = parser->font;
       BMFONT_DATA *data = font->data;
       range->next = data->range_first;
       data->range_first = range;
@@ -112,7 +112,7 @@ static void insert_new_range(BMFONT_PARSER *parser, BMFONT_RANGE *prev,
  * prepends it to the beginning of a range, or merges two ranges.
  */
 static void add_codepoint(BMFONT_PARSER *parser, int codepoint) {
-   ALLEGRO_FONT *font = parser->font;
+   A5O_FONT *font = parser->font;
    BMFONT_DATA *data = font->data;
    BMFONT_RANGE *prev = NULL;
    BMFONT_RANGE *range = data->range_first;
@@ -152,13 +152,13 @@ static BMFONT_CHAR *find_codepoint(BMFONT_DATA *data, int codepoint) {
 }
 
 static void add_page(BMFONT_PARSER *parser, char const *filename) {
-   ALLEGRO_FONT *font = parser->font;
+   A5O_FONT *font = parser->font;
    BMFONT_DATA *data = font->data;
    data->pages_count++;
    data->pages = al_realloc(data->pages, data->pages_count *
       sizeof *data->pages);
    al_set_path_filename(parser->path, filename);
-   ALLEGRO_BITMAP *page = al_load_bitmap_flags(
+   A5O_BITMAP *page = al_load_bitmap_flags(
       al_path_cstr(parser->path, '/'), data->flags);
    data->pages[data->pages_count - 1] = page;
 }
@@ -178,7 +178,7 @@ static int get_int(char const *value) {
 static int xml_callback(XmlState state, char const *value, void *u)
 {
    BMFONT_PARSER *parser = u;
-   ALLEGRO_FONT *font = parser->font;
+   A5O_FONT *font = parser->font;
    BMFONT_DATA *data = font->data;
    if (state == ElementName) {
       al_ustr_assign_cstr(parser->tag, value);
@@ -228,17 +228,17 @@ static int xml_callback(XmlState state, char const *value, void *u)
    return 0;
 }
 
-static int font_height(const ALLEGRO_FONT *f) {
+static int font_height(const A5O_FONT *f) {
    BMFONT_DATA *data = f->data;
    return data->line_height;
 }
 
-static int font_ascent(const ALLEGRO_FONT *f) {
+static int font_ascent(const A5O_FONT *f) {
    BMFONT_DATA *data = f->data;
    return data->base;
 }
 
-static int font_descent(const ALLEGRO_FONT *f) {
+static int font_descent(const A5O_FONT *f) {
    BMFONT_DATA *data = f->data;
    return data->line_height - data->base;
 }
@@ -255,10 +255,10 @@ static int get_kerning(BMFONT_CHAR *prev, int c) {
    return 0;
 }
 
-static int each_character(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
-      const ALLEGRO_USTR *text, float x, float y, ALLEGRO_GLYPH *glyph,
-      int (*cb)(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, int ch,
-      float x, float y, ALLEGRO_GLYPH *glyph)) {
+static int each_character(const A5O_FONT *f, A5O_COLOR color,
+      const A5O_USTR *text, float x, float y, A5O_GLYPH *glyph,
+      int (*cb)(const A5O_FONT *f, A5O_COLOR color, int ch,
+      float x, float y, A5O_GLYPH *glyph)) {
    BMFONT_DATA *data = f->data;
    int pos = 0;
    int advance = 0;
@@ -276,8 +276,8 @@ static int each_character(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
    return advance;
 }
 
-static int measure_char(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
-      int ch, float x, float y, ALLEGRO_GLYPH *glyph) {
+static int measure_char(const A5O_FONT *f, A5O_COLOR color,
+      int ch, float x, float y, A5O_GLYPH *glyph) {
    (void)color;
    (void)y;
    BMFONT_DATA *data = f->data;
@@ -305,7 +305,7 @@ static int measure_char(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
    return advance;
 }
 
-static bool get_glyph_dimensions(const ALLEGRO_FONT *f,
+static bool get_glyph_dimensions(const A5O_FONT *f,
       int codepoint, int *bbx, int *bby, int *bbw, int *bbh) {
    BMFONT_DATA *data = f->data;
    BMFONT_CHAR *c = find_codepoint(data, codepoint);
@@ -321,12 +321,12 @@ static bool get_glyph_dimensions(const ALLEGRO_FONT *f,
    return true;
 }
 
-static int get_glyph_advance(const ALLEGRO_FONT *f,
+static int get_glyph_advance(const A5O_FONT *f,
       int codepoint1, int codepoint2) {
    BMFONT_DATA *data = f->data;
    BMFONT_CHAR *c = find_codepoint(data, codepoint1);
    int kerning = 0;
-   if (codepoint1 == ALLEGRO_NO_KERNING) {
+   if (codepoint1 == A5O_NO_KERNING) {
       return 0;
    }
 
@@ -335,14 +335,14 @@ static int get_glyph_advance(const ALLEGRO_FONT *f,
       return al_get_glyph_advance(f->fallback, codepoint1, codepoint2);
    }
 
-   if (codepoint2 != ALLEGRO_NO_KERNING)
+   if (codepoint2 != A5O_NO_KERNING)
       kerning = get_kerning(c, codepoint2);
 
    return c->xadvance + kerning;
 }
 
-static bool get_glyph(const ALLEGRO_FONT *f, int prev_codepoint,
-      int codepoint, ALLEGRO_GLYPH *glyph) {
+static bool get_glyph(const A5O_FONT *f, int prev_codepoint,
+      int codepoint, A5O_GLYPH *glyph) {
    BMFONT_DATA *data = f->data;
    BMFONT_CHAR *prev = find_codepoint(data, prev_codepoint);
    BMFONT_CHAR *c = find_codepoint(data, codepoint);
@@ -365,17 +365,17 @@ static bool get_glyph(const ALLEGRO_FONT *f, int prev_codepoint,
    return false;
 }
 
-static int char_length(const ALLEGRO_FONT *f, int ch) {
-   ALLEGRO_COLOR color = {0, 0, 0, 0};
+static int char_length(const A5O_FONT *f, int ch) {
+   A5O_COLOR color = {0, 0, 0, 0};
    return measure_char(f, color, ch, 0, 0, NULL);
 }
 
-static int text_length(const ALLEGRO_FONT *f, const ALLEGRO_USTR *text) {
-   ALLEGRO_COLOR color = {0, 0, 0, 0};
+static int text_length(const A5O_FONT *f, const A5O_USTR *text) {
+   A5O_COLOR color = {0, 0, 0, 0};
    return each_character(f, color, text, 0, 0, NULL, measure_char);
 }
 
-static int render_char(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, int ch, float x, float y) {
+static int render_char(const A5O_FONT *f, A5O_COLOR color, int ch, float x, float y) {
    BMFONT_DATA *data = f->data;
    BMFONT_CHAR *c = find_codepoint(data, ch);
    if (!c) {
@@ -383,20 +383,20 @@ static int render_char(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, int ch, float
          f->fallback, color, ch, x, y);
       return 0;
    }
-   ALLEGRO_BITMAP *page = data->pages[c->page];
+   A5O_BITMAP *page = data->pages[c->page];
    al_draw_tinted_bitmap_region(page, color, c->x, c->y, c->width, c->height,
       x + c->xoffset, y + c->yoffset, 0);
    return c->xadvance;
 }
 
-static int render_char_cb(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
-      int ch, float x, float y, ALLEGRO_GLYPH *glyph) {
+static int render_char_cb(const A5O_FONT *f, A5O_COLOR color,
+      int ch, float x, float y, A5O_GLYPH *glyph) {
    (void)glyph;
    return render_char(f, color, ch, x, y);
 }
 
-static int render(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
-      const ALLEGRO_USTR *text, float x, float y) {
+static int render(const A5O_FONT *f, A5O_COLOR color,
+      const A5O_USTR *text, float x, float y) {
    return each_character(f, color, text, x, y, NULL, render_char_cb);
 }
 
@@ -410,7 +410,7 @@ static void destroy_range(BMFONT_RANGE *range) {
    al_free(range);
 }
 
-static void destroy(ALLEGRO_FONT *f) {
+static void destroy(A5O_FONT *f) {
    BMFONT_DATA *data = f->data;
    BMFONT_RANGE *range = data->range_first;
    while (range) {
@@ -429,10 +429,10 @@ static void destroy(ALLEGRO_FONT *f) {
    al_free(f);
 }
 
-static void get_text_dimensions(const ALLEGRO_FONT *f,
-      const ALLEGRO_USTR *text, int *bbx, int *bby, int *bbw, int *bbh) {
-   ALLEGRO_COLOR color = {0, 0, 0, 0};
-   ALLEGRO_GLYPH glyph;
+static void get_text_dimensions(const A5O_FONT *f,
+      const A5O_USTR *text, int *bbx, int *bby, int *bbw, int *bbh) {
+   A5O_COLOR color = {0, 0, 0, 0};
+   A5O_GLYPH glyph;
    glyph.x = INT_MAX;
    glyph.y = INT_MAX;
    glyph.w = INT_MIN;
@@ -444,7 +444,7 @@ static void get_text_dimensions(const ALLEGRO_FONT *f,
    *bbh = glyph.h - glyph.y;
 }
 
-static int get_font_ranges(ALLEGRO_FONT *f,
+static int get_font_ranges(A5O_FONT *f,
       int ranges_count, int *ranges) {
    BMFONT_DATA *data = f->data;
    BMFONT_RANGE *range = data->range_first;
@@ -460,7 +460,7 @@ static int get_font_ranges(ALLEGRO_FONT *f,
    return i;
 }
 
-static ALLEGRO_FONT_VTABLE _al_font_vtable_xml = {
+static A5O_FONT_VTABLE _al_font_vtable_xml = {
    font_height,
    font_ascent, 
    font_descent,
@@ -476,13 +476,13 @@ static ALLEGRO_FONT_VTABLE _al_font_vtable_xml = {
    get_glyph
 };
 
-ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename, int size,
+A5O_FONT *_al_load_bmfont_xml(const char *filename, int size,
       int font_flags)
 {
    (void)size;
-   ALLEGRO_FILE *f = al_fopen(filename, "r");
+   A5O_FILE *f = al_fopen(filename, "r");
    if (!f) {
-      ALLEGRO_DEBUG("Could not open %s.\n", filename);
+      A5O_DEBUG("Could not open %s.\n", filename);
       return NULL;
    }
 
@@ -494,7 +494,7 @@ ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename, int size,
    parser->path = al_create_path(filename);
    data->flags = font_flags;
 
-   ALLEGRO_FONT *font = al_calloc(1, sizeof *font);
+   A5O_FONT *font = al_calloc(1, sizeof *font);
    font->vtable = &_al_font_vtable_xml;
    font->data = data;
    parser->font = font;

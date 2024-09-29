@@ -4,7 +4,7 @@
 
 #include "common.c"
 
-static void print_joystick_info(ALLEGRO_JOYSTICK *joy)
+static void print_joystick_info(A5O_JOYSTICK *joy)
 {
    int i, n, a;
 
@@ -31,11 +31,11 @@ static void print_joystick_info(ALLEGRO_JOYSTICK *joy)
    }
 }
 
-static void draw(ALLEGRO_JOYSTICK *curr_joy)
+static void draw(A5O_JOYSTICK *curr_joy)
 {
    int x = 100;
    int y = 100;
-   ALLEGRO_JOYSTICK_STATE joystate;
+   A5O_JOYSTICK_STATE joystate;
    int i;
 
    al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -64,9 +64,9 @@ static void draw(ALLEGRO_JOYSTICK *curr_joy)
 int main(int argc, char **argv)
 {
    int num_joysticks;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_JOYSTICK *curr_joy;
-   ALLEGRO_DISPLAY *display;
+   A5O_EVENT_QUEUE *queue;
+   A5O_JOYSTICK *curr_joy;
+   A5O_DISPLAY *display;
 
    (void)argc;
    (void)argv;
@@ -106,16 +106,16 @@ int main(int argc, char **argv)
    draw(curr_joy);
 
    while (1) {
-      ALLEGRO_EVENT event;
+      A5O_EVENT event;
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+      if (event.type == A5O_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == A5O_KEY_ESCAPE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      else if (event.type == A5O_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+      else if (event.type == A5O_EVENT_KEY_CHAR) {
          int n = event.keyboard.unichar - '0';
          if (n >= 0 && n < num_joysticks) {
             curr_joy = al_get_joystick(n);
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
             print_joystick_info(curr_joy);
          }
       }
-      else if (event.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
+      else if (event.type == A5O_EVENT_JOYSTICK_CONFIGURATION) {
          al_reconfigure_joysticks();
          num_joysticks = al_get_num_joysticks();
          log_printf("after reconfiguration num joysticks = %d\n",
@@ -134,14 +134,14 @@ int main(int argc, char **argv)
          }
          curr_joy = al_get_joystick(0);
       }
-      else if (event.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
+      else if (event.type == A5O_EVENT_JOYSTICK_AXIS) {
          log_printf("axis event from %p, stick %d, axis %d\n", event.joystick.id, event.joystick.stick, event.joystick.axis);
       }
-      else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN) {
+      else if (event.type == A5O_EVENT_JOYSTICK_BUTTON_DOWN) {
          log_printf("button down event %d from %p\n",
             event.joystick.button, event.joystick.id);
       } 
-      else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP) {
+      else if (event.type == A5O_EVENT_JOYSTICK_BUTTON_UP) {
          log_printf("button up event %d from %p\n",
             event.joystick.button, event.joystick.id);
       } 

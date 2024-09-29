@@ -128,10 +128,10 @@ static void send_receive(ENetHost *client)
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_TIMER *timer;
+   A5O_EVENT_QUEUE *queue;
+   A5O_EVENT event;
    ENetHost *client;
    ENetPeer *server;
    bool update = true; // when true, update positions and render
@@ -182,34 +182,34 @@ int main(int argc, char **argv)
       al_wait_for_event(queue, &event); // Wait for and get an event.
 
       switch (event.type) {
-         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+         case A5O_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
-         case ALLEGRO_EVENT_KEY_DOWN:
+         case A5O_EVENT_KEY_DOWN:
             switch (event.keyboard.keycode) {
-               case ALLEGRO_KEY_UP:
-               case ALLEGRO_KEY_W: dy -= 1; direction_changed = true; break;
-               case ALLEGRO_KEY_DOWN:
-               case ALLEGRO_KEY_S: dy += 1; direction_changed = true; break;
-               case ALLEGRO_KEY_LEFT:
-               case ALLEGRO_KEY_A: dx -= 1; direction_changed = true; break;
-               case ALLEGRO_KEY_RIGHT:
-               case ALLEGRO_KEY_D: dx += 1; direction_changed = true; break;
+               case A5O_KEY_UP:
+               case A5O_KEY_W: dy -= 1; direction_changed = true; break;
+               case A5O_KEY_DOWN:
+               case A5O_KEY_S: dy += 1; direction_changed = true; break;
+               case A5O_KEY_LEFT:
+               case A5O_KEY_A: dx -= 1; direction_changed = true; break;
+               case A5O_KEY_RIGHT:
+               case A5O_KEY_D: dx += 1; direction_changed = true; break;
             }
             break;
-         case ALLEGRO_EVENT_KEY_UP:
+         case A5O_EVENT_KEY_UP:
             switch (event.keyboard.keycode) {
-               case ALLEGRO_KEY_UP:
-               case ALLEGRO_KEY_W: dy += 1; direction_changed = true; break;
-               case ALLEGRO_KEY_DOWN:
-               case ALLEGRO_KEY_S: dy -= 1; direction_changed = true; break;
-               case ALLEGRO_KEY_LEFT:
-               case ALLEGRO_KEY_A: dx += 1; direction_changed = true; break;
-               case ALLEGRO_KEY_RIGHT:
-               case ALLEGRO_KEY_D: dx -= 1; direction_changed = true; break;
+               case A5O_KEY_UP:
+               case A5O_KEY_W: dy += 1; direction_changed = true; break;
+               case A5O_KEY_DOWN:
+               case A5O_KEY_S: dy -= 1; direction_changed = true; break;
+               case A5O_KEY_LEFT:
+               case A5O_KEY_A: dx += 1; direction_changed = true; break;
+               case A5O_KEY_RIGHT:
+               case A5O_KEY_D: dx -= 1; direction_changed = true; break;
             }
             break;
-         case (ALLEGRO_EVENT_TIMER):
+         case (A5O_EVENT_TIMER):
             update = true;
             break;
       }
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
 
             int x = players[i].x;
             int y = players[i].y;
-            ALLEGRO_COLOR color = players[i].color;
+            A5O_COLOR color = players[i].color;
             al_draw_filled_circle(x, y, PLAYER_SIZE, color);
          }
          al_flip_display();

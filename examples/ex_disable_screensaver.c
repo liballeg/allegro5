@@ -6,10 +6,10 @@
 
 int main(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_FONT *font;
-   ALLEGRO_EVENT_QUEUE *events;
-   ALLEGRO_EVENT event;
+   A5O_DISPLAY *display;
+   A5O_FONT *font;
+   A5O_EVENT_QUEUE *events;
+   A5O_EVENT event;
    bool done = false;
    bool active = true;
    bool fullscreen = false;
@@ -27,8 +27,8 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_init_font_addon();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS |
-      (fullscreen ? ALLEGRO_FULLSCREEN : 0));
+   al_set_new_display_flags(A5O_GENERATE_EXPOSE_EVENTS |
+      (fullscreen ? A5O_FULLSCREEN : 0));
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -52,10 +52,10 @@ int main(int argc, char **argv)
       al_flip_display();
       al_wait_for_event(events, &event);
       switch (event.type) {
-         case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         case A5O_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == A5O_KEY_ESCAPE)
                done = true;
-            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+            else if (event.keyboard.keycode == A5O_KEY_SPACE) {
                if (al_inhibit_screensaver(active)) {
                   active = !active;
                }

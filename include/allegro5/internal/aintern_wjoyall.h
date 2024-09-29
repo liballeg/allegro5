@@ -5,13 +5,13 @@
 /** Part of the Windows joystick wrapper driver 
  * types are shared here for use by the haptic susbystem. */
  
-typedef struct ALLEGRO_JOYSTICK_WINDOWS_ALL {
-   ALLEGRO_JOYSTICK            parent;          /* must be first */
+typedef struct A5O_JOYSTICK_WINDOWS_ALL {
+   A5O_JOYSTICK            parent;          /* must be first */
    bool                        active;
    int                         index;
-   ALLEGRO_JOYSTICK          * handle;
-   ALLEGRO_JOYSTICK_DRIVER   * driver;
-} ALLEGRO_JOYSTICK_WINDOWS_ALL;
+   A5O_JOYSTICK          * handle;
+   A5O_JOYSTICK_DRIVER   * driver;
+} A5O_JOYSTICK_WINDOWS_ALL;
 
 #endif
 

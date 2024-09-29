@@ -69,7 +69,7 @@ void DrawLevelForeground(struct Level *lev)
 }
 
 
-ALLEGRO_BITMAP *ObtainBitmap(const char *name)
+A5O_BITMAP *ObtainBitmap(const char *name)
 {
    DATA_ENTRY *data = demo_data;
    while (data && data->name) {
@@ -80,7 +80,7 @@ ALLEGRO_BITMAP *ObtainBitmap(const char *name)
    return NULL;
 }
 
-ALLEGRO_SAMPLE *ObtainSample(const char *name)
+A5O_SAMPLE *ObtainSample(const char *name)
 {
    DATA_ENTRY *data = demo_data;
    while (data && data->name) {
@@ -427,7 +427,7 @@ char *GetLevelError(void)
 */
 struct Level *LoadLevel(char const *name, int radius)
 {
-   ALLEGRO_FILE *file;
+   A5O_FILE *file;
    struct Level *NewLev = NULL;
 
    ErrorText[0] = '\0';         /* set ErrorText to be a zero length string
