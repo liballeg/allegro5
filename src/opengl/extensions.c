@@ -133,6 +133,7 @@ static uint32_t parse_opengl_version(const char *s)
 /* Reads version info out of glGetString(GL_VERSION) */
 static uint32_t _al_ogl_version(void)
 {
+   const char *str;
    char const *value = al_get_config_value(al_get_system_config(), "opengl",
       "force_opengl_version");
    if (value) {
@@ -144,8 +145,6 @@ static uint32_t _al_ogl_version(void)
          (v & 0xff));
       return v;
    }
-
-   const char *str;
 
    str = (const char *)glGetString(GL_VERSION);
    if (str) {
