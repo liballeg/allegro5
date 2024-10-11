@@ -274,8 +274,10 @@ int title_screen(void)
    text_pix = 0;
    text_width = 0;
 
-   play_midi(data[TITLE_MUSIC].dat, TRUE);
-   play_sample(data[WELCOME_SPL].dat, 255, 127, 1000, FALSE);
+   if (al_is_audio_installed()) {
+      play_midi(data[TITLE_MUSIC].dat, TRUE);
+      play_sample(data[WELCOME_SPL].dat, 255, 127, 1000, FALSE);
+   }
 
    load_credits();
 
