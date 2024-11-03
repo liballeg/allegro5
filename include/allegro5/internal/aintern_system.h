@@ -73,6 +73,7 @@ AL_FUNC(void *, _al_open_library, (const char *filename));
 AL_FUNC(void *, _al_import_symbol, (void *library, const char *symbol));
 AL_FUNC(void, _al_close_library, (void *library));
 AL_FUNC(uint32_t, _al_get_joystick_compat_version, (void));
+AL_FUNC(uint32_t, _al_get_keyboard_compat_version, (void));
 
 #ifdef __cplusplus
 }
