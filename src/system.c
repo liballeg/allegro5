@@ -17,6 +17,7 @@
 
 /* Title: System routines
  */
+#include <stdio.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -529,6 +530,32 @@ void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 
    if (active_sysdrv->vt->init_timeout)
       active_sysdrv->vt->init_timeout(timeout, seconds);
+}
+
+
+static uint32_t get_joystick_compat_version(const char* key)
+{
+   ALLEGRO_CONFIG *system_config = al_get_system_config();
+   const char* compat_version = al_get_config_value(system_config, "compatibility", key);
+   if (!compat_version || strlen(compat_version) == 0)
+      return al_get_allegro_version();
+   int version = 0;
+   int sub_version = 0;
+   int wip_version = 0;
+   /* Ignore the release number, we don't expect that to make a difference */
+   sscanf(compat_version, "%2d.%2d.%2d", &version, &sub_version, &wip_version);
+   return AL_ID(version, sub_version, wip_version, 0);
+}
+
+
+uint32_t _al_get_joystick_compat_version(void)
+{
+   return get_joystick_compat_version("joystick_version");
+}
+
+uint32_t _al_get_keyboard_compat_version(void)
+{
+   return get_joystick_compat_version("keyboard_version");
 }
 
 /* vim: set sts=3 sw=3 et: */

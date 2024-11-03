@@ -25,6 +25,8 @@
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
 
+#import <Carbon/Carbon.h>
+
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile
 #endif
@@ -49,6 +51,7 @@ static void osx_keyboard_exit(void);
 static ALLEGRO_KEYBOARD* osx_get_keyboard(void);
 static ALLEGRO_KEYBOARD keyboard;
 static ALLEGRO_KEYBOARD_STATE kbdstate;
+static UInt32 dead_key_state;
 
 
 
@@ -105,10 +108,8 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode,
          if (!is_repeat) {
             _al_event_source_emit_event(&keyboard.es, &event);
          }
-         if (unicode > 0) {
-            /* Apple maps function, arrow, and other keys to Unicode points. */
-            /* http://www.unicode.org/Public/MAPPINGS/VENDORS/APPLE/CORPCHAR.TXT */
-            if (unicode >= 0xF700 && unicode <= 0xF747) {
+         if (unicode != 0) {
+            if (unicode < 0) {
                unicode = 0;
             }
             event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
@@ -266,17 +267,69 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
    /* Translate OS X modifier flags to Allegro modifier flags */
    int key_shifts = translate_modifier_flags([event modifierFlags]);
 
-   if (pressed) {     
-      NSString* raw_characters = [event charactersIgnoringModifiers];
-      NSString* upper_characters = [event characters];
-      const unichar raw_character = ([raw_characters length] > 0) ? [raw_characters characterAtIndex: 0] : 0;
-      const unichar upper_character =([upper_characters length] > 0) ?  [upper_characters characterAtIndex: 0] : 0;
-      bool is_repeat = pressed ? ([event isARepeat] == YES) : false;
+   if (pressed) {
+      int32_t unichar = 0;
+      bool new_input = _al_get_keyboard_compat_version() >= AL_ID(5, 2, 10, 0);
+      NSString *raw_characters = [event charactersIgnoringModifiers];
+      NSString *characters = [event characters];
+      UniChar raw_character = ([raw_characters length] > 0) ? [raw_characters characterAtIndex: 0] : 0;
+      UniChar character = ([characters length] > 0) ? [characters characterAtIndex: 0] : 0;
+
+      if (new_input) {
+         /* https://stackoverflow.com/a/22677690 */
+         TISInputSourceRef keyboard_input = TISCopyCurrentKeyboardInputSource();
+         CFDataRef layout_data = TISGetInputSourceProperty(keyboard_input, kTISPropertyUnicodeKeyLayoutData);
+         const UCKeyboardLayout *layout = (const UCKeyboardLayout *)CFDataGetBytePtr(layout_data);
+
+         CGEventFlags modifier_flags = [event modifierFlags];
+         UInt32 modifier_key_state = (modifier_flags >> 16) & 0xff;
+
+         UniChar unicode_string[5];
+         unicode_string[4] = 0;
+         UniCharCount unicode_length;
+
+         UCKeyTranslate(layout,
+                        [event keyCode],
+                        kUCKeyActionDown,
+                        modifier_key_state,
+                        LMGetKbdType(),
+                        0,
+                        &dead_key_state,
+                        4,
+                        &unicode_length,
+                        unicode_string);
+
+         if (unicode_length > 0) {
+            ALLEGRO_USTR *ustr = al_ustr_new_from_utf16(unicode_string);
+            unichar = al_ustr_get(ustr, 0);
+            if (unichar < 0)
+               unichar = 0;
+            /* For some reason, pad enter sends a ^C. */
+            if (scancode == ALLEGRO_KEY_PAD_ENTER && unichar == 3)
+               unichar = '\r';
+            /* Single out the few printable characters under 32 */
+            if (unichar < ' ' && (unichar != '\r' && unichar != '\t' && unichar != '\b'))
+               unichar = 0;
+            al_ustr_free(ustr);
+         }
+         CFRelease(keyboard_input);
+      }
+      else
+         unichar = character;
+
+      /* Apple maps function, arrow, and other keys to Unicode points.
+         We want to generate CHAR events for them, so we'll override the translation logic.
+        _handle_key_press will set the unichar back to 0 for these keys. */
+      if (character >= 0xF700 && character <= 0xF747)
+         unichar = -1;
+      /* The delete key. */
+      if (character == 0xF728 && new_input)
+         unichar = 127;
       /* Special processing to send character 1 for CTRL-A, 2 for CTRL-B etc. */
       if ((key_shifts & ALLEGRO_KEYMOD_CTRL) && (isalpha(raw_character)))
-         _handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, key_shifts, is_repeat);
-      else
-         _handle_key_press(dpy, upper_character, scancode, key_shifts, is_repeat);
+         unichar = tolower(raw_character) - 'a' + 1;
+      bool is_repeat = pressed ? ([event isARepeat] == YES) : false;
+      _handle_key_press(dpy, unichar, scancode, key_shifts, is_repeat);
    }
    else {
       _handle_key_release(dpy, key_shifts, scancode);
@@ -301,7 +354,7 @@ void _al_osx_keyboard_modifiers(unsigned int modifiers, ALLEGRO_DISPLAY* dpy)
       changed = (modifiers ^ old_modifiers) & mod_info[i][0];
       if (changed) {
          if (modifiers & mod_info[i][0]) {
-            _handle_key_press(dpy, -1, mod_info[i][2], key_shifts, false);
+            _handle_key_press(dpy, 0, mod_info[i][2], key_shifts, false);
             if (i == 0) {
                /* Caps lock requires special handling */
                _handle_key_release(dpy, key_shifts, mod_info[0][2]);
@@ -309,7 +362,7 @@ void _al_osx_keyboard_modifiers(unsigned int modifiers, ALLEGRO_DISPLAY* dpy)
          }
          else {
             if (i == 0) {
-               _handle_key_press(dpy, -1, mod_info[0][2], key_shifts, false);
+               _handle_key_press(dpy, 0, mod_info[0][2], key_shifts, false);
             }
             
             _handle_key_release(dpy, key_shifts, mod_info[i][2]);
