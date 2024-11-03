@@ -290,6 +290,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    [store beginEditing];
    [store appendAttributedString:attributedString];
    [store endEditing];
+   [self scrollRangeToVisible: NSMakeRange(self.string.length, 0)];
 }
 @end
 
