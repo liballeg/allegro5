@@ -27,7 +27,7 @@ jobs:
                   make -j2
     osx_test:
         name: OSX tests
-        runs-on: macos-11
+        runs-on: macos-12
         steps:
             - name: Checkout
               uses: actions/checkout@v1
