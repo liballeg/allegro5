@@ -155,7 +155,7 @@ static const int mac_to_scancode[128] =
 {
    /* 0x00 */ ALLEGRO_KEY_A,        ALLEGRO_KEY_S,          ALLEGRO_KEY_D,          ALLEGRO_KEY_F,
    /* 0x04 */ ALLEGRO_KEY_H,        ALLEGRO_KEY_G,          ALLEGRO_KEY_Z,          ALLEGRO_KEY_X,
-   /* 0x08 */ ALLEGRO_KEY_C,        ALLEGRO_KEY_V,          0,                      ALLEGRO_KEY_B,
+   /* 0x08 */ ALLEGRO_KEY_C,        ALLEGRO_KEY_V,          ALLEGRO_KEY_BACKSLASH2, ALLEGRO_KEY_B,
    /* 0x0c */ ALLEGRO_KEY_Q,        ALLEGRO_KEY_W,          ALLEGRO_KEY_E,          ALLEGRO_KEY_R,
    /* 0x10 */ ALLEGRO_KEY_Y,        ALLEGRO_KEY_T,          ALLEGRO_KEY_1,          ALLEGRO_KEY_2,
    /* 0x14 */ ALLEGRO_KEY_3,        ALLEGRO_KEY_4,          ALLEGRO_KEY_6,          ALLEGRO_KEY_5,
@@ -169,7 +169,7 @@ static const int mac_to_scancode[128] =
    /* 0x34 */ ALLEGRO_KEY_ENTER,    ALLEGRO_KEY_ESCAPE,     0,                      ALLEGRO_KEY_COMMAND,
    /* 0x38 */ ALLEGRO_KEY_LSHIFT,   ALLEGRO_KEY_CAPSLOCK,   ALLEGRO_KEY_ALT,        ALLEGRO_KEY_LEFT,
    /* 0x3c */ ALLEGRO_KEY_RIGHT,    ALLEGRO_KEY_DOWN,       ALLEGRO_KEY_UP,         0,
-   /* 0x40 */ 0,                    ALLEGRO_KEY_FULLSTOP,   0,                      ALLEGRO_KEY_PAD_ASTERISK,
+   /* 0x40 */ 0,                    ALLEGRO_KEY_PAD_DELETE, 0,                      ALLEGRO_KEY_PAD_ASTERISK,
    /* 0x44 */ 0,                    ALLEGRO_KEY_PAD_PLUS,   0,                      ALLEGRO_KEY_NUMLOCK,
    /* 0x48 */ 0,                    0,                      0,                      ALLEGRO_KEY_PAD_SLASH,
    /* 0x4c */ ALLEGRO_KEY_PAD_ENTER,0,                      ALLEGRO_KEY_PAD_MINUS,  0,
