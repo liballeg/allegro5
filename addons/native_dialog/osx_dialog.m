@@ -284,7 +284,10 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
 - (void)appendText: (NSString*)text
 {
-   NSDictionary *attributes = [NSDictionary dictionaryWithObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
+   id keys[] = {NSForegroundColorAttributeName, NSFontAttributeName};
+   id objects[] = {[NSColor controlTextColor], [NSFont userFixedPitchFontOfSize: 0]};
+   int count = textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE ? 2 : 1;
+   NSDictionary *attributes = [NSDictionary dictionaryWithObjects:objects forKeys:keys count:count];
    NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:text attributes:attributes] autorelease];
    NSTextStorage* store = [self textStorage];
    [store beginEditing];
@@ -335,10 +338,6 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
       [[view textContainer] setContainerSize: NSMakeSize(rect.size.width, 1000000)];
       [[view textContainer] setWidthTracksTextView: NO];
-      [view setTextColor: [NSColor grayColor]];
-      if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
-         [view setFont: [NSFont userFixedPitchFontOfSize: 0]];
-      }
       [view setEditable: NO];
       [scrollView setDocumentView: view];
 
