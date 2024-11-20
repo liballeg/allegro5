@@ -1,43 +1,43 @@
 /* This is just a quick hack. But good enough for our use of displaying
  * a short intro video when our game starts up - so might as well share
  * it.
- * 
+ *
  * Known bugs:
- * 
+ *
  * - Only very crude synching. Audio is slightly delayed and some
  *   videos seem to constantly drift off and then the audio gets all
  *   distorted...
  *
  * - Seeking/Pausing doesn't really work.
- * 
+ *
  * - Memory leaks. Easy to fix but don't have time right now.
  *
  * Missing features:
- * 
+ *
  * - Stream information. For example allow selection of one of several
  *   audio streams or subtitle overlay streams.
- * 
+ *
  * - Non audio/video streams. For example something like:
  *   ALLEGRO_USTR *al_get_video_subtitle(float *x, float *y);
- * 
+ *
  * - Buffering. Right now buffering is hardcoded to a fixed size which
  *   seemed enough for streaming 720p from disk in my tests. Obviously
  *   when streaming higher bandwidth or from a source with high
  *   fluctuation like an internet stream this won't work at all.
- * 
+ *
  * - Provide an audio stream for the audio. Then could use this to
  *   stream audio files. Right now opening an .mp3 with the video
  *   addon will play it but only with the video API instead of Allegro's
  *   normal audio streaming API...
- * 
+ *
  * - Audio/Video sync. For a game user-controlled sync is probably not
  *   too important as it can just ship with a properly synchronizeded
  *   video. However right now the audio delay is completely ignored.
- * 
+ *
  * - Additional drivers. Also redo the API a bit so not everything
  *   has to be done by the driver.
  */
- 
+
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_video.h"
 #include "allegro5/internal/aintern.h"
@@ -119,7 +119,6 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    }
 
    video->filename = al_create_path(filename);
-   video->playing = true;
 
    if (!video->vtable->open_video(video)) {
       ALLEGRO_ERROR("Could not open %s.\n", filename);
@@ -127,10 +126,10 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
       al_free(video);
       return NULL;
    }
-   
+
    al_init_user_event_source(&video->es);
    video->es_inited = true;
-   
+
    return video;
 }
 
@@ -164,6 +163,7 @@ void al_start_video(ALLEGRO_VIDEO *video, ALLEGRO_MIXER *mixer)
 
    /* XXX why is this not just a parameter? */
    video->mixer = mixer;
+   video->playing = true;
    video->vtable->start_video(video);
 }
 

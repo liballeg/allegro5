@@ -87,7 +87,7 @@ Since: 5.1.12
 
 ## API: al_open_video
 
-Reads a video file. This does not start streaming yet but reads the
+Reads a video file. This does not start playing yet but reads the
 meta info so you can query e.g. the size or audio rate.
 
 Since: 5.1.0
@@ -127,7 +127,7 @@ Since: 5.1.0
 
 ## API: al_start_video
 
-Starts streaming the video from the beginning.
+Starts playing the video from the beginning.
 
 Since: 5.1.0
 
