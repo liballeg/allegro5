@@ -85,6 +85,7 @@ AL_FUNC(int,            al_get_joystick_num_buttons,  (ALLEGRO_JOYSTICK *));
 AL_FUNC(const char*,    al_get_joystick_button_name,  (ALLEGRO_JOYSTICK *, int buttonn));
 
 AL_FUNC(void,           al_get_joystick_state,  (ALLEGRO_JOYSTICK *, ALLEGRO_JOYSTICK_STATE *ret_state));
+AL_FUNC(int,            al_get_joystick_device_id,  (ALLEGRO_JOYSTICK *));
 
 AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_joystick_event_source, (void));
 

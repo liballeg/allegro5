@@ -24,6 +24,7 @@ typedef struct ALLEGRO_JOYSTICK_DRIVER
    AL_METHOD(void, get_joystick_state, (ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state));
    AL_METHOD(const char *, get_name, (ALLEGRO_JOYSTICK *joy));
    AL_METHOD(bool, get_active, (ALLEGRO_JOYSTICK *joy));
+   AL_METHOD(int, get_device_id, (ALLEGRO_JOYSTICK *joy));
 } ALLEGRO_JOYSTICK_DRIVER;
 
 
@@ -71,6 +72,7 @@ typedef struct _AL_JOYSTICK_INFO
    int num_buttons;
    _AL_JOYSTICK_STICK_INFO stick[_AL_MAX_JOYSTICK_STICKS];
    _AL_JOYSTICK_BUTTON_INFO button[_AL_MAX_JOYSTICK_BUTTONS];
+   int device_id;
 } _AL_JOYSTICK_INFO;
 
 
