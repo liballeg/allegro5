@@ -101,19 +101,20 @@ ALLEGRO_BITMAP *_al_load_fi_bitmap(const char *filename, int flags)
    return bitmap;
 }
 
-static unsigned int _fiio_al_read(void *buffer, unsigned size, unsigned count, fi_handle handle) {
+/* FreeImage requires stdcall on win32 for these. DLL_CALLCONV is provided by FreeImage.h */
+static unsigned int DLL_CALLCONV _fiio_al_read(void *buffer, unsigned size, unsigned count, fi_handle handle) {
    return (unsigned int) al_fread((ALLEGRO_FILE *)handle, buffer, (count * size));
 }
 
-static unsigned int _fiio_al_write(void *buffer, unsigned size, unsigned count, fi_handle handle) {
+static unsigned int DLL_CALLCONV _fiio_al_write(void *buffer, unsigned size, unsigned count, fi_handle handle) {
    return (unsigned int) al_fwrite((ALLEGRO_FILE *)handle, buffer, (count * size));
 }
 
-static int _fiio_al_fseek(fi_handle handle, long offset, int origin) {
+static int DLL_CALLCONV _fiio_al_fseek(fi_handle handle, long offset, int origin) {
    return al_fseek((ALLEGRO_FILE *)handle, offset, origin);
 }
 
-static long _fiio_al_ftell(fi_handle handle) {
+static long DLL_CALLCONV _fiio_al_ftell(fi_handle handle) {
    return (long) al_ftell((ALLEGRO_FILE *)handle);
 }
 
