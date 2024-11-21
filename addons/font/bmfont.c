@@ -126,8 +126,9 @@ static void add_codepoint(BMFONT_PARSER *parser, int codepoint) {
          return;
       }
       if (codepoint == range->first + range->count) {
+         BMFONT_RANGE * range2;
          append_char(parser, range);
-         BMFONT_RANGE *range2 = range->next;
+         range2 = range->next;
          if (range2 != NULL && codepoint == range2->first - 1) {
             combine_ranges(data, range, range2);
          }
@@ -154,11 +155,12 @@ static BMFONT_CHAR *find_codepoint(BMFONT_DATA *data, int codepoint) {
 static void add_page(BMFONT_PARSER *parser, char const *filename) {
    ALLEGRO_FONT *font = parser->font;
    BMFONT_DATA *data = font->data;
+   ALLEGRO_BITMAP *page;
    data->pages_count++;
    data->pages = al_realloc(data->pages, data->pages_count *
       sizeof *data->pages);
    al_set_path_filename(parser->path, filename);
-   ALLEGRO_BITMAP *page = al_load_bitmap_flags(
+   page = al_load_bitmap_flags(
       al_path_cstr(parser->path, '/'), data->flags);
    data->pages[data->pages_count - 1] = page;
 }
@@ -244,8 +246,8 @@ static int font_descent(const ALLEGRO_FONT *f) {
 }
 
 static int get_kerning(BMFONT_CHAR *prev, int c) {
-   if (!prev) return 0;
    int i;
+   if (!prev) return 0;
    for (i = 0; i < prev->kerning_pairs; i++) {
       if (prev->kerning[i].second == c) {
          int a = prev->kerning[i].amount;
@@ -278,12 +280,14 @@ static int each_character(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
 
 static int measure_char(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
       int ch, float x, float y, ALLEGRO_GLYPH *glyph) {
-   (void)color;
-   (void)y;
-   BMFONT_DATA *data = f->data;
-   BMFONT_CHAR *c = find_codepoint(data, ch);
+   BMFONT_DATA *data;
+   BMFONT_CHAR *c;
    int advance = 0;
    int xo = 0, yo = 0, w = 0, h = 0;
+   (void)color;
+   (void)y;
+   data = f->data;
+   c = find_codepoint(data, ch);
    if (c) {
       advance = c->xadvance;
       xo = c->xoffset;
@@ -378,12 +382,13 @@ static int text_length(const ALLEGRO_FONT *f, const ALLEGRO_USTR *text) {
 static int render_char(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, int ch, float x, float y) {
    BMFONT_DATA *data = f->data;
    BMFONT_CHAR *c = find_codepoint(data, ch);
+   ALLEGRO_BITMAP *page;
    if (!c) {
       if (f->fallback) return f->fallback->vtable->render_char(
          f->fallback, color, ch, x, y);
       return 0;
    }
-   ALLEGRO_BITMAP *page = data->pages[c->page];
+   page = data->pages[c->page];
    al_draw_tinted_bitmap_region(page, color, c->x, c->y, c->width, c->height,
       x + c->xoffset, y + c->yoffset, 0);
    return c->xadvance;
@@ -413,13 +418,13 @@ static void destroy_range(BMFONT_RANGE *range) {
 static void destroy(ALLEGRO_FONT *f) {
    BMFONT_DATA *data = f->data;
    BMFONT_RANGE *range = data->range_first;
+   int i;
    while (range) {
       BMFONT_RANGE *next = range->next;
       destroy_range(range);
       range = next;
    }
 
-   int i;
    for (i = 0; i < data->pages_count; i++) {
       al_destroy_bitmap(data->pages[i]);
    }
@@ -479,29 +484,33 @@ static ALLEGRO_FONT_VTABLE _al_font_vtable_xml = {
 ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename, int size,
       int font_flags)
 {
+   ALLEGRO_FILE *f;
+   BMFONT_PARSER _parser;
+   BMFONT_PARSER *parser;
+   BMFONT_DATA *data;
+   ALLEGRO_FONT *font;
+   int i;
    (void)size;
-   ALLEGRO_FILE *f = al_fopen(filename, "r");
+   f = al_fopen(filename, "r");
    if (!f) {
       ALLEGRO_DEBUG("Could not open %s.\n", filename);
       return NULL;
    }
 
-   BMFONT_DATA *data = al_calloc(1, sizeof *data);
-   BMFONT_PARSER _parser;
-   BMFONT_PARSER *parser = &_parser;
+   data = al_calloc(1, sizeof *data);
+   parser = &_parser;
    parser->tag = al_ustr_new("");
    parser->attribute = al_ustr_new("");
    parser->path = al_create_path(filename);
    data->flags = font_flags;
 
-   ALLEGRO_FONT *font = al_calloc(1, sizeof *font);
+   font = al_calloc(1, sizeof *font);
    font->vtable = &_al_font_vtable_xml;
    font->data = data;
    parser->font = font;
 
    _al_xml_parse(f, xml_callback, parser);
 
-   int i;
    for (i = 0; i < data->kerning_pairs; i++) {
       BMFONT_KERNING *k = data->kerning + i;
       BMFONT_CHAR *c = find_codepoint(data, k->first);
