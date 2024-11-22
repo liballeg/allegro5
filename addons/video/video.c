@@ -41,9 +41,11 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_video.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_exitfunc.h"
+#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_video.h"
 #include "allegro5/internal/aintern_video_cfg.h"
-#include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_vector.h"
 
 ALLEGRO_DEBUG_CHANNEL("video")
@@ -129,6 +131,7 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
 
    al_init_user_event_source(&video->es);
    video->es_inited = true;
+   video->dtor_item = _al_register_destructor(_al_dtor_list, "video", video, (void (*)(void *)) al_close_video);
 
    return video;
 }
@@ -143,6 +146,7 @@ void al_close_video(ALLEGRO_VIDEO *video)
          al_destroy_user_event_source(&video->es);
       }
       al_destroy_path(video->filename);
+      _al_unregister_destructor(_al_dtor_list, video->dtor_item);
       al_free(video);
    }
 }
@@ -164,7 +168,10 @@ void al_start_video(ALLEGRO_VIDEO *video, ALLEGRO_MIXER *mixer)
    /* XXX why is this not just a parameter? */
    video->mixer = mixer;
    video->playing = true;
+   /* Destruction is handled by al_close_video. */
+   _al_push_destructor_owner();
    video->vtable->start_video(video);
+   _al_pop_destructor_owner();
 }
 
 /* Function: al_start_video_with_voice
