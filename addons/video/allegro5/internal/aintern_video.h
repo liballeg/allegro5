@@ -1,3 +1,7 @@
+#ifndef __al_included_allegro_aintern_video_h
+#define __al_included_allegro_aintern_video_h
+
+#include "allegro5/internal/aintern_list.h"
 
 typedef struct ALLEGRO_VIDEO_INTERFACE {
    bool (*open_video)(ALLEGRO_VIDEO *video);
@@ -10,7 +14,7 @@ typedef struct ALLEGRO_VIDEO_INTERFACE {
 
 struct ALLEGRO_VIDEO {
    ALLEGRO_VIDEO_INTERFACE *vtable;
-   
+
    /* video */
    ALLEGRO_BITMAP *current_frame;
    double video_position;
@@ -32,6 +36,8 @@ struct ALLEGRO_VIDEO {
    bool playing;
    double position;
 
+   _AL_LIST_ITEM *dtor_item;
+
    /* implementation specific */
    void *data;
 };
@@ -42,3 +48,5 @@ void _al_compute_scaled_dimensions(int frame_w, int frame_h, float aspect_ratio,
 
 ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void);
 bool _al_video_identify_ogv(ALLEGRO_FILE *f);
+
+#endif

@@ -17,6 +17,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_video.h"
+#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_video.h"
 
@@ -999,6 +1000,8 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
 
    ALLEGRO_DEBUG("Thread started.\n");
 
+   /* Destruction is handled by al_close_video. */
+   _al_push_destructor_owner();
    tstream_outer = ogv->selected_video_stream;
    if (tstream_outer) {
       ASSERT(tstream_outer->stream_type == STREAM_TYPE_THEORA);
@@ -1022,6 +1025,7 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
 
    if (!tstream_outer && !vstream_outer) {
       ALLEGRO_WARN("No audio or video stream found.\n");
+      _al_pop_destructor_owner();
       return NULL;
    }
 
@@ -1037,8 +1041,9 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
 
    if (video->audio) {
       al_register_event_source(ogv->queue,
-         al_get_audio_stream_event_source(video->audio));
+      al_get_audio_stream_event_source(video->audio));
    }
+   _al_pop_destructor_owner();
 
    ALLEGRO_DEBUG("Begin decode loop.\n");
 
@@ -1207,7 +1212,6 @@ static bool ogv_open_video(ALLEGRO_VIDEO *video)
    video->data = ogv;
    return true;
 }
-
 static bool ogv_close_video(ALLEGRO_VIDEO *video)
 {
    OGG_VIDEO *ogv;
@@ -1240,7 +1244,6 @@ static bool ogv_close_video(ALLEGRO_VIDEO *video)
 
       al_free(ogv);
    }
-
    video->data = NULL;
 
    return true;
