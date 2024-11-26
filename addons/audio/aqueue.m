@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 
-#include "allegro5/allegro.h" 
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
@@ -180,28 +180,24 @@ static void _aqueue_list_audio_output_devices(void)
    AudioObjectID *deviceIDs;
    UInt32 propertySize;
    NSInteger numDevices;
-   
+
    propertyAddress.mSelector = kAudioHardwarePropertyDevices;
    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
-   #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 120000)
-      propertyAddress.mElement = kAudioObjectPropertyElementMain;
-   #else
-      propertyAddress.mElement = kAudioObjectPropertyElementMaster;
-   #endif
-   
+   propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+
    if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize) != noErr) {
       return;
    }
 
    numDevices = propertySize / sizeof(AudioDeviceID);
    deviceIDs = (AudioDeviceID *)al_calloc(numDevices, sizeof(AudioDeviceID));
-      
+
    if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize, deviceIDs) != noErr) {
       return;
    }
 
    for (NSInteger idx=0; idx<numDevices; idx++) {
-      AudioObjectPropertyAddress deviceAddress;   
+      AudioObjectPropertyAddress deviceAddress;
       char deviceName[64];
 
       propertySize = sizeof(deviceName);
@@ -215,7 +211,7 @@ static void _aqueue_list_audio_output_devices(void)
       if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, deviceName) != noErr) {
          continue;
       }
-  
+
       if (_aqueue_device_has_scope(deviceIDs[idx], kAudioObjectPropertyScopeOutput)) {
          ALLEGRO_AUDIO_DEVICE* device = (ALLEGRO_AUDIO_DEVICE*)al_malloc(sizeof(ALLEGRO_AUDIO_DEVICE));
          device->identifier = (void*)al_malloc(sizeof(AudioDeviceID));
@@ -227,7 +223,7 @@ static void _aqueue_list_audio_output_devices(void)
          _al_list_push_back_ex(output_device_list, device, _output_device_list_dtor);
       }
    }
-   
+
    al_free(deviceIDs);
 }
 
@@ -301,7 +297,7 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
 
    ex_data = (ALLEGRO_AQ_DATA *)al_calloc(1, sizeof(*ex_data));
    if (!ex_data) {
-      fprintf(stderr, "Could not allocate voice data memory\n"); 
+      fprintf(stderr, "Could not allocate voice data memory\n");
       return 1;
    }
 
@@ -312,7 +308,7 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = ex_data;
    ex_data->voice = voice;
-   
+
    ex_data->silence = al_calloc(1, ex_data->buffer_size);
 
    return 0;
@@ -509,9 +505,9 @@ typedef struct RECORDER_DATA
 {
    AudioStreamBasicDescription data_format;
    AudioQueueRef queue;
-   
+
    /* AudioQueue buffer information */
-   AudioQueueBufferRef *buffers;   
+   AudioQueueBufferRef *buffers;
    int buffer_count;
    uint32_t buffer_size;
 
@@ -524,22 +520,22 @@ typedef struct RECORDER_DATA
 
 } RECORDER_DATA;
 
-static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,                          
+static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
                                        AudioQueueBufferRef aq_buffer, const AudioTimeStamp *start_time,
                                        UInt32 sample_count, const AudioStreamPacketDescription *descs)
 {
    ALLEGRO_AUDIO_RECORDER *recorder = (ALLEGRO_AUDIO_RECORDER *) user_data;
    RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
    char *input = aq_buffer->mAudioData;
- 
+
    (void) aq;
    (void) start_time;
-   (void) descs;   
-    
+   (void) descs;
+
    if (sample_count == 0 && data->data_format.mBytesPerPacket != 0) {
       sample_count = aq_buffer->mAudioDataByteSize / data->data_format.mBytesPerPacket;
    }
-   
+
    al_lock_mutex(recorder->mutex);
 
    if (recorder->is_recording) {
@@ -549,18 +545,18 @@ static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
       while (sample_count > 0) {
          unsigned int samples_left = recorder->samples - data->samples_written;
          unsigned int samples_to_write = sample_count < samples_left ? sample_count : samples_left;
-         
+
          /* Copy the incoming data into the user's fragment buffer */
          memcpy((char*)recorder->fragments[data->fragment_i] + data->samples_written * recorder->sample_size,
                 input, samples_to_write * recorder->sample_size);
-         
+
          input += samples_to_write * recorder->sample_size;
          data->samples_written += samples_to_write;
          sample_count -= samples_to_write;
-         
+
          /* We should have never written more samples than the user asked for */
          ALLEGRO_ASSERT(recorder->samples >= data->samples_written);
-         
+
          if (data->samples_written == recorder->samples) {
             ALLEGRO_EVENT user_event;
             ALLEGRO_AUDIO_RECORDER_EVENT *e;
@@ -569,19 +565,19 @@ static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
             e->buffer = recorder->fragments[data->fragment_i];
             e->samples = recorder->samples;
             al_emit_user_event(&recorder->source, &user_event, NULL);
-            
+
             if (++data->fragment_i == recorder->fragment_count) {
                data->fragment_i = 0;
             }
-            
+
             data->samples_written = 0;
          }
       }
    }
-   
+
    al_unlock_mutex(recorder->mutex);
 
-       
+
    AudioQueueEnqueueBuffer(data->queue, aq_buffer, 0, NULL);
 }
 
@@ -590,25 +586,25 @@ static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
    RECORDER_DATA *data;
    int i;
    int ret;
-   
+
    data = al_calloc(1, sizeof(*data));
    if (!data) return 1;
-   
+
    data->buffer_count = 3;
    data->buffers = al_calloc(data->buffer_count, sizeof(AudioQueueBufferRef));
    if (!data->buffers) {
       al_free(data);
       return 1;
    }
-   
+
    data->data_format.mFormatID = kAudioFormatLinearPCM;
    data->data_format.mSampleRate = recorder->frequency;
    data->data_format.mChannelsPerFrame = al_get_channel_count(recorder->chan_conf);
    data->data_format.mFramesPerPacket = 1;
    data->data_format.mBitsPerChannel = al_get_audio_depth_size(recorder->depth) * 8;
-   data->data_format.mBytesPerFrame = 
+   data->data_format.mBytesPerFrame =
    data->data_format.mBytesPerPacket = data->data_format.mChannelsPerFrame * al_get_audio_depth_size(recorder->depth);
-   
+
    data->data_format.mFormatFlags = kLinearPCMFormatFlagIsPacked;
 #ifdef ALLEGRO_BIG_ENDIAN
    data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
@@ -619,44 +615,44 @@ static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
       data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsSignedInteger;
 
    data->buffer_size = 2048; // in bytes
-  
+
    ret = AudioQueueNewInput(
       &data->data_format,
       _aqueue_recording_callback,
       recorder,
       NULL,
-      kCFRunLoopCommonModes, 
+      kCFRunLoopCommonModes,
       0,
       &data->queue
    );
-   
+
    if (ret) {
       ALLEGRO_ERROR("AudioQueueNewInput failed (%d)\n", ret);
       al_free(data->buffers);
       al_free(data);
       return 1;
    }
-   
+
    /* Create the buffers */
    for (i = 0; i < data->buffer_count; ++i) {
       AudioQueueAllocateBuffer(data->queue, data->buffer_size, &data->buffers[i]);
       AudioQueueEnqueueBuffer(data->queue, data->buffers[i], 0, NULL);
    }
-   
+
    AudioQueueStart(data->queue, NULL);
-   
+
    recorder->extra = data;
 
    /* No thread is created. */
-   
+
    return 0;
 }
 
 static void _aqueue_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
 {
    RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
- 
-   AudioQueueStop(data->queue, true);   
+
+   AudioQueueStop(data->queue, true);
    AudioQueueDispose(data->queue, true);
 
    al_free(data->buffers);
