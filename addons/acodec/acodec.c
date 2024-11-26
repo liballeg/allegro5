@@ -20,6 +20,12 @@ uint32_t al_get_allegro_acodec_version(void)
  */
 bool al_init_acodec_addon(void)
 {
+   bool acodec_prefer_dumb = false;
+   const char* acodec_prefer_dumb_value =
+      al_get_config_value(al_get_system_config(), "compatibility", "acodec_prefer_dumb");
+   if (acodec_prefer_dumb_value && strcmp(acodec_prefer_dumb_value, "true") == 0)
+      acodec_prefer_dumb = true;
+
    bool ret = true;
 
    ret &= al_register_sample_loader(".wav", _al_load_wav);
@@ -60,11 +66,17 @@ bool al_init_acodec_addon(void)
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_DUMB
-   ret &= _al_register_dumb_loaders();
+   if (!acodec_prefer_dumb)
+      ret &= _al_register_dumb_loaders();
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_OPENMPT
    ret &= _al_register_openmpt_loaders();
+#endif
+
+#ifdef ALLEGRO_CFG_ACODEC_DUMB
+   if (acodec_prefer_dumb)
+      ret &= _al_register_dumb_loaders();
 #endif
 
    /* MP3 will mis-identify a lot of mod files, so put its identifier last */

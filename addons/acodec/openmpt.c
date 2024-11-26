@@ -71,7 +71,7 @@ static int64_t stream_tell_func(void *stream)
 static void log_func(const char* message, void *user)
 {
    (void)user;
-   ALLEGRO_DEBUG("OpenMPT: %s", message);
+   ALLEGRO_DEBUG("OpenMPT: %s\n", message);
 }
 
 
