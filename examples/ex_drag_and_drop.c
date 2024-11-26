@@ -9,7 +9,7 @@
  *                                           \_/__/
  *
  *      System drag&drop example.
- * 
+ *
  *      This example shows how an Allegro window can receive pictures
  *      (and text) from other applications.
  *
@@ -25,6 +25,9 @@
 
 #include "common.c"
 
+#define XDIV 3
+#define YDIV 4
+
 // We only accept up to 25 lines of text or files at a time.
 typedef struct Cell {
    char *rows[25];
@@ -39,9 +42,7 @@ int main(int argc, char **argv)
    ALLEGRO_FONT *font;
    bool done = false;
    bool redraw = true;
-   int xdiv = 3;
-   int ydiv = 4;
-   Cell grid[xdiv * ydiv];
+   Cell grid[XDIV * YDIV];
    int drop_x = -1;
    int drop_y = -1;
 
@@ -49,7 +50,7 @@ int main(int argc, char **argv)
    (void)argv;
 
    // Initialize everything to NULL
-   for (int i = 0; i < xdiv * ydiv; i++) {
+   for (int i = 0; i < XDIV * YDIV; i++) {
       grid[i].rows[0] = strdup("drop file or text here");
       for (int r = 1; r < 25; r++) grid[i].rows[r] = NULL;
       grid[i].bitmap = NULL;
@@ -105,29 +106,29 @@ int main(int argc, char **argv)
          ALLEGRO_COLOR c1 = al_color_name("gainsboro");
          ALLEGRO_COLOR c2 = al_color_name("orange");
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
-         for (int y = 0; y < ydiv; y++) {
-            for (int x = 0; x < xdiv; x++) {
-               int gx = x * w / xdiv;
-               int gy = y * h / ydiv;
-               if (grid[x + y * xdiv].bitmap) {
-                  ALLEGRO_BITMAP *bmp = grid[x + y * xdiv].bitmap;
+         for (int y = 0; y < YDIV; y++) {
+            for (int x = 0; x < XDIV; x++) {
+               int gx = x * w / XDIV;
+               int gy = y * h / YDIV;
+               if (grid[x + y * XDIV].bitmap) {
+                  ALLEGRO_BITMAP *bmp = grid[x + y * XDIV].bitmap;
                   float bw = al_get_bitmap_width(bmp);
                   float bh = al_get_bitmap_height(bmp);
-                  float s = w / xdiv / bw;
-                  if (s > (h / ydiv - fh) / bh) s = (h / ydiv - fh) / bh;
+                  float s = w / XDIV / bw;
+                  if (s > (h / YDIV - fh) / bh) s = (h / YDIV - fh) / bh;
                   al_draw_scaled_bitmap(bmp, 0, 0, bw, bh, gx, gy + fh, bw * s, bh * s, 0);
                }
                for (int r = 0; r < 25; r++) {
-                  if (!grid[x + y * xdiv].rows[r]) break;
+                  if (!grid[x + y * XDIV].rows[r]) break;
                   al_draw_textf(font, c1, gx, gy + r * fh,
-                     0, "%s", grid[x + y * xdiv].rows[r]);
+                     0, "%s", grid[x + y * XDIV].rows[r]);
                }
-               if (drop_x >= gx && drop_x < gx + w / xdiv &&
-                  drop_y >= gy && drop_y < gy + h / ydiv) {
-                     al_draw_rectangle(gx, gy, gx + w / xdiv, gy + h / ydiv, c2, 2);
+               if (drop_x >= gx && drop_x < gx + w / XDIV &&
+                  drop_y >= gy && drop_y < gy + h / YDIV) {
+                     al_draw_rectangle(gx, gy, gx + w / XDIV, gy + h / YDIV, c2, 2);
                }
                else {
-                  al_draw_rectangle(gx, gy, gx + w / xdiv, gy + h / ydiv, c1, 0);
+                  al_draw_rectangle(gx, gy, gx + w / XDIV, gy + h / YDIV, c1, 0);
                }
             }
          }
@@ -154,9 +155,9 @@ int main(int argc, char **argv)
          case ALLEGRO_EVENT_DROP:
             drop_x = event.drop.x;
             drop_y = event.drop.y;
-            int col = drop_x * xdiv / w;
-            int row = drop_y * ydiv / h;
-            int i = col + row * xdiv;
+            int col = drop_x * XDIV / w;
+            int row = drop_y * YDIV / h;
+            int i = col + row * XDIV;
             if (event.drop.text) {
                if (event.drop.row == 0) {
                   // clear the previous contents of the cell
