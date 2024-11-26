@@ -13,7 +13,7 @@ jobs:
             - name: Setup
               shell: msys2 {0}
               run: |
-                  pacman --noconfirm -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake make mingw-w64-x86_64-physfs mingw-w64-x86_64-freetype mingw-w64-x86_64-libvorbis mingw-w64-x86_64-flac mingw-w64-x86_64-dumb mingw-w64-x86_64-libtheora mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-opusfile mingw-w64-x86_64-enet mingw-w64-x86_64-libwebp
+                  pacman --noconfirm -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake make mingw-w64-x86_64-physfs mingw-w64-x86_64-freetype mingw-w64-x86_64-libvorbis mingw-w64-x86_64-flac mingw-w64-x86_64-dumb mingw-w64-x86_64-libtheora mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-opusfile mingw-w64-x86_64-enet mingw-w64-x86_64-libwebp mingw-w64-x86_64-libopenmpt
                   mkdir build
             - name: Configure
               shell: msys2 {0}
@@ -35,7 +35,7 @@ jobs:
                   fetch-depth: 1
             - name: Setup
               run: |
-                  brew update && brew install opusfile libvorbis freetype flac physfs dumb theora enet
+                  brew update && brew install opusfile libvorbis freetype flac physfs dumb theora enet libopenmpt
                   mkdir build
             - name: Configure
               run: |
@@ -56,7 +56,7 @@ jobs:
             - name: Setup
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y xvfb libvorbis-dev libtheora-dev libwebp-dev libphysfs-dev libopusfile-dev libdumb1-dev libflac-dev libpulse-dev libgtk-3-dev pandoc libcurl4-nss-dev libenet-dev pulseaudio libasound2-dev libopenal-dev libgl1-mesa-dev libglu-dev;
+                  sudo apt-get install -y xvfb libvorbis-dev libtheora-dev libwebp-dev libphysfs-dev libopusfile-dev libdumb1-dev libflac-dev libpulse-dev libgtk-3-dev pandoc libcurl4-nss-dev libenet-dev pulseaudio libasound2-dev libopenal-dev libgl1-mesa-dev libglu-dev libopenmpt-dev;
                   mkdir build
                   cd build
                   . ../tests/grab_bitmap_suites.sh
