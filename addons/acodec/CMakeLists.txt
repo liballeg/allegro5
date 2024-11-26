@@ -207,22 +207,60 @@ acodec_summary(" - DUMB" SUPPORT_DUMB)
 
 if(WANT_OPENMPT)
     find_package(OpenMPT)
+
+    option(OPENMPT_ZLIB "Enable if OpenMPT static library needs zlib linked in." off)
+    option(OPENMPT_VORBIS "Enable if OpenMPT static library needs Ogg/Vorbis linked in." off)
     if(OPENMPT_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${OPENMPT_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${OPENMPT_LIBRARIES})
-        run_c_compile_test("
+
+        set(OPENMPT_TEST_SOURCE "
             #include <libopenmpt/libopenmpt.h>
             #include <libopenmpt/libopenmpt_stream_callbacks_file.h>
             int main(void)
             {
-                openmpt_stream_get_file_callbacks();
+                openmpt_module *mod = openmpt_module_create(
+                    openmpt_stream_get_file_callbacks(), NULL, NULL, NULL, NULL);
+                openmpt_module_read_interleaved_stereo(mod, 44100, 1, NULL);
                 return 0;
-            }"
+            }")
+
+        run_cxx_compile_test(
+            "${OPENMPT_TEST_SOURCE}"
             OPENMPT_COMPILES)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
         if(OPENMPT_COMPILES)
             set(SUPPORT_OPENMPT 1)
+            set(ALL_OPENMPT_LIBRARIES ${OPENMPT_LIBRARIES})
+        else()
+            if(OPENMPT_ZLIB)
+                find_package(ZLIB)
+            endif()
+
+            if(OPENMPT_VORBIS)
+                find_package(Vorbis)
+            endif()
+
+            # Try compiling with the extra dependencies.
+            set(OPENMPT_STATIC_LIBRARIES ${OPENMPT_LIBRARIES})
+            if(OPENMPT_ZLIB AND ZLIB_FOUND)
+                list(APPEND OPENMPT_STATIC_LIBRARIES "${ZLIB_LIBRARIES}")
+            endif()
+
+            if(OPENMPT_VORBIS AND VORBIS_FOUND)
+                list(APPEND OPENMPT_STATIC_LIBRARIES "${VORBIS_LIBRARIES}")
+            endif()
+
+            set(CMAKE_REQUIRED_LIBRARIES ${OPENMPT_STATIC_LIBRARIES})
+            set(CMAKE_REQUIRED_INCLUDES ${OPENMPT_INCLUDE_DIR})
+            run_cxx_compile_test("${OPENMPT_TEST_SOURCE}" OPENMPT_COMPILES_WITH_EXTRA_DEPS)
+            set(CMAKE_REQUIRED_INCLUDES)
+            set(CMAKE_REQUIRED_LIBRARIES)
+            if(OPENMPT_COMPILES_WITH_EXTRA_DEPS)
+                set(SUPPORT_OPENMPT 1)
+                set(ALL_OPENMPT_LIBRARIES ${OPENMPT_STATIC_LIBRARIES})
+            endif()
         endif()
     endif()
 endif()
@@ -232,7 +270,7 @@ if(SUPPORT_OPENMPT)
     set(ALLEGRO_CFG_ACODEC_OPENMPT 1)
     list(APPEND ACODEC_SOURCES openmpt.c)
     list(APPEND ACODEC_INCLUDE_DIRECTORIES ${OPENMPT_INCLUDE_DIR})
-    list(APPEND ACODEC_LIBRARIES ${OPENMPT_LIBRARIES})
+    list(APPEND ACODEC_LIBRARIES ${ALL_OPENMPT_LIBRARIES})
 endif()
 
 acodec_summary(" - OpenMPT" SUPPORT_OPENMPT)
