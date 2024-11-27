@@ -2,6 +2,129 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.9.1 to 5.2.10 (November 2024)
+==============================================
+
+Core
+
+- Add a compatibility config option, `keyboard_version=xx.yy.zz` as well as the
+  same but with `joystick_version` if it is necessary to restore the old
+  behavior. This enables us to fix bugs with the input system, while providing
+  a mechanism to restore old buggy behavior temporarily (SiegeLord)
+
+- Assorted timer improvements (Connor Clark)
+
+- Optimize inverse transformations. (SiegeLord)
+
+- Fix the handling of the new window title in `ALLEGRO_STATE` (#1562)
+  (Alexandre Martins)
+
+- Add `ALLEGRO_TRACE_LEVEL` environment variable. This makes it easier to
+  enable logging on release builds. (SiegeLord)
+
+- Add `al_ref_info` to convert `ALLEGRO_USTR_INFO` to `ALLEGRO_USTR`
+  (SiegeLord)
+
+- Add `al_get_display_adapter` (#1578) (SiegeLord)
+
+- Add `al_get_render_state` (Mark Oates)
+
+MacOS
+
+- Don't use usage numbers as joystick button ids on OSX. (#1527) (SiegeLord)
+
+- Enable deadkey handling on MacOS (SiegeLord).
+
+- Map numpad delete to `ALLEGRO_KEY_PAD_DELETE` and the weird ISO section key
+  to `ALLEGRO_KEY_BACKSLASH2` (#1523) (SiegeLord)
+
+Windows
+
+- Fix key events when using modifiers (#1430, #1504) (SiegeLord)
+
+- Fix undesirable deadzone when using analog joysticks (geecab)
+
+- Use the correct monitor when restoring fullscreen window when using OpenGL
+  (SiegeLord)
+
+- Fix `ALLEGRO_FULLSCREEN_WINDOW` not working in certain conditions (SiegeLord)
+
+Linux
+
+- Fix joystick initialization when overriding IO (#1572) (Alexandre Martins)
+
+- Make sure the bitmap for the initial icon is created as a memory bitmap
+  (#1571) (SiegeLord)
+
+Android
+
+- Add more joystick buttons (#1482) (Alexandre Martins)
+
+- Fix corruption of bitmaps created with the `ALLEGRO_NO_PRESERVE_TEXTURE` flag
+  when the application loses focus (#1492) (Alexandre Martins)
+
+- Fix a concurrency issue related to `al_acknowledge_drawing_halt` (Alexandre Martins)
+
+- Add `al_android_open_fd` (Alexandre Martins)
+
+- Assorted improvements (Alexandre Martins)
+
+iPhone:
+
+- Fix build (Todd Cope)
+
+Audio addon:
+
+- Add MacOS support for listing output devices (Aldrik Ramaekers)
+
+Acodec addon:
+
+- Prefill `ALLEGRO_AUDIO_STREAM`s with data (SiegeLord)
+
+- Add OpenMPT support. This is meant to replace DUMB, as DUMB is not
+  maintained. You can use the compatibility config option `acodec_prefer_dumb`
+  to temporarily make DUMB the preferred handler for module files, if Allegro
+  is built with both DUMB and OpenMPT. Some modules may sound different under
+  OpenMPT. (SiegeLord)
+
+Native dialog addon:
+
+- Add Android support (Alexandre Martins)
+
+- Auto-scroll the native textlog on MacOS (SiegeLord)
+
+- Fix monospace fonts on MacOS in the native textlog (SiegeLord)
+
+- Improve the patterns arg in `al_create_native_file_dialog` (SiegeLord)
+
+    - Support for multiple pattern sets (Windows/Linux)
+    - Supports for custom pattern set descriptions (Windows/Linux)
+    - Support for MIME types on MacOS
+    - Remove the implicit catch-all pattern on Windows (the "All files
+      *.*"), it was inconsistent with other platforms.
+    - Make MacOS do a better job at extracting the file extension
+    - Improve documentation overall
+
+Video addon:
+
+- Make `al_is_video_playing` return false before `al_start_video` (SiegeLord)
+
+- Make `ALLEGRO_VIDEO` work with the automatic destruction system (SiegeLord)
+
+Build system:
+
+- Reproducible build support (Andreas Rönnquist)
+
+- Fix multiarch install location (Andreas Rönnquist)
+
+Examples:
+
+- Remove VLAs to improve Visual Studio support (Jeff Linahan, SiegeLord)
+
+- Fix opaque black background pixels in explosion sprites in the Shooter demo
+  (tstoeter)
+
+
 Changes from 5.2.9 to 5.2.9.1 (January 2024)
 ============================================
 
