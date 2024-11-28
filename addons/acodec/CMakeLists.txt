@@ -458,6 +458,10 @@ add_our_addon_library(allegro_acodec
     "${AUDIO_LINK_WITH};${ACODEC_LIBRARIES}"
     )
 
+if(SUPPORT_OPENMPT AND SHARED AND NOT WANT_MONOLITH)
+    set_target_properties(allegro_acodec PROPERTIES LINKER_LANGUAGE CXX)
+endif()
+
 install_our_headers(${ACODEC_INCLUDE_FILES})
 
 add_addon(acodec)
