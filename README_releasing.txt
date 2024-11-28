@@ -18,8 +18,10 @@ on Linux.
         git cherry-pick -x badf00d
 
 2.  On the master branch, bump the version to the next release in
-    `include/allegro5/base.h` and then update the dates by using the
-    `misc/fixver.sh` script. Commit this change.
+    `include/allegro5/base.h` by using the `misc/fixver.sh` script. Commit this
+    change. For example:
+
+        misc/fixver.sh 5 2 3 GIT
 
 3.  Write a changelog file. This is located in docs/src/changes-5.2.txt.
 
@@ -32,20 +34,20 @@ on Linux.
     other developers check it over in case something is wrong/missing. Commit
     this change.
 
-4.  We are now done with the master branch. You can push these changes to 
+4.  We are now done with the master branch. You can push these changes to
     github. Check out the release branch now.
 
 5.  Cherry-pick the commit with the changelog onto this branch.
 
-6.  Bump the version from "GIT" to "WIP" if it's unstable, or remove "GIT" if
-    it's stable, while preserving the major, minor and patch numbers, but
-    increasing the release number by 1. Also, update the dates at this time.
-    This is all done in `include/allegro5/base.h`. Commit this change.
+6.  Remove the "GIT" suffix and increase the version by 1. This can be done via
+    `misc/fixver.sh` script. Commit this change. For example:
+
+       misc/fixver.sh 5 2 2 0
 
 7.  Tag the previous commit with the same version number and the release number
     (e.g. "5.2.2.0" if you're releasing 5.2.2. An example command would be:
 
-        git tag -a -m "Tag 5.2.2.0 (WIP)" 5.2.2.0
+        git tag -a -m "Tag 5.2.2.0" 5.2.2.0
 
 8.  Create the source archives by running `misc/create_release_archives.sh` and
     passing in the release version. This will create 3 source archives (.tar.gz,
@@ -53,13 +55,15 @@ on Linux.
 
         ./misc/create_release_archives.sh 5.2.2.0
 
-9.  Upload the source archives to github. Go to the releases tab, and make a
+10. At this point you could do some additional checks (like making binaries).
+
+11.  Upload the source archives to github. Go to the releases tab, and make a
     new release with the tag you just created.
 
-10. Build the docs, including the pdf. Add these to the website via the
+12. Build the docs, including the pdf. Add these to the website via the
     liballeg.github.io repository.
 
-11. Make an announcement on the website. This involves making a news item,
+13. Make an announcement on the website. This involves making a news item,
     changing the download area and copy-pasting the change list.
 
-12. Make an announcement on allegro.cc. You're done!
+14. Make an announcement on Discord. You're done!
