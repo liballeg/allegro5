@@ -270,9 +270,7 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
    if (pressed) {
       int32_t unichar = 0;
       bool new_input = _al_get_keyboard_compat_version() >= AL_ID(5, 2, 10, 0);
-      NSString *raw_characters = [event charactersIgnoringModifiers];
       NSString *characters = [event characters];
-      UniChar raw_character = ([raw_characters length] > 0) ? [raw_characters characterAtIndex: 0] : 0;
       UniChar character = ([characters length] > 0) ? [characters characterAtIndex: 0] : 0;
 
       if (new_input) {
@@ -307,9 +305,10 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
             /* For some reason, pad enter sends a ^C. */
             if (scancode == ALLEGRO_KEY_PAD_ENTER && unichar == 3)
                unichar = '\r';
-            /* Single out the few printable characters under 32 */
-            if (unichar < ' ' && (unichar != '\r' && unichar != '\t' && unichar != '\b'))
-               unichar = 0;
+            /* For some reason, Ctrl-<key> sends capital version of the character,
+               and not the correct invisible character. */
+            if (key_shifts & ALLEGRO_KEYMOD_CTRL)
+               unichar = character;
             al_ustr_free(ustr);
          }
          CFRelease(keyboard_input);
@@ -320,14 +319,13 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
       /* Apple maps function, arrow, and other keys to Unicode points.
          We want to generate CHAR events for them, so we'll override the translation logic.
         _handle_key_press will set the unichar back to 0 for these keys. */
-      if (character >= 0xF700 && character <= 0xF747)
-         unichar = -1;
-      /* The delete key. */
-      if (character == 0xF728 && new_input)
-         unichar = 127;
-      /* Special processing to send character 1 for CTRL-A, 2 for CTRL-B etc. */
-      if ((key_shifts & ALLEGRO_KEYMOD_CTRL) && (isalpha(raw_character)))
-         unichar = tolower(raw_character) - 'a' + 1;
+      if (character >= 0xF700 && character <= 0xF747) {
+         /* The old input did not handle this key (delete) correctly. We preserve the old behavior. */
+         if (new_input && character == 0xF728)
+            unichar = 127;
+         else
+            unichar = -1;
+      }
       bool is_repeat = pressed ? ([event isARepeat] == YES) : false;
       _handle_key_press(dpy, unichar, scancode, key_shifts, is_repeat);
    }
