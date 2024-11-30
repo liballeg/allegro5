@@ -47,7 +47,6 @@ static void main_loop(void)
    ALLEGRO_EVENT event;
 
    log_printf("Focus on the main window (black) and press keys to see events. ");
-   log_printf("Escape quits.\n\n");
 
    while (true) {
       /* Take the next event out of the event queue, and store it in `event'. */
@@ -66,9 +65,6 @@ static void main_loop(void)
          /* ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
           */
          case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-               return;
-            }
             log_key("KEY_DOWN", event.keyboard.keycode, 0, 0);
             break;
 
@@ -141,8 +137,6 @@ int main(int argc, char **argv)
    al_register_event_source(event_queue, al_get_display_event_source(display));
 
    main_loop();
-
-   close_log(false);
 
    return 0;
 }
