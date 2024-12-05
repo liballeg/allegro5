@@ -161,7 +161,7 @@ static void add_emoji(int font, int border, char *text)
       if (e->font == 1) break;
    }
    float a = rand() % 360;
-   e->dx = cos(a * ALLEGRO_PI / 180);
+   e->dx = -2 - rand() % 3;
    e->dy = sin(a * ALLEGRO_PI / 180);
    e->next = first;
    first = e;
@@ -192,21 +192,15 @@ static void tick(void)
    struct Emoji *e = first;
    float s = 5;
    while (e) {
-      float ox = e->x;
       float oy = e->y;
       e->x += e->dx * s;
-      if (collides(e)) {
-         e->dx = -e->dx;
-         e->x = ox;
-      }
       e->y += e->dy * s;
       if (collides(e)) {
          e->dy = -e->dy;
          e->y = oy;
       }
-      if (e->x < 0 && e->dx < 0) e->dx = -e->dx;
+      if (e->x < 0 -e->w) e->x = SCREEN_W + e->w;
       if (e->y < 0 && e->dy < 0) e->dy = -e->dy;
-      if (e->x > SCREEN_W - e->w && e->dx > 0) e->dx = -e->dx;
       if (e->y > SCREEN_H - e->h && e->dy > 0) e->dy = -e->dy;
       e = e->next;
    }
