@@ -87,6 +87,10 @@ Some Allegro examples use a font from DejaVu fonts, their license can
 be found here:
 <http://dejavu-fonts.org/wiki/index.php?title=License>
 
+Some Allegro examples use a font from NotoColorEmoji fonts, their license can
+be found here:
+<https://fonts.google.com/noto/specimen/Noto+Color+Emoji/license>
+
 -------------------------------------------------------------------------------
 
 The Cosmic Protector demo game graphics were made by Tony Huisman, and are
