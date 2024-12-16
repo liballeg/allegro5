@@ -121,6 +121,14 @@ static bool ijoy_get_active(ALLEGRO_JOYSTICK *joy)
     return true;
 }
 
+static int ijoy_get_device_id(ALLEGRO_JOYSTICK *joy)
+{
+    (void)joy;
+    // TODO: Add implementation here
+    ALLEGRO_INFO("ijoy_get_device_id: not implemented");
+    return 0;
+}
+
 static ALLEGRO_JOYSTICK_DRIVER iphone_joystick_driver = {
    AL_ID('I', 'P', 'H', 'O'),
    "",
@@ -134,7 +142,8 @@ static ALLEGRO_JOYSTICK_DRIVER iphone_joystick_driver = {
     ijoy_release_joystick,
     ijoy_get_joystick_state,
     ijoy_get_name,
-    ijoy_get_active
+    ijoy_get_active,
+    ijoy_get_device_id
 };
 
 ALLEGRO_JOYSTICK_DRIVER *_al_get_iphone_joystick_driver(void)

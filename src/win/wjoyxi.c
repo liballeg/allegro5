@@ -86,6 +86,7 @@ static void joyxi_release_joystick(ALLEGRO_JOYSTICK *joy);
 static void joyxi_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
 static const char *joyxi_get_name(ALLEGRO_JOYSTICK *joy);
 static bool joyxi_get_active(ALLEGRO_JOYSTICK *joy);
+static int joyxi_get_device_id(ALLEGRO_JOYSTICK *joy);
 
 
 /* the driver vtable */
@@ -103,7 +104,8 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_xinput =
    joyxi_release_joystick,
    joyxi_get_joystick_state,
    joyxi_get_name,
-   joyxi_get_active
+   joyxi_get_active,
+   joyxi_get_device_id
 };
 
 #define XINPUT_MIN_VERSION   3
@@ -812,6 +814,15 @@ static bool joyxi_get_active(ALLEGRO_JOYSTICK *joy)
    ALLEGRO_JOYSTICK_XINPUT *xjoy = (ALLEGRO_JOYSTICK_XINPUT *)joy;
    ASSERT(xjoy);
    return xjoy->active;
+}
+
+
+static int joyxi_get_device_id(ALLEGRO_JOYSTICK *joy)
+{
+   (void)joy;
+   // TODO: Add implementation here
+   ALLEGRO_INFO("joyxi_get_device_id: not implemented");
+   return 0;
 }
 
 

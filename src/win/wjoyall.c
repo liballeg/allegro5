@@ -83,6 +83,7 @@ static void joyall_release_joystick(ALLEGRO_JOYSTICK *joy);
 static void joyall_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
 static const char *joyall_get_name(ALLEGRO_JOYSTICK *joy);
 static bool joyall_get_active(ALLEGRO_JOYSTICK *joy);
+static int joyall_get_device_id(ALLEGRO_JOYSTICK *joy);
 
 
 /* the driver vtable */
@@ -100,7 +101,8 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_windows_all =
    joyall_release_joystick,
    joyall_get_joystick_state,
    joyall_get_name,
-   joyall_get_active
+   joyall_get_active,
+   joyall_get_device_id
 };
 
 /* Mutex to protect state access. XXX is this needed? */
@@ -226,5 +228,12 @@ static bool joyall_get_active(ALLEGRO_JOYSTICK *joy)
    return joy->driver->get_active(joy);
 }
 
+static int joyall_get_device_id(ALLEGRO_JOYSTICK *joy)
+{
+   (void)joy;
+   // TODO: Add implementation here
+   ALLEGRO_INFO("joyall_get_device_id: not implemented");
+   return 0;
+}
 
 #endif /* #ifdef ALLEGRO_CFG_XINPUT */
