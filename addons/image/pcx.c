@@ -21,13 +21,14 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    unsigned char *buf;
    PalEntry pal[256];
    bool keep_index;
+   char color_plane;
    ASSERT(f);
 
    al_fgetc(f);                    /* skip manufacturer ID */
    al_fgetc(f);                    /* skip version flag */
    al_fgetc(f);                    /* skip encoding flag */
 
-   char color_plane = al_fgetc(f);
+   color_plane = al_fgetc(f);
    if (color_plane != 8) {         /* we like 8 bit color planes */
       ALLEGRO_ERROR("Invalid color plane %d.\n", color_plane);
       return NULL;
