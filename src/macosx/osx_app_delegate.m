@@ -130,7 +130,7 @@ static BOOL in_bundle(void)
         unsigned int len = 1 + [data length];
         arg1 = al_malloc(len);
         memset(arg1, 0, len);
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 110000
         [data getBytes: arg1 length:len];
 #else
         [data getBytes: arg1];

@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Availability.h>
 #import <IOKit/hid/IOHIDLib.h>
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 110000
 #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #endif
 #include "allegro5/allegro.h"
@@ -46,7 +46,7 @@ static NSArray * get_filter_array(const _AL_VECTOR *patterns)
             parts = [parts subarrayWithRange:NSMakeRange(num_parts - 1, 1)];
             filter_text = [parts componentsJoinedByString: @"."];
          }
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 110000
          UTType *type;
          if (pattern->is_mime)
             type = [UTType typeWithMIMEType:filter_text];
@@ -113,7 +113,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          if (_al_vector_size(&fd->fc_patterns) > 0) {
             filter_array = get_filter_array(&fd->fc_patterns);
             if (filter_array && [filter_array count] > 0) {
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 110000
                [panel setAllowedContentTypes:filter_array];
 #else
                [panel setAllowedFileTypes:filter_array];
@@ -158,7 +158,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          if (_al_vector_size(&fd->fc_patterns) > 0) {
             filter_array = get_filter_array(&fd->fc_patterns);
             if (filter_array && [filter_array count] > 0) {
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1100
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 110000
                [panel setAllowedContentTypes:filter_array];
 #else
                [panel setAllowedFileTypes:filter_array];
