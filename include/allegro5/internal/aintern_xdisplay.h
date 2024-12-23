@@ -55,6 +55,7 @@ struct ALLEGRO_DISPLAY_XGLX
    Cursor invisible_cursor;
    Cursor current_cursor;
    bool cursor_hidden;
+   bool is_system_cursor;
 
    /* Icon for this window. */
    Pixmap icon, icon_mask;
