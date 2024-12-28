@@ -174,7 +174,7 @@ utod()
 
 
 # convert documentation from pandoc-format source files
-if which cmake >/dev/null && which pandoc >/dev/null
+if which cmake >/dev/null && which pandoc >/dev/null && which makeinfo >/dev/null
 then
    echo "Generating documentation from Pandoc source files..."
    builddir=,,zipup_builddir.$$
@@ -196,7 +196,8 @@ then
    ) || exit 1
    rm -rf $builddir
 else
-   echo "WARNING: CMake or Pandoc not found, skipping step" 1>&2
+   echo "ERROR: CMake/Pandoc/makeinfo not found" 1>&2
+   exit 1
 fi
 
 
