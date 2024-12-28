@@ -473,7 +473,7 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
        // FIXME: Investigate why some fonts don't work without the
        // NO_BITMAP flags. Supposedly using that flag makes small sizes
        // look bad so ideally we would not used it.
-       ft_load_flags |= FT_LOAD_NO_BITMAP ;
+       ft_load_flags |= FT_LOAD_NO_BITMAP;
     }
 
     if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
