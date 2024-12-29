@@ -2,6 +2,20 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.10 to 5.2.10.1 (December 2024)
+===============================================
+
+MacOS
+
+- Fix some corner cases in the new keyboard input system (SiegeLord)
+- Fix version-based conditional compilation (Rhys-T)
+
+Packaging
+
+- Fix the package script to check for makeinfo, this prevents malformed source
+  achives from being created (as happened in 5.2.10) (SiegeLord)
+
+
 Changes from 5.2.9.1 to 5.2.10 (November 2024)
 ==============================================
 
