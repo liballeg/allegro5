@@ -296,18 +296,29 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
                         4,
                         &unicode_length,
                         unicode_string);
-
          if (unicode_length > 0) {
             ALLEGRO_USTR *ustr = al_ustr_new_from_utf16(unicode_string);
-            unichar = al_ustr_get(ustr, 0);
+            /* TODO: Possibly add an option to emit multiple events here.
+             * At the moment, we take the last key, because when an invalid
+             * dead key combination is entered, unicode string contains a character
+             * representaiton of the dead key + the last pressed key.
+             * We opt to return the last pressed key.
+             */
+            unichar = al_ustr_get(ustr, al_ustr_offset(ustr, (int)unicode_length - 1));
             if (unichar < 0)
                unichar = 0;
             /* For some reason, pad enter sends a ^C. */
-            if (scancode == ALLEGRO_KEY_PAD_ENTER && unichar == 3)
+            else if (scancode == ALLEGRO_KEY_PAD_ENTER && unichar == 3)
                unichar = '\r';
+            /* This is here to override the Ctrl/Cmd fixes for backspace. */
+            else if (scancode == ALLEGRO_KEY_BACKSPACE)
+               unichar = '\b';
             /* For some reason, Ctrl-<key> sends capital version of the character,
                and not the correct invisible character. */
-            if (key_shifts & ALLEGRO_KEYMOD_CTRL)
+            else if (key_shifts & ALLEGRO_KEYMOD_CTRL)
+               unichar = character;
+            /* For some reason, Cmd-<key> converts characters to Ctrl-<key>. */
+            else if (key_shifts & ALLEGRO_KEYMOD_COMMAND)
                unichar = character;
             al_ustr_free(ustr);
          }
@@ -317,6 +328,7 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
          unichar = character;
 
       /* Apple maps function, arrow, and other keys to Unicode points.
+         https://www.unicode.org/Public/MAPPINGS/VENDORS/APPLE/CORPCHAR.TXT
          We want to generate CHAR events for them, so we'll override the translation logic.
         _handle_key_press will set the unichar back to 0 for these keys. */
       if (character >= 0xF700 && character <= 0xF747) {
