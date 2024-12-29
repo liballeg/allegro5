@@ -48,11 +48,11 @@ $if(xetex)$
   \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
 \else
   \usepackage[mathletters]{ucs}
-  \usepackage[utf8x]{inputenc}
+  \usepackage[utf8]{inputenc}
 \fi
 $else$
-\usepackage[mathletters]{ucs}
-\usepackage[utf8x]{inputenc}
+\usepackage{textgreek}
+\usepackage[utf8]{inputenc}
 $endif$
 $if(lhs)$
 \usepackage{listings}
@@ -154,7 +154,7 @@ $endif$
 \end{center}
 \begin{center}
 \vspace*{\fill}
-\LARGE{\textcopyright{} 2008 --- 2015}
+\LARGE{\textcopyright{} 2008 --- 2024}
 \end{center}
 \cleardoublepage
 \pagestyle{ruled}
@@ -187,6 +187,8 @@ $endif$
 \newcommand{\RegionMarkerTok}[1]{{#1}}
 \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
 \newcommand{\NormalTok}[1]{{#1}}
+\newcommand{\OperatorTok}[1]{{#1}}
+\newcommand{\BuiltInTok}[1]{{#1}}
 
 $for(include-before)$
 $include-before$
