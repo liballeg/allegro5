@@ -150,14 +150,20 @@ static void GenericInit(void)
    WaterVoice = al_create_sample_instance(WaveNoise);
    al_set_sample_instance_playmode(WaterVoice, ALLEGRO_PLAYMODE_BIDIR);
    al_set_sample_instance_gain(WaterVoice, 0.5);
-   al_attach_sample_instance_to_mixer(WaterVoice, al_get_default_mixer());
+
+   if (al_is_audio_installed())
+      al_attach_sample_instance_to_mixer(WaterVoice, al_get_default_mixer());
+
    al_play_sample_instance(WaterVoice);
 
    WaterVoice2 = al_create_sample_instance(WaveNoise);
    al_set_sample_instance_playmode(WaterVoice2,
                       ALLEGRO_PLAYMODE_BIDIR);
    al_set_sample_instance_gain(WaterVoice2, 0.25);
-   al_attach_sample_instance_to_mixer(WaterVoice2, al_get_default_mixer());
+
+   if (al_is_audio_installed())
+      al_attach_sample_instance_to_mixer(WaterVoice2, al_get_default_mixer());
+
    al_play_sample_instance(WaterVoice2);
 
    play_music(DEMO_MIDI_INGAME, true);
