@@ -1,4 +1,4 @@
-Copyright (c) 2004-2015 the Allegro 5 Development Team
+Copyright (c) 2004-2024 the Allegro 5 Development Team
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
