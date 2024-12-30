@@ -181,6 +181,39 @@ static bool is_single_axis_throttle(int i)
 
 
 
+static bool is_x_axis(int i)
+{
+   return i == ABS_X
+       || i == ABS_RX
+       || i == ABS_HAT0X
+       || i == ABS_HAT1X
+       || i == ABS_HAT2X
+       || i == ABS_HAT3X
+       || i == ABS_TILT_X;
+}
+
+
+
+static bool is_y_axis(int i)
+{
+   return i == ABS_Y
+       || i == ABS_RY
+       || i == ABS_HAT0Y
+       || i == ABS_HAT1Y
+       || i == ABS_HAT2Y
+       || i == ABS_HAT3Y
+       || i == ABS_TILT_Y;
+}
+
+
+static bool is_z_axis(int i)
+{
+   return i == ABS_Z
+       || i == ABS_RZ;
+}
+
+
+
 static bool is_hat_axis(int i)
 {
    return (i >= ABS_HAT0X && i <= ABS_HAT3Y);
@@ -369,6 +402,12 @@ static bool fill_joystick_axes(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
          continue;
 
       if (is_single_axis_throttle(i)) {
+
+         if (axis > 0) {
+            axis = 0;
+            stick++;
+         }
+
          /* One axis throttle. */
          name_throttles++;
          joy->parent.info.stick[stick].flags = ALLEGRO_JOYFLAG_ANALOGUE;
@@ -378,35 +417,59 @@ static bool fill_joystick_axes(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
          snprintf((char *)joy->parent.info.stick[stick].name, 32,
             "Throttle %d", name_throttles);
          set_axis_mapping(&joy->axis_mapping[i], stick, 0, &absinfo);
+         ALLEGRO_DEBUG("axis %d found: throttle\n", i);
          stick++;
       }
       else {
-         /* Regular axis, two axis stick. */
+         /* Regular axis. Each time we see an X axis we start a new
+          * "stick" then add any Y or Z axis following.
+          */
+
+         if (is_x_axis(i)) {
+            if (axis > 0) {
+               axis = 0;
+               stick++;
+            }
+         }
+         else if (axis == 3) {
+            ALLEGRO_WARN("Cannot have more than 3 axes, starting a new stick.");
+            axis = 0;
+            stick++;
+         }
+
+         joy->parent.info.stick[stick].axis[axis].name = "X";
+
+         if (is_y_axis(i)) {
+            joy->parent.info.stick[stick].axis[axis].name = "Y";
+         }
+         if (is_z_axis(i)) {
+            joy->parent.info.stick[stick].axis[axis].name = "Z";
+         }
+         
          if (axis == 0) {
-            /* First axis of new joystick. */
-            name_sticks++;
             if (is_hat_axis(i)) {
                joy->parent.info.stick[stick].flags = ALLEGRO_JOYFLAG_DIGITAL;
             } else {
                joy->parent.info.stick[stick].flags = ALLEGRO_JOYFLAG_ANALOGUE;
             }
-            joy->parent.info.stick[stick].num_axes = 2;
-            joy->parent.info.stick[stick].axis[0].name = "X";
-            joy->parent.info.stick[stick].axis[1].name = "Y";
+            name_sticks++; /* first one is 1 */
             joy->parent.info.stick[stick].name = al_malloc(32);
             snprintf((char *)joy->parent.info.stick[stick].name, 32,
                "Stick %d", name_sticks);
-            set_axis_mapping(&joy->axis_mapping[i], stick, axis, &absinfo);
-            axis++;
+            joy->parent.info.stick[stick].num_axes = 0;
          }
-         else {
-            /* Second axis. */
-            ASSERT(axis == 1);
-            set_axis_mapping(&joy->axis_mapping[i], stick, axis, &absinfo);
-            stick++;
-            axis = 0;
-         }
+         joy->parent.info.stick[stick].num_axes++;
+         
+         set_axis_mapping(&joy->axis_mapping[i], stick, axis, &absinfo);
+         ALLEGRO_DEBUG("axis %d found: %s %s axis\n", i,
+               is_hat_axis(i) ? "hat" : "regular",
+               joy->parent.info.stick[stick].axis[axis].name);
+         axis++;
       }
+      
+   }
+   if (axis > 0) {
+      stick++;
    }
 
    joy->parent.info.num_sticks = stick;
@@ -426,14 +489,40 @@ static bool fill_joystick_buttons(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
       return false;
 
    b = 0;
+   int button_name = 0;
 
    for (i = LJOY_BTN_RANGE_START; i < LJOY_BTN_RANGE_END; i++) {
       if (TEST_BIT(i, key_bits) && is_joystick_button(i)) {
          joy->button_mapping[b].ev_code = i;
-         ALLEGRO_DEBUG("Input event code %d maps to button %d\n", i, b);
 
-         joy->parent.info.button[b].name = al_malloc(32);
-         snprintf((char *)joy->parent.info.button[b].name, 32, "B%d", b+1);
+         char *name = al_malloc(32);
+
+         char const *bname = NULL;
+         if (i == BTN_A) bname = "A";
+         if (i == BTN_B) bname = "B";
+         if (i == BTN_C) bname = "C";
+         if (i == BTN_X) bname = "X";
+         if (i == BTN_Y) bname = "Y";
+         if (i == BTN_Z) bname = "Z";
+         if (i == BTN_TL) bname = "Trigger Left";
+         if (i == BTN_TR) bname = "Trigger Right";
+         if (i == BTN_TL2) bname = "Trigger Left 2";
+         if (i == BTN_TR2) bname = "Trigger Right 2";
+         if (i == BTN_SELECT) bname = "Select";
+         if (i == BTN_START) bname = "Start";
+         if (i == BTN_MODE) bname = "Mode";
+         if (i == BTN_THUMBL) bname = "Thumb Left";
+         if (i == BTN_THUMBR) bname = "Thumb Right";
+         if (bname) {
+            snprintf(name, 32, "%s", bname);
+         }
+         else {
+            snprintf(name, 32, "B%d", ++button_name);
+         }
+         joy->parent.info.button[b].name = name;
+
+         ALLEGRO_DEBUG("Input event code %d (0x%x) maps to button %s\n",
+            i, i, joy->parent.info.button[b].name);
 
          b++;
          if (b == _AL_MAX_JOYSTICK_BUTTONS)
