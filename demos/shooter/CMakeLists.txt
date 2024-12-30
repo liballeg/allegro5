@@ -37,7 +37,7 @@ file(RENAME ${CMAKE_BINARY_DIR}/demos/shooter/data/intro_music.ogg
 file(RENAME ${CMAKE_BINARY_DIR}/demos/shooter/data/menu_music.ogg
     ${CMAKE_BINARY_DIR}/demos/shooter/data/TITLE_MUSIC.ogg)
 
-        
+
 file(GLOB SHOOTER_DEMO_DATA data/*)
 
 set(SHOOTER_DATA

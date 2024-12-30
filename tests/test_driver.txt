@@ -9,10 +9,10 @@ where options are:
         delay between tests
 
     -s, --save
-	save output images as <test name>.png
+        save output images as <test name>.png
 
     -q, --quiet
-	don't display graphical output
+        don't display graphical output
 
     -v, --verbose
         print extra output
@@ -21,16 +21,16 @@ where options are:
         extra extra verbose
 
     --force-opengl
-	select OpenGL driver
+        select OpenGL driver
 
     --force-opengl-1.2
-	restrict Allegro to OpenGL 1.2
+        restrict Allegro to OpenGL 1.2
 
     --force-opengl-2.0
-	restrict Allegro to OpenGL 2.0
+        restrict Allegro to OpenGL 2.0
 
     --force-d3d
-	select Direct3D driver
+        select Direct3D driver
 
 If the list of tests is omitted then every test in the config file will be run.
 Otherwise each test named on the command line is run.  For convenience, you may

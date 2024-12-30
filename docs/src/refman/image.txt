@@ -22,7 +22,7 @@ via external dependencies.
 
 Other formats may be available depending on the operating system and
 installed libraries, but are not guaranteed and should not be assumed to
-be universally available. 
+be universally available.
 
 The DDS format is only supported to load from, and only if the DDS file
 contains textures compressed in the DXT1, DXT3 and DXT5 formats. Note that when

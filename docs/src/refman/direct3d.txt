@@ -8,7 +8,7 @@ These functions are declared in the following header file:
 
 ## API: al_get_d3d_device
 
-Returns the Direct3D device of the display. The return value is 
+Returns the Direct3D device of the display. The return value is
 undefined if the display was not created with the Direct3D flag.
 
 *Returns:*
@@ -16,7 +16,7 @@ A pointer to the Direct3D device.
 
 ## API: al_get_d3d_system_texture
 
-Returns the system texture (stored with the D3DPOOL_SYSTEMMEM flags). This 
+Returns the system texture (stored with the D3DPOOL_SYSTEMMEM flags). This
 texture is used for the render-to-texture feature set.
 
 *Returns:*
@@ -25,7 +25,7 @@ A pointer to the Direct3D system texture.
 ## API: al_get_d3d_video_texture
 
 Returns the video texture (stored with the D3DPOOL_DEFAULT or D3DPOOL_MANAGED
-flags depending on whether render-to-texture is enabled or disabled 
+flags depending on whether render-to-texture is enabled or disabled
 respectively).
 
 *Returns:*
@@ -33,7 +33,7 @@ A pointer to the Direct3D video texture.
 
 ## API: al_have_d3d_non_pow2_texture_support
 
-Returns whether the Direct3D device supports textures whose dimensions are not 
+Returns whether the Direct3D device supports textures whose dimensions are not
 powers of two.
 
 *Returns:*

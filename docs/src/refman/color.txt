@@ -185,7 +185,7 @@ lightsalmon, lightseagreen, lightskyblue, lightslategray,
 lightsteelblue, lightyellow, lime, limegreen, linen, magenta, maroon,
 mediumaquamarine, mediumblue, mediumorchid, mediumpurple,
 mediumseagreen, mediumslateblue, mediumspringgreen, mediumturquoise,
-mediumvioletred, midnightblue, mintcream, mistyrose, moccasin, 
+mediumvioletred, midnightblue, mintcream, mistyrose, moccasin,
 avajowhite, navy, oldlace, olive, olivedrab, orange, orangered,
 orchid, palegoldenrod, palegreen, paleturquoise, palevioletred,
 papayawhip, peachpuff, peru, pink, plum, powderblue, purple,
@@ -368,7 +368,7 @@ See also: [al_color_lab], [al_color_rgb_to_lab]
 
 ## API: al_color_rgb_to_lch
 
-Convert RGB values to CIE LCH color space. 
+Convert RGB values to CIE LCH color space.
 
 Since: 5.2.3
 

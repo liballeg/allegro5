@@ -351,10 +351,10 @@ Graphics:
   - Added `al_build_camera_transform`.
 
   - Make the projection transform a bitmap local state. This removes
-	`al_set_projection_transform` and `al_get_projection_transform`, and replaces
-	them with `al_use_projection_transform` and
-	`al_get_current_projection_transform` with similar semantics to the regular
-	transforms.
+    `al_set_projection_transform` and `al_get_projection_transform`, and replaces
+    them with `al_use_projection_transform` and
+    `al_get_current_projection_transform` with similar semantics to the regular
+    transforms.
 
 OSX port:
 
@@ -519,13 +519,13 @@ Input:
 Graphics:
 
   - Add block compression pixel formats
-	  (ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1/DXT3/DXT5) for compressed video
-	  bitmaps. This includes an API to fetch compressed block size
-	  (`al_get_pixel_block_width/height/size`) as well as API to load and unload
-	  compressed bitmap data without paying a runtime compression cost
-	  (`al_lock_bitmap_blocked`). Unfortunately, due to patent concerns this last
-	  feature is disabled for OpenGL (if you thinks those concerns don't apply to
-	  you, you can enable it by passing `-DWANT_OPENGL_S3TC_LOCKING=1` to cmake).
+    (ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1/DXT3/DXT5) for compressed video
+    bitmaps. This includes an API to fetch compressed block size
+    (`al_get_pixel_block_width/height/size`) as well as API to load and unload
+    compressed bitmap data without paying a runtime compression cost
+    (`al_lock_bitmap_blocked`). Unfortunately, due to patent concerns this last
+    feature is disabled for OpenGL (if you thinks those concerns don't apply to
+    you, you can enable it by passing `-DWANT_OPENGL_S3TC_LOCKING=1` to cmake).
 
   - Make real fullscreen modes work on OS X again. May not be perfect still.
     (thanks to SDL).
@@ -540,9 +540,9 @@ Android port:
   - Bump minimum Android API level from 10 to 12 (aka version 3.1).
 
   - Add controller support to the Android port. An accelerometer 'joystick'
-	  is still the first joystick. Supports two analog sticks and 10 buttons (A B
-	  X Y L1 R1 DPAD_L DPAD_R DPAD_U DPAD_D). Supports hotplugging and
-	  theoretically multiple joysticks (needs testing).
+    is still the first joystick. Supports two analog sticks and 10 buttons (A B
+    X Y L1 R1 DPAD_L DPAD_R DPAD_U DPAD_D). Supports hotplugging and
+    theoretically multiple joysticks (needs testing).
 
   - Set correct orientation at startup on Android (thanks to Aikei_c).
 

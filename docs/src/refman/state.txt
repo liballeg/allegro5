@@ -57,14 +57,14 @@ object. The flags parameter can take any bit-combination of these flags:
   new_display_refresh_rate, new_display_flags
 * ALLEGRO_STATE_NEW_BITMAP_PARAMETERS - new_bitmap_format, new_bitmap_flags
 * ALLEGRO_STATE_DISPLAY - current_display
-* ALLEGRO_STATE_TARGET_BITMAP - target_bitmap 
+* ALLEGRO_STATE_TARGET_BITMAP - target_bitmap
 * ALLEGRO_STATE_BLENDER - blender
 * ALLEGRO_STATE_TRANSFORM - current_transformation
 * ALLEGRO_STATE_PROJECTION_TRANSFORM - current_projection_transformation
-* ALLEGRO_STATE_NEW_FILE_INTERFACE - new_file_interface 
+* ALLEGRO_STATE_NEW_FILE_INTERFACE - new_file_interface
 * ALLEGRO_STATE_BITMAP - same as ALLEGRO_STATE_NEW_BITMAP_PARAMETERS and
                          ALLEGRO_STATE_TARGET_BITMAP
-* ALLEGRO_STATE_ALL - all of the above 
+* ALLEGRO_STATE_ALL - all of the above
 
 See also: [al_restore_state], [ALLEGRO_STATE]
 

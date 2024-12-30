@@ -6,32 +6,32 @@
    By Shawn Hargreaves, November 1999.
 
 
-This program is my entry for the Allegro SpeedHack 1999, and was written 
-over the weekend of November 27/28. Many thanks to Arron Shutt for 
-organising this competition, and to the various musicians who kept me sane 
-(?) during it (notably Trent Reznor, Adrian Belew, Charles Mingus, Miles 
+This program is my entry for the Allegro SpeedHack 1999, and was written
+over the weekend of November 27/28. Many thanks to Arron Shutt for
+organising this competition, and to the various musicians who kept me sane
+(?) during it (notably Trent Reznor, Adrian Belew, Charles Mingus, Miles
 Davis, Mike Keneally, and Robert Fripp).
 
-It should be pretty obvious how to play, as long as you know how to press 
-the spacebar and left/right arrow keys. The objective is to protect the 
-blocks underneath your ship: you get one point for each block left at the 
-end of an attack wave, and a hundred bonus points if you manage to preserve 
+It should be pretty obvious how to play, as long as you know how to press
+the spacebar and left/right arrow keys. The objective is to protect the
+blocks underneath your ship: you get one point for each block left at the
+end of an attack wave, and a hundred bonus points if you manage to preserve
 all sixteen blocks.
 
-Hint: the later levels of this game are much easier to play if you view them 
+Hint: the later levels of this game are much easier to play if you view them
 through tinted glasses, to filter out only one of the views :-)
 
-You gain very little from running it in a truecolor mode (the title screens 
-look a bit nicer, but game graphics are almost identical to in 8 bit color). 
-It does look very cramped in a 320x200 resolution, though, so I recommend 
+You gain very little from running it in a truecolor mode (the title screens
+look a bit nicer, but game graphics are almost identical to in 8 bit color).
+It does look very cramped in a 320x200 resolution, though, so I recommend
 playing it in 640x480x8.
 
 This code is free: do with it as you will.
 
-The remainder of this file is a realtime log, with entries added 
-chronologically during the course of the hack. The numbered subdirectories 
-contain snapshots of the code taken at various times over the weekend. It is 
-unlikely that anything but the final version will compile on systems other 
+The remainder of this file is a realtime log, with entries added
+chronologically during the course of the hack. The numbered subdirectories
+contain snapshots of the code taken at various times over the weekend. It is
+unlikely that anything but the final version will compile on systems other
 than Linux.
 
 
@@ -50,33 +50,33 @@ worked!
 
 Design doc:
 
-Traditional Space Invaders type gameplay: aliens move down the screen, you 
-move across the bottom firing upwards. Three lives. Your goal is to protect 
-blocks underneath you, and you get score for having blocks left at the end 
-of each attack wave. Alien motion will be as complex as I have time for, 
+Traditional Space Invaders type gameplay: aliens move down the screen, you
+move across the bottom firing upwards. Three lives. Your goal is to protect
+blocks underneath you, and you get score for having blocks left at the end
+of each attack wave. Alien motion will be as complex as I have time for,
 including Centipede style splitting.
 
-This 2d action will be rendered in four different psuedo-3d viewports: 
-normal flat mode, inside of a tube, outside of a large cylinder, and in 
-spherical coordinates. Early attack waves use only one viewpoint, later ones 
-tile multiple views of the same action, and toward the end of the sequence 
-the views are overlaid (additive color). If you complete the sequence, it 
+This 2d action will be rendered in four different psuedo-3d viewports:
+normal flat mode, inside of a tube, outside of a large cylinder, and in
+spherical coordinates. Early attack waves use only one viewpoint, later ones
+tile multiple views of the same action, and toward the end of the sequence
+the views are overlaid (additive color). If you complete the sequence, it
 cycles but with vastly increased game speed.
 
-When changing attack waves, views will slide around to their new locations 
+When changing attack waves, views will slide around to their new locations
 (that should look pretty cool).
 
 Any color depth, any resolution.
 
 No time for drawing graphics, so everything will be simple vector art.
 
-Bullets are surrounded by spining wireframe square, flightsim targetting 
+Bullets are surrounded by spining wireframe square, flightsim targetting
 style.
 
-Explosions are expanding XLU circlefill, plus more rapidly expanding single 
+Explosions are expanding XLU circlefill, plus more rapidly expanding single
 circle shockwaves.
 
-Wow, I think that is the most detailed formal game design that I have ever 
+Wow, I think that is the most detailed formal game design that I have ever
 written! I don't have time for this, better get coding...
 
 
@@ -84,7 +84,7 @@ written! I don't have time for this, better get coding...
 10-26-1999, at 17:37
 --------------------
 
-Basic game structure is in place: init code, commandline parsing, title 
+Basic game structure is in place: init code, commandline parsing, title
 screen, stupid little music bit at the end.
 
 

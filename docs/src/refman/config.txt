@@ -7,15 +7,15 @@ These functions are declared in the main Allegro header file:
 ~~~~
 
 Allegro supports reading and writing of configuration files with a
-simple, INI file-like format. 
+simple, INI file-like format.
 
-A configuration file consists of key-value pairs separated by newlines. 
-Keys are separated from values by an equals sign (`=`). All whitespace 
-before the key, after the value and immediately adjacent to the equals 
-sign is ignored. Keys and values may have whitespace characters within 
+A configuration file consists of key-value pairs separated by newlines.
+Keys are separated from values by an equals sign (`=`). All whitespace
+before the key, after the value and immediately adjacent to the equals
+sign is ignored. Keys and values may have whitespace characters within
 them. Keys do not need to be unique, but all but the last one are ignored.
 
-The hash (`#`) character is used a comment when it is the first 
+The hash (`#`) character is used a comment when it is the first
 non-whitespace character on the line. All characters following that
 character are ignored to the end of the line. The hash character anywhere
 else on the line has no special significance.
@@ -26,7 +26,7 @@ a single line. Whitespace before the opening bracket is ignored. All
 characters after the trailing bracket are also ignored.
 
 All key-value pairs that follow a section declaration belong to the last
-declared section. Key-value pairs that don't follow any section 
+declared section. Key-value pairs that don't follow any section
 declarations belong to the global section. Sections do not nest.
 
 Here is an example configuration file:
@@ -189,7 +189,7 @@ See also: [al_get_next_config_section]
 ## API: al_get_next_config_section
 
 Returns the name of the next section in the given config file or NULL if
-there are no more sections. The `iterator` must have been obtained with 
+there are no more sections. The `iterator` must have been obtained with
 [al_get_first_config_section] first.
 
 See also: [al_get_first_config_section]

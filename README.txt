@@ -85,7 +85,7 @@ Linux users likely have all the dependencies already, except PhysicsFS
 and DUMB. If your distribution uses separate development packages, they
 will need to be installed.  The packages are probably named *-dev or *-devel.
 
-These are the dependencies required for the addons: 
+These are the dependencies required for the addons:
 
 - libpng and zlib, for PNG image support (Unix and older MinGW only)
   Home page: <http://www.libpng.org/pub/png/>

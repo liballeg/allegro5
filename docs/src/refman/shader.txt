@@ -27,7 +27,7 @@ specify how to interpret the attached source.
 ALLEGRO_VERTEX_SHADER
 :   A vertex shader is executed for each vertex it is
     used with. The program will output exactly one vertex at a time.
-   
+
     When Allegro's graphics are being used then in addition to all vertices of
     primitives from the primitives addon, each drawn bitmap also consists of
     four vertices.
@@ -36,10 +36,10 @@ ALLEGRO_PIXEL_SHADER
 :   A pixel shader is executed for each pixel it is used
     with. The program will output exactly one pixel at a time - either in the
     backbuffer or in the current target bitmap.
-   
+
     With Allegro's builtin graphics this means the shader is for example called
     for each destination pixel of the output of an [al_draw_bitmap] call.
-   
+
     A more accurate term for pixel shader would be fragment shader since one
     final pixel in the target bitmap is not necessarily composed of only a
     single output but of multiple fragments (for example when multi-sampling is

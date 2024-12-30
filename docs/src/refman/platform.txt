@@ -23,7 +23,7 @@ Optionally, you may use `result` to customize what Allegro will return
 return in response to this event. By default, Allegro returns `TRUE`.
 
 The `userdata` pointer can be used to supply additional context to the
-callback function. 
+callback function.
 
 The callbacks are executed in the same order they were added.
 
@@ -33,7 +33,7 @@ Since: 5.1.2
 
 ### API: al_win_remove_window_callback
 
-Removes the callback that was previously registered with 
+Removes the callback that was previously registered with
 [al_win_add_window_callback]. The `userdata` pointer must be the same as
 what was used during the registration of the callback.
 

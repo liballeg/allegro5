@@ -92,21 +92,21 @@ exist on the file system.
 ALLEGRO_RESOURCES_PATH
 :   If you bundle data in a location relative to your executable, then you
     should use this path to locate that data. On most platforms, this is the
-    directory that contains the executable file. 
-    
+    directory that contains the executable file.
+
     If called from an OS X app bundle, then this will point to the internal
-    resource directory (<bundle.app>/Contents/Resources). To maintain 
+    resource directory (<bundle.app>/Contents/Resources). To maintain
     consistency, if you put your resources into a directory called "data"
     beneath the executable on some other platform (like Windows), then
     you should also create a directory called "data" under the OS X app
     bundle's resource folder.
-    
+
     You should not try to write to this path, as it is very likely read-only.
-    
+
     If you install your resources in some other system directory (e.g., in
     /usr/share or C:\\ProgramData), then you are responsible for keeping track
-    of that yourself.    
-    
+    of that yourself.
+
 ALLEGRO_TEMP_PATH
 :   Path to the directory for temporary files.
 
@@ -115,27 +115,27 @@ ALLEGRO_USER_HOME_PATH
     this directory directly, or create any sub folders in it, without explicit
     permission from the user.  One practical application of this path
     would be to use it as the starting place of a file selector in a GUI.
-    
+
 ALLEGRO_USER_DOCUMENTS_PATH
 :   This location is easily accessible by the user, and is the place
     to store documents and files that the user might want to later open with
-    an external program or transfer to another place. 
-    
+    an external program or transfer to another place.
+
     You should not save files here unless the user expects it, usually by
     explicit permission.
 
 ALLEGRO_USER_DATA_PATH
-:   If your program saves any data that the user doesn't need to access 
+:   If your program saves any data that the user doesn't need to access
     externally, then you should place it here. This is generally the least
     intrusive place to store data. This path will usually not be present on the
     file system, so make sure to create it before writing to it.
-    
+
 ALLEGRO_USER_SETTINGS_PATH
 :   If you are saving configuration files (especially if the user may want to
     edit them outside of your program), then you should place them here. This
     path will usually not be present on the file system, so make sure to create
     it before writing to it.
-    
+
 ALLEGRO_EXENAME_PATH
 :   The full path to the executable.
 
@@ -255,19 +255,19 @@ Since: 5.1.5
 ## API: al_get_cpu_count
 
 Returns the number of CPU cores that the system Allegro is running on
-has and which could be detected, or a negative number if detection failed. 
+has and which could be detected, or a negative number if detection failed.
 Even if a positive number is returned, it might be that it is not correct.
 For example, Allegro running on a virtual machine will return the amount of
-CPU's of the VM, and not that of the underlying system. 
+CPU's of the VM, and not that of the underlying system.
 
-Furthermore even if the number is correct, this only gives you information about 
-the total CPU cores of the system Allegro runs on. The amount of cores available 
-to your program may be less due to circumstances such as programs that are 
+Furthermore even if the number is correct, this only gives you information about
+the total CPU cores of the system Allegro runs on. The amount of cores available
+to your program may be less due to circumstances such as programs that are
 currently running.
 
 
-Therefore, it's best to use this for advisory purposes only. It is certainly a 
-bad idea to make your program exclusive to systems for which this function 
+Therefore, it's best to use this for advisory purposes only. It is certainly a
+bad idea to make your program exclusive to systems for which this function
 returns a certain "desirable" number.
 
 This function may be called prior to [al_install_system] or [al_init].
@@ -276,20 +276,20 @@ Since: 5.1.12
 
 ## API: al_get_ram_size
 
-Returns the size in MB of the random access memory that the system Allegro is 
-running on has and which could be detected, or a negative number if detection 
-failed. Even if a positive number is returned, it might be that it is not 
-correct. For example, Allegro running on a virtual machine will return 
-the amount of RAM of the VM, and not that of the underlying system. 
+Returns the size in MB of the random access memory that the system Allegro is
+running on has and which could be detected, or a negative number if detection
+failed. Even if a positive number is returned, it might be that it is not
+correct. For example, Allegro running on a virtual machine will return
+the amount of RAM of the VM, and not that of the underlying system.
 
-Furthermore even if the number is correct, this only gives you information about 
-the total physical memory of the system Allegro runs on. The memory available 
+Furthermore even if the number is correct, this only gives you information about
+the total physical memory of the system Allegro runs on. The memory available
 to your program may be less or more than what this function returns due to
-circumstances such as virtual memory, and other programs that are currently 
+circumstances such as virtual memory, and other programs that are currently
 running.
 
-Therefore, it's best to use this for advisory purposes only. It is certainly a 
-bad idea to make your program exclusive to systems for which this function 
+Therefore, it's best to use this for advisory purposes only. It is certainly a
+bad idea to make your program exclusive to systems for which this function
 returns a certain "desirable" number.
 
 This function may be called prior to [al_install_system] or [al_init].

@@ -13,7 +13,7 @@ by Michael Bukin, modified by Elias Pschernig
 
 - Select Allegro scancodes from the list, and hit corresponding keys
   on your keyboard.
-  
+
 - "Save and exit", and paste the generated file xkeymap.cfg into your
   allegro.cfg.
 

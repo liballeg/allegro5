@@ -1,36 +1,36 @@
 
-The competition rules state that I must "include the number '29' somewhere 
-in the program" (to commemorate it being Arron's birthday). But 
-unfortunately, although the number 29 is certainly a very fine thing to have 
-as the age for an Arron, it didn't strike me as a particularly useful or 
+The competition rules state that I must "include the number '29' somewhere
+in the program" (to commemorate it being Arron's birthday). But
+unfortunately, although the number 29 is certainly a very fine thing to have
+as the age for an Arron, it didn't strike me as a particularly useful or
 numerologically significant thing to build into a computer game.
 
-However, since the rules do not specify which number base they are talking 
-about, it occurs to me that this could just as well be a reference to the 
-hexadecimal value 0x29, which is decimal 41. Admittedly, this number has 
-nothing to do with the age of the Arron, or at least won't do for another 
-dozen dozens of quartets of weeks, but the rules never actually spell out 
-that they are talking about the particular 29 which happens to be his 
-current age (they strongly imply that, but I decided to look the other way 
+However, since the rules do not specify which number base they are talking
+about, it occurs to me that this could just as well be a reference to the
+hexadecimal value 0x29, which is decimal 41. Admittedly, this number has
+nothing to do with the age of the Arron, or at least won't do for another
+dozen dozens of quartets of weeks, but the rules never actually spell out
+that they are talking about the particular 29 which happens to be his
+current age (they strongly imply that, but I decided to look the other way
 and miss this hint :-)
 
-Now, 0x29, when mapped onto the ASCII character set, refers to the closing 
-bracket character, ')'. So in order to comply with the competition rules, I 
-have included several of these symbols in my program. In fact, as reported 
+Now, 0x29, when mapped onto the ASCII character set, refers to the closing
+bracket character, ')'. So in order to comply with the competition rules, I
+have included several of these symbols in my program. In fact, as reported
 by the command:
 
    sed -e "s/[^)]//g" *.[ch] | tr -d "\n" | wc -c
 
-there are currently no less than ONE THOUSAND AND EIGHTY TWO unique 
-occurrences of a twenty nine in this game! This figure is likely to have 
-increased even further by the time you get hold of the code, since I haven't 
-quite finished writing it yet. And there are four more just in this text 
-file, so if you included the documentation in the above search command, that 
-would get you up to a total of 1086 different ')' characters! (and since I 
-just typed another there, that makes it 1087 (and having opened a bracket to 
-interject this, I'm going to have to close it, which makes 1088 (and now 
-that I've opened a nested bracket, we are up to 1089 or something, I'm 
+there are currently no less than ONE THOUSAND AND EIGHTY TWO unique
+occurrences of a twenty nine in this game! This figure is likely to have
+increased even further by the time you get hold of the code, since I haven't
+quite finished writing it yet. And there are four more just in this text
+file, so if you included the documentation in the above search command, that
+would get you up to a total of 1086 different ')' characters! (and since I
+just typed another there, that makes it 1087 (and having opened a bracket to
+interject this, I'm going to have to close it, which makes 1088 (and now
+that I've opened a nested bracket, we are up to 1089 or something, I'm
 losing count here))) (btw. I hope I got the right number of closes there).
 
-I'm tempted to say that this is all a joke :-) except that by doing so, I've 
+I'm tempted to say that this is all a joke :-) except that by doing so, I've
 just bumped up the count one more...

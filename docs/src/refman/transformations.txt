@@ -202,7 +202,7 @@ If there is no target bitmap, this function returns NULL.
 This is similar to calling `al_invert_transform(al_get_current_transform())`
 but the result of this function is cached.
 
-> *Note*: Allegro's transformation inversion functions work correctly only 
+> *Note*: Allegro's transformation inversion functions work correctly only
 with 2D transformations.
 
 Since: 5.1.0
@@ -218,7 +218,7 @@ inverse before inverting it if you are in doubt.
 
 * trans - Transformation to invert
 
-> *Note*: Allegro's transformation inversion functions work correctly only 
+> *Note*: Allegro's transformation inversion functions work correctly only
 with 2D transformations.
 
 See also: [al_check_inverse]
@@ -269,7 +269,7 @@ the transformation will be invertible.
 *Returns:*
 1 if the transformation is invertible, 0 otherwise
 
-> *Note*: Allegro's transformation inversion functions work correctly only 
+> *Note*: Allegro's transformation inversion functions work correctly only
 with 2D transformations.
 
 See also: [al_invert_transform]
