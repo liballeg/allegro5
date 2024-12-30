@@ -51,12 +51,12 @@ void find_vcvars()
       sprintf(name, "Software\\Microsoft\\DevStudio\\%d.0\\Products\\Microsoft Visual C++", i);
 
       if (read_registry(name, "ProductDir", data, sizeof(data))) {
-	 strcat(data, "\\bin\\vcvars32.bat");
+         strcat(data, "\\bin\\vcvars32.bat");
 
-	 if (access(data, 4) == 0) {
-	    printf("Found %s\n", data);
-	    break;
-	 }
+         if (access(data, 4) == 0) {
+            printf("Found %s\n", data);
+            break;
+         }
       }
 
       data[0] = 0;
@@ -72,25 +72,25 @@ void find_vcvars()
       printf("  c:\\Program Files\\Microsoft Visual Studio\\VC98\\bin\\vcvars32.bat\n");
 
       for (;;) {
-	 printf("\n> ");
-	 fflush(stdout);
+         printf("\n> ");
+         fflush(stdout);
 
-	 if (gets(data)) {
-	    i = strlen(data) - 12;
-	    if (i < 0)
-	       i = 0;
+         if (gets(data)) {
+            i = strlen(data) - 12;
+            if (i < 0)
+               i = 0;
 
-	    if (stricmp(data+i, "vcvars32.bat") != 0)
-	       printf("\nError: that path doesn't end in vcvars32.bat!\n");
-	    else if (access(data, 4) != 0)
-	       printf("\nError: can't find a vcvars32.bat file there!\n");
-	    else {
-	       printf("\nUsing %s\n", data);
-	       break;
-	    }
-	 }
+            if (stricmp(data+i, "vcvars32.bat") != 0)
+               printf("\nError: that path doesn't end in vcvars32.bat!\n");
+            else if (access(data, 4) != 0)
+               printf("\nError: can't find a vcvars32.bat file there!\n");
+            else {
+               printf("\nUsing %s\n", data);
+               break;
+            }
+         }
 
-	 data[0] = 0;
+         data[0] = 0;
       }
    }
 
@@ -113,22 +113,22 @@ int main(int argc, char *argv[])
 
    if ((getenv("OS")) && (stricmp(getenv("OS"), "Windows_NT") == 0)) {
       if (argc > 1) {
-	 /* run program using cmd.exe */
-	 strcpy(cmd, "cmd.exe /e:8192 /c");
+         /* run program using cmd.exe */
+         strcpy(cmd, "cmd.exe /e:8192 /c");
       }
       else {
-	 /* TSR using cmd.exe */
-	 sprintf(cmd, "cmd.exe /e:8192 /k \"%s\"", getenv("VCVARS"));
+         /* TSR using cmd.exe */
+         sprintf(cmd, "cmd.exe /e:8192 /k \"%s\"", getenv("VCVARS"));
       }
    }
    else {
       if (argc > 1) {
-	 /* run program using command.com */
-	 strcpy(cmd, "command.com /e:8192 /c");
+         /* run program using command.com */
+         strcpy(cmd, "command.com /e:8192 /c");
       }
       else {
-	 /* TSR using command.com */
-	 sprintf(cmd, "command.com /e:8192 /k \"%s\"", getenv("VCVARS"));
+         /* TSR using command.com */
+         sprintf(cmd, "command.com /e:8192 /k \"%s\"", getenv("VCVARS"));
       }
    }
 

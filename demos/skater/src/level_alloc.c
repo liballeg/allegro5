@@ -3,16 +3,16 @@
 
 /*
 
-	A whole bunch of functions for creating new instances of the various game
-	structs. For simplicity these are allocated one at a time by this code,
-	although this is likely to lead to very suboptimal memory usage on modern
-	operating systems.
+   A whole bunch of functions for creating new instances of the various game
+   structs. For simplicity these are allocated one at a time by this code,
+   although this is likely to lead to very suboptimal memory usage on modern
+   operating systems.
 
-	If this were a C++ program, these would be the struct constructors.
+   If this were a C++ program, these would be the struct constructors.
 
-	The pattern is quite generic and not really worth too much attention.
-	All pointers that may later be the target of memory deallocation are
-	set to NULL and in some cases other members of interest are initiated.
+   The pattern is quite generic and not really worth too much attention.
+   All pointers that may later be the target of memory deallocation are
+   set to NULL and in some cases other members of interest are initiated.
 
 */
 

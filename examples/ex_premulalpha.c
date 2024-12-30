@@ -97,13 +97,13 @@ int main(int argc, char **argv)
 
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0.5, 0.6, 1));
-         
+
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "not premultiplied");
          al_draw_textf(font, color, x, y + th, 0, "no filtering");
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex1, 4, 4, x + 320, y, 8, 8, a, 0);
-         
+
          y += 120;
 
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
          al_draw_textf(font, color, x + 400, y, 0, "no difference");
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex1, 4, 4, x + 320, y, 8, 8, a, 0);
-         
+
          y += 120;
 
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
       }
    }
 
-   al_destroy_font(font); 
+   al_destroy_font(font);
    al_destroy_bitmap(tex1);
    al_destroy_bitmap(tex2);
 

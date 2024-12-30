@@ -250,7 +250,7 @@ bool al_reserve_samples(int reserve_samples)
 
  Error:
    free_sample_vector();
-   
+
    return false;
 }
 
@@ -292,14 +292,14 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
             ALLEGRO_ERROR("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
-      }      
+      }
    }
 
    return true;
 
 Error:
    free_sample_vector();
-   default_mixer = NULL;   
+   default_mixer = NULL;
    return false;
 }
 
@@ -344,7 +344,7 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
 {
    static int next_id = 0;
    unsigned int i;
-   
+
    ASSERT(spl);
 
    if (ret_id != NULL) {
@@ -524,7 +524,7 @@ static void free_sample_vector(void)
 
 void _al_kcm_shutdown_default_mixer(void)
 {
-   free_sample_vector(); 
+   free_sample_vector();
    al_destroy_mixer(allegro_mixer);
    al_destroy_voice(allegro_voice);
 

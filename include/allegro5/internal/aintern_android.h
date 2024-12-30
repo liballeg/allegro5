@@ -180,11 +180,11 @@ void _al_android_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 #define ALLEGRO_ANDROID_PACKAGE_NAME_SLASH   "org/liballeg/android"
 
 #define JNI_FUNC_PASTER(ret, cls, name, params, x) \
-	JNIEXPORT ret JNICALL Java_ ## x ## _ ## cls ## _ ## name params
+        JNIEXPORT ret JNICALL Java_ ## x ## _ ## cls ## _ ## name params
 #define JNI_FUNC_EVALUATOR(ret, cls, name, params, x) \
-	JNI_FUNC_PASTER(ret, cls, name, params, x)
+        JNI_FUNC_PASTER(ret, cls, name, params, x)
 #define JNI_FUNC(ret, cls, name, params) \
-	JNI_FUNC_EVALUATOR(ret, cls, name, params, ALLEGRO_ANDROID_PACKAGE_NAME)
+        JNI_FUNC_EVALUATOR(ret, cls, name, params, ALLEGRO_ANDROID_PACKAGE_NAME)
 
 /* Functions called from Java code. */
 extern JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj));

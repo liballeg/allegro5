@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 
    num_joysticks = al_get_num_joysticks();
    log_printf("Found %d joysticks.\n", num_joysticks);
-   
+
    for (i = 0; i < num_joysticks; i++) {
       ALLEGRO_JOYSTICK *joy = al_get_joystick(i);
       if (!joy) {

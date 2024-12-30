@@ -55,8 +55,8 @@ typedef struct BMPFILEHEADER
 } BMPFILEHEADER;
 
 
-/* Used for both OS/2 and Windows BMP. 
- * Contains only the parameters needed to load the image 
+/* Used for both OS/2 and Windows BMP.
+ * Contains only the parameters needed to load the image
  */
 typedef struct BMPINFOHEADER
 {
@@ -671,9 +671,9 @@ static bool read_RGB_image_indices(ALLEGRO_FILE *f, int flags,
    int i, line, height, width, dir;
    size_t linesize;
    char *linebuf;
-   
+
    (void)flags;
-   
+
    height = infoheader->biHeight;
    width = infoheader->biWidth;
 
@@ -681,7 +681,7 @@ static bool read_RGB_image_indices(ALLEGRO_FILE *f, int flags,
    linesize = (width + 3) & ~3;
 
    // Indices are always 8-bit, so no need to adjust linesize
-   
+
    linebuf = al_malloc(linesize);
 
    if (!linebuf) {
@@ -1287,7 +1287,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
-   if (infoheader.biCompression == BIT_BITFIELDS && 
+   if (infoheader.biCompression == BIT_BITFIELDS &&
       infoheader.biBitCount != 16 && infoheader.biBitCount != 24 && infoheader.biBitCount != 32) {
       ALLEGRO_WARN("unsupported bit depth for bitfields compression: %d\n", infoheader.biBitCount);
       return NULL;
@@ -1412,12 +1412,12 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       ALLEGRO_ERROR("Failed to create bitmap\n");
       return NULL;
    }
-   
+
    if (infoheader.biWidth == 0 || infoheader.biHeight == 0) {
       ALLEGRO_WARN("Creating zero-sized bitmap\n");
       return bmp;
    }
-   
+
    if (infoheader.biBitCount <= 8 && keep_index) {
       lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
          ALLEGRO_LOCK_WRITEONLY);

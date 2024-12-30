@@ -200,13 +200,13 @@ int main(int argc, char **argv)
    al_install_mouse();
    touch = al_install_touch_input();
    al_install_keyboard();
-    
+
    if (touch) {
       al_set_mouse_emulation_mode(ALLEGRO_MOUSE_EMULATION_5_0_x);
    }
 
    message("Creating window...");
-    
+
 #ifdef ALLEGRO_IPHONE
    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 #endif
@@ -250,7 +250,7 @@ restart:
 
    while (1) {
       float h = al_get_display_height(display);
-      
+
       ALLEGRO_EVENT event;
       al_wait_for_event(queue, &event);
 
@@ -264,7 +264,7 @@ restart:
                break;
          }
       }
-       
+
       /* When a mouse button is pressed, and no native dialog is
        * shown already, we show a new one.
        */

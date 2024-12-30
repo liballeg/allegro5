@@ -221,7 +221,7 @@ static bool file_phys_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
       phys_set_errno(fp);
       return false;
    }
-   
+
    return true;
 }
 

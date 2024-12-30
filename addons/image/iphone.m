@@ -102,7 +102,7 @@ ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f, int flags)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_ASSERT(f);
-    
+
    int64_t size = al_fsize(f);
    if (size <= 0) {
       // TODO: Read from stream until we have the whole image

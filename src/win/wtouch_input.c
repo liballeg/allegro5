@@ -81,7 +81,7 @@ bool _al_win_init_touch_input_api(void)
 
       /* Mark as 'do not try this again'. */
       touch_input_api_reference_counter = -1;
-	  ALLEGRO_WARN("failed loading the touch input API\n");
+          ALLEGRO_WARN("failed loading the touch input API\n");
       return false;
    }
 

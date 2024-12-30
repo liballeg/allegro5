@@ -66,11 +66,11 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
    int clip_min_x, clip_min_y, clip_max_x, clip_max_y;
    int x = (int)floorf(v->x);
    int y = (int)floorf(v->x);
-   
+
    al_get_clipping_rectangle(&clip_min_x, &clip_min_y, &clip_max_x, &clip_max_y);
    clip_max_x += clip_min_x;
    clip_max_y += clip_min_y;
-   
+
    if(x < clip_min_x || x >= clip_max_x || y < clip_min_y || y >= clip_max_y)
       return;
 
@@ -80,7 +80,7 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
    if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED) {
       shade = 0;
    }
-   
+
    if (texture) {
       ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
       _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);

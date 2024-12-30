@@ -72,7 +72,7 @@ const char *demo_error(int id)
 
 
 int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
-		   const char *name, int def)
+                   const char *name, int def)
 {
    const char *v = al_get_config_value(cfg, section, name);
 
@@ -81,7 +81,7 @@ int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
 
 
 void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
-		    int val)
+                    int val)
 {
    char buf[32];
 
@@ -120,12 +120,12 @@ void read_global_config(const char *config)
 
    sound_volume = get_config_int(c, "SOUND", "sound_volume", sound_volume);
    music_volume = get_config_int(c, "SOUND", "music_volume", music_volume);
-   
+
    set_sound_volume(sound_volume / 10.0);
    set_music_volume(music_volume / 10.0);
 
    controller_id = get_config_int(c, "CONTROLS", "controller_id", controller_id);
-   
+
    al_destroy_config(c);
 }
 
@@ -196,16 +196,16 @@ int change_gfx_mode(void)
    } else {
       flags |= ALLEGRO_FULLSCREEN;
    }
-   
+
    if (screen) {
       al_destroy_display(screen);
    }
 
    al_set_new_display_flags(flags);
-   
+
    // May be a good idea, but need to add a border to textures for it.
    // al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
-   
+
    if (screen_samples > 1) {
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
       al_set_new_display_option(ALLEGRO_SAMPLES, screen_samples, ALLEGRO_SUGGEST);
@@ -214,7 +214,7 @@ int change_gfx_mode(void)
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_SUGGEST);
       al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
    }
-   
+
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
                              ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
 
@@ -224,11 +224,11 @@ int change_gfx_mode(void)
       return DEMO_ERROR_ALLEGRO;
    }
    al_set_window_constraints(screen, 320, 320, 0, 0);
-   
+
    screen_width = al_get_display_width(screen);
    screen_height = al_get_display_height(screen);
    screen_orientation = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
-   
+
    al_register_event_source(event_queue, al_get_display_event_source(screen));
 
    /* blank display now, before doing any more complicated stuff */
@@ -262,7 +262,7 @@ static DATA_ENTRY *load_data_entries(char const *path)
    load(d, DEMO_SAMPLE_DING,     "sample",   path, "audio",    "ding", "ogg", 0);
    load(d, DEMO_SAMPLE_DOOROPEN, "sample",   path, "audio",    "dooropen", "ogg", 0);
    load(d, DEMO_SAMPLE_POP,      "sample",   path, "audio",    "pop", "ogg", 0);
-  
+
    load(d, DEMO_BMP_BANANAS,     "bitmap",   path, "graphics", "bananas", "png", 0);
    load(d, DEMO_BMP_CHERRIES,    "bitmap",   path, "graphics", "cherries", "png", 0);
    load(d, DEMO_BMP_CLOUD,       "bitmap",   path, "graphics", "cloud", "png", 0);

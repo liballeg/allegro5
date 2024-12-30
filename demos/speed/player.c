@@ -65,14 +65,14 @@ float find_target(float x)
       j = (seg+i) % SEGMENTS;
 
       if (ganja[j])
-	 return (float)j / SEGMENTS + (0.5 / SEGMENTS);
+         return (float)j / SEGMENTS + (0.5 / SEGMENTS);
 
       j = (seg-i) % SEGMENTS;
       if (j < 0)
-	 j += SEGMENTS;
+         j += SEGMENTS;
 
       if (ganja[j])
-	 return (float)j / SEGMENTS + (0.5 / SEGMENTS);
+         return (float)j / SEGMENTS + (0.5 / SEGMENTS);
    }
 
    if (pos < 0.5)
@@ -97,12 +97,12 @@ int kill_player(float x, float y)
    int ret = FALSE;
 
    if (y >= 0.97) {
-      int seg = (int)(x * SEGMENTS) % SEGMENTS; 
+      int seg = (int)(x * SEGMENTS) % SEGMENTS;
 
       if (ganja[seg]) {
-	 ganja[seg] = FALSE;
-	 explode(x, 0.98, 1);
-	 sfx_explode_block();
+         ganja[seg] = FALSE;
+         explode(x, 0.98, 1);
+         sfx_explode_block();
       }
 
       ret = TRUE;
@@ -112,20 +112,20 @@ int kill_player(float x, float y)
       float d = pos - x;
 
       if (d < -0.5)
-	 d += 1;
+         d += 1;
       else if (d > 0.5)
-	 d -= 1;
+         d -= 1;
 
       if (ABS(d) < 0.06) {
-	 die_time = 128;
+         die_time = 128;
 
-	 explode(x, 0.98, 2);
-	 explode(x, 0.98, 4);
-	 sfx_explode_player();
+         explode(x, 0.98, 2);
+         explode(x, 0.98, 4);
+         sfx_explode_player();
 
-	 message("Ship Destroyed");
+         message("Ship Destroyed");
 
-	 ret = TRUE;
+         ret = TRUE;
       }
    }
 
@@ -171,9 +171,9 @@ void advance_player(int cycle)
 
    for (i=0; i<SEGMENTS; i++) {
       if (ganja[i])
-	 bonus++;
+         bonus++;
       else
-	 ganja[i] = TRUE;
+         ganja[i] = TRUE;
    }
 
    if (bonus == SEGMENTS) {
@@ -207,7 +207,7 @@ int update_player()
 {
    poll_input();
 
-   /* quit game? */ 
+   /* quit game? */
    if (key[ALLEGRO_KEY_ESCAPE])
       return -1;
 
@@ -220,28 +220,28 @@ int update_player()
       die_time--;
 
       if (!die_time) {
-	 lives--;
-	 if (!lives)
-	    return 1;
+         lives--;
+         if (!lives)
+            return 1;
 
-	 init_time = 128;
-	 pos = 0.5;
-	 vel = 0;
+         init_time = 128;
+         pos = 0.5;
+         vel = 0;
 
-	 if (lives == 1)
-	    message("This Is Your Final Life");
-	 else
-	    message("One Life Remaining");
+         if (lives == 1)
+            message("This Is Your Final Life");
+         else
+            message("One Life Remaining");
       }
    }
 
    /* handle user left/right input */
    if (!die_time) {
       if ((joy_left) || (key[ALLEGRO_KEY_LEFT]))
-	 vel -= 0.005;
+         vel -= 0.005;
 
       if ((joy_right) || (key[ALLEGRO_KEY_RIGHT]))
-	 vel += 0.005;
+         vel += 0.005;
    }
 
    /* move left and right */
@@ -258,8 +258,8 @@ int update_player()
    /* fire bullets */
    if ((!die_time) && (!init_time) && (!fire_time)) {
       if ((key[ALLEGRO_KEY_SPACE]) || (joy_b1)) {
-	 fire_bullet();
-	 fire_time = 24;
+         fire_bullet();
+         fire_time = 24;
       }
    }
 
@@ -281,20 +281,20 @@ void draw_player(int r, int g, int b, int (*project)(float *f, int *i, int c))
    /* draw health segments */
    for (i=0; i<SEGMENTS; i++) {
       if (ganja[i]) {
-	 shape[0] = (float)i / SEGMENTS;
-	 shape[1] = 0.98;
+         shape[0] = (float)i / SEGMENTS;
+         shape[1] = 0.98;
 
-	 shape[2] = (float)(i+1) / SEGMENTS;
-	 shape[3] = 0.98;
+         shape[2] = (float)(i+1) / SEGMENTS;
+         shape[3] = 0.98;
 
-	 shape[4] = (float)(i+1) / SEGMENTS;
-	 shape[5] = 1.0;
+         shape[4] = (float)(i+1) / SEGMENTS;
+         shape[5] = 1.0;
 
-	 shape[6] = (float)i / SEGMENTS;
-	 shape[7] = 1.0;
+         shape[6] = (float)i / SEGMENTS;
+         shape[7] = 1.0;
 
-	 if (project(shape, ishape, 8))
-	    polygon(4, ishape, makecol(r/3, g/3, b/3));
+         if (project(shape, ishape, 8))
+            polygon(4, ishape, makecol(r/3, g/3, b/3));
       }
    }
 

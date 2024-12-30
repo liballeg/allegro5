@@ -1,42 +1,42 @@
 #ifndef _TREX_H_
 #define _TREX_H_
 /***************************************************************
-	T-Rex a tiny regular expression library
+   T-Rex a tiny regular expression library
 
-	Copyright (C) 2003-2006 Alberto Demichelis
+   Copyright (C) 2003-2006 Alberto Demichelis
 
-	This software is provided 'as-is', without any express 
-	or implied warranty. In no event will the authors be held 
-	liable for any damages arising from the use of this software.
+   This software is provided 'as-is', without any express
+   or implied warranty. In no event will the authors be held
+   liable for any damages arising from the use of this software.
 
-	Permission is granted to anyone to use this software for 
-	any purpose, including commercial applications, and to alter
-	it and redistribute it freely, subject to the following restrictions:
+   Permission is granted to anyone to use this software for
+   any purpose, including commercial applications, and to alter
+   it and redistribute it freely, subject to the following restrictions:
 
-		1. The origin of this software must not be misrepresented;
-		you must not claim that you wrote the original software.
-		If you use this software in a product, an acknowledgment
-		in the product documentation would be appreciated but
-		is not required.
+      1. The origin of this software must not be misrepresented;
+      you must not claim that you wrote the original software.
+      If you use this software in a product, an acknowledgment
+      in the product documentation would be appreciated but
+      is not required.
 
-		2. Altered source versions must be plainly marked as such,
-		and must not be misrepresented as being the original software.
+      2. Altered source versions must be plainly marked as such,
+      and must not be misrepresented as being the original software.
 
-		3. This notice may not be removed or altered from any
-		source distribution.
+      3. This notice may not be removed or altered from any
+      source distribution.
 
 ****************************************************************/
 
 #ifdef _UNICODE
 #define TRexChar unsigned short
 #define MAX_CHAR 0xFFFF
-#define _TREXC(c) L##c 
+#define _TREXC(c) L##c
 #define trex_strlen wcslen
 #define trex_printf wprintf
 #else
 #define TRexChar char
 #define MAX_CHAR 0xFF
-#define _TREXC(c) (c) 
+#define _TREXC(c) (c)
 #define trex_strlen strlen
 #define trex_printf printf
 #endif
@@ -52,8 +52,8 @@ typedef unsigned int TRexBool;
 typedef struct TRex TRex;
 
 typedef struct {
-	const TRexChar *begin;
-	int len;
+   const TRexChar *begin;
+   int len;
 } TRexMatch;
 
 TREX_API TRex *trex_compile(const TRexChar *pattern,const TRexChar **error);

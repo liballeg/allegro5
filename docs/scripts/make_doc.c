@@ -192,7 +192,7 @@ static void load_examples(const char *filename)
 
 const char* example_source(dstr buffer, const char *file_name, const char *line_number) {
   sprintf(buffer,  "https://github.com/liballeg/allegro5/blob/%s/%s#L%s",
-	  git_ref, file_name, line_number);
+          git_ref, file_name, line_number);
   return buffer;
 }
 

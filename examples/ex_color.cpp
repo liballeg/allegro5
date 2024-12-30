@@ -38,7 +38,7 @@ private:
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
-   void run();   
+   void run();
 
 private:
    void draw_swatch(float x, float y, float w, float h, float v[3]);

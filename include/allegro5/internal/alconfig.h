@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -53,7 +53,7 @@
    #error platform not supported
 #endif
 
-  
+
 #include "allegro5/platform/astdint.h"
 #include "allegro5/platform/astdbool.h"
 
@@ -108,7 +108,7 @@
          #define ZERO_SIZE_ARRAY(type, name)  type name[] /* ISO C99 flexible array members */
       #endif
    #endif
-   
+
    #ifdef ALLEGRO_GUESS_INTTYPES_OK
       #define int64_t      signed long long
       #define uint64_t     unsigned long long
@@ -121,7 +121,7 @@
    #ifdef __amd64__
       #define ALLEGRO_AMD64
    #endif
-   
+
    #ifdef __arm__
       #define ALLEGRO_ARM
    #endif

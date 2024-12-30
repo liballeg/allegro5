@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *	Apple Audio Queue driver
+ *      Apple Audio Queue driver
  *
- *	By Trent Gamblin.
+ *      By Trent Gamblin.
  *
  *      See readme.txt for copyright information.
  */

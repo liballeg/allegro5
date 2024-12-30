@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *	Internal cross-platform threading API for Unix.
+ *        Internal cross-platform threading API for Unix.
  *
- *	By Peter Wang.
+ *        By Peter Wang.
  *
  *      See readme.txt for copyright information.
  */
@@ -70,7 +70,7 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 }
 
 
-void _al_thread_create_with_stacksize(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize) 
+void _al_thread_create_with_stacksize(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize)
 {
 #ifndef __GNU__
    ASSERT(stacksize >= PTHREAD_STACK_MIN);
@@ -90,12 +90,12 @@ void _al_thread_create_with_stacksize(_AL_THREAD* thread, void (*proc)(_AL_THREA
       int result = 0;
       result = pthread_attr_init(&thread_attr);
       ASSERT(result == 0);
-		
+
       // On some systems, pthread_attr_setstacksize() can fail
       // if stacksize is not a multiple of the system page size.
       result = pthread_attr_setstacksize(&thread_attr, stacksize);
       ASSERT(result == 0);
-		
+
       status = pthread_create(&thread->thread, &thread_attr, thread_proc_trampoline, thread);
       ASSERT(status == 0);
       if (status != 0)
@@ -141,7 +141,7 @@ void _al_thread_detach(_AL_THREAD *thread)
 void _al_mutex_init(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
-    
+
    pthread_mutex_init(&mutex->mutex, NULL);
    mutex->inited = true;
 }

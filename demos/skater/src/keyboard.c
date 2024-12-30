@@ -5,7 +5,7 @@
 
 #define KEYBUF_SIZE 16
 
-/* 
+/*
  * bit 0: key is down
  * bit 1: key was pressed
  * bit 2: key was released
@@ -65,7 +65,7 @@ void keyboard_tick(void)
       key_array[i] &= ~(1 << 1);
       key_array[i] &= ~(1 << 2);
    }
-   
+
    unicode_count = 0;
 }
 

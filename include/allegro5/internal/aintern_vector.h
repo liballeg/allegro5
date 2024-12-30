@@ -26,12 +26,12 @@ AL_INLINE(size_t, _al_vector_size, (const _AL_VECTOR *vec),
 AL_INLINE(bool, _al_vector_is_empty, (const _AL_VECTOR *vec),
 {
    ASSERT(vec);
-   return vec->_size == 0 ? true : false; 
+   return vec->_size == 0 ? true : false;
 })
 AL_INLINE(bool, _al_vector_is_nonempty, (const _AL_VECTOR *vec),
 {
    ASSERT(vec);
-   return !_al_vector_is_empty(vec); 
+   return !_al_vector_is_empty(vec);
 })
 AL_FUNC(void*, _al_vector_ref, (const _AL_VECTOR*, unsigned int index));
 AL_FUNC(void*, _al_vector_ref_front, (const _AL_VECTOR*));

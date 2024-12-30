@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -54,8 +54,8 @@ void _al_win_thread_init(void)
 
       ole32 = GetModuleHandle(TEXT("OLE32.DLL"));
       if (ole32 != NULL) {
-	 _CoInitializeEx = (_CoInitializeEx_ptr) GetProcAddress(
-						ole32, "CoInitializeEx");
+         _CoInitializeEx = (_CoInitializeEx_ptr) GetProcAddress(
+                                                ole32, "CoInitializeEx");
       }
       else {
          ALLEGRO_WARN("OLE32.DLL can't be loaded.\n");

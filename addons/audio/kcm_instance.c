@@ -120,7 +120,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
       al_detach_voice(spl->parent.u.voice);
       return;
    }
-   
+
    mixer = spl->parent.u.mixer;
 
    /* Search through the streams and check for this one */

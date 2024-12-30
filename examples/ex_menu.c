@@ -8,7 +8,7 @@
 
 /* The following is a list of menu item ids. They can be any non-zero, positive
  * integer. A menu item must have an id in order for it to generate an event.
- * Also, each menu item's id should be unique to get well defined results. 
+ * Also, each menu item's id should be unique to get well defined results.
  */
 enum {
    FILE_ID = 1,
@@ -28,7 +28,7 @@ enum {
 };
 
 /* This is one way to define a menu. The entire system, nested menus and all,
- * can be defined by this single array. 
+ * can be defined by this single array.
  */
 ALLEGRO_MENU_INFO main_menu_info[] = {
    ALLEGRO_START_OF_MENU("&File", FILE_ID),
@@ -36,7 +36,7 @@ ALLEGRO_MENU_INFO main_menu_info[] = {
       ALLEGRO_MENU_SEPARATOR,
       { "E&xit", FILE_EXIT_ID, 0, NULL },
       ALLEGRO_END_OF_MENU,
-   
+
    ALLEGRO_START_OF_MENU("&Dynamic Options", DYNAMIC_ID),
       { "&Checkbox", DYNAMIC_CHECKBOX_ID, ALLEGRO_MENU_ITEM_CHECKED, NULL },
       { "&Disabled", DYNAMIC_DISABLED_ID, ALLEGRO_MENU_ITEM_DISABLED, NULL },
@@ -47,7 +47,7 @@ ALLEGRO_MENU_INFO main_menu_info[] = {
    ALLEGRO_START_OF_MENU("&Help", 0),
       { "&About", HELP_ABOUT_ID, 0, NULL },
       ALLEGRO_END_OF_MENU,
- 
+
    ALLEGRO_END_OF_MENU
 };
 
@@ -100,16 +100,16 @@ int main(int argc, char **argv)
       abort_example("Error creating display\n");
    }
    al_set_window_title(display, "ex_menu - Main Window");
-   
+
    menu = al_build_menu(main_menu_info);
    if (!menu) {
       abort_example("Error creating menu\n");
    }
-   
+
    /* Add an icon to the Help/About item. Note that Allegro assumes ownership
     * of the bitmap. */
    al_set_menu_item_icon(menu, HELP_ABOUT_ID, al_load_bitmap("data/icon.tga"));
-   
+
    if (!al_set_display_menu(display, menu)) {
       /* Since the menu could not be attached to the window, then treat it as
        * a popup menu instead. */
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
          al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
       }
    }
-   
+
    timer = al_create_timer(1.0 / 60);
 
    al_register_event_source(queue, al_get_display_event_source(display));
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
                   ALLEGRO_MENU *menu = al_build_menu(child_menu_info);
                   al_set_display_menu(d, menu);
                   al_clear_to_color(al_map_rgb(0,0,0));
-                  al_flip_display();                  
+                  al_flip_display();
                   al_register_event_source(queue, al_get_display_event_source(d));
                   al_set_target_backbuffer(display);
                   al_set_window_title(d, "ex_menu - Child Window");
@@ -197,9 +197,9 @@ int main(int argc, char **argv)
             }
             else if (event.user.data1 == DYNAMIC_CHECKBOX_ID) {
                al_set_menu_item_flags(menu, DYNAMIC_DISABLED_ID, al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) ^ ALLEGRO_MENU_ITEM_DISABLED);
-               al_set_menu_item_caption(menu, DYNAMIC_DISABLED_ID, 
+               al_set_menu_item_caption(menu, DYNAMIC_DISABLED_ID,
                   (al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) & ALLEGRO_MENU_ITEM_DISABLED) ?
-                  "&Disabled" : "&Enabled");               
+                  "&Disabled" : "&Enabled");
             }
             else if (event.user.data1 == DYNAMIC_DELETE_ID) {
                al_remove_menu_item(menu, DYNAMIC_DELETE_ID);
@@ -207,16 +207,16 @@ int main(int argc, char **argv)
             else if (event.user.data1 == DYNAMIC_CREATE_ID) {
                if (dcount < 5) {
                   char new_name[10];
-                  
+
                   ++dcount;
                   if (dcount == 1) {
                      /* append a separator */
                      al_append_menu_item(al_find_menu(menu, DYNAMIC_ID), NULL, 0, 0, NULL, NULL);
                   }
-                  
-                  sprintf(new_name, "New #%d", dcount);                  
+
+                  sprintf(new_name, "New #%d", dcount);
                   al_append_menu_item(al_find_menu(menu, DYNAMIC_ID), new_name, 0, 0, NULL, NULL);
-                  
+
                   if (dcount == 5) {
                      /* disable the option */
                      al_set_menu_item_flags(menu, DYNAMIC_CREATE_ID, ALLEGRO_MENU_ITEM_DISABLED);
@@ -298,9 +298,9 @@ int main(int argc, char **argv)
          redraw = true;
       }
    }
-   
+
    /* You must remove the menu before destroying the display to free resources */
    al_set_display_menu(display, NULL);
-   
+
    return 0;
 }

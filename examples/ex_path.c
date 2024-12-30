@@ -8,7 +8,7 @@ int main(int argc, char **argv)
    ALLEGRO_PATH *dyn = NULL;
    ALLEGRO_PATH *tostring = NULL;
    ALLEGRO_PATH *cloned = NULL;
-   
+
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }

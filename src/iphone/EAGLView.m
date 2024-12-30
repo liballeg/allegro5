@@ -32,15 +32,15 @@ static void touch_item_dtor(void* value, void* userdata)
 static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 {
    _AL_LIST_ITEM* item;
-   
+
    for (item = _al_list_front(list); item; item = _al_list_next(list, item)) {
-   
+
       touch_t* touch = (touch_t*)_al_list_item_data(item);
-      
+
       if (touch->touch == nativeTouch)
          return touch;
    }
-         
+
    return NULL;
 }
 
@@ -63,7 +63,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
    // Get the layer
    CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
-   
+
    NSString *color_format = kEAGLColorFormatRGBA8;
    if (display->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16)
       color_format = kEAGLColorFormatRGB565;
@@ -88,13 +88,13 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    }
 
    ALLEGRO_INFO("Context is %p\n", context);
-   
+
    if (!context || ![EAGLContext setCurrentContext:context]) {
       ALLEGRO_ERROR("context is nil or setCurrentContext failed.\n");
       [self release];
       return;
    }
-   
+
    /* FIXME: Make this depend on a display setting. */
    [self setMultipleTouchEnabled:YES];
 
@@ -103,15 +103,15 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 }
 
 - (id)initWithFrame:(CGRect)frame {
-    
+
     ALLEGRO_DEBUG("Creating UIView.\n");
 
     self = [super initWithFrame:frame];
-    
+
     touch_list = _al_list_create();
-    
+
     primary_touch = NULL;
-    
+
     touch_id_set       = [[NSMutableIndexSet alloc] init];
     next_free_touch_id = 1;
 
@@ -134,7 +134,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
 - (void)send_resize_event {
    ALLEGRO_DISPLAY *display = allegro_display;
-   
+
    int x = self.frame.origin.x;
    int y = self.frame.origin.y;
    int w = self.frame.size.width;
@@ -191,55 +191,55 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
         ALLEGRO_INFO("Screen scale is %f\n", self.contentScaleFactor);
     }
     else {
-    	scale = 1.0f;
+            scale = 1.0f;
     }
 
     glGenFramebuffersOES(1, &viewFramebuffer);
     glGenRenderbuffersOES(1, &viewRenderbuffer);
-    
+
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
     glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
     [context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
     glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, viewRenderbuffer);
-    
+
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
-   
+
     ALLEGRO_INFO("Creating GL framebuffer %dx%d.\n", backingWidth, backingHeight);
-    
+
     if (allegro_display->extra_settings.settings[ALLEGRO_DEPTH_SIZE]) {
         GLint depth_stencil_format;
         if (allegro_display->extra_settings.settings[ALLEGRO_STENCIL_SIZE]) {
-	    depth_stencil_format = GL_DEPTH24_STENCIL8_OES;
-	}
-	else {
-	    depth_stencil_format = GL_DEPTH_COMPONENT16_OES;
-	}
+            depth_stencil_format = GL_DEPTH24_STENCIL8_OES;
+        }
+        else {
+            depth_stencil_format = GL_DEPTH_COMPONENT16_OES;
+        }
         glGenRenderbuffersOES(1, &depthRenderbuffer);
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
         glRenderbufferStorageOES(GL_RENDERBUFFER_OES, depth_stencil_format, backingWidth, backingHeight);
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
         if (allegro_display->extra_settings.settings[ALLEGRO_STENCIL_SIZE]) {
-        	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
-	}
+           glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+        }
     }
-    
+
     if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
         NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
         return NO;
     }
-    
+
     return YES;
 }
 
 
 - (void)destroyFramebuffer {
-    
+
     glDeleteFramebuffersOES(1, &viewFramebuffer);
     viewFramebuffer = 0;
     glDeleteRenderbuffersOES(1, &viewRenderbuffer);
     viewRenderbuffer = 0;
-    
+
     if (depthRenderbuffer) {
         glDeleteRenderbuffersOES(1, &depthRenderbuffer);
         depthRenderbuffer = 0;
@@ -250,13 +250,13 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     if (touch_list)
       _al_list_destroy(touch_list);
 
-    [touch_id_set release]; 
+    [touch_id_set release];
 
     if ([EAGLContext currentContext] == context) {
         [EAGLContext setCurrentContext:nil];
     }
-    
-    [context release];  
+
+    [context release];
     [super dealloc];
 }
 
@@ -285,27 +285,27 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    // TODO: handle double-clicks (send two events?)
    // NSUInteger numTaps = [[touches anyObject] tapCount];
    // Enumerate through all the touch objects.
-   
+
    for (UITouch *nativeTouch in touches) {
       /* Create new touch_t and associate ID with UITouch. */
       touch_t* touch = al_malloc(sizeof(touch_t));
-      
+
       touch->touch = nativeTouch;
-      
+
       if ([touch_id_set count] != 0) {
          touch->id = [touch_id_set firstIndex];
          [touch_id_set removeIndex:touch->id];
       }
       else
          touch->id = next_free_touch_id++;
-      
+
       _al_list_push_back_ex(touch_list, touch, touch_item_dtor);
-      
+
       CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
 
       if (NULL == primary_touch)
          primary_touch = nativeTouch;
-      
+
       _al_iphone_touch_input_handle_begin(touch->id, al_get_time(),
       p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);
    }
@@ -313,17 +313,17 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
 // Handles the continuation of a touch.
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{  
+{
    (void)event;
 
    touch_t* touch;
-   
+
    // Enumerates through all touch objects
    for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
-   
+
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
-   
+
          _al_iphone_touch_input_handle_move(touch->id, al_get_time(),
          p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);
       }
@@ -334,9 +334,9 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
    (void)event;
-   
+
    touch_t* touch;
-   
+
    // Enumerates through all touch objects
    for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
@@ -344,7 +344,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
 
          _al_iphone_touch_input_handle_end(touch->id, al_get_time(),
-            p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);  
+            p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);
 
          [touch_id_set addIndex:touch->id];
          _al_list_remove(touch_list, touch);
@@ -361,21 +361,21 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
    (void)event;
-    
+
    touch_t* touch;
-   
+
    // Enumerates through all touch objects
    for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
-   
+
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
-         
+
          _al_iphone_touch_input_handle_cancel(touch->id, al_get_time(),
          p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);
-         
+
          if (primary_touch == nativeTouch)
-         primary_touch = NULL;            
-         
+         primary_touch = NULL;
+
          [touch_id_set addIndex:touch->id];
          _al_list_remove(touch_list, touch);
       }

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -58,12 +58,12 @@ static bool clear_menu_extras(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int i
 {
    (void) index;
    (void) extra;
-   
-   if (item) 
+
+   if (item)
       item->extra1 = NULL;
    else
       menu->extra1 = NULL;
-      
+
    return false;
 }
 
@@ -101,18 +101,18 @@ static void checkbox_on_toggle(ALLEGRO_MENU_ITEM *item)
 static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
 {
    GtkWidget *gitem;
-   
+
    if (!aitem->caption) {
       gitem = gtk_separator_menu_item_new();
    }
    else {
       ALLEGRO_USTR *caption = al_ustr_dup(aitem->caption);
-      
+
       /* convert & to _ using unprintable chars as placeholders */
       al_ustr_find_replace_cstr(caption, 0, "_", "\x01\x02");
       al_ustr_find_replace_cstr(caption, 0, "&", "_");
       al_ustr_find_replace_cstr(caption, 0, "\x01\x02", "__");
-      
+
       if (aitem->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
          gitem = gtk_check_menu_item_new_with_mnemonic(al_cstr(caption));
          gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(gitem), aitem->flags & ALLEGRO_MENU_ITEM_CHECKED);
@@ -124,13 +124,13 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
          gitem = gtk_menu_item_new_with_mnemonic(al_cstr(caption));
 
       }
-      
+
       al_ustr_free(caption);
-      
+
       gtk_widget_set_sensitive(gitem, !(aitem->flags & ALLEGRO_MENU_ITEM_DISABLED));
-      
+
       aitem->extra1 = gitem;
-      
+
       if (aitem->popup) {
          GtkWidget *gsubmenu = gtk_menu_new();
          build_menu(gsubmenu, aitem->popup);
@@ -143,9 +143,9 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
             G_CALLBACK(menuitem_response), (gpointer) aitem);
       }
    }
-      
+
    gtk_widget_show(gitem);
-   
+
    return gitem;
 }
 
@@ -153,7 +153,7 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
 static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu)
 {
    size_t i;
-   
+
    for (i = 0; i < _al_vector_size(&amenu->items); ++i) {
       ALLEGRO_MENU_ITEM *aitem = * (ALLEGRO_MENU_ITEM **) _al_vector_ref(&amenu->items, i);
       GtkWidget *gitem = build_menu_item(aitem);
@@ -165,9 +165,9 @@ static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu)
 bool _al_init_menu(ALLEGRO_MENU *menu)
 {
    (void) menu;
-   
+
    /* Do nothing here, because menu creation is defered until it is displayed. */
-   
+
    return true;
 }
 
@@ -181,10 +181,10 @@ bool _al_init_popup_menu(ALLEGRO_MENU *menu)
 static gboolean do_destroy_menu(gpointer data)
 {
    ARGS *args = _al_gtk_lock_args(data);
-   
+
    gtk_widget_destroy(args->menu->extra1);
    args->menu->extra1 = NULL;
-   
+
    return _al_gtk_release_args(args);
 }
 
@@ -195,7 +195,7 @@ bool _al_destroy_menu(ALLEGRO_MENU *menu)
 
    if (!menu->extra1)
       return true;
-   
+
    if (!_al_gtk_init_args(&args, sizeof(args)))
       return false;
 
@@ -203,7 +203,7 @@ bool _al_destroy_menu(ALLEGRO_MENU *menu)
    _al_gtk_wait_for_args(do_destroy_menu, &args);
 
    _al_walk_over_menu(menu, clear_menu_extras, NULL);
-   
+
    return true;
 }
 
@@ -215,7 +215,7 @@ static gboolean do_insert_menu_item_at(gpointer data)
       args->item->extra1 = build_menu_item(args->item);
    }
    gtk_menu_shell_insert(GTK_MENU_SHELL(args->item->parent->extra1), args->item->extra1, args->i);
-   
+
    return _al_gtk_release_args(data);
 }
 
@@ -227,13 +227,13 @@ bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 
       if (!_al_gtk_init_args(&args, sizeof(args)))
          return false;
-       
+
        args.item = item;
        args.i = i;
-       
+
        _al_gtk_wait_for_args(do_insert_menu_item_at, &args);
    }
-   
+
    return true;
 }
 
@@ -241,10 +241,10 @@ bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 static gboolean do_destroy_menu_item_at(gpointer data)
 {
    ARGS *args = _al_gtk_lock_args(data);
-   
+
    gtk_widget_destroy(GTK_WIDGET(args->item->extra1));
    args->item->extra1 = NULL;
-   
+
    return _al_gtk_release_args(args);
 }
 
@@ -256,9 +256,9 @@ bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 
       if (!make_menu_item_args(&args, item, i))
          return false;
-         
+
       _al_gtk_wait_for_args(do_destroy_menu_item_at, &args);
-      
+
       if (item->popup) {
          /* if this has a submenu, then deleting this item will have automatically
             deleted all of its GTK widgets */
@@ -273,13 +273,13 @@ static gboolean do_update_menu_item_at(gpointer data)
 {
    ARGS *args = _al_gtk_lock_args(data);
    GtkWidget *gitem;
-   
+
    gtk_widget_destroy(args->item->extra1);
    args->item->extra1 = NULL;
-   
+
    gitem = build_menu_item(args->item);
    gtk_menu_shell_insert(GTK_MENU_SHELL(args->item->parent->extra1), gitem, args->i);
-   
+
    return _al_gtk_release_args(args);
 }
 
@@ -301,10 +301,10 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 static gboolean do_show_display_menu(gpointer data)
 {
    ARGS *args = _al_gtk_lock_args(data);
-   
+
    if (!args->menu->extra1) {
       GtkWidget *menu_bar = gtk_menu_bar_new();
-      
+
       build_menu(menu_bar, args->menu);
 
       GtkWidget *vbox = gtk_bin_get_child(GTK_BIN(args->gtk_window));
@@ -313,9 +313,9 @@ static gboolean do_show_display_menu(gpointer data)
 
       args->menu->extra1 = menu_bar;
    }
-   
+
    gtk_widget_show(gtk_widget_get_parent(args->menu->extra1));
-   
+
    return _al_gtk_release_args(args);
 }
 
@@ -333,10 +333,10 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    if (!_al_gtk_init_args(&args, sizeof(args))) {
       return false;
    }
-   
+
    args.gtk_window = gtk_window;
    args.menu = menu;
-   
+
    return _al_gtk_wait_for_args(do_show_display_menu, &args);
 }
 
@@ -344,10 +344,10 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 static gboolean do_hide_display_menu(gpointer data)
 {
    ARGS *args = _al_gtk_lock_args(data);
-   
+
    gtk_widget_destroy(GTK_WIDGET(args->menu->extra1));
    args->menu->extra1 = NULL;
-   
+
    return _al_gtk_release_args(data);
 }
 
@@ -359,15 +359,15 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 
    if (!(gtk_window = _al_gtk_get_window(display)))
       return false;
-   
+
    if (!_al_gtk_init_args(&args, sizeof(args)))
       return false;
-   
+
    args.gtk_window = gtk_window;
    args.menu = menu;
    _al_gtk_wait_for_args(do_hide_display_menu, &args);
    _al_walk_over_menu(menu, clear_menu_extras, NULL);
-   
+
    return true;
 }
 
@@ -382,16 +382,16 @@ static void popop_on_hide(ALLEGRO_MENU *menu)
 static gboolean do_show_popup_menu(gpointer data)
 {
    POPUP_ARGS *args = (POPUP_ARGS *) data;
-   
+
    _al_gtk_lock_args(args);
-   
+
    if (!args->menu->extra1) {
       GtkWidget *menu = gtk_menu_new();
       build_menu(menu, args->menu);
-      
+
       gtk_widget_show(menu);
       args->menu->extra1 = menu;
-      
+
       g_signal_connect_swapped (menu, "hide",
          G_CALLBACK(popop_on_hide), (gpointer) args->menu);
    }
@@ -423,9 +423,9 @@ static gboolean do_show_popup_menu(gpointer data)
 #endif
 
    args->base.response = true;
-   
+
    _al_gtk_release_args(args);
-   
+
    return FALSE;
 }
 
@@ -439,7 +439,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 
    if (!(gtk_window = _al_gtk_get_window(display)))
       return false;
-   
+
    if (!_al_gtk_init_args(&args, sizeof(args))) {
       return false;
    }

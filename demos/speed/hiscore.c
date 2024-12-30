@@ -41,7 +41,7 @@ void init_hiscore()
    path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
    if (!path) return;
    al_make_directory(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
-   
+
    al_set_path_filename(path, "speed.rec");
 
    cfg = al_load_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
@@ -143,16 +143,16 @@ void score_table()
 
    for (i=0; i<NUM_SCORES; i++) {
       if (score > scores[i]) {
-	 for (j=NUM_SCORES-1; j>i; j--) {
-	    scores[j] = scores[j-1];
-	    strcpy(names[j], names[j-1]);
-	 }
+         for (j=NUM_SCORES-1; j>i; j--) {
+            scores[j] = scores[j-1];
+            strcpy(names[j], names[j-1]);
+         }
 
-	 scores[i] = score;
-	 strcpy(names[i], yourname);
+         scores[i] = score;
+         strcpy(names[i], yourname);
 
-	 myscore = i;
-	 break;
+         myscore = i;
+         break;
       }
    }
 
@@ -186,9 +186,9 @@ void score_table()
       textprintf(font, SCREEN_W/2-47, y+1, makecol(0, 0, 0), "%s", names[i]);
 
       if (i == myscore)
-	 col = makecol(255, 0, 0);
+         col = makecol(255, 0, 0);
       else
-	 col = makecol(255, 255, 255);
+         col = makecol(255, 255, 255);
 
       textprintf(font, SCREEN_W/2-144, y, col, "#%d - %d", i+1, scores[i]);
       textprintf(font, SCREEN_W/2-48, y, col, "%s", names[i]);
@@ -207,17 +207,17 @@ void score_table()
       al_clear_to_color(makecol(0, 0, 0));
 
       for (j=0; j<=16; j++) {
-	 x = j*(SCREEN_W/16);
-	 al_draw_bitmap_region(bmp, x, 0, i, SCREEN_H, x, 0, 0);
+         x = j*(SCREEN_W/16);
+         al_draw_bitmap_region(bmp, x, 0, i, SCREEN_H, x, 0, 0);
 
-	 y = j*(SCREEN_H/16);
-	 al_draw_bitmap_region(bmp, 0, y, SCREEN_W, i, 0, y, 0);
+         y = j*(SCREEN_H/16);
+         al_draw_bitmap_region(bmp, 0, y, SCREEN_W, i, 0, y, 0);
       }
 
       al_flip_display();
 
       do {
-	 poll_input_wait();
+         poll_input_wait();
       } while (retrace_count() < i*512/SCREEN_W);
    }
 
@@ -228,47 +228,47 @@ void score_table()
       clear_keybuf();
 
       for (;;) {
-	 poll_input_wait();
+         poll_input_wait();
 
-	 if ((joy_b1) && (yourname[0])) {
-	    strcpy(names[myscore], yourname);
-	    break;
-	 }
+         if ((joy_b1) && (yourname[0])) {
+            strcpy(names[myscore], yourname);
+            break;
+         }
 
-	 if (keypressed()) {
-	    c = readkey();
+         if (keypressed()) {
+            c = readkey();
 
-	    if (((c >> 8) == ALLEGRO_KEY_ENTER) && (yourname[0])) {
-	       strcpy(names[myscore], yourname);
-	       sfx_explode_player();
-	       break;
-	    }
-	    else if (((c >> 8) == ALLEGRO_KEY_ESCAPE) && (names[myscore][0])) {
-	       strcpy(yourname, names[myscore]);
-	       sfx_ping(2);
-	       break;
-	    }
-	    else if (((c >> 8) == ALLEGRO_KEY_BACKSPACE) && (strlen(yourname) > 0)) {
-	       yourname[strlen(yourname)-1] = 0;
-	       sfx_shoot();
-	    }
-	    else if (((c & 0xFF) >= ' ') && ((c & 0xFF) <= '~') && (strlen(yourname) < MAX_NAME_LEN)) {
-	       yourname[strlen(yourname)+1] = 0;
-	       yourname[strlen(yourname)] = (c & 0xFF);
-	       sfx_explode_alien();
-	    }
-	 }
+            if (((c >> 8) == ALLEGRO_KEY_ENTER) && (yourname[0])) {
+               strcpy(names[myscore], yourname);
+               sfx_explode_player();
+               break;
+            }
+            else if (((c >> 8) == ALLEGRO_KEY_ESCAPE) && (names[myscore][0])) {
+               strcpy(yourname, names[myscore]);
+               sfx_ping(2);
+               break;
+            }
+            else if (((c >> 8) == ALLEGRO_KEY_BACKSPACE) && (strlen(yourname) > 0)) {
+               yourname[strlen(yourname)-1] = 0;
+               sfx_shoot();
+            }
+            else if (((c & 0xFF) >= ' ') && ((c & 0xFF) <= '~') && (strlen(yourname) < MAX_NAME_LEN)) {
+               yourname[strlen(yourname)+1] = 0;
+               yourname[strlen(yourname)] = (c & 0xFF);
+               sfx_explode_alien();
+            }
+         }
 
-	 al_draw_bitmap(bmp, 0, 0, 0);
-	 draw_entry_box(myscore, retrace_count());
-	 al_flip_display();
+         al_draw_bitmap(bmp, 0, 0, 0);
+         draw_entry_box(myscore, retrace_count());
+         al_flip_display();
       }
    }
    else {
       while (!key[ALLEGRO_KEY_SPACE] && !key[ALLEGRO_KEY_ENTER] && !key[ALLEGRO_KEY_ESCAPE] && !joy_b1) {
-	 poll_input_wait();
-	 al_draw_bitmap(bmp, 0, 0, 0);
-	 al_flip_display();
+         poll_input_wait();
+         al_draw_bitmap(bmp, 0, 0, 0);
+         al_flip_display();
       }
 
       sfx_ping(2);

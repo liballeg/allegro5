@@ -123,7 +123,7 @@ int main(int argc, char **argv)
    open_log_monospace();
 
    if (argc == 2) {
-   	al_set_new_display_adapter(atoi(argv[1]));
+           al_set_new_display_adapter(atoi(argv[1]));
    }
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN |
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
    if (!display) {
       abort_example("Error creating display\n");
    }
-   
+
    picture = al_load_bitmap("data/mysha.pcx");
    if (!picture) {
       abort_example("mysha.pcx not found\n");

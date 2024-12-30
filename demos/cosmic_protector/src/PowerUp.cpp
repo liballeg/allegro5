@@ -45,7 +45,7 @@ PowerUp::PowerUp(float x, float y, int type) :
    da = (rand() % 2) ? -SPIN_SPEED : SPIN_SPEED;
 
    ResourceManager& rm = ResourceManager::getInstance();
-   
+
    switch (type) {
       case POWERUP_LIFE:
          bitmap = (ALLEGRO_BITMAP *)rm.getData(RES_LIFEPOWERUP);

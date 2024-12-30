@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -37,8 +37,8 @@
 
 /* these are available in OpenWatcom 1.3 (12.3) */
 #if __WATCOMC__ >= 1230
-   #define ALLEGRO_HAVE_INTTYPES_H	1
-   #define ALLEGRO_HAVE_STDINT_H	1
+   #define ALLEGRO_HAVE_INTTYPES_H        1
+   #define ALLEGRO_HAVE_STDINT_H        1
 #else
    #define ALLEGRO_GUESS_INTTYPES_OK
 #endif

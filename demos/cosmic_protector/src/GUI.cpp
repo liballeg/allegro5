@@ -85,7 +85,7 @@ static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
       if (!redraw) {
          continue;
       }
-      
+
       al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
       /* draw */
@@ -94,7 +94,7 @@ static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
       al_draw_bitmap(bg, (BB_W-w)/2, (BB_H-h)/2, 0);
 
       al_draw_bitmap(logo, (BB_W-lw)/2, (BB_H-lh)/4, 0);
-      
+
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 #ifndef ALLEGRO_IPHONE
       al_draw_textf(myfont, al_map_rgb(255, 255, 0), BB_W/2, BB_H/2, ALLEGRO_ALIGN_CENTRE, "z/y to start");
@@ -106,9 +106,9 @@ static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
       }
 
 #ifdef ALLEGRO_IPHONE
-	input->draw();
+        input->draw();
 #endif
-      
+
       al_flip_display();
    }
 }
@@ -152,12 +152,12 @@ static void insert_score(char *name, int score)
    }
    if (i < 0) i = 0;
    if (i > (NUM_SCORES-1)) return; // yes, this is possible
-   
+
    for (int j = NUM_SCORES-1; j > i; j--) {
       strcpy(highScores[j].name, highScores[j-1].name);
       highScores[j].score = highScores[j-1].score;
    }
-   
+
    strcpy(highScores[i].name, name);
    highScores[i].score = score;
 }
@@ -230,7 +230,7 @@ void do_highscores(int score)
    Input *input = (Input *)rm.getData(RES_INPUT);
    ALLEGRO_FONT *sm_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
    ALLEGRO_FONT *big_font = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
-   
+
    bool is_high = score >= highScores[NUM_SCORES-1].score;
    bool entering = is_high;
    double bail_time = al_get_time() + 8;
@@ -261,7 +261,7 @@ void do_highscores(int score)
       }
 
       input->poll();
-      
+
       if (entering && al_get_time() > next_input) {
          float lr = input->lr();
 

@@ -27,15 +27,15 @@ typedef enum ALLEGRO_BITMAP_WRAP {
  */
 enum {
    ALLEGRO_MEMORY_BITMAP            = 0x0001,
-   _ALLEGRO_KEEP_BITMAP_FORMAT      = 0x0002,	/* now a bitmap loader flag */
-   ALLEGRO_FORCE_LOCKING            = 0x0004,	/* no longer honoured */
+   _ALLEGRO_KEEP_BITMAP_FORMAT      = 0x0002,   /* now a bitmap loader flag */
+   ALLEGRO_FORCE_LOCKING            = 0x0004,   /* no longer honoured */
    ALLEGRO_NO_PRESERVE_TEXTURE      = 0x0008,
    _ALLEGRO_ALPHA_TEST              = 0x0010,   /* now a render state flag */
    _ALLEGRO_INTERNAL_OPENGL         = 0x0020,
    ALLEGRO_MIN_LINEAR               = 0x0040,
    ALLEGRO_MAG_LINEAR               = 0x0080,
    ALLEGRO_MIPMAP                   = 0x0100,
-   _ALLEGRO_NO_PREMULTIPLIED_ALPHA  = 0x0200,	/* now a bitmap loader flag */
+   _ALLEGRO_NO_PREMULTIPLIED_ALPHA  = 0x0200,   /* now a bitmap loader flag */
    ALLEGRO_VIDEO_BITMAP             = 0x0400,
    ALLEGRO_CONVERT_BITMAP           = 0x1000
 };

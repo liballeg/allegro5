@@ -1,5 +1,5 @@
-#ifndef		__DEMO_VCONTROLLER_H__
-#define		__DEMO_VCONTROLLER_H__
+#ifndef __DEMO_VCONTROLLER_H__
+#define __DEMO_VCONTROLLER_H__
 
 /*
    Structure that defines a virtual controller. A virtual controller is
@@ -60,6 +60,6 @@ struct VCONTROLLER {
       nothing
 */
 void destroy_vcontroller(VCONTROLLER * controller,
-			 const char *config_path);
+                         const char *config_path);
 
-#endif				/* __DEMO_VCONTROLLER_H__ */
+#endif /* __DEMO_VCONTROLLER_H__ */

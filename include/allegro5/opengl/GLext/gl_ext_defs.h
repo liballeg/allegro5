@@ -1360,7 +1360,7 @@ typedef ptrdiff_t GLsizeiptrARB;
 #define GL_CURRENT_QUERY_ARB              0x8865
 #define GL_QUERY_RESULT_ARB               0x8866
 #define GL_QUERY_RESULT_AVAILABLE_ARB     0x8867
-#endif        
+#endif
 
 #ifndef GL_ARB_shader_objects
 #define GL_ARB_shader_objects

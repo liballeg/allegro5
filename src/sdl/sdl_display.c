@@ -325,7 +325,7 @@ static void sdl_flip_display(ALLEGRO_DISPLAY *d)
 }
 
 static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
-   	int width, int height)
+           int width, int height)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
    (void)x;

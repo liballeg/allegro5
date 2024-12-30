@@ -140,7 +140,7 @@ static ALLEGRO_PATH *get_executable_name(void)
    /* We need the PID in order to query procfs */
    pid_t pid = getpid();
 
-   /* Try a Linux-like procfs */   
+   /* Try a Linux-like procfs */
    /* get symolic link to executable from proc fs */
    char linkname[1024];
    char filename[1024];
@@ -163,7 +163,7 @@ static ALLEGRO_PATH *get_executable_name(void)
    if (fd != -1) {
       ioctl(fd, PIOCPSINFO, &psinfo);
       close(fd);
-   
+
       /* Use argv[0] directly if we can */
 #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
       if (psinfo.pr_argv && psinfo.pr_argc) {
@@ -179,7 +179,7 @@ static ALLEGRO_PATH *get_executable_name(void)
           * This is better than using the pr_fname field because we need
           * the additional path information that may be present in argv[0]
           */
-    
+
          /* Skip other args */
          char *s = strchr(psinfo.pr_psargs, ' ');
          if (s)
@@ -188,7 +188,7 @@ static ALLEGRO_PATH *get_executable_name(void)
          if (path)
             return path;
       }
-   
+
       /* Try the pr_fname just for completeness' sake if argv[0] fails */
       path = _find_executable_file(psinfo.pr_fname);
       if (path)
@@ -207,7 +207,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       ret = fgets(linkname, sizeof(linkname), pipe);
       if (!ret)
          ALLEGRO_ERROR("Failed to read the name of the executable file.\n");
-      
+
       /* The information we want is in the last column; find it */
       int len = strlen(linkname);
       while (linkname[len] != ' ' && linkname[len] != '\t')
@@ -226,8 +226,8 @@ static ALLEGRO_PATH *get_executable_name(void)
       if (linkname[len] == '[' && linkname[strlen(linkname)] == ']') {
          len++;
          linkname[strlen(linkname)] = '\0';
-      }         
-      
+      }
+
       /* Now, the filename should be in the last column */
       _al_sane_strncpy(filename, linkname+len+1, strlen(linkname)-len+1);
 
@@ -235,7 +235,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       if (path)
          return path;
 
-      /* Just return the output from ps... */         
+      /* Just return the output from ps... */
       return al_create_path(filename);
    }
 
@@ -281,7 +281,7 @@ static ALLEGRO_PATH *_get_xdg_path(const char *location)
 {
    ALLEGRO_PATH *location_path = NULL;
    ALLEGRO_PATH *xdg_config_path = NULL;
-   ALLEGRO_FILE *xdg_config_file = NULL;   
+   ALLEGRO_FILE *xdg_config_file = NULL;
    const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
    int fd;
 
@@ -292,51 +292,51 @@ static ALLEGRO_PATH *_get_xdg_path(const char *location)
    else {
       /* the default XDG location is ~/.config */
       xdg_config_path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
-      if (!xdg_config_path) return NULL;      
+      if (!xdg_config_path) return NULL;
       al_append_path_component(xdg_config_path, ".config");
-   }   
-   
+   }
+
    al_set_path_filename(xdg_config_path, "user-dirs.dirs");
    fd = open(al_path_cstr(xdg_config_path, '/'), O_RDONLY);
    if (fd != -1) {
      xdg_config_file = al_fopen_fd(fd, "r");
    }
    al_destroy_path(xdg_config_path);
-   
+
    if (!xdg_config_file) return NULL;
-      
+
    while (!al_feof(xdg_config_file)) {
       char line[XDG_MAX_PATH_LEN];      /* one line of the config file */
       const char *p = line;             /* where we're at in the line */
-      char component[XDG_MAX_PATH_LEN]; /* the path component being parsed */      
+      char component[XDG_MAX_PATH_LEN]; /* the path component being parsed */
       int i = 0;                        /* how long the current component is */
 
       al_fgets(xdg_config_file, line, XDG_MAX_PATH_LEN);
-      
+
       /* skip leading white space */
       while (*p == ' ' || *p == '\t') p++;
-   
-      /* skip the line if it does not begin with XDG_location_DIR */            
+
+      /* skip the line if it does not begin with XDG_location_DIR */
       if (strncmp(p, "XDG_", 4)) continue;
       p += 4;
-      
+
       if (strncmp(p, location, strlen(location))) continue;
       p += strlen(location);
-      
+
       if (strncmp(p, "_DIR", 4)) continue;
       p += 4;
-      
+
       /* skip past the =", allowing for white space */
-      while (*p == ' ' || *p == '\t') p++;      
+      while (*p == ' ' || *p == '\t') p++;
       if (*p++ != '=') continue;
       while (*p == ' ' || *p == '\t') p++;
       if (*p++ != '"') continue;
-      
+
       /* We've found the right line. Now parse it, basically assuming
-         that it is in a sane format. 
+         that it is in a sane format.
        */
       if (!strncmp(p, "$HOME", 5)) {
-         /* $HOME is the only environment variable that the path is 
+         /* $HOME is the only environment variable that the path is
             allowed to use, and it must be first, by specification. */
          location_path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
          p += 5;
@@ -344,7 +344,7 @@ static ALLEGRO_PATH *_get_xdg_path(const char *location)
       else {
          location_path = al_create_path("/");
       }
-      
+
       while (*p) {
          if (*p == '"' || *p == '/') {
             /* add the component (if non-empty) to the path */
@@ -360,19 +360,19 @@ static ALLEGRO_PATH *_get_xdg_path(const char *location)
                /* treat any escaped character as a literal */
                p++;
                if (!*p) break;
-            }            
+            }
             component[i++] = *p;
          }
-         
+
          p++;
       }
-      
+
       /* Finished parsing the path. */
       break;
    }
-   
+
    al_fclose(xdg_config_file);
-   
+
    return location_path;
 }
 
@@ -447,11 +447,11 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          ALLEGRO_PATH *local_path = NULL;
          const char *org_name = al_get_org_name();
          const char *app_name = al_get_app_name();
-         
+
          /* to avoid writing directly into the user's directory, require at least an app name */
          if (!app_name)
             return NULL;
-         
+
          /* find the appropriate path from the xdg environment variables, if possible */
          if (id == ALLEGRO_USER_DATA_PATH) {
             const char *xdg_data_home = getenv("XDG_DATA_HOME");
@@ -461,25 +461,25 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
             const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
             local_path = al_create_path_for_directory(xdg_config_home ? xdg_config_home : ".config");
          }
-         
-         if (!local_path) 
+
+         if (!local_path)
             return NULL;
-         
+
          /* if the path is relative, prepend the user's home directory */
          if (al_path_cstr(local_path, '/')[0] != '/') {
             ALLEGRO_PATH *home_path = _unix_find_home();
             if (!home_path)
                return NULL;
-            
+
             al_rebase_path(home_path, local_path);
             al_destroy_path(home_path);
          }
 
          /* only add org name if not blank */
-         if (org_name && org_name[0]) {              
+         if (org_name && org_name[0]) {
             al_append_path_component(local_path, al_get_org_name());
          }
-         
+
          al_append_path_component(local_path, al_get_app_name());
 
         return local_path;
@@ -487,7 +487,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
 
       case ALLEGRO_USER_HOME_PATH:
          return _unix_find_home();
-         
+
       case ALLEGRO_USER_DOCUMENTS_PATH: {
          ALLEGRO_PATH *local_path = _get_xdg_path("DOCUMENTS");
          return local_path ? local_path : _unix_find_home();

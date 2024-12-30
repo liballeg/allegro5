@@ -62,7 +62,7 @@ int main(int argc, char **argv)
       }
       if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
          int x = event.display.x,
-            y = event.display.y, 
+            y = event.display.y,
             w = event.display.width,
             h = event.display.height;
          /* Draw a red rectangle over the damaged area. */

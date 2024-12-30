@@ -40,7 +40,7 @@ static unsigned int get_modifiers(int modifiers)
    if (modifiers & KMOD_LSHIFT) result |= ALLEGRO_KEYMOD_SHIFT;
    if (modifiers & KMOD_RSHIFT) result |= ALLEGRO_KEYMOD_SHIFT;
    if (modifiers & KMOD_LCTRL) result |= ALLEGRO_KEYMOD_CTRL;
-   if (modifiers & KMOD_RCTRL) result |= ALLEGRO_KEYMOD_CTRL;  
+   if (modifiers & KMOD_RCTRL) result |= ALLEGRO_KEYMOD_CTRL;
    if (modifiers & KMOD_LALT) result |= ALLEGRO_KEYMOD_ALT;
    if (modifiers & KMOD_RALT) result |= ALLEGRO_KEYMOD_ALT;
    if (modifiers & KMOD_LGUI) result |= ALLEGRO_KEYMOD_LWIN;

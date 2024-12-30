@@ -13,7 +13,7 @@
  *      memory layout.
  *
  *      By Pavel Sountsov.
- * 
+ *
  *      Thanks to Michał Cichoń for the pre-compiled shader code.
  *
  *      See readme.txt for copyright information.
@@ -43,9 +43,9 @@ void _al_create_primitives_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
    int color = 0;
 
    const uint8_t* shader = NULL;
-   
+
    /*position, texture, color*/
-   const uint8_t* shaders[3][2][2] = 
+   const uint8_t* shaders[3][2][2] =
    {
       {
          {_al_vs_pos0_tex0_col0, _al_vs_pos0_tex0_col4},
@@ -85,7 +85,7 @@ void _al_create_primitives_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
    if(e->attribute) {
       color = 1;
    }
-      
+
    shader = shaders[position][texture][color];
 
    IDirect3DDevice9_CreateVertexShader(device, (const DWORD*)shader, &ret);

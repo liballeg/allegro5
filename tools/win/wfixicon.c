@@ -11,8 +11,8 @@
  *      Allegro bitmap -> Windows icon converter.
  *
  *      By Elias Pschernig.
- * 
- *      See readme.txt for copyright information.      
+ *
+ *      See readme.txt for copyright information.
  */
 
 
@@ -46,7 +46,7 @@ int save_ico(const char *filename, BITMAP *bmp[], int num, PALETTE pal[])
       return errno;
 
    offset = 6 + num * 16;  /* ICONDIR + ICONDIRENTRYs */
-   
+
    /* ICONDIR */
    pack_iputw(0, f);    /* reserved            */
    pack_iputw(1, f);    /* resource type: ICON */
@@ -54,7 +54,7 @@ int save_ico(const char *filename, BITMAP *bmp[], int num, PALETTE pal[])
 
    for(n = 0; n < num; n++) {
       depth = bitmap_color_depth(bmp[n]);
-      bpp = (depth == 8) ? 8 : 24;  
+      bpp = (depth == 8) ? 8 : 24;
       bw = (((bmp[n]->w * bpp / 8) + 3) / 4) * 4;
       bitsw = ((((bmp[n]->w + 7) / 8) + 3) / 4) * 4;
       size = bmp[n]->h * (bw + bitsw) + 40;
@@ -133,7 +133,7 @@ int save_ico(const char *filename, BITMAP *bmp[], int num, PALETTE pal[])
          while (x&3) {
             pack_putc(0, f);
             x++;
-         } 
+         }
       }
 
       /* AND MASK */
@@ -149,7 +149,7 @@ int save_ico(const char *filename, BITMAP *bmp[], int num, PALETTE pal[])
                v /= 2;
             }
 
-            pack_putc(m, f);  
+            pack_putc(m, f);
          }
 
          /* every scanline must be 32-bit aligned */

@@ -8,23 +8,23 @@
 
 /*
 
-	Routines related to the initial reading of level data - heavily connected to
-	tkeniser.c. Defines the grammar that level files should use.
+   Routines related to the initial reading of level data - heavily connected to
+   tkeniser.c. Defines the grammar that level files should use.
 
-	Also includes a simple function for obtaining the equation of a line and some
-	other bits to do with data initialisation that flows straight from level data
+   Also includes a simple function for obtaining the equation of a line and some
+   other bits to do with data initialisation that flows straight from level data
 
 */
 
 
 /*
 
-	LoadMaterials loads the list of materials according to the following grammar:
+   LoadMaterials loads the list of materials according to the following grammar:
 
-		fillname -> string
-		edgename -> string
-		materal -> { fillname, edgename }
-		material list -> { material* }
+      fillname -> string
+      edgename -> string
+      materal -> { fillname, edgename }
+      material list -> { material* }
 
 */
 void LoadMaterials(struct Level *NewLev)
@@ -84,12 +84,12 @@ void LoadMaterials(struct Level *NewLev)
 
 /*
 
-	LoadVertices loads the list of vertices according to the following grammar:
+   LoadVertices loads the list of vertices according to the following grammar:
 
-		xpos -> number
-		ypos -> number
-		vertex -> { xpos, ypos }
-		vertex list -> { vertex* }
+      xpos -> number
+      ypos -> number
+      vertex -> { xpos, ypos }
+      vertex list -> { vertex* }
 
 */
 void LoadVertices(struct Level *NewLev)
@@ -126,13 +126,13 @@ void LoadVertices(struct Level *NewLev)
 
 /*
 
-	GetVert loads a single vertex reference as part of the LoadTriangles routine.
-	Grammar is:
+   GetVert loads a single vertex reference as part of the LoadTriangles routine.
+   Grammar is:
 
-		edge height -> number
-		reference -> number
-		flags -> "edge" | "collidable" | "foreground"
-		vertex reference -> { reference, edge height [, flags] }
+      edge height -> number
+      reference -> number
+      flags -> "edge" | "collidable" | "foreground"
+      vertex reference -> { reference, edge height [, flags] }
 
 */
 static void GetVert(struct Level *NewLev, struct Triangle *t, int c)
@@ -192,8 +192,8 @@ static void GetVert(struct Level *NewLev, struct Triangle *t, int c)
 
 /*
 
-	GetNormal is a function that doesn't read anything from a file but calculates
-	an edge normal for 'e' based on end points 'v1' and 'v2'
+   GetNormal is a function that doesn't read anything from a file but calculates
+   an edge normal for 'e' based on end points 'v1' and 'v2'
 
 */
 int GetNormal(struct Edge *e, double *v1, double *v2)
@@ -218,9 +218,9 @@ int GetNormal(struct Edge *e, double *v1, double *v2)
 
 /*
 
-	InitEdge intialises edges, which means calculating the 'expanded' edge equation
-	(i.e. one moved away from the real edge by 'radius' units) and making a note at
-	both end vertices of the edge they meet
+   InitEdge intialises edges, which means calculating the 'expanded' edge equation
+   (i.e. one moved away from the real edge by 'radius' units) and making a note at
+   both end vertices of the edge they meet
 
 */
 static void InitEdge(struct Edge *e, int radius)
@@ -244,13 +244,13 @@ static void InitEdge(struct Edge *e, int radius)
 
 /*
 
-	LoadTriangles loads a triangle list, using GetVert as required. Grammar is:
+   LoadTriangles loads a triangle list, using GetVert as required. Grammar is:
 
-		vertex reference -> (see GetVert commentary)
-		material reference -> number
-		triangle ->	{ vertex reference, vertex reference, vertex reference,
-					material reference }
-		triangle list -> { triangle* }
+      vertex reference -> (see GetVert commentary)
+      material reference -> number
+      triangle ->        { vertex reference, vertex reference, vertex reference,
+                              material reference }
+      triangle list -> { triangle* }
 
 */
 void LoadTriangles(struct Level *NewLev, int radius)
@@ -323,12 +323,12 @@ void LoadTriangles(struct Level *NewLev, int radius)
 
 /*
 
-	LoadObjectTypes loads a list of object types. Grammar is:
+   LoadObjectTypes loads a list of object types. Grammar is:
 
-		image name -> string
-		collection noise -> string
-		object type -> { image name, collection noise }
-		object type list -> { object type* }
+      image name -> string
+      collection noise -> string
+      object type -> { image name, collection noise }
+      object type list -> { object type* }
 
 */
 void LoadObjectTypes(struct Level *NewLev, int radius)
@@ -378,14 +378,14 @@ void LoadObjectTypes(struct Level *NewLev, int radius)
 
 /*
 
-	LoadObjects loads a list of objects. Grammar is:
+   LoadObjects loads a list of objects. Grammar is:
 
-		object pos x -> number
-		object pos y -> number
-		object type -> number
-		flags -> "collidable" | "foreground"
-		object -> { object pos x, object pos y, object type [, flags] }
-		object list -> { object* }
+      object pos x -> number
+      object pos y -> number
+      object type -> number
+      flags -> "collidable" | "foreground"
+      object -> { object pos x, object pos y, object type [, flags] }
+      object list -> { object* }
 
 */
 void LoadObjects(struct Level *NewLev)
@@ -483,12 +483,12 @@ void LoadObjects(struct Level *NewLev)
 
 /*
 
-	LoadStats loads some special variables. Grammar is:
+   LoadStats loads some special variables. Grammar is:
 
-		player start x -> number
-		player start y -> number
-		required number of objects -> number
-		stats -> { player start x, player start y, required number of objects }
+      player start x -> number
+      player start y -> number
+      required number of objects -> number
+      stats -> { player start x, player start y, required number of objects }
 
 */
 void LoadStats(struct Level *NewLev)

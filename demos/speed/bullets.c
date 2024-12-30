@@ -112,14 +112,14 @@ void update_bullets()
       b->y -= 0.025;
 
       if (b->y < 0) {
-	 *p = b->next;
-	 tmp = b;
-	 b = b->next;
-	 free(tmp);
+         *p = b->next;
+         tmp = b;
+         b = b->next;
+         free(tmp);
       }
       else {
-	 p = &b->next;
-	 b = b->next;
+         p = &b->next;
+         b = b->next;
       }
    }
 }
@@ -138,41 +138,41 @@ void draw_bullets(int r, int g, int b, int (*project)(float *f, int *i, int c))
 
    while (bul) {
       if (bul->y > 0) {
-	 shape[0] = bul->x - 0.005;
-	 shape[1] = bul->y + 0.01;
+         shape[0] = bul->x - 0.005;
+         shape[1] = bul->y + 0.01;
 
-	 shape[2] = bul->x + 0.005;
-	 shape[3] = bul->y + 0.01;
+         shape[2] = bul->x + 0.005;
+         shape[3] = bul->y + 0.01;
 
-	 shape[4] = bul->x;
-	 shape[5] = bul->y - 0.015;
+         shape[4] = bul->x;
+         shape[5] = bul->y - 0.015;
 
-	 if (project(shape, ishape, 6)) {
-	    polygon(3, ishape, c1);
+         if (project(shape, ishape, 6)) {
+            polygon(3, ishape, c1);
 
-	    if (!low_detail) {
-	       float cx = (ishape[0] + ishape[2] + ishape[4]) / 3;
-	       float cy = (ishape[1] + ishape[3] + ishape[5]) / 3;
+            if (!low_detail) {
+               float cx = (ishape[0] + ishape[2] + ishape[4]) / 3;
+               float cy = (ishape[1] + ishape[3] + ishape[5]) / 3;
 
-	       float boxx[4] = { -1, -1,  1,  1 };
-	       float boxy[4] = { -1,  1,  1, -1 };
+               float boxx[4] = { -1, -1,  1,  1 };
+               float boxy[4] = { -1,  1,  1, -1 };
 
-	       for (i=0; i<4; i++) {
-		  float rot = ((int)(bul->x*256) & 1) ? bul->y : -bul->y;
+               for (i=0; i<4; i++) {
+                  float rot = ((int)(bul->x*256) & 1) ? bul->y : -bul->y;
 
-		  float tx = cos(rot)*boxx[i] + sin(rot)*boxy[i];
-		  float ty = sin(rot)*boxx[i] - cos(rot)*boxy[i];
+                  float tx = cos(rot)*boxx[i] + sin(rot)*boxy[i];
+                  float ty = sin(rot)*boxx[i] - cos(rot)*boxy[i];
 
-		  boxx[i] = tx * bul->y * view_size() / 8;
-		  boxy[i] = ty * bul->y * view_size() / 8;
-	       }
+                  boxx[i] = tx * bul->y * view_size() / 8;
+                  boxy[i] = ty * bul->y * view_size() / 8;
+               }
 
-	       line(cx+boxx[0], cy+boxy[0], cx+boxx[1], cy+boxy[1], c2);
-	       line(cx+boxx[1], cy+boxy[1], cx+boxx[2], cy+boxy[2], c2);
-	       line(cx+boxx[2], cy+boxy[2], cx+boxx[3], cy+boxy[3], c2);
-	       line(cx+boxx[3], cy+boxy[3], cx+boxx[0], cy+boxy[0], c2);
-	    }
-	 }
+               line(cx+boxx[0], cy+boxy[0], cx+boxx[1], cy+boxy[1], c2);
+               line(cx+boxx[1], cy+boxy[1], cx+boxx[2], cy+boxy[2], c2);
+               line(cx+boxx[2], cy+boxy[2], cx+boxx[3], cy+boxy[3], c2);
+               line(cx+boxx[3], cy+boxy[3], cx+boxx[0], cy+boxy[0], c2);
+            }
+         }
       }
 
       bul = bul->next;

@@ -198,7 +198,7 @@ static ALLEGRO_JOYSTICK *andjoy_get_joystick(int num)
 
     if (num >= andjoy_num_joysticks())
        return NULL;
-    
+
     andjoy = *((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, num));
     joy = &andjoy->parent;
 

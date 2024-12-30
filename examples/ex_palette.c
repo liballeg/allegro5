@@ -83,7 +83,7 @@ int main(int argc, char **argv)
          r = (pal_hex[i] >> 16) / 255.0;
          g = ((pal_hex[i] >> 8) & 255) / 255.0;
          b = (pal_hex[i] & 255) / 255.0;
-         
+
          al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
          h += j * 50;
          al_color_hsl_to_rgb(h, s, l, &r, &g, &b);
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
             break;
          if (event.keyboard.keycode == ALLEGRO_KEY_P)
             show_pal = !show_pal;
-         
+
       }
       if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;
@@ -154,7 +154,7 @@ int main(int argc, char **argv)
             s->angle += ALLEGRO_PI / 180.0 * dir;
          }
       }
-         
+
       if (redraw && al_is_event_queue_empty(queue)) {
          float pos = (int)t % 60 / 60.0;
          int p1 = (int)(t / 60) % 3;
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
             al_draw_rotated_bitmap(bitmap,
                64, 64, s->x, s->y, s->angle, s->flags);
          }
-         
+
          {
             float sc = 0.5;
             al_set_shader_float("pal_set_1", (int)t % 20 > 15 ? 6 : 0);
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
                0, 0, 255, 7*12, 0);
             al_use_shader(shader);
          }
-         
+
          al_flip_display();
       }
    }

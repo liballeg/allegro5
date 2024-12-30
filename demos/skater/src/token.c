@@ -13,76 +13,76 @@ static int my_ungetc_c = -1;
 
 /*
 
-	OVERARCHING NOTES ON THE LEVEL PARSER
-	-------------------------------------
+      OVERARCHING NOTES ON THE LEVEL PARSER
+      -------------------------------------
 
-	We're using something a lot like a recursive descent parser here except that
-	it never actually needs to recurse. It is typified by knowing a bunch of
-	tokens (which are not necessarily individual characters but may be lumps of
-	characters that make sense together - e.g. 'a number' might be a recognised
-	token and 2345 is a number) and two functions:
+      We're using something a lot like a recursive descent parser here except that
+      it never actually needs to recurse. It is typified by knowing a bunch of
+      tokens (which are not necessarily individual characters but may be lumps of
+      characters that make sense together - e.g. 'a number' might be a recognised
+      token and 2345 is a number) and two functions:
 
-	GetToken - reads a new token from the input.
+      GetToken - reads a new token from the input.
 
-	ExpectToken - calls GetToken, checks if the token is the one expected and
-	if not flags up an error.
-	
-	A bunch of other functions call these two to read the file input, according
-	to what it was decided it should look like. Suppose we want a C-style list
-	of numbers that looks like this:
+      ExpectToken - calls GetToken, checks if the token is the one expected and
+      if not flags up an error.
 
-	{ 1, 2, 3, ... }
+      A bunch of other functions call these two to read the file input, according
+      to what it was decided it should look like. Suppose we want a C-style list
+      of numbers that looks like this:
 
-	Then we might write the function:
+      { 1, 2, 3, ... }
 
-		ExpectToken( '{' );
-		while(1)
-		{
-			ExpectToken( number );
-			GetToken();
-			switch(token)
-			{
-				default: flag an error; return;
-				case '}': return;
-				case ',': break;
-			}
-		}
+      Then we might write the function:
+
+         ExpectToken( '{' );
+         while(1)
+         {
+            ExpectToken( number );
+            GetToken();
+            switch(token)
+            {
+               default: flag an error; return;
+               case '}': return;
+               case ',': break;
+            }
+         }
 
 */
 
 /*
 
-	Two macros -
+   Two macros -
 
-		whitespace(v) evaluates to non-zero if 'v' is a character considered to
-		be whitespace (i.e. a space, newline, carriage return or tab)
+      whitespace(v) evaluates to non-zero if 'v' is a character considered to
+      be whitespace (i.e. a space, newline, carriage return or tab)
 
-		breaker(v) evaluates to non-zero if 'v' is a character that indicates
-		one of the longer tokens (e.g. a number) is over
+      breaker(v) evaluates to non-zero if 'v' is a character that indicates
+      one of the longer tokens (e.g. a number) is over
 
 */
 #define whitespace(v) ((v == ' ') || (v == '\r') || (v == '\n') || (v == '\t'))
-#define breaker(v)	(whitespace(v) || (v == '{') || (v == '}') || (v == ','))
+#define breaker(v)    (whitespace(v) || (v == '{') || (v == '}') || (v == ','))
 
 
 /*
 
-	my_fgetc is a direct replacement for fgetc that takes the same parameters
-	and returns the same result but counts lines while it goes.
+   my_fgetc is a direct replacement for fgetc that takes the same parameters
+   and returns the same result but counts lines while it goes.
 
-	There is a slight complication here because of the different line endings
-	used by different operating systems. The code will accept a newline or a
-	carriage return or both in either order. But if a series of alternating
-	new lines and carriage returns is found then they are bundled together
-	in pairs for line counting.
+   There is a slight complication here because of the different line endings
+   used by different operating systems. The code will accept a newline or a
+   carriage return or both in either order. But if a series of alternating
+   new lines and carriage returns is found then they are bundled together
+   in pairs for line counting.
 
-	E.g.
+   E.g.
 
-		\r					- 1 line ending
-		\n					- 1 line ending
-		\n\r				- 1 line ending
-		\r\n\r\n			- 2 line endings
-		\r\r				- 2 line endings
+      \r           - 1 line ending
+      \n           - 1 line ending
+      \n\r         - 1 line ending
+      \r\n\r\n     - 2 line endings
+      \r\r         - 2 line endings
 
 */
 static int my_fgetc(ALLEGRO_FILE * f)
@@ -122,8 +122,8 @@ static void my_ungetc(int c)
 
 /*
 
-	GetTokenInner is the guts of GetToken - it reads characters from the input
-	file and tokenises them
+   GetTokenInner is the guts of GetToken - it reads characters from the input
+   file and tokenises them
 
 */
 
@@ -224,7 +224,7 @@ static void GetTokenInner(void)
 
 /*
 
-	GetToken is a wrapper for GetTokenInner that discards comments
+   GetToken is a wrapper for GetTokenInner that discards comments
 
 */
 void GetToken(void)
@@ -238,8 +238,8 @@ void GetToken(void)
 
 /*
 
-	ExpectToken calls GetToken and then compares to the specified type, setting
-	an error if the found token does not match the expected type
+   ExpectToken calls GetToken and then compares to the specified type, setting
+   an error if the found token does not match the expected type
 
 */
 void ExpectToken(enum TokenTypes Type)

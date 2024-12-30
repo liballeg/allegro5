@@ -1,6 +1,6 @@
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -43,13 +43,13 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * data. Otherwise (and as was done in earlier versions of this code)
  * we would have to flip all locked memory after receiving and before
  * sending it to OpenGL.
- * 
+ *
  * Also, we do support old OpenGL drivers where textures must have
  * power-of-two dimensions. If a non-power-of-two bitmap is created in
  * such a case, we use a texture with the next larger POT dimensions,
  * and just keep some unused padding space to the right/bottom of the
  * pixel data.
- * 
+ *
  * Putting it all together, if we have an Allegro bitmap like this,
  * with Allegro's y-coordinates:
  * 0 ###########
@@ -80,7 +80,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * GL does not support RGB_555 and BGR_555 directly so we use
  * GL_UNSIGNED_SHORT_1_5_5_5_REV when transferring pixel data, and ensure that
  * the alpha bit (the "1" component) is present by setting GL_ALPHA_BIAS.
- * 
+ *
  * Desktop OpenGL 3.0+ has no GL_LUMINANCE, so we have to adjust depending on
  * the runtime version.
  */
@@ -123,7 +123,7 @@ int _al_ogl_get_glformat(int format, int component)
       {GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_DXT3 */
       {GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_DXT5 */
    };
-  
+
    if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_3_0) {
       glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][0] = GL_RED;
       glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][2] = GL_RED;
@@ -166,7 +166,7 @@ int _al_ogl_get_glformat(int format, int component)
       {0, 0, 0},
    };
    #endif
-   
+
    return glformats[format][component];
 }
 
@@ -211,7 +211,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_OGL_BITMAP_VERTEX *verts;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
-   
+
    (void)flags;
 
    if (disp->num_cache_vertices != 0 && ogl_bitmap->texture != disp->cache_texture) {
@@ -245,7 +245,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[0].g = tint.g;
    verts[0].b = tint.b;
    verts[0].a = tint.a;
-   
+
    verts[1].x = 0;
    verts[1].y = 0;
    verts[1].z = 0;
@@ -255,7 +255,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[1].g = tint.g;
    verts[1].b = tint.b;
    verts[1].a = tint.a;
-   
+
    verts[2].x = dw;
    verts[2].y = dh;
    verts[2].z = 0;
@@ -265,7 +265,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[2].g = tint.g;
    verts[2].b = tint.b;
    verts[2].a = tint.a;
-   
+
    verts[4].x = dw;
    verts[4].y = 0;
    verts[4].z = 0;
@@ -275,7 +275,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[4].g = tint.g;
    verts[4].b = tint.b;
    verts[4].a = tint.a;
-   
+
    if (disp->cache_enabled) {
       /* If drawing is batched, we apply transformations manually. */
       transform_vertex(&verts[0].x, &verts[0].y, &verts[0].z);
@@ -285,7 +285,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    }
    verts[3] = verts[1];
    verts[5] = verts[2];
-   
+
    if (!disp->cache_enabled)
       disp->vt->flush_vertex_cache(disp);
 }
@@ -329,7 +329,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
              */
             if (ogl_target->fbo_info)
                _al_ogl_set_target_bitmap(disp, bitmap);
-            
+
             /* We need to do clipping because glCopyTexSubImage2D
              * fails otherwise.
              */
@@ -365,7 +365,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
                _al_ogl_set_target_bitmap(disp, target);
             return;
          }
-         
+
          /* Drawing a deformed backbuffer is not supported. */
          ASSERT(0);
       }
@@ -555,7 +555,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
             ogl_bitmap->texture, _al_gl_error_string(e));
       }
    }
-   
+
    ogl_bitmap->left = 0;
    ogl_bitmap->right = (float) w / ogl_bitmap->true_w;
    ogl_bitmap->top = (float) h / ogl_bitmap->true_h;
@@ -1234,7 +1234,7 @@ bool al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    if (bitmap->parent)
       bitmap = bitmap->parent;
-   
+
    if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL)) {
       *w = 0;
       *h = 0;

@@ -247,7 +247,7 @@ static void redraw(void)
       f1, f2);
    al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "%4d / sec",
       (int)(1.0 / example.direct_speed_measure));
-   
+
 }
 
 int main(int argc, char **argv)
@@ -282,7 +282,7 @@ int main(int argc, char **argv)
    init_platform_specific();
 
    al_get_num_video_adapters();
-   
+
    al_get_monitor_info(0, &info);
 
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
@@ -298,7 +298,7 @@ int main(int argc, char **argv)
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
    }
-  
+
    if (!al_install_mouse()) {
       abort_example("Error installing mouse.\n");
    }
@@ -329,7 +329,7 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   
+
    if (al_install_touch_input())
       al_register_event_source(queue, al_get_touch_input_event_source());
    al_register_event_source(queue, al_get_display_event_source(example.display));
@@ -397,21 +397,21 @@ int main(int argc, char **argv)
             al_acknowledge_drawing_halt(event.display.source);
 
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
             background = false;
             al_acknowledge_drawing_resume(event.display.source);
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
-              
+
          case ALLEGRO_EVENT_TIMER:
             update();
             need_redraw = true;
             break;
-         
+
          case ALLEGRO_EVENT_TOUCH_BEGIN:
             x = event.touch.x;
             y = event.touch.y;
@@ -421,11 +421,11 @@ int main(int argc, char **argv)
             x = event.mouse.x;
             y = event.mouse.y;
             goto click;
-            
+
          click:
          {
             int fh = al_get_font_line_height(example.font);
-            
+
             if (x < fh * 12 && y >= h - fh * 30) {
                int button = (y - (h - fh * 30)) / (fh * 6);
                if (button == 0) {
@@ -452,7 +452,7 @@ int main(int argc, char **argv)
                if (button == 4) {
                   example.show_help ^= 1;
                }
-                
+
             }
             break;
          }

@@ -55,8 +55,8 @@ static void *loading_thread(ALLEGRO_THREAD *thread, void *arg)
       /* Simulate that it's slow. */
       al_rest(0.05);
    }
-   
-   al_destroy_font(font); 
+
+   al_destroy_font(font);
    return arg;
 }
 
@@ -69,10 +69,10 @@ static void print_bitmap_flags(ALLEGRO_BITMAP *bitmap)
       al_ustr_append_cstr(ustr, " MEMORY");
    if (al_get_bitmap_flags(bitmap) & ALLEGRO_CONVERT_BITMAP)
       al_ustr_append_cstr(ustr, " CONVERT");
-   
+
    al_ustr_trim_ws(ustr);
    al_ustr_find_replace_cstr(ustr, 0, " ", " | ");
-   
+
    log_printf("%s", al_cstr(ustr));
    al_ustr_free(ustr);
 }
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    spin2 = al_load_bitmap("data/cursor.tga");
    log_printf("video bitmap without display: %p\n", spin2);
-   
+
    log_printf("%p before create_display: ", spin);
    print_bitmap_flags(spin);
    log_printf("\n");
@@ -120,34 +120,34 @@ int main(int argc, char **argv)
    if (!display) {
       abort_example("Error creating display\n");
    }
-   
+
    spin2 = al_load_bitmap("data/cursor.tga");
    log_printf("video bitmap with display: %p\n", spin2);
-   
+
    log_printf("%p after create_display: ", spin);
    print_bitmap_flags(spin);
    log_printf("\n");
-   
+
    log_printf("%p after create_display: ", spin2);
    print_bitmap_flags(spin2);
    log_printf("\n");
 
    al_destroy_display(display);
-   
+
    log_printf("%p after destroy_display: ", spin);
    print_bitmap_flags(spin);
    log_printf("\n");
-   
+
    log_printf("%p after destroy_display: ", spin2);
    print_bitmap_flags(spin2);
    log_printf("\n");
 
    display = al_create_display(640, 480);
-   
+
    log_printf("%p after create_display: ", spin);
    print_bitmap_flags(spin);
    log_printf("\n");
-   
+
    log_printf("%p after create_display: ", spin2);
    print_bitmap_flags(spin2);
    log_printf("\n");
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
 
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0.5, 0.6, 1));
-         
+
          al_draw_textf(font, color, x + 40, y, 0, "Loading %d%%",
             100 * load_count / load_total);
 
@@ -214,19 +214,19 @@ int main(int argc, char **argv)
                   32.0 / bw, 32.0 / bw, 0, 0);
             }
          }
-         
+
          if (loaded_bitmap < load_total) {
             al_draw_scaled_rotated_bitmap(spin,
                16, 16, x, y, 1.0, 1.0, t * ALLEGRO_PI * 2, 0);
          }
-         
+
          al_flip_display();
       }
    }
 
    al_join_thread(thread, NULL);
    al_destroy_mutex(mutex);
-   al_destroy_font(font); 
+   al_destroy_font(font);
    al_destroy_display(display);
 
    close_log(true);

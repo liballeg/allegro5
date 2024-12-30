@@ -64,7 +64,7 @@ static iphone_screen *iphone_get_screen_by_adapter(int adapter)
       iphone_screen *scr = [iphone_screens objectAtIndex:i];
       if (scr->adapter == adapter) {
          ret = scr;
-	 break;
+         break;
       }
    }
 
@@ -90,13 +90,13 @@ static void iphone_remove_screen(UIScreen *screen)
 
    int num_screens = [iphone_screens count];
    int i;
-   
+
    for (i = 1; i < num_screens; i++) {
       iphone_screen *scr = iphone_get_screen_by_adapter(i);
       if (scr->screen == screen) {
          [iphone_screens removeObjectAtIndex:i];
-	 [scr release];
-	 break;
+         [scr release];
+         break;
       }
    }
 
@@ -118,7 +118,7 @@ void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
 static void iphone_create_screens(void)
 {
    iphone_screens = [[NSMutableArray alloc] init];
-    
+
    _al_iphone_display_hotplug_mutex = al_create_mutex_recursive();
 
    if ([UIScreen respondsToSelector:NSSelectorFromString(@"screens")]) {
@@ -128,9 +128,9 @@ static void iphone_create_screens(void)
       num_screens = [[UIScreen screens] count];;
       for (i = 0; i < num_screens && i < 2; i++) {
          if (i == 1) {
-	    airplay_screen = [[UIScreen screens] objectAtIndex:i];
-	    continue;
-	 }
+            airplay_screen = [[UIScreen screens] objectAtIndex:i];
+            continue;
+         }
          [global_delegate add_screen:[[UIScreen screens] objectAtIndex:i]];
       }
    }
@@ -232,21 +232,21 @@ void al_iphone_set_statusbar_orientation(int o)
 bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
-   
+
    d->extra = al_calloc(1, sizeof(ALLEGRO_DISPLAY_IPHONE_EXTRA));
    int adapter = al_get_new_display_adapter();
    if (adapter < 0)
       adapter = 0;
    d->extra->adapter = adapter;
-   
+
    /* This is the same as
     * [global_delegate.view add_view];
     * except it will run in the main thread.
     */
-   [global_delegate performSelectorOnMainThread: @selector(add_view:) 
+   [global_delegate performSelectorOnMainThread: @selector(add_view:)
                                      withObject: [NSValue valueWithPointer:display]
                                   waitUntilDone: YES];
-              
+
    if (d->extra->failed) {
       return false;
    }
@@ -279,7 +279,7 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
    if (supported == ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
       [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
    }
-   
+
    return true;
 }
 
@@ -348,16 +348,16 @@ void _al_iphone_get_screen_size(int adapter, int *w, int *h)
 
       CGRect bounds = [screen bounds];
       CGFloat scale = 1.0f;
-      
+
       if (adapter == 0 && [screen respondsToSelector:NSSelectorFromString(@"scale")]) {
          scale = [screen scale];
       }
-      
+
       *w = (int)(bounds.size.width  * scale);
       *h = (int)(bounds.size.height * scale);
    }
    else {
-   
+
       ASSERT("You should never see this message, unless Apple changed their policy and allows for removing screens from iDevices." && false);
    }
 }
@@ -374,9 +374,9 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
          return iphone_orientation_to_allegro(od);
       }
    }
-   
+
    UIDevice* device = [UIDevice currentDevice];
-  
+
    if (NULL != device)
       return iphone_orientation_to_allegro([device orientation]);
    else
@@ -392,12 +392,12 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 - (void)orientation_change:(NSNotification *)notification
 {
    (void)notification;
-    
+
    int orientation = _al_iphone_get_orientation(NULL);
 
    if (main_display == NULL)
       return;
-      
+
    iphone_send_orientation_event(main_display, orientation);
 }
 
@@ -407,7 +407,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    global_delegate = self;
    app = application;
 
-   iphone_create_screens();   
+   iphone_create_screens();
 
    // Register for device orientation notifications
    // Note: The notifications won't be generated unless they are enabled, which
@@ -428,20 +428,20 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
     ALLEGRO_DISPLAY *d = main_display;
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     iphone->wants_shutdown = true;
-    
+
     ALLEGRO_INFO("Terminating.\n");
-   
+
    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 
     _al_event_source_lock(&d->es);
-    
+
     if (_al_event_source_needs_to_generate_event(&d->es)) {
         event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
         event.display.timestamp = al_get_time();
         _al_event_source_emit_event(&d->es, &event);
     }
     _al_event_source_unlock(&d->es);
-    
+
     /* When this method returns, the application terminates - so lets wait a bit
      * so the user app can shutdown properly, e.g. to save state as is usually
      * required by iphone apps.
@@ -452,9 +452,9 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 - (void)applicationWillResignActive:(UIApplication *)application {
    ALLEGRO_DISPLAY *d = main_display;
    ALLEGRO_EVENT event;
-   
+
    (void)application;
-    
+
    ALLEGRO_INFO("Application becoming inactive.\n");
 
    _al_event_source_lock(&d->es);
@@ -469,9 +469,9 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     ALLEGRO_DISPLAY *d = main_display;
    ALLEGRO_EVENT event;
-   
+
    (void)application;
-    
+
     ALLEGRO_INFO("Application becoming active.\n");
 
    if (!d)
@@ -489,9 +489,9 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 - (void)applicationDidEnterBackground:(UIApplication *)application {
    ALLEGRO_DISPLAY *d = main_display;
    ALLEGRO_EVENT event;
-   
+
    (void)application;
-    
+
    ALLEGRO_INFO("Application entering background.\n");
 
    waiting_for_program_halt = true;
@@ -513,9 +513,9 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 - (void)applicationWillEnterForeground:(UIApplication *)application {
    ALLEGRO_DISPLAY *d = main_display;
    ALLEGRO_EVENT event;
-   
+
    (void)application;
-    
+
    ALLEGRO_INFO("Application coming back to foreground.\n");
 
    _al_event_source_lock(&d->es);
@@ -538,7 +538,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    if (adapter == 0) {
       main_display = d;
    }
-   
+
    iphone_screen *scr = iphone_get_screen_by_adapter(adapter);
 
    scr->display = d;
@@ -549,7 +549,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    [view set_allegro_display:d];
 
    [scr->window addSubview:view];
-   
+
    if (adapter == 0) {
       [view becomeFirstResponder];
       [scr->window makeKeyAndVisible];
@@ -557,7 +557,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    else {
       scr->window.hidden = NO;
    }
-   
+
    disp->extra->failed = false;
    disp->extra->vc = vc;
    disp->extra->window = scr->window;
@@ -578,7 +578,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 
    if (osVersionSupported) {
       NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-   
+
       [center addObserver:self selector:@selector(handleScreenConnectNotification:)
          name:UIScreenDidConnectNotification object:nil];
       [center addObserver:self selector:@selector(handleScreenDisconnectNotification:)
@@ -591,7 +591,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    airplay_screen = [aNotification object];
 
    ALLEGRO_DISPLAY *display = main_display;
-   
+
    if (!display) return;
 
    _al_event_source_lock(&display->es);
@@ -604,7 +604,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    }
    _al_event_source_unlock(&display->es);
 }
- 
+
 - (void)handleScreenDisconnectNotification:(NSNotification*)aNotification
 {
    ALLEGRO_DISPLAY *display = main_display;
@@ -632,11 +632,11 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
       // wait for user to destroy display
       while (disconnect_wait)
          al_rest(0.001);
-            
+
       iphone_remove_screen([aNotification object]);
       airplay_connected = false;
    }
-} 
+}
 
 - (void)dealloc {
    [super dealloc];
@@ -645,7 +645,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 - (void)add_screen:(UIScreen *)screen
 {
    int i;
-   
+
    if (screen == [UIScreen mainScreen]) {
       i = 0;
    }
@@ -674,7 +674,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
          }
       }
    }
-     
+
    iphone_screen *scr = iphone_get_screen_by_adapter(i);
    bool add = scr == NULL;
 
@@ -682,7 +682,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    if ([window respondsToSelector:NSSelectorFromString(@"screen")]) {
        window.screen = screen;
    }
-   
+
    ViewController *vc = [[ViewController alloc] init];
    vc->adapter = i;
    [vc create_view];
@@ -693,10 +693,10 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    if (osVersionSupported) {
       window.rootViewController = vc;
    }
-   
+
    if (add)
       scr = [[iphone_screen alloc] init];
-      
+
    scr->adapter = i;
    scr->screen = screen;
    scr->window = window;

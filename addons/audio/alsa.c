@@ -145,9 +145,9 @@ static void alsa_close(void)
 
    if (alsa_device != default_device)
       al_free(alsa_device);
-   
+
    alsa_device = NULL;
-   
+
    snd_output_close(snd_output);
    snd_config_update_free_global();
 }
@@ -757,13 +757,13 @@ static void *alsa_update_recorder(ALLEGRO_THREAD *t, void *thread_data)
    ALLEGRO_EVENT user_event;
    uint8_t *null_buffer;
    unsigned int fragment_i = 0;
-   
+
    null_buffer = al_malloc(1024 * r->sample_size);
    if (!null_buffer) {
       ALLEGRO_ERROR("Unable to create buffer for draining ALSA.\n");
       return NULL;
    }
-   
+
    while (!al_get_thread_should_stop(t))
    {
       al_lock_mutex(r->mutex);
@@ -786,7 +786,7 @@ static void *alsa_update_recorder(ALLEGRO_THREAD *t, void *thread_data)
             e->buffer = r->fragments[fragment_i];
             e->samples = count;
             al_emit_user_event(&r->source, &user_event, NULL);
-         
+
             if (++fragment_i == r->fragment_count) {
                fragment_i = 0;
             }
@@ -811,11 +811,11 @@ static int alsa_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
       device = config_device;
 
    data = al_calloc(1, sizeof(*data));
-   
+
    if (!data) {
       goto Error;
    }
-   
+
    if (r->depth == ALLEGRO_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
    else if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
@@ -832,31 +832,31 @@ static int alsa_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
       format = SND_PCM_FORMAT_FLOAT;
    else
       goto Error;
-   
+
    ALSA_CHECK(snd_pcm_open(&data->capture_handle, device, SND_PCM_STREAM_CAPTURE, 0));
    ALSA_CHECK(snd_pcm_hw_params_malloc(&data->hw_params));
    ALSA_CHECK(snd_pcm_hw_params_any(data->capture_handle, data->hw_params));
    ALSA_CHECK(snd_pcm_hw_params_set_access(data->capture_handle, data->hw_params, SND_PCM_ACCESS_RW_INTERLEAVED));
    ALSA_CHECK(snd_pcm_hw_params_set_format(data->capture_handle, data->hw_params, format));
    ALSA_CHECK(snd_pcm_hw_params_set_rate_near(data->capture_handle, data->hw_params, &frequency, 0));
-   
+
    if (frequency != r->frequency) {
       ALLEGRO_ERROR("Unsupported rate! Requested %u, got %iu.\n", r->frequency, frequency);
       goto Error;
    }
-   
+
    ALSA_CHECK(snd_pcm_hw_params_set_channels(data->capture_handle, data->hw_params, al_get_channel_count(r->chan_conf)));
    ALSA_CHECK(snd_pcm_hw_params(data->capture_handle, data->hw_params));
-   
+
    ALSA_CHECK(snd_pcm_prepare(data->capture_handle));
-   
+
    r->extra = data;
    r->thread = al_create_thread(alsa_update_recorder, r);
-   
+
    return 0;
-   
+
 Error:
-   
+
    if (data) {
       if (data->hw_params) {
          snd_pcm_hw_params_free(data->hw_params);
@@ -866,14 +866,14 @@ Error:
       }
       al_free(data);
    }
-   
+
    return 1;
 }
 
 static void alsa_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
 {
    ALSA_RECORDER_DATA *data = r->extra;
-   
+
    snd_pcm_hw_params_free(data->hw_params);
    snd_pcm_close(data->capture_handle);
 }
@@ -971,7 +971,7 @@ static _AL_LIST* alsa_get_output_devices(void)
 
             char* sep_at = strchr(name, '\n');
             char* actual_name = sep_at ? sep_at + 1 : name;
-            
+
             /* Two string lengths + space + nul terminator. */
             int len = strlen(actual_name) + strlen(card_name) + 1 + 1;
             int identifier_len = strlen(identifier) + 1;

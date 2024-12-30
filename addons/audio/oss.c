@@ -72,7 +72,7 @@ static char oss_audio_device[512];
 static const int oss_timing_policy = 5;
 #endif
 
-/* Fragment size, used by OSS3 
+/* Fragment size, used by OSS3
  * Make this configurable? */
 static int oss_fragsize = (8 << 16) | (10);
 

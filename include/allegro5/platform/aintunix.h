@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -11,7 +11,7 @@
  *      Some definitions for internal use by the Unix library code.
  *
  *      By Shawn Hargreaves.
- * 
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -49,9 +49,9 @@ void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
 
 
 /*----------------------------------------------------------------------*
- *									*
- *	New stuff							*
- *									*
+ *                                                                      *
+ *     New stuff                                                        *
+ *                                                                      *
  *----------------------------------------------------------------------*/
 
 /* TODO: integrate this above */

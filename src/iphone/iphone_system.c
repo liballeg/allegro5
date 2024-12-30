@@ -14,7 +14,7 @@ ALLEGRO_SYSTEM *iphone_initialize(int flags)
 {
     (void)flags;
     iphone = al_calloc(1, sizeof *iphone);
-    
+
     ALLEGRO_SYSTEM *sys = &iphone->system;
 
     iphone->mutex = al_create_mutex();
@@ -79,9 +79,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
 {
     if (vt)
        return vt;
-    
+
     vt = al_calloc(1, sizeof *vt);
-    
+
     vt->id = ALLEGRO_SYSTEM_ID_IPHONE;
     vt->initialize = iphone_initialize;
     vt->get_display_driver = iphone_get_display_driver;
@@ -98,7 +98,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
     vt->get_cursor_position = iphone_get_cursor_position;
     vt->get_path = _al_iphone_get_path;
     //xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
-    
+
     return vt;
 }
 
@@ -108,7 +108,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
 void _al_register_system_interfaces(void)
 {
     ALLEGRO_SYSTEM_INTERFACE **add;
-    
+
     add = _al_vector_alloc_back(&_al_system_interfaces);
     *add = _al_get_iphone_system_interface();
 }

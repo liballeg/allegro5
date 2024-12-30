@@ -24,7 +24,7 @@ static void draw_on_target(ALLEGRO_BITMAP *target)
 {
    ALLEGRO_STATE state;
    ALLEGRO_TRANSFORM transform;
-   
+
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP |
       ALLEGRO_STATE_TRANSFORM |
       ALLEGRO_STATE_PROJECTION_TRANSFORM);
@@ -65,7 +65,7 @@ static void draw_on_target(ALLEGRO_BITMAP *target)
 
    al_identity_transform(&transform);
    al_use_transform(&transform);
-  
+
    al_draw_line(0.9, 0, 1, 0, al_color_name("black"), 0.05);
    al_draw_line(-0.9, 0, -1, 0, al_color_name("black"), 0.05);
    al_draw_line(0, 0.9, 0, 1, al_color_name("black"), 0.05);
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
 
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   
+
    al_register_event_source(queue, al_get_display_event_source(display));
 
    al_start_timer(timer);

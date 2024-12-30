@@ -6,11 +6,11 @@
 static int _d3d_funcs[] = {
    D3DCMP_NEVER,
    D3DCMP_ALWAYS,
-   D3DCMP_LESS, 
-   D3DCMP_EQUAL,     
-   D3DCMP_LESSEQUAL,       
-   D3DCMP_GREATER,        
-   D3DCMP_NOTEQUAL, 
+   D3DCMP_LESS,
+   D3DCMP_EQUAL,
+   D3DCMP_LESSEQUAL,
+   D3DCMP_GREATER,
+   D3DCMP_NOTEQUAL,
    D3DCMP_GREATEREQUAL
 };
 
@@ -33,7 +33,7 @@ void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display)
    disp->device->SetRenderState(D3DRS_ZENABLE,
       r->depth_test ? D3DZB_TRUE : D3DZB_FALSE);
    disp->device->SetRenderState(D3DRS_ZFUNC, _d3d_funcs[r->depth_function]);
-  
+
    disp->device->SetRenderState(D3DRS_ZWRITEENABLE,
       (r->write_mask & ALLEGRO_MASK_DEPTH) ? TRUE : FALSE);
 

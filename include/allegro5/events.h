@@ -47,7 +47,7 @@ enum
    ALLEGRO_EVENT_TOUCH_END                   = 51,
    ALLEGRO_EVENT_TOUCH_MOVE                  = 52,
    ALLEGRO_EVENT_TOUCH_CANCEL                = 53,
-   
+
    ALLEGRO_EVENT_DISPLAY_CONNECTED           = 60,
    ALLEGRO_EVENT_DISPLAY_DISCONNECTED        = 61,
 
@@ -259,7 +259,7 @@ typedef struct ALLEGRO_EVENT_QUEUE ALLEGRO_EVENT_QUEUE;
 
 AL_FUNC(ALLEGRO_EVENT_QUEUE*, al_create_event_queue, (void));
 AL_FUNC(void, al_destroy_event_queue, (ALLEGRO_EVENT_QUEUE*));
-AL_FUNC(bool, al_is_event_source_registered, (ALLEGRO_EVENT_QUEUE *, 
+AL_FUNC(bool, al_is_event_source_registered, (ALLEGRO_EVENT_QUEUE *,
          ALLEGRO_EVENT_SOURCE *));
 AL_FUNC(void, al_register_event_source, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT_SOURCE*));
 AL_FUNC(void, al_unregister_event_source, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT_SOURCE*));

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -11,7 +11,7 @@
  *      Some definitions for internal use by the Linux console code.
  *
  *      By George Foot.
- * 
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -38,13 +38,13 @@ extern _AL_DRIVER_INFO _al_linux_mouse_driver_list[];
 /************ Memory mapping ************/ /* (src/linux/lmemory.c) */
 /****************************************/
 
-/* struct MAPPED_MEMORY:  Used to describe a block of memory mapped 
+/* struct MAPPED_MEMORY:  Used to describe a block of memory mapped
  *  into our address space (in particular, the video memory).
  */
 struct MAPPED_MEMORY {
-	unsigned int base, size;      /* linear address and size of block */
-	int perms;                    /* PROT_READ | PROT_WRITE, etc */
-	void *data;                   /* pointer to block after mapping */
+   unsigned int base, size;      /* linear address and size of block */
+   int perms;                    /* PROT_READ | PROT_WRITE, etc */
+   void *data;                   /* pointer to block after mapping */
 };
 
 extern int __al_linux_have_ioperms;

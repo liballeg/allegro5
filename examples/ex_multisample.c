@@ -1,7 +1,7 @@
 /* This example demonstrates the effect of multi-sampling on primitives and
  * bitmaps.
  *
- * 
+ *
  * In the window without multi-sampling, the edge of the colored lines will not
  * be anti-aliased - each pixel is either filled completely with the primitive
  * color or not at all.
@@ -15,7 +15,7 @@
  * outer black edge will stutter in one-pixel steps while the inside edge will
  * be filtered and appear smooth.
  *
- * 
+ *
  * In the multi-sampled version the colored lines will be anti-aliased.
  *
  * Same with the bitmaps. This means the bitmap outlines will always move in

@@ -27,7 +27,7 @@ ALLEGRO_STATIC_ASSERT(wtime,
 
 
 #define LARGE_INTEGER_TO_INT64(li) (((int64_t)li.HighPart << 32) | \
-	(int64_t)li.LowPart)
+        (int64_t)li.LowPart)
 
 static int64_t high_res_timer_freq;
 static int64_t _al_win_prev_time;
@@ -44,7 +44,7 @@ static double low_res_current_time(void)
     double ellapsed_time;
 
     _al_mutex_lock(&time_mutex);
-   
+
    cur_time = (int64_t) timeGetTime();
    ellapsed_time = (double) (cur_time - _al_win_prev_time) / 1000;
 
@@ -95,7 +95,7 @@ void _al_win_init_time(void)
    _al_win_total_time = 0;
 
    _al_mutex_init(&time_mutex);
-   
+
    if (QueryPerformanceFrequency(&tmp_freq) == 0) {
       real_get_time_func = low_res_current_time;
       _al_win_prev_time = (int64_t) timeGetTime();

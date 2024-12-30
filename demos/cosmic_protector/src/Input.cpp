@@ -37,9 +37,9 @@ void Input::draw(void)
    int ybot = y + size;
    int thick = 35;
 
-   ALLEGRO_COLOR tri_color = al_map_rgba_f(0.4, 0.4, 0.4, 0.4);   
+   ALLEGRO_COLOR tri_color = al_map_rgba_f(0.4, 0.4, 0.4, 0.4);
    ALLEGRO_COLOR fire_color = al_map_rgba_f(0.4, 0.1, 0.1, 0.4);
-   
+
    al_draw_triangle(thick, ymid, size-thick, y+thick, size-thick, ybot-thick, tri_color, thick/4);
    al_draw_triangle(size*2-thick, ymid, size+thick, y+thick, size+thick, ybot-thick, tri_color, thick/4);
 
@@ -50,28 +50,28 @@ bool Input::button_pressed(int x, int y, int w, int h, bool check_if_controls_at
 {
    ResourceManager& rm = ResourceManager::getInstance();
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
-   
+
    if (al_get_display_width(display) < 960) {
       x /= 2;
       y /= 2;
       w /= 2;
       h /= 2;
    }
-   
+
    if (check_if_controls_at_top) {
       if (controls_at_top) {
          y -= (BB_H-size);
       }
    }
-   
+
    #define COLL(xx, yy) (xx >= x && xx <= x+w && yy >= y && yy <= y+h)
-   
+
    for (size_t i = 0; i < touches.size(); i++) {
       if (COLL(touches[i].x, touches[i].y)) {
          return true;
       }
    }
-   
+
    return false;
 }
 #endif
@@ -89,54 +89,54 @@ void Input::poll(void)
       al_get_next_event(input_queue, &e);
       if (e.type == ALLEGRO_EVENT_TOUCH_BEGIN) {
          Touch t;
-	 t.id = e.touch.id;
-	 t.x = e.touch.x;
-	 t.y = e.touch.y;
-	 int xx = t.x;
-	 int yy = t.y;
+         t.id = e.touch.id;
+         t.x = e.touch.x;
+         t.y = e.touch.y;
+         int xx = t.x;
+         int yy = t.y;
          ResourceManager& rm = ResourceManager::getInstance();
          ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
-	 if (al_get_display_width(display) < 960) {
-	    xx *= 2;
-	    yy *= 2;
-	 }
-	 if (xx > (BB_W/5*2) && xx < (BB_W/5*3)) {
+         if (al_get_display_width(display) < 960) {
+            xx *= 2;
+            yy *= 2;
+         }
+         if (xx > (BB_W/5*2) && xx < (BB_W/5*3)) {
             if (yy < BB_H / 3) {
                controls_at_top = true;
             }
-	    else if (yy > BB_H*2/3) {
-	       controls_at_top = false;
-	    }
-	 }
-	 touches.push_back(t);
+            else if (yy > BB_H*2/3) {
+               controls_at_top = false;
+            }
+         }
+         touches.push_back(t);
       }
       else if (e.type == ALLEGRO_EVENT_TOUCH_END) {
          for (size_t i = 0; i < touches.size(); i++) {
-	    if (touches[i].id == e.touch.id) {
-	       touches.erase(touches.begin() + i);
-	       break;
+            if (touches[i].id == e.touch.id) {
+               touches.erase(touches.begin() + i);
+               break;
             }
-	 }
+         }
       }
       else if (e.type == ALLEGRO_EVENT_TOUCH_MOVE) {
          for (size_t i = 0; i < touches.size(); i++) {
-	    if (touches[i].id == e.touch.id) {
-	       touches[i].x = e.touch.x;
-	       touches[i].y = e.touch.y;
-	       break;
+            if (touches[i].id == e.touch.id) {
+               touches[i].x = e.touch.x;
+               touches[i].y = e.touch.y;
+               break;
             }
-	 }
+         }
       }
       else if (e.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
-	if (e.joystick.axis == 0) {
-	   joyaxis0 = e.joystick.pos;
-	}
-	else if (e.joystick.axis == 1) {
-	   joyaxis1 = e.joystick.pos;
-	}
-	else {
-	   joyaxis2 = e.joystick.pos;
-	}
+        if (e.joystick.axis == 0) {
+           joyaxis0 = e.joystick.pos;
+        }
+        else if (e.joystick.axis == 1) {
+           joyaxis1 = e.joystick.pos;
+        }
+        else {
+           joyaxis2 = e.joystick.pos;
+        }
       }
    }
 #else
@@ -145,12 +145,12 @@ void Input::poll(void)
       al_get_next_event(input_queue, &e);
       if (e.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
          al_reconfigure_joysticks();
-	 if (al_get_num_joysticks() <= 0) {
-	    joystick = NULL;
-	 }
-	 else {
-	    joystick = al_get_joystick(0);
-	 }
+         if (al_get_num_joysticks() <= 0) {
+            joystick = NULL;
+         }
+         else {
+            joystick = al_get_joystick(0);
+         }
       }
    }
    if (kb_installed)
@@ -200,32 +200,32 @@ float Input::ud(void)
    ResourceManager& rm = ResourceManager::getInstance();
    Player *player = (Player *)rm.getData(RES_PLAYER);
    float player_a = player->getAngle();
-   
+
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
    if (al_get_display_orientation(display) == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES)
-	player_a = player_a - ALLEGRO_PI;
-   
+        player_a = player_a - ALLEGRO_PI;
+
    while (player_a < 0) player_a += ALLEGRO_PI*2;
    while (player_a > ALLEGRO_PI*2) player_a -= ALLEGRO_PI*2;
-   
+
    float device_a = atan2(-joyaxis0, -joyaxis1);
    if (device_a < 0) device_a += ALLEGRO_PI*2;
-  
-   float ab = fabs(player_a - device_a); 
+
+   float ab = fabs(player_a - device_a);
    if (ab < ALLEGRO_PI/4)
       return -1;
-  
+
    // brake against velocity vector
    float vel_a, dx, dy;
    player->getSpeed(&dx, &dy);
    vel_a = atan2(dy, dx);
    vel_a -= ALLEGRO_PI;
    if (al_get_display_orientation(display) == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES)
-	vel_a = vel_a - ALLEGRO_PI;
-   
+        vel_a = vel_a - ALLEGRO_PI;
+
    while (vel_a < 0) vel_a += ALLEGRO_PI*2;
    while (vel_a > ALLEGRO_PI*2) vel_a -= ALLEGRO_PI*2;
-   
+
    ab = fabs(vel_a - device_a);
    if (ab < ALLEGRO_PI/4)
       return 1;

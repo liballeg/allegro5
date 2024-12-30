@@ -95,38 +95,36 @@ void UnpauseAnimation(struct Animation *Anim)
 /*
 ALLEGRO_BITMAP *GetCurrentBitmap(struct Animation *Anim)
 {
-	return Anim->bmps[((int)Anim->TimeCount)&3];
+   return Anim->bmps[((int)Anim->TimeCount)&3];
 }
 
 void AdvanceAnimation(struct Animation *Anim, double Distance, int OnPlatform, int Forward)
 {
-	Anim->TimeCount += Distance*0.125f;
+   Anim->TimeCount += Distance*0.125f;
 }
 
 struct Animation *SeedPlayerAnimation(void)
 {
-	struct Animation *Anim = (struct Animation *)malloc(sizeof(struct Animation));
-	Anim->bmps = (ALLEGRO_BITMAP **)malloc(sizeof(ALLEGRO_BITMAP *)*4);
-	Anim->bmps[0] = load_bitmap("man-frame1.bmp", NULL);
-	Anim->bmps[1] = load_bitmap("man-frame2.bmp", NULL);
-	Anim->bmps[2] = load_bitmap("man-frame3.bmp", NULL);
-	Anim->bmps[3] = load_bitmap("man-frame4.bmp", NULL);
-	return Anim;
+   struct Animation *Anim = (struct Animation *)malloc(sizeof(struct Animation));
+   Anim->bmps = (ALLEGRO_BITMAP **)malloc(sizeof(ALLEGRO_BITMAP *)*4);
+   Anim->bmps[0] = load_bitmap("man-frame1.bmp", NULL);
+   Anim->bmps[1] = load_bitmap("man-frame2.bmp", NULL);
+   Anim->bmps[2] = load_bitmap("man-frame3.bmp", NULL);
+   Anim->bmps[3] = load_bitmap("man-frame4.bmp", NULL);
+   return Anim;
 }
 
 void FreePlayerAnimation(struct Animation *Anim)
 {
-	if(Anim)
-	{
-		if(Anim->bmps)
-		{
-			al_destroy_bitmap(Anim->bmps[0]);
-			al_destroy_bitmap(Anim->bmps[1]);
-			al_destroy_bitmap(Anim->bmps[2]);
-			al_destroy_bitmap(Anim->bmps[3]);
-			free((void *)Anim->bmps);
-		}
-		free(Anim);
-	}
+   if(Anim) {
+      if(Anim->bmps) {
+         al_destroy_bitmap(Anim->bmps[0]);
+         al_destroy_bitmap(Anim->bmps[1]);
+         al_destroy_bitmap(Anim->bmps[2]);
+         al_destroy_bitmap(Anim->bmps[3]);
+         free((void *)Anim->bmps);
+      }
+      free(Anim);
+   }
 }
 */

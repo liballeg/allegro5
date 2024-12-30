@@ -281,7 +281,7 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
  *
  * TYPE is the type of the sample values in the mixer buffer, and
  * NEXT_SAMPLE_VALUE must return a buffer of the same type.
- * 
+ *
  * Note: Uses Bresenham to keep the precise sample position.
  */
 #define BRESENHAM                                                             \
@@ -724,7 +724,7 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
 
    maybe_lock_mutex(mixer->ss.mutex);
-   
+
    _al_kcm_stream_set_mutex(spl, mixer->ss.mutex);
 
    slot = _al_vector_alloc_back(&mixer->streams);

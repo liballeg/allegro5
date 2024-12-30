@@ -18,7 +18,7 @@ static DEPTH_STENCIL_DESC depth_stencil_formats[] = {
    { 16, 0, D3DFMT_D16 },
 };
 
-static BOOL IsDepthFormatExisting(D3DFORMAT DepthFormat, D3DFORMAT AdapterFormat) 
+static BOOL IsDepthFormatExisting(D3DFORMAT DepthFormat, D3DFORMAT AdapterFormat)
 {
    HRESULT hr = _al_d3d->CheckDeviceFormat(D3DADAPTER_DEFAULT,
       D3DDEVTYPE_HAL,
@@ -95,7 +95,7 @@ void _al_d3d_generate_display_format_list(void)
             for (int k = 0; k < (int)quality_levels + 1; k++) {
                ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, **peds;
                peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_al_vector_alloc_back(&eds_list);
-               eds = *peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)al_malloc(sizeof *eds);               
+               eds = *peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)al_malloc(sizeof *eds);
                memset(eds->settings, 0, sizeof(int) * ALLEGRO_DISPLAY_OPTIONS_COUNT);
 
                eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
@@ -130,7 +130,7 @@ void _al_d3d_generate_display_format_list(void)
 
                eds->settings[ALLEGRO_DEPTH_SIZE] = ds->d;
                eds->settings[ALLEGRO_STENCIL_SIZE] = ds->s;
-               
+
                if (k > 1) {
                   eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 1;
                   // TODO: Is it ok to use the quality level here?
@@ -139,7 +139,7 @@ void _al_d3d_generate_display_format_list(void)
             }
          }
       }
-      
+
    }
    ALLEGRO_INFO("found %d format combinations\n", (int)_al_vector_size(&eds_list));
 }

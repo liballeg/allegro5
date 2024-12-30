@@ -5,8 +5,8 @@
 
 /*
  * This source file is part of the _al_bstring string library.  This code was
- * written by Paul Hsieh in 2002-2008, and is covered by the BSD open source 
- * license and the GPL. Refer to the accompanying documentation for details 
+ * written by Paul Hsieh in 2002-2008, and is covered by the BSD open source
+ * license and the GPL. Refer to the accompanying documentation for details
  * on usage and license.
  */
 
@@ -118,11 +118,11 @@ extern struct _al_bstrList * _al_bsplits (_al_const_bstring str, _al_const_bstri
 extern struct _al_bstrList * _al_bsplitstr (_al_const_bstring str, _al_const_bstring splitStr);
 extern _al_bstring _al_bjoin (const struct _al_bstrList * bl, _al_const_bstring sep);
 extern int _al_bsplitcb (_al_const_bstring str, unsigned char splitChar, int pos,
-	int (* cb) (void * parm, int ofs, int len), void * parm);
+        int (* cb) (void * parm, int ofs, int len), void * parm);
 extern int _al_bsplitscb (_al_const_bstring str, _al_const_bstring splitStr, int pos,
-	int (* cb) (void * parm, int ofs, int len), void * parm);
+        int (* cb) (void * parm, int ofs, int len), void * parm);
 extern int _al_bsplitstrcb (_al_const_bstring str, _al_const_bstring splitStr, int pos,
-	int (* cb) (void * parm, int ofs, int len), void * parm);
+        int (* cb) (void * parm, int ofs, int len), void * parm);
 
 /* Miscellaneous functions */
 extern int _al_bpattern (_al_bstring b, int len);
@@ -142,21 +142,21 @@ extern int _al_bvcformata (_al_bstring b, int count, const char * fmt, va_list a
 _al_bstring bstrtmp_b = (b); \
 const char * bstrtmp_fmt = (fmt); \
 int bstrtmp_r = _AL_BSTR_ERR, bstrtmp_sz = 16; \
-	for (;;) { \
-		va_list bstrtmp_arglist; \
-		va_start (bstrtmp_arglist, lastarg); \
-		bstrtmp_r = _al_bvcformata (bstrtmp_b, bstrtmp_sz, bstrtmp_fmt, bstrtmp_arglist); \
-		va_end (bstrtmp_arglist); \
-		if (bstrtmp_r >= 0) { /* Everything went ok */ \
-			bstrtmp_r = _AL_BSTR_OK; \
-			break; \
-		} else if (-bstrtmp_r <= bstrtmp_sz) { /* A real error? */ \
-			bstrtmp_r = _AL_BSTR_ERR; \
-			break; \
-		} \
-		bstrtmp_sz = -bstrtmp_r; /* Doubled or target size */ \
-	} \
-	ret = bstrtmp_r; \
+   for (;;) { \
+      va_list bstrtmp_arglist; \
+      va_start (bstrtmp_arglist, lastarg); \
+      bstrtmp_r = _al_bvcformata (bstrtmp_b, bstrtmp_sz, bstrtmp_fmt, bstrtmp_arglist); \
+      va_end (bstrtmp_arglist); \
+      if (bstrtmp_r >= 0) { /* Everything went ok */ \
+         bstrtmp_r = _AL_BSTR_OK; \
+         break; \
+      } else if (-bstrtmp_r <= bstrtmp_sz) { /* A real error? */ \
+         bstrtmp_r = _AL_BSTR_ERR; \
+         break; \
+      } \
+      bstrtmp_sz = -bstrtmp_r; /* Doubled or target size */ \
+   } \
+   ret = bstrtmp_r; \
 }
 
 #endif
@@ -183,18 +183,18 @@ extern int _al_bsreadlnsa (_al_bstring r, struct _al_bStream * s, _al_const_bstr
 extern int _al_bsreada (_al_bstring b, struct _al_bStream * s, int n);
 extern int _al_bsunread (struct _al_bStream * s, _al_const_bstring b);
 extern int _al_bspeek (_al_bstring r, const struct _al_bStream * s);
-extern int _al_bssplitscb (struct _al_bStream * s, _al_const_bstring splitStr, 
-	int (* cb) (void * parm, int ofs, _al_const_bstring entry), void * parm);
-extern int _al_bssplitstrcb (struct _al_bStream * s, _al_const_bstring splitStr, 
-	int (* cb) (void * parm, int ofs, _al_const_bstring entry), void * parm);
+extern int _al_bssplitscb (struct _al_bStream * s, _al_const_bstring splitStr,
+        int (* cb) (void * parm, int ofs, _al_const_bstring entry), void * parm);
+extern int _al_bssplitstrcb (struct _al_bStream * s, _al_const_bstring splitStr,
+        int (* cb) (void * parm, int ofs, _al_const_bstring entry), void * parm);
 extern int _al_bseof (const struct _al_bStream * s);
 
 #ifndef __al_tagbstring_defined
 #define __al_tagbstring_defined
 struct _al_tagbstring {
-	int mlen;
-	int slen;
-	unsigned char * data;
+   int mlen;
+   int slen;
+   unsigned char * data;
 };
 #endif
 

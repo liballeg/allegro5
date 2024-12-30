@@ -27,7 +27,7 @@ static ALLEGRO_SAMPLE *create_sample_s16(int freq, int len)
    char *buf = al_malloc(freq * len * sizeof(int16_t));
 
    return al_create_sample(buf, len, freq, ALLEGRO_AUDIO_DEPTH_INT16,
-			   ALLEGRO_CHANNEL_CONF_1, true);
+                           ALLEGRO_CHANNEL_CONF_1, true);
 }
 
 

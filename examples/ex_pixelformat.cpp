@@ -147,7 +147,7 @@ void Prog::draw_sample()
    bool enable_timing = enable_timing_button.get_pushed();
    int bmp_w = 128;
    int bmp_h = 128;
-   
+
    if (use_memory)
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    else

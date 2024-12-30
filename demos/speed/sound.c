@@ -580,7 +580,7 @@ static ALLEGRO_SAMPLE_INSTANCE *part_voice[NUM_PARTS];
 
 static ALLEGRO_TIMER *music_timer;
 
-#define PAN(x)	  (((x) - 128)/128.0)
+#define PAN(x)          (((x) - 128)/128.0)
 
 
 
@@ -591,37 +591,37 @@ static void music_player()
 
    for (i=0; i<NUM_PARTS; i++) {
       if (part_time[i] <= 0) {
-	 note = part_pos[i][0];
-	 part_time[i] = part_pos[i][1];
+         note = part_pos[i][0];
+         part_time[i] = part_pos[i][1];
 
-	 al_stop_sample_instance(part_voice[i]);
+         al_stop_sample_instance(part_voice[i]);
 
-	 if (i == 3) {
-	    if (note == 1) {
-	       al_set_sample(part_voice[i], bd);
-	       al_set_sample_instance_pan(part_voice[i], PAN(128));
-	    }
-	    else if (note == 2) {
-	       al_set_sample(part_voice[i], snare);
-	       al_set_sample_instance_pan(part_voice[i], PAN(160));
-	    }
-	    else {
-	       al_set_sample(part_voice[i], hihat);
-	       al_set_sample_instance_pan(part_voice[i], PAN(96));
-	    }
+         if (i == 3) {
+            if (note == 1) {
+               al_set_sample(part_voice[i], bd);
+               al_set_sample_instance_pan(part_voice[i], PAN(128));
+            }
+            else if (note == 2) {
+               al_set_sample(part_voice[i], snare);
+               al_set_sample_instance_pan(part_voice[i], PAN(160));
+            }
+            else {
+               al_set_sample(part_voice[i], hihat);
+               al_set_sample_instance_pan(part_voice[i], PAN(96));
+            }
 
-	    al_play_sample_instance(part_voice[i]);
-	 }
-	 else {
-	    if (note > 0) {
-	       al_set_sample_instance_speed(part_voice[i], freq_table[note]/22050.0);
-	       al_play_sample_instance(part_voice[i]);
-	    }
-	 }
+            al_play_sample_instance(part_voice[i]);
+         }
+         else {
+            if (note > 0) {
+               al_set_sample_instance_speed(part_voice[i], freq_table[note]/22050.0);
+               al_play_sample_instance(part_voice[i]);
+            }
+         }
 
-	 part_pos[i] += 2;
-	 if (!part_pos[i][1])
-	    part_pos[i] = part_ptr[i];
+         part_pos[i] += 2;
+         if (!part_pos[i][1])
+            part_pos[i] = part_ptr[i];
       }
 
       part_time[i]--;
@@ -752,7 +752,7 @@ static int ping_proc(void)
 
    play_sample(ping, ping_vol, 128, ping_freq, FALSE);
 
-   if (!--ping_count) 
+   if (!--ping_count)
       return FALSE;
 
    return TRUE;
@@ -778,14 +778,14 @@ static void *sound_update_proc(ALLEGRO_THREAD *thread, void *arg)
 
    while (!al_get_thread_should_stop(thread)) {
       if (!al_wait_for_event_timed(queue, &event, 0.25))
-	 continue;
+         continue;
 
       if (event.any.source == (void *)music_timer)
-	 music_player();
+         music_player();
 
       if (event.any.source == (void *)ping_timer) {
-	 if (!ping_proc())
-	    al_stop_timer(ping_timer);
+         if (!ping_proc())
+            al_stop_timer(ping_timer);
       }
    }
 
@@ -986,12 +986,12 @@ void sfx_ping(int times)
 
    if (times) {
       if (times > 1) {
-	 ping_vol = 255;
-	 ping_freq = 500;
+         ping_vol = 255;
+         ping_freq = 500;
       }
       else {
-	 ping_vol = 128;
-	 ping_freq = 1000;
+         ping_vol = 128;
+         ping_freq = 1000;
       }
 
       ping_count = times;

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -113,7 +113,7 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
    int x = 0, y = 0, w = 0, h = 0;
    int num = 0;
    ALLEGRO_LOCKED_REGION *lock;
-   
+
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
       ALLEGRO_LOCK_READONLY);
 
@@ -126,7 +126,7 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
       num++;
       x += w;
    }
-   
+
    al_unlock_bitmap(bmp);
 
    return num;
@@ -217,13 +217,13 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
    int w, h;
 
    ASSERT(bmp);
-   
+
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
    f = al_calloc(1, sizeof *f);
    f->vtable = &_al_font_vtable_color;
-   
+
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
@@ -235,7 +235,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
     * And we best do it on a memory copy to avoid loading back a texture.
     */
    al_convert_mask_to_alpha(unmasked, mask);
-   al_restore_state(&backup);   
+   al_restore_state(&backup);
 
    al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
    // Use the users preferred format, so don't set this below!
@@ -251,7 +251,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
          prev->next = cf;
       else
          f->data = cf;
-      
+
       cf->bitmaps = al_malloc(sizeof(ALLEGRO_BITMAP*) * n);
       cf->bitmaps[0] = NULL;
 
@@ -279,7 +279,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
       }
    }
    al_restore_state(&backup);
-   
+
    cf = f->data;
    if (cf && cf->bitmaps[0])
       f->height = al_get_bitmap_height(cf->bitmaps[0]);

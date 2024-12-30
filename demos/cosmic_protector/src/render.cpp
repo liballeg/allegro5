@@ -40,7 +40,7 @@ void showWave(int num)
    ResourceManager& rm = ResourceManager::getInstance();
 
    ALLEGRO_FONT *myfont = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
-   
+
    char text[20];
    sprintf(text, "WAVE %d", num);
 
@@ -95,9 +95,9 @@ void render(int step)
          }
       }
    }
-   
+
    al_clear_to_color(al_map_rgb(0, 0, 0));
-      
+
    float h = al_get_bitmap_height(bg);
    float w = al_get_bitmap_width(bg);
    al_draw_bitmap(bg, (BB_W-w)/2+bgx, (BB_H-h)/2+bgy, 0);
@@ -124,14 +124,14 @@ void render(int step)
          stopWave();
       }
    }
-   
+
 #ifdef ALLEGRO_IPHONE
    Input *input = (Input *)rm.getData(RES_INPUT);
    input->draw();
-      
+
    int xx = BB_W-30;
    int yy = 30;
-   
+
    al_draw_line(xx-10, yy-10, xx+10, yy+10, al_map_rgb(255, 255, 255), 4);
    al_draw_line(xx-10, yy+10, xx+10, yy-10, al_map_rgb(255, 255, 255), 4);
    al_draw_circle(xx, yy, 20, al_map_rgb(255, 255, 255), 4);

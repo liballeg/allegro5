@@ -77,7 +77,7 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
    bitmap->use_bitmap_blender = false;
    bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
    al_get_new_bitmap_wrap(&bitmap->_wrap_u, &bitmap->_wrap_v);
-   
+
    _al_register_convert_bitmap(bitmap);
    return bitmap;
 }
@@ -173,7 +173,7 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
       */
       return create_memory_bitmap(current_display, w, h, format, flags);
    }
-   
+
    /* We keep a list of bitmaps depending on the current display so that we can
     * convert them to memory bimaps when the display is destroyed. */
    back = _al_vector_alloc_back(&current_display->bitmaps);
@@ -379,7 +379,7 @@ ALLEGRO_COLOR al_get_bitmap_blend_color(void)
       /* If no bitmap blender set, use TLS */
       return al_get_blend_color();
    }
-   
+
    b = &bitmap->blender;
    return b->blend_color;
 }
@@ -566,7 +566,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
       y += parent->yofs;
       parent = parent->parent;
    }
-   
+
    bitmap = al_calloc(1, sizeof *bitmap);
    bitmap->vt = parent->vt;
 

@@ -47,10 +47,10 @@ int main(int argc, char **argv)
     if (!display) {
        abort_example("Error creating display\n");
     }
-    
+
     subbitmap = al_create_sub_bitmap(al_get_backbuffer(display), 50, 50, 640 - 50, 480 - 50);
     overlay = al_create_sub_bitmap(al_get_backbuffer(display), 100, 100, 300, 50);
-    
+
     al_set_window_title(display, filename);
 
     bitmap = al_load_bitmap(filename);
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_start_timer(timer);
-    
+
     w = al_get_bitmap_width(bitmap);
     h = al_get_bitmap_height(bitmap);
 
@@ -110,18 +110,18 @@ int main(int argc, char **argv)
         }
         if (event.type == ALLEGRO_EVENT_TIMER)
             redraw = true;
-            
+
         if (redraw && al_is_event_queue_empty(queue)) {
             double t = 3.0 + al_get_time();
             ALLEGRO_COLOR tint;
             redraw = false;
-            
+
             al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
             if(blend)
                tint = al_map_rgba_f(0.5, 0.5, 0.5, 0.5);
             else
                tint = al_map_rgba_f(1, 1, 1, 1);
-            
+
             if(software) {
                if(use_subbitmap) {
                   al_set_target_bitmap(buffer);

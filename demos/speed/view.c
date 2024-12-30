@@ -117,8 +117,8 @@ void init_view()
 
    for (i=0; i<4; i++) {
       for (j=0; j<4; j++) {
-	 viewinfo[i].pos[j] = 0;
-	 viewinfo[i].vel[j] = 0;
+         viewinfo[i].pos[j] = 0;
+         viewinfo[i].vel[j] = 0;
       }
    }
 }
@@ -157,21 +157,21 @@ void update_view()
 
    for (i=0; i<4; i++) {
       for (j=0; j<4; j++) {
-	 delta = viewpos[viewnum][i].pos[j] - viewinfo[i].pos[j];
-	 vel = viewinfo[i].vel[j];
+         delta = viewpos[viewnum][i].pos[j] - viewinfo[i].pos[j];
+         vel = viewinfo[i].vel[j];
 
-	 vel *= 0.9;
-	 delta = log(ABS(delta)+1.0) * SGN(delta) / 64.0;
-	 vel += delta;
+         vel *= 0.9;
+         delta = log(ABS(delta)+1.0) * SGN(delta) / 64.0;
+         vel += delta;
 
-	 if ((ABS(delta) < 0.00001) && (ABS(vel) < 0.00001)) {
-	    viewinfo[i].pos[j] = viewpos[viewnum][i].pos[j];
-	    viewinfo[i].vel[j] = 0;
-	 }
-	 else {
-	    viewinfo[i].pos[j] += vel;
-	    viewinfo[i].vel[j] = vel;
-	 }
+         if ((ABS(delta) < 0.00001) && (ABS(vel) < 0.00001)) {
+            viewinfo[i].pos[j] = viewpos[viewnum][i].pos[j];
+            viewinfo[i].vel[j] = 0;
+         }
+         else {
+            viewinfo[i].pos[j] += vel;
+            viewinfo[i].vel[j] = vel;
+         }
       }
    }
 }
@@ -265,7 +265,7 @@ static int project_cylinder(float *f, int *i, int c)
       get_scaling_matrix_f(&m2, 2.0, 1.0, 1.0);
       matrix_mul_f(&m1, &m2, &mtx);
 
-      virgin = FALSE; 
+      virgin = FALSE;
    }
 
    while (c > 0) {
@@ -284,7 +284,7 @@ static int project_cylinder(float *f, int *i, int c)
       apply_matrix_f(&mtx, x, y, z, &xout, &yout, &zout);
 
       if (yout > 1.5)
-	 return FALSE;
+         return FALSE;
 
       i[0] = xout/zout * size + (view_left + view_right) / 2.0;
       i[1] = (yout/zout * 2 - 1) * size + (view_top + view_bottom) / 2.0;
@@ -322,83 +322,83 @@ void draw_view()
       view_right  = viewinfo[i].pos[2] * SCREEN_W;
       view_bottom = viewinfo[i].pos[3] * SCREEN_H;
 
-      if ((view_right > view_left) && (view_bottom > view_top) && 
-	  (view_right > 0) && (view_bottom > 0) &&
-	  (view_left < SCREEN_W) && (view_top < SCREEN_H)) {
+      if ((view_right > view_left) && (view_bottom > view_top) &&
+          (view_right > 0) && (view_bottom > 0) &&
+          (view_left < SCREEN_W) && (view_top < SCREEN_H)) {
 
-	 switch (i) {
+         switch (i) {
 
-	    case 0:
-	       /* flat projection, green */
-	       project = project_flat;
+            case 0:
+               /* flat projection, green */
+               project = project_flat;
 
-	       r = 0;
-	       g = 255;
-	       b = 0;
-	       break;
+               r = 0;
+               g = 255;
+               b = 0;
+               break;
 
-	    case 1:
-	       /* spherical coordinates, yellow */
-	       project = project_spherical;
+            case 1:
+               /* spherical coordinates, yellow */
+               project = project_spherical;
 
-	       r = 255;
-	       g = 255;
-	       b = 0;
-	       break;
+               r = 255;
+               g = 255;
+               b = 0;
+               break;
 
-	    case 2:
-	       /* inside a tube, blue */
-	       project = project_tube;
+            case 2:
+               /* inside a tube, blue */
+               project = project_tube;
 
-	       r = 0;
-	       g = 0;
-	       b = 255;
-	       break;
+               r = 0;
+               g = 0;
+               b = 255;
+               break;
 
-	    case 3:
-	       /* surface of cylinder, red */
-	       project = project_cylinder;
+            case 3:
+               /* surface of cylinder, red */
+               project = project_cylinder;
 
-	       r = 255;
-	       g = 0;
-	       b = 0;
-	       break;
+               r = 255;
+               g = 0;
+               b = 0;
+               break;
 
-	    default:
-	       /* oops! */
-	       assert(FALSE);
-	       return;
-	 }
+            default:
+               /* oops! */
+               assert(FALSE);
+               return;
+         }
 
-	 if (!no_grid) {
-	    c = makecol(r/5, g/5, b/5);
+         if (!no_grid) {
+            c = makecol(r/5, g/5, b/5);
 
-	    n = (low_detail) ? 8 : 16;
+            n = (low_detail) ? 8 : 16;
 
-	    for (x=0; x<=n; x++) {
-	       for (y=0; y<=n; y++) {
-		  point[0] = (float)x / n;
-		  point[1] = (float)y / n;
-		  point[2] = (float)(x+1) / n;
-		  point[3] = (float)y / n;
-		  point[4] = (float)x / n;
-		  point[5] = (float)(y+1) / n;
+            for (x=0; x<=n; x++) {
+               for (y=0; y<=n; y++) {
+                  point[0] = (float)x / n;
+                  point[1] = (float)y / n;
+                  point[2] = (float)(x+1) / n;
+                  point[3] = (float)y / n;
+                  point[4] = (float)x / n;
+                  point[5] = (float)(y+1) / n;
 
-		  if (project(point, ipoint, 6)) {
-		     if (x < n)
-			line(ipoint[0], ipoint[1], ipoint[2], ipoint[3], c);
+                  if (project(point, ipoint, 6)) {
+                     if (x < n)
+                        line(ipoint[0], ipoint[1], ipoint[2], ipoint[3], c);
 
-		     if ((y < n) && ((x < n) || (i == 0)))
-			line(ipoint[0], ipoint[1], ipoint[4], ipoint[5], c);
-		  }
-	       }
-	    }
-	 }
+                     if ((y < n) && ((x < n) || (i == 0)))
+                        line(ipoint[0], ipoint[1], ipoint[4], ipoint[5], c);
+                  }
+               }
+            }
+         }
 
-	 draw_player(r, g, b, project);
-	 draw_badguys(r, g, b, project);
-	 draw_bullets(r, g, b, project);
-	 draw_explode(r, g, b, project);
+         draw_player(r, g, b, project);
+         draw_badguys(r, g, b, project);
+         draw_bullets(r, g, b, project);
+         draw_explode(r, g, b, project);
       }
    }
 

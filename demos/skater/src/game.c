@@ -11,9 +11,9 @@
 
 /*
 
-	All variables relevant to player position and level / level status. Only
-	thing of note is that PlayerPos is a 3 element array - it contains
-	player position (in elements 0 and 1) and rotation (in element 2)
+   All variables relevant to player position and level / level status. Only
+   thing of note is that PlayerPos is a 3 element array - it contains
+   player position (in elements 0 and 1) and rotation (in element 2)
 
 */
 int KeyFlags;
@@ -31,8 +31,9 @@ static ALLEGRO_COLOR cloud_color;
 
 /*
 
-	ID things, for GAMESTATE purposes. Note that two menu entries head this way -
-	"new game" and "continue game", so we have to IDs
+   ID things, for GAMESTATE purposes. Note that two menu entries head this way -
+   "new game" and "continue game", so we have to IDs
+
 */
 static int _newid = DEMO_STATE_NEW_GAME;
 static int newid(void)
@@ -96,7 +97,7 @@ char *load_game_resources(const char *data_path)
                  )));
 
    WaveNoise = ObtainSample("wave");
-   
+
    cloud_color = al_get_pixel(cloud, 0, 0);
 
    return NULL;
@@ -231,7 +232,7 @@ static void GameDraw(void)
    ALLEGRO_TRANSFORM transform;
    int chw, chh;
    float w;
-   
+
    al_identity_transform(&transform);
    al_scale_transform(&transform, screen_height / 480.0, screen_height / 480.0);
    al_use_transform(&transform);
@@ -323,7 +324,7 @@ static void GameDraw(void)
       KeyFlags & KEYFLAG_FLIP ? ALLEGRO_FLIP_HORIZONTAL : 0);
 
    DrawLevelForeground(Lvl);
-   
+
    al_identity_transform(&transform);
    al_use_transform(&transform);
 
@@ -465,8 +466,8 @@ void destroy_game()
 
 /*
 
-	GAMESTATE generation things - see comments in gamestate.h for more
-	information
+  GAMESTATE generation things - see comments in gamestate.h for more
+  information
 
 */
 void create_new_game(GAMESTATE * game)

@@ -106,8 +106,8 @@ HICON _al_win_create_icon(HWND wnd,
    /* Create transparent cursor */
    for (y = 0; y < sys_sm_cy; y++) {
       for (x = 0; x < sys_sm_cx; x++) {
-	 SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
-	 SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+         SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
+         SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
       }
    }
 
@@ -128,13 +128,13 @@ HICON _al_win_create_icon(HWND wnd,
          c = al_get_pixel(tmp, x, y);
          al_unmap_rgba(c, &r, &g, &b, &a);
          if (a != 0) {
-	    /* Don't touch XOR value */
-	    SetPixel(h_and_dc, x, y, 0);
-	 }
-	 else {
-	    /* No need to touch AND value */
-	    SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
-	 }
+            /* Don't touch XOR value */
+            SetPixel(h_and_dc, x, y, 0);
+         }
+         else {
+            /* No need to touch AND value */
+            SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+         }
       }
    }
 
@@ -233,7 +233,7 @@ bool _al_win_set_mouse_cursor(ALLEGRO_DISPLAY *display,
 
    if (win_display->mouse_cursor_shown) {
       POINT p;
-   
+
       SetCursor(win_cursor->hcursor);
 
       /* Windows is too stupid to actually display the mouse pointer when we
@@ -469,13 +469,13 @@ static void local_stretch_blit_to_hdc(ALLEGRO_BITMAP *bitmap, HDC dc,
     */
    if (bottom_up_src_y == 0 && src_x == 0 && src_h != bitmap_h) {
       StretchDIBits(dc, dest_x, dest_h+dest_y-1, dest_w, -dest_h,
-	 src_x, bitmap_h - src_y + 1, src_w, -src_h, pixels, bi,
-	 DIB_RGB_COLORS, SRCCOPY);
+         src_x, bitmap_h - src_y + 1, src_w, -src_h, pixels, bi,
+         DIB_RGB_COLORS, SRCCOPY);
    }
    else {
       StretchDIBits(dc, dest_x, dest_y, dest_w, dest_h,
-	 src_x, bottom_up_src_y, src_w, src_h, pixels, bi,
-	 DIB_RGB_COLORS, SRCCOPY);
+         src_x, bottom_up_src_y, src_w, src_h, pixels, bi,
+         DIB_RGB_COLORS, SRCCOPY);
    }
 
    al_free(pixels);

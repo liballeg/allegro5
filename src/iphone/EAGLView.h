@@ -19,11 +19,11 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
 
    /* OpenGL names for the renderbuffer and framebuffers used to render to this view */
    GLuint viewRenderbuffer, viewFramebuffer;
-    
+
    /* OpenGL name for the depth buffer that is attached to viewFramebuffer, if it exists (0 if it does not exist) */
    GLuint depthRenderbuffer;
-   
-	/* Stuff for managing ID's for touches. List held struct which connect UITouch with ID on Allegro site.
+
+        /* Stuff for managing ID's for touches. List held struct which connect UITouch with ID on Allegro site.
     * NSMutableIndexSet hold list of free id's which were used. 'next_free_touch_id' hold next unused ID.
     *
     * 'touch_list' serve actuall as dictionary which map UITouch do ID.

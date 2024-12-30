@@ -18,9 +18,9 @@ static bool ijoy_init_joystick(void)
 {
     ALLEGRO_JOYSTICK_IPHONE *ijoy;
     ALLEGRO_JOYSTICK *joy;
-    
+
     ijoy = &the_joystick;
-    
+
     memset(ijoy, 0, sizeof *ijoy);
     joy = (void *)ijoy;
 
@@ -33,7 +33,7 @@ static bool ijoy_init_joystick(void)
     joy->info.stick[0].axis[1].name = "Y";
     joy->info.stick[0].axis[2].name = "Z";
     joy->info.stick[0].flags = ALLEGRO_JOYFLAG_ANALOGUE;
-    
+
     // TODO: What's a good frequency to use here?
     _al_iphone_accelerometer_control(60);
     initialized = true;
@@ -61,7 +61,7 @@ static ALLEGRO_JOYSTICK *ijoy_get_joystick(int num)
 {
     if (num != 0)
        return NULL;
-    
+
     ALLEGRO_DEBUG("Joystick %d acquired.\n", num);
 
     return &the_joystick.parent;
@@ -78,7 +78,7 @@ static void ijoy_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STAT
 {
     ALLEGRO_JOYSTICK_IPHONE *ijoy = (void *)joy;
     ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
-    
+
     _al_event_source_lock(es);
     *ret_state = ijoy->joystate;
     _al_event_source_unlock(es);
@@ -93,7 +93,7 @@ void _al_iphone_generate_joystick_event(float x, float y, float z)
     ALLEGRO_EVENT event;
 
     _al_event_source_lock(es);
-    
+
     if (_al_event_source_needs_to_generate_event(es)) {
         float pos[] = {x, y, z};
         for (int i = 0; i < 3; i++) {

@@ -222,7 +222,7 @@ int main(void)
                goto done;
             key[event.keyboard.keycode] = true;
             break;
-         
+
          case ALLEGRO_EVENT_KEY_UP:
             key[event.keyboard.keycode] = false;
             break;

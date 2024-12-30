@@ -77,11 +77,11 @@ void update_message()
 
    while (m) {
       if (m->time < 100) {
-	 m->x *= 0.9;
-	 m->x += (float)SCREEN_W * 0.05;
+         m->x *= 0.9;
+         m->x += (float)SCREEN_W * 0.05;
       }
       else {
-	 m->x += (m->time - 100);
+         m->x += (m->time - 100);
       }
 
       m->y *= 0.9;
@@ -90,14 +90,14 @@ void update_message()
       m->time++;
 
       if (m->x > SCREEN_W + strlen(m->text)/4) {
-	 *p = m->next;
-	 tmp = m;
-	 m = m->next;
-	 free(tmp);
+         *p = m->next;
+         tmp = m;
+         m = m->next;
+         free(tmp);
       }
       else {
-	 p = &m->next;
-	 m = m->next;
+         p = &m->next;
+         m = m->next;
       }
 
       y += 16;

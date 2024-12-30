@@ -13,7 +13,7 @@ int main(int argc, char **argv)
    bool done = false;
    bool active = true;
    bool fullscreen = false;
- 
+
    if (argc == 2) {
       if (!strcmp(argv[1], "-fullscreen")) {
          fullscreen = true;

@@ -19,12 +19,12 @@
 #include "allegro5/cpu.h"
 #include "allegro5/internal/aintern.h"
 
-/* 
-* The CPU and pysical memory detection functions below use 
-* sysconf() if the right define is available as a parameter, 
-* otherwise they use sysctl(), again if the right define is available. 
-* This was chosen so because sysconf is POSIX and (in theory) 
-* more portable than sysctl(). 
+/*
+* The CPU and pysical memory detection functions below use
+* sysconf() if the right define is available as a parameter,
+* otherwise they use sysctl(), again if the right define is available.
+* This was chosen so because sysconf is POSIX and (in theory)
+* more portable than sysctl().
 * On Windows, of course, the Windows API is always used.
 */
 
@@ -61,7 +61,7 @@ int al_get_cpu_count(void)
    #endif
    int ncpu = 1;
    size_t len = sizeof(ncpu);
-   if (sysctl(mib, 2, &ncpu, &len, NULL, 0) == 0) { 
+   if (sysctl(mib, 2, &ncpu, &len, NULL, 0) == 0) {
       return ncpu;
    }
 #elif defined(ALLEGRO_WINDOWS)
@@ -93,7 +93,7 @@ int al_get_ram_size(void)
    #endif
    uint64_t memsize = 0;
    size_t len = sizeof(memsize);
-   if (sysctl(mib, 2, &memsize, &len, NULL, 0) == 0) { 
+   if (sysctl(mib, 2, &memsize, &len, NULL, 0) == 0) {
       return (int)(memsize / (1024*1024));
    }
 #elif defined(ALLEGRO_WINDOWS)
@@ -108,4 +108,4 @@ int al_get_ram_size(void)
 
 
 /* vi: set ts=4 sw=4 expandtab: */
-      
+

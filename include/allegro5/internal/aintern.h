@@ -26,7 +26,7 @@
 #ifdef __cplusplus
    extern "C" {
 #endif
-    
+
 #define _ALLEGRO_MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define _ALLEGRO_MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define _ALLEGRO_CLAMP(x,y,z) _ALLEGRO_MAX((x), _ALLEGRO_MIN((y), (z)))

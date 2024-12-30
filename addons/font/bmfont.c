@@ -424,7 +424,7 @@ static void destroy(ALLEGRO_FONT *f) {
       al_destroy_bitmap(data->pages[i]);
    }
    al_free(data->pages);
-   
+
    al_free(data->kerning);
    al_free(f);
 }
@@ -462,13 +462,13 @@ static int get_font_ranges(ALLEGRO_FONT *f,
 
 static ALLEGRO_FONT_VTABLE _al_font_vtable_xml = {
    font_height,
-   font_ascent, 
+   font_ascent,
    font_descent,
    char_length,
    text_length,
    render_char,
    render,
-   destroy, 
+   destroy,
    get_text_dimensions,
    get_font_ranges,
    get_glyph_dimensions,
@@ -514,6 +514,6 @@ ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename, int size,
    al_ustr_free(parser->tag);
    al_ustr_free(parser->attribute);
    al_destroy_path(parser->path);
-   
+
    return font;
 }

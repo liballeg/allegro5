@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 {
    int c;
    int w, h;
-  
+
    for (c = 1; c < argc; c++) {
       if (stricmp(argv[c], "-cheat") == 0)
          cheat = TRUE;

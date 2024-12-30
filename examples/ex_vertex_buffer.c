@@ -45,7 +45,7 @@ static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vert
    al_translate_transform(&t, md->x, md->y);
    al_use_transform(&t);
 
-   al_draw_textf(font, al_map_rgb_f(1, 1, 1), 0, -50, ALLEGRO_ALIGN_CENTRE, "%s%s", md->name, 
+   al_draw_textf(font, al_map_rgb_f(1, 1, 1), 0, -50, ALLEGRO_ALIGN_CENTRE, "%s%s", md->name,
                  md->flags & ALLEGRO_PRIM_BUFFER_READWRITE ? "+read/write" : "+write-only");
 
    start_time = al_get_time();

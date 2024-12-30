@@ -74,13 +74,13 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    al_copy_transform(&backup, al_get_current_transform());
    al_identity_transform(&t);
-   
+
    if (bitmap->parent) {
       parent = bitmap->parent;
       sx += bitmap->xofs;
       sy += bitmap->yofs;
    }
-   
+
    if (sx < 0) {
       sw += sx;
       al_translate_transform(&t, -sx, 0);

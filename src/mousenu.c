@@ -50,7 +50,7 @@ bool al_install_mouse(void)
 {
    if (new_mouse_driver)
       return true;
-   
+
    //FIXME: seems A4/A5 driver list stuff doesn't quite agree right now
    if (al_get_system_driver()->vt->get_mouse_driver) {
        new_mouse_driver = al_get_system_driver()->vt->get_mouse_driver();
@@ -76,11 +76,11 @@ bool al_install_mouse(void)
    for (i=0; driver_list[i].driver; i++) {
       new_mouse_driver = driver_list[i].driver;
       //name = get_config_text(new_mouse_driver->msedrv_ascii_name);
-	  name = new_mouse_driver->msedrv_ascii_name;
+          name = new_mouse_driver->msedrv_ascii_name;
       new_mouse_driver->msedrv_name = name;
       new_mouse_driver->msedrv_desc = name;
       if (new_mouse_driver->init_mouse()) {
-	 break;
+         break;
       }
    }
 

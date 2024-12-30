@@ -27,7 +27,7 @@ ALLEGRO_AUDIO_STREAM *_midi_stream;
 
 /* emulate get_config_string() */
 const char *get_config_string(const ALLEGRO_CONFIG *cfg, const char *section,
-			      const char *name, const char *def)
+                              const char *name, const char *def)
 {
    const char *v = al_get_config_value(cfg, section, name);
 
@@ -38,7 +38,7 @@ const char *get_config_string(const ALLEGRO_CONFIG *cfg, const char *section,
 
 /* emulate get_config_int() */
 int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
-		   const char *name, int def)
+                   const char *name, int def)
 {
    const char *v = al_get_config_value(cfg, section, name);
 
@@ -49,7 +49,7 @@ int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
 
 /* emulate set_config_int() */
 void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
-		    int val)
+                    int val)
 {
    char buf[32];
 
@@ -96,7 +96,7 @@ void init_input()
    if (al_get_num_joysticks() > 0) {
       joy = al_get_joystick(0);
       if (joy)
-	 al_register_event_source(input_queue, al_get_joystick_event_source());
+         al_register_event_source(input_queue, al_get_joystick_event_source());
    }
 }
 
@@ -141,46 +141,46 @@ void poll_input()
 
       switch (event.type) {
 
-    case ALLEGRO_EVENT_DISPLAY_RESIZE:
-       al_acknowledge_resize(event.display.source);
-       break;
+         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+            al_acknowledge_resize(event.display.source);
+            break;
 
-	 case ALLEGRO_EVENT_KEY_DOWN:
-	    key[event.keyboard.keycode] = 1;
-	    break;
+         case ALLEGRO_EVENT_KEY_DOWN:
+            key[event.keyboard.keycode] = 1;
+            break;
 
-	 case ALLEGRO_EVENT_KEY_UP:
-	    key[event.keyboard.keycode] = 0;
-	    break;
+         case ALLEGRO_EVENT_KEY_UP:
+            key[event.keyboard.keycode] = 0;
+            break;
 
-	 case ALLEGRO_EVENT_KEY_CHAR:
-	    add_key(&event.keyboard);
-	    break;
+         case ALLEGRO_EVENT_KEY_CHAR:
+            add_key(&event.keyboard);
+            break;
 
-	 case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
-	    if (event.joystick.button == 0)
-	       joy_b1 = 1;
-	    break;
+         case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
+            if (event.joystick.button == 0)
+               joy_b1 = 1;
+            break;
 
-	 case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
-	    if (event.joystick.button == 0)
-	       joy_b1 = 0;
-	    break;
+         case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
+            if (event.joystick.button == 0)
+               joy_b1 = 0;
+            break;
 
-	 case ALLEGRO_EVENT_JOYSTICK_AXIS:
-	    if (event.joystick.stick == 0 && event.joystick.axis == 0) {
-	       float pos = event.joystick.pos;
-	       joy_left = (pos < 0.0);
-	       joy_right = (pos > 0.0);
-	    }
-	    break;
+         case ALLEGRO_EVENT_JOYSTICK_AXIS:
+            if (event.joystick.stick == 0 && event.joystick.axis == 0) {
+               float pos = event.joystick.pos;
+               joy_left = (pos < 0.0);
+               joy_right = (pos > 0.0);
+            }
+            break;
 
-	 case ALLEGRO_EVENT_TIMER:
-	    /* retrace_count incremented */
-	    break;
+         case ALLEGRO_EVENT_TIMER:
+            /* retrace_count incremented */
+            break;
 
-	 case ALLEGRO_EVENT_DISPLAY_EXPOSE:
-	    break;
+         case ALLEGRO_EVENT_DISPLAY_EXPOSE:
+            break;
       }
    }
 }
@@ -245,7 +245,7 @@ void clear_keybuf()
  */
 
 
-#define MAX_POLYGON_VERTICES	 6
+#define MAX_POLYGON_VERTICES         6
 
 
 ALLEGRO_DISPLAY *screen;
@@ -373,7 +373,7 @@ void circlefill(int x, int y, int radius, ALLEGRO_COLOR color)
 
 /* emulate stretch_sprite() */
 void stretch_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite,
-		    int x, int y, int w, int h)
+                    int x, int y, int w, int h)
 {
    ALLEGRO_STATE state;
 
@@ -471,7 +471,7 @@ void textprintf(const ALLEGRO_FONT *f, int x, int y, ALLEGRO_COLOR color, const 
 
 
 
-static const MATRIX_f identity_matrix_f = 
+static const MATRIX_f identity_matrix_f =
 {
    {
       /* 3x3 identity */
@@ -551,15 +551,15 @@ void matrix_mul_f(const MATRIX_f *m1, const MATRIX_f *m2, MATRIX_f *out)
 
    for (i=0; i<3; i++) {
       for (j=0; j<3; j++) {
-	 out->v[i][j] = (m1->v[0][j] * m2->v[i][0]) +
-			(m1->v[1][j] * m2->v[i][1]) +
-			(m1->v[2][j] * m2->v[i][2]);
+         out->v[i][j] = (m1->v[0][j] * m2->v[i][0]) +
+                        (m1->v[1][j] * m2->v[i][1]) +
+                        (m1->v[2][j] * m2->v[i][2]);
       }
 
       out->t[i] = (m1->t[0] * m2->v[i][0]) +
-		  (m1->t[1] * m2->v[i][1]) +
-		  (m1->t[2] * m2->v[i][2]) +
-		  m2->t[i];
+                  (m1->t[1] * m2->v[i][1]) +
+                  (m1->t[2] * m2->v[i][2]) +
+                  m2->t[i];
    }
 }
 
@@ -569,7 +569,7 @@ void matrix_mul_f(const MATRIX_f *m1, const MATRIX_f *m2, MATRIX_f *out)
  *  Floating point vector by matrix multiplication routine.
  */
 void apply_matrix_f(const MATRIX_f *m, float x, float y, float z,
-		    float *xout, float *yout, float *zout)
+                    float *xout, float *yout, float *zout)
 {
 #define CALC_ROW(n) (x * m->v[(n)][0] + y * m->v[(n)][1] + z * m->v[(n)][2] + m->t[(n)])
    *xout = CALC_ROW(0);
@@ -644,7 +644,7 @@ ALLEGRO_SAMPLE *create_sample_u8(int freq, int len)
    char *buf = al_malloc(freq * len);
 
    return al_create_sample(buf, len, freq, ALLEGRO_AUDIO_DEPTH_UINT8,
-			   ALLEGRO_CHANNEL_CONF_1, true);
+                           ALLEGRO_CHANNEL_CONF_1, true);
 }
 
 
@@ -655,7 +655,7 @@ void play_sample(ALLEGRO_SAMPLE *spl, int vol, int pan, int freq, int loop)
    int playmode = loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE;
 
    al_play_sample(spl, vol/255.0, (pan - 128)/128.0, freq/1000.0,
-		  playmode, NULL);
+                  playmode, NULL);
 }
 
 

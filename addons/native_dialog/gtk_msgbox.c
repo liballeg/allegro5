@@ -94,7 +94,7 @@ static gboolean create_native_message_box(gpointer data)
          int next = al_ustr_find_chr(fd->mb_buttons, pos, '|');
          int pos2 = next;
          if (next == -1)
-	     pos2 = al_ustr_size(fd->mb_buttons);
+             pos2 = al_ustr_size(fd->mb_buttons);
          ALLEGRO_USTR_INFO info;
          const ALLEGRO_USTR *button_text;
          button_text = al_ref_ustr(&info, fd->mb_buttons, pos, pos2);
@@ -103,7 +103,7 @@ static gboolean create_native_message_box(gpointer data)
          al_ustr_to_buffer(button_text, buffer, sizeof buffer);
          gtk_dialog_add_button(GTK_DIALOG(window), buffer, i++);
          if (next == -1)
-	     break;
+             break;
       }
    }
 

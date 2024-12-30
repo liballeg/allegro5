@@ -95,7 +95,7 @@ int main(int argc, char **argv)
       if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             break;
-         
+
       }
       if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
          double angle = ALLEGRO_PI * 2 * t / 60 / 15;
          double x = 120 - 20 * cos(ALLEGRO_PI * 2 * t / 60 / 25);
          double y = 120 - 20 * sin(ALLEGRO_PI * 2 * t / 60 / 25);
-         
+
          dw = al_get_display_width(display);
          dh = al_get_display_height(display);
 

@@ -19,7 +19,7 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
    unsigned int button, ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_EVENT event;
-   
+
    _al_event_source_lock(&the_mouse.parent.es);
 
    _al_iphone_translate_from_screen(d, &x, &y);
@@ -112,7 +112,7 @@ static bool imouse_set_mouse_axis(int which, int z)
 static void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
     ASSERT(imouse_installed);
-    
+
     _al_event_source_lock(&the_mouse.parent.es);
     {
         *ret_state = the_mouse.state;

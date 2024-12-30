@@ -43,7 +43,7 @@ struct ALLEGRO_TIMER
    bool started;
    double speed_secs;
    int64_t count;
-   double counter;		/* counts down to zero=blastoff */
+   double counter;                /* counts down to zero=blastoff */
    _AL_LIST_ITEM *dtor_item;
 };
 

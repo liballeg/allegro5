@@ -203,7 +203,7 @@ static FLAC__StreamDecoderLengthStatus length_callback(
    FLACFILE *ff = (FLACFILE *)dptr;
    ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
-   
+
    /* XXX check error */
    *stream_length = (FLAC__uint64)al_fsize(fh);
 

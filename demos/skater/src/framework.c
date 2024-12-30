@@ -117,7 +117,7 @@ int init_framework(void)
    al_install_audio();
    al_init_acodec_addon();
    al_reserve_samples(8);
-   
+
    event_queue = al_create_event_queue();
 
    /* Attempt to set the gfx mode. */
@@ -136,10 +136,10 @@ int init_framework(void)
    /* Attempt to install the joystick submodule. Note: no need to check
       the return value as joystick isn't really required! */
    al_install_joystick();
-    
+
    if (al_install_touch_input())
       al_register_event_source(event_queue, al_get_touch_input_event_source());
-   
+
    al_install_mouse();
 
    al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -260,15 +260,15 @@ void run_framework(void)
 
       al_wait_for_event(event_queue, &event);
       switch (event.type) {
-         
+
          case ALLEGRO_EVENT_MOUSE_AXES:
             mouse_handle_event(&event);
             break;
-         
+
          case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
             mouse_handle_event(&event);
             break;
-         
+
          case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
             mouse_handle_event(&event);
             break;
@@ -296,7 +296,7 @@ void run_framework(void)
          case ALLEGRO_EVENT_JOYSTICK_AXIS:
             gamepad_event(&event);
             break;
-        
+
          case ALLEGRO_EVENT_TOUCH_BEGIN:
             gamepad_event(&event);
             break;
@@ -307,18 +307,18 @@ void run_framework(void)
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             closed = true;
             break;
-        
+
          case ALLEGRO_EVENT_TIMER:
             if (!paused)
                timer++;
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_ORIENTATION:
             if (event.display.orientation == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES ||
                 event.display.orientation == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES)
                screen_orientation = event.display.orientation;
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(screen);
             screen_width = al_get_display_width(screen);
@@ -328,27 +328,27 @@ void run_framework(void)
                window_height = screen_height;
             }
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
             background_mode = true;
             al_acknowledge_drawing_halt(screen);
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
             background_mode = false;
             al_acknowledge_drawing_resume(screen);
             break;
-            
+
          case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
             paused = true;
             break;
-            
+
          case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
             paused = false;
             break;
-            
+
       }
-      
+
       if (!al_is_event_queue_empty(event_queue)) continue;
 
       /* Check if the timer has ticked. */
@@ -469,7 +469,7 @@ void run_framework(void)
 void shutdown_framework(void)
 {
    al_destroy_event_queue(event_queue);
-   
+
    /* Save the configuration settings. */
    write_global_config(config_path);
 

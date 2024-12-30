@@ -56,7 +56,7 @@ int update_demo_menu(DEMO_MENU * menu)
 
    update_background();
    update_credits();
-   
+
    if (selected_item != -1) {
       menu[selected_item].proc(&menu[selected_item], DEMO_MENU_MSG_KEY, 0);
    }
@@ -75,7 +75,7 @@ int update_demo_menu(DEMO_MENU * menu)
    if (key_pressed(ALLEGRO_KEY_ESCAPE)) {
       return DEMO_MENU_BACK;
    }
-   
+
    /* If a mouse button is pressed, select the item under it and send a
     * DEMO_MENU_MSG_CHAR with 13 to it (which is the same effect as hitting
     * the return key).
@@ -122,7 +122,7 @@ int update_demo_menu(DEMO_MENU * menu)
          }
       }
    }
-    
+
    if (key_pressed(ALLEGRO_KEY_DOWN)) {
       if (selected_item != -1) {
          tmp = selected_item;
@@ -146,7 +146,7 @@ int update_demo_menu(DEMO_MENU * menu)
          }
       }
    }
-    
+
     c = unicode_char(true);
     if(gamepad_button()) {
         c = 32;
@@ -408,7 +408,7 @@ int demo_choice_proc(DEMO_MENU * item, int msg, int extra)
             }
          }
       }
-            
+
       if (key_pressed(ALLEGRO_KEY_RIGHT)) {
          if (item->extra < choice_count - 1) {
             ++item->extra;
@@ -573,8 +573,8 @@ int demo_color_proc(DEMO_MENU * item, int msg, int extra)
       rgb[0] = (c >> 0) & 255;
       rgb[1] = (c >> 8) & 255;
       rgb[2] = (c >> 16) & 255;
-   
-   
+
+
 
      if (key_pressed(ALLEGRO_KEY_LEFT)) {
          if (rgb[item->extra] > 0) {

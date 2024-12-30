@@ -9,12 +9,12 @@
  *                                           \_/__/
  *
  *      This program is used to pre-compile some dummy shaders from
- *      nshader.fx to be used in directx_shaders.c file. You will need 
+ *      nshader.fx to be used in directx_shaders.c file. You will need
  *      fxc.exe which can be found in a Direct3D SDK (June 2010 has it).
- * 
+ *
  *      Usage: Run the program and it will regenerate precompiled_shaders.inc.
  *      (Make a backup of the old ones if you need them).
- * 
+ *
  *      Note, that this is not supposed to be compiled into the library.
  *      Compile this manually if needed.
  *
@@ -249,7 +249,7 @@ int generate_table(ostream& output, technique_t& technique)
 int generate_tables(ostream& output, technique_vector_t& techniques)
 {
   int count = 0;
-  
+
   output << "/* Generated using nshader.cpp. Do not hand edit. */" << endl;
 
   technique_vector_t::iterator it, it_end = techniques.end();

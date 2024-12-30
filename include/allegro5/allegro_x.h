@@ -9,9 +9,9 @@
  *                                           \_/__/
  *
  *      Header file for X specific functionality.
- * 
+ *
  *      By Robert MacGregor.
- * 
+ *
  */
 
 #ifndef __al_included_allegro5_allegro_x_h

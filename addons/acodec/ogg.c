@@ -193,7 +193,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis(const char *filename)
    ALLEGRO_FILE *f;
    ALLEGRO_SAMPLE *spl;
    ASSERT(filename);
-   
+
    ALLEGRO_INFO("Loading sample %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
@@ -348,7 +348,7 @@ static bool ogg_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, doub
 
    extra->loop_start = start;
    extra->loop_end = end;
-   
+
    return true;
 }
 
@@ -373,7 +373,7 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
                                 size_t buf_size)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-	
+
 #ifdef ALLEGRO_LITTLE_ENDIAN
    const int endian = 0;      /* 0 for Little-Endian, 1 for Big-Endian */
 #else
@@ -392,7 +392,7 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    double rate = extra->vi->rate;
    double btime = ((double)buf_size / ((double)word_size * (double)extra->vi->channels)) / rate;
    unsigned long read;
-   
+
    if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > extra->loop_end) {
       const int frame_size = word_size * extra->vi->channels;
       read_length = (extra->loop_end - ctime) * rate * (double)word_size * (double)extra->vi->channels;
@@ -413,7 +413,7 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
          read_length - pos, &extra->bitstream);
 #endif
       pos += read;
-	   
+
       if (read == 0) {
          /* Return the number of useful bytes written. */
          return pos;
@@ -471,7 +471,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
    }
 
    extra->file = file;
-   
+
    vf = al_malloc(sizeof(OggVorbis_File));
    if (lib.ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
       ALLEGRO_ERROR("ogg: Input does not appear to be an Ogg bitstream.\n");
@@ -495,7 +495,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
    ALLEGRO_DEBUG("rate %ld\n", rate);
    ALLEGRO_DEBUG("total_samples %ld\n", total_samples);
    ALLEGRO_DEBUG("total_size %ld\n", total_size);
-	
+
    stream = al_create_audio_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
@@ -519,7 +519,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
    stream->set_feeder_loop = ogg_stream_set_loop;
    stream->unload_feeder = ogg_stream_close;
    _al_acodec_start_feed_thread(stream);
-	
+
    return stream;
 }
 

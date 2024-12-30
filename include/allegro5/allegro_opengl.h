@@ -174,11 +174,11 @@
 #endif /* ALLEGRO_WINDOWS */
 
 #if defined ALLEGRO_WINDOWS
-	#define ALLEGRO_DEFINE_PROC_TYPE(type, name, args) \
-		typedef type (APIENTRY * name) args;
+        #define ALLEGRO_DEFINE_PROC_TYPE(type, name, args) \
+                typedef type (APIENTRY * name) args;
 #else
-	#define ALLEGRO_DEFINE_PROC_TYPE(type, name, args) \
-		typedef type (*name) args;
+        #define ALLEGRO_DEFINE_PROC_TYPE(type, name, args) \
+                typedef type (*name) args;
 #endif
 
 /*

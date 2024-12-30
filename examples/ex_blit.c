@@ -70,7 +70,7 @@ static void print(char const *format, ...)
    va_end(list);
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
-   ex.text_y += th;   
+   ex.text_y += th;
 }
 
 static void start_timer(int i)
@@ -100,7 +100,7 @@ static void draw(void)
    ALLEGRO_LOCKED_REGION *lock;
    void *data;
    int size, i, format;
-   
+
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
    al_clear_to_color(ex.background);
@@ -137,7 +137,7 @@ static void draw(void)
    al_draw_bitmap(temp, x + 8 + iw, y, 0);
    stop_timer(1);
    set_xy(x, y + ih);
-   
+
    al_destroy_bitmap(temp);
 
    /* Test 3. */
@@ -156,7 +156,7 @@ static void draw(void)
    al_draw_bitmap(temp, x + 8 + iw, y, 0);
    stop_timer(2);
    set_xy(x, y + ih);
-   
+
    al_destroy_bitmap(temp);
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 
@@ -175,7 +175,7 @@ static void draw(void)
       memcpy((char*)data + i * size * iw,
          (char*)lock->data + i * lock->pitch, size * iw);
    al_unlock_bitmap(screen);
-   
+
    lock = al_lock_bitmap_region(screen, x + 8 + iw, y, iw, ih, format,
       ALLEGRO_LOCK_WRITEONLY);
    for (i = 0; i < ih; i++)
@@ -273,7 +273,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
    run();
 
-   al_destroy_event_queue(ex.queue);  
+   al_destroy_event_queue(ex.queue);
 
    return 0;
 }

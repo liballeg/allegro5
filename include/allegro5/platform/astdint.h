@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -11,7 +11,7 @@
  *      A header file to get definitions of uint*_t and int*_t.
  *
  *      By Peter Wang.
- * 
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -33,7 +33,7 @@
       #warning Guessing the definitions of fixed-width integer types.
    #endif
    #include <limits.h>
-   
+
    #define int8_t       signed char
    #define uint8_t      unsigned char
    #define int16_t      signed short
@@ -66,13 +66,13 @@
          #ifdef  _WIN64
             #define uintptr_t unsigned __int64
          #else
-            #define uintptr_t unsigned int   
+            #define uintptr_t unsigned int
          #endif
          #define _UINTPTR_T_DEFINED
       #endif
 
    #else
-   
+
       #define intptr_t     int32_t
       #define uintptr_t    uint32_t
 

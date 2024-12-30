@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -78,15 +78,15 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * _ALLEGRO_glBlendEquation_t _al_glBlendEquation = NULL;
  */
 #define AGL_API(type, name, args) _ALLEGRO_gl##name##_t _al_gl##name = NULL;
-#	include "allegro5/opengl/GLext/gl_ext_api.h"
+#        include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
 #define AGL_API(type, name, args) _ALLEGRO_wgl##name##_t _al_wgl##name = NULL;
-#	include "allegro5/opengl/GLext/wgl_ext_api.h"
+#        include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 #elif defined ALLEGRO_UNIX
 #define AGL_API(type, name, args) _ALLEGRO_glX##name##_t _al_glX##name = NULL;
-#	include "allegro5/opengl/GLext/glx_ext_api.h"
+#        include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
 
@@ -195,7 +195,7 @@ static void print_extensions(char const *extension)
 
 
 #if !defined ALLEGRO_CFG_OPENGLES
-/* Print all extensions the OpenGL 3.0 way. */ 
+/* Print all extensions the OpenGL 3.0 way. */
 static void print_extensions_3_0(void)
 {
    int i;
@@ -306,7 +306,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
    if (!ext) {
       return;
    }
-   
+
 #ifdef ALLEGRO_UNIX
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    if (!alXGetProcAddress) {
@@ -371,7 +371,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 
 
-/* Set the GL API pointers to the current table 
+/* Set the GL API pointers to the current table
  * Should only be called on context switches.
  */
 void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
@@ -381,17 +381,17 @@ void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
    }
 
 #define AGL_API(type, name, args) _al_gl##name = ext->name;
-#	include "allegro5/opengl/GLext/gl_ext_api.h"
+#        include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 
 #ifdef ALLEGRO_WINDOWS
 #define AGL_API(type, name, args) _al_wgl##name = ext->name;
-#	include "allegro5/opengl/GLext/wgl_ext_api.h"
+#        include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 
 #elif defined ALLEGRO_UNIX
 #define AGL_API(type, name, args) _al_glX##name = ext->name;
-#	include "allegro5/opengl/GLext/glx_ext_api.h"
+#        include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
 }
@@ -529,11 +529,11 @@ static bool _ogl_is_extension_with_version_supported(
 
   /* For testing purposes, any OpenGL extension can be disable in
     * the config by using something like:
-    * 
+    *
     * [opengl_disabled_extensions]
     * GL_ARB_texture_non_power_of_two=0
     * GL_EXT_framebuffer_object=0
-    * 
+    *
     */
    value = al_get_config_value(al_get_system_config(),
       "opengl_disabled_extensions", extension);
@@ -549,7 +549,7 @@ static bool _ogl_is_extension_with_version_supported(
    if (ver > 0 && disp->ogl_extras->ogl_info.version >= ver) {
       return true;
    }
-      
+
    return _ogl_is_extension_supported(extension, disp);
 }
 
@@ -560,7 +560,7 @@ static bool _ogl_is_extension_with_version_supported(
 bool al_have_opengl_extension(const char *extension)
 {
    ALLEGRO_DISPLAY *disp;
-   
+
    disp = al_get_current_display();
    if (!disp)
       return false;
@@ -582,7 +582,7 @@ void *al_get_opengl_proc_address(const char *name)
    CFStringRef function;
 #endif
    ALLEGRO_DISPLAY *disp;
-   
+
    disp = al_get_current_display();
    if (!disp)
       return NULL;
@@ -786,7 +786,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ext_api = create_extension_api_table();
    load_extensions(ext_api);
    gl_disp->ogl_extras->extension_api = ext_api;
-   
+
 #if !defined ALLEGRO_CFG_OPENGLES
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
@@ -876,11 +876,11 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          }
       }
    }
-   
+
    {
       int *s = gl_disp->extra_settings.settings;
       glGetIntegerv(GL_MAX_TEXTURE_SIZE, s + ALLEGRO_MAX_BITMAP_SIZE);
-   
+
       if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0)
          s[ALLEGRO_SUPPORT_SEPARATE_ALPHA] = 1;
 

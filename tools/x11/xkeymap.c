@@ -1,6 +1,6 @@
 /*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -82,45 +82,45 @@ static void setup_all_keys(void)
    while (1) {
       focus = do_dialog(keymap_dialog, focus);
       switch (focus) {
-	 case 2:
-	 case 4:
+         case 2:
+         case 4:
 
-	    textprintf_centre_ex (screen, font,
-	       keymap_dialog[7].x, keymap_dialog[7].y, red, -1,
-	       "Press a key to map to the current scancode");
-	    textprintf_centre_ex (screen, font,
-	       keymap_dialog[7].x, keymap_dialog[7].y + 8, red, -1,
-	       "(or a mouse button to leave it unchanged)");
+            textprintf_centre_ex (screen, font,
+               keymap_dialog[7].x, keymap_dialog[7].y, red, -1,
+               "Press a key to map to the current scancode");
+            textprintf_centre_ex (screen, font,
+               keymap_dialog[7].x, keymap_dialog[7].y + 8, red, -1,
+               "(or a mouse button to leave it unchanged)");
 
-	    /* Wait for new key press.  */
-	    new_keycode = -1;
-	    waiting_for_key = 1;
+            /* Wait for new key press.  */
+            new_keycode = -1;
+            waiting_for_key = 1;
 
-	    do {
-	       poll_keyboard();
-	       poll_mouse();
+            do {
+               poll_keyboard();
+               poll_mouse();
 
-	       if (mouse_b)
-		  waiting_for_key = 0;
-	    }
-	    while (waiting_for_key);
-
-	    /* Save keycode to scancode mapping.  */
-	    if ((new_keycode >= 0) && (new_keycode < 256)) {
-	       keycode_to_scancode[new_keycode] = keymap_dialog[2].d1 + 1;
-	    }
-
-	    clear_keybuf();
-
-	    break;
-	 case 5:
-	    return;
-	 case 6:
-	    for (i = 0; i < 256; i++) {
-               if (keycode_to_scancode[i] >= 0)
-		  _xwin.keycode_to_scancode[i] = keycode_to_scancode[i];
+               if (mouse_b)
+                  waiting_for_key = 0;
             }
-	    return;
+            while (waiting_for_key);
+
+            /* Save keycode to scancode mapping.  */
+            if ((new_keycode >= 0) && (new_keycode < 256)) {
+               keycode_to_scancode[new_keycode] = keymap_dialog[2].d1 + 1;
+            }
+
+            clear_keybuf();
+
+            break;
+         case 5:
+            return;
+         case 6:
+            for (i = 0; i < 256; i++) {
+               if (keycode_to_scancode[i] >= 0)
+                  _xwin.keycode_to_scancode[i] = keycode_to_scancode[i];
+            }
+            return;
       }
    }
 }
@@ -145,7 +145,7 @@ static void test_key_map(void)
    clear_to_color(screen, white);
    for (i = 0; i < KEY_MAX; i++)
       textprintf_ex(screen, font, 32 + (i % 4) * 160,
-	      32 + (i / 4) * 14, black, -1, "%s", scancode_to_name (i));
+              32 + (i / 4) * 14, black, -1, "%s", scancode_to_name (i));
    do {
       poll_keyboard();
       poll_mouse();
@@ -153,33 +153,33 @@ static void test_key_map(void)
    while ((key[KEY_ESC]) || (mouse_b));
 
    do {
-      
+
       while (keypressed()) {
-	 u = ureadkey (&k);
-	 textprintf_centre_ex (screen, font, SCREEN_W / 2, 8,
-	    red, white, ">   %c   <", u);
+         u = ureadkey (&k);
+         textprintf_centre_ex (screen, font, SCREEN_W / 2, 8,
+            red, white, ">   %c   <", u);
       }
-      
+
       poll_keyboard();
       poll_mouse();
 
       for (i = 0; i < KEY_MAX; i++) {
-	 if (key[i])
-	    key_was_pressed[i] = key_is_pressed[i] = 1;
-	 else
-	    key_is_pressed[i] = 0;
+         if (key[i])
+            key_was_pressed[i] = key_is_pressed[i] = 1;
+         else
+            key_is_pressed[i] = 0;
       }
 
       for (i = 0; i < KEY_MAX; i++) {
-	 int x = 16 + (i % 4) * 160;
-	 int y = 32 + (i / 4) * 14;
+         int x = 16 + (i % 4) * 160;
+         int y = 32 + (i / 4) * 14;
 
-	 if (key_is_pressed[i])
-	    rectfill(screen, x, y, x + 7, y + 7, red);
-	 else if (key_was_pressed[i])
-	    rectfill(screen, x, y, x + 7, y + 7, yellow);
-	 else
-	    rectfill(screen, x, y, x + 7, y + 7, white);
+         if (key_is_pressed[i])
+            rectfill(screen, x, y, x + 7, y + 7, red);
+         else if (key_was_pressed[i])
+            rectfill(screen, x, y, x + 7, y + 7, yellow);
+         else
+            rectfill(screen, x, y, x + 7, y + 7, white);
       }
 
       rest(1);
@@ -207,8 +207,8 @@ static void save_key_map(void)
 
    for (i = 0; i < 256; i++) {
       if (keycode_to_scancode[i] > 0) {
-	 uszprintf(option, sizeof(option), option_format, i);
-	 set_config_int(section, option, keycode_to_scancode[i]);
+         uszprintf(option, sizeof(option), option_format, i);
+         set_config_int(section, option, keycode_to_scancode[i]);
       }
    }
 }
@@ -249,21 +249,21 @@ static void show_main_dialog(void)
    while (1) {
       focus = do_dialog(main_dialog, focus);
       switch (focus) {
-	 case 3:
-	    /* Setup all key mappings.  */
-	    setup_all_keys();
-	    break;
-	 case 4:
-	    /* Test key mappings.  */
-	    test_key_map();
-	    break;
-	 case 5:
-	    /* Save and quit.  */
-	    save_key_map();
-	    return;
-	 case 6:
-	    /* Just exit.  */
-	    return;
+         case 3:
+            /* Setup all key mappings.  */
+            setup_all_keys();
+            break;
+         case 4:
+            /* Test key mappings.  */
+            test_key_map();
+            break;
+         case 5:
+            /* Save and quit.  */
+            save_key_map();
+            return;
+         case 6:
+            /* Just exit.  */
+            return;
       }
    }
 }

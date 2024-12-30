@@ -45,7 +45,7 @@ static void saw(ALLEGRO_AUDIO_STREAM *stream)
          for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
             /* Crude saw wave at maximum amplitude. Please keep this compatible
              * to the A4 example so we know when something has broken for now.
-             * 
+             *
              * It would be nice to have a better example with user interface
              * and some simple synth effects.
              */

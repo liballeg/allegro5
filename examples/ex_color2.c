@@ -78,7 +78,7 @@ static void draw_range(int ci)
     * .       .
     * .       .
     * . . . . .
-    * 
+    *
     * o o o o 1
     * .       2
     * .       3
@@ -95,7 +95,7 @@ static void draw_range(int ci)
     * 3       o
     * 2       o
     * 1 o o o o
-    * 
+    *
     * 1654321
     */
    while (true) {
@@ -174,13 +174,13 @@ static void redraw(void)
    int ci;
    for (ci = 0; ci < 2; ci++) {
       int cx = w / 2 * ci;
-   
+
       float l = example.color[ci].l;
       float a = example.color[ci].a;
       float b = example.color[ci].b;
 
       ALLEGRO_COLOR rgb = example.color[ci].rgb;
-      
+
       draw_lab((int)(l * 511));
 
       al_draw_bitmap(example.lab[(int)(l * 511)], cx + example.left_x, example.top_y, 0);
@@ -189,7 +189,7 @@ static void redraw(void)
          "a*", 11, "%.2f", -1, 1, a);
       draw_axis(cx + example.left_x - 0.5, example.top_y + 512, ALLEGRO_PI / 2, ALLEGRO_PI,
          512, 16, "b*", 11, "%.2f", -1, 1, b);
-      
+
       al_draw_textf(example.font, example.white, cx + example.left_x + 36, 8, 0,
          "L*a*b* = %.2f/%.2f/%.2f sRGB = %.2f/%.2f/%.2f",
          l, a, b, rgb.r, rgb.g, rgb.b);
@@ -265,7 +265,7 @@ static void update(void)
          example.color[ci].b = 2 * b / 511.0 - 1;
       }
    }
-   
+
    if (example.mb == 1) example.mb = 3;
    if (example.mb == 2) example.mb = 0;
 

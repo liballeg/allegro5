@@ -58,7 +58,7 @@ public:
       createViewports();
       createScene();
    }
-   
+
    Application()
    {
       mRoot = NULL;

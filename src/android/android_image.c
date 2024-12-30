@@ -113,7 +113,7 @@ copy_bitmap_data_demultiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
 }
 
 /* Note: This is not used when loading an image from the .apk.
- * 
+ *
  * The ImageLoader class uses Java to load a bitmap. To support
  * Allegro's filesystem functions, the bitmap is read from an
  * AllegroInputStream which in turn calls back into C to use Allegro's

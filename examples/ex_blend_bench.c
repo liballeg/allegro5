@@ -117,10 +117,10 @@ static bool do_test(enum Mode mode)
       t1 - t0, REPEAT);
    log_printf("%s: %g FPS\n", names[mode], REPEAT / (t1 - t0));
    log_printf("Done\n");
-   
+
    al_destroy_bitmap(b1);
    al_destroy_bitmap(b2);
-      
+
    return true;
 }
 
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
    if (!display) {
       abort_example("Error creating display\n");
    }
-   
+
    if (mode == ALL) {
       for (mode = PLAIN_BLIT; mode <= ROTATE_BLIT; mode++) {
          do_test(mode);

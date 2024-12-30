@@ -24,7 +24,7 @@
 #endif
 
 /* Allow up to four extra axes for future expansion. */
-#define ALLEGRO_MOUSE_MAX_EXTRA_AXES	 4
+#define ALLEGRO_MOUSE_MAX_EXTRA_AXES   4
 
 
 typedef struct ALLEGRO_MOUSE ALLEGRO_MOUSE;

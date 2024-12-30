@@ -65,7 +65,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
     AlertDelegate *delegate = [[AlertDelegate alloc]init];
     delegate.mutex = al_create_mutex();
     delegate.button_pressed = al_create_cond();
-    
+
     // This needs to be done on the thread with the display due to TLS.
     UIView *view = al_iphone_get_view(al_get_current_display());
 
@@ -78,14 +78,14 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
     [delegate performSelectorOnMainThread:@selector(createAlert:)
                                withObject:@[view,alert]
-                            waitUntilDone:YES];    
+                            waitUntilDone:YES];
 
     al_lock_mutex(delegate.mutex);
     al_wait_cond(delegate.button_pressed, delegate.mutex);
     al_unlock_mutex(delegate.mutex);
     al_destroy_cond(delegate.button_pressed);
     al_destroy_mutex(delegate.mutex);
-    
+
     [delegate release];
 
     [pool drain];

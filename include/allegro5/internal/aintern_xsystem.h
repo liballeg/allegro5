@@ -93,7 +93,7 @@ struct ALLEGRO_SYSTEM_XGLX
    /* Used to keep track of how many adapters are in use, so the multi-head
     * code can bail if we try to use more than one. */
    int adapter_use_count;
-   int adapter_map[32];	/* XXX magic constant */
+   int adapter_map[32];        /* XXX magic constant */
 };
 
 #endif

@@ -424,7 +424,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
    {
       wchar_t buf[MAX_PATH];
       int buflen;
-      
+
       buflen = _snwprintf(buf, MAX_PATH, L"%s\\%s",
          fp_stdio->abs_path, ent->d_name);
       if (buflen >= MAX_PATH) {
@@ -525,7 +525,7 @@ static char *fs_stdio_get_current_directory(void)
 #ifdef ALLEGRO_WINDOWS
    wchar_t *wcwd;
    char *cwd;
-   
+
    wcwd = _wgetcwd(NULL, 1);
    if (!wcwd) {
       al_set_errno(errno);

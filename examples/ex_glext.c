@@ -66,7 +66,7 @@ GLfloat wave_movement = 0.0f;
    "MAD "d", "t".w,-inv_7_fact, "d";\n" /* x - x^3/3! + x^5/5! - x^7/7!*/
 
 
-/* This is the actual vertex program. 
+/* This is the actual vertex program.
  * It computes sin(wave.x + pos.x / 5) and sin(wave.x + pos.z), adds them up,
  * scales the result by 2.5 and stores that as the vertex's y component.
  *
@@ -112,7 +112,7 @@ const char *program =
 
 /* NVIDIA drivers do a better job; let's use a simpler program if we can.
  */
-const char *program_nv = 
+const char *program_nv =
    "!!ARBvp1.0"
    "OPTION NV_vertex_program2;"
    "ATTRIB wave = vertex.attrib[1];"
@@ -127,7 +127,7 @@ const char *program_nv =
    "MAD temp.xz, pos, {0.2, 1.0, 0.25, 1.0}, wave.x;"
    "SIN temp.x, temp.x;"
    "SIN temp.z, temp.z;"
-   
+
    /* temp.y = temp.x + temp.z */
    "ADD temp.y, temp.x, temp.z;"
 
@@ -146,16 +146,16 @@ const char *program_nv =
 
 static void create_mesh(void)
 {
-	int x, z;
+   int x, z;
 
-	/* Create our mesh */
-	for (x = 0; x < MESH_SIZE; x++) {
-		for (z = 0; z < MESH_SIZE; z++) {
-			mesh[x][z][0] = (float) (MESH_SIZE / 2) - x;
-			mesh[x][z][1] = 0.0f;
-			mesh[x][z][2] = (float) (MESH_SIZE / 2) - z;
-		}
-	}
+   /* Create our mesh */
+   for (x = 0; x < MESH_SIZE; x++) {
+      for (z = 0; z < MESH_SIZE; z++) {
+         mesh[x][z][0] = (float) (MESH_SIZE / 2) - x;
+         mesh[x][z][1] = 0.0f;
+         mesh[x][z][2] = (float) (MESH_SIZE / 2) - z;
+      }
+   }
 }
 
 

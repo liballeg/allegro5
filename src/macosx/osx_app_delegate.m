@@ -49,7 +49,7 @@ static BOOL in_bundle(void)
     FSCatalogInfo processInfo;
     GetProcessBundleLocation(&psn, &processRef);
     FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
-    if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) 
+    if (processInfo.nodeFlags & kFSNodeIsDirectoryMask)
         return YES;
     else
         return NO;
@@ -85,16 +85,16 @@ static BOOL in_bundle(void)
  * Has no effect if inhibit is YES and the timer is already active
  * or if inhibit is NO and the timer is not active
  */
--(void) setInhibitScreenSaver: (NSNumber *) inhibit 
+-(void) setInhibitScreenSaver: (NSNumber *) inhibit
 {
     if ([inhibit boolValue] == YES) {
         if (activity == nil) {
             // Schedule every 30 seconds
-            activity = [NSTimer scheduledTimerWithTimeInterval:30.0  
-                                                        target:self 
-                                                      selector:@selector(updateSystemActivity:) 
-                                                      userInfo:nil 
-                                                       repeats:YES]; 
+            activity = [NSTimer scheduledTimerWithTimeInterval:30.0
+                                                        target:self
+                                                      selector:@selector(updateSystemActivity:)
+                                                      userInfo:nil
+                                                       repeats:YES];
             [activity retain];
         }
         // else already active
@@ -107,7 +107,7 @@ static BOOL in_bundle(void)
     }
 }
 /* updateSystemActivity:
- * called by a timer to inform the system that there is still activity and 
+ * called by a timer to inform the system that there is still activity and
  * therefore do not dim the screen/start the screensaver
  */
 -(void) updateSystemActivity: (NSTimer*) timer
@@ -145,17 +145,17 @@ static BOOL in_bundle(void)
 
 
 /* applicationDidFinishLaunching:
- *  Called when the app is ready to run. 
+ *  Called when the app is ready to run.
  */
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification
 {
     NSString* exename, *resdir;
     NSFileManager* fm;
     BOOL isDir;
-    
+
     (void)aNotification;
-    
-    if (in_bundle() == YES)   
+
+    if (in_bundle() == YES)
     {
         /* In a bundle, so chdir to the containing directory,
          * or to the 'magic' resource directory if it exists.
@@ -191,7 +191,7 @@ static BOOL in_bundle(void)
         }
     }
     /* else: not in a bundle so don't chdir */
-    
+
     [NSThread detachNewThreadSelector: @selector(app_main:)
                              toTarget: [AllegroAppDelegate class]
                            withObject: nil];
@@ -267,18 +267,18 @@ int _al_osx_run_main(int argc, char **argv,
     AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
     NSMenu *menu;
     NSMenuItem *temp_item;
-    
+
     user_main = real_main;
     __crt0_argc = argc;
     __crt0_argv = argv;
-    
+
 #ifdef OSX_BOOTSTRAP_DETECTION
     if (!_al_osx_bootstrap_ok()) /* not safe to use NSApplication */
         call_user_main();
 #endif
-    
+
     [NSApplication sharedApplication];
-    
+
     /* Load the main menu nib if possible */
     if ((!in_bundle()) || ([NSBundle loadNibNamed: @"MainMenu"
                                             owner: NSApp] == NO))
@@ -286,11 +286,11 @@ int _al_osx_run_main(int argc, char **argv,
         /* Didn't load the nib; create a default menu programmatically */
         NSString* title = nil;
         NSDictionary* app_dictionary = [[NSBundle mainBundle] infoDictionary];
-        if (app_dictionary) 
+        if (app_dictionary)
         {
             title = [app_dictionary objectForKey: @"CFBundleName"];
         }
-        if (title == nil) 
+        if (title == nil)
         {
             title = [[NSProcessInfo processInfo] processName];
         }

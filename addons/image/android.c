@@ -5,7 +5,7 @@
 
 ALLEGRO_BITMAP *_al_load_android_bitmap_f(ALLEGRO_FILE *fp, int flags)
 {
-   return _al_android_load_image_f(fp, flags);   
+   return _al_android_load_image_f(fp, flags);
 }
 
 ALLEGRO_BITMAP *_al_load_android_bitmap(const char *filename, int flags)

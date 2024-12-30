@@ -69,7 +69,7 @@ AL_FUNC(void, al_register_trace_handler, (void (*handler)(char const *)));
    #define ALLEGRO_ASSERT(e) assert(e)
 #else
    #ifdef NDEBUG
-      #define ALLEGRO_ASSERT(e)	((void)(0 && (e)))
+      #define ALLEGRO_ASSERT(e)        ((void)(0 && (e)))
    #else
       #define ALLEGRO_ASSERT(e)                                                  \
          ((e) ? (void) 0                                                         \

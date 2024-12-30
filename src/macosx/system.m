@@ -296,7 +296,7 @@ static int _al_osx_get_num_display_modes(void)
          samples = 1;
          value = 8;
       }
-	  CFRelease(pixel_encoding);
+          CFRelease(pixel_encoding);
 
       /* Check if this mode is ok in terms of depth and refresh rate */
       ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, bpp);

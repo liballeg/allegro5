@@ -80,7 +80,7 @@ static ALLEGRO_BITMAP *create_example_bitmap(void)
    bitmap = al_create_bitmap(100, 100);
    locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
    data = locked->data;
- 
+
    for (j = 0; j < 100; j++) {
       for (i = 0; i < 100; i++) {
          int x = i - 50, y = j - 50;
@@ -258,7 +258,7 @@ static void run(void)
                if (button == 13) ex.mode = 3;
                if (button == 14) ex.mode = 4;
                if (button == 15) ex.mode = 5;
-               
+
                if (button == 16) ex.mode = 6;
                if (button == 17) ex.mode = 7;
                if (button == 18) ex.mode = 8;
@@ -329,7 +329,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
    run();
 
-   al_destroy_event_queue(ex.queue);  
+   al_destroy_event_queue(ex.queue);
 
    return 0;
 }

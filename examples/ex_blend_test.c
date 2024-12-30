@@ -61,10 +61,10 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    }
 
    al_destroy_bitmap(dst_bmp);
-   
+
    if (!verbose)
       return result;
-   
+
    log_printf("---\n");
    log_printf("test id: %d\n", test_index);
 
@@ -78,11 +78,11 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    print_color(dst_col);
    log_printf(" format=%d mode=%d alpha=%d\n",
       dst_format, dst, dst_a);
-   
+
    log_printf("result     : ");
    print_color(result);
    log_printf("\n");
-   
+
    return result;
 }
 
@@ -162,7 +162,7 @@ static ALLEGRO_COLOR reference_implementation(
    g = g * src + dg * dst;
    b = b * src + db * dst;
    a = a * asrc + da * adst;
-   
+
    r = CLAMP(r);
    g = CLAMP(g);
    b = CLAMP(b);
@@ -214,7 +214,7 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
       reference = reference_implementation(
          src_col, dst_col, src_format, dst_format,
          src_mode, dst_mode, src_alpha, dst_alpha, operation);
-      
+
       if (!same_color(reference, from_display)) {
          test(src_col, dst_col, src_format,
          dst_format, src_mode, dst_mode, src_alpha, dst_alpha,
@@ -309,7 +309,7 @@ int main(int argc, char **argv)
       }
    }
    log_printf("\nDone\n");
-   
+
    if (test_only_index && test_display) {
       ALLEGRO_EVENT_QUEUE *queue;
       ALLEGRO_EVENT event;

@@ -249,11 +249,11 @@ int al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
       al_set_errno(ENOENT);
       return ALLEGRO_FOR_EACH_FS_ENTRY_ERROR;
    }
-   
+
    for (entry = al_read_directory(dir); entry; entry = al_read_directory(dir)) {
       /* Call the callback first. */
       int result = callback(entry, extra);
-      
+
       /* Recurse if requested and needed. Only OK allows recursion. */
       if (result == ALLEGRO_FOR_EACH_FS_ENTRY_OK) {
          if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) {
@@ -262,13 +262,13 @@ int al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
       }
 
       al_destroy_fs_entry(entry);
-      
+
       if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_STOP) ||
          (result == ALLEGRO_FOR_EACH_FS_ENTRY_ERROR)) {
          return result;
       }
    }
-   
+
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
 

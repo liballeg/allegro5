@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -85,7 +85,7 @@ static void gp2xwiz_destroy_display_fb(ALLEGRO_DISPLAY *d)
 
    wiz_disp->backbuffer->memory = wiz_disp->screen_mem;
    al_destroy_bitmap(wiz_disp->backbuffer);
-   
+
    al_free(d->vertex_cache);
    al_free(d);
 

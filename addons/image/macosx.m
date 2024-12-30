@@ -32,7 +32,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
 
    if (!image)
        goto done;
-   
+
    /* Get the image representations */
    NSArray *reps = [image representations];
    NSImageRep *image_rep = [reps objectAtIndex: 0];
@@ -97,7 +97,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
                   data_row[j * 4 + 0] = source_row[j * 2 + 0] * a / 255;
                   data_row[j * 4 + 1] = source_row[j * 2 + 0] * a / 255;
                   data_row[j * 4 + 2] = source_row[j * 2 + 0] * a / 255;
-                  
+
                }
             }
             else if (samples == 1) {
@@ -124,7 +124,7 @@ static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f, int flags)
 {
    ALLEGRO_BITMAP *bmp;
    ASSERT(f);
-    
+
    int64_t size = al_fsize(f);
    if (size <= 0) {
       // TODO: Read from stream until we have the whole image
@@ -170,7 +170,7 @@ extern NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
 bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bmp)
 {
    NSBitmapImageFileType type;
-   
+
    if (!strcmp(ident, ".bmp")) {
       type = NSBMPFileType;
    }
@@ -192,18 +192,18 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
    }
 
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
-   
+
    NSImage *image = NSImageFromAllegroBitmap(bmp);
    NSArray *reps = [image representations];
    NSData *nsdata = [NSBitmapImageRep representationOfImageRepsInArray: reps usingType: type properties: [NSDictionary dictionary]];
-   
+
    size_t size = (size_t)[nsdata length];
    bool ret = al_fwrite(f, [nsdata bytes], size) == size;
-   
+
    [image release];
 
    [pool drain];
-   
+
    return ret;
 }
 
@@ -280,9 +280,9 @@ bool _al_osx_register_image_loader(void)
       success |= al_register_bitmap_loader(s, _al_osx_load_image);
       success |= al_register_bitmap_loader_f(s, _al_osx_load_image_f);
    }
-   
+
    char const *extensions[] = { ".tif", ".tiff", ".gif", ".png", ".jpg", ".jpeg", NULL };
-   
+
    for (i = 0; extensions[i]; i++) {
       ALLEGRO_DEBUG("Registering native saver for bitmap type %s\n", extensions[i]);
       success |= al_register_bitmap_saver(extensions[i], _al_osx_save_image);
@@ -294,7 +294,7 @@ bool _al_osx_register_image_loader(void)
    success |= al_register_bitmap_saver_f(".png", _al_osx_save_png_f);
    success |= al_register_bitmap_saver_f(".jpg", _al_osx_save_jpg_f);
    success |= al_register_bitmap_saver_f(".jpeg", _al_osx_save_jpg_f);
-   
+
    [pool drain];
 
    return success;

@@ -22,7 +22,7 @@ struct _AL_THREAD
    void *arg;
 };
 
-#define _AL_MUTEX_UNINITED	       { NULL }
+#define _AL_MUTEX_UNINITED               { NULL }
 #define _AL_MARK_MUTEX_UNINITED(M)     do { M.mutex = NULL; } while (0)
 
 struct _AL_COND

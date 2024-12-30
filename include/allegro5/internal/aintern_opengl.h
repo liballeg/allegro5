@@ -53,7 +53,7 @@ typedef struct ALLEGRO_FBO_BUFFERS
     */
    GLuint depth_buffer;
    int dw, dh, depth;
-   
+
    GLuint multisample_buffer;
    int mw, mh, samples;
 } ALLEGRO_FBO_BUFFERS;
@@ -64,7 +64,7 @@ typedef struct ALLEGRO_FBO_INFO
    GLuint fbo;
 
    ALLEGRO_FBO_BUFFERS buffers;
-      
+
    ALLEGRO_BITMAP *owner;
    double last_use_time;
 } ALLEGRO_FBO_INFO;
@@ -102,7 +102,7 @@ typedef struct OPENGL_INFO {
    int is_matrox_g200;     /* Special cases for Matrox G200 boards */
    int is_ati_rage_pro;    /* Special cases for ATI Rage Pro boards */
    int is_ati_radeon_7000; /* Special cases for ATI Radeon 7000 */
-   int is_ati_r200_chip;	/* Special cases for ATI card with chip R200 */
+   int is_ati_r200_chip;        /* Special cases for ATI card with chip R200 */
    int is_mesa_driver;     /* Special cases for MESA */
    int is_intel_hd_graphics_3000;
 } OPENGL_INFO;

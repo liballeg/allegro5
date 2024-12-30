@@ -146,9 +146,9 @@ static bool get_glyph(ALLEGRO_TTF_FONT_DATA *data,
       range->range_start = range_start;
       range->glyphs = al_calloc(RANGE_SIZE, sizeof(ALLEGRO_TTF_GLYPH_DATA));
    }
-   
-   *glyph = &range->glyphs[ft_index - range_start]; 
-   
+
+   *glyph = &range->glyphs[ft_index - range_start];
+
    /* If we're skipping cache misses and it isn't already cached, return it as invalid. */
    if (data->skip_cache_misses && !(*glyph)->page_bitmap && (*glyph)->region.x >= 0) {
       return false;
@@ -307,7 +307,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
           * to make anti-aliasing work well when rotation
           * and/or scaling transforms are in effect
           * FIXME We could clear just the border
-          */ 
+          */
          for (i = 0; i < lock_rect.h; i++) {
             ptr = (unsigned char *)(data->page_lr->data) + (i * data->page_lr->pitch);
             int j;
@@ -442,7 +442,7 @@ static void copy_glyph_color(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
 
 /* NOTE: this function may disable the bitmap hold drawing state
  * and leave the current page bitmap locked.
- * 
+ *
  * NOTE: We have previously tried to be more clever about caching multiple
  * glyphs during incidental cache misses, but found that approach to be slower.
  */
@@ -456,7 +456,7 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
 
     if (glyph->page_bitmap || glyph->region.x < 0)
         return;
-   
+
     /* We shouldn't ever get here, as cache misses
      * should have been set to ft_index = 0. */
     ASSERT(!(font_data->skip_cache_misses && !lock_whole_page));
@@ -527,7 +527,7 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
 
 /* WARNING: It is only valid to call this function when the current page is empty
  * (or already locked), otherwise it will gibberify the current glyphs on that page.
- * 
+ *
  * This leaves the current page unlocked.
  */
 static void cache_glyphs(ALLEGRO_TTF_FONT_DATA *data, const char *text, size_t text_size)
@@ -536,7 +536,7 @@ static void cache_glyphs(ALLEGRO_TTF_FONT_DATA *data, const char *text, size_t t
    const ALLEGRO_USTR* ustr = al_ref_buffer(&info, text, text_size);
    FT_Face face = data->face;
    int pos = 0;
-   int32_t ch;  
+   int32_t ch;
 
    while ((ch = al_ustr_get_next(ustr, &pos)) >= 0) {
       ALLEGRO_TTF_GLYPH_DATA *glyph;
@@ -980,7 +980,7 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     al_destroy_path(path);
 
     if (face->num_fixed_sizes) {
-        // TODO: we always pick the first size 
+        // TODO: we always pick the first size
         FT_Select_Size(face, 0);
     } else if (h > 0) {
        FT_Set_Pixel_Sizes(face, w, h);

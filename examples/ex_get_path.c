@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
    /* defaults to the exename, set it here to remove the .exe on windows */
    al_set_app_name("ex_get_path");
-   
+
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }

@@ -24,7 +24,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*draw_pixel)(ALLEGRO_DISPLAY *d, float x, float y, ALLEGRO_COLOR *color);
    void (*flip_display)(ALLEGRO_DISPLAY *d);
    void (*update_display_region)(ALLEGRO_DISPLAY *d, int x, int y,
-   	int width, int height);
+           int width, int height);
    bool (*acknowledge_resize)(ALLEGRO_DISPLAY *d);
    bool (*resize_display)(ALLEGRO_DISPLAY *d, int width, int height);
    void (*quick_size)(ALLEGRO_DISPLAY *d);
@@ -61,10 +61,10 @@ struct ALLEGRO_DISPLAY_INTERFACE
    bool (*get_window_constraints)(ALLEGRO_DISPLAY *display,  int *min_w, int *min_h, int *max_w, int *max_h);
    bool (*set_display_flag)(ALLEGRO_DISPLAY *display, int flag, bool onoff);
    void (*set_window_title)(ALLEGRO_DISPLAY *display, const char *title);
-   
+
    void (*flush_vertex_cache)(ALLEGRO_DISPLAY *d);
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
-   
+
    void (*update_transformation)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *target);
 
    /* Unused */
@@ -72,12 +72,12 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
    void (*acknowledge_drawing_halt)(ALLEGRO_DISPLAY *d);
    void (*acknowledge_drawing_resume)(ALLEGRO_DISPLAY *d);
-      
+
    void (*set_display_option)(ALLEGRO_DISPLAY *display, int option, int val);
 
    void (*clear_depth_buffer)(ALLEGRO_DISPLAY *display, float x);
    void (*update_render_state)(ALLEGRO_DISPLAY *display);
-   
+
    char *(*get_clipboard_text)(ALLEGRO_DISPLAY *display);
    bool  (*set_clipboard_text)(ALLEGRO_DISPLAY *display, const char *text);
    bool  (*has_clipboard_text)(ALLEGRO_DISPLAY *display);

@@ -160,13 +160,13 @@ static void joy_null(ALLEGRO_JOYSTICK_OSX *joy)
 
    // NULL the parent
    for (i = 0; i < _AL_MAX_JOYSTICK_BUTTONS; i++) {
-   	joy->parent.info.button[i].name = NULL;
+      joy->parent.info.button[i].name = NULL;
    }
    for (i = 0; i < _AL_MAX_JOYSTICK_STICKS; i++) {
-   	joy->parent.info.stick[i].name = NULL;
-	for (j = 0; j < _AL_MAX_JOYSTICK_AXES; j++) {
-		joy->parent.info.stick[i].axis[j].name = NULL;
-	}
+      joy->parent.info.stick[i].name = NULL;
+      for (j = 0; j < _AL_MAX_JOYSTICK_AXES; j++) {
+         joy->parent.info.stick[i].axis[j].name = NULL;
+      }
    }
 }
 
@@ -761,7 +761,7 @@ static bool reconfigure_joysticks(void)
                al_free(joy->parent.info.stick[i].axis[j].name);
             }
          }
-	      joy_null(joy);
+         joy_null(joy);
          memset(joy->buttons, 0, _AL_MAX_JOYSTICK_BUTTONS*sizeof(IOHIDElementRef));
          memset(&joy->state, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
          joy->dpad=0;
@@ -838,10 +838,10 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void);
 ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
 {
    if (floor(NSAppKitVersionNumber) >= NSAppKitVersionNumber10_5) {
-   	return _al_osx_get_joystick_driver_10_5();
+      return _al_osx_get_joystick_driver_10_5();
    }
    else {
-   	return _al_osx_get_joystick_driver_10_4();
+      return _al_osx_get_joystick_driver_10_4();
    }
 }
 

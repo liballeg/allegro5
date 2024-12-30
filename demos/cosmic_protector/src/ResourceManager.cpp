@@ -8,11 +8,11 @@ ResourceManager& ResourceManager::getInstance(void)
       rm = new ResourceManager();
    return *rm;
 }
- 
+
 void ResourceManager::destroy(void)
 {
    std::vector<Resource*>::reverse_iterator it;
-  
+
    for (it = resources.rbegin(); it != resources.rend(); it++) {
       Resource* r = *it;
       r->destroy();

@@ -1,44 +1,44 @@
 /*
 
-	QuadTree.c
-	==========
+   QuadTree.c
+   ==========
 
-	A quad tree is a hierarchical tree based structure. For further information
-	on quad trees see http://en.wikipedia.org/wiki/Quadtree
+   A quad tree is a hierarchical tree based structure. For further information
+   on quad trees see http://en.wikipedia.org/wiki/Quadtree
 
-	In this code, every node has a pointer named 'Children' which is either NULL
-	or points to an array of four children. The children are indexed as follows:
+   In this code, every node has a pointer named 'Children' which is either NULL
+   or points to an array of four children. The children are indexed as follows:
 
-		0 - top left
-		1 - top right
-		2 - bottom left
-		3 - bottom right
+      0 - top left
+      1 - top right
+      2 - bottom left
+      3 - bottom right
 
-	This allows indexing according to a simple bitwise calculation:
+   This allows indexing according to a simple bitwise calculation:
 
-		childnum = 0;
-		if(x > midpoint) childnum |= 1;
-		if(y > midpoint) childnum |= 2;
+      childnum = 0;
+      if(x > midpoint) childnum |= 1;
+      if(y > midpoint) childnum |= 2;
 
-	The QuadTreeNode structs look like this:
+   The QuadTreeNode structs look like this:
 
-		struct QuadTreeNode
-		{
-			struct BoundingBox Bounder;
+      struct QuadTreeNode
+      {
+         struct BoundingBox Bounder;
 
-			int NumContents;
-			struct Container *Contents;
+         int NumContents;
+         struct Container *Contents;
 
-			struct QuadTreeNode *Children;
-		};
+         struct QuadTreeNode *Children;
+      };
 
-	BoundingBox is the axis aligned bounding box for the region of space
-	covered, NumContents is a count of the number of items contained in the
-	linked list 'Contents'. It is redundant but convenient.
-	
-	'Children' is as explained above - NULL if this is a leaf node, otherwise
-	a pointer to an array of four QuadTreeNode structs that subdivide the area
-	of this node.
+   BoundingBox is the axis aligned bounding box for the region of space
+   covered, NumContents is a count of the number of items contained in the
+   linked list 'Contents'. It is redundant but convenient.
+
+   'Children' is as explained above - NULL if this is a leaf node, otherwise
+   a pointer to an array of four QuadTreeNode structs that subdivide the area
+   of this node.
 */
 
 #include <allegro5/allegro_primitives.h>
@@ -47,18 +47,18 @@
 
 /*
 
-	CentreX and CentreY are macros that evaluate to the centre point of the
-	bounding box b
+   CentreX and CentreY are macros that evaluate to the centre point of the
+   bounding box b
 
 */
 #define CentreX(b) (((b)->TL.Pos[0]+(b)->BR.Pos[0]) * 0.5f)
 #define CentreY(b) (((b)->TL.Pos[1]+(b)->BR.Pos[1]) * 0.5f)
-#define ERROR_BOUNDARY	2
+#define ERROR_BOUNDARY        2
 
 /*
 
-	GetChild. Returns the child index for a point (qx, qy) in the bounding box
-	b. Uses the logic expressed in the comments at the top of this file
+   GetChild. Returns the child index for a point (qx, qy) in the bounding box
+   b. Uses the logic expressed in the comments at the top of this file
 
 */
 static int GetChild(struct BoundingBox *b, double qx, double qy)
@@ -74,8 +74,8 @@ static int GetChild(struct BoundingBox *b, double qx, double qy)
 
 /*
 
-	Get[X1/2]/[Y1/2] - if passed a child id and the bounding box of the parent,
-	these return the corresponding co-ordinate of the child
+   Get[X1/2]/[Y1/2] - if passed a child id and the bounding box of the parent,
+   these return the corresponding co-ordinate of the child
 
 */
 static double GetX1(int child, struct BoundingBox *b)
@@ -97,18 +97,18 @@ static double GetY2(int child, struct BoundingBox *b)
 
 /*
 
-	ToggleChildPtr[X/Y] relate to the way movement is handled by the physics
-	code. They use a continuous time method (see Physics.c for more details),
-	which means that they need to be able to calculate when a travelling point
-	will leave a quad tree node.
+   ToggleChildPtr[X/Y] relate to the way movement is handled by the physics
+   code. They use a continuous time method (see Physics.c for more details),
+   which means that they need to be able to calculate when a travelling point
+   will leave a quad tree node.
 
-	Because there may be rounding errors close to the border, the function for
-	obtaining collision edges inspects velocity to determine which child a
-	point near the boundary is actually interested in.
-	
-	For that purpose, ToggleChildPtr[X/Y] affect which child is looked at
-	according to velocity. If the point is heading right it wants the right
-	hand side child, if it is heading down it wants the lower child, etc.
+   Because there may be rounding errors close to the border, the function for
+   obtaining collision edges inspects velocity to determine which child a
+   point near the boundary is actually interested in.
+
+   For that purpose, ToggleChildPtr[X/Y] affect which child is looked at
+   according to velocity. If the point is heading right it wants the right
+   hand side child, if it is heading down it wants the lower child, etc.
 
 */
 static int ToggleChildPtrY(double yvec, int oldchild)
@@ -129,24 +129,24 @@ static int ToggleChildPtrX(double xvec, int oldchild)
 
 /*
 
-	Separated does a test on two bounding boxes to determine whether they
-	overlap - returning true if they don't and false if they do.
-	
-	It achieves this using the 'separating planes' algorithm, which is a general
-	case test that can be expressed very simply for boxes. If the leftmost point
-	of one box is to the right of the rightmost point of the other then they
-	must not overlap.
+   Separated does a test on two bounding boxes to determine whether they
+   overlap - returning true if they don't and false if they do.
 
-	Ditto for the topmost point of one versus the bottommost of the other and 
-	all variations on those tests.
+   It achieves this using the 'separating planes' algorithm, which is a general
+   case test that can be expressed very simply for boxes. If the leftmost point
+   of one box is to the right of the rightmost point of the other then they
+   must not overlap.
 
-	These tests will catch all possible ways in which two boxes DO NOT
-	overlap. Therefore the only possible conclusion if they all fail is that the
-	boxes DO overlap.
+   Ditto for the topmost point of one versus the bottommost of the other and
+   all variations on those tests.
 
-	A small error boundary in which non-overlapping objects are returned as
-	overlapping anyway is coded here so that we don't get rounding problems
-	when doing collisions near the edge of a node
+   These tests will catch all possible ways in which two boxes DO NOT
+   overlap. Therefore the only possible conclusion if they all fail is that the
+   boxes DO overlap.
+
+   A small error boundary in which non-overlapping objects are returned as
+   overlapping anyway is coded here so that we don't get rounding problems
+   when doing collisions near the edge of a node
 
 */
 static int Separated(struct BoundingBox *a, struct BoundingBox *b)
@@ -166,14 +166,14 @@ static int Separated(struct BoundingBox *a, struct BoundingBox *b)
 
 /*
 
-	GENERIC QUAD TREE FUNCTIONS
+   GENERIC QUAD TREE FUNCTIONS
 
 */
 
 /*
 
-	SetupQuadTree just initiates a QuadTreeNode struct, filling its bounding
-	box appropriately and setting it up to have no contents and no children
+   SetupQuadTree just initiates a QuadTreeNode struct, filling its bounding
+   box appropriately and setting it up to have no contents and no children
 
 */
 void SetupQuadTree(struct QuadTreeNode *Tree, int x1, int y1, int x2, int y2)
@@ -190,8 +190,8 @@ void SetupQuadTree(struct QuadTreeNode *Tree, int x1, int y1, int x2, int y2)
 
 /*
 
-	FreeQuadTree frees all the memory malloc'd to a QuadTree. It calls itself
-	recursively for any children
+   FreeQuadTree frees all the memory malloc'd to a QuadTree. It calls itself
+   recursively for any children
 
 */
 void FreeQuadTree(struct QuadTreeNode *Tree)
@@ -201,7 +201,7 @@ void FreeQuadTree(struct QuadTreeNode *Tree)
 
    /*
 
-      if this node has children then free them
+   if this node has children then free them
 
     */
    if (Tree->Children) {
@@ -223,17 +223,17 @@ void FreeQuadTree(struct QuadTreeNode *Tree)
 
 /*
 
-	AddContent adds new content to a QuadTreeNode. The basic steps are these:
+   AddContent adds new content to a QuadTreeNode. The basic steps are these:
 
-		1. does the new content fit into the space covered by this node? If not,
-		reject it
+      1. does the new content fit into the space covered by this node? If not,
+      reject it
 
-		2. is this node subdivided? If so then pass the new content to the
-		children to deal with. If not then insert at this node
+      2. is this node subdivided? If so then pass the new content to the
+      children to deal with. If not then insert at this node
 
-		3. if inserted at this node, have we now hit the limit for items
-		storable at any node? If so, subdivide and pass all contents that were
-		stored here to the children
+      3. if inserted at this node, have we now hit the limit for items
+      storable at any node? If so, subdivide and pass all contents that were
+      stored here to the children
 
 */
 static void AddContent(struct QuadTreeNode *Tree, struct Container *NewContent,
@@ -320,15 +320,15 @@ static void AddContent(struct QuadTreeNode *Tree, struct Container *NewContent,
 
 /*
 
-	STUFF FOR DEALING WITH 'EDGES'
+   STUFF FOR DEALING WITH 'EDGES'
 
 */
 
 
 /*
 
-	GetNode returns the leaf node that a point is currently in from
-	the edge tree, for collisions & physics
+   GetNode returns the leaf node that a point is currently in from
+   the edge tree, for collisions & physics
 
 */
 static struct QuadTreeNode *GetNode(struct QuadTreeNode *Ptr, double *pos, double *vec)
@@ -367,7 +367,7 @@ struct QuadTreeNode *GetCollisionNode(struct Level *lvl, double *pos,
 
 /*
 
-	STUFF FOR DEALING WITH 'TRIANGLES'
+   STUFF FOR DEALING WITH 'TRIANGLES'
 
 */
 
@@ -383,7 +383,7 @@ static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
 
 /*
 
-	DrawTriEdge is a drawing function that adds a textured edge to a triangle
+   DrawTriEdge is a drawing function that adds a textured edge to a triangle
 
 */
 static void DrawTriEdge(struct Triangle *tri, struct BoundingBox *ScrBounder)
@@ -426,15 +426,15 @@ static void setuv(ALLEGRO_VERTEX *v, struct BoundingBox *ScrBounder)
 {
    v->u = v->x + ScrBounder->TL.Pos[0];
    v->v = v->y + ScrBounder->TL.Pos[1];
-   
+
    v->z = 0;
    v->color = al_map_rgb_f(1, 1, 1);
 }
 
 /*
 
-	DrawTriangle is a drawing function that draws a triangle with a textured
-	fill
+   DrawTriangle is a drawing function that draws a triangle with a textured
+   fill
 
 */
 static void DrawTriangle(struct Triangle *tri,
@@ -462,7 +462,7 @@ static void DrawTriangle(struct Triangle *tri,
 
 /*
 
-	DrawObject is a drawing function that draws an object (!)
+   DrawObject is a drawing function that draws an object (!)
 
 */
 static void DrawObject(struct Object *obj,
@@ -491,40 +491,40 @@ static void DrawObject(struct Object *obj,
 
 /*
 
-	DrawTriangleTree does the 'hard' work of actually drawing the contents of a
-	quad tree. If you've understood how the quad tree is made up and works from
-	all the other comments in this file then it is very straightforward and easy
-	to follow.
+   DrawTriangleTree does the 'hard' work of actually drawing the contents of a
+   quad tree. If you've understood how the quad tree is made up and works from
+   all the other comments in this file then it is very straightforward and easy
+   to follow.
 
-	The only point of interest here is 'framec' - an integer that identifies the
-	current frame.
+   The only point of interest here is 'framec' - an integer that identifies the
+   current frame.
 
-	The problem that necessitates it is that a single screen may cover multiple
-	leaf nodes, and that some triangles may be present in more than one of those
-	nodes. We don't want to expend energy drawing those triangles twice.
+   The problem that necessitates it is that a single screen may cover multiple
+   leaf nodes, and that some triangles may be present in more than one of those
+   nodes. We don't want to expend energy drawing those triangles twice.
 
-	To resolve this, every triangle keeps a note of the frame in which it was
-	last drawn. If that frame is not this frame then it is drawn and that note
-	is updated.
+   To resolve this, every triangle keeps a note of the frame in which it was
+   last drawn. If that frame is not this frame then it is drawn and that note
+   is updated.
 
-	The 'clever' thing about this is that it kills the overdraw without any per
-	frame seeding of triangles. The disadvantage is that any triangle which
-	doesn't appear on screen for exactly as long as it takes the framec integer
-	to overflow then does will not be drawn for one frame.
+   The 'clever' thing about this is that it kills the overdraw without any per
+   frame seeding of triangles. The disadvantage is that any triangle which
+   doesn't appear on screen for exactly as long as it takes the framec integer
+   to overflow then does will not be drawn for one frame.
 
-	Assuming 100 fps and a 32bit CPU, this bug can in the unlikely situation
-	that it does occur, only happen after approximately 1.36 years of
-	continuous gameplay. It is therefore submitted that it shouldn't be of high
-	concern!
+   Assuming 100 fps and a 32bit CPU, this bug can in the unlikely situation
+   that it does occur, only happen after approximately 1.36 years of
+   continuous gameplay. It is therefore submitted that it shouldn't be of high
+   concern!
 
-	Calculations:
-	
-		2^32 = 4,294,967,296
-		/100 = 4,294,967.296 seconds
-		/60 = 715,827.883 minutes
-		/60 = 11,930.465 hours
-		/24 = 497.103 days
-		/365.25 = 1.36 years
+   Calculations:
+
+      2^32 = 4,294,967,296
+      /100 = 4,294,967.296 seconds
+      /60 = 715,827.883 minutes
+      /60 = 11,930.465 hours
+      /24 = 497.103 days
+      /365.25 = 1.36 years
 
 */
 static void GetQuadTreeVisibilityList(struct QuadTreeNode *TriTree,
@@ -630,17 +630,17 @@ void EndQuadTreeDraw(struct Level *Lvl,
 
 /*
 
-	FUNCTIONS FOR ADDING CONTENT
+   FUNCTIONS FOR ADDING CONTENT
 
 */
-#define MAX_COLL		200
-#define MAX_DISP		50
+#define MAX_COLL                200
+#define MAX_DISP                50
 
 /*
 
-	AddTriangle and AddEdge are both very similar indeed and just package the
-	new triangle or edge into a 'Container' so that the AddContent function
-	knows how to deal with them in a unified manner.
+   AddTriangle and AddEdge are both very similar indeed and just package the
+   new triangle or edge into a 'Container' so that the AddContent function
+   knows how to deal with them in a unified manner.
 
 */
 
@@ -680,9 +680,9 @@ void AddObject(struct Level *level, struct Object *NewObject, int DisplayTree)
 
 /*
 
-	OrderTree sorts the items stored within Tree so that their lists
-	consist of all their non-objects (i.e. triangles or edges) first
-	followed by all of their objects.
+        OrderTree sorts the items stored within Tree so that their lists
+        consist of all their non-objects (i.e. triangles or edges) first
+        followed by all of their objects.
 
 */
 void SplitTree(struct QuadTreeNode *Tree)

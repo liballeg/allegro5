@@ -726,7 +726,7 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
           * format. We use glReadPixels when we lock the screen, so
           * we can always lock the screen in any format we want. There
           * is no "display format".
-          * 
+          *
           * Therefore it makes no sense to fail display creation
           * if either an RGB or RGBX format was requested but the
           * other seems available only in WGL/GLX (those really report
@@ -869,31 +869,31 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
          al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 5, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   11, importance);      
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   11, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_RGBA_5551:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
          al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  1, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 6, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   11, importance);      
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   11, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_ARGB_1555:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 15, importance);
          al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 5, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   10, importance);      
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   10, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 12, importance);
          al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 4, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   8, importance);      
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   8, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
          al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  4, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   12, importance);      
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   12, importance);
       break;
    }
 

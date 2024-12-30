@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
    al_init_font_addon();
    init_platform_specific();
-   
+
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
          al_clear_to_color(al_map_rgba_f(0, 0, 0, 1.0));
          al_draw_textf(font, al_map_rgba_f(1, 1, 0, 1.0), 16, 16, 0,
                        "Amount of CPU cores detected: %d.", al_get_cpu_count());
-         al_draw_textf(font, al_map_rgba_f(0, 1, 1, 1.0), 16, 32, 0, 
+         al_draw_textf(font, al_map_rgba_f(0, 1, 1, 1.0), 16, 32, 0,
                        "Size of random access memory: %d MiB.", al_get_ram_size());
          al_flip_display();
          redraw = false;

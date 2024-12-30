@@ -132,7 +132,7 @@ void _al_xml_parse(ALLEGRO_FILE *f,
       }
       add_char(x, c);
    }
-   
+
    al_fclose(f);
    al_ustr_free(x->value);
 }

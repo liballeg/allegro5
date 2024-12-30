@@ -49,12 +49,12 @@ int main(int argc, char **argv)
    font = al_create_builtin_font();
    white = al_map_rgb_f(1, 1, 1);
 
-   while (1) {      
+   while (1) {
       if (redraw && al_is_event_queue_empty(event_queue)) {
          int th = al_get_font_line_height(font);
-         
+
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
-         
+
          if (right_button_down) {
             al_draw_line(width / 2, height / 2, fake_x, fake_y,
                al_map_rgb_f(1, 0, 0), 1);
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
             al_draw_line(fake_x, fake_y - 5, fake_x, fake_y + 5,
                al_map_rgb_f(1, 1, 1), 2);
          }
-         
+
          al_draw_textf(font, white, 0, 0, 0, "x: %i y: %i dx: %i dy %i",
             event.mouse.x, event.mouse.y,
             event.mouse.dx, event.mouse.dy);
