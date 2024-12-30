@@ -25,7 +25,7 @@ endfunction()
 # ALLEGRO_CFG_IIO_SUPPORT_* are the supported formats.
 
 # First look for native libraries and mark any supported image
-# type as found, so that the associated third party libraries 
+# type as found, so that the associated third party libraries
 # don't need to be used.
 
 if(WANT_NATIVE_IMAGE_LOADER)
@@ -66,7 +66,7 @@ if(WANT_NATIVE_IMAGE_LOADER)
             endif(MINGW)
             list(APPEND IMAGE_DEFINES ${GDIPLUS_DEFINITIONS})
             list(APPEND IMAGE_INCLUDE_DIRECTORIES ${GDIPLUS_INCLUDE_DIR})
-            include_directories(SYSTEM ${GDIPLUS_INCLUDE_DIR})            
+            include_directories(SYSTEM ${GDIPLUS_INCLUDE_DIR})
         else(SUPPORT_GDIPLUS)
             message("WARNING: cannot use GDI+. Will try other libraries.")
         endif(SUPPORT_GDIPLUS)

@@ -6,12 +6,12 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-On Windows there are two joystick drivers, a DirectInput one and an Xinput 
+On Windows there are two joystick drivers, a DirectInput one and an Xinput
 one. If support for XInput was compiled in, then it can be enabled by
-calling al_set_config_value(al_get_system_config(), "joystick", "driver", 
+calling al_set_config_value(al_get_system_config(), "joystick", "driver",
 "xinput") before calling al_install_joystick, or by setting the same
-option in the allegro5.cfg configuration file. The Xinput and DirectInput 
-drivers are mutually exclusive. The haptics subsystem will use the 
+option in the allegro5.cfg configuration file. The Xinput and DirectInput
+drivers are mutually exclusive. The haptics subsystem will use the
 same driver as the joystick system does.
 
 ## API: ALLEGRO_JOYSTICK

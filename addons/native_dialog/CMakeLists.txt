@@ -65,7 +65,7 @@ if(SUPPORT_NATIVE_DIALOG)
        allegro5/internal/aintern_native_dialog_cfg.h.cmake
        ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_native_dialog_cfg.h
        )
-   
+
    include_directories(SYSTEM ${NATIVE_DIALOG_INCLUDE_DIRECTORIES})
 
    # Note: allegro_dialog NOT allegro_native_dialog.

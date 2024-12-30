@@ -237,7 +237,7 @@ See also: [al_destroy_sample], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
 Loads a few different audio file formats based on their extension.
 
 Note that this stores the entire file in memory at once, which
-may be time consuming.  To read the file as it is needed, 
+may be time consuming.  To read the file as it is needed,
 use [al_load_audio_stream] or [al_play_audio_stream].
 
 Returns the sample on success, NULL on failure.
@@ -255,7 +255,7 @@ The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
 Note that this stores the entire file in memory at once, which
-may be time consuming.  To read the file as it is needed, 
+may be time consuming.  To read the file as it is needed,
 use [al_load_audio_stream_f] or [al_play_audio_stream_f].
 
 Returns the sample on success, NULL on failure.
@@ -1248,7 +1248,7 @@ See also: [al_init_acodec_addon], [al_identify_sample], [al_register_sample_iden
 ## Audio recording
 
 Allegro's audio recording routines give you real-time access to raw,
-uncompressed audio input streams. Since Allegro hides all of the 
+uncompressed audio input streams. Since Allegro hides all of the
 platform specific implementation details with its own buffering, it will
 add a small amount of latency. However, for most applications that small
 overhead will not adversely affect performance.
@@ -1259,7 +1259,7 @@ yet supported.
 
 ### API: ALLEGRO_AUDIO_RECORDER
 
-An opaque datatype that represents a recording device. 
+An opaque datatype that represents a recording device.
 
 Since: 5.1.1
 
@@ -1291,7 +1291,7 @@ recording device.)
 
 Allegro will internally buffer several seconds of captured audio with minimal
 latency. (XXX: These settings need to be exposed via config or API calls.)
-Audio will be copied out of that private buffer into a fragment buffer 
+Audio will be copied out of that private buffer into a fragment buffer
 of the size specified by the samples parameter. Whenever a new fragment is
 ready an event will be generated.
 

@@ -19,7 +19,7 @@ Install the SDK
 
 
 The most simple way is to install Android Studio which by default will
-place a copy of the SDK into ~/Android/Sdk. 
+place a copy of the SDK into ~/Android/Sdk.
 
 Alternatively you can also download the command-line SDK tools. In that
 case you will have to accept the licenses, for example like this:

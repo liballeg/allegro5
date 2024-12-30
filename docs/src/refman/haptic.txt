@@ -7,9 +7,9 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
-Currently force feedback is fully supported on Linux and on Windows for 
+Currently force feedback is fully supported on Linux and on Windows for
 DirectInput compatible devices. There is also minimal support for
-Android. It is not yet supported on OSX, iOS, or on Windows for XInput 
+Android. It is not yet supported on OSX, iOS, or on Windows for XInput
 compatible devices.
 
 ## API: ALLEGRO_HAPTIC
@@ -108,9 +108,9 @@ direction
     In Allegro's coordinate system, the value in `direction.angle` determines
     the planar angle between the effect and the direction of the user who
     holds the device, expressed in radians. This angle increases clockwise
-    away from the user. So, an effect with an angle 0.0 takes place in the 
+    away from the user. So, an effect with an angle 0.0 takes place in the
     direction of the user of the haptic device, an angle of π/2 is
-    to the left of the user, an angle of π means the direction away from 
+    to the left of the user, an angle of π means the direction away from
     the user, and an angle of 3π/2 means to the right of the user.
 
     If [al_get_haptic_capabilities] has the flag ALLEGRO_HAPTIC_ANGLE set,
@@ -131,8 +131,8 @@ direction
     The value in `direction.azimuth` determines the elevation angle between
     the effect and the plane in which the user is holding the device,
     expressed in radians. An effect with an azimuth 0.0 plays back in the
-    plane in which the user is holding the device, an azimuth +π/2 means 
-    the effect plays back vertically above the user plane, and an azimuth 
+    plane in which the user is holding the device, an azimuth +π/2 means
+    the effect plays back vertically above the user plane, and an azimuth
     -π/2 means the effect plays back vertically below the user plane.
 
     If [al_get_haptic_capabilities] has the flag ALLEGRO_HAPTIC_AZIMUTH set,
@@ -275,9 +275,9 @@ Installs the haptic (force feedback) device subsystem. This must be called
 before using any other haptic-related functions. Returns true if the haptics
 subsystem could be initialized correctly, false in case of error.
 
-For portability you should first open a display before calling 
-[al_install_haptic]. On some platforms, such as DirectInput under 
-Windows, [al_install_haptic] will only work if at least one active 
+For portability you should first open a display before calling
+[al_install_haptic]. On some platforms, such as DirectInput under
+Windows, [al_install_haptic] will only work if at least one active
 display is available. This display must stay available until
 [al_uninstall_haptic] is called.
 
@@ -416,7 +416,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 Releases the haptic device and its resources when it's not needed anymore.
 Should also be used in case the joystick configuration changed, such as when
-a joystick is hot plugged. This function also automatically releases all 
+a joystick is hot plugged. This function also automatically releases all
 haptic effects that are still uploaded to the device and that have not been
 released manually using [al_release_haptic_effect].
 
@@ -451,8 +451,8 @@ exposed features across all of the platforms. Awaiting feedback from users.
 ## API: al_is_haptic_capable
 
 Returns true if the haptic device supports the feature indicated by
-the query parameter, false if the feature is not supported. 
-The query parameter must be one of the values of [ALLEGRO_HAPTIC_CONSTANTS]. 
+the query parameter, false if the feature is not supported.
+The query parameter must be one of the values of [ALLEGRO_HAPTIC_CONSTANTS].
 
 Since: 5.1.9
 
@@ -493,15 +493,15 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_set_haptic_autocenter
 
-Turns on or off the automatic centering feature of the haptic device if 
-supported. Depending on the device automatic centering may ensure that the 
+Turns on or off the automatic centering feature of the haptic device if
+supported. Depending on the device automatic centering may ensure that the
 axes of the device are centered again automatically after playing
-a haptic effect. The intensity parameter should be passed with a value 
-between 0.0 and 1.0. The value 0.0 means automatic centering is 
+a haptic effect. The intensity parameter should be passed with a value
+between 0.0 and 1.0. The value 0.0 means automatic centering is
 disabled, and 1.0 means full strength automatic centering. Any value
-in between those two extremes will result in partial automatic 
-centering. Some platforms do not support partial automatic 
-centering. If that is the case, a value of less than 0.5 will turn 
+in between those two extremes will result in partial automatic
+centering. Some platforms do not support partial automatic
+centering. If that is the case, a value of less than 0.5 will turn
 it off, while a value equal to or higher to 0.5 will turn it on.
 Returns true if set successfully, false if not.
 Can only work if [al_get_haptic_capabilities] returns a value that has
@@ -515,17 +515,17 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_get_haptic_autocenter
 
-Returns the current automatic centering intensity of the device. 
-Depending on the device automatic centering may ensure that the 
+Returns the current automatic centering intensity of the device.
+Depending on the device automatic centering may ensure that the
 axes of the device are centered again automatically after playing
-a haptic effect. The return value can be between 0.0 and 1.0. 
-The value 0.0 means automatic centering is disabled, and 1.0 means 
+a haptic effect. The return value can be between 0.0 and 1.0.
+The value 0.0 means automatic centering is disabled, and 1.0 means
 automatic centering is enabled at full strength. Any value
-in between those two extremes means partial automatic 
-centering is enabled. Some platforms do not support partial automatic 
-centering. If that is the case, a value of less than 0.5 means it is turned 
+in between those two extremes means partial automatic
+centering is enabled. Some platforms do not support partial automatic
+centering. If that is the case, a value of less than 0.5 means it is turned
 off, while a value equal to or higher to 0.5 means it is turned on.
-Can only work if [al_get_haptic_capabilities] returns a 
+Can only work if [al_get_haptic_capabilities] returns a
 value that has [ALLEGRO_HAPTIC_AUTOCENTER][ALLEGRO_HAPTIC_CONSTANTS]
 set. If not, this function returns 0.0.
 
@@ -537,7 +537,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 ## API: al_get_max_haptic_effects
 
 Returns the maximum amount of haptic effects that can be uploaded to the
-device.  This depends on the operating system, driver, platform and the 
+device.  This depends on the operating system, driver, platform and the
 device itself. This may return a value as low as 1.
 
 Since: 5.1.8
@@ -561,7 +561,7 @@ Uploads the haptic effect to the device.  The haptic effect must have been
 filled in completely and correctly.  You must also pass in a pointer to a
 user allocated [ALLEGRO_HAPTIC_EFFECT_ID].  This `id` can be used to control
 playback of the effect.  Returns true if the effect was successfully uploaded,
-false if not. 
+false if not.
 
 The function [al_get_max_haptic_effects] returns how many effects can
 be uploaded to the device at the same time.
@@ -595,13 +595,13 @@ exposed features across all of the platforms. Awaiting feedback from users.
 ## API: al_upload_and_play_haptic_effect
 
 Uploads the haptic effect to the device and starts playback immediately. Returns
-true if the upload and playback were successful, false if either failed. 
+true if the upload and playback were successful, false if either failed.
 
-In case false is returned, the haptic effect will be automatically 
-released as if [al_release_haptic_effect] had been called, so there 
-is no need to call it again manually in this case. However, 
+In case false is returned, the haptic effect will be automatically
+released as if [al_release_haptic_effect] had been called, so there
+is no need to call it again manually in this case. However,
 if true is returned, it is necessary to call [al_release_haptic_effect]
-when the effect isn't needed anymore, to prevent the amount of available 
+when the effect isn't needed anymore, to prevent the amount of available
 effects on the haptic devicefrom running out.
 
 Since: 5.1.8
@@ -637,8 +637,8 @@ exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_get_haptic_effect_duration
 
-Returns the estimated duration in seconds of a single loop of the given haptic 
-effect. The effect's `effect.replay` must have been filled in correctly 
+Returns the estimated duration in seconds of a single loop of the given haptic
+effect. The effect's `effect.replay` must have been filled in correctly
 before using this function.
 
 Since: 5.1.9
@@ -649,14 +649,14 @@ exposed features across all of the platforms. Awaiting feedback from users.
 ## API: al_release_haptic_effect
 
 Releases a previously uploaded haptic effect from the device it has been
-uploaded to, allowing for other effects to be uploaded. The play_id must be 
+uploaded to, allowing for other effects to be uploaded. The play_id must be
 a valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
 [al_upload_and_play_haptic_effect] or [al_rumble_haptic].
 
-This function is called automatically when you call [al_release_haptic] 
+This function is called automatically when you call [al_release_haptic]
 on a [ALLEGRO_HAPTIC] for all effects that are still uploaded to the device.
 Therefore this function is most useful if you want to upload and release
-haptic effects dynamically, for example as a way to circumvent the limit 
+haptic effects dynamically, for example as a way to circumvent the limit
 imposed by [al_get_max_haptic_effects].
 
 Returns true on success, false if the effect couldn't be released for any
@@ -680,11 +680,11 @@ You must also pass in a pointer to a user allocated
 control playback of the effect.  Returns true if the rumble effect was
 successfully uploaded and started, false if not.
 
-In case false is returned, the rumble effect will be automatically 
-released as if [al_release_haptic_effect] had been called, so there 
-is no need to call it again manually in this case. However, 
+In case false is returned, the rumble effect will be automatically
+released as if [al_release_haptic_effect] had been called, so there
+is no need to call it again manually in this case. However,
 if true is returned, it is necessary to call [al_release_haptic_effect]
-when the effect isn't needed anymore, to prevent the amount of available 
+when the effect isn't needed anymore, to prevent the amount of available
 effects on the haptic device from running out.
 
 Since: 5.1.8

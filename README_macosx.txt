@@ -2,7 +2,7 @@ Mac OS X-specific notes
 =======================
 
 Building Allegro on Mac OS X is the same as on other Unix-like operating systems.
-See README_make.txt.  
+See README_make.txt.
 
 Building with Xcode
 -------------------
@@ -17,7 +17,7 @@ Using the Clang compiler (OS X 10.6+)
 -------------------------------------
 
 It is possible to build Allegro using the Clang compiler that ships with OS
-X 10.6 (Snow Leopard). Clang is installed in /Developer/usr/bin. 
+X 10.6 (Snow Leopard). Clang is installed in /Developer/usr/bin.
 To use it, you have to tell Cmake to use Clang instead of gcc. From the
 terminal, this is most easily accomplished by the commands
 

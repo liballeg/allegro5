@@ -83,7 +83,7 @@ Contributors
 
    Arne Steinarson (<email>arst@ludd.luth.se</a>).<br>
    The fixed point square root routine came from his fix-float library.
-   
+
    Arthur Huillet (email unknown).<br>
    Fixed a typo in the docs.
 
@@ -110,7 +110,7 @@ Contributors
    Wrote the initial version of the fullscreen X-Windows graphics driver.
 
    Benny Colyn (email unknown).<br>
-   Added a Dutch translation. 
+   Added a Dutch translation.
 
    Bertrand Coconnier (<email>bcoconni@club-internet.fr</a>).<br>
    Modified 3D polygones routines for subpixel and subtexel accuracy, made
@@ -157,7 +157,7 @@ Contributors
    Charles Bilyue (<email>Esaelon@aol.com</a>).<br>
    Optimized the i386 blitters and suggested to not force yielding timeslice
    with non-blocking menus.
-   
+
    Charles Wardlaw (<email>kattkieru@yahoo.com</a>).<br>
    Fixed warnings with gcc 4 on MacOS X and helped resolve a problem with
    setAppleMenu under Tiger.
@@ -185,7 +185,7 @@ Contributors
    Wrote the fixed point clip3d() function, improved the performance of the
    DIGMID driver, implemented the digmid_set_pan function, rewrote part of
    the Allegro mixer, made the Allegro mixer the default one in Windows,
-   improved the threaded UNIX timer code, helped improve responsiveness under 
+   improved the threaded UNIX timer code, helped improve responsiveness under
    X11, tweaked tests/play.c, added drawing primitives and video bitmap locking
    to the X11 port and did plenty of other things too.
 
@@ -205,7 +205,7 @@ Contributors
    Daniel Schlyder (<email>daniel@bitblaze.com</a>).<br>
    Fixed problems with get_executable_name() under Windows, another one with
    set_window_title() under BeOS, potentially unsafe constructs in the
-   Windows code, the installall makefile target under Windows, added 
+   Windows code, the installall makefile target under Windows, added
    set_allegro_resource_path(), fixed make uninstall with mingw make,
    added ALLEGRO_LIB_BUILD flag for gcc variants not using configure,
    fixed a bunch of warnings in MinGW and did plenty of other things too.
@@ -223,7 +223,7 @@ Contributors
    mouse clicks, made d_menu_proc() steal/return focus when activated then
    deactivated, fixed a problem with submenus, fixed a bug with FLI frames
    containing odd-sized chunks, made makedoc write sub-section headings
-   for .txt output, made override_config_file also be used for writing to 
+   for .txt output, made override_config_file also be used for writing to
    the config file and did plenty of other things too.
 
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
@@ -244,7 +244,7 @@ Contributors
 
    Deepak T (<email>coolbool@gmx.net</a>).<br>
    Fixed clipping in three C sprite drawing routines.
-   
+
    Dennis Busch (email unknown).<br>
    Fixed a bug in d_clear_proc, fixed a Unicode bug in the mode selector,
    and fixed the short description of add_clip_rect.
@@ -392,7 +392,7 @@ Contributors
    extension, fixed a problem where switching to fullscreen mode under X11,
    made digmid work with absolute pathes in patches.cfg, and fixed a problem
    with the Alsa driver on big endian systems.
-   
+
    Harshavardhana Reddy N (<email>nharsha@gmail.com</a>).<br>
    Added a Kannada greeting to exunicod.
 
@@ -418,9 +418,9 @@ Contributors
    VESA, VBE/AF and DirectX drivers for a list of possible GFX modes,
    rewrote the mode-selector to use get_gfx_mode_list(), reworked the build
    system many times and did plenty of other things too.
-   
+
    Hrvoje Ban (<email>spoofer255@gmail.com</a>).<br>
-   Pointed out a bug in the mode selector, fixed several double ;'s, fixed 
+   Pointed out a bug in the mode selector, fixed several double ;'s, fixed
    ASSERT() in Windows, helped write a documentation section about common
    pitfalls, and added the create_datafile_index function.
 
@@ -438,10 +438,10 @@ Contributors
    Ivan Baldo (<email>lubaldo@adinet.com.uy</a>).<br>
    Wrote the 15/16 bit dithering code and optimised the sprite rotation
    routines.
-   
+
    Jaime Moreno (<email>daviangel@hotmail.com</a>).<br>
    Helped track down a problem with dependency generation in MacOS X.
-   
+
    Jakub Wasilewski (<email>krajzega@meditech.pl</a>).<br>
    Fixed a bug when loading greyscale TGA images and contributed to the skater
    demo.
@@ -476,7 +476,7 @@ Contributors
    reports and suggestions for improvement, contributed bidirectional
    looping support, backward playing support and bugfixes for the
    DirectSound driver and did plenty of other things too.
-   
+
    Jeff Mitchell (email unknown).<br>
    Fixed the location of grabber.txt in the spec file.
 
@@ -489,7 +489,7 @@ Contributors
 
    Jim Grainger (<email>Grainger_Jim/world_europe_samuro_WYN-CTV@samsung.co.kr</a>).<br>
    Spotted a broken link in the docs and updated it.
-   
+
    Jiri Gabriel (email unknown).<br>
    fixed loading of multiple ranges in a single bitmap with txt fonts and helped
    fix an off-by-one mistake for the last glyph in extract_font_range.
@@ -516,7 +516,7 @@ Contributors
    framebuffer console driver.
 
    Jon Rafkind (<email>workmin@ccs.neu.edu</a>).<br>
-   Added more ASSERTs to the code, implemented the Cohen-Sutherland clipping 
+   Added more ASSERTs to the code, implemented the Cohen-Sutherland clipping
    algorithm for the line() function and supplied an m4 macro for allegro.
    Also fixed a problem with allegro-config. Implemented draw_sprite_ex()
    function.
@@ -538,14 +538,14 @@ Contributors
 
    Joshua Heyer (<email>joshua_heyer@yahoo.com</a>).<br>
    Wrote the original version of the OSS sound driver.
-   
+
    J. P. Morris (email unknown).<br>
    Fixed a bug rest_callback under unix.
 
    Julien Cugnière (<email>jcugniere@free.fr</a>).<br>
    Improved the support for non-blocking menus, fixed a bug related to the
    retrieval of the inital volume when no primary buffer was present under
-   Windows, fixed the crash on exit with the aRts sound driver, added an 
+   Windows, fixed the crash on exit with the aRts sound driver, added an
    X11 message box for allegro_message under X11 and fixed a crash in the GUI
    when a dialog was opened while a menu was still open.
 
@@ -587,7 +587,7 @@ Contributors
    Contributed the Norwegian message translation.
 
    Lennart Steinke (<email>lst@steinke.net</a>).<br>
-   Added the exconfig example, contributed keyboard layout detection code 
+   Added the exconfig example, contributed keyboard layout detection code
    for Windows and suggested the true colour font rendering.
 
    Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
@@ -739,7 +739,7 @@ Contributors
    Miran Amon (<email>miran.amon@gmail.com</a>).<br>
    Fixed an undocumented arbitrary limit in get_config_argv() and contributed
    to the skater demo.
-          
+
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
    Improved the fire routine in examples/exflame.c (my original version
    didn't really look very much like flames :-) and gave me some extremely
@@ -840,13 +840,13 @@ Contributors
    samples.
 
    Peter Hull (<email>peterhull90@users.sourceforge.net</a>).<br>
-   Made the file selector work with directories that have more than 2048 
-   files, solved some compiling issues on MacOS X, fixed a bug in rest() 
+   Made the file selector work with directories that have more than 2048
+   files, solved some compiling issues on MacOS X, fixed a bug in rest()
    that caused it to wait too long on that platform, fixed several problems
    with the hardware mouse cursor, fixed a deadlock in the software mouse
    updating code, fixed compilation problems under MacOS X tiger, added a
    MacOS X helpfile and did plenty of other things too.
-   
+
    Peter Johansson (email unknown).<br>
    Reported a problem with system cursors not working in Windows.
 
@@ -963,7 +963,7 @@ Contributors
    Sam Hocevar (<email>sam@zoy.org</a>).<br>
    Fixed a Bashism in fix.sh that makes Solaris' sh choke, a race
    condition in the mixer under Unix w/ threads, Windows, BeOS and MacOS X,
-   a crash in makedoc, made it possible to put functions from .s sources 
+   a crash in makedoc, made it possible to put functions from .s sources
    in a shared library under Unix and removed deprecated use of several
    functions.
 
@@ -1000,7 +1000,7 @@ Contributors
    under Solaris, fixed a bug in the keyboard driver that caused crashes on
    the same system, worked around errors with some versions of GNU AS and fixed
    errors in the configure script when not using GCC
-   
+
    StApostol (<email>stapostol@gmail.com</a>).<br>
    Fixed a bug in the exflame example and updated the FAQ to use rest(0) instead
    of yield_timeslice().
@@ -1033,7 +1033,7 @@ Contributors
 
    Stijn Wolters.<br>
    Clarified the documentation of init_dialog.
-   
+
    Sveinung Kvilhaugsvik(email unknown).<br>
    Pointed out that Allegro should respect DESTDIR under MacOS X.
 
@@ -1060,7 +1060,7 @@ Contributors
 
    Thomas Fjellstrom (<email>tfjellstrom@home.com</a>).<br>
    Wrote the ALSA 0.5.x MIDI driver and added support for ALSA 0.9.x.
-   
+
    Thomas Harte (email unknown).<br>
    Helped fix a bug in show_video_bitmap() on MacOS X, helped optimise
    fixmul(), helped find many bugs in the MacOS X port, like better support
@@ -1125,7 +1125,7 @@ Contributors
    Added a Tamil language greeting to exunicode, added switches to use
    the Intel compiler in Windows and added a password option to the Windows
    screensaver example. Also fixed a problem with allegro-config.
-   
+
    Victor Williams Stafusa da Silva (<email>vwss1984@yahoo.com.br</a>).<br>
    Changed a few occurences of "256" to PAL_SIZE and made OS type detection
    handle Windows 2003 and Windows Vista.

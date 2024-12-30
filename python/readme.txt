@@ -17,7 +17,7 @@ Unix: liballegro*.so
 For simplicity we will simply call those files "DLL files".
 
 ## Using it
-  
+
 Distribute the allegro.py as well as the required DLL files along with
 your project. If you want you can modify it to directly point to the
 DLL files so you can be sure they are found. By default, it will try
@@ -89,14 +89,14 @@ Therefore you should do something like this:
 
     class Bitmap:
 
-		def __init__(self, filename):
-			self.c_pointer = al_load_bitmap(filename)
+                def __init__(self, filename):
+                        self.c_pointer = al_load_bitmap(filename)
 
-		def __del__(self):
-			al_destroy_bitmap(self.c_pointer)
-	
-		def draw(self, x, y, flags):
-			al_draw_bitmap(self.c_pointer, x, y, flags);
+                def __del__(self):
+                        al_destroy_bitmap(self.c_pointer)
+
+                def draw(self, x, y, flags):
+                        al_draw_bitmap(self.c_pointer, x, y, flags);
 
 In other words, make a proper Python wrapper.
 

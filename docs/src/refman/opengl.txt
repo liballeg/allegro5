@@ -59,7 +59,7 @@ glMultiTexCoord3fARB = (MULTI_TEX_FUNC) al_get_opengl_proc_address(
                                                         "glMultiTexCoord3fARB");
 ~~~~
 
-If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has 
+If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has
 been defined in the OpenGL core library.
 
 > *Note:* Under Windows, OpenGL functions may need a special calling

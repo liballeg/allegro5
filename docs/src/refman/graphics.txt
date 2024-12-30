@@ -349,7 +349,7 @@ Flags are:
 * ALLEGRO_LOCK_READONLY - The locked region will not be written to. This can
 be faster if the bitmap is a video texture, as it can be discarded after
 the lock instead of uploaded back to the card.
-    
+
 * ALLEGRO_LOCK_WRITEONLY - The locked region will not be read from. This can
 be faster if the bitmap is a video texture, as no data need to be read
 from the video card. You are required to fill in all pixels before
@@ -601,12 +601,12 @@ See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_format]
 Sets the flags to use for newly created bitmaps.
 Valid flags are:
 
-ALLEGRO_MEMORY_BITMAP 
+ALLEGRO_MEMORY_BITMAP
 :   Create a bitmap residing in system memory.
     Operations on, and with, memory bitmaps will not be hardware accelerated.
     However, direct pixel access can be relatively quick compared to video bitmaps,
     which depend on the display driver in use.
-    
+
     *Note*: Allegro's software rendering routines are currently somewhat
     unoptimised.
 
@@ -616,12 +616,12 @@ ALLEGRO_MEMORY_BITMAP
 ALLEGRO_VIDEO_BITMAP
 :   Creates a bitmap that resides in the video card memory. These types of
     bitmaps receive the greatest benefit from hardware acceleration.
-    
+
     *Note*: Creating a video bitmap will fail if there is no current
     display or the current display driver cannot create the bitmap. The
     latter will happen if for example the format or dimensions are not
     supported.
-    
+
     *Note:* Bitmaps created with this flag will be converted to memory
     bitmaps when the last display is destroyed. In most cases it is
     therefore easier to use the ALLEGRO_CONVERT_BITMAP flag instead.
@@ -636,16 +636,16 @@ ALLEGRO_CONVERT_BITMAP
     next time a display is created. They also will remain video bitmaps
     if the last display is destroyed and then another is created again.
     Since 5.1.0.
-    
+
     *Note:* You can combine this flag with ALLEGRO_MEMORY_BITMAP or
     ALLEGRO_VIDEO_BITMAP to force the initial type (and fail in the
     latter case if no video bitmap can be created) - but usually neither
     of those combinations is very useful.
-    
+
     You can use the display option ALLEGRO_AUTO_CONVERT_BITMAPS to
     control which displays will try to auto-convert bitmaps.
 
-ALLEGRO_FORCE_LOCKING 
+ALLEGRO_FORCE_LOCKING
 :   Does nothing since 5.1.8. Kept for backwards compatibility only.
 
 ALLEGRO_NO_PRESERVE_TEXTURE
@@ -882,7 +882,7 @@ display will be slow).
 
 The only time this function is useful is if you
 are using multiple windows and need accelerated blitting of the same
-bitmaps to both. 
+bitmaps to both.
 
 Returns true if the bitmap is compatible with the current display,
 false otherwise. If there is no current display, false is returned.
@@ -895,9 +895,9 @@ See also: [al_create_sub_bitmap], [al_get_parent_bitmap]
 
 ### API: al_get_parent_bitmap
 
-Returns the bitmap this bitmap is a sub-bitmap of. Returns NULL if this 
-bitmap is not a sub-bitmap. This function always returns the real bitmap, 
-and never a sub-bitmap. This might NOT match what was passed to 
+Returns the bitmap this bitmap is a sub-bitmap of. Returns NULL if this
+bitmap is not a sub-bitmap. This function always returns the real bitmap,
+and never a sub-bitmap. This might NOT match what was passed to
 [al_create_sub_bitmap]. Consider this code, for instance:
 
 ~~~~c
@@ -1139,11 +1139,11 @@ See also: [al_draw_tinted_bitmap]
 
 ### API: al_draw_pixel
 
-Draws a single pixel at x, y. This function, unlike [al_put_pixel], does 
-blending and, unlike [al_put_blended_pixel], respects the transformations (that 
-is, the pixel's position is transformed, but its size is unaffected - it 
-remains a pixel). This function can be slow if called often; if you need to 
-draw a lot of pixels consider using [al_draw_prim] with ALLEGRO_PRIM_POINT_LIST 
+Draws a single pixel at x, y. This function, unlike [al_put_pixel], does
+blending and, unlike [al_put_blended_pixel], respects the transformations (that
+is, the pixel's position is transformed, but its size is unaffected - it
+remains a pixel). This function can be slow if called often; if you need to
+draw a lot of pixels consider using [al_draw_prim] with ALLEGRO_PRIM_POINT_LIST
 from the primitives addon.
 
 * x - destination x
@@ -1153,7 +1153,7 @@ from the primitives addon.
 > *Note:* This function may not draw exactly where you expect it to. See the
 <a href="primitives.html#pixel-precise-output">pixel-precise output section</a> on the
 primitives addon documentation for details on how to control exactly where the
-pixel is drawn. 
+pixel is drawn.
 
 See also: [ALLEGRO_COLOR], [al_put_pixel]
 
@@ -1302,7 +1302,7 @@ See also: [ALLEGRO_COLOR], [al_get_pixel], [al_put_blended_pixel], [al_lock_bitm
 ### API: al_put_blended_pixel
 
 Like [al_put_pixel], but the pixel color is blended using the current blenders
-before being drawn. 
+before being drawn.
 
 See also: [ALLEGRO_COLOR], [al_put_pixel]
 
@@ -1443,7 +1443,7 @@ on the `op` parameter:
          g = d.g * df.g + s.g * sf.g
          b = d.b * df.b + s.b * sf.b
          a = d.a * df.a + s.a * sf.a
- 
+
 * ALLEGRO_DEST_MINUS_SRC
 
          r = d.r * df.r - s.r * sf.r
@@ -1640,11 +1640,11 @@ the blending modes will result in undefined behaviour. One exception to this
 rule are the non-projection transformations. It is possible to set a new
 transformation while the drawing is held.
 
-No drawing is guaranteed to take place until you disable the hold. Thus, the 
+No drawing is guaranteed to take place until you disable the hold. Thus, the
 idiom of this function's usage is to enable the deferred bitmap drawing, draw as
-many bitmaps as possible, taking care to stagger bitmaps that share parent 
-bitmaps, and then disable deferred drawing. As mentioned above, this function 
-also works with bitmap and truetype fonts, so if multiple lines of text need to 
+many bitmaps as possible, taking care to stagger bitmaps that share parent
+bitmaps, and then disable deferred drawing. As mentioned above, this function
+also works with bitmap and truetype fonts, so if multiple lines of text need to
 be drawn, this function can speed things up.
 
 See also: [al_is_bitmap_drawing_held]
@@ -2013,9 +2013,9 @@ Possible functions are:
 -   ALLEGRO_RENDER_NEVER
 -   ALLEGRO_RENDER_ALWAYS
 -   ALLEGRO_RENDER_LESS
--   ALLEGRO_RENDER_EQUAL 
--   ALLEGRO_RENDER_LESS_EQUAL   
--   ALLEGRO_RENDER_GREATER        
+-   ALLEGRO_RENDER_EQUAL
+-   ALLEGRO_RENDER_LESS_EQUAL
+-   ALLEGRO_RENDER_GREATER
 -   ALLEGRO_RENDER_NOT_EQUAL
 -   ALLEGRO_RENDER_GREATER_EQUAL
 

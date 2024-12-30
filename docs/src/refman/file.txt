@@ -37,7 +37,7 @@ off_t         (*fi_fsize)(ALLEGRO_FILE *f);
 The fi_open function must allocate memory for whatever userdata structure it needs.
 The pointer to that memory must be returned; it will then be associated with the
 file. The other functions can access that data by calling [al_get_file_userdata]
-on the file handle. If fi_open returns NULL then [al_fopen] will also return NULL. 
+on the file handle. If fi_open returns NULL then [al_fopen] will also return NULL.
 
 The fi_fclose function must clean up and free the userdata, but Allegro will
 free the [ALLEGRO_FILE] handle.
@@ -97,7 +97,7 @@ The slice is opened at the current location of the parent file, up through
 that will not exceed the bounds of the parent file.
 
 Seeking with `ALLEGRO_SEEK_SET` will be relative to this starting location.
-`ALLEGRO_SEEK_END` will be relative to the starting location plus the 
+`ALLEGRO_SEEK_END` will be relative to the starting location plus the
 size of the slice.
 
 The mode can be any combination of:
@@ -108,7 +108,7 @@ The mode can be any combination of:
 * s: seek to the end of the slice upon [al_close] (this is the default behavior)
 * n: disable the seeking behavior of "s".
 
-For example, a mode of "rw" indicates the file can be read and written. 
+For example, a mode of "rw" indicates the file can be read and written.
 (Note that this is slightly different from the stdio modes.) Keep in mind
 that the parent file must support random access and be open in normal
 write mode (not append) for the slice to work in a well defined way.

@@ -46,7 +46,7 @@ shell.  For example, a very basic Makefile might look like this:
     ALLEGRO_FLAGS := $(shell pkg-config --cflags --libs $(ALLEGRO_LIBRARIES))
 
     mygame: mygame.c
-	    $(CC) -o $@ $^ $(ALLEGRO_FLAGS)
+            $(CC) -o $@ $^ $(ALLEGRO_FLAGS)
 
 
 Historical note

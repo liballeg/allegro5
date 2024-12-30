@@ -48,7 +48,7 @@ See also: [al_start_thread], [al_join_thread].
 
 ## API: al_create_thread_with_stacksize
 
-Spawn a new thread with the give stacksize in bytes which begins executing 
+Spawn a new thread with the give stacksize in bytes which begins executing
 `proc`.  The new thread is passed its own thread handle and the value `arg`.
 
 Returns a pointer to the thread on success.

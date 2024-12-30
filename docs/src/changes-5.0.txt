@@ -3755,7 +3755,7 @@ Graphics:
 
 -  Trent Gamblin added support for NPOT textures in the Direct3D driver.
 
--  Trent Gamblin fixed blending in memory drawing functions. 
+-  Trent Gamblin fixed blending in memory drawing functions.
 
 -  Trent Gamblin added al_draw_pixel() which obeys blending.
 
@@ -4279,7 +4279,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Elias Pschernig started implementing lock_region and unlock_region for the
    xdummy driver.
 
--  Elias Pschernig split xdraw.c out of xdisplay.c, 
+-  Elias Pschernig split xdraw.c out of xdisplay.c,
    used _AL_THREAD instead of pthreads in the xdummy driver,
    added a lock to the xdummy driver, in order to implement
    al_destroy_display, used the correct format.
@@ -4308,7 +4308,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 
 -  Trent Gamblin put TLS support back in for MSVC and UNIX.
 
--  Trent Gamblin cleaned up some code, added headers to new source files, 
+-  Trent Gamblin cleaned up some code, added headers to new source files,
    grouped thread  local variables into one structure (UNIX support is
    broken for now), and made mask color thread local.
 
@@ -4337,7 +4337,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
    call allegro_init, made al_draw_bitmap(_region) much faster on
    memory bitmaps, and added al_draw_scaled_bitmap for memory bitmaps.
 
--  Trent Gamblin renamed AL_LOCKED_RECTANGLE to AL_LOCKED_REGION, and 
+-  Trent Gamblin renamed AL_LOCKED_RECTANGLE to AL_LOCKED_REGION, and
    started on memory bitmaps (al_draw_bitmap and al_draw_bitmap region work).
 
 -  Trent Gamblin made seperate functions for getting/setting display/bitmap

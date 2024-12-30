@@ -81,7 +81,7 @@ if(SUPPORT_FONT AND WANT_TTF)
     option(FREETYPE_BZIP2 "Enable if FreeType static library needs bzip2 linked in." off)
     option(FREETYPE_PNG "Enable if FreeType static library needs png linked in." off)
     option(FREETYPE_HARFBUZZ "Enable if FreeType static library needs harfbuzz linked in." off)
-	
+
     if(FREETYPE_FOUND)
         set(FREETYPE_TEST_SOURCE "
             #include <ft2build.h>
@@ -117,7 +117,7 @@ if(SUPPORT_FONT AND WANT_TTF)
             if(FREETYPE_PNG)
                 find_package(PNG)
             endif()
-			
+
             if (FREETYPE_HARFBUZZ)
                 find_package(HarfBuzz)
             endif()
@@ -135,7 +135,7 @@ if(SUPPORT_FONT AND WANT_TTF)
             if(FREETYPE_PNG AND PNG_FOUND)
                 list(APPEND FREETYPE_STATIC_LIBRARIES "${PNG_LIBRARIES}")
             endif()
-			
+
             if (FREETYPE_HARFBUZZ AND HARFBUZZ_FOUND)
                 # there's a circular dependency between Harfbuzz and Freetype, so one of them has to be
                 # repeated to ensure proper static linking order
