@@ -49,7 +49,7 @@ int main(int argc, char **argv)
    if (!font) {
       abort_example("Error creating builtin font\n");
    }
-   
+
    black = al_map_rgb_f(0, 0, 0);
    red = al_map_rgb_f(1, 0, 0);
    blue = al_map_rgb_f(0, 0, 1);
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
       if (al_is_event_queue_empty(queue)) {
          float x = 8, y = 28;
          al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
-         
+
          al_draw_textf(font, blue, 8, 8, 0, "Display events (newest on top)");
 
          color = red;
@@ -103,19 +103,19 @@ int main(int argc, char **argv)
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             add_event("ALLEGRO_EVENT_DISPLAY_CLOSE");
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_LOST:
             add_event("ALLEGRO_EVENT_DISPLAY_LOST");
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_FOUND:
             add_event("ALLEGRO_EVENT_DISPLAY_FOUND");
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
             add_event("ALLEGRO_EVENT_DISPLAY_SWITCH_OUT");
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
             add_event("ALLEGRO_EVENT_DISPLAY_SWITCH_IN");
             break;

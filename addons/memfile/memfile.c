@@ -6,7 +6,7 @@ typedef struct ALLEGRO_FILE_MEMFILE ALLEGRO_FILE_MEMFILE;
 struct ALLEGRO_FILE_MEMFILE {
    bool readable;
    bool writable;
-   
+
    bool eof;
    int64_t size;
    int64_t pos;
@@ -23,13 +23,13 @@ static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
 {
    ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    size_t n = 0;
-   
+
    if (!mf->readable) {
       al_set_errno(EPERM);
       return 0;
    }
-   
-   if (mf->size - mf->pos < (int64_t)size) { 
+
+   if (mf->size - mf->pos < (int64_t)size) {
       /* partial read */
       n = mf->size - mf->pos;
       mf->eof = true;
@@ -39,8 +39,8 @@ static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
    }
 
    memcpy(ptr, mf->mem + mf->pos, n);
-   mf->pos += n;   
-   
+   mf->pos += n;
+
    return n;
 }
 
@@ -48,12 +48,12 @@ static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
 {
    ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    size_t n;
-   
+
    if (!mf->writable) {
       al_set_errno(EPERM);
       return 0;
-   }   
-   
+   }
+
    if (mf->size - mf->pos < (int64_t)size) {
       /* partial write */
       n = mf->size - mf->pos;
@@ -65,7 +65,7 @@ static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
 
    memcpy(mf->mem + mf->pos, ptr, n);
    mf->pos += n;
-   
+
    return n;
 }
 
@@ -110,7 +110,7 @@ static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
    mf->pos = pos;
 
    mf->eof = false;
-   
+
    return true;
 }
 
@@ -173,21 +173,21 @@ ALLEGRO_FILE *al_open_memfile(void *mem, int64_t size, const char *mode)
 
    ASSERT(mem);
    ASSERT(size > 0);
-   
+
    userdata = al_malloc(sizeof(ALLEGRO_FILE_MEMFILE));
    if (!userdata) {
       al_set_errno(ENOMEM);
       return NULL;
    }
-   
+
    memset(userdata, 0, sizeof(*userdata));
    userdata->size = size;
    userdata->pos = 0;
    userdata->mem = mem;
-   
+
    userdata->readable = strchr(mode, 'r') || strchr(mode, 'R');
    userdata->writable = strchr(mode, 'w') || strchr(mode, 'W');
-      
+
    memfile = al_create_file_handle(&memfile_vtable, userdata);
    if (!memfile) {
       al_free(userdata);

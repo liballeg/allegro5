@@ -15,7 +15,7 @@ static void draw_mouse_button(int but, bool down)
    ALLEGRO_COLOR black;
    int x;
    int y;
-   
+
    x = 400 + offset[but];
    y = 130;
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    al_init_font_addon();
    init_platform_specific();
-   
+
    actual_buttons = al_get_mouse_num_buttons();
    if (actual_buttons > NUM_BUTTONS)
       actual_buttons = NUM_BUTTONS;
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
    if (!font) {
       abort_example("data/fixed_font.tga not found\n");
    }
-   
+
    black = al_map_rgb_f(0, 0, 0);
 
    queue = al_create_event_queue();

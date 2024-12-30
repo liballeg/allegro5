@@ -347,7 +347,7 @@ static void draw_scene(void)
     * translation by the camera position, followed by an inverse rotation
     * from the camera orientation.
     */
-   al_build_camera_transform(&t, 
+   al_build_camera_transform(&t,
       ex.camera.position.x, ex.camera.position.y, ex.camera.position.z,
       ex.camera.position.x - ex.camera.zaxis.x,
       ex.camera.position.y - ex.camera.zaxis.y,

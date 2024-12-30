@@ -8,7 +8,7 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
    NSString *string;
    NSArray *array;
    NSBundle *mainBundle;
-   
+
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
    switch (id) {
@@ -53,7 +53,7 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
    }
 
    sprintf(str, "%s", [string UTF8String]);
-   
+
    [pool drain];
 
    return al_create_path_for_directory(str);

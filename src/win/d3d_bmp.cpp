@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -152,7 +152,7 @@ static void d3d_draw_textured_quad(
    ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
 
    const float z = 0.0f;
-   
+
    ALLEGRO_DISPLAY* aldisp = (ALLEGRO_DISPLAY*)disp;
 
    if (aldisp->num_cache_vertices != 0 && (uintptr_t)bmp != aldisp->cache_texture) {
@@ -584,7 +584,7 @@ static void d3d_backup_dirty_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    bitmap->dirty = false;
-     
+
    al_unlock_mutex(_al_d3d_lost_device_mutex);
 }
 
@@ -734,7 +734,7 @@ static void d3d_draw_bitmap_region(
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_dest = get_extra(dest);
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_src = get_extra(src);
-   
+
    ASSERT(src->parent == NULL);
 
    if (!_al_d3d_render_to_texture_supported()) {
@@ -743,7 +743,7 @@ static void d3d_draw_bitmap_region(
          (int)flags);
       return;
    }
-   
+
    if (d3d_dest->display->device_lost)
       return;
 
@@ -827,7 +827,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
    int bitmap_format = al_get_bitmap_format(bitmap);
    int system_format = d3d_bmp->system_format;
-   
+
    if (d3d_bmp->display->device_lost)
       return NULL;
 
@@ -865,7 +865,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
          texture = d3d_bmp->system_texture;
       }
       else if (_al_d3d_render_to_texture_supported()) {
-         /* 
+         /*
           * Sync bitmap->memory with texture
           */
          bitmap->locked = false;

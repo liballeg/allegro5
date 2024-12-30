@@ -38,27 +38,27 @@
 #define FALSE 0
 
 /* 16x16 */
-#define ICON_SMALL		0
+#define ICON_SMALL               0
 /* 32x32 */
-#define ICON_LARGE		1
+#define ICON_LARGE               1
 /* 48x48 */
-#define ICON_HUGE		2
+#define ICON_HUGE                2
 /* 128x128 */
-#define ICON_THUMBNAIL		3
+#define ICON_THUMBNAIL           3
 
 
-#define F_SMALL_DEFINED		0x1
-#define F_LARGE_DEFINED		0x2
-#define F_HUGE_DEFINED		0x4
-#define F_THUMBNAIL_DEFINED	0x8
-#define F_ICONS_DEFINED		0xf
-#define F_MOVE			0x10
-#define F_GOT_VERSION		0x20
-#define F_GOT_LONG_VERSION	0x40
-#define F_EMBED_FRAMEWORK	0x80
+#define F_SMALL_DEFINED          0x1
+#define F_LARGE_DEFINED          0x2
+#define F_HUGE_DEFINED           0x4
+#define F_THUMBNAIL_DEFINED      0x8
+#define F_ICONS_DEFINED          0xf
+#define F_MOVE                   0x10
+#define F_GOT_VERSION            0x20
+#define F_GOT_LONG_VERSION       0x40
+#define F_EMBED_FRAMEWORK        0x80
 
-#define MAX_STRING_SIZE		1024
-#define ONE_SIXTH		(1.0 / 6.0)
+#define MAX_STRING_SIZE          1024
+#define ONE_SIXTH                (1.0 / 6.0)
 
 
 typedef struct ICON_DATA
@@ -103,7 +103,7 @@ static float cubic_bspline(float x)
       d = 0.0;
    else
       d = ((x - 1.0) * (x - 1.0) * (x - 1.0)) * -4.0;
-  
+
    return (a + b + c + d) * ONE_SIXTH;
 }
 
@@ -119,7 +119,7 @@ static int scale_icon(ICON_DATA *icon)
    float red, green, blue, alpha;
    unsigned char *p;
    unsigned int color;
-   
+
    if (icon->original->w > icon->original->h) {
       size = 4 + icon->original->w;
       y_ofs = 2 + ((icon->original->w - icon->original->h) / 2);
@@ -143,32 +143,32 @@ static int scale_icon(ICON_DATA *icon)
    shape->vtable->mask_color = makeacol32(255, 0, 255, 0);
    masked_blit(shape, icon->workspace, 0, 0, x_ofs, y_ofs, shape->w, shape->h);
    destroy_bitmap(shape);
-   
+
    for (y = 0; y < icon->size; y++) {
       f_y = (float)y * k;
       i_y = (int)floor(f_y);
       a = f_y - floor(f_y);
       for (x = 0; x < icon->size; x++) {
          f_x = (float)x * k;
-	 i_x = (int)floor(f_x);
-	 b = f_x - floor(f_x);
+         i_x = (int)floor(f_x);
+         b = f_x - floor(f_x);
          red = green = blue = alpha = 0.0;
          for (m = -1; m < 3; m++) {
-	    r1 = cubic_bspline((float)m - a);
+            r1 = cubic_bspline((float)m - a);
             for (n = -1; n < 3; n++) {
                r2 = cubic_bspline(b - (float)n);
-	       color = ((unsigned int *)(icon->workspace->line[i_y + m + 2]))[i_x + n + 2];
-	       red += ((float)getr32(color) * r1 * r2);
-	       green += ((float)getg32(color) * r1 * r2);
-	       blue += ((float)getb32(color) * r1 * r2);
-	       alpha += ((float)geta32(color) * r1 * r2);
+               color = ((unsigned int *)(icon->workspace->line[i_y + m + 2]))[i_x + n + 2];
+               red += ((float)getr32(color) * r1 * r2);
+               green += ((float)getg32(color) * r1 * r2);
+               blue += ((float)getb32(color) * r1 * r2);
+               alpha += ((float)geta32(color) * r1 * r2);
             }
          }
-	 color = makeacol32((int)floor(red), (int)floor(green), (int)floor(blue), 255 - (int)floor(alpha));
+         color = makeacol32((int)floor(red), (int)floor(green), (int)floor(blue), 255 - (int)floor(alpha));
          ((unsigned int *)(icon->scaled->line[y]))[x] = color;
       }
    }
-   
+
    return 0;
 }
 
@@ -182,37 +182,37 @@ static int load_resource(char *datafile, char *name, ICON_DATA *icon)
    PALETTE palette;
    int size, type, i;
    int result = 0;
-   
+
    if (datafile[0] != '\0') {
       data = load_datafile_object(datafile, name);
       if (!data) {
          fprintf(stderr, "Error loading object '%s' from %s\n", name, datafile);
-	 return -1;
+         return -1;
       }
       switch (data->type) {
-      
+
          case DAT_BITMAP:
-	    temp = (BITMAP *)data->dat;
-	    bitmap = create_bitmap_ex(temp->vtable->color_depth, temp->w, temp->h);
-	    blit(temp, bitmap, 0, 0, 0, 0, temp->w, temp->h);
-	    break;
-	    
-	 case DAT_RLE_SPRITE:
-	    rle_sprite = (RLE_SPRITE *)data->dat;
-	    bitmap = create_bitmap_ex(rle_sprite->color_depth, rle_sprite->w, rle_sprite->h);
-	    clear_to_color(bitmap, bitmap->vtable->mask_color);
-	    draw_rle_sprite(bitmap, rle_sprite, 0, 0);
-	    break;
-	    
-	 case DAT_PALETTE:
-	    select_palette((RGB *)data->dat);
-	    unload_datafile_object(data);
-	    return 0;
-	 
-	 default:
-	    fprintf(stderr, "'%s' is not a BITMAP, RLE_SPRITE or PALETTE object in datafile '%s'\n", name, datafile);
-	    unload_datafile_object(data);
-	    return -1;
+            temp = (BITMAP *)data->dat;
+            bitmap = create_bitmap_ex(temp->vtable->color_depth, temp->w, temp->h);
+            blit(temp, bitmap, 0, 0, 0, 0, temp->w, temp->h);
+            break;
+
+         case DAT_RLE_SPRITE:
+            rle_sprite = (RLE_SPRITE *)data->dat;
+            bitmap = create_bitmap_ex(rle_sprite->color_depth, rle_sprite->w, rle_sprite->h);
+            clear_to_color(bitmap, bitmap->vtable->mask_color);
+            draw_rle_sprite(bitmap, rle_sprite, 0, 0);
+            break;
+
+         case DAT_PALETTE:
+            select_palette((RGB *)data->dat);
+            unload_datafile_object(data);
+            return 0;
+
+         default:
+            fprintf(stderr, "'%s' is not a BITMAP, RLE_SPRITE or PALETTE object in datafile '%s'\n", name, datafile);
+            unload_datafile_object(data);
+            return -1;
       }
       unload_datafile_object(data);
    }
@@ -221,10 +221,10 @@ static int load_resource(char *datafile, char *name, ICON_DATA *icon)
       select_palette(palette);
       if (!bitmap) {
          fprintf(stderr, "Unable to load '%s'\n", name);
-	 return -1;
+         return -1;
       }
    }
-   
+
    if (!icon) {
       size = MAX(bitmap->w, bitmap->h);
       if (size <= 16)
@@ -238,33 +238,33 @@ static int load_resource(char *datafile, char *name, ICON_DATA *icon)
       icon = &icon_data[type];
       if (flags & icon->defined) {
          for (i = 0; i < 3; i++) {
-	    type = (type + 1) % 4;
-	    icon = &icon_data[type];
-	    if (!(flags & icon->defined))
-	       break;
-	 }
-	 if (flags & icon->defined) {
-	    fprintf(stderr, "Too many icon resources!");
-	    result = -1;
-	    goto exit_error;
-	 }
+            type = (type + 1) % 4;
+            icon = &icon_data[type];
+            if (!(flags & icon->defined))
+               break;
+         }
+         if (flags & icon->defined) {
+            fprintf(stderr, "Too many icon resources!");
+            result = -1;
+            goto exit_error;
+         }
       }
    }
    else {
       if (icon->scaled) {
          fprintf(stderr, "Multiple icon resources of the same size");
-	 result = -1;
-	 goto exit_error;
+         result = -1;
+         goto exit_error;
       }
    }
    icon->original = create_bitmap_ex(bitmap->vtable->color_depth, bitmap->w, bitmap->h);
    blit(bitmap, icon->original, 0, 0, 0, 0, bitmap->w, bitmap->h);
    result = scale_icon(icon);
    flags |= icon->defined;
-   
+
 exit_error:
    destroy_bitmap(bitmap);
-   
+
    return result;
 }
 
@@ -299,7 +299,7 @@ static int copy_file(const char *filename, const char *dest_path)
    char dest_file[1024];
    PACKFILE *f;
    size_t size;
-   
+
    if (!exists(filename))
       return -1;
    buffer = malloc(size = file_size_ex(filename));
@@ -321,7 +321,7 @@ static int copy_file(const char *filename, const char *dest_path)
    pack_fwrite(buffer, size, f);
    pack_fclose(f);
    free(buffer);
-   
+
    return 0;
 }
 
@@ -355,18 +355,18 @@ int main(int argc, char *argv[])
    int arg, type = 0, result = 0;
    int i, size, x, y, mask_bit, mask_byte;
    unsigned char *data;
-   
+
    install_allegro(SYSTEM_NONE, &errno, &atexit);
    set_color_depth(32);
    set_color_conversion(COLORCONV_TOTAL | COLORCONV_KEEP_TRANS);
-   
+
    if (argc < 2)
       usage();
-   
+
    datafile[0] = '\0';
    bundle[0] = '\0';
    select_palette(black_palette);
-   
+
    /* Parse command line and load any given resource */
    for (arg = 2; arg < argc; arg++) {
       if (!strcmp(argv[arg], "-m"))
@@ -375,55 +375,55 @@ int main(int argc, char *argv[])
          flags |= F_EMBED_FRAMEWORK;
       else if (!strcmp(argv[arg], "-o")) {
          if ((argc < arg + 2) || (bundle[0] != '\0'))
-	    usage();
-	 strcpy(bundle, argv[++arg]);
+            usage();
+         strcpy(bundle, argv[++arg]);
       }
       else if (!strcmp(argv[arg], "-v")) {
          if (argc < arg + 2)
-	    usage();
-	 flags |= F_GOT_VERSION;
-	 strcpy(bundle_version, argv[++arg]);
+            usage();
+         flags |= F_GOT_VERSION;
+         strcpy(bundle_version, argv[++arg]);
       }
       else if (!strcmp(argv[arg], "-V")) {
          if (argc < arg + 2)
-	    usage();
-	 flags |= F_GOT_LONG_VERSION;
-	 strcpy(bundle_long_version, argv[++arg]);
+            usage();
+         flags |= F_GOT_LONG_VERSION;
+         strcpy(bundle_long_version, argv[++arg]);
       }
       else if (!strcmp(argv[arg], "-d")) {
          if (argc < arg + 2)
-	    usage();
-	 strcpy(datafile, argv[++arg]);
+            usage();
+         strcpy(datafile, argv[++arg]);
       }
       else if ((!strcmp(argv[arg], "-16")) || (!strcmp(argv[arg], "-32")) ||
                (!strcmp(argv[arg], "-48")) || (!strcmp(argv[arg], "-128"))) {
          if (argc < arg + 2)
-	    usage();
-	 switch (atoi(&argv[arg][1])) {
-	    case 16: type = 0; break;
-	    case 32: type = 1; break;
-	    case 48: type = 2; break;
-	    case 128: type = 3; break;
-	 }
-	 if (load_resource(datafile, argv[++arg], &icon_data[type])) {
-	    result = -1;
-	    goto exit_error;
-	 }
+            usage();
+         switch (atoi(&argv[arg][1])) {
+            case 16: type = 0; break;
+            case 32: type = 1; break;
+            case 48: type = 2; break;
+            case 128: type = 3; break;
+         }
+         if (load_resource(datafile, argv[++arg], &icon_data[type])) {
+            result = -1;
+            goto exit_error;
+         }
       }
       else {
          if (load_resource(datafile, argv[arg], NULL)) {
-	    result = -1;
-	    goto exit_error;
-	 }
+            result = -1;
+            goto exit_error;
+         }
       }
    }
-   
+
    buffer = malloc(4096);
    if (!buffer) {
       result = -1;
       goto exit_error_bundle;
    }
-   
+
    bundle_exe = argv[1];
    if (!exists(bundle_exe)) {
       fprintf(stderr, "Cannot locate executable file '%s'\n", bundle_exe);
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
    bundle_icns[0] = '\0';
    bundle_plist[0] = '\0';
    bundle_pkginfo[0] = '\0';
-   
+
    /* Create bundle structure */
    if ((mkdir(bundle_dir, 0777) && (errno != EEXIST)) ||
        (mkdir(bundle_contents_dir, 0777) && (errno != EEXIST)) ||
@@ -454,7 +454,7 @@ int main(int argc, char *argv[])
       result = -1;
       goto exit_error_bundle;
    }
-   
+
    /* Copy/move executable into the bundle */
    if (copy_file(bundle_exe, bundle_contents_macos_dir)) {
       fprintf(stderr, "Cannot create %s\n", bundle_contents_macos_dir);
@@ -466,127 +466,127 @@ int main(int argc, char *argv[])
    chmod(bundle_contents_macos_dir, 0755);
    if (flags & F_MOVE)
       unlink(bundle_exe);
-   
+
    /* Embed Allegro framework if requested */
    if (flags & F_EMBED_FRAMEWORK) {
       if (!file_exists("/Library/Frameworks/Allegro.framework", FA_RDONLY | FA_DIREC, NULL)) {
          fprintf(stderr, "Cannot find Allegro framework\n");
-	 result = -1;
-	 goto exit_error_bundle;
+         result = -1;
+         goto exit_error_bundle;
       }
       if (!exists("/Library/Frameworks/Allegro.framework/Resources/Embeddable")) {
          fprintf(stderr, "Cannot embed system wide Allegro framework; install embeddable version first!\n");
-	 result = -1;
-	 goto exit_error_bundle;
+         result = -1;
+         goto exit_error_bundle;
       }
       sprintf(buffer, "/Developer/Tools/pbxcp -exclude .DS_Store -exclude CVS -resolve-src-symlinks /Library/Frameworks/Allegro.framework %s", bundle_contents_frameworks_dir);
       if ((mkdir(bundle_contents_frameworks_dir, 0777) && (errno != EEXIST)) ||
-	  (system(buffer))) {
+          (system(buffer))) {
          fprintf(stderr, "Cannot create %s\n", bundle_contents_frameworks_dir);
-	 result = -1;
-	 goto exit_error_bundle;
+         result = -1;
+         goto exit_error_bundle;
       }
    }
-   
+
    /* Setup the .icns resource */
    if (flags & F_ICONS_DEFINED) {
       strcat(bundle_contents_resources_dir, "/");
       strcat(bundle_contents_resources_dir, get_filename(bundle));
       replace_extension(bundle_icns, bundle_contents_resources_dir, "icns", MAX_STRING_SIZE);
-      
+
       icon_family = (IconFamilyHandle)NewHandle(0);
-      
+
       for (i = 0; i < 4; i++) {
          if (flags & icon_data[i].defined) {
-	    /* Set 32bit RGBA data */
-	        raw_data = NewHandle(icon_data[i].size * icon_data[i].size * 4);
-	    data = *(unsigned char **)raw_data;
-	    for (y = 0; y < icon_data[i].size; y++) {
-	       for (x = 0; x < icon_data[i].size; x++) {
-	          *data++ = geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
-	          *data++ = getr32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
-	          *data++ = getg32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
-	          *data++ = getb32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
-	       }
-	    }
-	    if (SetIconFamilyData(icon_family, icon_data[i].data, raw_data) != noErr) {
+            /* Set 32bit RGBA data */
+                raw_data = NewHandle(icon_data[i].size * icon_data[i].size * 4);
+            data = *(unsigned char **)raw_data;
+            for (y = 0; y < icon_data[i].size; y++) {
+               for (x = 0; x < icon_data[i].size; x++) {
+                  *data++ = geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+                  *data++ = getr32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+                  *data++ = getg32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+                  *data++ = getb32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+               }
+            }
+            if (SetIconFamilyData(icon_family, icon_data[i].data, raw_data) != noErr) {
                DisposeHandle(raw_data);
-	       fprintf(stderr, "Error setting %dx%d icon resource RGBA data\n", icon_data[i].size, icon_data[i].size);
-	       result = -1;
-	       goto exit_error_bundle;
-	    }
-	    DisposeHandle(raw_data);
-	    /* Set 8bit mask */
+               fprintf(stderr, "Error setting %dx%d icon resource RGBA data\n", icon_data[i].size, icon_data[i].size);
+               result = -1;
+               goto exit_error_bundle;
+            }
+            DisposeHandle(raw_data);
+            /* Set 8bit mask */
             raw_data = NewHandle(icon_data[i].size * icon_data[i].size);
-	    data = *(unsigned char **)raw_data;
-	    for (y = 0; y < icon_data[i].size; y++) {
-	       for (x = 0; x < icon_data[i].size; x++) {
-	          *data++ = geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
-	       }
-	    }
-	    if (SetIconFamilyData(icon_family, icon_data[i].mask8, raw_data) != noErr) {
+            data = *(unsigned char **)raw_data;
+            for (y = 0; y < icon_data[i].size; y++) {
+               for (x = 0; x < icon_data[i].size; x++) {
+                  *data++ = geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]);
+               }
+            }
+            if (SetIconFamilyData(icon_family, icon_data[i].mask8, raw_data) != noErr) {
                DisposeHandle(raw_data);
-	       fprintf(stderr, "Error setting %dx%d icon resource 8bit mask\n", icon_data[i].size, icon_data[i].size);
-	       result = -1;
-	       goto exit_error_bundle;
-	    }
-	    DisposeHandle(raw_data);
-	    /* Set 1bit mask */
-	    if (icon_data[i].mask1) {
-	       size = ((icon_data[i].size * icon_data[i].size) + 7) / 8;
-	       raw_data = NewHandle(size * 2);
-	       data = *(unsigned char **)raw_data;
-	       mask_byte = 0;
-	       mask_bit = 7;
-	       for (y = 0; y < icon_data[i].size; y++) {
-	          for (x = 0; x < icon_data[i].size; x++) {
-		     if (geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]) >= 0xfd)
-		        mask_byte |= (1 << mask_bit);
-		     mask_bit--;
-		     if (mask_bit < 0) {
-		        *data++ = mask_byte;
-			mask_byte = 0;
-			mask_bit = 7;
-		     }
-		  }
-	       }
-	       memcpy(*raw_data + size, *raw_data, size);
+               fprintf(stderr, "Error setting %dx%d icon resource 8bit mask\n", icon_data[i].size, icon_data[i].size);
+               result = -1;
+               goto exit_error_bundle;
+            }
+            DisposeHandle(raw_data);
+            /* Set 1bit mask */
+            if (icon_data[i].mask1) {
+               size = ((icon_data[i].size * icon_data[i].size) + 7) / 8;
+               raw_data = NewHandle(size * 2);
+               data = *(unsigned char **)raw_data;
+               mask_byte = 0;
+               mask_bit = 7;
+               for (y = 0; y < icon_data[i].size; y++) {
+                  for (x = 0; x < icon_data[i].size; x++) {
+                     if (geta32(((unsigned int *)(icon_data[i].scaled->line[y]))[x]) >= 0xfd)
+                        mask_byte |= (1 << mask_bit);
+                     mask_bit--;
+                     if (mask_bit < 0) {
+                        *data++ = mask_byte;
+                        mask_byte = 0;
+                        mask_bit = 7;
+                     }
+                  }
+               }
+               memcpy(*raw_data + size, *raw_data, size);
                if (SetIconFamilyData(icon_family, icon_data[i].mask1, raw_data) != noErr) {
                   DisposeHandle(raw_data);
-	          fprintf(stderr, "Error setting %dx%d icon resource 1bit mask\n", icon_data[i].size, icon_data[i].size);
-	          result = -1;
-	          goto exit_error_bundle;
-	       }
-	       DisposeHandle(raw_data);
-	    }
-	 }
+                  fprintf(stderr, "Error setting %dx%d icon resource 1bit mask\n", icon_data[i].size, icon_data[i].size);
+                  result = -1;
+                  goto exit_error_bundle;
+               }
+               DisposeHandle(raw_data);
+            }
+         }
       }
 
       f = pack_fopen(bundle_icns, F_WRITE);
       if (!f) {
          fprintf(stderr, "Cannot create %s\n", bundle_icns);
-	 result = -1;
-	 goto exit_error_bundle;
+         result = -1;
+         goto exit_error_bundle;
       }
       pack_fclose(f);
-      
+
       cf_url_ref = CFURLCreateWithBytes(kCFAllocatorDefault, (unsigned char *)bundle_icns, strlen(bundle_icns), 0, NULL);
       if (!cf_url_ref) {
          fprintf(stderr, "Cannot create %s\n", bundle_icns);
-	 result = -1;
-	 goto exit_error_bundle;
+         result = -1;
+         goto exit_error_bundle;
       }
       CFURLGetFSRef(cf_url_ref, &fs_ref);
       CFRelease(cf_url_ref);
-      if ((FSGetCatalogInfo(&fs_ref, kFSCatInfoNone, NULL, NULL, &fs_spec, NULL)) || 
+      if ((FSGetCatalogInfo(&fs_ref, kFSCatInfoNone, NULL, NULL, &fs_spec, NULL)) ||
           (WriteIconFile(icon_family, &fs_spec) != noErr)) {
          fprintf(stderr, "Cannot create %s\n", bundle_icns);
-	 result = -1;
-	 goto exit_error_bundle;
+         result = -1;
+         goto exit_error_bundle;
       }
       DisposeHandle((Handle)icon_family);
    }
-   
+
    /* Setup Info.plist */
    sprintf(bundle_plist, "%s/Info.plist", bundle_contents_dir);
    f = pack_fopen(bundle_plist, F_WRITE);
@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
    }
    pack_fputs("</dict>\n</plist>\n", f);
    pack_fclose(f);
-   
+
    /* Setup PkgInfo */
    sprintf(bundle_pkginfo, "%s/PkgInfo", bundle_contents_dir);
    f = pack_fopen(bundle_pkginfo, F_WRITE);
@@ -651,7 +651,7 @@ int main(int argc, char *argv[])
    }
    pack_fputs("APPL????", f);
    pack_fclose(f);
-   
+
 exit_error:
    if (buffer)
       free(buffer);

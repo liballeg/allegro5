@@ -9,7 +9,7 @@ bool Entity::logic(int step)
       p->addScore(points);
       return false;
    }
-   
+
    if (hilightCount > 0) {
       hilightCount -= step;
    }

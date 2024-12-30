@@ -88,7 +88,7 @@ int main(int argc, char **argv)
       abort_example("Could not init Allegro.\n");
    }
    open_log_monospace();
-   
+
    log_printf("Example of filesystem entry functions:\n\n%-36s %-6s %8s %8s %8s %8s\n",
       "name", "flags", "ctime", "mtime", "atime", "size");
    log_printf(

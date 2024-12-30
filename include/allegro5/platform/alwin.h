@@ -128,8 +128,8 @@ AL_VAR(struct ALLEGRO_HAPTIC_DRIVER, _al_hapdrv_xinput);
 
 #define _AL_HAPTIC_DRIVER_XINPUT                                               \
    { AL_HAPTIC_TYPE_XINPUT,  &_al_hapdrv_xinput,    true  },
-   
-   
+
+
 #define AL_HAPTIC_TYPE_WINDOWS_ALL AL_ID('X','D','F','F')
 
 #ifdef __cplusplus
@@ -145,4 +145,4 @@ AL_VAR(struct ALLEGRO_HAPTIC_DRIVER, _al_hapdrv_windows_all);
 #define _AL_HAPTIC_DRIVER_WINDOWS_ALL                                          \
    { AL_HAPTIC_TYPE_WINDOWS_ALL,  &_al_hapdrv_windows_all,    true  },
 
-   
+

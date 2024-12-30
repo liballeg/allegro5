@@ -263,7 +263,7 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
     * lock is on (ie, letters are upper case)
     */
    int scancode = mac_to_scancode[[event keyCode]];
-   
+
    /* Translate OS X modifier flags to Allegro modifier flags */
    int key_shifts = translate_modifier_flags([event modifierFlags]);
 
@@ -374,7 +374,7 @@ void _al_osx_keyboard_modifiers(unsigned int modifiers, ALLEGRO_DISPLAY* dpy)
             if (i == 0) {
                _handle_key_press(dpy, 0, mod_info[0][2], key_shifts, false);
             }
-            
+
             _handle_key_release(dpy, key_shifts, mod_info[i][2]);
          }
       }

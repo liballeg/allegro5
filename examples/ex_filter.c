@@ -11,7 +11,7 @@
 static struct Example {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_FONT *font;
-   ALLEGRO_BITMAP *bitmaps[2][9];    
+   ALLEGRO_BITMAP *bitmaps[2][9];
    ALLEGRO_COLOR bg, fg, info;
    int bitmap;
    int ticks;
@@ -41,9 +41,9 @@ static void redraw(void)
    int w = al_get_display_width(example.display);
    int h = al_get_display_height(example.display);
    int i;
-   
+
    al_clear_to_color(example.bg);
-   
+
    for (i = 0; i < 6; i++) {
       float x = (i / 2) * w / 3 + w / 6;
       float y = (i % 2) * h / 2 + h / 4;
@@ -53,7 +53,7 @@ static void redraw(void)
       float t = 1 - 2 * fabs((example.ticks % (FPS * 16)) / 16.0 / FPS - 0.5);
       float scale;
       float angle = example.ticks * ALLEGRO_PI * 2 / FPS / 8;
-      
+
       if (i < 4)
          scale = 1 - t * 0.9;
       else
@@ -61,7 +61,7 @@ static void redraw(void)
 
       al_draw_textf(example.font, example.fg, x, y - 64 - 14,
          ALLEGRO_ALIGN_CENTRE, "%s", filter_text[i % 4]);
-         
+
       al_set_clipping_rectangle(x - 64, y - 64, 128, 128);
       al_draw_scaled_rotated_bitmap(bmp, bw / 2, bh / 2,
          x, y, scale, scale, angle, 0);
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
    }
-    
+
    if (!al_install_mouse()) {
       abort_example("Error installing mouse.\n");
    }
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
    if (!example.font) {
       abort_example("Error loading data/fixed_font.tga\n");
    }
-   
+
    mysha = al_load_bitmap("data/mysha256x256.png");
    if (!mysha) {
       abort_example("Error loading data/mysha256x256.png\n");
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
          }
       }
       al_unlock_bitmap(example.bitmaps[0][i]);
-      
+
    }
 
    example.bg = al_map_rgb_f(0, 0, 0);
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
             update();
             need_redraw = true;
             break;
-        
+
          case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
             example.bitmap = (example.bitmap + 1) % 2;
             break;

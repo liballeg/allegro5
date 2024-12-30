@@ -11,7 +11,7 @@ extern char *GetLevelError(void);
 extern void SetInitialState(struct Level *lvl);
 
 extern void DrawLevelBackground(struct Level *lev,
-				double *pos);
+                                double *pos);
 extern void DrawLevelForeground(struct Level *lev);
 
 /* level state struct, which stores the current state of the level - perfect for any future implementation

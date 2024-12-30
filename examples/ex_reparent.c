@@ -129,7 +129,7 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
 
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   
+
    al_register_event_source(queue, al_get_display_event_source(
       example.display));
 
@@ -156,11 +156,11 @@ int main(int argc, char **argv)
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             done = true;
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
-              
+
          case ALLEGRO_EVENT_TIMER:
             update();
             need_redraw = true;

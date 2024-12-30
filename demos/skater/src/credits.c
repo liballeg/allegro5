@@ -116,7 +116,7 @@ static void load_text(void)
    int inblank = true;
    char *s;
    int i;
-   ALLEGRO_USTR *u = al_ustr_newf("%s/readme.txt", data_path);  
+   ALLEGRO_USTR *u = al_ustr_newf("%s/readme.txt", data_path);
    f = al_fopen(al_cstr(u), "r");
    al_ustr_free(u);
    if (!f) {

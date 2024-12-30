@@ -48,10 +48,10 @@ int main(int argc, char **argv)
       now = time(NULL);
    }
    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S UTC", gmtime(&now));
-   
+
    if (argc > 1) {
       dstr line;
-   
+
       d_open_input(argv[1]);
 
       while (d_getline(line)) {

@@ -167,7 +167,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
          detach_depth_buffer(info);
       }
    }
-   
+
    if (!bits)
       return;
 
@@ -179,7 +179,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 #if !defined ALLEGRO_CFG_OPENGLES || defined ALLEGRO_CFG_OPENGLES3
       if (bits == 24) gldepth = GL_DEPTH_COMPONENT24;
 #endif
-   
+
       glGenRenderbuffersEXT(1, &rb);
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rb);
 
@@ -218,7 +218,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
          ALLEGRO_DEBUG("Depth render buffer created: %u\n",
             info->buffers.depth_buffer);
       }
-   
+
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
           GL_RENDERBUFFER_EXT, rb);
       if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT) {
@@ -245,7 +245,7 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
          detach_multisample_buffer(info);
       }
    }
-   
+
    if (!samples)
       return;
    ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
@@ -503,7 +503,7 @@ void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
  * This is what we do in this function - if there is a multisample
  * buffer, downsample it back into the texture.
  *
- * [1] https://www.opengl.org/registry/specs/EXT/framebuffer_multisample.txt 
+ * [1] https://www.opengl.org/registry/specs/EXT/framebuffer_multisample.txt
  */
 void _al_ogl_finalize_fbo(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap)
@@ -626,9 +626,9 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
 #if (!defined ALLEGRO_ANDROID) || (__ANDROID_API__ >= 28) /* Android: glFramebufferTexture2DMultisampleEXT exists in newer libGLESv[23].so */
          else {
             glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
-               GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture, 
+               GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture,
                0, al_get_bitmap_samples(bitmap));
-      
+
          }
 #endif
 #endif
@@ -639,7 +639,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
          glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
             GL_TEXTURE_2D, ogl_bitmap->texture, 0);
       }
-      
+
       e = glGetError();
       if (e) {
          ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)\n",

@@ -244,7 +244,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
          else
             ptr = buf;
          png_read_row(png_ptr, NULL, ptr);
-   
+
          switch (bpp) {
             case 8:
                if (index_only) {
@@ -489,7 +489,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
       unsigned char *p = (unsigned char *)lock->data + lock->pitch * y;
       png_write_row(png_ptr, p);
    }
-   
+
    al_unlock_bitmap(bmp);
 
    return 1;

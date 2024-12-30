@@ -26,7 +26,7 @@ int main(int argc, char **argv)
    win = al_create_display(640, 480);
    if (!win) {
       abort_example("Error creating windowed display on adapter 1 "
-	  "(do you have multiple adapters?)\n");
+          "(do you have multiple adapters?)\n");
    }
 
    al_set_new_display_adapter(0);

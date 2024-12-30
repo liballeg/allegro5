@@ -314,7 +314,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
       if(!old_pix_shader) {
          _al_d3d_set_blender(d3d_disp);
       }
-   
+
       if(!state.old_vtx_shader) {
          /* Prepare the default shader */
          if(!is_legacy_card()) {
@@ -355,7 +355,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          };
 
          d3d_texture = al_get_d3d_video_texture(texture);
-         
+
          d3d_texture->GetLevelDesc(0, &desc);
          al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
@@ -373,7 +373,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          }
          mat[2][0] = (float)tex_x / desc.Width;
          mat[2][1] = (float)tex_y / desc.Height;
-         
+
 
          if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
@@ -541,7 +541,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
                   int in[2];
                   in[0] = 0;
                   in[1] = num_vtx-1;
-   
+
                   device->DrawIndexedPrimitiveUP(D3DPT_LINELIST, 0, num_vtx, 1, in, D3DFMT_INDEX32, vtx, stride);
                } else {
                   device->DrawPrimitiveUP(D3DPT_LINELIST, 1, (char*)vtx + stride * (num_vtx - 1), stride);
@@ -585,7 +585,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
                int in[2];
                num_primitives = num_vtx - 1;
                device->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, min_idx, num_idx, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
-   
+
                in[0] = indices[0];
                in[1] = indices[num_vtx-1];
                min_idx = in[0] > in[1] ? in[1] : in[0];
@@ -631,7 +631,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
             };
          }
       }
-      
+
 #ifdef ALLEGRO_CFG_SHADER_HLSL
       if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->EndPass();

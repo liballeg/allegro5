@@ -4,7 +4,7 @@
  *  This example packs two strings into a single file, and then uses a
  *  file slice to open them one at a time. While this usage is contrived,
  *  the same principle can be used to pack multiple images (for example)
- *  into a single file, and later read them back via Allegro's image loader. 
+ *  into a single file, and later read them back via Allegro's image loader.
  *
  */
 #include "allegro5/allegro.h"
@@ -16,15 +16,15 @@
 static void pack_object(ALLEGRO_FILE *file, const void *object, size_t len)
 {
    /* First write the length of the object, so we know how big to make
-      the slice when it is opened later. */      
+      the slice when it is opened later. */
    al_fwrite32le(file, len);
    al_fwrite(file, object, len);
 }
 
 static ALLEGRO_FILE *get_next_chunk(ALLEGRO_FILE *file)
 {
-   /* Reads the length of the next chunk, and if not at end of file, returns a 
-      slice that represents that portion of the file. */ 
+   /* Reads the length of the next chunk, and if not at end of file, returns a
+      slice that represents that portion of the file. */
    const uint32_t length = al_fread32le(file);
    return !al_feof(file) ? al_fopen_slice(file, length, "rw") : NULL;
 }

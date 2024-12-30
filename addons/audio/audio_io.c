@@ -22,7 +22,7 @@ struct ACODEC_TABLE
    bool              (*saver)(const char *filename, ALLEGRO_SAMPLE *spl);
    ALLEGRO_AUDIO_STREAM *(*stream_loader)(const char *filename,
                         size_t buffer_count, unsigned int samples);
-                        
+
    ALLEGRO_SAMPLE *  (*fs_loader)(ALLEGRO_FILE *fp);
    bool              (*fs_saver)(ALLEGRO_FILE *fp, ALLEGRO_SAMPLE *spl);
    ALLEGRO_AUDIO_STREAM *(*fs_stream_loader)(ALLEGRO_FILE *fp,
@@ -99,7 +99,7 @@ static ACODEC_TABLE *add_acodec_table_entry(const char *ext)
    ent->loader = NULL;
    ent->saver = NULL;
    ent->stream_loader = NULL;
-   
+
    ent->fs_loader = NULL;
    ent->fs_saver = NULL;
    ent->fs_stream_loader = NULL;
@@ -392,7 +392,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident
 
    ASSERT(fp);
    ASSERT(ident);
-   
+
    ent = find_acodec_table_entry(ident);
    if (ent && ent->fs_stream_loader) {
       return (ent->fs_stream_loader)(fp, buffer_count, samples);
@@ -487,7 +487,7 @@ bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
 
    ASSERT(fp);
    ASSERT(ident);
-   
+
    ent = find_acodec_table_entry(ident);
    if (ent && ent->fs_saver) {
       return (ent->fs_saver)(fp, spl);

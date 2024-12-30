@@ -81,12 +81,12 @@ static void print(char const *format, ...)
    va_start(list, format);
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
-   
+
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
    al_restore_state(&state);
-   
-   ex.text_y += th;   
+
+   ex.text_y += th;
 }
 
 static void primitive(float l, float t, float r, float b,
@@ -188,7 +188,7 @@ static void draw(void)
    x = 80;
    y = 40;
    al_draw_scaled_bitmap(ex.zoom, 0, 0, w, h, x, y, w * 16, h * 16, 0);
-   
+
    /* Draw outlines. */
    for (i = 0; i < rects_num; i++) {
       primitive(
@@ -287,7 +287,7 @@ int main(int argc, char **argv)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
-   
+
    al_init_primitives_addon();
    al_install_keyboard();
    al_install_mouse();
@@ -330,7 +330,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
    run();
 
-   al_destroy_event_queue(ex.queue);  
+   al_destroy_event_queue(ex.queue);
 
    return 0;
 }

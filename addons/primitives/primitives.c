@@ -49,11 +49,11 @@ bool al_init_primitives_addon(void)
 {
    bool ret = true;
    ret &= _al_init_d3d_driver();
-   
+
    addon_initialized = ret;
-   
+
    _al_add_exit_func(al_shutdown_primitives_addon, "primitives_shutdown");
-   
+
    return ret;
 }
 
@@ -76,10 +76,10 @@ void al_shutdown_primitives_addon(void)
  */
 int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    ALLEGRO_BITMAP* texture, int start, int end, int type)
-{  
+{
    ALLEGRO_BITMAP *target;
    int ret = 0;
- 
+
    ASSERT(addon_initialized);
    ASSERT(vtxs);
    ASSERT(end >= start);
@@ -91,7 +91,7 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    /* In theory, if we ever get a camera concept for this addon, the transformation into
     * view space should occur here
     */
-   
+
    if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
        (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
        _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
@@ -104,7 +104,7 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
          ret =  _al_draw_prim_directx(target, texture, vtxs, decl, start, end, type);
       }
    }
-   
+
    return ret;
 }
 
@@ -115,7 +115,7 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
 {
    ALLEGRO_BITMAP *target;
    int ret = 0;
- 
+
    ASSERT(addon_initialized);
    ASSERT(vtxs);
    ASSERT(indices);
@@ -123,11 +123,11 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
 
    target = al_get_target_bitmap();
-   
+
    /* In theory, if we ever get a camera concept for this addon, the transformation into
     * view space should occur here
     */
-   
+
    if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
        (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
        _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
@@ -140,14 +140,14 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
          ret =  _al_draw_prim_indexed_directx(target, texture, vtxs, decl, indices, num_vtx, type);
       }
    }
-   
+
    return ret;
 }
 
 int _al_bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int w, int h)
 {
    ASSERT(bmp);
-   
+
    if (!al_is_bitmap_locked(bmp))
       return 0;
    if (x1 + w > bmp->lock_x && y1 + h > bmp->lock_y && x1 < bmp->lock_x + bmp->lock_w && y1 < bmp->lock_y + bmp->lock_h)
@@ -213,7 +213,7 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
    if (flags & ALLEGRO_DIRECT3D) {
       _al_set_d3d_decl(display, ret);
    }
-   
+
    ret->stride = stride;
    return ret;
 fail:
@@ -446,7 +446,7 @@ void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
  */
 void al_unlock_index_buffer(ALLEGRO_INDEX_BUFFER* buffer)
 {
-	int flags = al_get_display_flags(al_get_current_display());
+        int flags = al_get_display_flags(al_get_current_display());
    ASSERT(buffer);
    ASSERT(addon_initialized);
 

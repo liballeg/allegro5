@@ -586,9 +586,9 @@ ALLEGRO_PATH *_al_android_get_path(int id)
          path = al_create_path(al_cstr(system_data.apk_path));
          break;
 
-		default:
-			path = al_create_path_for_directory("/DANGER/WILL/ROBINSON");
-			break;
+                default:
+                        path = al_create_path_for_directory("/DANGER/WILL/ROBINSON");
+                        break;
    }
 
    return path;

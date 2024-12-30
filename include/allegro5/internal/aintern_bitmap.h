@@ -42,7 +42,7 @@ struct ALLEGRO_BITMAP
     * This is larger than w * pixel_size if there is padding between lines.
     */
    int pitch;
-   /* 
+   /*
     * clip left, right, top, bottom
     * Clip anything outside of this. cr/cb are exclusive, that is (0, 0, 1, 1)
     * is the single pixel spawning a rectangle from floating point 0/0 to 1/1 -
@@ -159,17 +159,17 @@ extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
 
 /* Bitmap conversion */
 void _al_convert_bitmap_data(
-	const void *src, int src_format, int src_pitch,
-	void *dst, int dst_format, int dst_pitch,
-	int sx, int sy, int dx, int dy,
-	int width, int height);
+        const void *src, int src_format, int src_pitch,
+        void *dst, int dst_format, int dst_pitch,
+        int sx, int sy, int dx, int dy,
+        int width, int height);
 
 void _al_copy_bitmap_data(
    const void *src, int src_pitch, void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height,
    int format);
 
-/* Bitmap type conversion */ 
+/* Bitmap type conversion */
 void _al_init_convert_bitmap_list(void);
 void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_unregister_convert_bitmap(ALLEGRO_BITMAP *bitmap);

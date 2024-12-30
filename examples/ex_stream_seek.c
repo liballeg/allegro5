@@ -44,7 +44,7 @@ static void initialize(void)
    if (!al_install_mouse()) {
       abort_example("Could not init mouse!\n");
    }
-   
+
    al_init_acodec_addon();
 
    if (!al_install_audio()) {
@@ -60,7 +60,7 @@ static void initialize(void)
    if (!display) {
       abort_example("Could not create display!\n");
    }
-   
+
    basic_font = al_load_font("data/font.tga", 0, 0);
    if (!basic_font) {
       abort_example("Could not load font!\n");
@@ -108,7 +108,7 @@ static void render(void)
    ALLEGRO_COLOR c = al_map_rgb(255, 255, 255);
 
    al_clear_to_color(al_map_rgb(64, 64, 128));
-   
+
    /* render "music player" */
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(basic_font, c, 0, 0, 0, "Playing %s", stream_filename);
@@ -120,7 +120,7 @@ static void render(void)
    al_draw_line(10.0 + loop_end_pos, 46.0, 10.0 + loop_end_pos, 66.0, al_map_rgb(255, 0, 0), 0);
    al_draw_filled_rectangle(10.0 + slider_pos - 2.0, 48.0, 10.0 + slider_pos + 2.0, 64.0,
       al_map_rgb(224, 224, 224));
-   
+
    /* show help */
    al_draw_textf(basic_font, c, 0, 96, 0, "Drag the slider to seek.");
    al_draw_textf(basic_font, c, 0, 120, 0, "Middle-click to set loop start.");
@@ -128,7 +128,7 @@ static void render(void)
    al_draw_textf(basic_font, c, 0, 168, 0, "Left/right arrows to seek.");
    al_draw_textf(basic_font, c, 0, 192, 0, "Space to pause.");
    al_draw_textf(basic_font, c, 0, 216, 0, "R to rewind.");
-   
+
    al_flip_display();
 }
 

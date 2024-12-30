@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -144,7 +144,7 @@ void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 
 /* Function: al_is_event_source_registered
  */
-bool al_is_event_source_registered(ALLEGRO_EVENT_QUEUE *queue, 
+bool al_is_event_source_registered(ALLEGRO_EVENT_QUEUE *queue,
       ALLEGRO_EVENT_SOURCE *source)
 {
    ASSERT(queue);

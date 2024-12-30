@@ -38,7 +38,7 @@ private:
    Label height_label;
    Label align_label;
    Label font_label;
-   
+
    TextEntry text_entry;
    HSlider width_slider;
    VSlider height_slider;
@@ -80,7 +80,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 
    d.add(width_label,  0, 15, 1, 1);
    d.add(width_slider, 1, 15, 12, 1);
-   
+
 
    d.add(align_label,  0, 17, 2, 1);
    d.add(text_align ,  2, 17, 2, 3);
@@ -135,7 +135,7 @@ void Prog::draw_text()
    } else if (text_font.get_selected_item_text() == "Builtin") {
       font = font_bin;
    }
-   
+
    if (text_align.get_selected_item_text() == "Left") {
       flags = ALLEGRO_ALIGN_LEFT | ALLEGRO_ALIGN_INTEGER;
    } else if (text_align.get_selected_item_text() == "Center") {
@@ -145,14 +145,14 @@ void Prog::draw_text()
       flags = ALLEGRO_ALIGN_RIGHT | ALLEGRO_ALIGN_INTEGER;
       x  = 10 + w;
    }
-  
+
 
    /* Draw a red rectangle on the top with the requested width,
-    * a blue rectangle around the real bounds of the text, 
+    * a blue rectangle around the real bounds of the text,
     * a green line for the X axis location of drawing the text
     * and the line height, and finally the text itself.
     */
-    
+
    al_draw_rectangle(sx, sy-2 + 30, sx + w, sy - 1 + 30, al_map_rgb(255, 0, 0), 0);
    al_draw_line(x, y + 30, x, y + h + 30, al_map_rgb(0, 255, 0), 0);
    al_draw_multiline_text(font, al_map_rgb_f(1, 1, 1), x, y + 30, w, h, flags, text);
@@ -266,7 +266,7 @@ static void draw_custom_multiline(ALLEGRO_FONT * font, int x, int y,
    extra.y = y;
    extra.line_height = line_height + al_get_font_line_height(font);
    extra.tick = tick;
-   
+
    al_do_multiline_text(font, max_width, text,
       draw_custom_multiline_cb, (void *)&extra);
 }

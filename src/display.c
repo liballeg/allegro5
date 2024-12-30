@@ -687,7 +687,7 @@ void al_backup_dirty_bitmaps(ALLEGRO_DISPLAY *display)
       if (_al_get_bitmap_display(bmp) == display) {
          if (bmp->vt && bmp->vt->backup_dirty_bitmap) {
             bmp->vt->backup_dirty_bitmap(bmp);
-	 }
+         }
       }
    }
 }

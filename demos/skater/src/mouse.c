@@ -1,7 +1,7 @@
 #include "mouse.h"
 
 
-/* 
+/*
  * bit 0: key is down
  * bit 1: key was pressed
  * bit 2: key was released
@@ -42,7 +42,7 @@ void mouse_handle_event(ALLEGRO_EVENT *event)
          mouse_array[event->mouse.button] &= ~(1 << 0);
          mouse_array[event->mouse.button] |= (1 << 2);
          break;
-      
+
       case ALLEGRO_EVENT_MOUSE_AXES:
          mx = event->mouse.x;
          my = event->mouse.y;

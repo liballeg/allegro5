@@ -148,7 +148,7 @@ bool al_install_keyboard(void)
       new_keyboard_driver->keydrv_name = name;
       new_keyboard_driver->keydrv_desc = name;
       if (new_keyboard_driver->init_keyboard())
-	 break;
+         break;
    }
 
    if (!driver_list[i].driver) {

@@ -32,14 +32,14 @@ AL_FUNC(void, al_merge_config_into, (ALLEGRO_CONFIG *master, const ALLEGRO_CONFI
 AL_FUNC(ALLEGRO_CONFIG *, al_merge_config, (const ALLEGRO_CONFIG *cfg1, const ALLEGRO_CONFIG *cfg2));
 AL_FUNC(void, al_destroy_config, (ALLEGRO_CONFIG *config));
 AL_FUNC(bool, al_remove_config_section, (ALLEGRO_CONFIG *config,
-		char const *section));
+                char const *section));
 AL_FUNC(bool, al_remove_config_key, (ALLEGRO_CONFIG *config,
-		char const *section, char const *key));
+                char const *section, char const *key));
 
 AL_FUNC(char const *, al_get_first_config_section, (ALLEGRO_CONFIG const *config, ALLEGRO_CONFIG_SECTION **iterator));
 AL_FUNC(char const *, al_get_next_config_section, (ALLEGRO_CONFIG_SECTION **iterator));
 AL_FUNC(char const *, al_get_first_config_entry, (ALLEGRO_CONFIG const *config, char const *section,
-	ALLEGRO_CONFIG_ENTRY **iterator));
+        ALLEGRO_CONFIG_ENTRY **iterator));
 AL_FUNC(char const *, al_get_next_config_entry, (ALLEGRO_CONFIG_ENTRY **iterator));
 
 #ifdef __cplusplus

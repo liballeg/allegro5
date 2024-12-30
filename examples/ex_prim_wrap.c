@@ -60,7 +60,7 @@ static void draw_square(ALLEGRO_BITMAP* texture, float x, float y, float w, floa
                v->color = c;
             }
          }
-         
+
          al_draw_prim(vtxs, NULL, texture, 0, POINTS_N * POINTS_N, ALLEGRO_PRIM_POINT_LIST);
          break;
       }

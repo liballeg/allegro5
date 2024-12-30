@@ -261,7 +261,7 @@ static void draw_screen(void)
    int sprw = al_get_bitmap_width(spr);
    int sprh = al_get_bitmap_height(spr);
    draw_sprite(spr, x - sprw / 2, SCREEN_H - 42 - sprh / 2);
-   
+
    /* draw the asteroids */
    draw_asteroids();
 
@@ -276,7 +276,7 @@ static void draw_screen(void)
       sprintf(score_buf, "Lives: %d - Score: %d", ship_count, score);
 
    textout(data[TITLE_FONT].dat, score_buf, 0, 0, get_palette(7));
-  
+
    //release_bitmap(bmp);
 }
 

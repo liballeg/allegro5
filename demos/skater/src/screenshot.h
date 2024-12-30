@@ -4,8 +4,8 @@
    date: 27. June 2003
 */
 
-#ifndef		SCREENSHOT_H
-#define		SCREENSHOT_H
+#ifndef SCREENSHOT_H
+#define SCREENSHOT_H
 
 #include <allegro5/allegro.h>
 
@@ -39,7 +39,7 @@ extern "C" {
       char *ext - extension of the screenshot bitmaps; typically this should
                   be either bmp, pcx, tga or lbm, anything else will fail to
                   produce screenshots unless you have and addon library that
-		  integrates itself with save_bitmap()
+                  integrates itself with save_bitmap()
 
    Returns:
       SCREENSHOT *ss - an instance of the SCREENSHOT structure
@@ -65,9 +65,9 @@ extern "C" {
       SCREENSHOT *ss - a pointer to an SCREENSHOT object
       ALLEGRO_BITMAP *buffer - the bitmap from which we take a screenshot; this can be
                        the screen bitmap but taking screenshots from video
-		       bitmaps like the screen is a bit slower so if you use a
-		       memory double buferring system you should pass your
-		       buffer to this function instead
+                       bitmaps like the screen is a bit slower so if you use a
+                       memory double buferring system you should pass your
+                       buffer to this function instead
 
    Returns:
       nothing

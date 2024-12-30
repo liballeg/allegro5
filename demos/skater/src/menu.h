@@ -1,25 +1,25 @@
-#ifndef		__DEMO_MENU_H__
-#define		__DEMO_MENU_H__
+#ifndef __DEMO_MENU_H__
+#define __DEMO_MENU_H__
 
 #include <allegro5/allegro.h>
 #include "global.h"
 
-#define		DEMO_MENU_CONTINUE		1000
-#define		DEMO_MENU_BACK			1001
-#define		DEMO_MENU_LOCK			1002
+#define DEMO_MENU_CONTINUE   1000
+#define DEMO_MENU_BACK       1001
+#define DEMO_MENU_LOCK       1002
 
-#define		DEMO_MENU_SELECTABLE	1
-#define		DEMO_MENU_SELECTED		2
-#define		DEMO_MENU_EXIT			4
-#define		DEMO_MENU_EXTRA			8
+#define DEMO_MENU_SELECTABLE 1
+#define DEMO_MENU_SELECTED   2
+#define DEMO_MENU_EXIT       4
+#define DEMO_MENU_EXTRA      8
 
-#define		DEMO_MENU_MSG_INIT		0
-#define		DEMO_MENU_MSG_DRAW		1
-#define     DEMO_MENU_MSG_CHAR      2
-#define		DEMO_MENU_MSG_KEY		   3
-#define		DEMO_MENU_MSG_WIDTH		4
-#define		DEMO_MENU_MSG_HEIGHT	   5
-#define		DEMO_MENU_MSG_TICK		6
+#define DEMO_MENU_MSG_INIT   0
+#define DEMO_MENU_MSG_DRAW   1
+#define DEMO_MENU_MSG_CHAR   2
+#define DEMO_MENU_MSG_KEY    3
+#define DEMO_MENU_MSG_WIDTH  4
+#define DEMO_MENU_MSG_HEIGHT 5
+#define DEMO_MENU_MSG_TICK   6
 
 extern ALLEGRO_BITMAP *demo_menu_canvas;
 
@@ -59,4 +59,4 @@ int demo_key_proc(DEMO_MENU * item, int msg, int key);
 int demo_color_proc(DEMO_MENU * item, int msg, int extra);
 int demo_separator_proc(DEMO_MENU * item, int msg, int extra);
 
-#endif				/* __DEMO_MENU_H__ */
+#endif /* __DEMO_MENU_H__ */

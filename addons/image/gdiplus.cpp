@@ -40,12 +40,12 @@ static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 
    Gdiplus::GetImageEncodersSize(&num, &size);
    if (size == 0) {
-      return -1;  
+      return -1;
    }
 
    pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(al_malloc(size));
    if (pImageCodecInfo == NULL) {
-      return -1;  
+      return -1;
    }
 
    GetImageEncoders(num, size, pImageCodecInfo);
@@ -55,16 +55,16 @@ static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
          *pClsid = pImageCodecInfo[j].Clsid;
          al_free(pImageCodecInfo);
          return j;
-      }    
+      }
    }
 
    al_free(pImageCodecInfo);
-   return -1;  
+   return -1;
 }
 
 /* A wrapper around an already opened ALLEGRO_FILE* pointer
  */
-class AllegroWindowsStream : public IStream 
+class AllegroWindowsStream : public IStream
 {
    long refCount;
    ALLEGRO_FILE *fp;
@@ -85,7 +85,7 @@ public:
    /* IUnknown */
    virtual ULONG STDMETHODCALLTYPE AddRef(void)
    {
-      return (ULONG) InterlockedIncrement(&refCount);  
+      return (ULONG) InterlockedIncrement(&refCount);
    }
 
    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppvObject)
@@ -105,10 +105,10 @@ public:
    {
       ULONG ret = InterlockedDecrement(&refCount);
       if (ret == 0) {
-         delete this; 
-         return 0; 
+         delete this;
+         return 0;
       }
-      return ret; 
+      return ret;
    }
 
    /* ISequentialStream */
@@ -128,9 +128,9 @@ public:
       if (pcbWritten) {
          *pcbWritten = written;
       }
-      return written == cb ? S_OK : STG_E_CANTSAVE; 
+      return written == cb ? S_OK : STG_E_CANTSAVE;
    }
-    
+
    /* IStream */
    virtual HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
       ULARGE_INTEGER *plibNewPosition)
@@ -140,12 +140,12 @@ public:
          o = ALLEGRO_SEEK_SET;
       }
       else if (dwOrigin == STREAM_SEEK_CUR) {
-         o = ALLEGRO_SEEK_CUR; 
+         o = ALLEGRO_SEEK_CUR;
       }
       else {
          o = ALLEGRO_SEEK_END;
       }
-      
+
       bool ret = al_fseek(fp, dlibMove.QuadPart, o);
 
       if (plibNewPosition) {
@@ -162,11 +162,11 @@ public:
 
    /* The GDI+ image I/O methods need to know the file size */
    virtual HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag)
-   {		
+   {
       (void) grfStatFlag;
       memset(pstatstg, 0, sizeof(*pstatstg));
       pstatstg->type = STGTY_STREAM;
-      pstatstg->cbSize.QuadPart = al_fsize(fp); 
+      pstatstg->cbSize.QuadPart = al_fsize(fp);
       return S_OK;
    }
 
@@ -201,18 +201,18 @@ public:
       (void) dwLockType;
       return E_NOTIMPL;
    }
-    
+
    virtual HRESULT STDMETHODCALLTYPE Revert()
    {
       return E_NOTIMPL;
    }
 
    virtual HRESULT STDMETHODCALLTYPE SetSize(ULARGE_INTEGER libNewSize)
-   { 
+   {
       (void) libNewSize;
       return E_NOTIMPL;
    }
-    
+
    virtual HRESULT STDMETHODCALLTYPE UnlockRegion(ULARGE_INTEGER libOffset,
       ULARGE_INTEGER cb, DWORD dwLockType)
    {
@@ -358,8 +358,8 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap(const char *filename, int flags)
 {
    ALLEGRO_BITMAP *bmp = NULL;
    ALLEGRO_FILE *fp;
-	
-   fp = al_fopen(filename, "rb");		
+
+   fp = al_fopen(filename, "rb");
    if (fp) {
       bmp = _al_load_gdiplus_bitmap_f(fp, flags);
       al_fclose(fp);
@@ -392,7 +392,7 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
 
    if (encoder_status == -1) {
       ALLEGRO_ERROR("Invalid encoder status.\n");
-      return false;    
+      return false;
    }
 
    AllegroWindowsStream *s = new AllegroWindowsStream(fp);
@@ -419,7 +419,7 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
          if (a_lock) {
             unsigned char *in = (unsigned char *)a_lock->data;
             unsigned char *out = (unsigned char *)gdi_lock->Scan0;
-           
+
             if (gdi_lock->Stride == a_lock->pitch) {
                memcpy(out, in, h * gdi_lock->Stride);
             }
@@ -464,7 +464,7 @@ bool _al_save_gdiplus_bitmap(const char *filename, ALLEGRO_BITMAP *bmp)
    }
 
    return ret;
-}	
+}
 
 bool _al_save_gdiplus_png_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {

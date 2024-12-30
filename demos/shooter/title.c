@@ -163,7 +163,7 @@ static void draw_scroller(void)
 
       while (tl) {
          c = 1024 + n2 * credit_speed - credit_age;
-         
+
          if ((c > 0) && (c < 1024) && ((n2 % credit_skip) == 0)) {
             x = itofix(SCREEN_W / 2);
             y = itofix(SCREEN_H / 2 - 32);
@@ -330,7 +330,7 @@ int title_screen(void)
 
    do {
       updated = 0;
-      
+
       scroller();
       scroll_pos++;
       updated = 1;
@@ -345,7 +345,7 @@ int title_screen(void)
       rest(1);
    } while (!keypressed()); // && (!joy[0].button[0].b) && (!joy[0].button[1].b));
 
-   
+
    fade_out(5);
 
    while (keypressed())

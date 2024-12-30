@@ -1,22 +1,22 @@
 /*
 
-	Level.c contains the code for loading levels (which are in an ASCII format
-	and parsed with a 'reasonable' degree of intelligence) and preprocessing
-	them for game use.
+   Level.c contains the code for loading levels (which are in an ASCII format
+   and parsed with a 'reasonable' degree of intelligence) and preprocessing
+   them for game use.
 
-	It can also produce a condensed version of the current level state
-	(suitable for saving and loading of games, used elsewhere to retain state
-	when display resolution is changed) and includes the main hook for level
-	drawing - although this is passed on to quadtree.c as determining visibility
-	is really a quadtree function.
+   It can also produce a condensed version of the current level state
+   (suitable for saving and loading of games, used elsewhere to retain state
+   when display resolution is changed) and includes the main hook for level
+   drawing - although this is passed on to quadtree.c as determining visibility
+   is really a quadtree function.
 
-	Note that the graphical parts of the level are scaled for the current
-	display resolution but the collision / physics parts are never scaled. This
-	is so that game behaviour is identical regardless of the display resolution
-	and so that if the user changes resolution during a game they don't break
-	their game state. The rounding error adjustment algorithms (see Physics.c)
-	would not be very likely to survive a scaling of velocity and position and
-	the player would likely fall through any platform they may be resting on.
+   Note that the graphical parts of the level are scaled for the current
+   display resolution but the collision / physics parts are never scaled. This
+   is so that game behaviour is identical regardless of the display resolution
+   and so that if the user changes resolution during a game they don't break
+   their game state. The rounding error adjustment algorithms (see Physics.c)
+   would not be very likely to survive a scaling of velocity and position and
+   the player would likely fall through any platform they may be resting on.
 
 */
 
@@ -32,13 +32,13 @@
 
 /*
 
-	Drawing stuff first. Framec is a count of the current frame number, which
-	is a required parameter to the drawing stuff in QuadTree.c - see that file
-	for comments on that.
+   Drawing stuff first. Framec is a count of the current frame number, which
+   is a required parameter to the drawing stuff in QuadTree.c - see that file
+   for comments on that.
 
-	DispBox is the rectangle that the user expects to be displayed. Note that
-	(x, y) are parsed in the same units as the player moves so are scaled here
-	into screen co-ordinates.
+   DispBox is the rectangle that the user expects to be displayed. Note that
+   (x, y) are parsed in the same units as the player moves so are scaled here
+   into screen co-ordinates.
 
 */
 
@@ -57,7 +57,7 @@ void DrawLevelBackground(struct Level *lev, double *pos)
    DispBox.TL.Pos[1] = pos[1] - h / 2;
    DispBox.BR.Pos[0] = DispBox.TL.Pos[0] + w;
    DispBox.BR.Pos[1] = DispBox.TL.Pos[1] + h;
-   
+
    BeginQuadTreeDraw(lev, &lev->DisplayTree, &DispBox, framec);
 }
 
@@ -93,36 +93,36 @@ ALLEGRO_SAMPLE *ObtainSample(const char *name)
 
 /*
 
-	A couple of very standard functions - min(a,b) returns the minimum of a and
-	b, max(a,b) returns the maximum of a and b. Both have all the usual
-	disadvantages of preprocessor macros (e.g. consider what will happen with
-	min(a, b++)), but for this code it doesn't matter in the slightest.
+   A couple of very standard functions - min(a,b) returns the minimum of a and
+   b, max(a,b) returns the maximum of a and b. Both have all the usual
+   disadvantages of preprocessor macros (e.g. consider what will happen with
+   min(a, b++)), but for this code it doesn't matter in the slightest.
 
 */
 
 #undef min
 #undef max
-#define min(a, b)	(((a) < (b)) ? (a) : (b))
-#define max(a, b)	(((a) > (b)) ? (a) : (b))
+#define min(a, b)        (((a) < (b)) ? (a) : (b))
+#define max(a, b)        (((a) > (b)) ? (a) : (b))
 
 /*
 
-	The FreeLevel function and associated macros. Just runs through all the data
-	structures freeing anything that may have been allocated. Not really worthy
-	of extensive comment.
+   The FreeLevel function and associated macros. Just runs through all the data
+   structures freeing anything that may have been allocated. Not really worthy
+   of extensive comment.
 
-	This function does the freeing for all level related struct types - there is
-	no set of C++ equivalent deconstructors
+   This function does the freeing for all level related struct types - there is
+   no set of C++ equivalent deconstructors
 
 */
 #define FreeList(name, type, sp) \
-	while(lvl->name)\
-	{\
-		Next = (void *)lvl->name->Next;\
-		sp(lvl->name);\
-		free(lvl->name);\
-		lvl->name = (struct type *)Next;\
-	}
+        while(lvl->name)\
+        {\
+                Next = (void *)lvl->name->Next;\
+                sp(lvl->name);\
+                free(lvl->name);\
+                lvl->name = (struct type *)Next;\
+        }
 
 #define NoAction(v)
 
@@ -214,7 +214,7 @@ static int FixEdges(struct Level *NewLev, int radius)
    struct Edge **e = &NewLev->AllEdges;
    int NotFinished = false, Failed;
    struct Edge OldEdge, *EdgePtr;
-   
+
    (void)radius;
 
    while (*e) {
@@ -266,8 +266,8 @@ static int FixEdges(struct Level *NewLev, int radius)
 
 /*
 
-	AddEdges calculates the axis aligned bounding boxes of all
-	edges and inserts them into the collision tree
+   AddEdges calculates the axis aligned bounding boxes of all
+   edges and inserts them into the collision tree
 
 */
 static void AddEdges(struct Level *NewLev)
@@ -295,10 +295,10 @@ static void AddEdges(struct Level *NewLev)
 
 /*
 
-	ScaleAndAddObjects calculates a collision box for the
-	object, adds it to the collision tree then scales the
-	box for the current display resolution before adding to
-	the display tree
+   ScaleAndAddObjects calculates a collision box for the
+   object, adds it to the collision tree then scales the
+   box for the current display resolution before adding to
+   the display tree
 
 */
 static void ScaleAndAddObjects(struct Level *Lvl)
@@ -332,9 +332,9 @@ static void ScaleAndAddObjects(struct Level *Lvl)
 
 /*
 
-	AddTriangles takes the now fully processed list of world
-	triangles, calculates their bounding boxes (allowing for any
-	edge trim) and inserts them into the display tree
+   AddTriangles takes the now fully processed list of world
+   triangles, calculates their bounding boxes (allowing for any
+   edge trim) and inserts them into the display tree
 
 */
 static void AddTriangles(struct Level *Lvl)
@@ -391,13 +391,13 @@ static void AddTriangles(struct Level *Lvl)
 
 /*
 
-	GetLevelError returns a textual description of any error
-	that has occurred. If no error has occurred it will
-	slightly confusingly return "Unspecified error at line
-	<line count for file>"
+   GetLevelError returns a textual description of any error
+   that has occurred. If no error has occurred it will
+   slightly confusingly return "Unspecified error at line
+   <line count for file>"
 
-	Appends "Level load - " to the start of whatever text
-	may already have been provided
+   Appends "Level load - " to the start of whatever text
+   may already have been provided
 
 */
 char *GetLevelError(void)
@@ -416,13 +416,13 @@ char *GetLevelError(void)
 
 /*
 
-	LoadLevel is called by other parts of the program and returns
-	either a complete level structure or NULL indicating error, in
-	which case GetLevelError will return a textual description
-	of the error.
+   LoadLevel is called by other parts of the program and returns
+   either a complete level structure or NULL indicating error, in
+   which case GetLevelError will return a textual description
+   of the error.
 
-	Parameters are 'name' - the file name of the level and 'radius'
-	- the collision size of the player for collision tree building
+   Parameters are 'name' - the file name of the level and 'radius'
+   - the collision size of the player for collision tree building
 
 */
 struct Level *LoadLevel(char const *name, int radius)

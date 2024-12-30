@@ -24,7 +24,7 @@
  * This does nothing for the unofficial DirectX SDK, which has __null
  * manually removed. */
 #if defined __MINGW32__ && defined __null
-	#undef __null
+      #undef __null
 #endif
 
 /* I'm not sure what library this is supposed to be in, but I couldn't find it yet */
@@ -52,7 +52,7 @@ ALLEGRO_DEBUG_CHANNEL("audio-dsound")
 
 /* DirectSound vars */
 static IDirectSound8 *device;
-static IDirectSoundCapture8 *capture_device; 
+static IDirectSoundCapture8 *capture_device;
 static char ds_err_str[100];
 static int buffer_size; // in bytes
 static _AL_LIST* output_device_list;
@@ -728,7 +728,7 @@ static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
          if (last_read_pos >= extra->desc.dwBufferBytes)
             last_read_pos -= extra->desc.dwBufferBytes;
       }
-      
+
       al_unlock_mutex(r->mutex);
       al_rest(0.10);
    }
@@ -763,7 +763,7 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
       ALLEGRO_ERROR("DirectSoundCaptureCreate8 failed: %s\n", ds_get_error(hr));
       return 1;
    }
-   
+
    hr = device->SetCooperativeLevel(get_window(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("SetCooperativeLevel failed: %s\n", ds_get_error(hr));
@@ -772,7 +772,7 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
 
    DSOUND_RECORD_DATA *extra = (DSOUND_RECORD_DATA *) al_calloc(1, sizeof(*extra));
 
-   DSCCAPS dsccaps;   
+   DSCCAPS dsccaps;
    dsccaps.dwSize = sizeof(DSCCAPS);
    hr = capture_device->GetCaps(&dsccaps);
    if (FAILED(hr)) {
@@ -789,7 +789,7 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
    extra->wave_fmt.wBitsPerSample = (WORD)al_get_audio_depth_size(r->depth) * 8;
    extra->wave_fmt.nBlockAlign = extra->wave_fmt.nChannels * extra->wave_fmt.wBitsPerSample / 8;
    extra->wave_fmt.nAvgBytesPerSec = extra->wave_fmt.nSamplesPerSec * extra->wave_fmt.nBlockAlign;
-   
+
    memset(&extra->desc, 0, sizeof(extra->desc));
    extra->desc.dwSize = sizeof(extra->desc);
    extra->desc.lpwfxFormat = &extra->wave_fmt;
@@ -803,7 +803,7 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
    }
 
    extra->buffer->QueryInterface(_al_IID_IDirectSoundCaptureBuffer8, (void **) &extra->buffer8);
-   
+
    r->extra = extra;
    r->thread = al_create_thread(_dsound_update_recorder, r);
 
@@ -832,7 +832,7 @@ static BOOL CALLBACK _ds_enum_callback(
          LPGUID lpGuid,
          LPCTSTR lpcstrDescription,
          LPCTSTR lpcstrModule,
-         LPVOID lpContext) 
+         LPVOID lpContext)
 {
    (void)lpcstrModule;
    (void)lpContext;

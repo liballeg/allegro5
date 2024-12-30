@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
    if (!screen) {
       abort_example("Could not set video mode - exiting\n");
    }
-   
+
    font = al_create_builtin_font();
    if (!font) {
       abort_example("No font.\n");
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
                   al_set_display_flag(screen, ALLEGRO_FULLSCREEN_WINDOW,
                      fullscreen);
                   break;
-               
+
                case ALLEGRO_KEY_1:
                   zoom = 1;
                   break;
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
                   break;
             }
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(screen);
             al_clear_to_color(al_map_rgb(0, 0, 0));

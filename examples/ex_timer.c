@@ -67,7 +67,7 @@ static void draw(void)
 {
    int h, y, i;
    double cur_time, event_overhead, total_error;
-   
+
    cur_time = al_get_time();
    event_overhead = cur_time - ex.timestamp;
    total_error = event_overhead + ex.timer_error;
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
-   
+
    al_init_primitives_addon();
    al_install_keyboard();
    al_install_mouse();

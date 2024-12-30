@@ -210,7 +210,7 @@ Player::Player() :
 Player::~Player()
 {
 }
-   
+
 void Player::destroy(void)
 {
    al_destroy_bitmap(bitmap);

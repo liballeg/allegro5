@@ -47,7 +47,7 @@ static void redraw(void)
     */
 
    al_set_render_state(ALLEGRO_DEPTH_TEST, true);
-   al_set_render_state(ALLEGRO_DEPTH_FUNCTION, ALLEGRO_RENDER_ALWAYS);   
+   al_set_render_state(ALLEGRO_DEPTH_FUNCTION, ALLEGRO_RENDER_ALWAYS);
    al_set_render_state(ALLEGRO_WRITE_MASK, ALLEGRO_MASK_DEPTH);
 
    for (i = 0; i < COUNT; i++) {
@@ -73,7 +73,7 @@ static void redraw(void)
     * sprites have been drawn before.
     */
 
-   al_set_render_state(ALLEGRO_DEPTH_FUNCTION, ALLEGRO_RENDER_EQUAL);  
+   al_set_render_state(ALLEGRO_DEPTH_FUNCTION, ALLEGRO_RENDER_EQUAL);
    al_set_render_state(ALLEGRO_WRITE_MASK, ALLEGRO_MASK_RGBA);
    al_draw_scaled_bitmap(example.mysha, 0, 0, 320, 200, 0, 0, 320 * 480 / 200, 480, 0);
 
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
    init_platform_specific();
 
    al_get_num_video_adapters();
-   
+
    al_get_monitor_info(0, &info);
 
    int flags = 0;
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
       flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
    }
    al_set_new_display_flags(flags);
-   
+
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
       ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
 
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
 
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   
+
    al_register_event_source(queue, al_get_display_event_source(example.display));
 
    al_start_timer(timer);
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
          double t = -al_get_time();
 
          redraw();
-         
+
          t += al_get_time();
          example.direct_speed_measure  = t;
          al_flip_display();
@@ -231,15 +231,15 @@ int main(int argc, char **argv)
             al_acknowledge_drawing_halt(event.display.source);
 
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
             background = false;
             break;
-         
+
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
             al_acknowledge_resize(event.display.source);
             break;
-              
+
          case ALLEGRO_EVENT_TIMER:
             update();
             need_redraw = true;

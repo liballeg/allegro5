@@ -97,7 +97,7 @@ AL_FUNC(int, al_run_main, (int argc, char **argv, int (*)(int, char **)));
 
 #define AL_ID(a,b,c,d)     (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
-       
+
 
 #ifdef __cplusplus
    }

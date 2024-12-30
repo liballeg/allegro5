@@ -91,7 +91,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
    ALLEGRO_COLOR c;
 
    modes_count = al_get_num_display_modes();
-   
+
    c = al_map_rgb_f(0.8, 0.8, 1);
    al_draw_textf(font, c, x, y, 0, "Create new display");
    y += font_h;
@@ -155,7 +155,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
             options[i].required == ALLEGRO_REQUIRE ? "required" :
             options[i].required == ALLEGRO_SUGGEST ? "suggested" :
             "ignored");
-            
+
       c = al_map_rgb_f(0.9, 0.5, 0.3);
       al_draw_textf(font, c, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "%d",
          al_get_display_option(display, options[i].option));
@@ -171,7 +171,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
    al_draw_textf(font, c, x, y, 0, "Return: set mode or require option");
    y -= font_h;
    al_draw_textf(font, c, x, y, 0, "Cursor keys: change selection");
-   
+
    y -= font_h * 2;
    for (i = 0; i < 32; i++) {
       if (flag_names[i]) {
@@ -182,7 +182,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
          x += al_get_text_width(font, flag_names[i]) + 10;
       }
    }
-   
+
    c = al_map_rgb_f(1, 0, 0);
    al_draw_text(font, c, dw / 2, dh - font_h, ALLEGRO_ALIGN_CENTRE, status);
 }
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
    }
    init_flags();
    al_init_primitives_addon();
-   
+
    white = al_map_rgba_f(1, 1, 1, 1);
 
    al_install_keyboard();
@@ -226,9 +226,9 @@ int main(int argc, char **argv)
 
    modes_count = al_get_num_display_modes();
    options_count = sizeof(options) / sizeof(options[0]);
-   
+
    update_ui();
-   
+
    al_clear_to_color(al_map_rgb_f(1, 1, 1));
    display_options(display);
    al_flip_display();
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   
+
    al_start_timer(timer);
 
    while (1) {
@@ -365,7 +365,7 @@ int main(int argc, char **argv)
             redraw = true;
          }
       }
-      
+
       if (selected_mode < 0) selected_mode = 0;
       if (selected_mode > modes_count + 1)
          selected_mode = modes_count + 1;

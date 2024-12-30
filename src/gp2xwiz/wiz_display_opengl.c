@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -37,7 +37,7 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
-   
+
    if (!ogl->backbuffer)
       ogl->backbuffer = _al_ogl_create_backbuffer(d);
 }
@@ -100,7 +100,7 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 
    nanoGL_Init();
 
-   d->hNativeWnd = OS_CreateWindow();                      
+   d->hNativeWnd = OS_CreateWindow();
 
    d->egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
@@ -114,7 +114,7 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 
    d->egl_context = eglCreateContext(d->egl_display, d->egl_config, EGL_NO_CONTEXT, NULL);
 
-   eglMakeCurrent(d->egl_display, d->egl_surface, d->egl_surface, d->egl_context);    
+   eglMakeCurrent(d->egl_display, d->egl_surface, d->egl_surface, d->egl_context);
 
 
    //eglSwapInterval(d->egl_display, EGL_MAX_SWAP_INTERVAL);

@@ -516,7 +516,7 @@ static bool android_set_display_flag(ALLEGRO_DISPLAY *dpy, int flag, bool onoff)
       _jni_callVoidMethodV(_al_android_get_jnienv(),
          _al_android_activity_object(), "setAllegroFrameless", "(Z)V", onoff);
    }
-   
+
    return false;
 }
 
@@ -642,7 +642,7 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
     * out of our hands.
     */
    while (d->created) {
-   	al_rest(0.001);
+           al_rest(0.001);
    }
 
    _al_event_source_free(&dpy->es);

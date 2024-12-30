@@ -187,12 +187,12 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, 3, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
             glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
          }
-         
+
          if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
             glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, 2, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
             glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
          }
-         
+
          if (display->ogl_extras->varlocs.color_loc >= 0) {
             glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
             glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
@@ -214,20 +214,20 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          } else {
             glDisableClientState(GL_VERTEX_ARRAY);
          }
-   
+
          e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
          if(!e->attribute)
             e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
          if(texture && e->attribute) {
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-   
+
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
             glTexCoordPointer(ncoord, type, decl->stride, vtxs + e->offset);
          } else {
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
          }
-   
+
          e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
          if(e->attribute) {
             glEnableClientState(GL_COLOR_ARRAY);
@@ -243,7 +243,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
          if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE))
             glDisableClientState(GL_NORMAL_ARRAY);
-   
+
          glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
          glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
          glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
@@ -267,13 +267,13 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          height = texture->parent->h;
       else
          height = texture->h;
-      
+
       al_get_opengl_texture_size(texture, &true_w, &true_h);
       al_get_opengl_texture_position(texture, &tex_x, &tex_y);
-      
+
       mat[3][0] = (float)tex_x / true_w;
       mat[3][1] = (float)(height - tex_y) / true_h;
-         
+
       if(decl) {
          if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
             mat[0][0] = 1.0f / true_w;
@@ -598,7 +598,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
 #if defined ALLEGRO_IPHONE
    al_free(iphone_idx);
 #endif
-   
+
    return num_primitives;
 }
 

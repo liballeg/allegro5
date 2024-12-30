@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *	Internal cross-platform threading API for Windows.
+ *      Internal cross-platform threading API for Windows.
  *
- *	By Peter Wang.
+ *      By Peter Wang.
  *
  *      See readme.txt for copyright information.
  */
@@ -57,18 +57,18 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 }
 
 
-void _al_thread_create_with_stacksize(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize) 
+void _al_thread_create_with_stacksize(_AL_THREAD* thread, void (*proc)(_AL_THREAD*, void*), void *arg, size_t stacksize)
 {
    ASSERT(thread);
    ASSERT(proc);
    {
       InitializeCriticalSection(&thread->cs);
-		
+
       thread->should_stop = false;
       thread->proc = proc;
       thread->arg = arg;
-		
-      thread->thread = (void *)_beginthreadex(NULL, stacksize, 
+
+      thread->thread = (void *)_beginthreadex(NULL, stacksize,
          thread_proc_trampoline, thread, 0, NULL);
    }
 }
@@ -159,14 +159,14 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
  * algorithm used here is the one referred to as
  *
  *     Algorithm 8a / IMPL_SEM,UNBLOCK_STRATEGY == UNBLOCK_ALL
- * 
+ *
  * presented below in pseudo-code as it appeared:
  *
  * [snip]
  * -------------------------------------------------------------
  *
  *     Algorithm 9 / IMPL_SEM,UNBLOCK_STRATEGY == UNBLOCK_ALL
- * 
+ *
  * presented below in pseudo-code; basically 8a...
  *                                      ...BUT W/O "spurious wakes" prevention:
  *
@@ -179,19 +179,19 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
  * nWaitersGone - int
  * nWaitersBlocked - int
  * nWaitersToUnblock - int
- * 
+ *
  * wait( timeout ) {
- * 
+ *
  *   [auto: register int result          ]     // error checking omitted
  *   [auto: register int nSignalsWasLeft ]
- * 
+ *
  *   sem_wait( semBlockLock );
  *   ++nWaitersBlocked;
  *   sem_post( semBlockLock );
- * 
+ *
  *   unlock( mtxExternal );
  *   bTimedOut = sem_wait( semBlockQueue,timeout );
- * 
+ *
  *   lock( mtxUnblockLock );
  *   if ( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
  *     --nWaitersToUnblock;
@@ -205,23 +205,23 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
  *     nWaitersGone = 0;
  *   }
  *   unlock( mtxUnblockLock );
- * 
+ *
  *   if ( 1 == nSignalsWasLeft ) {
  *     sem_post( semBlockLock );               // open the gate
  *   }
- * 
+ *
  *   lock( mtxExternal );
- * 
+ *
  *   return ( bTimedOut ) ? ETIMEOUT : 0;
  * }
- * 
+ *
  * signal(bAll) {
- * 
+ *
  *   [auto: register int result         ]
  *   [auto: register int nSignalsToIssue]
- * 
+ *
  *   lock( mtxUnblockLock );
- * 
+ *
  *   if ( 0 != nWaitersToUnblock ) {        // the gate is closed!!!
  *     if ( 0 == nWaitersBlocked ) {        // NO-OP
  *       return unlock( mtxUnblockLock );

@@ -29,8 +29,8 @@ struct _AL_MUTEX
    pthread_mutex_t mutex;
 };
 
-#define _AL_MUTEX_UNINITED	       { false, PTHREAD_MUTEX_INITIALIZER }
-				       /* makes no sense, but shuts gcc up */
+#define _AL_MUTEX_UNINITED               { false, PTHREAD_MUTEX_INITIALIZER }
+                                       /* makes no sense, but shuts gcc up */
 #define _AL_MARK_MUTEX_UNINITED(M)     do { M.inited = false; } while (0)
 
 struct _AL_COND

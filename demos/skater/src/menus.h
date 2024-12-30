@@ -1,7 +1,7 @@
-#ifndef			__DEMO_GAME_MENUS_H__
-#define			__DEMO_GAME_MENUS_H__
+#ifndef __DEMO_GAME_MENUS_H__
+#define __DEMO_GAME_MENUS_H__
 
-#include "gamestate.h"		/* gamestate.h */
+#include "gamestate.h" /* gamestate.h */
 
 void create_main_menu(GAMESTATE * state);
 void create_options_menu(GAMESTATE * state);
@@ -16,4 +16,4 @@ void create_intro(GAMESTATE * state);
 void enable_continue_game(void);
 void disable_continue_game(void);
 
-#endif				/* __DEMO_GAME_MENUS_H__ */
+#endif /* __DEMO_GAME_MENUS_H__ */

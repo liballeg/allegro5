@@ -1,5 +1,5 @@
-#ifndef		__DEMO_KEYBOARD_H__
-#define		__DEMO_KEYBOARD_H__
+#ifndef                __DEMO_KEYBOARD_H__
+#define                __DEMO_KEYBOARD_H__
 
 #include <allegro5/allegro.h>
 #include "vcontroller.h"
@@ -12,4 +12,4 @@ void keyboard_event(ALLEGRO_EVENT *event);
 void keyboard_tick(void);
 int unicode_char(bool remove);
 
-#endif				/* __DEMO_KEYBOARD_H__ */
+#endif                                /* __DEMO_KEYBOARD_H__ */

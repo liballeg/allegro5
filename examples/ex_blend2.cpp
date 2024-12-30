@@ -297,13 +297,13 @@ void Prog::draw_samples()
 {
    ALLEGRO_STATE state;
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
-      
+
    /* Draw a background, in case our target bitmap will end up with
     * alpha in it.
     */
    draw_background(40, 20);
    draw_background(400, 20);
-   
+
    /* Test standard blending. */
    al_set_target_bitmap(target);
    blending_test(false);
@@ -317,7 +317,7 @@ void Prog::draw_samples()
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_bitmap(target, 40, 20, 0);
    al_draw_bitmap(target_bmp, 400, 20, 0);
- 
+
    al_restore_state(&state);
 }
 
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
    if (!mysha) {
       abort_example("Failed to load data/mysha256x256.png\n");
    }
-   
+
    target = al_create_bitmap(320, 200);
 
    al_add_new_bitmap_flag(ALLEGRO_MEMORY_BITMAP);

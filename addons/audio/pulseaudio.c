@@ -49,7 +49,7 @@ typedef struct PULSEAUDIO_VOICE
    enum PULSEAUDIO_VOICE_STATUS status;
 
    // direct buffer (non-streaming):
-   ALLEGRO_MUTEX *buffer_mutex;  
+   ALLEGRO_MUTEX *buffer_mutex;
    char *buffer;
    char *buffer_end;
 } PULSEAUDIO_VOICE;
@@ -116,11 +116,11 @@ static int pulseaudio_open(void)
 {
    /* Use PA_CONTEXT_NOAUTOSPAWN to see if a PA server is running.
     * If not, fail - we're better off using ALSA/OSS.
-    * 
+    *
     * Also check for suspended PA - again better using ALSA/OSS in
     * that case (pa_simple_write just blocks until PA is unsuspended
     * otherwise).
-    * 
+    *
     * TODO: Maybe we should have a force flag to the audio driver
     * open method, which in the case of PA would spawn a server if
     * none is running (and also unsuspend?).
@@ -208,8 +208,8 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
 
       if (status == PV_PLAYING) {
          unsigned int frames = pv->buffer_size_in_frames;
-         if (voice->is_streaming) { 
-            // streaming audio           
+         if (voice->is_streaming) {
+            // streaming audio
             const void *data = _al_voice_update(voice, voice->mutex, &frames);
             if (!data) {
               data = silence;
@@ -291,13 +291,13 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
 
    pv->s = pa_simple_new(
       NULL,                // Use the default server.
-      al_get_app_name(),     
+      al_get_app_name(),
       PA_STREAM_PLAYBACK,
       NULL,                // Use the default device.
-      "Allegro Voice",    
-      &ss,                
+      "Allegro Voice",
+      &ss,
       NULL,                // Use default channel map
-      &ba,                
+      &ba,
       NULL                 // Ignore error code.
    );
 
@@ -370,7 +370,7 @@ static void pulseaudio_unload_voice(ALLEGRO_VOICE *voice)
 
 static int pulseaudio_start_voice(ALLEGRO_VOICE *voice)
 {
-   PULSEAUDIO_VOICE *pv = voice->extra;   
+   PULSEAUDIO_VOICE *pv = voice->extra;
    int ret;
 
    /* We hold the voice->mutex already. */
@@ -446,13 +446,13 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
    ALLEGRO_EVENT user_event;
    uint8_t *null_buffer;
    unsigned int fragment_i = 0;
-   
+
    null_buffer = al_malloc(1024);
    if (!null_buffer) {
       ALLEGRO_ERROR("Unable to create buffer for draining PulseAudio.\n");
       return NULL;
    }
-   
+
    while (!al_get_thread_should_stop(t))
    {
       al_lock_mutex(r->mutex);
@@ -470,9 +470,9 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
             user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
             e = al_get_audio_recorder_event(&user_event);
             e->buffer = r->fragments[fragment_i];
-            e->samples = r->samples;           
+            e->samples = r->samples;
             al_emit_user_event(&r->source, &user_event, NULL);
-         
+
             if (++fragment_i == r->fragment_count) {
                fragment_i = 0;
             }
@@ -487,17 +487,17 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
 static int pulseaudio_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
 {
    PULSEAUDIO_RECORDER *pa;
-   
+
    pa = al_calloc(1, sizeof(*pa));
    if (!pa) {
      ALLEGRO_ERROR("Unable to allocate memory for PULSEAUDIO_RECORDER.\n");
      return 1;
    }
-   
+
    pa->ss.channels = al_get_channel_count(r->chan_conf);
    pa->ss.rate = r->frequency;
 
-   if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT8) 
+   if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
       pa->ss.format = PA_SAMPLE_U8;
    else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT16)
       pa->ss.format = PA_SAMPLE_S16NE;
@@ -512,36 +512,36 @@ static int pulseaudio_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
       al_free(pa);
       return 1;
    }
-   
+
    /* maximum length of the PulseAudio buffer. -1 => let the server decide. */
    pa->ba.maxlength = -1;
-   
-   /* fragment size (bytes) controls how much data is returned back per read. 
+
+   /* fragment size (bytes) controls how much data is returned back per read.
       The documentation recommends -1 for default behavior, but that sets a
       latency of around 2 seconds. Lower value decreases latency but increases
-      overhead. 
-      
-      The following attempts to set it (the base latency) to 1/8 of a second. 
+      overhead.
+
+      The following attempts to set it (the base latency) to 1/8 of a second.
     */
    pa->ba.fragsize = (r->sample_size * r->frequency) / 8;
-   
+
    pa->s = pa_simple_new(NULL, al_get_app_name(), PA_STREAM_RECORD, NULL, "Allegro Audio Recorder", &pa->ss, NULL, &pa->ba, NULL);
    if (!pa->s) {
       ALLEGRO_ERROR("pa_simple_new() failed.\n");
       al_free(pa);
       return 1;
    }
-   
+
    r->thread = al_create_thread(pulse_audio_update_recorder, r);
    r->extra = pa;
-   
-   return 0;   
+
+   return 0;
 };
 
 static void pulseaudio_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
 {
    PULSEAUDIO_RECORDER *pa = (PULSEAUDIO_RECORDER *) r->extra;
-   
+
    pa_simple_free(pa->s);
    al_free(r->extra);
 }
@@ -571,7 +571,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
 
    pulseaudio_get_voice_position,
    pulseaudio_set_voice_position,
-   
+
    pulseaudio_allocate_recorder,
    pulseaudio_deallocate_recorder,
 

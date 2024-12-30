@@ -224,7 +224,7 @@ int main(int argc, char **argv)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
-   
+
    al_init_primitives_addon();
    al_install_keyboard();
    al_install_mouse();

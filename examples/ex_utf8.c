@@ -1,7 +1,7 @@
 /*
- *	Example program for the Allegro library.
+ *        Example program for the Allegro library.
  *
- *	Test UTF-8 string routines.
+ *        Test UTF-8 string routines.
  */
 
 /* TODO: we should also be checking on inputs with surrogate characters
@@ -1169,7 +1169,7 @@ static void t50(void)
    al_ustr_encode_utf16(us, utf16, s);
    CHECK(0 == memcmp(utf16, utf16_ref, s));
    free(utf16);
-   
+
    s = al_ustr_encode_utf16(us, little, sizeof little);
    CHECK(16 == s);
    CHECK(0 == memcmp(truncated, little, s));

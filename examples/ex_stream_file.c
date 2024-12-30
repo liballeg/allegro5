@@ -98,7 +98,7 @@ int main(int argc, char **argv)
       if (loop) {
          al_set_audio_stream_playmode(stream, loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
       }
-      
+
       al_register_event_source(queue, al_get_audio_stream_event_source(stream));
 
 #ifndef BYPASS_MIXER

@@ -140,11 +140,11 @@ int main(int argc, char **argv)
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN) {
          log_printf("button down event %d from %p\n",
             event.joystick.button, event.joystick.id);
-      } 
+      }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP) {
          log_printf("button up event %d from %p\n",
             event.joystick.button, event.joystick.id);
-      } 
+      }
 
       draw(curr_joy);
    }

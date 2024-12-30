@@ -409,7 +409,7 @@ static void handle_button_event(unsigned int button, bool is_down)
       0, 0, 0,
       button);
 }
-                          
+
 
 
 
@@ -513,12 +513,12 @@ static int open_mouse_device (const char *device_file)
       ALLEGRO_DEBUG("Opened device %s\n", device_file);
       /* The device is a mouse if it has a BTN_MOUSE */
       if (has_event(fd, EV_KEY, BTN_MOUSE)) {
-	 ALLEGRO_DEBUG("Device %s was a mouse.\n", device_file);
+         ALLEGRO_DEBUG("Device %s was a mouse.\n", device_file);
       }
       else {
-	 ALLEGRO_DEBUG("Device %s was not mouse, closing.\n", device_file);
-	 close(fd);
-	 fd = -1;
+         ALLEGRO_DEBUG("Device %s was not mouse, closing.\n", device_file);
+         close(fd);
+         fd = -1;
       }
    }
 
@@ -528,7 +528,7 @@ static int open_mouse_device (const char *device_file)
 
 
 /* mouse_init:
- *  Here we open the mouse device, initialise anything that needs it, 
+ *  Here we open the mouse device, initialise anything that needs it,
  *  and chain to the framework init routine.
  */
 static bool mouse_init (void)
@@ -555,11 +555,11 @@ static bool mouse_init (void)
    for (i=0; device_name[i]; i++) {
       the_mouse.fd = open_mouse_device (device_name[i]);
       if (the_mouse.fd >= 0)
-	    break;
+            break;
    }
 
    if (!device_name[i]) {
-	 return false;
+         return false;
    }
 
    /* Init the tablet data */
@@ -761,7 +761,7 @@ static void mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 static void process_new_data(void *data)
 {
    ASSERT((AL_MOUSE_EVDEV *)data == &the_mouse);
-   
+
    _al_event_source_lock(&the_mouse.parent.es);
    {
       struct input_event events[32];

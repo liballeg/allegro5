@@ -19,7 +19,7 @@ void _al_android_generate_mouse_event(unsigned int type, int x, int y,
    unsigned int button, ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_EVENT event;
-   
+
    _al_event_source_lock(&the_mouse.parent.es);
 
    //_al_android_translate_from_screen(d, &x, &y);

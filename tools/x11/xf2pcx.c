@@ -1,6 +1,6 @@
 /*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -38,25 +38,25 @@ static void usage(char *argv0)
 {
    printf("Usage: %s [OPTIONS]\n\n", argv0);
    printf("  -f FONTNAME  Font name pattern ('*' by default).\n"
-	  "  -o FILENAME  Output file name ('font.pcx' by default).\n"
-	  "  -r NUM-NUM   Character range, default = 0x20-0xff.\n"
-	  "  -c COLOR     Character color (default 000000000 -- black).\n"
-	  "  -b COLOR     Background color (default 255255255 -- white).\n"
-	  "  -g COLOR     Grid color (default 255000255 -- magenta).\n"
-	  "               Colors are specified as RRRGGGBBB values,\n"
-	  "               with each RRR, GGG and BBB in the range [0, 255].\n"
-	  "  -h           This help.\n"
-	  "\n"
-	  "Find the font you want to convert using xlsfonts or xfontsel.\n\n"
-	  "Example 1:\n"
-	  "bash> xlsfonts -fn '*' | less\n"
-	  "bash> %s -f '-adobe-courier-medium-r-normal--34-*'\n"
-	  "bash> grabber\n\n"
-	  "In grabber, create a new font 'Object|New|Font'. Use 'Object|Grab'\n"
-	  "on this object and choose the pcx file with the font (font.pcx).\n\n"
-	  "Example 2:\n"
-	  "./xf2pcx -f '-*-clearlyu-*-*-*-*-17-*-*-*-p--iso10646-1' -r 0x2800-0x28ff -o braille.pcx\n\n"
-	  "Writes the Braille alphabet into braille.pcx.\n", argv0);
+          "  -o FILENAME  Output file name ('font.pcx' by default).\n"
+          "  -r NUM-NUM   Character range, default = 0x20-0xff.\n"
+          "  -c COLOR     Character color (default 000000000 -- black).\n"
+          "  -b COLOR     Background color (default 255255255 -- white).\n"
+          "  -g COLOR     Grid color (default 255000255 -- magenta).\n"
+          "               Colors are specified as RRRGGGBBB values,\n"
+          "               with each RRR, GGG and BBB in the range [0, 255].\n"
+          "  -h           This help.\n"
+          "\n"
+          "Find the font you want to convert using xlsfonts or xfontsel.\n\n"
+          "Example 1:\n"
+          "bash> xlsfonts -fn '*' | less\n"
+          "bash> %s -f '-adobe-courier-medium-r-normal--34-*'\n"
+          "bash> grabber\n\n"
+          "In grabber, create a new font 'Object|New|Font'. Use 'Object|Grab'\n"
+          "on this object and choose the pcx file with the font (font.pcx).\n\n"
+          "Example 2:\n"
+          "./xf2pcx -f '-*-clearlyu-*-*-*-*-17-*-*-*-p--iso10646-1' -r 0x2800-0x28ff -o braille.pcx\n\n"
+          "Writes the Braille alphabet into braille.pcx.\n", argv0);
 }
 
 
@@ -101,37 +101,37 @@ int main(int argc, char *argv[])
    opterr = 0;
    while ((opt = getopt(argc, argv, "f:o:z:c:b:g:r:h")) != EOF) {
       switch (opt) {
-	 case 'f':
-	    fontname = optarg;
-	    break;
-	 case 'o':
-	    filename = optarg;
-	    break;
-	 case 'c':
-	    ccolor = atol(optarg);
-	    break;
-	 case 'b':
-	    bcolor = atol(optarg);
-	    break;
-	 case 'g':
-	    gcolor = atol(optarg);
-	    break;
-	 case 'r':
-	    {
-	       char *str;
-	       start_char = strtol(optarg, &str, 0);
-	       end_char = strtol(str + 1, NULL, 0);
-	       break;
-	    }
-	 case 'h':
-	    usage(argv[0]);
-	    exit(EXIT_SUCCESS);
-	 default:
-	    fprintf(stderr, "%s: unrecognized option -- '%c'\n", argv[0],
-		    optopt);
-	    fprintf(stderr, "%s: try '%s -h' for more information\n",
-		    argv[0], argv[0]);
-	    exit(EXIT_FAILURE);
+         case 'f':
+            fontname = optarg;
+            break;
+         case 'o':
+            filename = optarg;
+            break;
+         case 'c':
+            ccolor = atol(optarg);
+            break;
+         case 'b':
+            bcolor = atol(optarg);
+            break;
+         case 'g':
+            gcolor = atol(optarg);
+            break;
+         case 'r':
+            {
+               char *str;
+               start_char = strtol(optarg, &str, 0);
+               end_char = strtol(str + 1, NULL, 0);
+               break;
+            }
+         case 'h':
+            usage(argv[0]);
+            exit(EXIT_SUCCESS);
+         default:
+            fprintf(stderr, "%s: unrecognized option -- '%c'\n", argv[0],
+                    optopt);
+            fprintf(stderr, "%s: try '%s -h' for more information\n",
+                    argv[0], argv[0]);
+            exit(EXIT_FAILURE);
       }
    }
 
@@ -174,19 +174,19 @@ int main(int argc, char *argv[])
       max_descent = xfs->descent;
 
       if (xfs->min_byte1 == 0 && xfs->max_byte1 == 0) {
-	 min = xfs->min_char_or_byte2;
-	 max = xfs->max_char_or_byte2;
+         min = xfs->min_char_or_byte2;
+         max = xfs->max_char_or_byte2;
       }
       else {
-	 min = (xfs->min_byte1 << 8) + xfs->min_char_or_byte2;
-	 max = (xfs->max_byte1 << 8) + xfs->max_char_or_byte2;
+         min = (xfs->min_byte1 << 8) + xfs->min_char_or_byte2;
+         max = (xfs->max_byte1 << 8) + xfs->max_char_or_byte2;
       }
 
       if (start_char < min || end_char > max)
-	 fprintf(stderr,
-		 "You specified characters %04x-%04x, but this font "
-		 "only has the range %04x-%04x\n", start_char, end_char,
-		 min, max);
+         fprintf(stderr,
+                 "You specified characters %04x-%04x, but this font "
+                 "only has the range %04x-%04x\n", start_char, end_char,
+                 min, max);
 
       XFreeFontInfo(NULL, xfs, 0);
    }
@@ -198,26 +198,26 @@ int main(int argc, char *argv[])
    for (cy = 0; cy < lines; cy++) {
 
       for (cx = 0; cx < 16 && start_char + cy * 16 + cx <= end_char; cx++) {
-	 int dir, ascent, descent;
-	 int width;
-	 XChar2b string[2] = { {0, 0}, {0, 0} };
+         int dir, ascent, descent;
+         int width;
+         XChar2b string[2] = { {0, 0}, {0, 0} };
 
-	 /* query character size */
-	 string[0].byte1 = (start_char + cy * 16 + cx) >> 8;
-	 string[0].byte2 = (start_char + cy * 16 + cx) & 255;
-	 XQueryTextExtents16(display, font, string, 1, &dir, &ascent,
-			     &descent, &overall);
-	 width = overall.width;
-	 if (width < 1)
-	    width = 1;
+         /* query character size */
+         string[0].byte1 = (start_char + cy * 16 + cx) >> 8;
+         string[0].byte2 = (start_char + cy * 16 + cx) & 255;
+         XQueryTextExtents16(display, font, string, 1, &dir, &ascent,
+                             &descent, &overall);
+         width = overall.width;
+         if (width < 1)
+            width = 1;
 
-	 if (width > max_width)
-	    max_width = width;
+         if (width > max_width)
+            max_width = width;
 
-	 if (max_ascent < overall.ascent)
-	    max_ascent = overall.ascent;
-	 if (max_descent < overall.descent)
-	    max_descent = overall.descent;
+         if (max_ascent < overall.ascent)
+            max_ascent = overall.ascent;
+         if (max_descent < overall.descent)
+            max_descent = overall.descent;
       }
 
    }
@@ -243,50 +243,50 @@ int main(int argc, char *argv[])
 
       sx = 1;
       for (cx = 0; cx < 16 && start_char + cy * 16 + cx <= end_char; cx++) {
-	 int dir, ascent, descent;
-	 XChar2b string[2] = { {0, 0}, {0, 0} };
+         int dir, ascent, descent;
+         XChar2b string[2] = { {0, 0}, {0, 0} };
 
-	 /* query character size */
-	 string[0].byte1 = (start_char + cy * 16 + cx) >> 8;
-	 string[0].byte2 = (start_char + cy * 16 + cx) & 255;
-	 XQueryTextExtents16(display, font, string, 1, &dir, &ascent,
-			     &descent, &overall);
+         /* query character size */
+         string[0].byte1 = (start_char + cy * 16 + cx) >> 8;
+         string[0].byte2 = (start_char + cy * 16 + cx) & 255;
+         XQueryTextExtents16(display, font, string, 1, &dir, &ascent,
+                             &descent, &overall);
 
-	 if (overall.width < 1)
-	    overall.width = 1;
+         if (overall.width < 1)
+            overall.width = 1;
 
-	 /* create pixmap and draw character there */
-	 pixmap =
-	     XCreatePixmap(display, window, overall.width, max_height,
-			   default_depth);
-	 /* some fonts draw outside their ascent/descent, so we need to clear
-	  * the pixmap before drawing the glyph */
-	 XFillRectangle(display, pixmap, gc2, 0, 0, overall.width,
-			max_height);
-	 XDrawImageString16(display, pixmap, gc, 0, max_ascent, string, 1);
+         /* create pixmap and draw character there */
+         pixmap =
+             XCreatePixmap(display, window, overall.width, max_height,
+                           default_depth);
+         /* some fonts draw outside their ascent/descent, so we need to clear
+          * the pixmap before drawing the glyph */
+         XFillRectangle(display, pixmap, gc2, 0, 0, overall.width,
+                        max_height);
+         XDrawImageString16(display, pixmap, gc, 0, max_ascent, string, 1);
 
-	 /* create image with pixmap contents */
-	 image =
-	     XGetImage(display, pixmap, 0, 0, overall.width, max_height,
-		       AllPlanes, ZPixmap);
-	 if (image == 0) {
-	    fprintf(stderr, "%s: can not get image\n", argv[0]);
-	    exit(EXIT_FAILURE);
-	 }
+         /* create image with pixmap contents */
+         image =
+             XGetImage(display, pixmap, 0, 0, overall.width, max_height,
+                       AllPlanes, ZPixmap);
+         if (image == 0) {
+            fprintf(stderr, "%s: can not get image\n", argv[0]);
+            exit(EXIT_FAILURE);
+         }
 
-	 /* copy image to bitmap */
-	 for (y = 0; y < max_height; y++)
-	    for (x = 0; x < overall.width; x++) {
-	       if (XGetPixel(image, x, y) == white)
-		  putpixel(bitmap, sx + x, sy + y, 1);
-	       else
-		  putpixel(bitmap, sx + x, sy + y, 0);
-	    }
+         /* copy image to bitmap */
+         for (y = 0; y < max_height; y++)
+            for (x = 0; x < overall.width; x++) {
+               if (XGetPixel(image, x, y) == white)
+                  putpixel(bitmap, sx + x, sy + y, 1);
+               else
+                  putpixel(bitmap, sx + x, sy + y, 0);
+            }
 
-	 XDestroyImage(image);
-	 XFreePixmap(display, pixmap);
+         XDestroyImage(image);
+         XFreePixmap(display, pixmap);
 
-	 sx += max_width + 1;
+         sx += max_width + 1;
       }
       sy += max_height + 1;
    }

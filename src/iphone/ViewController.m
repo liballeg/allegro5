@@ -113,7 +113,7 @@ typedef enum {
 - (void) create_view
 {
    UIScreen *screen;
-   
+
    if (adapter == 0)
       screen = [UIScreen mainScreen];
    else

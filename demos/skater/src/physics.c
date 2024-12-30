@@ -5,24 +5,24 @@
 
 /*
 
-	FixUp is called when the player has collided with 'something' and takes
-	the current player's velocity and the vector normal of whatever has been
-	hit as arguments.
+   FixUp is called when the player has collided with 'something' and takes
+   the current player's velocity and the vector normal of whatever has been
+   hit as arguments.
 
-	It's job is primarily to remove whatever proportion of the velocity is
-	running into the surface. This means that the player's velocity ends
-	up running at a right angle to the normal.
+   It's job is primarily to remove whatever proportion of the velocity is
+   running into the surface. This means that the player's velocity ends
+   up running at a right angle to the normal.
 
-	Think of a perfectly unbouncy ball falling onto a horizontal floor.
-	It's vertical velocity is instantly zero'd, but its horizontal velocity
-	is unaffected.
+   Think of a perfectly unbouncy ball falling onto a horizontal floor.
+   It's vertical velocity is instantly zero'd, but its horizontal velocity
+   is unaffected.
 
-	FixUp does this same thing for surfaces that aren't horizontal using
-	the dot product.
+   FixUp does this same thing for surfaces that aren't horizontal using
+   the dot product.
 
-	As a secondary function it returns the magnitude of force it has away,
-	which can be used to pick a 'thud' sound effect and also for friction
-	calculations
+   As a secondary function it returns the magnitude of force it has away,
+   which can be used to pick a 'thud' sound effect and also for friction
+   calculations
 
 */
 static double FixUp(double *vec, double normalx, double normaly)
@@ -40,22 +40,22 @@ static double FixUp(double *vec, double normalx, double normaly)
 
 /*
 
-	SetAngle takes a surface normal, player angle and JustDoIt flag and
-	decides how the player's interaction with that surface affects his
-	angle.
+   SetAngle takes a surface normal, player angle and JustDoIt flag and
+   decides how the player's interaction with that surface affects his
+   angle.
 
-	If JustDoIt is set then the function just sets the player to be at
-	the angle of the normal, no questions asked.
+   If JustDoIt is set then the function just sets the player to be at
+   the angle of the normal, no questions asked.
 
-	Otherwise the players angle is set if either:
+   Otherwise the players angle is set if either:
 
-		- the angle of the normal is close to vertical
-		- the angle of the normal is close to the player angle
-		
-	Note that the arguments to atan2 are adjusted so that we're thinking
-	in Allegro style angle measurements (i.e. 0 degrees = straight up,
-	increases go clockwise) rather than the usual mathematics meaning
-	(i.e. 0 degrees = right, increases go anticlockwise)
+      - the angle of the normal is close to vertical
+      - the angle of the normal is close to the player angle
+
+   Note that the arguments to atan2 are adjusted so that we're thinking
+   in Allegro style angle measurements (i.e. 0 degrees = straight up,
+   increases go clockwise) rather than the usual mathematics meaning
+   (i.e. 0 degrees = right, increases go anticlockwise)
 
 */
 static void SetAngle(double normalx, double normaly, double *a, int JustDoIt)
@@ -71,15 +71,15 @@ static void SetAngle(double normalx, double normaly, double *a, int JustDoIt)
 
 /*
 
-	DoFriction applies surface friction along an edge, taking the player's
-	intended direction of travel into account
+   DoFriction applies surface friction along an edge, taking the player's
+   intended direction of travel into account
 
-	First of all it breaks movement into 'ForwardSpeed' and 'UpSpeed', both
-	relative to the edge - i.e. forward speed is motion parallel to the edge,
-	upward speed is motion perpendicular
+   First of all it breaks movement into 'ForwardSpeed' and 'UpSpeed', both
+   relative to the edge - i.e. forward speed is motion parallel to the edge,
+   upward speed is motion perpendicular
 
-	Then the two are adjusted according to surface friction and player input,
-	and finally put back together to reform the complete player velocity
+   Then the two are adjusted according to surface friction and player input,
+   and finally put back together to reform the complete player velocity
 
 */
 static void DoFriction(double r, struct Edge *E, double *vec)
@@ -129,23 +129,23 @@ static void DoFriction(double r, struct Edge *E, double *vec)
 
 /*
 
-	RunPhysics is the centrepiece of the game simulation and is perhaps
-	misnamed in that it runs physics and game logic generally.
+   RunPhysics is the centrepiece of the game simulation and is perhaps
+   misnamed in that it runs physics and game logic generally.
 
-	The basic structure is:
+   The basic structure is:
 
-		apply gravity and air resistance;
+      apply gravity and air resistance;
 
-		while(some simulation time remains)
-		{
-			find first thing the player hits during the simulation time
+      while(some simulation time remains)
+      {
+         find first thing the player hits during the simulation time
 
-			run time forward until that hit occurs
+         run time forward until that hit occurs
 
-			adjust player velocity according to whatever he has hit
-		}
+         adjust player velocity according to whatever he has hit
+      }
 
-	Although some additional work needs to be done
+   Although some additional work needs to be done
 */
 #if 0 /* unused */
 struct QuadTreeNode *DoContinuousPhysics(struct Level *lvl, struct QuadTreeNode
@@ -331,35 +331,32 @@ struct QuadTreeNode *DoContinuousPhysics(struct Level *lvl, struct QuadTreeNode
 }
 #endif
 
-/*#define TIME_STEP	0.6f
+/*#define TIME_STEP        0.6f
 struct QuadTreeNode *RunPhysics(struct Level *lvl, double *pos, double *vec, double TimeToGo, struct Animation *PAnim)
 {
-	struct QuadTreeNode *CollTree = GetCollisionNode(lvl, pos, vec);
-	static double TimeAccumulator = 0;
-	double Step;
+   struct QuadTreeNode *CollTree = GetCollisionNode(lvl, pos, vec);
+   static double TimeAccumulator = 0;
+   double Step;
 
-	TimeAccumulator += TimeToGo;
+   TimeAccumulator += TimeToGo;
 
-	Step = fmod(TimeAccumulator, TIME_STEP);
-	if(Step >= 0.01f)
-	{
-		TimeAccumulator -= Step;
-		CollTree = DoContinuousPhysics(lvl, CollTree, pos, vec, Step, PAnim);
-	}
+   Step = fmod(TimeAccumulator, TIME_STEP);
+   if(Step >= 0.01f) {
+      TimeAccumulator -= Step;
+      CollTree = DoContinuousPhysics(lvl, CollTree, pos, vec, Step, PAnim);
+   }
 
-	while(TimeAccumulator > 0)
-	{
+   while(TimeAccumulator > 0) {
+      vec[1] += 0.1f;
 
-			vec[1] += 0.1f;
+      vec[0] *= 0.997f;
+      vec[1] *= 0.997f;
 
-			vec[0] *= 0.997f;
-			vec[1] *= 0.997f;
+      CollTree = DoContinuousPhysics(lvl, CollTree, pos, vec, TimeToGo, PAnim);
+      TimeAccumulator -= TIME_STEP;
+   }
 
-		CollTree = DoContinuousPhysics(lvl, CollTree, pos, vec, TimeToGo, PAnim);
-		TimeAccumulator -= TIME_STEP;
-	}
-
-	return CollTree;
+   return CollTree;
 }*/
 struct QuadTreeNode *RunPhysics(struct Level *lvl, double *pos,
                                 double *vec, double TimeToGo,

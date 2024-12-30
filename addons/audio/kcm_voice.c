@@ -174,7 +174,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
 
    if (voice->driver->load_voice(voice, spl->spl_data.buffer.ptr) != 0 ||
       (spl->is_playing && voice->driver->start_voice(voice) != 0))
-   {      
+   {
       voice->attached_stream = NULL;
       spl->spl_read = NULL;
       _al_kcm_stream_set_mutex(spl, NULL);

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -68,8 +68,8 @@ static bool init_mouse(void)
 #if 0
    if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) {
       RAWINPUTDEVICE rid[1];
-      rid[0].usUsagePage = 0x01; 
-      rid[0].usUsage = 0x02; 
+      rid[0].usUsagePage = 0x01;
+      rid[0].usUsage = 0x02;
       rid[0].dwFlags = RIDEV_NOLEGACY;
       rid[0].hwndTarget = 0;
       if (RegisterRawInputDevices(rid, 1, sizeof(rid[0])) == FALSE) {

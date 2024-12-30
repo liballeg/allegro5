@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
    for (i=1; i<argc; i++) {
       if (i > 1)
-	 putc(' ', stdout);
+         putc(' ', stdout);
 
       puts(argv[i]);
    }
@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
       i = getc(stdin);
 
       if ((tolower(i) == 'y') || (tolower(i) == 'n')) {
-	 putc(i, stdout);
-	 puts("\n\n");
-	 return (tolower(i) == 'y') ? 0 : 1;
+         putc(i, stdout);
+         puts("\n\n");
+         return (tolower(i) == 'y') ? 0 : 1;
       }
       else
-	 putc(7, stdout);
+         putc(7, stdout);
    }
 }

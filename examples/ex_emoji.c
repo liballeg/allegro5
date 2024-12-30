@@ -9,7 +9,7 @@
  *                                           \_/__/
  *
  *      Emoji example program.
- * 
+ *
  *      This example draws some emoji characters.
  *
  *      See readme.txt for copyright information.

@@ -1,5 +1,5 @@
-#ifndef		__DEMO_MUSIC_PLAYER_H__
-#define		__DEMO_MUSIC_PLAYER_H__
+#ifndef __DEMO_MUSIC_PLAYER_H__
+#define __DEMO_MUSIC_PLAYER_H__
 
 #include "global.h"
 
@@ -10,4 +10,4 @@ void play_sound_id(int id, int vol, int pan, int freq, int loop);
 void set_music_volume(double v);
 void set_sound_volume(double v);
 
-#endif				/* __DEMO_MUSIC_PLAYER_H__ */
+#endif /* __DEMO_MUSIC_PLAYER_H__ */

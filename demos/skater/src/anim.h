@@ -11,7 +11,7 @@ struct Animation {
 
 extern ALLEGRO_BITMAP *GetCurrentBitmap(struct Animation *);
 extern void AdvanceAnimation(struct Animation *, double Distance,
-			     int OnPlatform);
+                             int OnPlatform);
 extern struct Animation *SeedPlayerAnimation(void);
 extern void FreePlayerAnimation(struct Animation *Anim);
 extern void PauseAnimation(struct Animation *Anim);

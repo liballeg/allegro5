@@ -37,11 +37,11 @@ struct ALLEGRO_DISPLAY_RASPBERRYPI_EXTRA {
 
 static int pot(int n)
 {
-	int i = 1;
-	while (i < n) {
-		i = i * 2;
-	}
-	return i;
+   int i = 1;
+   while (i < n) {
+      i = i * 2;
+   }
+   return i;
 }
 
 static void set_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d, uint32_t *data, int width, int height)
@@ -52,9 +52,9 @@ static void set_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d, uint32_t *data, int 
    d->cursor_data = al_malloc(dpitch * height);
    int y;
    for (y = 0; y < height; y++) {
-   	uint8_t *p1 = (uint8_t *)d->cursor_data + y * dpitch;
-	uint8_t *p2 = (uint8_t *)data + y * spitch;
-	memcpy(p1, p2, spitch);
+      uint8_t *p1 = (uint8_t *)d->cursor_data + y * dpitch;
+      uint8_t *p2 = (uint8_t *)data + y * spitch;
+      memcpy(p1, p2, spitch);
    }
    d->cursor_width = width;
    d->cursor_height = height;
@@ -62,8 +62,8 @@ static void set_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d, uint32_t *data, int 
 
 static void delete_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 {
-      al_free(d->cursor_data);
-      d->cursor_data = NULL;
+   al_free(d->cursor_data);
+   d->cursor_data = NULL;
 }
 
 static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
@@ -137,7 +137,7 @@ static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
       dst.y = st.y+d->cursor_offset_y;
       dst.width = d->cursor_width;
       dst.height = d->cursor_height;
-         dispman_update = vc_dispmanx_update_start(0);
+       dispman_update = vc_dispmanx_update_start(0);
       vc_dispmanx_element_change_attributes(
          dispman_update,
          cursor_element,
@@ -174,9 +174,9 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
     ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
     if (ogl->backbuffer)
-        _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
+   _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
     else
-        ogl->backbuffer = _al_ogl_create_backbuffer(d);
+   ogl->backbuffer = _al_ogl_create_backbuffer(d);
 }
 
 void _al_raspberrypi_get_screen_info(int *dx, int *dy,
@@ -215,13 +215,13 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
             ALLEGRO_CONFIG *cfg = al_load_config_file("/boot/config.txt");
             if (cfg) {
                const char *disable_overscan =
-                  al_get_config_value(
-                     cfg, "", "disable_overscan"
-                  );
+               al_get_config_value(
+                  cfg, "", "disable_overscan"
+               );
                // If overscan parameters are disabled don't process
                if (!disable_overscan ||
-                   (disable_overscan &&
-                    (!strcasecmp(disable_overscan, "false") ||
+                     (disable_overscan &&
+                     (!strcasecmp(disable_overscan, "false") ||
                      atoi(disable_overscan) == 0))) {
                   const char *left = al_get_config_value(
                      cfg, "", "overscan_left");
@@ -260,8 +260,8 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
 
 void _al_raspberrypi_get_mouse_scale_ratios(float *x, float *y)
 {
-	*x = mouse_scale_ratio_x;
-	*y = mouse_scale_ratio_y;
+   *x = mouse_scale_ratio_x;
+   *y = mouse_scale_ratio_y;
 }
 
 static bool pi_create_display(ALLEGRO_DISPLAY *display)
@@ -295,8 +295,8 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
    attrib_list[3] = eds->settings[ALLEGRO_STENCIL_SIZE];
 
    if (eds->settings[ALLEGRO_RED_SIZE] || eds->settings[ALLEGRO_GREEN_SIZE] ||
-         eds->settings[ALLEGRO_BLUE_SIZE] ||
-         eds->settings[ALLEGRO_ALPHA_SIZE]) {
+    eds->settings[ALLEGRO_BLUE_SIZE] ||
+    eds->settings[ALLEGRO_ALPHA_SIZE]) {
       attrib_list[5] = eds->settings[ALLEGRO_RED_SIZE];
       attrib_list[7] = eds->settings[ALLEGRO_GREEN_SIZE];
       attrib_list[9] = eds->settings[ALLEGRO_BLUE_SIZE];
@@ -436,34 +436,34 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
    if (getenv("DISPLAY")) {
       _al_mutex_lock(&system->lock);
       Window root = RootWindow(
-         system->x11display, DefaultScreen(system->x11display));
+            system->x11display, DefaultScreen(system->x11display));
       XWindowAttributes attr;
       XGetWindowAttributes(system->x11display, root, &attr);
       d->window = XCreateWindow(
-         system->x11display,
-         root,
-         0,
-         0,
-         attr.width,
-         attr.height,
-         0, 0,
-         InputOnly,
-         DefaultVisual(system->x11display, 0),
-         0,
-         NULL
+            system->x11display,
+            root,
+            0,
+            0,
+            attr.width,
+            attr.height,
+            0, 0,
+            InputOnly,
+            DefaultVisual(system->x11display, 0),
+            0,
+            NULL
       );
       XGetWindowAttributes(system->x11display, d->window, &attr);
       XSelectInput(
-         system->x11display,
-         d->window,
-         PointerMotionMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask
+            system->x11display,
+            d->window,
+            PointerMotionMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask
       );
       XMapWindow(system->x11display, d->window);
       _al_xwin_reset_size_hints(display);
       _al_xwin_set_fullscreen_window(display, 2);
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
       d->wm_delete_window_atom = XInternAtom(system->x11display,
-         "WM_DELETE_WINDOW", False);
+            "WM_DELETE_WINDOW", False);
       XSetWMProtocols(system->x11display, d->window, &d->wm_delete_window_atom, 1);
       _al_mutex_unlock(&system->lock);
    }
@@ -646,7 +646,7 @@ static void raspberrypi_flip_display(ALLEGRO_DISPLAY *disp)
 }
 
 static void raspberrypi_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
-                                       int w, int h)
+                   int w, int h)
 {
     (void)x;
     (void)y;
@@ -696,8 +696,8 @@ static bool raspberrypi_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE
    set_cursor_data(d, data, w, h);
    al_free(data);
    if (cursor_added) {
-   	hide_cursor(d);
-	show_cursor(d);
+      hide_cursor(d);
+   show_cursor(d);
    }
    return true;
 }
@@ -715,7 +715,7 @@ static bool raspberrypi_set_system_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGR
 ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void)
 {
     if (vt)
-        return vt;
+   return vt;
 
     vt = al_calloc(1, sizeof *vt);
 

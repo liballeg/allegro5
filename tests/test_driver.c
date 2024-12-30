@@ -879,7 +879,7 @@ static bool check_similarity(ALLEGRO_CONFIG const *cfg,
    double rms = bitmap_dissimilarity(bmp1, bmp2);
    double tolerance;
    char const *value;
-   
+
    if (bmp_type == HW) {
       char const *exp = al_get_config_value(cfg, testname, "hash_hw");
       char const *sigexp = al_get_config_value(cfg, testname, "sig_hw");
@@ -1110,7 +1110,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
             get_draw_bitmap_flag(V(9)));
          continue;
       }
-      
+
       if (SCAN("al_draw_tinted_scaled_rotated_bitmap_region", 14)) {
          al_draw_tinted_scaled_rotated_bitmap_region(B(0), F(1), F(2),
             F(3), F(4), C(5),
@@ -1480,7 +1480,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          set_config_float(cfg, testname, lval, result);
          continue;
       }
-       
+
       /* Fonts: per glyph text handling (5.1)  */
       if (SCAN("al_draw_glyph", 5)) {
          al_draw_glyph(get_font(V(0)), C(1), F(2), F(3), I(4));

@@ -169,7 +169,7 @@ int main(int argc, char **argv)
                   text = "Memory bitmap (space to change)";
                }
             }
-               
+
             break;
 
          case ALLEGRO_EVENT_DISPLAY_CLOSE:

@@ -7,7 +7,7 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif 
+#endif
 
 #ifdef ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER
 
@@ -99,7 +99,7 @@ ALLEGRO_IIO_FUNC(bool, _al_save_webp_f, (ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp));
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 
 #endif

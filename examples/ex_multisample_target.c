@@ -89,7 +89,7 @@ static void bitmap_move(void)
       example.bitmap_y[i] = 100 + s * sin(a);
    }
 }
- 
+
 static void draw(char const *text, ALLEGRO_BITMAP *bitmap)
 {
    int i;
@@ -143,7 +143,7 @@ static void redraw(void)
    al_draw_bitmap(example.targets[1], 20, 240, 0);
    al_draw_bitmap(example.targets[2], 340, 20, 0);
    al_draw_bitmap(example.targets[3], 340, 240, 0);
-   
+
    al_draw_scaled_rotated_bitmap(example.step[0], 15, 15, 320 - 50, 220 - 50, 4, 4, 0, 0);
    al_draw_scaled_rotated_bitmap(example.step[1], 15, 15, 320 - 50, 440 - 50, 4, 4, 0, 0);
    al_draw_scaled_rotated_bitmap(example.step[2], 15, 15, 640 - 50, 220 - 50, 4, 4, 0, 0);
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
 
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   
+
    al_register_event_source(queue, al_get_display_event_source(display));
 
    al_start_timer(timer);

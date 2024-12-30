@@ -28,7 +28,7 @@ static void mainloop(void)
    int i, si;
    int n = 0;
    bool redraw = false;
-   
+
    for (i = 0; i < N; i++) {
       frequency[i] = 22050 * pow(2, i / (double)N);
       stream[i] = al_create_audio_stream(4, SAMPLES_PER_BUFFER, frequency[i],
@@ -59,7 +59,7 @@ static void mainloop(void)
 
    timer = al_create_timer(1.0 / 60);
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   
+
    al_register_event_source(queue, al_get_display_event_source(display));
 
    al_start_timer(timer);
@@ -90,7 +90,7 @@ static void mainloop(void)
                log_printf("\n");
          }
       }
-      
+
       if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;
       }
@@ -114,7 +114,7 @@ static void mainloop(void)
          ALLEGRO_COLOR c = al_map_rgb(0, 0, 0);
          int i;
          al_clear_to_color(al_map_rgb_f(1, 1, 1));
-        
+
          for (i = 0; i < 640; i++) {
             al_draw_pixel(i, 50 + waveform[i] * 50, c);
          }
@@ -140,7 +140,7 @@ static void update_waveform(void *buf, unsigned int samples, void *data)
    int i;
    int n = samples;
    (void)data;
-   
+
    /* Yes, we could do something more advanced, but an oscilloscope of the
     * first 640 samples of each buffer is enough for our purpose here.
     */
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
    al_install_keyboard();
 
    open_log();
-   
+
    display = al_create_display(640, 100);
    if (!display) {
       abort_example("Could not create display.\n");

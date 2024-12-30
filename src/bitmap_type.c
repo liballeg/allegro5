@@ -159,7 +159,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
    bool want_memory = (new_bitmap_flags & ALLEGRO_MEMORY_BITMAP) != 0;
    bool clone_memory;
    ALLEGRO_BITMAP *target_bitmap;
-   
+
    bitmap_flags &= ~_ALLEGRO_INTERNAL_OPENGL;
 
    /* If a cloned bitmap would be identical, we can just do nothing. */
@@ -235,11 +235,11 @@ void al_convert_memory_bitmaps(void)
    _AL_VECTOR copy;
    size_t i;
    if (!display) return;
-   
+
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
 
    al_lock_mutex(convert_bitmap_list.mutex);
-   
+
    _al_vector_init(&copy, sizeof(ALLEGRO_BITMAP *));
    for (i = 0; i <  _al_vector_size(&convert_bitmap_list.bitmaps); i++) {
       ALLEGRO_BITMAP **bptr, **bptr2;
@@ -257,9 +257,9 @@ void al_convert_memory_bitmaps(void)
       flags &= ~ALLEGRO_MEMORY_BITMAP;
       al_set_new_bitmap_flags(flags);
       al_set_new_bitmap_format(al_get_bitmap_format(*bptr));
-      
+
       ALLEGRO_DEBUG("converting memory bitmap %p to display bitmap\n", *bptr);
-      
+
       al_convert_bitmap(*bptr);
    }
 
@@ -273,7 +273,7 @@ void al_convert_memory_bitmaps(void)
 
 /* Converts a memory bitmap to a display bitmap preserving its contents.
  * The created bitmap belongs to the current display.
- * 
+ *
  * If this is called for a sub-bitmap, the parent also is converted.
  */
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)

@@ -113,7 +113,7 @@ static void x11_reply(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *allegro_disp
        *   Bit 0 is set if the current target will accept the drop.
        * data.l[2,3] contains a rectangle in root coordinates that
        * means "don't send another XdndPosition message until the mouse
-       * moves out of here". 
+       * moves out of here".
        * data.l[4] contains the action accepted by the target
        */
       m.data.l[1] = s->dnd_info.xdnd_req != None ? 3 : 0;
@@ -124,7 +124,7 @@ static void x11_reply(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *allegro_disp
        *
        * data.l[0] contains the XID of the target window.
        * data.l[1]:
-       *   Bit 0 is set if the current target accepted the drop 
+       *   Bit 0 is set if the current target accepted the drop
        * data.l[2] contains the action performed by the target.
        */
       m.data.l[1] = s->dnd_info.xdnd_req != None;

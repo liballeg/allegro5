@@ -32,7 +32,7 @@ int main(int argc, char **argv)
    if (!display) {
       abort_example("Error creating display\n");
    }
-   
+
    bitmap = al_load_bitmap("data/fakeamp.bmp");
    if (!bitmap) {
       abort_example("Error loading fakeamp.bmp\n");
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
          }
       }
       else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-	    event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
          break;
       }
       else if (event.type == ALLEGRO_EVENT_TIMER) {

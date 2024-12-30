@@ -38,7 +38,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    width += al_fread16le(f) + 1;      /* xmax */
    height += al_fread16le(f) + 1;     /* ymax */
 
-   al_fread32le(f);		   /* skip DPI values */
+   al_fread32le(f);                   /* skip DPI values */
 
    for (c = 0; c < 16 * 3; c++) {          /* skip the 16 color palette */
       al_fgetc(f);
@@ -73,7 +73,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
       ALLEGRO_ERROR("Failed to create bitmap.\n");
       return NULL;
    }
-   
+
    keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
 
    al_set_errno(0);
@@ -311,7 +311,7 @@ bool _al_identify_pcx(ALLEGRO_FILE *f)
 {
    uint8_t x[4];
    al_fread(f, x, 4);
-   
+
    if (x[0] != 0x0a) // PCX must start with 0x0a
       return false;
    if (x[1] == 1 || x[1] > 5) // version must be 0, 2, 3, 4, 5

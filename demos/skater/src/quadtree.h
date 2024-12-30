@@ -3,14 +3,14 @@
 
 #include "global.h"
 
-#define TRIFLAGS_WIDTH			0x07f
-#define TRIFLAGS_EDGE			0x080
+#define TRIFLAGS_WIDTH   0x07f
+#define TRIFLAGS_EDGE    0x080
 
-#define OBJFLAGS_VISIBLE		0x001
-#define OBJFLAGS_DOOR			0x002
+#define OBJFLAGS_VISIBLE 0x001
+#define OBJFLAGS_DOOR    0x002
 
-#define FLAGS_COLLIDABLE		0x100
-#define FLAGS_FOREGROUND		0x200
+#define FLAGS_COLLIDABLE 0x100
+#define FLAGS_FOREGROUND 0x200
 
 struct Material {
    ALLEGRO_BITMAP *Edge, *Fill;
@@ -124,23 +124,23 @@ struct Level {
 
 
 extern void SetupQuadTree(struct QuadTreeNode *Tree, int x1, int y1,
-			  int x2, int y2);
+                          int x2, int y2);
 extern void FreeQuadTree(struct QuadTreeNode *Tree);
 
 extern void BeginQuadTreeDraw(struct Level *Lvl,
-			      struct QuadTreeNode *TriTree,
-			      struct BoundingBox *ScrBounder,
-			      unsigned int framec);
+                              struct QuadTreeNode *TriTree,
+                              struct BoundingBox *ScrBounder,
+                              unsigned int framec);
 extern void EndQuadTreeDraw(struct Level *Lvl,
-			    struct BoundingBox *ScrBounder,
-			    unsigned int framec);
+                            struct BoundingBox *ScrBounder,
+                            unsigned int framec);
 extern struct QuadTreeNode *GetCollisionNode(struct Level *lev, double *pos,
-					     double *vec);
+                                             double *vec);
 
 extern void AddTriangle(struct Level *Level, struct Triangle *NewTri);
 extern void AddEdge(struct Level *level, struct Edge *NewEdge);
 extern void AddObject(struct Level *level, struct Object *NewObject,
-		      int DisplayTree);
+                      int DisplayTree);
 
 extern void SplitTree(struct QuadTreeNode *Tree);
 extern void OrderTree(struct QuadTreeNode *Tree, int PostTree);

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -74,7 +74,7 @@ static void align_to_integer_pixel(float *x, float *y)
  */
 void al_draw_ustr(const ALLEGRO_FONT *font,
    ALLEGRO_COLOR color, float x, float y, int flags,
-   const ALLEGRO_USTR *ustr) 
+   const ALLEGRO_USTR *ustr)
 {
    ASSERT(font);
    ASSERT(ustr);
@@ -101,7 +101,7 @@ void al_draw_ustr(const ALLEGRO_FONT *font,
  */
 void al_draw_text(const ALLEGRO_FONT *font,
    ALLEGRO_COLOR color, float x, float y, int flags,
-   char const *text) 
+   char const *text)
 {
    ALLEGRO_USTR_INFO info;
    ASSERT(text);
@@ -130,7 +130,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
 
    ASSERT(font);
 
-   /* count words and measure min length (without spaces) */ 
+   /* count words and measure min length (without spaces) */
    num_words = 0;
    minlen = 0;
    pos1 = 0;
@@ -157,7 +157,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
       if (flags & ALLEGRO_ALIGN_INTEGER)
          align_to_integer_pixel(&x1, &y);
       font->vtable->render(font, color, ustr, x1, y);
-      return; 
+      return;
    }
 
    /* distribute space left evenly between words */

@@ -18,7 +18,7 @@
 #define CLAMP(x,y,z) (std::max)(x, (std::min)(y, z))
 
 namespace {
-   
+
 class SaveState
 {
    ALLEGRO_STATE state;

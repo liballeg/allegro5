@@ -155,11 +155,11 @@ void gamepad_event(ALLEGRO_EVENT *event)
         case ALLEGRO_EVENT_TOUCH_BEGIN:
             button_down = true;
             break;
-            
+
         case ALLEGRO_EVENT_TOUCH_END:
             button_down = false;
             break;
-        
+
         case ALLEGRO_EVENT_JOYSTICK_AXIS:
             if (event->joystick.axis < 3)
                 axis[event->joystick.axis] = event->joystick.pos;

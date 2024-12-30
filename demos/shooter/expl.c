@@ -71,7 +71,7 @@ void generate_explosions(void)
          }
       }
 
-      
+
       al_unlock_bitmap(explosion[c]);
    }
 }

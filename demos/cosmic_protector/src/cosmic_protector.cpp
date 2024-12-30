@@ -44,7 +44,7 @@ static void game_loop()
       long end = (long) (al_get_time() * 1000);
       step = end - start;
       start = end;
-      
+
       if (step > 50) step = 50;
    }
 
@@ -83,11 +83,11 @@ int main(int argc, char **argv)
          al_rest(0.250);
          if (result == 1) {
             do_highscores(INT_MIN);
-	    continue;
+            continue;
          }
          else if (result == 2 || result == -1) {
             done();
-	    return 0;
+            return 0;
          }
          break;
       }

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -296,21 +296,21 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    color_ptr_off(d);
 }
 
-static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp, 
+static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
                                       int num_new_vertices)
 {
    disp->num_cache_vertices += num_new_vertices;
    if (!disp->vertex_cache) {
       disp->vertex_cache = al_malloc(num_new_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
-      
+
       disp->vertex_cache_size = num_new_vertices;
    } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
-      disp->vertex_cache = al_realloc(disp->vertex_cache, 
+      disp->vertex_cache = al_realloc(disp->vertex_cache,
                               2 * disp->num_cache_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
-                              
+
       disp->vertex_cache_size = 2 * disp->num_cache_vertices;
    }
-   return (ALLEGRO_OGL_BITMAP_VERTEX*)disp->vertex_cache + 
+   return (ALLEGRO_OGL_BITMAP_VERTEX*)disp->vertex_cache +
          (disp->num_cache_vertices - num_new_vertices);
 }
 
@@ -319,7 +319,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    GLuint current_texture;
    ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
    (void)o; /* not used in all ports */
-   
+
    if (!disp->vertex_cache)
       return;
    if (disp->num_cache_vertices == 0)
@@ -392,7 +392,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
             (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
          glEnableVertexAttribArray(o->varlocs.texcoord_loc);
       }
-      
+
       if (o->varlocs.color_loc >= 0) {
          glVertexAttribPointer(o->varlocs.color_loc, 4, GL_FLOAT, false, stride,
             (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
@@ -514,7 +514,7 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->clear = ogl_clear;
    vt->draw_pixel = ogl_draw_pixel;
    vt->clear_depth_buffer = ogl_clear_depth_buffer;
-   
+
    vt->flush_vertex_cache = ogl_flush_vertex_cache;
    vt->prepare_vertex_cache = ogl_prepare_vertex_cache;
    vt->update_transformation = ogl_update_transformation;

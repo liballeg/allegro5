@@ -80,7 +80,7 @@ void _al_thread_detach(_AL_THREAD *thread)
 void _al_mutex_init(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
-    
+
    mutex->mutex = SDL_CreateMutex();
 }
 

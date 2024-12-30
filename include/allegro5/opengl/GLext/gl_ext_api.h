@@ -141,7 +141,7 @@ AGL_API(void, WindowPos3s, (GLshort, GLshort, GLshort))
 AGL_API(void, WindowPos3sv, (const GLshort *))
 #endif
 
-	
+
 #if defined _ALLEGRO_GL_VERSION_1_5
 AGL_API(void, BindBuffer, (GLenum, GLuint))
 AGL_API(void, DeleteBuffers, (GLsizei, const GLuint *))
@@ -1410,7 +1410,7 @@ AGL_API(void, ReplacementCodeuiTexCoord2fNormal3fVertex3fvSUN, (const GLuint *, 
 AGL_API(void, ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN, (GLuint, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat))
 AGL_API(void, ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN, (const GLuint *, const GLfloat *, const GLfloat *, const GLfloat *, const GLfloat *))
 #endif
-	
+
 #if defined _ALLEGRO_GL_EXT_blend_func_separate
 AGL_API(void, BlendFuncSeparateEXT, (GLenum, GLenum, GLenum, GLenum))
 #endif

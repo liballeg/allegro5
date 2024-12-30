@@ -61,7 +61,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
    else {
       want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && primary && al_is_mouse_installed();
    }
-   
+
    if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_NONE)
       want_mouse_emulation_event = false;
    else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_INCLUSIVE)
@@ -69,7 +69,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
    else if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_EXCLUSIVE)
       want_touch_event = al_is_mouse_installed() ? false : want_touch_event;
 
-   
+
    if (!want_touch_event && !want_mouse_emulation_event)
       return;
 
@@ -109,7 +109,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
             case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;   break;
             case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
          }
-   
+
          event.mouse.type      = type;
          event.mouse.timestamp = timestamp;
          event.mouse.display   = (ALLEGRO_DISPLAY*)disp;
@@ -126,11 +126,11 @@ static void generate_touch_input_event(unsigned int type, double timestamp,
             event.mouse.button = id;
          }
          event.mouse.pressure  = mouse_state.pressure;
-   
+
          if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
             al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
          }
-   
+
          _al_event_source_emit_event(&touch_input.mouse_emulation_es, &event);
       }
       _al_event_source_unlock(&touch_input.mouse_emulation_es);
@@ -188,19 +188,19 @@ static void get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
 static void set_mouse_emulation_mode(int mode)
 {
    if (touch_input.mouse_emulation_mode != mode) {
-      
+
       int i;
-      
+
       for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i) {
-      
+
          ALLEGRO_TOUCH_STATE* touch = touch_input_state.touches + i;
-         
+
          if (touch->id > 0) {
             android_touch_input_handle_cancel(touch->id, al_get_time(),
                touch->x, touch->y, touch->primary, touch->display);
          }
       }
-      
+
       touch_input.mouse_emulation_mode = mode;
    }
 }
@@ -235,7 +235,7 @@ static void android_touch_input_handle_begin(int id, double timestamp,
 {
    ALLEGRO_TOUCH_STATE* state = find_free_touch_state();
    (void)primary;
-   
+
    if (NULL == state)
       return;
 

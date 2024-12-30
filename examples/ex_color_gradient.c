@@ -9,7 +9,7 @@
  *                                           \_/__/
  *
  *      Color gradient example program.
- * 
+ *
  *      This example draws several color gradients, each one linearly
  *      interpolating between two colors. For each version interpolating
  *      the raw R/G/B values there is also versions interpolating the

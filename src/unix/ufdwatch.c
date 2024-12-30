@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -114,7 +114,7 @@ static void fd_watch_thread_func(_AL_THREAD *self, void *unused)
 
 
 /* _al_unix_start_watching_fd: [primary thread]
- * 
+ *
  *  Start watching for data on file descriptor `fd'.  This is done in
  *  a background thread, which is started if necessary.  When there is
  *  data waiting to be read on fd, `callback' is applied to `cb_data'.

@@ -53,54 +53,54 @@ int main(int argc, char **argv)
    /* Test removing. */
    al_set_config_value(cfg, "empty", "key_remove", "to be removed");
    al_remove_config_key(cfg, "empty", "key_remove");
-   
+
    al_set_config_value(cfg, "schrödinger", "box", "cat");
    al_remove_config_section(cfg, "schrödinger");
-   
+
    /* Test whether iterating through our whole sample.cfg returns all
     * sections and entries, in order.
     */
 
    value = al_get_first_config_section(cfg, &iterator);
    TEST("section1", value && !strcmp(value, ""));
-   
+
    value = al_get_first_config_entry(cfg, value, &iterator2);
    TEST("entry1", value && !strcmp(value, "old_var"));
-   
+
    value = al_get_next_config_entry(&iterator2);
    TEST("entry2", value && !strcmp(value, "mysha.xpm"));
-   
+
    value = al_get_next_config_entry(&iterator2);
    TEST("entry3", value == NULL);
 
    value = al_get_next_config_section(&iterator);
    TEST("section2", value && !strcmp(value, "section"));
-   
+
    value = al_get_first_config_entry(cfg, value, &iterator2);
    TEST("entry4", value && !strcmp(value, "old_var"));
-   
+
    value = al_get_next_config_entry(&iterator2);
    TEST("entry5", value == NULL);
 
    value = al_get_next_config_section(&iterator);
    TEST("section3", value);
-   
+
    value = al_get_first_config_entry(cfg, value, &iterator2);
    TEST("entry6", value);
-   
+
    value = al_get_next_config_entry(&iterator2);
    TEST("entry7", value == NULL);
-   
+
    value = al_get_next_config_section(&iterator);
    TEST("empty", value && !strcmp(value, "empty"));
-   
+
    value = al_get_first_config_entry(cfg, value, &iterator2);
    TEST("empty entry", value == NULL);
-   
+
    value = al_get_next_config_section(&iterator);
    TEST("section4", value == NULL);
-   
-   
+
+
 
    al_set_config_value(cfg, "", "new_var", "new value");
    al_set_config_value(cfg, "section", "old_var", "new value");

@@ -78,14 +78,14 @@ int title_screen()
       al_clear_to_color(makecol(0, 0, 0));
 
       for (j=0; j<=16; j++) {
-	 y = j*(SCREEN_H/16);
-	 al_draw_bitmap_region(bmp, 0, y, SCREEN_W, i, 0, y, 0);
+         y = j*(SCREEN_H/16);
+         al_draw_bitmap_region(bmp, 0, y, SCREEN_W, i, 0, y, 0);
       }
 
       al_flip_display();
 
       do {
-	 poll_input_wait();
+         poll_input_wait();
       } while (retrace_count() < i*1024/SCREEN_W);
    }
 
@@ -155,14 +155,14 @@ void show_results()
       al_clear_to_color(makecol(0, 0, 0));
 
       for (j=0; j<=16; j++) {
-	 x = j*(SCREEN_W/16);
-	 al_draw_bitmap_region(bmp, x, 0, i, SCREEN_H, x, 0, 0);
+         x = j*(SCREEN_W/16);
+         al_draw_bitmap_region(bmp, x, 0, i, SCREEN_H, x, 0, 0);
       }
 
       al_flip_display();
 
       do {
-	 poll_input_wait();
+         poll_input_wait();
       } while (retrace_count() < i*1024/SCREEN_W);
    }
 
@@ -258,13 +258,13 @@ void goodbye()
 
    for (i=0; i < (int)(sizeof(data1)/sizeof(int)); i += 2) {
       al_play_sample(s1, 64/255.0, 0.0, pow(2.0, (float)data1[i]/12.0),
-		     ALLEGRO_PLAYMODE_LOOP, &id);
+                     ALLEGRO_PLAYMODE_LOOP, &id);
       rest(100*data1[i+1]);
       al_stop_sample(&id);
       rest(50*data1[i+1]);
 
       if (keypressed())
-	 return;
+         return;
    }
 
    rest(500);
@@ -275,13 +275,13 @@ void goodbye()
 
    for (i=0; i < (int)(sizeof(data2)/sizeof(int)); i += 2) {
       al_play_sample(s2, 64/255.0, 0.0, pow(2.0, (float)data2[i]/12.0),
-		     ALLEGRO_PLAYMODE_LOOP, &id);
+                     ALLEGRO_PLAYMODE_LOOP, &id);
       rest(75*data2[i+1]);
       al_stop_sample(&id);
       rest(25*data2[i+1]);
 
       if (keypressed())
-	 return;
+         return;
    }
 
    rest(300);

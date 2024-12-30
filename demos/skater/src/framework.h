@@ -1,5 +1,5 @@
-#ifndef		__DEMO_FRAMEWORK_H__
-#define		__DEMO_FRAMEWORK_H__
+#ifndef                __DEMO_FRAMEWORK_H__
+#define                __DEMO_FRAMEWORK_H__
 
 #include <allegro5/allegro.h>
 #include "defines.h"
@@ -52,4 +52,4 @@ extern void shutdown_framework(void);
 
 extern bool key_down(int k);
 
-#endif				/* __DEMO_FRAMEWORK_H__ */
+#endif                                /* __DEMO_FRAMEWORK_H__ */

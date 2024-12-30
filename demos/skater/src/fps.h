@@ -4,8 +4,8 @@
    date: 27. June 2003
 */
 
-#ifndef		__DEMO_FPS_H__
-#define		__DEMO_FPS_H__
+#ifndef                __DEMO_FPS_H__
+#define                __DEMO_FPS_H__
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
@@ -102,7 +102,7 @@ extern "C" {
       int color    - the color of the fps text
       char *format - the format of the text as you would pass to printf(); the
                      format should contain whatever text you wish to print and
-		     a format sequence for outputting an integer;
+                     a format sequence for outputting an integer;
 
    Returns:
       nothing
@@ -111,7 +111,7 @@ extern "C" {
       draw_fps(fps, screen, font, 100, 50, makecol(123,234,213), "FPS = %d");
 */
    void draw_fps(FPS * fps, ALLEGRO_FONT * font, int x, int y,
-		 ALLEGRO_COLOR color, char *format);
+                 ALLEGRO_COLOR color, char *format);
 
 
 #ifdef __cplusplus

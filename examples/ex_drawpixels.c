@@ -38,7 +38,7 @@ int main(int argc, char **argv)
    open_log();
 
    al_install_keyboard();
-   
+
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
       abort_example("Could not create display.\n");
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
    colors[0] = al_map_rgba(255, 100, 255, 128);
    colors[1] = al_map_rgba(255, 100, 100, 255);
    colors[2] = al_map_rgba(100, 100, 255, 255);
-         
+
    for (layer = 0; layer < 3; layer++) {
       for (star = 0; star < NUM_STARS/3; star++) {
          Point *p = &stars[layer][star];

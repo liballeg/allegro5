@@ -1,6 +1,6 @@
 /*
  * Allegro5 WAV reader
- * author: Matthew Leverton 
+ * author: Matthew Leverton
  */
 
 #include <stdio.h>
@@ -15,7 +15,7 @@ ALLEGRO_DEBUG_CHANNEL("wav")
 
 typedef struct WAVFILE
 {
-   ALLEGRO_FILE *f; 
+   ALLEGRO_FILE *f;
    size_t dpos;     /* the starting position of the data chunk */
    int freq;        /* e.g., 44100 */
    short bits;      /* 8 (unsigned char) or 16 (signed short) */
@@ -61,7 +61,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
       ALLEGRO_ERROR("Bad magic number.\n");
       goto wav_open_error;
    }
-   
+
    /* Read as many leading fmt chunks as exist, then read until a data chunk
     * is found.
     */
@@ -100,9 +100,9 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
 
          /* sample frequency */
          wavfile->freq = al_fread32le(f);
-       
+
          /* skip six bytes */
-         al_fseek(f, 6, ALLEGRO_SEEK_CUR);   
+         al_fseek(f, 6, ALLEGRO_SEEK_CUR);
 
          /* 8 or 16 bit data? */
          wavfile->bits = al_fread16le(f);
@@ -263,7 +263,7 @@ static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    bytes_per_sample = (wavfile->bits / 8) * wavfile->channels;
    ctime = wav_stream_get_position(stream);
    btime = ((double)buf_size / (double)bytes_per_sample) / (double)(wavfile->freq);
-   
+
    if (stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE && ctime + btime > wavfile->loop_end) {
       samples = ((wavfile->loop_end - ctime) * (double)(wavfile->freq));
    }
@@ -287,7 +287,7 @@ static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
 
    _al_acodec_stop_feed_thread(stream);
-   
+
    al_fclose(wavfile->f);
    wav_close(wavfile);
    stream->extra = NULL;
@@ -380,7 +380,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
    ALLEGRO_AUDIO_STREAM* stream;
 
    wavfile = wav_open(f);
-   
+
    if (wavfile == NULL) {
       ALLEGRO_ERROR("Failed to load wav file.\n");
       return NULL;
@@ -429,7 +429,7 @@ bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
       ALLEGRO_ERROR("Unable to open %s for writing.\n", filename);
    }
 
-   return false;   
+   return false;
 }
 
 

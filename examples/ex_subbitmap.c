@@ -88,7 +88,7 @@ int main(int argc, char **argv)
          else
             abort_example("Unknown argument: %s\n", argv[i]);
       }
-      
+
       if (!image_filename) {
          image_filename = "data/mysha.pcx";
       }
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
    if (!src_bmp) {
       abort_example("Could not load image file\n");
    }
-   
+
    src_x2 = src_x1 + al_get_bitmap_width(src_bmp);
    src_y2 = src_y1 + al_get_bitmap_height(src_bmp);
 
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
          r = MAX(src_x1, src_x2);
          t = MIN(src_y1, src_y2);
          b = MAX(src_y1, src_y2);
-         
+
          l -= SRC_X;
          t -= SRC_Y;
          r -= SRC_X;

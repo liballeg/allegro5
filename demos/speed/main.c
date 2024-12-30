@@ -17,33 +17,33 @@
 
 
 /* are we cheating? */
-int cheat = FALSE; 
+int cheat = FALSE;
 
 
 
 /* low detail mode? */
-int low_detail = FALSE; 
+int low_detail = FALSE;
 
 
 
 /* disable the grid? */
-int no_grid = FALSE; 
+int no_grid = FALSE;
 
 
 
 /* disable the music? */
-int no_music = FALSE; 
+int no_music = FALSE;
 
 
 
 /* how many points did we get? */
-int score; 
+int score;
 
 
 
 /* the main game function */
 static int play_game()
-{ 
+{
    ALLEGRO_TIMER *inc_counter;
    int gameover = 0;
    int cyclenum = 0;
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
    int display_flags = ALLEGRO_GENERATE_EXPOSE_EVENTS;
 
    srand(time(NULL));
-   
+
    al_set_org_name("liballeg.org");
    al_set_app_name("SPEED");
 
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 
       return 1;
    }
-   
+
    if (!w || !h) {
       if (argc == 1 || (display_flags & ALLEGRO_FULLSCREEN_WINDOW)) {
          w = 640;

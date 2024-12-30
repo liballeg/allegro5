@@ -7,7 +7,7 @@ int BB_W;
 int BB_H;
 #else
 int BB_W = 800;
-int BB_H = 600	;
+int BB_H = 600        ;
 #endif
 
 void DisplayResource::destroy(void)
@@ -40,18 +40,18 @@ bool DisplayResource::load(void)
 
    BB_W = al_get_display_width(display);
    BB_H = al_get_display_height(display);
-   
+
 #ifdef ALLEGRO_IPHONE
    if (BB_W < 960) {
-	BB_W *= 2;
-	BB_H *= 2;
-	ALLEGRO_TRANSFORM t;
-	al_identity_transform(&t);
-	al_scale_transform(&t, 0.5, 0.5);
-	al_use_transform(&t);
+        BB_W *= 2;
+        BB_H *= 2;
+        ALLEGRO_TRANSFORM t;
+        al_identity_transform(&t);
+        al_scale_transform(&t, 0.5, 0.5);
+        al_use_transform(&t);
    }
 #endif
-      
+
    events = al_create_event_queue();
    al_register_event_source(events, al_get_display_event_source(display));
 

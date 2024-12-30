@@ -81,7 +81,7 @@ static void CustomVertexFormatPrimitives(int mode)
          float x, y;
          x = 200 * cosf((float)ii / 4.0f * 2 * ALLEGRO_PI);
          y = 200 * sinf((float)ii / 4.0f * 2 * ALLEGRO_PI);
-         
+
          vtx[ii].x = x; vtx[ii].y = y;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          vtx[ii].color = al_map_rgba_f(1, 1, 1, 1);
@@ -94,11 +94,11 @@ static void CustomVertexFormatPrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_prim(vtx, decl, Texture, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -114,9 +114,9 @@ static void TexturePrimitives(int mode)
          float x, y;
          x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
          y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-         
+
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
-         
+
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
@@ -135,14 +135,14 @@ static void TexturePrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_prim(vtx, 0, Texture, 0, 4, ALLEGRO_PRIM_LINE_LIST);
       al_draw_prim(vtx, 0, Texture, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
       al_draw_prim(vtx, 0, Texture, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
       al_draw_prim(vtx2, 0, Texture, 0, 13, ALLEGRO_PRIM_POINT_LIST);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -163,13 +163,13 @@ static void FilledTexturePrimitives(int mode)
             x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
             y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
          }
-         
+
          if (ii == 0) {
             x = y = 0;
          }
-         
+
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
-         
+
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          if(ii < 10)
@@ -185,13 +185,13 @@ static void FilledTexturePrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-  
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_prim(vtx, 0, Texture, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
       al_draw_prim(vtx, 0, Texture, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
       al_draw_prim(vtx, 0, Texture, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -211,13 +211,13 @@ static void FilledPrimitives(int mode)
             x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
             y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
          }
-         
+
          if (ii == 0) {
             x = y = 0;
          }
-         
+
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
-         
+
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx[ii].color = color;
       }
@@ -229,13 +229,13 @@ static void FilledPrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_prim(vtx, 0, 0, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
       al_draw_prim(vtx, 0, 0, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
       al_draw_prim(vtx, 0, 0, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -258,13 +258,13 @@ static void IndexedFilledPrimitives(int mode)
             x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
             y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
          }
-         
+
          if (ii == 0) {
             x = y = 0;
          }
-         
+
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
-         
+
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx[ii].color = color;
       }
@@ -277,20 +277,20 @@ static void IndexedFilledPrimitives(int mode)
          if (ii > 0)
             indices3[ii] = ((int)al_get_time() + ii + 12) % 20 + 1;
       }
-      
+
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_indexed_prim(vtx, 0, 0, indices1, 6, ALLEGRO_PRIM_TRIANGLE_LIST);
       al_draw_indexed_prim(vtx, 0, 0, indices2, 6, ALLEGRO_PRIM_TRIANGLE_STRIP);
       al_draw_indexed_prim(vtx, 0, 0, indices3, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -298,7 +298,7 @@ static void IndexedFilledPrimitives(int mode)
 static void HighPrimitives(int mode)
 {
    if (mode == INIT) {
-   
+
    } else if (mode == LOGIC) {
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
@@ -314,9 +314,9 @@ static void HighPrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_line(-300, -200, 300, 200, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_triangle(-150, -250, 0, 250, 150, -250, al_map_rgba_f(0.5, 0, 0.5, 1), Thickness);
       al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 1), Thickness);
@@ -327,7 +327,7 @@ static void HighPrimitives(int mode)
       al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -335,7 +335,7 @@ static void HighPrimitives(int mode)
 static void HighFilledPrimitives(int mode)
 {
    if (mode == INIT) {
-   
+
    } else if (mode == LOGIC) {
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
@@ -344,15 +344,15 @@ static void HighFilledPrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_filled_triangle(-100, -100, -150, 200, 100, 200, al_map_rgb_f(0.5, 0.7, 0.3));
       al_draw_filled_rectangle(20, -50, 200, 50, al_map_rgb_f(0.3, 0.2, 0.6));
       al_draw_filled_ellipse(-250, 0, 100, 150, al_map_rgb_f(0.3, 0.3, 0.3));
       al_draw_filled_rounded_rectangle(50, -250, 350, -75, 50, 70, al_map_rgb_f(0.4, 0.2, 0));
       al_draw_filled_pieslice(200, 125, 50, ALLEGRO_PI / 4, 3 * ALLEGRO_PI / 2, al_map_rgb_f(0.3, 0.3, 0.1));
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -361,7 +361,7 @@ static void TransformationsPrimitives(int mode)
 {
    float t = al_get_time();
    if (mode == INIT) {
-   
+
    } else if (mode == LOGIC) {
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, sinf(t / 5), cosf(t / 5), Theta);
@@ -372,25 +372,25 @@ static void TransformationsPrimitives(int mode)
          -700, 200,
          300, -200
       };
-      
+
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_line(-300, -200, 300, 200, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_triangle(-150, -250, 0, 250, 150, -250, al_map_rgba_f(0.5, 0, 0.5, 1), Thickness);
       al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 1), Thickness);
       al_draw_rounded_rectangle(-200, -125, 200, 125, 50, 100, al_map_rgba_f(0.2, 0.2, 0, 1), Thickness);
-      
+
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_elliptical_arc(-20, 0, 300, 200, -ALLEGRO_PI / 2, -ALLEGRO_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -406,9 +406,9 @@ static void LowPrimitives(int mode)
          float x, y;
          x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
          y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-         
+
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
-         
+
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
          vtx[ii].color = color;
@@ -422,14 +422,14 @@ static void LowPrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
       al_draw_prim(vtx, 0, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
       al_draw_prim(vtx, 0, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
       al_draw_prim(vtx2, 0, 0, 0, 13, ALLEGRO_PRIM_POINT_LIST);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -448,9 +448,9 @@ static void IndexedPrimitives(int mode)
          float x, y;
          x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
          y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
-         
+
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
-         
+
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
          vtx[ii].color = color;
@@ -464,21 +464,21 @@ static void IndexedPrimitives(int mode)
          indices2[ii] = ((int)al_get_time() + ii + 4) % 13;
          indices3[ii] = ((int)al_get_time() + ii + 8) % 13;
       }
-      
+
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
+
       al_use_transform(&MainTrans);
-      
+
       al_draw_indexed_prim(vtx, 0, 0, indices1, 4, ALLEGRO_PRIM_LINE_LIST);
       al_draw_indexed_prim(vtx, 0, 0, indices2, 4, ALLEGRO_PRIM_LINE_STRIP);
       al_draw_indexed_prim(vtx, 0, 0, indices3, 4, ALLEGRO_PRIM_LINE_LOOP);
       al_draw_indexed_prim(vtx2, 0, 0, indices3, 4, ALLEGRO_PRIM_POINT_LIST);
-      
+
       al_use_transform(&Identity);
    }
 }
@@ -657,7 +657,7 @@ int main(int argc, char **argv)
    al_init_font_addon();
    al_init_primitives_addon();
    init_platform_specific();
-   
+
    if (use_shader) {
       al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
    }
@@ -676,31 +676,31 @@ int main(int argc, char **argv)
    if (!al_install_mouse()) {
       abort_example("Error installing mouse.\n");
    }
-   
+
    // Load a font
    Font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!Font) {
       abort_example("Error loading \"data/fixed_font.tga\".\n");
    }
-   
+
    solid_white = al_map_rgba_f(1, 1, 1, 1);
-   
+
    bkg = al_load_bitmap("data/bkg.png");
 
    al_set_new_bitmap_wrap(ALLEGRO_BITMAP_WRAP_CLAMP, ALLEGRO_BITMAP_WRAP_MIRROR);
    Texture = al_load_bitmap("data/texture.tga");
-   
+
    // Make and set some color to draw with
    black = al_map_rgba_f(0.0, 0.0, 0.0, 1.0);
-   
+
    // Start the event queue to handle keyboard input and our timer
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_mouse_event_source());
-   
+
    al_set_window_title(display, "Primitives Example");
-   
+
    {
    int refresh_rate = 60;
    int frames_done = 0;
@@ -720,14 +720,14 @@ int main(int argc, char **argv)
    al_start_timer(timer);
    timer_queue = al_create_event_queue();
    al_register_event_source(timer_queue, al_get_timer_event_source(timer));
-   
+
    old = al_get_new_bitmap_flags();
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    Buffer = al_create_bitmap(ScreenW, ScreenH);
    al_set_new_bitmap_flags(old);
-   
+
    al_identity_transform(&Identity);
-   
+
    Screens[0] = LowPrimitives;
    Screens[1] = IndexedPrimitives;
    Screens[2] = HighPrimitives;
@@ -764,18 +764,18 @@ int main(int argc, char **argv)
       al_rest(fixed_timestep - frame_duration); //rest at least fixed_dt
       frame_duration = al_get_time() - real_time;
       real_time = al_get_time();
-      
+
       if (real_time - game_time > frame_duration) { //eliminate excess overflow
          game_time += fixed_timestep * floor((real_time - game_time) / fixed_timestep);
       }
-      
+
       while (real_time - game_time >= 0) {
          ALLEGRO_EVENT key_event;
          double start_time = al_get_time();
          game_time += fixed_timestep;
-         
+
          Screens[cur_screen](LOGIC);
-         
+
          while (al_get_next_event(queue, &key_event)) {
             switch (key_event.type) {
                case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN: {
@@ -862,28 +862,28 @@ int main(int argc, char **argv)
                }
             }
          }
-         
+
          if (al_get_time() - start_time >= fixed_timestep) { //break if we start taking too long
             break;
          }
       }
 
-      al_clear_to_color(black);            
+      al_clear_to_color(black);
 
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
          al_clear_to_color(black);
       }
-      
+
       if (Background && bkg) {
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_scaled_bitmap(bkg, 0, 0, al_get_bitmap_width(bkg), al_get_bitmap_height(bkg), 0, 0, ScreenW, ScreenH, 0);
       }
-      
+
       if (clip == 1) {
          al_set_clipping_rectangle(ScreenW / 2, ScreenH / 2, ScreenW / 2, ScreenH / 2);
       }
-      
+
       Screens[cur_screen](DRAW);
 
       al_set_clipping_rectangle(0, 0, ScreenW, ScreenH);

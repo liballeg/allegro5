@@ -362,35 +362,35 @@ typedef XID GLXVideoSourceSGIX;
 #define GLX_BAD_HYPERPIPE_SGIX             92
 
 typedef struct {
-	char  pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
-	int  networkId;
+   char  pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+   int  networkId;
 } GLXHyperpipeNetworkSGIX;
 
 typedef struct {
-	char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
-	int channel;
-	unsigned int participationType;
-	int timeSlice;
+   char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+   int channel;
+   unsigned int participationType;
+   int timeSlice;
 } GLXHyperpipeConfigSGIX;
 
 typedef struct {
-	char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
-	int srcXOrigin;
-	int srcYOrigin;
-	int srcWidth;
-	int srcHeight;
-	int destXOrigin;
-	int destYOrigin;
-	int destWidth;
-	int destHeight;
+   char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+   int srcXOrigin;
+   int srcYOrigin;
+   int srcWidth;
+   int srcHeight;
+   int destXOrigin;
+   int destYOrigin;
+   int destWidth;
+   int destHeight;
 } GLXPipeRect;
 
 typedef struct {
-	char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
-	int XOrigin;
-	int YOrigin;
-	int maxHeight;
-	int maxWidth;
+   char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+   int XOrigin;
+   int YOrigin;
+   int maxHeight;
+   int maxWidth;
 } GLXPipeRectLimits;
 #endif
 
@@ -479,17 +479,17 @@ typedef unsigned int GLXVideoDeviceNV;
 #ifndef GLX_NV_video_capture
 #define GLX_NV_video_capture
 #define _ALLEGRO_GLX_NV_video_capture
-#define GLX_DEVICE_ID_NV                   0x20CD
-#define GLX_UNIQUE_ID_NV                   0x20CE
-#define GLX_NUM_VIDEO_CAPTURE_SLOTS_NV     0x20CF
+#define GLX_DEVICE_ID_NV                    0x20CD
+#define GLX_UNIQUE_ID_NV                    0x20CE
+#define GLX_NUM_VIDEO_CAPTURE_SLOTS_NV      0x20CF
 typedef XID GLXVideoCaptureDeviceNV;
 #endif
 
 #ifndef GLX_EXT_swap_control
 #define GLX_EXT_swap_control
 #define _ALLEGRO_GLX_EXT_swap_control
-#define GLX_SWAP_INTERVAL_EXT              0x20F1
-#define GLX_MAX_SWAP_INTERVAL_EXT          0x20F2
+#define GLX_SWAP_INTERVAL_EXT               0x20F1
+#define GLX_MAX_SWAP_INTERVAL_EXT           0x20F2
 #endif
 
 #ifndef GLX_NV_copy_image
@@ -501,15 +501,15 @@ typedef XID GLXVideoCaptureDeviceNV;
 #define GLX_INTEL_swap_event
 #define _ALLEGRO_GLX_INTEL_swap_event
 #define GLX_BUFFER_SWAP_COMPLETE_INTEL_MASK 0x04000000
-#define GLX_EXCHANGE_COMPLETE_INTEL        0x8180
-#define GLX_COPY_COMPLETE_INTEL            0x8181
-#define GLX_FLIP_COMPLETE_INTEL            0x8182
+#define GLX_EXCHANGE_COMPLETE_INTEL         0x8180
+#define GLX_COPY_COMPLETE_INTEL             0x8181
+#define GLX_FLIP_COMPLETE_INTEL             0x8182
 #endif
 
 #ifndef GLX_EXT_create_context_es_profile
 #define GLX_EXT_create_context_es_profile
 #define GLX_EXT_create_context_es2_profile
 #define _ALLEGRO_GLX_EXT_create_context_es_profile
-#define GLX_CONTEXT_ES_PROFILE_BIT_EXT		0x00000004
-#define GLX_CONTEXT_ES2_PROFILE_BIT_EXT		0x00000004
+#define GLX_CONTEXT_ES_PROFILE_BIT_EXT      0x00000004
+#define GLX_CONTEXT_ES2_PROFILE_BIT_EXT     0x00000004
 #endif

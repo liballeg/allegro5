@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -81,7 +81,7 @@ static void shutdown_system_driver(void)
       if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
          active_sysdrv->vt->shutdown_system();
       active_sysdrv = NULL;
- 
+
       while (!_al_vector_is_empty(&_al_system_interfaces))
          _al_vector_delete_at(&_al_system_interfaces, _al_vector_size(&_al_system_interfaces)-1);
       _al_vector_free(&_al_system_interfaces);
@@ -261,7 +261,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       active_sysdrv = NULL;
       return false;
    }
-   
+
    active_sysdrv = real_system;
    active_sysdrv->mouse_wheel_precision = 1;
 
@@ -282,7 +282,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    _al_init_events();
 
    _al_init_iio_table();
-   
+
    _al_init_convert_bitmap_list();
 
    _al_init_timers();
@@ -383,10 +383,10 @@ ALLEGRO_PATH *al_get_standard_path(int id)
    ASSERT(active_sysdrv);
    ASSERT(active_sysdrv->vt);
    ASSERT(active_sysdrv->vt->get_path);
-   
+
    if (id == ALLEGRO_EXENAME_PATH && active_sysdrv->user_exe_path)
       return al_clone_path(active_sysdrv->user_exe_path);
-   
+
    if (id == ALLEGRO_RESOURCES_PATH && active_sysdrv->user_exe_path) {
       ALLEGRO_PATH *exe_dir = al_clone_path(active_sysdrv->user_exe_path);
       al_set_path_filename(exe_dir, NULL);

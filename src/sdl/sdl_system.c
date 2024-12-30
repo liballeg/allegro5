@@ -187,7 +187,7 @@ static void sdl_shutdown_system(void)
       al_destroy_display(d);
    }
    _al_vector_free(&s->system.displays);
-   
+
    al_destroy_mutex(s->mutex);
    al_free(s);
    SDL_Quit();

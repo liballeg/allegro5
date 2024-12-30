@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *bitmap, *font_bitmap;
     ALLEGRO_FONT *f1, *f2, *f3;
-    
+
     int range, index, x, y;
 
     int ranges[] = {
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     if (!f1) {
         abort_example("Failed to load bmpfont.tga\n");
     }
-    
+
     font_bitmap = al_load_bitmap("data/a4_font.tga");
     if (!font_bitmap) {
         abort_example("Failed to load a4_font.tga\n");
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 
     /* Draw green text */
     al_draw_textf(f1, al_map_rgb(0, 255, 0), 120, 10, 0, "green");
-    
+
     /* Draw a unicode symbol */
     al_draw_textf(f2, al_map_rgb(0, 0, 255), 60, 60, 0, "Mysha's 0.02" EURO);
 
@@ -110,14 +110,14 @@ int main(int argc, char **argv)
     al_draw_textf(f3, al_map_rgb(255, 255, 0), 20, 200, ALLEGRO_ALIGN_CENTER,
         "a string from builtin font data");
 
-    /* Draw all individual glyphs the f2 font's range in rainbow colors.     
+    /* Draw all individual glyphs the f2 font's range in rainbow colors.
      */
     x = 10;
     y = 300;
     al_draw_textf(f3, al_map_rgb(0, 255, 255), x,  y - 20, 0, "Draw glyphs: ");
     for (range = 0; range < 4; range++) {
        int start = ranges[2*range];
-       int stop  = ranges[2*range + 1];      
+       int stop  = ranges[2*range + 1];
        for (index = start; index < stop; index ++) {
           /* Use al_get_glyph_advance for the stride. */
           int width = al_get_glyph_advance(f2, index, ALLEGRO_NO_KERNING);
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
    }
 
 
-    
+
     al_flip_display();
 
     wait_for_esc(display);

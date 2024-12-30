@@ -31,7 +31,7 @@ int main(void)
    data = calloc(1, data_size);
    if (!data)
       abort_example("Out of memory.\n");
-   
+
    log_printf("Creating memfile\n");
    memfile = al_open_memfile(data, data_size, "rw");
    if (!memfile) {
@@ -62,32 +62,32 @@ int main(void)
       log_printf("EOF indicator prematurely set!\n");
       goto Error;
    }
-   
+
    /* testing the ungetc buffer */
    al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
-   
+
    for (i = 0; al_fungetc(memfile, i) != EOF; ++i) { }
    log_printf("Length of ungetc buffer: %d\n", i);
-   
+
    if (al_ftell(memfile) != -i) {
       log_printf("Current position is not correct. Expected -%d, but got %d\n",
          i, (int) al_ftell(memfile));
       goto Error;
    }
-   
+
    while (i--) {
       if (i != al_fgetc(memfile)) {
          log_printf("Failed to verify ungetc data.\n");
          goto Error;
       }
    }
-   
+
    if (al_ftell(memfile) != 0) {
       log_printf("Current position is not correct after reading back the ungetc buffer\n");
       log_printf("Expected 0, but got %d\n", (int) al_ftell(memfile));
       goto Error;
    }
-   
+
    al_fputs(memfile, "legro rocks!");
    al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
    al_fungetc(memfile, 'l');
@@ -97,7 +97,7 @@ int main(void)
       log_printf("Expected to see 'Allegro rocks!' but got '%s' instead.\n", buffer);
       log_printf("(Maybe the ungetc buffer isn't big enough.)\n");
       goto Error;
-   }   
+   }
 
    log_printf("Done.\n");
 

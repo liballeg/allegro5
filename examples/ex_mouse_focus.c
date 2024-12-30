@@ -54,7 +54,7 @@ int main(int argc, char **argv)
    }
 
    open_log();
-   log_printf("Move the mouse cursor over the displays\n"); 
+   log_printf("Move the mouse cursor over the displays\n");
 
    black = al_map_rgb(0, 0, 0);
    red = al_map_rgb(255, 0, 0);

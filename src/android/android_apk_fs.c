@@ -87,7 +87,7 @@ static ALLEGRO_FS_ENTRY *fs_apk_create_entry(const char *path)
       return NULL;
    }
    e->path_cstr = al_path_cstr(e->path, '/');
-   
+
    return &e->fs_entry;
 }
 
@@ -100,7 +100,7 @@ static bool fs_apk_change_directory(const char *path)
 {
    ALLEGRO_USTR *us;
    ALLEGRO_USTR *cwd = get_fake_cwd();
-   
+
    /* Figure out which directory we are trying to change to. */
    if (path_is_absolute(path))
       us = al_ustr_new(path);

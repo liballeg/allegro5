@@ -18,9 +18,9 @@ typedef struct _al_tagbstring ALLEGRO_USTR_INFO;
 #ifndef __al_tagbstring_defined
 #define __al_tagbstring_defined
 struct _al_tagbstring {
-	int mlen;
-	int slen;
-	unsigned char * data;
+        int mlen;
+        int slen;
+        unsigned char * data;
 };
 #endif
 

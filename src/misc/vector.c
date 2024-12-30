@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -193,7 +193,7 @@ void* _al_vector_alloc_back(_AL_VECTOR *vec)
          vec->_items = new_items;
          vec->_unused = vec->_size;
       }
-   
+
       vec->_size++;
       vec->_unused--;
 
@@ -335,7 +335,7 @@ bool _al_vector_find_and_delete(_AL_VECTOR *vec, const void *ptr_item)
 
 
 /* Internal function: _al_vector_free
- * 
+ *
  *  Free the space used by the vector.  You really must do this at some
  *  stage.  It is not enough to delete all the items in the vector (which you
  *  should usually do also).

@@ -1,5 +1,5 @@
-#ifndef		__DEMO_GAMESTATE_H__
-#define		__DEMO_GAMESTATE_H__
+#ifndef                __DEMO_GAMESTATE_H__
+#define                __DEMO_GAMESTATE_H__
 
 /*
    Structure that defines one game state/screen/page. Each screen is
@@ -37,4 +37,4 @@ struct GAMESTATE {
    void (*draw) (void);
 };
 
-#endif				/* __DEMO_GAMESTATE_H__ */
+#endif                                /* __DEMO_GAMESTATE_H__ */

@@ -27,12 +27,12 @@ void play_music(int id, int loop)
       return;
    }
    stop_music();
-   
+
    al_set_audio_stream_playmode(demo_data[id].dat,
       loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
-   
+
    al_set_audio_stream_gain(demo_data[id].dat, volume_music);
-   
+
    al_attach_audio_stream_to_mixer(demo_data[id].dat,
       al_get_default_mixer());
    al_set_audio_stream_playing(demo_data[id].dat, true);

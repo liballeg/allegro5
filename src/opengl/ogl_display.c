@@ -1,6 +1,6 @@
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -19,7 +19,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
-#include "allegro5/transformations.h"	
+#include "allegro5/transformations.h"
 
 #ifdef ALLEGRO_IPHONE
 #include "allegro5/internal/aintern_iphone.h"
@@ -146,7 +146,7 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
    }
    else {
       glEnable(GL_SCISSOR_TEST);
-       
+
       #ifdef ALLEGRO_IPHONE
       _al_iphone_clip(bitmap, x_1, y_1, x_2, y_2);
       #else
@@ -167,7 +167,7 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
 {
    int pitch;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra = b->extra;
-         
+
    pitch = w * al_get_pixel_size(al_get_bitmap_format(b));
 
    b->w = w;

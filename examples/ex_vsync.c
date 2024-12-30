@@ -42,7 +42,7 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
          "or simply hate sliding bars.");
       al_draw_text(font, white, x, y + 40, ALLEGRO_ALIGN_CENTRE,
          "Press Escape to quit or Enter to continue.");
-      
+
       y += 100;
       al_draw_text(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "Parameters from ex_vsync.ini:");
       y += h;
@@ -53,7 +53,7 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
       al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "frequency: %d", frequency);
       y += h;
       al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "bar width: %d", bar_width);
-      
+
       al_flip_display();
 
       al_wait_for_event(queue, &event);
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
    /* Vsync 1 means force on, 2 means forced off. */
    if (vsync)
       al_set_new_display_option(ALLEGRO_VSYNC, vsync, ALLEGRO_SUGGEST);
-   
+
    /* Force fullscreen mode. */
    if (fullscreen) {
       al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
       al_clear_to_color(al_map_rgb(0,0,0));
       al_draw_filled_rectangle(bar_position, 0, bar_position + bar_width - 1, display_height - 1, al_map_rgb_f(1., 1., 1.));
 
-      
+
       al_flip_display();
 
       while (al_get_next_event(queue, &event)) {
@@ -206,7 +206,7 @@ int main(int argc, char **argv)
    }
 
    al_destroy_font(font);
-   al_destroy_event_queue(queue);  
+   al_destroy_event_queue(queue);
 
    return 0;
 }

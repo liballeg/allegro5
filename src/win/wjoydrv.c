@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -29,7 +29,7 @@
 
 _AL_BEGIN_JOYSTICK_DRIVER_LIST
 _AL_JOYSTICK_DRIVER_DIRECTX
-#ifdef ALLEGRO_CFG_XINPUT 
+#ifdef ALLEGRO_CFG_XINPUT
 _AL_JOYSTICK_DRIVER_XINPUT
 _AL_JOYSTICK_DRIVER_WINDOWS_ALL
 #endif

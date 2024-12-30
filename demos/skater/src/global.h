@@ -1,5 +1,5 @@
-#ifndef		__DEMO_GLOBAL_H__
-#define		__DEMO_GLOBAL_H__
+#ifndef                __DEMO_GLOBAL_H__
+#define                __DEMO_GLOBAL_H__
 
 #define mouse_event WIN32_mouse_event
 #include <stdio.h>
@@ -199,12 +199,12 @@ extern DATA_ENTRY *demo_data;
 void unload_data_entries(DATA_ENTRY *data);
 
 int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
-		   const char *name, int def);
+                   const char *name, int def);
 
 void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
-		    int val);
+                    int val);
 
 int my_stricmp(const char *s1, const char *s2);
 
 
-#endif				/* __DEMO_GLOBAL_H__ */
+#endif                                /* __DEMO_GLOBAL_H__ */

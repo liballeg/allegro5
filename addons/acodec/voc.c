@@ -232,7 +232,7 @@ ALLEGRO_SAMPLE *_al_load_voc(const char *filename)
    ALLEGRO_FILE *f;
    ALLEGRO_SAMPLE *spl;
    ASSERT(filename);
-   
+
    ALLEGRO_INFO("Loading VOC sample %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {

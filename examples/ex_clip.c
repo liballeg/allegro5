@@ -80,7 +80,7 @@ static void print(char const *format, ...)
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
 
-   ex.text_y += th;   
+   ex.text_y += th;
 }
 
 static void start_timer(int i)
@@ -108,9 +108,9 @@ static void draw(void)
    int ih = al_get_bitmap_height(ex.pattern);
    ALLEGRO_BITMAP *temp;
    int cx, cy, cw, ch, gap = 8;
-   
+
    al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
-   
+
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
    al_clear_to_color(ex.background);
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
    al_start_timer(timer);
    run();
 
-   al_destroy_event_queue(ex.queue);  
+   al_destroy_event_queue(ex.queue);
 
    return 0;
 }

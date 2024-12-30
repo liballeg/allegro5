@@ -102,16 +102,16 @@ ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_icon, (ALLEGRO_MENU *menu, int pos, A
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_NATIVE_DIALOG_SRC)
 ALLEGRO_DIALOG_FUNC(int, al_toggle_menu_item_flags, (ALLEGRO_MENU *menu, int pos, int flags));
 #endif
- 
+
 /* querying menus */
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_find_menu, (ALLEGRO_MENU *haystack, uint16_t id));
 ALLEGRO_DIALOG_FUNC(bool, al_find_menu_item, (ALLEGRO_MENU *haystack, uint16_t id, ALLEGRO_MENU **menu, int *index));
- 
+
 /* menu events */
 ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_default_menu_event_source, (void));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_enable_menu_event_source, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(void, al_disable_menu_event_source, (ALLEGRO_MENU *menu));
- 
+
 /* displaying menus */
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_get_display_menu, (ALLEGRO_DISPLAY *display));
 ALLEGRO_DIALOG_FUNC(bool, al_set_display_menu, (ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu));

@@ -447,13 +447,13 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
       ex_data->thread = NULL;
       ex_data->stopped = false;
    }
-   
+
    alSourcei(ex_data->source, AL_BUFFER, 0);
    alDeleteSources(1, &ex_data->source);
    alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
    al_free(ex_data->buffers);
    ex_data->buffers = NULL;
-   
+
    alGetError(); /* required! */
    return 0;
 }

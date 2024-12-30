@@ -172,32 +172,32 @@ void lay_attack_wave(int reset)
    else {
       wavenum++;
       if (wavenum >= (int)(sizeof(waveinfo)/sizeof(WAVEINFO *)))
-	 wavenum = 0;
+         wavenum = 0;
    }
 
    info = waveinfo[wavenum];
 
    while (info->count) {
       for (i=0; i<info->count; i++) {
-	 b = malloc(sizeof(BADGUY));
+         b = malloc(sizeof(BADGUY));
 
-	 #define URAND  ((float)(rand() & 255) / 255.0)
-	 #define SRAND  (((float)(rand() & 255) / 255.0) - 0.5)
+         #define URAND  ((float)(rand() & 255) / 255.0)
+         #define SRAND  (((float)(rand() & 255) / 255.0) - 0.5)
 
-	 b->x = URAND;
-	 b->y = -info->delay - URAND * info->delay_rand;
-	 b->speed = info->speed + URAND * info->speed_rand;
-	 b->move = info->move + SRAND * info->move_rand;
-	 b->sin_depth = info->sin_depth + URAND * info->sin_depth_rand;
-	 b->sin_speed = info->sin_speed + URAND * info->sin_speed_rand;
-	 b->split = info->split;
-	 b->aggro = info->aggro;
-	 b->evade = info->evade;
-	 b->v = 0;
-	 b->t = rand() & 255;
+         b->x = URAND;
+         b->y = -info->delay - URAND * info->delay_rand;
+         b->speed = info->speed + URAND * info->speed_rand;
+         b->move = info->move + SRAND * info->move_rand;
+         b->sin_depth = info->sin_depth + URAND * info->sin_depth_rand;
+         b->sin_speed = info->sin_speed + URAND * info->sin_speed_rand;
+         b->split = info->split;
+         b->aggro = info->aggro;
+         b->evade = info->evade;
+         b->v = 0;
+         b->t = rand() & 255;
 
-	 b->next = evildudes;
-	 evildudes = b;
+         b->next = evildudes;
+         evildudes = b;
       }
 
       info++;
@@ -248,143 +248,143 @@ int update_badguys()
       b = NULL;
 
       while (key[ALLEGRO_KEY_ENTER])
-	 poll_input_wait();
+         poll_input_wait();
    }
 
    while (b) {
       dead = FALSE;
 
       if (b->aggro) {
-	 /* attack the player */
-	 d = player_pos() - b->x;
+         /* attack the player */
+         d = player_pos() - b->x;
 
-	 if (d < -0.5)
-	    d += 1;
-	 else if (d > 0.5)
-	    d -= 1;
+         if (d < -0.5)
+            d += 1;
+         else if (d > 0.5)
+            d -= 1;
 
-	 if (b->y < 0.5)
-	    d = -d;
+         if (b->y < 0.5)
+            d = -d;
 
-	 b->v *= 0.99;
-	 b->v += SGN(d) * 0.00025;
+         b->v *= 0.99;
+         b->v += SGN(d) * 0.00025;
       }
       else if (b->evade) {
-	 /* evade the player */
-	 if (b->y < 0.75)
-	    d = player_pos() + 0.5;
-	 else
-	    d = b->x;
+         /* evade the player */
+         if (b->y < 0.75)
+            d = player_pos() + 0.5;
+         else
+            d = b->x;
 
-	 if (b->move)
-	    d += SGN(b->move) / 16.0;
+         if (b->move)
+            d += SGN(b->move) / 16.0;
 
-	 d = find_target(d) - b->x;
+         d = find_target(d) - b->x;
 
-	 if (d < -0.5)
-	    d += 1;
-	 else if (d > 0.5)
-	    d -= 1;
+         if (d < -0.5)
+            d += 1;
+         else if (d > 0.5)
+            d -= 1;
 
-	 b->v *= 0.96;
-	 b->v += SGN(d) * 0.0004;
+         b->v *= 0.96;
+         b->v += SGN(d) * 0.0004;
       }
 
       /* horizontal move */
       b->x += b->move + sin(b->t * b->sin_speed) * b->sin_depth + b->v;
 
       if (b->x < 0)
-	 b->x += 1;
+         b->x += 1;
       else if (b->x > 1)
-	 b->x -= 1;
+         b->x -= 1;
 
       /* vertical move */
       b->y += b->speed;
 
       if ((b->y > 0.5) && (b->y - b->speed <= 0.5) && (b->split)) {
-	 /* split ourselves */
-	 tmp1 = malloc(sizeof(BADGUY));
-	 tmp2 = malloc(sizeof(BADGUY));
+         /* split ourselves */
+         tmp1 = malloc(sizeof(BADGUY));
+         tmp2 = malloc(sizeof(BADGUY));
 
-	 *tmp1 = *tmp2 = *b;
+         *tmp1 = *tmp2 = *b;
 
-	 tmp1->move -= 0.001;
-	 tmp2->move += 0.001;
+         tmp1->move -= 0.001;
+         tmp2->move += 0.001;
 
-	 b->speed += 0.001;
+         b->speed += 0.001;
 
-	 tmp1->t = rand() & 255;
-	 tmp2->t = rand() & 255;
+         tmp1->t = rand() & 255;
+         tmp2->t = rand() & 255;
 
-	 tmp1->next = tmp2;
-	 tmp2->next = evildudes;
-	 evildudes = tmp1;
+         tmp1->next = tmp2;
+         tmp2->next = evildudes;
+         evildudes = tmp1;
       }
 
       b->t++;
 
       if (b->y > 0) {
-	 if (kill_player(b->x, b->y)) {
-	    /* did we hit someone? */
-	    dead = TRUE;
-	 }
-	 else {
-	    /* or did someone else hit us? */
-	    bullet = get_first_bullet(&x, &y);
+         if (kill_player(b->x, b->y)) {
+            /* did we hit someone? */
+            dead = TRUE;
+         }
+         else {
+            /* or did someone else hit us? */
+            bullet = get_first_bullet(&x, &y);
 
-	    while (bullet) {
-	       x = x - b->x;
+            while (bullet) {
+               x = x - b->x;
 
-	       if (x < -0.5)
-		  x += 1;
-	       else if (x > 0.5)
-		  x -= 1;
+               if (x < -0.5)
+                  x += 1;
+               else if (x > 0.5)
+                  x -= 1;
 
-	       x = ABS(x);
+               x = ABS(x);
 
-	       y = ABS(y - b->y);
+               y = ABS(y - b->y);
 
-	       if (x < y)
-		  d = y/2 + x;
-	       else
-		  d = x/2 + y;
+               if (x < y)
+                  d = y/2 + x;
+               else
+                  d = x/2 + y;
 
-	       if (d < 0.025) {
-		  kill_bullet(bullet);
-		  explode(b->x, b->y, 0);
-		  sfx_explode_alien();
-		  dead = TRUE;
-		  break;
-	       }
+               if (d < 0.025) {
+                  kill_bullet(bullet);
+                  explode(b->x, b->y, 0);
+                  sfx_explode_alien();
+                  dead = TRUE;
+                  break;
+               }
 
-	       bullet = get_next_bullet(bullet, &x, &y);
-	    }
-	 }
+               bullet = get_next_bullet(bullet, &x, &y);
+            }
+         }
       }
 
       /* advance to the next dude */
       if (dead) {
-	 *p = b->next;
-	 tmp1 = b;
-	 b = b->next;
-	 free(tmp1);
+         *p = b->next;
+         tmp1 = b;
+         b = b->next;
+         free(tmp1);
       }
       else {
-	 p = &b->next;
-	 b = b->next;
+         p = &b->next;
+         b = b->next;
       }
    }
 
    if ((!evildudes) && (!player_dying())) {
       if (!finished_counter) {
-	 message("Wave Complete");
-	 sfx_ping(0);
+         message("Wave Complete");
+         sfx_ping(0);
       }
 
       finished_counter++;
 
       if (finished_counter > 64)
-	 return TRUE;
+         return TRUE;
    }
 
    return FALSE;
@@ -402,26 +402,26 @@ void draw_badguys(int r, int g, int b, int (*project)(float *f, int *i, int c))
 
    while (bad) {
       if (bad->y > 0) {
-	 shape[0] = bad->x - 0.02;
-	 shape[1] = bad->y + 0.01;
+         shape[0] = bad->x - 0.02;
+         shape[1] = bad->y + 0.01;
 
-	 shape[2] = bad->x;
-	 shape[3] = bad->y + 0.02;
+         shape[2] = bad->x;
+         shape[3] = bad->y + 0.02;
 
-	 shape[4] = bad->x + 0.02;
-	 shape[5] = bad->y + 0.01;
+         shape[4] = bad->x + 0.02;
+         shape[5] = bad->y + 0.01;
 
-	 shape[6] = bad->x + 0.01;
-	 shape[7] = bad->y + 0.005;
+         shape[6] = bad->x + 0.01;
+         shape[7] = bad->y + 0.005;
 
-	 shape[8] = bad->x;
-	 shape[9] = bad->y - 0.015;
+         shape[8] = bad->x;
+         shape[9] = bad->y - 0.015;
 
-	 shape[10] = bad->x - 0.01;
-	 shape[11] = bad->y + 0.005;
+         shape[10] = bad->x - 0.01;
+         shape[11] = bad->y + 0.005;
 
-	 if (project(shape, ishape, 12))
-	    polygon(6, ishape, c);
+         if (project(shape, ishape, 12))
+            polygon(6, ishape, c);
       }
 
       bad = bad->next;

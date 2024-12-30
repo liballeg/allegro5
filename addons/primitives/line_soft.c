@@ -83,7 +83,7 @@ static void get_interpolation_parameters(int start_x, int start_y, ALLEGRO_VERTE
    float dx = v2->x - v1->x;
    float dy = v2->y - v1->y;
    float lensq = dx * dx + dy * dy;
-   
+
    if (lensq == 0) {
       lensq = 0.0001f;
       *param = 0;
@@ -91,7 +91,7 @@ static void get_interpolation_parameters(int start_x, int start_y, ALLEGRO_VERTE
       *param = ((float)start_x - v1->x) * dx + ((float)start_y - v1->y) * dy;
       *param /= lensq;
    }
-   
+
    dx = fabsf(dx);
    dy = fabsf(dy);
    if (dx > dy)
@@ -113,22 +113,22 @@ static void shader_grad_any_first(uintptr_t state, int start_x, int start_y, ALL
    v2c = v2->color;
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
-  
+
    diff.a = v2c.a - v1c.a;
    diff.r = v2c.r - v1c.r;
    diff.g = v2c.g - v1c.g;
    diff.b = v2c.b - v1c.b;
-   
+
    st->solid.color.a = v1c.a + diff.a * param;
    st->solid.color.r = v1c.r + diff.r * param;
    st->solid.color.g = v1c.g + diff.g * param;
    st->solid.color.b = v1c.b + diff.b * param;
-   
+
    st->minor_color.a = diff.a * minor_delta_param;
    st->minor_color.r = diff.r * minor_delta_param;
    st->minor_color.g = diff.g * minor_delta_param;
    st->minor_color.b = diff.b * minor_delta_param;
-   
+
    st->major_color.a = diff.a * major_delta_param;
    st->major_color.r = diff.r * major_delta_param;
    st->major_color.g = diff.g * major_delta_param;
@@ -228,13 +228,13 @@ static void shader_texture_solid_any_first(uintptr_t state, int start_x, int sta
    v1c = v1->color;
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
-  
+
    st->w = al_get_bitmap_width(st->texture);
    st->h = al_get_bitmap_height(st->texture);
 
    du = v2->u - v1->u;
    dv = v2->v - v1->v;
-   
+
    st->color.r = v1c.r;
    st->color.g = v1c.g;
    st->color.b = v1c.b;
@@ -242,7 +242,7 @@ static void shader_texture_solid_any_first(uintptr_t state, int start_x, int sta
 
    st->u = v1->u + du * param;
    st->v = v1->v + dv * param;
-   
+
    st->minor_du = du * minor_delta_param;
    st->minor_dv = dv * minor_delta_param;
 
@@ -283,13 +283,13 @@ static void shader_texture_grad_any_first(uintptr_t state, int start_x, int star
    v2c = v2->color;
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
-  
+
    st->solid.w = al_get_bitmap_width(st->solid.texture);
    st->solid.h = al_get_bitmap_height(st->solid.texture);
 
    du = v2->u - v1->u;
    dv = v2->v - v1->v;
-   
+
    st->solid.color.r = v1c.r;
    st->solid.color.g = v1c.g;
    st->solid.color.b = v1c.b;
@@ -297,28 +297,28 @@ static void shader_texture_grad_any_first(uintptr_t state, int start_x, int star
 
    st->solid.u = v1->u + du * param;
    st->solid.v = v1->v + dv * param;
-   
+
    st->solid.minor_du = du * minor_delta_param;
    st->solid.minor_dv = dv * minor_delta_param;
 
    st->solid.major_du = du * major_delta_param;
    st->solid.major_dv = dv * major_delta_param;
-  
+
    diff.a = v2c.a - v1c.a;
    diff.r = v2c.r - v1c.r;
    diff.g = v2c.g - v1c.g;
    diff.b = v2c.b - v1c.b;
-   
+
    st->solid.color.a = v1c.a + diff.a * param;
    st->solid.color.r = v1c.r + diff.r * param;
    st->solid.color.g = v1c.g + diff.g * param;
    st->solid.color.b = v1c.b + diff.b * param;
-   
+
    st->minor_color.a = diff.a * minor_delta_param;
    st->minor_color.r = diff.r * minor_delta_param;
    st->minor_color.g = diff.g * minor_delta_param;
    st->minor_color.b = diff.b * minor_delta_param;
-   
+
    st->major_color.a = diff.a * major_delta_param;
    st->major_color.r = diff.r * major_delta_param;
    st->major_color.g = diff.g * major_delta_param;
@@ -354,7 +354,7 @@ static void line_stepper(uintptr_t state, shader_first first, shader_step step, 
       vtx1 = vtx2;
       vtx2 = t;
    }
-   
+
    vtx1->x -= 0.5001f;
    vtx1->y -= 0.5001f;
    vtx2->x -= 0.5001f;
@@ -364,29 +364,29 @@ static void line_stepper(uintptr_t state, shader_first first, shader_step step, 
    y1 = vtx1->y;
    x2 = vtx2->x;
    y2 = vtx2->y;
-   
+
    dx = x2 - x1;
    dy = y2 - y1;
-   
+
    end_x = floorf(x2 + 0.5f);
    end_y = floorf(y2 + 0.5f);
-   
+
 #define FIRST                                                              \
    first(state, x, y, vtx1, vtx2);                                         \
    if((x2 - x1) * ((float)x - x1) + (y2 - y1) * ((float)y - y1) >= 0)      \
       draw(state, x, y);                                                   \
    (void)minor;
-   
+
 #define STEP                                                               \
    step(state, minor);                                                     \
    draw(state, x, y);
-   
+
 #define LAST                                                               \
    step(state, minor);                                                     \
    if((x1 - x2) * ((float)x - x2) + (y1 - y2) * ((float)y - y2) > 0)       \
       draw(state, x, y);
-   
-   
+
+
 #define WORKER(var1, var2, comp, dvar1, dvar2, derr1, derr2, func)         \
    {                                                                       \
       int minor = 1;                                                       \
@@ -402,40 +402,40 @@ static void line_stepper(uintptr_t state, shader_first first, shader_step step, 
       var2 += dvar2;                                                       \
       err += derr2;                                                        \
    }
-   
+
    if (dx > 0) {
       if (dx > dy) {
          int x = floorf(x1 + 0.5f);
          int y = floorf(y1);
-         
+
          float err = (y1 - (float)y) * dx - (x1 - (float)x) * dy;
-         
+
          if (x < end_x) {
             WORKER(y, x, > 0.5f * dx, 1, 1, -dx, dy, FIRST)
          }
-         
+
          while (x < end_x) {
             WORKER(y, x, > 0.5f * dx, 1, 1, -dx, dy, STEP)
          }
-         
+
          if (x <= end_x) {
             WORKER(y, x, > 0.5f * dx, 1, 1, -dx, dy, LAST)
-            
+
          }
       } else {
          int x = floorf(x1);
          int y = floorf(y1 + 0.5f);
-         
+
          float err = (x1 - (float)x) * dy - (y1 - (float)y) * dx;
-         
+
          if (y < end_y) {
             WORKER(x, y, > 0.5f * dy, 1, 1, -dy, dx, FIRST)
          }
-         
+
          while (y < end_y) {
             WORKER(x, y, > 0.5f * dy, 1, 1, -dy, dx, STEP)
          }
-         
+
          if (y <= end_y) {
             WORKER(x, y, > 0.5f * dy, 1, 1, -dy, dx, LAST)
          }
@@ -444,26 +444,26 @@ static void line_stepper(uintptr_t state, shader_first first, shader_step step, 
       if (-dx > dy) {
          int x = floorf(x1 + 0.5f);
          int y = floorf(y1);
-         
+
          float err = (y1 - (float)y) * dx - (x1 - (float)x) * dy;
-         
+
          if (x > end_x) {
             WORKER(y, x, <= 0.5f * dx, 1, -1, -dx, -dy, FIRST)
          }
-         
+
          while (x > end_x) {
             WORKER(y, x, <= 0.5f * dx, 1, -1, -dx, -dy, STEP)
          }
-         
+
          if (x >= end_x) {
             WORKER(y, x, <= 0.5f * dx, 1, -1, -dx, -dy, LAST)
          }
       } else {
          int x = floorf(x1);
          int y = floorf(y1 + 0.5f);
-         
+
          float err = (x1 - (float)x) * dy - (y1 - (float)y) * dx;
-         
+
          /*
          This is the only correction that needs to be made in the opposite direction of dy (or dx)
          */
@@ -471,15 +471,15 @@ static void line_stepper(uintptr_t state, shader_first first, shader_step step, 
             x += 1;
             err -= dy;
          }
-         
+
          if (y < end_y) {
             WORKER(x, y, <= -0.5f * dy, -1, 1, dy, dx, FIRST)
          }
-         
+
          while (y < end_y) {
             WORKER(x, y, <= -0.5f * dy, -1, 1, dy, dx, STEP)
          }
-         
+
          if (y <= end_y) {
             WORKER(x, y, <= -0.5f * dy, -1, 1, dy, dx, LAST)
          }
@@ -504,16 +504,16 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
 
    v1c = v1->color;
    v2c = v2->color;
-   
+
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
    if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED) {
       shade = 0;
    }
-   
+
    if (v1c.r == v2c.r && v1c.g == v2c.g && v1c.b == v2c.b && v1c.a == v2c.a) {
       grad = 0;
    }
-   
+
    if (texture) {
       if (grad) {
          state_texture_grad_any_2d state;
@@ -583,15 +583,15 @@ void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
    ALLEGRO_LOCKED_REGION *lr;
    int min_x, max_x, min_y, max_y;
    int clip_min_x, clip_min_y, clip_max_x, clip_max_y;
-   
+
    al_get_clipping_rectangle(&clip_min_x, &clip_min_y, &clip_max_x, &clip_max_y);
    clip_max_x += clip_min_x;
    clip_max_y += clip_min_y;
-   
+
    /*
    TODO: Need to clip them first, make a copy of the vertices first then
    */
-   
+
    /*
    Lock the region we are drawing to. We are choosing the minimum and maximum
    possible pixels touched from the formula (easily verified by following the

@@ -1,7 +1,7 @@
 #ifndef __A4_AUX_H__
 #define __A4_AUX_H__
 
-#ifndef TRUE 
+#ifndef TRUE
    #define TRUE         -1
    #define FALSE        0
 #endif

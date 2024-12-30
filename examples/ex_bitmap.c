@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     double t0;
     double t1;
 
-    /* The first commandline argument can optionally specify an 
+    /* The first commandline argument can optionally specify an
      * image to display instead of the default. Allegro's image
      * addon supports BMP, DDS, PCX, TGA and can be compiled with
      * PNG and JPG support on all platforms. Additional formats
@@ -41,8 +41,8 @@ int main(int argc, char **argv)
 
     // Initializes and displays a log window for debugging purposes.
     open_log();
-       
-    /* The second parameter to the process can optionally specify what 
+
+    /* The second parameter to the process can optionally specify what
      * adapter to use.
      */
     if (argc > 2) {
@@ -68,9 +68,9 @@ int main(int argc, char **argv)
     if (!display) {
        abort_example("Error creating display\n");
     }
-    
+
     al_set_window_title(display, filename);
-    
+
     // Load the image and time how long it took for the log.
     t0 = al_get_time();
     bitmap = al_load_bitmap(filename);
@@ -82,9 +82,9 @@ int main(int argc, char **argv)
     log_printf("Loading took %.4f seconds\n", t1 - t0);
 
     // Create a timer that fires 30 times a second.
-    timer = al_create_timer(1.0 / 30); 
+    timer = al_create_timer(1.0 / 30);
     queue = al_create_event_queue();
-    al_register_event_source(queue, al_get_keyboard_event_source()); 
+    al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_start_timer(timer); // Start the timer
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
         // Trigger a redraw on the timer event
         if (event.type == ALLEGRO_EVENT_TIMER)
             redraw = true;
-            
+
         // Redraw, but only if the event queue is empty
         if (redraw && al_is_event_queue_empty(queue)) {
             redraw = false;

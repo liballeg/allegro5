@@ -77,13 +77,13 @@ static void init(void)
          }
       }
    }
-   
+
    init_demo_menu(menu, true);
 
    menu[1].extra = fullscreen;
 
    menu[5].extra = use_vsync;
-   
+
    on_fullscreen(menu + 1);
 }
 

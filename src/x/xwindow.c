@@ -83,9 +83,9 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    wmhints = XAllocWMHints();
    wmhints->input = True;
    wmhints->flags = InputHint;
-   
+
    ALLEGRO_PATH *exepath = al_get_standard_path(ALLEGRO_EXENAME_PATH);
-   
+
    /* Setup the class hints so we can get an icon (AfterStep)
     * We must use the executable filename here.
     */

@@ -270,12 +270,12 @@ char* _al_win_ansi_to_utf8(const char *s) {
 /* _al_win_copy_utf16_to_utf8: Copy string and convert to UTF-8.
  * This takes a string and copies a UTF-8 version of it to
  * a buffer of fixed size.
- * If successful, the string will be zero-terminated and is 
+ * If successful, the string will be zero-terminated and is
  * the return value of the function.
  * If unsuccesful, NULL will be returned.
  * If the representation would overflow the buffer, nothing
  * is copied and the return value is NULL.
- */ 
+ */
 char *_al_win_copy_utf16_to_utf8(char* us, const wchar_t *ws, size_t uslen)
 {
    int rc = WideCharToMultiByte(CP_UTF8, 0, ws, -1, us, uslen, NULL, NULL);

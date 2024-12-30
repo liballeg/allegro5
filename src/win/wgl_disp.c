@@ -230,7 +230,7 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
 {
    ALLEGRO_INFO("Decoding:\n");
 
-	/* Not interested if it doesn't support OpenGL and RGBA */
+        /* Not interested if it doesn't support OpenGL and RGBA */
    if (!(pfd->dwFlags & PFD_SUPPORT_OPENGL)) {
       ALLEGRO_INFO("OpenGL Unsupported\n");
       return false;

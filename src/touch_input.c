@@ -104,7 +104,7 @@ void al_get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
 void al_set_mouse_emulation_mode(int mode)
 {
    ASSERT(touch_input_driver);
-   
+
    if (touch_input_driver->set_mouse_emulation_mode)
       touch_input_driver->set_mouse_emulation_mode(mode);
    else
@@ -117,7 +117,7 @@ void al_set_mouse_emulation_mode(int mode)
 int al_get_mouse_emulation_mode(void)
 {
    ASSERT(touch_input_driver);
-   
+
    if (touch_input_driver->get_mouse_emulation_mode)
       return touch_input_driver->get_mouse_emulation_mode();
    else

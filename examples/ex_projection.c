@@ -178,7 +178,7 @@ static void draw_intro_text(void)
       fade = (50 - scroll_y) * 12;
    else
       fade = (scroll_y - 50) * 4;
-   
+
    al_identity_transform(&projection);
    al_translate_transform_3d(&projection, 0, -scroll_y / 3, -181);
    setup_3d_projection(&projection);

@@ -80,10 +80,10 @@
 #include <process.h>
 #include <dinput.h>
 
-/* We need XInput detection if we actually compile the XInput driver in. 
-*/ 
+/* We need XInput detection if we actually compile the XInput driver in.
+*/
 #ifdef ALLEGRO_CFG_XINPUT
-   /* Windows XP is required. If you still use older Windows, 
+   /* Windows XP is required. If you still use older Windows,
       XInput won't work anyway. */
    #undef WIN32_LEAN_AND_MEAN
    #include <windows.h>
@@ -460,7 +460,7 @@ void _al_win_joystick_dinput_grab(void *param)
 }
 
 
-static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid, 
+static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid,
    const GUID product_guid)
 {
    unsigned i;
@@ -468,7 +468,7 @@ static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid,
    for (i = 0; i < MAX_JOYSTICKS; i++) {
       if (
          GUID_EQUAL(joydx_joystick[i].guid, guid) &&
-         GUID_EQUAL(joydx_joystick[i].product_guid, product_guid) 
+         GUID_EQUAL(joydx_joystick[i].product_guid, product_guid)
          /* &&
          joydx_joystick[i].config_state == STATE_ALIVE */
          )
@@ -559,7 +559,7 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 static char *add_string(char *buf, const TCHAR *src, int *pos, int bufsize, const char* dfl)
 {
    char *dest;
-   
+
    dest = buf + *pos;
    if (*pos >= bufsize - 1) {
       /* Out of space. */
@@ -730,9 +730,9 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
 #ifdef ALLEGRO_DINPUT_FILTER_XINPUT
 
-/* A better Xinput detection method inspired by from SDL. 
-* The method proposed by Microsoft on their web site is problematic because it 
-* requires non standard compiler extensions and hard to get headers. 
+/* A better Xinput detection method inspired by from SDL.
+* The method proposed by Microsoft on their web site is problematic because it
+* requires non standard compiler extensions and hard to get headers.
 * This method only needs Windows XP and user32.dll.
 */
 static bool dinput_is_device_xinput(const GUID *guid)
@@ -742,32 +742,32 @@ static bool dinput_is_device_xinput(const GUID *guid)
    UINT i;
    bool result = false;
    bool found = false;
-   
+
    /* Go through RAWINPUT (WinXP and later) to find HID devices. */
-   if ((GetRawInputDeviceList(NULL, &amount, sizeof (RAWINPUTDEVICELIST)) 
+   if ((GetRawInputDeviceList(NULL, &amount, sizeof (RAWINPUTDEVICELIST))
       != 0)) {
       ALLEGRO_ERROR("Could not get amount of raw input devices.\n");
       return false;  /* drat... */
    }
-   
+
    if (amount < 1) {
       ALLEGRO_ERROR("Could not get any of raw input devices.\n");
       return false;  /* drat again... */
    }
-   
-   device_list = (PRAWINPUTDEVICELIST) 
+
+   device_list = (PRAWINPUTDEVICELIST)
       al_malloc(sizeof(RAWINPUTDEVICELIST) * amount);
-   
+
    if (!device_list) {
       ALLEGRO_ERROR("Could allocate memory for raw input devices.\n");
       return false;  /* No luck. */
    }
-   
-   if (GetRawInputDeviceList(device_list, &amount, sizeof(RAWINPUTDEVICELIST)) 
+
+   if (GetRawInputDeviceList(device_list, &amount, sizeof(RAWINPUTDEVICELIST))
        == ((UINT)-1)) {
-      ALLEGRO_ERROR("Could not retrieve %d raw input devices.\n", amount); 
+      ALLEGRO_ERROR("Could not retrieve %d raw input devices.\n", amount);
       al_free((void *)device_list);
-      return false; 
+      return false;
    }
 
    for (i = 0; i < amount; i++) {
@@ -777,39 +777,39 @@ static bool dinput_is_device_xinput(const GUID *guid)
       UINT rdi_size = sizeof (rdi);
       UINT name_size = 127;
       rdi.cbSize = sizeof (rdi);
-      
+
       /* Get device info. */
-      if (GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICEINFO, 
+      if (GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICEINFO,
          &rdi, &rdi_size) == ((UINT)-1)) {
          ALLEGRO_ERROR("Could not get raw device info for list index %d.\n", i);
          continue;
       }
-      /* See if vendor and product id match. */   
-      if (MAKELONG(rdi.hid.dwVendorId, rdi.hid.dwProductId) 
-         != ((LONG)guid->Data1)) 
+      /* See if vendor and product id match. */
+      if (MAKELONG(rdi.hid.dwVendorId, rdi.hid.dwProductId)
+         != ((LONG)guid->Data1))
          continue;
       found = true;
       /* Get device name */
       memset(device_name, 0, 128);
-      if(GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICENAME, 
+      if(GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICENAME,
          device_name, &name_size) == ((UINT)-1)) {
          ALLEGRO_ERROR("Could not get raw device name for list index %d.\n", i);
-         continue;  
+         continue;
       }
       /* See if there is IG_ in the name, if it is , it's an XInput device. */
       ALLEGRO_DEBUG("Checking for XInput : %s\n", device_name);
       if (strstr(device_name, "IG_") != NULL) {
          ALLEGRO_DEBUG("Device %s is an XInput device.\n", device_name);
-         result = true; 
+         result = true;
          break;
-      }  
+      }
    }
    if (!found) {
-      ALLEGRO_ERROR("Could not find device %s in the raw device list.\n", 
+      ALLEGRO_ERROR("Could not find device %s in the raw device list.\n",
          guid_to_string(guid));
-      result = true; 
-      /* Ignore "mystery" devices. Testing shows that on MinGW these are never 
-         valid DirectInput devices. Real ones should show up in 
+      result = true;
+      /* Ignore "mystery" devices. Testing shows that on MinGW these are never
+         valid DirectInput devices. Real ones should show up in
          the raw device list. */
    }
    al_free((void *)device_list);
@@ -828,10 +828,10 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    {
       /* the header */
       {
-	 sizeof(DIPROPRANGE),   // diph.dwSize
-	 sizeof(DIPROPHEADER),  // diph.dwHeaderSize
-	 0,                     // diph.dwObj
-	 DIPH_DEVICE,           // diph.dwHow
+         sizeof(DIPROPRANGE),   // diph.dwSize
+         sizeof(DIPROPHEADER),  // diph.dwHeaderSize
+         0,                     // diph.dwObj
+         DIPH_DEVICE,           // diph.dwHow
       },
 
       /* the data */
@@ -843,10 +843,10 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    {
       /* the header */
       {
-	 sizeof(DIPROPDWORD),   // diph.dwSize
-	 sizeof(DIPROPHEADER),  // diph.dwHeaderSize
-	 0,                     // diph.dwObj
-	 DIPH_DEVICE,           // diph.dwHow
+         sizeof(DIPROPDWORD),   // diph.dwSize
+         sizeof(DIPROPHEADER),  // diph.dwHeaderSize
+         0,                     // diph.dwObj
+         DIPH_DEVICE,           // diph.dwHow
       },
 
       /* the data */
@@ -857,10 +857,10 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    {
       /* the header */
       {
-	 sizeof(DIPROPDWORD),   // diph.dwSize
-	 sizeof(DIPROPHEADER),  // diph.dwHeaderSize
-	 0,                     // diph.dwObj
-	 DIPH_DEVICE,           // diph.dwHow
+         sizeof(DIPROPDWORD),   // diph.dwSize
+         sizeof(DIPROPHEADER),  // diph.dwHeaderSize
+         0,                     // diph.dwObj
+         DIPH_DEVICE,           // diph.dwHow
       },
 
       /* the data */
@@ -876,13 +876,13 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    int num;
 
    (void)pvRef;
-   
 
-   
+
+
    /* check if the joystick already existed before
    * Aslo have to check the product GUID because devices like the Logitech
-   * F710 have a backside switch that will change the product GUID, 
-   * but not the instance guid.  
+   * F710 have a backside switch that will change the product GUID,
+   * but not the instance guid.
    */
    joy = joydx_by_guid(lpddi->guidInstance, lpddi->guidProduct);
    if (joy) {
@@ -890,9 +890,9 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       joy->marked = true;
       return DIENUM_CONTINUE;
    }
-   
-   /* If we are compiling the XInput driver, ignore XInput devices, those can 
-      go though the XInput driver, unless if the DirectInput driver 
+
+   /* If we are compiling the XInput driver, ignore XInput devices, those can
+      go though the XInput driver, unless if the DirectInput driver
       was set explicitly in the configuration. */
    #ifdef ALLEGRO_DINPUT_FILTER_XINPUT
    if (dinput_is_device_xinput(&lpddi->guidProduct)) {
@@ -983,7 +983,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
        */
 
       CloseHandle(joy->waker_event);
- 
+
       joy->waker_event = CreateWaitableTimer(NULL, false, NULL);
       if (joy->waker_event == NULL) {
          ALLEGRO_ERROR("CreateWaitableTimer failed for polled device.\n");
@@ -1047,7 +1047,7 @@ static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy)
    /* Don't forget to wipe the guids as well! */
    memset(&joy->guid, 0, sizeof(joy->guid));
    memset(&joy->product_guid, 0, sizeof(joy->product_guid));
-   
+
 }
 
 
@@ -1333,7 +1333,7 @@ static ALLEGRO_JOYSTICK *joydx_get_joystick(int num)
    }
    /* Must set the driver of the joystick for the wrapper driver */
    ret->driver = &_al_joydrv_directx;
-   
+
    LeaveCriticalSection(&joydx_thread_cs);
 
 #if 0
@@ -1492,29 +1492,29 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
          const DWORD dwData = item->dwData;
 
          if (dwOfs == DIJOFS_X)
-         	handle_axis_event(joy, &joy->x_mapping, dwData);
+            handle_axis_event(joy, &joy->x_mapping, dwData);
          else if (dwOfs == DIJOFS_Y)
-         	handle_axis_event(joy, &joy->y_mapping, dwData);
+            handle_axis_event(joy, &joy->y_mapping, dwData);
          else if (dwOfs == DIJOFS_Z)
-         	handle_axis_event(joy, &joy->z_mapping, dwData);
+            handle_axis_event(joy, &joy->z_mapping, dwData);
          else if (dwOfs == DIJOFS_RX)
-         	handle_axis_event(joy, &joy->rx_mapping, dwData);
+            handle_axis_event(joy, &joy->rx_mapping, dwData);
          else if (dwOfs == DIJOFS_RY)
-         	handle_axis_event(joy, &joy->ry_mapping, dwData);
+            handle_axis_event(joy, &joy->ry_mapping, dwData);
          else if (dwOfs == DIJOFS_RZ)
-         	handle_axis_event(joy, &joy->rz_mapping, dwData);
+            handle_axis_event(joy, &joy->rz_mapping, dwData);
          else if ((unsigned int)dwOfs == DIJOFS_SLIDER(0))
-         	handle_axis_event(joy, &joy->slider_mapping[0], dwData);
+            handle_axis_event(joy, &joy->slider_mapping[0], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_SLIDER(1))
-         	handle_axis_event(joy, &joy->slider_mapping[1], dwData);
+            handle_axis_event(joy, &joy->slider_mapping[1], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(0))
-         	handle_pov_event(joy, joy->pov_mapping_stick[0], dwData);
+            handle_pov_event(joy, joy->pov_mapping_stick[0], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(1))
-         	handle_pov_event(joy, joy->pov_mapping_stick[1], dwData);
+            handle_pov_event(joy, joy->pov_mapping_stick[1], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(2))
-         	handle_pov_event(joy, joy->pov_mapping_stick[2], dwData);
+            handle_pov_event(joy, joy->pov_mapping_stick[2], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(3))
-         	handle_pov_event(joy, joy->pov_mapping_stick[3], dwData);
+            handle_pov_event(joy, joy->pov_mapping_stick[3], dwData);
          else {
             /* buttons */
             if ((dwOfs >= DIJOFS_BUTTON0) &&

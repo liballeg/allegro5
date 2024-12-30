@@ -184,7 +184,7 @@ void _al_blend_inline(
    result->g = scol->g;
    result->b = scol->b;
    result->a = scol->a;
-   
+
    asrc = get_alpha_factor(asrc_, scol->a, dcol->a, constcol);
    adst = get_alpha_factor(adst_, scol->a, dcol->a, constcol);
    get_factor(src_, scol, dcol, constcol, &src);

@@ -31,7 +31,7 @@ static void redraw(void)
    al_draw_line(0, h, w, 0, color, 0);
 
    al_draw_bitmap(picture, cx, cy, 0);
-   
+
    al_draw_textf(font, white, w / 2, cy + ph, ALLEGRO_ALIGN_CENTRE,
       "Press Space to toggle fullscreen");
    al_draw_textf(font, white, w / 2, cy + ph + th, ALLEGRO_ALIGN_CENTRE,
@@ -41,7 +41,7 @@ static void redraw(void)
       al_get_display_width(display), al_get_display_height(display),
       (al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW) ?
       "fullscreen" : "not fullscreen");
-   
+
    al_flip_display();
 }
 
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
    if (!picture) {
       abort_example("mysha.pcx not found\n");
    }
-   
+
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       abort_example("data/fixed_font.tga not found.\n");

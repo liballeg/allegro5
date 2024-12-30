@@ -180,7 +180,7 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
 
    if (0 == _al_stricmp(value, "OPENAL"))
       return ALLEGRO_AUDIO_DRIVER_OPENAL;
-   
+
    if (0 == _al_stricmp(value, "OPENSL"))
       return ALLEGRO_AUDIO_DRIVER_OPENSL;
 
@@ -268,7 +268,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 #endif
 /* If a PA server is running, we should use it by default as it will
  * hijack ALSA and OSS and using those then just means extra lag.
- * 
+ *
  * FIXME: Detect if no PA server is running and in that case prefer
  * ALSA and OSS first.
  */
@@ -310,7 +310,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_AQUEUE:
          #if defined(ALLEGRO_CFG_KCM_AQUEUE)
             if (_al_kcm_aqueue_driver.open() == 0) {
-               ALLEGRO_INFO("Using Apple Audio Queue driver\n"); 
+               ALLEGRO_INFO("Using Apple Audio Queue driver\n");
                _al_kcm_driver = &_al_kcm_aqueue_driver;
                return true;
             }
@@ -323,7 +323,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
          #if defined(ALLEGRO_CFG_KCM_OPENAL)
             if (_al_kcm_openal_driver.open() == 0) {
-               ALLEGRO_INFO("Using OpenAL driver\n"); 
+               ALLEGRO_INFO("Using OpenAL driver\n");
                _al_kcm_driver = &_al_kcm_openal_driver;
                return true;
             }
@@ -336,7 +336,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_OPENSL:
          #if defined(ALLEGRO_CFG_KCM_OPENSL)
             if (_al_kcm_opensl_driver.open() == 0) {
-               ALLEGRO_INFO("Using OpenSL driver\n"); 
+               ALLEGRO_INFO("Using OpenSL driver\n");
                _al_kcm_driver = &_al_kcm_opensl_driver;
                return true;
             }
@@ -349,7 +349,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_ALSA:
          #if defined(ALLEGRO_CFG_KCM_ALSA)
             if (_al_kcm_alsa_driver.open() == 0) {
-               ALLEGRO_INFO("Using ALSA driver\n"); 
+               ALLEGRO_INFO("Using ALSA driver\n");
                _al_kcm_driver = &_al_kcm_alsa_driver;
                return true;
             }
@@ -388,7 +388,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
          #if defined(ALLEGRO_CFG_KCM_DSOUND)
             if (_al_kcm_dsound_driver.open() == 0) {
-               ALLEGRO_INFO("Using DirectSound driver\n"); 
+               ALLEGRO_INFO("Using DirectSound driver\n");
                _al_kcm_driver = &_al_kcm_dsound_driver;
                return true;
             }

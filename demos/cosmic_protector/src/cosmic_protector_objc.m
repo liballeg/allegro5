@@ -9,14 +9,14 @@
 
 bool isMultitaskingSupported(void)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	char buf[100];
-	strcpy(buf, [[[UIDevice currentDevice] systemVersion] UTF8String]);
-	if (atof(buf) < 4.0) return false;
-	
-	[pool drain];
-	
-	return [[UIDevice currentDevice] isMultitaskingSupported];
+        char buf[100];
+        strcpy(buf, [[[UIDevice currentDevice] systemVersion] UTF8String]);
+        if (atof(buf) < 4.0) return false;
+
+        [pool drain];
+
+        return [[UIDevice currentDevice] isMultitaskingSupported];
 }
 #endif

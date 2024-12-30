@@ -347,7 +347,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
 
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
-   
+
    d->is_selectioned = false;
    _al_cond_init(&d->selectioned);
 

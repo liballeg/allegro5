@@ -77,14 +77,14 @@ void update_explode()
       e->time += 1.0 / (e->big/2.0 + 1);
 
       if (e->time > 32) {
-	 *p = e->next;
-	 tmp = e;
-	 e = e->next;
-	 free(tmp);
+         *p = e->next;
+         tmp = e;
+         e = e->next;
+         free(tmp);
       }
       else {
-	 p = &e->next;
-	 e = e->next;
+         p = &e->next;
+         e = e->next;
       }
    }
 }
@@ -106,31 +106,31 @@ void draw_explode(int r, int g, int b, int (*project)(float *f, int *i, int c))
       pos[1] = e->y;
 
       if (project(pos, ipos, 2)) {
-	 s = e->time * size / (512 / (e->big + 1));
+         s = e->time * size / (512 / (e->big + 1));
 
-	 if ((!low_detail) && (e->time < 24)) {
-	    c = (24 - e->time) * 255 / 24;
-	    col = makecol(c, c, c);
+         if ((!low_detail) && (e->time < 24)) {
+            c = (24 - e->time) * 255 / 24;
+            col = makecol(c, c, c);
 
-	    circle(ipos[0], ipos[1], s*2, col);
-	    circle(ipos[0], ipos[1], s*s/8, col);
-	 }
+            circle(ipos[0], ipos[1], s*2, col);
+            circle(ipos[0], ipos[1], s*s/8, col);
+         }
 
-	 if (e->time < 32) {
-	    rr = (32 - e->time) * r / 32;
-	    gg = (32 - e->time) * g / 32;
-	    bb = (32 - e->time) * b / 32;
+         if (e->time < 32) {
+            rr = (32 - e->time) * r / 32;
+            gg = (32 - e->time) * g / 32;
+            bb = (32 - e->time) * b / 32;
 
-	    c = MAX((24 - e->time) * 255 / 24, 0);
+            c = MAX((24 - e->time) * 255 / 24, 0);
 
-	    rr = MAX(rr, c);
-	    gg = MAX(gg, c);
-	    bb = MAX(bb, c);
+            rr = MAX(rr, c);
+            gg = MAX(gg, c);
+            bb = MAX(bb, c);
 
-	    col = makecol(rr, gg, bb);
+            col = makecol(rr, gg, bb);
 
-	    circlefill(ipos[0], ipos[1], s, col);
-	 }
+            circlefill(ipos[0], ipos[1], s, col);
+         }
       }
 
       e = e->next;

@@ -30,7 +30,7 @@ bool UFO::logic(int step)
       bitmapFrame++;
       bitmapFrame %= 3; // loop
    }
-   
+
    dx = speed_x * step;
    dy = speed_y * step;
 

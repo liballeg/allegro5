@@ -4,11 +4,11 @@
 
 @interface joypad_handler : NSObject<JoypadManagerDelegate, JoypadDeviceDelegate>
 {
-	JoypadManager *joypadManager;
+        JoypadManager *joypadManager;
 
 @public
-	bool connected, left, right, up, down, ba, bb, bx, by, bl, br;
-	bool finding;
+        bool connected, left, right, up, down, ba, bb, bx, by, bl, br;
+        bool finding;
 }
 
 -(void)start;

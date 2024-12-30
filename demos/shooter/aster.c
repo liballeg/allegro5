@@ -4,7 +4,7 @@
 #include "game.h"
 
 /* info about the asteroids (they used to be asteroids at least,
- * even if the current graphics look more like asteroids :-) 
+ * even if the current graphics look more like asteroids :-)
  */
 #define MAX_ASTEROIDS      50
 

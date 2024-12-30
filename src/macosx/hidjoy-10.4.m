@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -24,7 +24,7 @@
 
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
-#endif                
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("MacOSX")
 
@@ -38,7 +38,7 @@ static void release_joystick(ALLEGRO_JOYSTICK*);
 static void get_joystick_state(ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE*);
 
 /* OSX HID Joystick
- * Maintains an array of links which connect a HID cookie to 
+ * Maintains an array of links which connect a HID cookie to
  * an element in the ALLEGRO_JOYSTICK_STATE structure.
  */
 typedef struct {
@@ -67,7 +67,7 @@ static unsigned int joystick_count;
 
 /* create_device_iterator:
  * Create an iterator which will match all joysticks/
- * gamepads on the system. 
+ * gamepads on the system.
  */
 static io_iterator_t create_device_iterator(UInt16 usage)
 {
@@ -100,7 +100,7 @@ static BOOL create_interface(io_object_t device, IOHIDDeviceInterface122*** inte
    (*plugin)->QueryInterface(plugin,
                        CFUUIDGetUUIDBytes(kIOHIDDeviceInterfaceID122),
                        (LPVOID) interface);
-   
+
    (*plugin)->Release(plugin);
    return YES;
 }
@@ -170,7 +170,7 @@ static void joystick_callback(void *target, IOReturn result, void *refcon __attr
  * only allows access to the primary X & Y axes.
  * In reality there can be more axes than this and
  * more that one distinct controller handled by the same
- * interface. 
+ * interface.
  * We should iterate through the application collections to
  * find the joysticks then through the physical collections
  * therein to identify the individual sticks.
@@ -219,7 +219,7 @@ static void add_device(io_object_t device)
             ALLEGRO_WARN("Button named \"%s\" NOT added to event queue\n", [name UTF8String]);
          } else {
             joy->parent.info.button[num_buttons].name = strdup([name UTF8String]);
-            ++num_buttons; 
+            ++num_buttons;
          }
       }
 
@@ -286,7 +286,7 @@ static void add_device(io_object_t device)
 
 // FIXME!
 static const char *get_joystick_name(ALLEGRO_JOYSTICK *joy_)
-{  
+{
    (void)joy_;
    return "Joystick";
 }
@@ -387,7 +387,7 @@ static void exit_joystick(void)
          (*joy->interface)->Release(joy->interface);
       }
       int a, b, s;
-      /* Free everything we might have created 
+      /* Free everything we might have created
       * (all fields set to NULL initially so this is OK.)
       */
       for (b = 0; b < _AL_MAX_JOYSTICK_BUTTONS; ++ b) {
