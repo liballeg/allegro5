@@ -1,3 +1,5 @@
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include <stdarg.h>
 #include <stdio.h>
 #include "allegro5/allegro.h"

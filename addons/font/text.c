@@ -20,6 +20,8 @@
  */
 
 
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include <math.h>
 #include <ctype.h>
 #include "allegro5/allegro.h"

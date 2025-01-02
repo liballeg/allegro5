@@ -32,6 +32,8 @@ const IID GUID_NULL = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
 static const IID _al_IID_IDirectSoundBuffer8 =        { 0x6825a449, 0x7524, 0x4d82, { 0x92, 0x0f, 0x50, 0xe3, 0x6a, 0xb3, 0xab, 0x1e } };
 static const IID _al_IID_IDirectSoundCaptureBuffer8 = { 0x00990df4, 0x0dbb, 0x4872, { 0x83, 0x3e, 0x6d, 0x30, 0x3e, 0x80, 0xae, 0xb6 } };
+
+#define ALLEGRO_INTERNAL_UNSTABLE
 #include "allegro5/allegro.h"
 
 extern "C" {

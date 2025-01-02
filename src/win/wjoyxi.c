@@ -199,6 +199,11 @@ static const struct _AL_XINPUT_BUTTON_MAPPING
    { XINPUT_GAMEPAD_DPAD_UP, 13, "UP DPAD" },
 };
 
+static bool compat_5_2_10(void) {
+   /* New layout. */
+   return _al_get_joystick_compat_version() < AL_ID(5, 2, 11, 0);
+}
+
 static void unload_xinput_module(void)
 {
    FreeLibrary(_imp_xinput_module);
@@ -365,6 +370,11 @@ static float joyxi_convert_trigger(BYTE value)
    return(((float)value) / 255.0);
 }
 
+static int joyxi_convert_button(int value)
+{
+   return value ? 32767 : 0;
+}
+
 /* Converts an XInput state to an Allegro joystick state. */
 static void joyxi_convert_state(ALLEGRO_JOYSTICK_STATE *alstate, XINPUT_STATE *xistate)
 {
@@ -372,36 +382,67 @@ static void joyxi_convert_state(ALLEGRO_JOYSTICK_STATE *alstate, XINPUT_STATE *x
    /* Wipe the allegro state clean. */
    memset(alstate, 0, sizeof(*alstate));
 
-   /* Map the buttons. Make good use of the mapping data. */
-   for (index = 0; index < MAX_BUTTONS; index++) {
-      const struct _AL_XINPUT_BUTTON_MAPPING *mapping = joyxi_button_mapping + index;
-      if (xistate->Gamepad.wButtons & mapping->flags) {
-         alstate->button[mapping->button] = 32767;
+   if (!compat_5_2_10()) {
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_A] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_A);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_B] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_B);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_X] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_X);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_Y] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_Y);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_LEFT_SHOULDER] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_RIGHT_SHOULDER] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_BACK] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_BACK);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_START] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_START);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_LEFT_THUMB] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB);
+      alstate->button[ALLEGRO_GAMEPAD_BUTTON_RIGHT_THUMB] = joyxi_convert_button(xistate->Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB);
+
+      float dpadx = 0;
+      float dpady = 0;
+      if (xistate->Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+         dpadx += 1.;
       }
-      else {
-         alstate->button[mapping->button] = 0;
+      if (xistate->Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+         dpadx -= 1.;
       }
+      if (xistate->Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+         dpady += 1.;
+      }
+      if (xistate->Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) {
+         dpady -= 1.;
+      }
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_DPAD].axis[0] = dpadx;
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_DPAD].axis[1] = dpady;
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_LEFT_THUMB].axis[0] = joyxi_convert_axis(xistate->Gamepad.sThumbLX);
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_LEFT_THUMB].axis[1] = -joyxi_convert_axis(xistate->Gamepad.sThumbLY);
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_RIGHT_THUMB].axis[0] = joyxi_convert_axis(xistate->Gamepad.sThumbRX);
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_RIGHT_THUMB].axis[1] = -joyxi_convert_axis(xistate->Gamepad.sThumbRY);
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_LEFT_TRIGGER].axis[0] = joyxi_convert_trigger(xistate->Gamepad.bLeftTrigger);
+      alstate->stick[ALLEGRO_GAMEPAD_STICK_RIGHT_TRIGGER].axis[0] = joyxi_convert_trigger(xistate->Gamepad.bRightTrigger);
    }
-   /* Map the x and y axes of both sticks. */
-   alstate->stick[0].axis[0] = joyxi_convert_axis(xistate->Gamepad.sThumbLX);
-   alstate->stick[0].axis[1] = -joyxi_convert_axis(xistate->Gamepad.sThumbLY);
-   alstate->stick[1].axis[0] = joyxi_convert_axis(xistate->Gamepad.sThumbRX);
-   alstate->stick[1].axis[1] = -joyxi_convert_axis(xistate->Gamepad.sThumbRY);
-   /* Map the triggers as two individual sticks and axes each . */
-   alstate->stick[2].axis[0] = joyxi_convert_trigger(xistate->Gamepad.bLeftTrigger);
-   alstate->stick[3].axis[0] = joyxi_convert_trigger(xistate->Gamepad.bRightTrigger);
-   return;
+   else {
+      /* Map the buttons. Make good use of the mapping data. */
+      for (index = 0; index < MAX_BUTTONS; index++) {
+         const struct _AL_XINPUT_BUTTON_MAPPING *mapping = joyxi_button_mapping + index;
+         alstate->button[mapping->button] = joyxi_convert_button(xistate->Gamepad.wButtons & mapping->flags);
+      }
+
+      /* Map the x and y axes of both sticks. */
+      alstate->stick[0].axis[0] = joyxi_convert_axis(xistate->Gamepad.sThumbLX);
+      alstate->stick[0].axis[1] = -joyxi_convert_axis(xistate->Gamepad.sThumbLY);
+      alstate->stick[1].axis[0] = joyxi_convert_axis(xistate->Gamepad.sThumbRX);
+      alstate->stick[1].axis[1] = -joyxi_convert_axis(xistate->Gamepad.sThumbRY);
+      /* Map the triggers as two individual sticks and axes each . */
+      alstate->stick[2].axis[0] = joyxi_convert_trigger(xistate->Gamepad.bLeftTrigger);
+      alstate->stick[3].axis[0] = joyxi_convert_trigger(xistate->Gamepad.bRightTrigger);
+   }
 }
 
 
 /* Emits joystick events for the difference between the new and old joystick state. */
 static void joyxi_emit_events(
-   ALLEGRO_JOYSTICK_XINPUT *xjoy,
-   ALLEGRO_JOYSTICK_STATE *newstate, ALLEGRO_JOYSTICK_STATE *oldstate)
+   ALLEGRO_JOYSTICK_XINPUT *xjoy, ALLEGRO_JOYSTICK_STATE *newstate, ALLEGRO_JOYSTICK_STATE *oldstate, _AL_JOYSTICK_INFO *info)
 {
    int index, subdex;
    /* Send events for buttons. */
-   for (index = 0; index < MAX_BUTTONS; index++) {
+   for (index = 0; index < info->num_buttons; index++) {
       int newbutton = newstate->button[index];
       int oldbutton = oldstate->button[index];
       if (newbutton != oldbutton) {
@@ -412,8 +453,8 @@ static void joyxi_emit_events(
       }
    }
    /* Send events for the thumb pad axes and triggers . */
-   for (index = 0; index < MAX_STICKS; index++) {
-      for (subdex = 0; subdex < joyxi_axis_per_stick[index]; subdex++) {
+   for (index = 0; index < info->num_sticks; index++) {
+      for (subdex = 0; subdex < info->stick[index].num_axes; subdex++) {
          float oldaxis = oldstate->stick[index].axis[subdex];
          float newaxis = newstate->stick[index].axis[subdex];
          if (oldaxis != newaxis) {
@@ -445,7 +486,7 @@ static void joyxi_poll_connected_joystick(ALLEGRO_JOYSTICK_XINPUT *xjoy)
 
    /* If we get here translate the state and send the needed events. */
    joyxi_convert_state(&alstate, &xistate);
-   joyxi_emit_events(xjoy, &alstate, &xjoy->joystate);
+   joyxi_emit_events(xjoy, &alstate, &xjoy->joystate, &xjoy->parent.info);
 
    /* Finally copy over the states. */
    xjoy->state = xistate;
@@ -538,23 +579,29 @@ static void *joyxi_poll_disconnected_thread(ALLEGRO_THREAD *thread, void *arg)
 /* Initializes the info part of the joystick. */
 static void joyxi_init_joystick_info(ALLEGRO_JOYSTICK_XINPUT *xjoy)
 {
-   int index, subdex;
-   _AL_JOYSTICK_INFO *info = &xjoy->parent.info;
-   /* Map xinput to 4 sticks: 2 thumb pads and 2 triggers. */
-   info->num_sticks = 4;
-   /* Map xinput to 14 buttons */
-   info->num_buttons = MAX_BUTTONS;
-   /* Map button names. */
-   for (index = 0; index < MAX_BUTTONS; index++) {
-      info->button[index].name = joyxi_button_mapping[index].name;
+   /* TODO: Fill the GUID? */
+   if (!compat_5_2_10()) {
+      _al_fill_gamepad_info(&xjoy->parent.info);
    }
-   /* Map stick and axis names. */
-   for (index = 0; index < MAX_STICKS; index++) {
-      info->stick[index].name = joyxi_stick_names[index];
-      info->stick[index].num_axes = joyxi_axis_per_stick[index];
-      info->stick[index].flags = ALLEGRO_JOYFLAG_ANALOGUE;
-      for (subdex = 0; subdex < joyxi_axis_per_stick[index]; subdex++) {
-         info->stick[index].axis[subdex].name = joyxi_axis_names[index][subdex];
+   else {
+      int index, subdex;
+      _AL_JOYSTICK_INFO *info = &xjoy->parent.info;
+      /* Map xinput to 4 sticks: 2 thumb pads and 2 triggers. */
+      info->num_sticks = 4;
+      /* Map xinput to 14 buttons */
+      info->num_buttons = MAX_BUTTONS;
+      /* Map button names. */
+      for (index = 0; index < MAX_BUTTONS; index++) {
+         info->button[index].name = _al_strdup(joyxi_button_mapping[index].name);
+      }
+      /* Map stick and axis names. */
+      for (index = 0; index < MAX_STICKS; index++) {
+         info->stick[index].name = _al_strdup(joyxi_stick_names[index]);
+         info->stick[index].num_axes = joyxi_axis_per_stick[index];
+         info->stick[index].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+         for (subdex = 0; subdex < joyxi_axis_per_stick[index]; subdex++) {
+            info->stick[index].axis[subdex].name = _al_strdup(joyxi_axis_names[index][subdex]);
+         }
       }
    }
 }
@@ -643,6 +690,7 @@ static void joyxi_exit_joystick(void)
    /* Wipe the joystick structs */
    for (index = 0; index < MAX_JOYSTICKS; index++) {
       joyxi_joysticks[index].active = false;
+      _al_destroy_joystick_info(&joyxi_joysticks[index].parent.info);
    }
    al_unlock_mutex(joyxi_mutex);
    al_destroy_mutex(joyxi_mutex);

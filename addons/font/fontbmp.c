@@ -16,6 +16,8 @@
  */
 
 
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include <string.h>
 
 #include "allegro5/allegro.h"

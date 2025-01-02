@@ -115,11 +115,9 @@ static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy);
 
 static unsigned __stdcall joydx_thread_proc(LPVOID unused);
 static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy);
-static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value);
-static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, DWORD value);
-static void handle_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, bool down);
-static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos);
-static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALLEGRO_EVENT_TYPE event_type);
+static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, _AL_JOYSTICK_OUTPUT output, DWORD value);
+static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, _AL_JOYSTICK_OUTPUT *outputs, DWORD _value);
+static void handle_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, _AL_JOYSTICK_OUTPUT output, DWORD value);
 
 
 
@@ -556,33 +554,156 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 }
 
 
-static char *add_string(char *buf, const TCHAR *src, int *pos, int bufsize, const char* dfl)
+/* fill_standard_gamepad: [primary thread]
+ */
+static bool fill_standard_gamepad(ALLEGRO_JOYSTICK_DIRECTX *joy,
+   const CAPS_AND_NAMES *can)
 {
-   char *dest;
+   DIPROPDWORD property_vidpid =
+   {
+      /* the header */
+      {
+         sizeof(DIPROPDWORD),   // diph.dwSize
+         sizeof(DIPROPHEADER),  // diph.dwHeaderSize
+         0,                     // diph.dwObj
+         DIPH_DEVICE,           // diph.dwHow
+      },
 
-   dest = buf + *pos;
-   if (*pos >= bufsize - 1) {
-      /* Out of space. */
-      ALLEGRO_ASSERT(dest[0] == '\0');
-      return dest;
+      /* the data */
+      0,                    // dwData
+   };
+
+   DIPROPSTRING property_productname =
+   {
+      /* the header */
+      {
+         sizeof(DIPROPSTRING),   // diph.dwSize
+         sizeof(DIPROPHEADER),   // diph.dwHeaderSize
+         0,                      // diph.dwObj
+         DIPH_DEVICE,            // diph.dwHow
+      },
+
+      /* the data */
+      0,                    // wsz
+   };
+
+   if (FAILED(IDirectInputDevice8_GetProperty(joy->device, DIPROP_VIDPID, &property_vidpid.diph)))
+      return false;
+
+   int vendor = LOWORD(property_vidpid.dwData);
+   int product = HIWORD(property_vidpid.dwData);
+
+   if (FAILED(IDirectInputDevice8_GetProperty(joy->device, DIPROP_PRODUCTNAME, &property_productname.diph)))
+      return false;
+
+   const char *product_string = _twin_tchar_to_utf8(property_productname.wsz);
+
+
+   ALLEGRO_JOYSTICK_GUID guid;
+   if (vendor && product)
+      guid = _al_new_joystick_guid(0x03, vendor, product, 0, NULL, product_string, 0, 0);
+   else
+      guid = _al_new_joystick_guid(0x05, vendor, product, 0, NULL, product_string, 0, 0);
+   joy->parent.info.guid = guid;
+
+   const _AL_JOYSTICK_MAPPING *mapping = _al_get_gamepad_mapping("Windows", guid);
+   if (!mapping)
+      return false;
+
+   int axis = 0;
+   int num_axes_mapped = 0;
+   int num_hats_mapped = 0;
+   int num_buttons_mapped = 0;
+   _AL_JOYSTICK_OUTPUT *output;
+   int i = 0;
+
+   if (can->have_x) {
+      output = _al_get_joystick_output(&mapping->axis_map, axis++);
+      if (output) {
+         joy->x_mapping = *output;
+         num_axes_mapped++;
+      }
    }
 
-   if (*pos > 0) {
-      /* Skip over NUL separator. */
-      dest++;
-      (*pos)++;
+   if (can->have_y) {
+      output = _al_get_joystick_output(&mapping->axis_map, axis++);
+      if (output) {
+         joy->y_mapping = *output;
+         num_axes_mapped++;
+      }
    }
-   if (src) {
-      dest = _twin_copy_tchar_to_utf8(dest, src, bufsize - *pos);
-   } else {
-      dest = _al_sane_strncpy(dest, dfl, bufsize - *pos);
+
+   if (can->have_z) {
+      output = _al_get_joystick_output(&mapping->axis_map, axis++);
+      if (output) {
+         joy->z_mapping = *output;
+         num_axes_mapped++;
+      }
    }
-   ALLEGRO_ASSERT(dest != 0);
-   if (dest) {
-      (*pos) += strlen(dest);
-      ALLEGRO_ASSERT(*pos < bufsize);
+
+   if (can->have_rx) {
+      output = _al_get_joystick_output(&mapping->axis_map, axis++);
+      if (output) {
+         joy->rx_mapping = *output;
+         num_axes_mapped++;
+      }
    }
-   return dest;
+
+   if (can->have_ry) {
+      output = _al_get_joystick_output(&mapping->axis_map, axis++);
+      if (output) {
+         joy->ry_mapping = *output;
+         num_axes_mapped++;
+      }
+   }
+
+   if (can->have_rz) {
+      output = _al_get_joystick_output(&mapping->axis_map, axis++);
+      if (output) {
+         joy->rz_mapping = *output;
+         num_axes_mapped++;
+      }
+   }
+
+   for (i = 0; i < can->num_sliders; i++) {
+      output = _al_get_joystick_output(&mapping->axis_map, axis++);
+      if (output) {
+         joy->slider_mapping[i] = *output;
+         num_axes_mapped++;
+      }
+   }
+
+   for (i = 0; i < 2 * can->num_povs; i++) {
+      output = _al_get_joystick_output(&mapping->hat_map, i);
+      if (output) {
+         joy->pov_mapping[i] = *output;
+         num_hats_mapped++;
+      }
+   }
+
+   for (i = 0; i < can->num_buttons; i++) {
+      output = _al_get_joystick_output(&mapping->button_map, i);
+      if (output) {
+         joy->button_mapping[i] = *output;
+         num_buttons_mapped++;
+      }
+   }
+
+   if (num_axes_mapped != (int)_al_vector_size(&mapping->axis_map)) {
+      return false;
+   }
+   if (num_hats_mapped != (int)_al_vector_size(&mapping->hat_map)) {
+      return false;
+   }
+   if (num_buttons_mapped != (int)_al_vector_size(&mapping->button_map)) {
+      return false;
+   }
+
+   _al_fill_gamepad_info(&joy->parent.info);
+
+   memcpy(joy->name, mapping->name, sizeof(mapping->name));
+
+   return true;
 }
 
 
@@ -594,38 +715,32 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    const CAPS_AND_NAMES *can)
 {
    _AL_JOYSTICK_INFO *info = &joy->parent.info;
-   int pos = 0;
    int i;
 
 #define N_STICK         (info->num_sticks)
 #define N_AXIS          (info->stick[N_STICK].num_axes)
-#define ADD_STRING(A, dfl) \
-                        (add_string(joy->all_names, (A), &pos, \
-                           sizeof(joy->all_names), (dfl)))
+#define ADD_STRING(A, dfl) ((A)  ? _twin_tchar_to_utf8(A) : _al_strdup(dfl))
 
    /* the X, Y, Z axes make up the first stick */
    if (can->have_x || can->have_y || can->have_z) {
       if (can->have_x) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_x, default_name_x);
-         joy->x_mapping.stick = N_STICK;
-         joy->x_mapping.axis  = N_AXIS;
+         joy->x_mapping = _al_new_joystick_stick_output(N_STICK, N_AXIS);
          N_AXIS++;
       }
 
       if (can->have_y) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_y, default_name_y);
-         joy->y_mapping.stick = N_STICK;
-         joy->y_mapping.axis  = N_AXIS;
+         joy->y_mapping = _al_new_joystick_stick_output(N_STICK, N_AXIS);
          N_AXIS++;
       }
 
       if (can->have_z) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_z, default_name_z);
-         joy->z_mapping.stick = N_STICK;
-         joy->z_mapping.axis = N_AXIS;
+         joy->z_mapping = _al_new_joystick_stick_output(N_STICK, N_AXIS);
          N_AXIS++;
       }
 
@@ -638,28 +753,25 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
       if (can->have_rx) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_rx, default_name_rx);
-         joy->rx_mapping.stick = N_STICK;
-         joy->rx_mapping.axis  = N_AXIS;
+         joy->rx_mapping = _al_new_joystick_stick_output(N_STICK, N_AXIS);
          N_AXIS++;
       }
 
       if (can->have_ry) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_ry, default_name_ry);
-         joy->ry_mapping.stick = N_STICK;
-         joy->ry_mapping.axis  = N_AXIS;
+         joy->ry_mapping = _al_new_joystick_stick_output(N_STICK, N_AXIS);
          N_AXIS++;
       }
 
       if (can->have_rz) {
          info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
          info->stick[N_STICK].axis[N_AXIS].name = ADD_STRING(can->name_rz, default_name_rz);
-         joy->rz_mapping.stick = N_STICK;
-         joy->rz_mapping.axis  = N_AXIS;
+         joy->rz_mapping = _al_new_joystick_stick_output(N_STICK, N_AXIS);
          N_AXIS++;
       }
 
-      info->stick[N_STICK].name = ADD_STRING(NULL, default_name_stick);
+      info->stick[N_STICK].name = _al_strdup(default_name_stick);
       N_STICK++;
    }
 
@@ -667,27 +779,28 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    for (i = 0; i < can->num_sliders; i++) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
       info->stick[N_STICK].num_axes = 1;
-      info->stick[N_STICK].axis[0].name = ADD_STRING(NULL, "axis");
+      info->stick[N_STICK].axis[0].name = _al_strdup("axis");
       info->stick[N_STICK].name = ADD_STRING(can->name_slider[i], default_name_slider);
-      joy->slider_mapping[i].stick = N_STICK;
-      joy->slider_mapping[i].axis  = 0;
+      joy->slider_mapping[i] = _al_new_joystick_stick_output(N_STICK, 0);
       N_STICK++;
    }
 
    /* POV devices are assigned to one stick each */
-   for (i = 0; i < can->num_povs; i++) {
+   for (i = 0; i < 2 * can->num_povs; i += 2) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL;
       info->stick[N_STICK].num_axes = 2;
-      info->stick[N_STICK].axis[0].name = ADD_STRING(NULL, "left/right");
-      info->stick[N_STICK].axis[1].name = ADD_STRING(NULL, "up/down");
+      info->stick[N_STICK].axis[0].name = _al_strdup("left/right");
+      info->stick[N_STICK].axis[1].name = _al_strdup("up/down");
       info->stick[N_STICK].name = ADD_STRING(can->name_pov[i], default_name_hat);
-      joy->pov_mapping_stick[i] = N_STICK;
+      joy->pov_mapping[i] = _al_new_joystick_stick_output(N_STICK, 0);
+      joy->pov_mapping[i + 1] = _al_new_joystick_stick_output(N_STICK, 1);
       N_STICK++;
    }
 
    /* buttons */
    for (i = 0; i < can->num_buttons; i++) {
       info->button[i].name = ADD_STRING(can->name_button[i], default_name_button[i]);
+      joy->button_mapping[i] = _al_new_joystick_button_output(i);
    }
 
    info->num_buttons = can->num_buttons;
@@ -696,30 +809,34 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    if (strstr(joy->name, "MP-8866")) {
       /* axes were mapped weird; remap as expected */
       /* really R-stick X axis */
-      joy->z_mapping.stick  = 1;
-      joy->z_mapping.axis   = 0;
+      joy->z_mapping = _al_new_joystick_stick_output(1, 0);
 
       /* really R-stick Y axis */
-      joy->rz_mapping.stick = 1;
-      joy->rz_mapping.axis  = 1;
+      joy->rz_mapping = _al_new_joystick_stick_output(1, 1);
 
       info->stick[0].num_axes = 2;
       info->stick[1].num_axes = 2;
 
       /* reuse the axis names from the first stick */
-      info->stick[2].axis[0].name = info->stick[1].axis[0].name = info->stick[0].axis[0].name;
-      info->stick[2].axis[1].name = info->stick[1].axis[1].name = info->stick[0].axis[1].name;
+      al_free(info->stick[1].axis[0].name);
+      al_free(info->stick[1].axis[1].name);
+      al_free(info->stick[2].axis[0].name);
+      al_free(info->stick[2].axis[1].name);
+      info->stick[1].axis[0].name = _al_strdup(info->stick[0].axis[0].name);
+      info->stick[1].axis[1].name = _al_strdup(info->stick[0].axis[1].name);
+      info->stick[2].axis[0].name = _al_strdup(info->stick[0].axis[0].name);
+      info->stick[2].axis[1].name = _al_strdup(info->stick[0].axis[1].name);
 
       /* first four button names contained junk; replace with valid strings */
-      info->button[ 0].name = ADD_STRING(NULL, "Triangle");
-      info->button[ 1].name = ADD_STRING(NULL, "Circle");
-      info->button[ 2].name = ADD_STRING(NULL, "X");
-      info->button[ 3].name = ADD_STRING(NULL, "Square");
+      info->button[0].name = _al_strdup("Triangle");
+      info->button[1].name = _al_strdup("Circle");
+      info->button[2].name = _al_strdup("X");
+      info->button[3].name = _al_strdup("Square");
 
       /* while we're at it, give these controls more sensible names, too */
-      info->stick[0].name = ADD_STRING(NULL, "[L-stick] or D-pad");
-      info->stick[1].name = ADD_STRING(NULL, "[R-stick]");
-      info->stick[2].name = ADD_STRING(NULL, "[D-pad]");
+      info->stick[0].name = _al_strdup("[L-stick] or D-pad");
+      info->stick[1].name = _al_strdup("[R-stick]");
+      info->stick[2].name = _al_strdup("[D-pad]");
    }
 
 #undef N_AXIS
@@ -957,7 +1074,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    _twin_copy_tchar_to_utf8(joy->name, lpddi->tszInstanceName, sizeof(joy->name));
 
    /* fill in the joystick structure */
-   fill_joystick_info_using_caps_and_names(joy, &caps_and_names);
+   if (!fill_standard_gamepad(joy, &caps_and_names))
+      fill_joystick_info_using_caps_and_names(joy, &caps_and_names);
 
    /* create a thread event for this joystick, unless it was already created */
    joy->waker_event = CreateEvent(NULL, false, false, NULL);
@@ -1040,6 +1158,7 @@ static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy)
       joy->waker_event = NULL;
    }
 
+   _al_destroy_joystick_info(&joy->parent.info);
    memset(&joy->parent.info, 0, sizeof(joy->parent.info));
    /* XXX the joystick name really belongs in joy->parent.info too */
    joy->name[0] = '\0';
@@ -1492,37 +1611,34 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
          const DWORD dwData = item->dwData;
 
          if (dwOfs == DIJOFS_X)
-            handle_axis_event(joy, &joy->x_mapping, dwData);
+            handle_axis_event(joy, joy->x_mapping, dwData);
          else if (dwOfs == DIJOFS_Y)
-            handle_axis_event(joy, &joy->y_mapping, dwData);
+            handle_axis_event(joy, joy->y_mapping, dwData);
          else if (dwOfs == DIJOFS_Z)
-            handle_axis_event(joy, &joy->z_mapping, dwData);
+            handle_axis_event(joy, joy->z_mapping, dwData);
          else if (dwOfs == DIJOFS_RX)
-            handle_axis_event(joy, &joy->rx_mapping, dwData);
+            handle_axis_event(joy, joy->rx_mapping, dwData);
          else if (dwOfs == DIJOFS_RY)
-            handle_axis_event(joy, &joy->ry_mapping, dwData);
+            handle_axis_event(joy, joy->ry_mapping, dwData);
          else if (dwOfs == DIJOFS_RZ)
-            handle_axis_event(joy, &joy->rz_mapping, dwData);
+            handle_axis_event(joy, joy->rz_mapping, dwData);
          else if ((unsigned int)dwOfs == DIJOFS_SLIDER(0))
-            handle_axis_event(joy, &joy->slider_mapping[0], dwData);
+            handle_axis_event(joy, joy->slider_mapping[0], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_SLIDER(1))
-            handle_axis_event(joy, &joy->slider_mapping[1], dwData);
+            handle_axis_event(joy, joy->slider_mapping[1], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(0))
-            handle_pov_event(joy, joy->pov_mapping_stick[0], dwData);
+            handle_pov_event(joy, &joy->pov_mapping[0], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(1))
-            handle_pov_event(joy, joy->pov_mapping_stick[1], dwData);
+            handle_pov_event(joy, &joy->pov_mapping[2], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(2))
-            handle_pov_event(joy, joy->pov_mapping_stick[2], dwData);
+            handle_pov_event(joy, &joy->pov_mapping[4], dwData);
          else if ((unsigned int)dwOfs == DIJOFS_POV(3))
-            handle_pov_event(joy, joy->pov_mapping_stick[3], dwData);
+            handle_pov_event(joy, &joy->pov_mapping[6], dwData);
          else {
             /* buttons */
-            if ((dwOfs >= DIJOFS_BUTTON0) &&
-                (dwOfs <  DIJOFS_BUTTON(joy->parent.info.num_buttons)))
-            {
-               int num = (dwOfs - DIJOFS_BUTTON0) / (DIJOFS_BUTTON1 - DIJOFS_BUTTON0);
-               handle_button_event(joy, num, (dwData & 0x80));
-            }
+            int num = (dwOfs - DIJOFS_BUTTON0) / (DIJOFS_BUTTON1 - DIJOFS_BUTTON0);
+            if (num < MAX_BUTTONS)
+               handle_button_event(joy, joy->button_mapping[num], (dwData & 0x80));
          }
       }
    }
@@ -1535,21 +1651,11 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
  *  Helper function to handle a state change in a non-POV axis.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value)
+static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, _AL_JOYSTICK_OUTPUT output, DWORD value)
 {
-   const int stick = axis_mapping->stick;
-   const int axis  = axis_mapping->axis;
-   float pos;
-
-   if (stick < 0 || stick >= joy->parent.info.num_sticks)
-      return;
-
-   if (axis < 0 || axis >= joy->parent.info.stick[stick].num_axes)
-      return;
-
-   pos = (int)value / 32767.0;
-   joy->joystate.stick[stick].axis[axis] = pos;
-   generate_axis_event(joy, stick, axis, pos);
+   float pos = (int)value / 32767.0;
+   if (output.button_enabled || output.pos_enabled || output.neg_enabled)
+      _al_joystick_generate_axis_event((ALLEGRO_JOYSTICK*)joy, &joy->joystate, output, pos);
 }
 
 
@@ -1558,44 +1664,36 @@ static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING 
  *  Helper function to handle a state change in a POV device.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, DWORD _value)
+static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, _AL_JOYSTICK_OUTPUT *outputs, DWORD _value)
 {
    int value = _value;
-   float old_p0, old_p1;
-   float p0, p1;
-
-   if (stick < 0 || stick >= joy->parent.info.num_sticks)
-      return;
-
-   old_p0 = joy->joystate.stick[stick].axis[0];
-   old_p1 = joy->joystate.stick[stick].axis[1];
-
+   float px, py;
    /* left */
    if ((value > JOY_POVBACKWARD) && (value < JOY_POVFORWARD_WRAP))
-      joy->joystate.stick[stick].axis[0] = p0 = -1.0;
+      px = -1.0;
    /* right */
    else if ((value > JOY_POVFORWARD) && (value < JOY_POVBACKWARD))
-      joy->joystate.stick[stick].axis[0] = p0 = +1.0;
+      px = +1.0;
    else
-      joy->joystate.stick[stick].axis[0] = p0 = 0.0;
+      px = 0.0;
 
    /* forward */
    if (((value > JOY_POVLEFT) && (value <= JOY_POVFORWARD_WRAP)) ||
        ((value >= JOY_POVFORWARD) && (value < JOY_POVRIGHT)))
-      joy->joystate.stick[stick].axis[1] = p1 = -1.0;
+      py = -1.0;
    /* backward */
    else if ((value > JOY_POVRIGHT) && (value < JOY_POVLEFT))
-      joy->joystate.stick[stick].axis[1] = p1 = +1.0;
+      py = +1.0;
    else
-      joy->joystate.stick[stick].axis[1] = p1 = 0.0;
+      py = 0.0;
 
-   if (old_p0 != p0) {
-      generate_axis_event(joy, stick, 0, p0);
-   }
-
-   if (old_p1 != p1) {
-      generate_axis_event(joy, stick, 1, p1);
-   }
+   _AL_JOYSTICK_OUTPUT output;
+   output = outputs[0];
+   if (output.button_enabled || output.pos_enabled || output.neg_enabled)
+      _al_joystick_generate_axis_event((ALLEGRO_JOYSTICK*)joy, &joy->joystate, output, px);
+   output = outputs[1];
+   if (output.button_enabled || output.pos_enabled || output.neg_enabled)
+      _al_joystick_generate_axis_event((ALLEGRO_JOYSTICK*)joy, &joy->joystate, output, py);
 }
 
 
@@ -1604,69 +1702,10 @@ static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, DWORD _va
  *  Helper function to handle a state change in a button.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, bool down)
+static void handle_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, _AL_JOYSTICK_OUTPUT output, DWORD value)
 {
-   if (button < 0 && button >= joy->parent.info.num_buttons)
-      return;
-
-   if (down) {
-      joy->joystate.button[button] = 32767;
-      generate_button_event(joy, button, ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN);
-   }
-   else {
-      joy->joystate.button[button] = 0;
-      generate_button_event(joy, button, ALLEGRO_EVENT_JOYSTICK_BUTTON_UP);
-   }
-}
-
-
-
-/* generate_axis_event: [joystick thread]
- *  Helper to generate an event after an axis is moved.
- *  The joystick must be locked BEFORE entering this function.
- */
-static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos)
-{
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
-
-   if (!_al_event_source_needs_to_generate_event(es))
-      return;
-
-   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-   event.joystick.timestamp = al_get_time();
-   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
-   event.joystick.stick = stick;
-   event.joystick.axis = axis;
-   event.joystick.pos = pos;
-   event.joystick.button = 0;
-
-   _al_event_source_emit_event(es, &event);
-}
-
-
-
-/* generate_button_event: [joystick thread]
- *  Helper to generate an event after a button is pressed or released.
- *  The joystick must be locked BEFORE entering this function.
- */
-static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
-{
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
-
-   if (!_al_event_source_needs_to_generate_event(es))
-      return;
-
-   event.joystick.type = event_type;
-   event.joystick.timestamp = al_get_time();
-   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
-   event.joystick.stick = 0;
-   event.joystick.axis = 0;
-   event.joystick.pos = 0.0;
-   event.joystick.button = button;
-
-   _al_event_source_emit_event(es, &event);
+   if (output.button_enabled || output.pos_enabled || output.neg_enabled)
+      _al_joystick_generate_button_event((ALLEGRO_JOYSTICK *)joy, &joy->joystate, output, value);
 }
 
 

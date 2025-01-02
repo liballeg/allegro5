@@ -54,13 +54,6 @@ typedef struct
 } CAPS_AND_NAMES;
 
 
-/* map a DirectInput axis to an Allegro (stick,axis) pair */
-typedef struct
-{
-   int stick, axis;
-} AXIS_MAPPING;
-
-
 typedef struct ALLEGRO_JOYSTICK_DIRECTX
 {
    ALLEGRO_JOYSTICK parent;          /* must be first */
@@ -72,16 +65,17 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX
    HANDLE waker_event;
 
    ALLEGRO_JOYSTICK_STATE joystate;
-   AXIS_MAPPING x_mapping;
-   AXIS_MAPPING y_mapping;
-   AXIS_MAPPING z_mapping;
-   AXIS_MAPPING rx_mapping;
-   AXIS_MAPPING ry_mapping;
-   AXIS_MAPPING rz_mapping;
-   AXIS_MAPPING slider_mapping[MAX_SLIDERS];
-   int pov_mapping_stick[MAX_POVS];
-   char name[80];
-   char all_names[512]; /* button/stick/axis names with NUL terminators */
+   _AL_JOYSTICK_OUTPUT x_mapping;
+   _AL_JOYSTICK_OUTPUT y_mapping;
+   _AL_JOYSTICK_OUTPUT z_mapping;
+   _AL_JOYSTICK_OUTPUT rx_mapping;
+   _AL_JOYSTICK_OUTPUT ry_mapping;
+   _AL_JOYSTICK_OUTPUT rz_mapping;
+   _AL_JOYSTICK_OUTPUT slider_mapping[MAX_SLIDERS];
+   /* The X/Y directions are interleaved. */
+   _AL_JOYSTICK_OUTPUT pov_mapping[2 * MAX_POVS];
+   _AL_JOYSTICK_OUTPUT button_mapping[MAX_BUTTONS];
+   char name[100];
 } ALLEGRO_JOYSTICK_DIRECTX;
 
 

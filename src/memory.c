@@ -17,6 +17,7 @@
 
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern.h"
 
 
 /* globals */
@@ -81,6 +82,14 @@ void *al_calloc_with_context(size_t count, size_t n,
       return mem->mi_calloc(count, n, line, file, func);
    else
       return calloc(count, n);
+}
+
+
+char *_al_strdup(const char* string)
+{
+   size_t length = strlen(string);
+   char *str = al_malloc(length + 1);
+   return memcpy(str, string, length + 1);
 }
 
 

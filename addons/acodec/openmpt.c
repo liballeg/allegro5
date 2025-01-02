@@ -3,6 +3,7 @@
  * author: Pavel Sountsov
  */
 
+#define ALLEGRO_INTERNAL_UNSTABLE
 #define _FILE_OFFSET_BITS 64
 #include <ctype.h>
 

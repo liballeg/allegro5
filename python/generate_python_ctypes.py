@@ -148,7 +148,7 @@ class Allegro:
                     plist.append(c_void_p)
                     continue
 
-                mob = re.match("^.*?(\w+)$", param)
+                mob = re.match(r"^.*?(\w+)$", param)
                 if mob:
                     pnamepos = mob.start(1)
                     if pnamepos == 0:
@@ -277,26 +277,26 @@ class Allegro:
                     continue
 
                 # add function pointer as void pointer
-                mob = re.match(".*?\(\*(\w+)\)", field)
+                mob = re.match(r".*?\(\*(\w+)\)", field)
                 if mob:
                     flist.append((mob.group(1), "c_void_p"))
                     continue
 
                 # add any pointer as void pointer
-                mob = re.match(".*?\*(\w+)$", field)
+                mob = re.match(r".*?\*(\w+)$", field)
                 if mob:
                     flist.append((mob.group(1), "c_void_p"))
                     continue
 
                 # add an array
-                mob = re.match("(.*)\s+(\w+)\[(.*?)\]$", field)
+                mob = re.match(r"(.*)\s+(\w+)\[(.*?)\]$", field)
                 if mob:
                     # this is all a hack
                     n = 0
                     ftype = mob.group(1)
                     if ftype.startswith("struct"):
-                        if ftype == "struct {float axis[3];}":
-                            t = "c_float * 3"
+                        if ftype == "struct {float axis[5];}":
+                            t = "c_float * 5"
                         else:
                             print("Error: Can't parse " + ftype + " yet.")
                             t = None
@@ -314,8 +314,8 @@ class Allegro:
                     continue
 
                 vars = field.split(",")
-                mob = re.match("\s*(.*?)\s+(\w+)\s*$", vars[0])
-                
+                mob = re.match(r"\s*(.*?)\s+(\w+)\s*$", vars[0])
+
                 t = self.get_type(mob.group(1))
                 vname = mob.group(2)
                 if t is not None and vname is not None:
@@ -496,7 +496,7 @@ else:
         x = al.types[name]
         base = x.__bases__[0]
         f.write("class " + name + "(" + base.__name__ + "):\n")
-        
+
 
         if hasattr(x, "my_fields"):
             f.write("    _fields_ = [\n")
