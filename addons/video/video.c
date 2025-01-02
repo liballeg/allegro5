@@ -37,6 +37,7 @@
  * - Additional drivers. Also redo the API a bit so not everything
  *   has to be done by the driver.
  */
+#define ALLEGRO_INTERNAL_UNSTABLE
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_video.h"

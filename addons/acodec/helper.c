@@ -2,7 +2,6 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
-#include "allegro5/internal/aintern_system.h"
 #include "helper.h"
 
 void _al_acodec_start_feed_thread(ALLEGRO_AUDIO_STREAM *stream)

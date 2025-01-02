@@ -103,8 +103,6 @@ static const char *ljoy_get_name(ALLEGRO_JOYSTICK *joy_);
 static bool ljoy_get_active(ALLEGRO_JOYSTICK *joy_);
 
 static void ljoy_process_new_data(void *data);
-static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos);
-static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, ALLEGRO_EVENT_TYPE event_type);
 
 
 
@@ -138,6 +136,7 @@ static ALLEGRO_MUTEX *hotplug_mutex;
 static ALLEGRO_COND *hotplug_cond;
 static bool hotplug_ended = false;
 #endif
+
 
 
 /* Return true if a joystick-related button or key:
@@ -303,8 +302,6 @@ static ALLEGRO_JOYSTICK_LINUX *ljoy_allocate_structure(void)
 
 static void inactivate_joy(ALLEGRO_JOYSTICK_LINUX *joy)
 {
-   int i;
-
    if (joy->config_state == LJOY_STATE_UNUSED)
       return;
    joy->config_state = LJOY_STATE_UNUSED;
@@ -313,10 +310,7 @@ static void inactivate_joy(ALLEGRO_JOYSTICK_LINUX *joy)
    close(joy->fd);
    joy->fd = -1;
 
-   for (i = 0; i < joy->parent.info.num_sticks; i++)
-      al_free((void *)joy->parent.info.stick[i].name);
-   for (i = 0; i < joy->parent.info.num_buttons; i++)
-      al_free((void *)joy->parent.info.button[i].name);
+   _al_destroy_joystick_info(&joy->parent.info);
    memset(&joy->parent.info, 0, sizeof(joy->parent.info));
    memset(&joy->joystate, 0, sizeof(joy->joystate));
 
@@ -326,11 +320,10 @@ static void inactivate_joy(ALLEGRO_JOYSTICK_LINUX *joy)
 
 
 
-static void set_axis_mapping(AXIS_MAPPING *map, int stick, int axis,
+static void set_axis_mapping(AXIS_MAPPING *map, _AL_JOYSTICK_OUTPUT output,
    const struct input_absinfo *absinfo)
 {
-   map->stick = stick;
-   map->axis  = axis;
+   map->output = output;
    map->min   = absinfo->minimum;
    map->max   = absinfo->maximum;
    map->value = absinfo->value;
@@ -373,14 +366,15 @@ static bool fill_joystick_axes(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
          name_throttles++;
          joy->parent.info.stick[stick].flags = ALLEGRO_JOYFLAG_ANALOGUE;
          joy->parent.info.stick[stick].num_axes = 1;
-         joy->parent.info.stick[stick].axis[0].name = "X";
+         joy->parent.info.stick[stick].axis[0].name = _al_strdup("X");
          joy->parent.info.stick[stick].name = al_malloc(32);
          snprintf((char *)joy->parent.info.stick[stick].name, 32,
             "Throttle %d", name_throttles);
-         set_axis_mapping(&joy->axis_mapping[i], stick, 0, &absinfo);
+         set_axis_mapping(&joy->axis_mapping[i], _al_new_joystick_stick_output(stick, 0), &absinfo);
          stick++;
       }
       else {
+         _AL_JOYSTICK_OUTPUT output = _al_new_joystick_stick_output(stick, axis);
          /* Regular axis, two axis stick. */
          if (axis == 0) {
             /* First axis of new joystick. */
@@ -391,18 +385,18 @@ static bool fill_joystick_axes(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
                joy->parent.info.stick[stick].flags = ALLEGRO_JOYFLAG_ANALOGUE;
             }
             joy->parent.info.stick[stick].num_axes = 2;
-            joy->parent.info.stick[stick].axis[0].name = "X";
-            joy->parent.info.stick[stick].axis[1].name = "Y";
+            joy->parent.info.stick[stick].axis[0].name = _al_strdup("X");
+            joy->parent.info.stick[stick].axis[1].name = _al_strdup("Y");
             joy->parent.info.stick[stick].name = al_malloc(32);
             snprintf((char *)joy->parent.info.stick[stick].name, 32,
                "Stick %d", name_sticks);
-            set_axis_mapping(&joy->axis_mapping[i], stick, axis, &absinfo);
+            set_axis_mapping(&joy->axis_mapping[i], output, &absinfo);
             axis++;
          }
          else {
             /* Second axis. */
             ASSERT(axis == 1);
-            set_axis_mapping(&joy->axis_mapping[i], stick, axis, &absinfo);
+            set_axis_mapping(&joy->axis_mapping[i], output, &absinfo);
             stick++;
             axis = 0;
          }
@@ -414,6 +408,58 @@ static bool fill_joystick_axes(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
    return true;
 }
 
+
+
+static bool fill_joystick_axes_with_map(ALLEGRO_JOYSTICK_LINUX *joy, int fd, const _AL_JOYSTICK_MAPPING *mapping)
+{
+   unsigned long abs_bits[NLONGS(ABS_CNT)] = {0};
+   int i;
+   int hat = 0;
+   int axis = 0;
+   _AL_JOYSTICK_OUTPUT *output;
+   int num_hats_mapped = 0;
+   int num_axes_mapped = 0;
+
+   /* Scan the axes to get their properties. */
+   if (ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(abs_bits)), abs_bits) < 0)
+      return false;
+
+   for (i = LJOY_AXIS_RANGE_START; i < LJOY_AXIS_RANGE_END; i++) {
+      struct input_absinfo absinfo;
+
+      if (!TEST_BIT(i, abs_bits))
+         continue;
+
+      if (ioctl(fd, EVIOCGABS(i), &absinfo) < 0)
+         continue;
+
+      if (is_hat_axis(i)) {
+         output = _al_get_joystick_output(&mapping->hat_map, hat);
+         if (output) {
+            set_axis_mapping(&joy->axis_mapping[i], *output, &absinfo);
+            num_hats_mapped++;
+         }
+         hat++;
+      }
+      else {
+         output = _al_get_joystick_output(&mapping->axis_map, axis);
+         if (output) {
+            set_axis_mapping(&joy->axis_mapping[i], *output, &absinfo);
+            num_axes_mapped++;
+         }
+         axis++;
+      }
+   }
+   if (num_hats_mapped != (int)_al_vector_size(&mapping->hat_map)) {
+      ALLEGRO_ERROR("Could not use mapping, some hats are not mapped.\n");
+      return false;
+   }
+   if (num_axes_mapped != (int)_al_vector_size(&mapping->axis_map)) {
+      ALLEGRO_ERROR("Could not use mapping, some axes are not mapped.\n");
+      return false;
+   }
+   return true;
+}
 
 
 static bool fill_joystick_buttons(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
@@ -430,6 +476,7 @@ static bool fill_joystick_buttons(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
    for (i = LJOY_BTN_RANGE_START; i < LJOY_BTN_RANGE_END; i++) {
       if (TEST_BIT(i, key_bits) && is_joystick_button(i)) {
          joy->button_mapping[b].ev_code = i;
+         joy->button_mapping[b].output = _al_new_joystick_button_output(b);
          ALLEGRO_DEBUG("Input event code %d maps to button %d\n", i, b);
 
          joy->parent.info.button[b].name = al_malloc(32);
@@ -448,6 +495,70 @@ static bool fill_joystick_buttons(ALLEGRO_JOYSTICK_LINUX *joy, int fd)
       joy->button_mapping[b].ev_code = -1;
    }
 
+   return true;
+}
+
+
+
+static bool fill_joystick_buttons_with_map(ALLEGRO_JOYSTICK_LINUX *joy, int fd, const _AL_JOYSTICK_MAPPING *mapping)
+{
+   unsigned long key_bits[NLONGS(KEY_CNT)] = {0};
+   int button;
+   int i;
+   int num_buttons_mapped = 0;
+
+   if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(key_bits)), key_bits) < 0)
+      return false;
+
+   button = 0;
+
+   for (i = LJOY_BTN_RANGE_START; i < LJOY_BTN_RANGE_END; i++) {
+      if (TEST_BIT(i, key_bits)) {
+         joy->button_mapping[button].ev_code = i;
+         _AL_JOYSTICK_OUTPUT *output = _al_get_joystick_output(&mapping->button_map, button);
+         if (output) {
+            joy->button_mapping[button].output = *output;
+            num_buttons_mapped++;
+         }
+         button++;
+      }
+   }
+
+   /* Clear the rest. */
+   for (; button < _AL_MAX_JOYSTICK_BUTTONS; button++) {
+      joy->button_mapping[button].ev_code = -1;
+   }
+
+   if (num_buttons_mapped != (int)_al_vector_size(&mapping->button_map)) {
+      ALLEGRO_ERROR("Could not use mapping, some buttons are not mapped.\n");
+      return false;
+   }
+
+   return true;
+}
+
+
+
+static bool fill_gamepad(ALLEGRO_JOYSTICK_LINUX *joy, int fd) {
+   struct input_id id;
+   if (ioctl(fd, EVIOCGID, &id) < 0)
+      return false;
+
+   ALLEGRO_JOYSTICK_GUID guid = _al_new_joystick_guid(id.bustype, id.vendor, id.product, id.version, NULL, joy->name, 0, 0);
+   joy->parent.info.guid = guid;
+   const _AL_JOYSTICK_MAPPING *mapping = _al_get_gamepad_mapping("Linux", guid);
+   if (!mapping)
+      return false;
+
+   if (!fill_joystick_buttons_with_map(joy, fd, mapping))
+      return false;
+
+   if (!fill_joystick_axes_with_map(joy, fd, mapping))
+      return false;
+
+   _al_fill_gamepad_info(&joy->parent.info);
+
+   memcpy(joy->name, mapping->name, sizeof(mapping->name));
    return true;
 }
 
@@ -497,11 +608,13 @@ static void ljoy_device(ALLEGRO_USTR *device_name) {
    /* Map Linux input API axis and button numbers to ours, and fill in
     * information.
     */
-   if (!fill_joystick_axes(joy, fd) || !fill_joystick_buttons(joy, fd)) {
-      ALLEGRO_ERROR("fill_joystick_info failed %s\n", al_cstr(device_name));
-      inactivate_joy(joy);
-      close(fd);
-      return;
+   if (!fill_gamepad(joy, fd)) {
+      if (!fill_joystick_axes(joy, fd) || !fill_joystick_buttons(joy, fd)) {
+         ALLEGRO_ERROR("fill_joystick_info failed %s\n", al_cstr(device_name));
+         inactivate_joy(joy);
+         close(fd);
+         return;
+      }
    }
 
    /* Register the joystick with the fdwatch subsystem.  */
@@ -884,16 +997,19 @@ static bool ljoy_get_active(ALLEGRO_JOYSTICK *joy_)
 
 
 
-static int map_button_number(const ALLEGRO_JOYSTICK_LINUX *joy, int ev_code)
+static bool map_button_number(const ALLEGRO_JOYSTICK_LINUX *joy, int ev_code, _AL_JOYSTICK_OUTPUT *output)
 {
    int b;
 
    for (b = 0; b < _AL_MAX_JOYSTICK_BUTTONS; b++) {
-      if (joy->button_mapping[b].ev_code == ev_code)
-         return b;
+      const BUTTON_MAPPING *m = &joy->button_mapping[b];
+      if (m->ev_code == ev_code) {
+         *output = m->output;
+         return true;
+      }
    }
 
-   return -1;
+   return false;
 }
 
 
@@ -934,29 +1050,20 @@ static void ljoy_process_new_data(void *data)
             int value = input_events[i].value;
 
             if (type == EV_KEY) {
-               int number = map_button_number(joy, code);
-               if (number >= 0) {
-                  if (value)
-                     joy->joystate.button[number] = 32767;
-                  else
-                     joy->joystate.button[number] = 0;
-
-                  ljoy_generate_button_event(joy, number,
-                     (value
-                      ? ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN
-                      : ALLEGRO_EVENT_JOYSTICK_BUTTON_UP));
+               _AL_JOYSTICK_OUTPUT output;
+               if (map_button_number(joy, code, &output)) {
+                  if (output.button_enabled || output.pos_enabled || output.neg_enabled)
+                     _al_joystick_generate_button_event((ALLEGRO_JOYSTICK *)joy, &joy->joystate, output, value);
                }
             }
             else if (type == EV_ABS) {
                int number = code;
                if (number < TOTAL_JOYSTICK_AXES) {
                   const AXIS_MAPPING *map = &joy->axis_mapping[number];
-                  int stick = map->stick;
-                  int axis = map->axis;
+                  _AL_JOYSTICK_OUTPUT output = map->output;
                   float pos = norm_pos(map, value);
-
-                  joy->joystate.stick[stick].axis[axis] = pos;
-                  ljoy_generate_axis_event(joy, stick, axis, pos);
+                  if (output.button_enabled || output.pos_enabled || output.neg_enabled)
+                     _al_joystick_generate_axis_event((ALLEGRO_JOYSTICK *)joy, &joy->joystate, output, pos);
                }
             }
          }
@@ -966,56 +1073,6 @@ static void ljoy_process_new_data(void *data)
 }
 
 
-
-/* ljoy_generate_axis_event: [fdwatch thread]
- *
- *  Helper to generate an event after an axis is moved.
- *  The joystick must be locked BEFORE entering this function.
- */
-static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos)
-{
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
-
-   if (!_al_event_source_needs_to_generate_event(es))
-      return;
-
-   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-   event.joystick.timestamp = al_get_time();
-   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
-   event.joystick.stick = stick;
-   event.joystick.axis = axis;
-   event.joystick.pos = pos;
-   event.joystick.button = 0;
-
-   _al_event_source_emit_event(es, &event);
-}
-
-
-
-/* ljoy_generate_button_event: [fdwatch thread]
- *
- *  Helper to generate an event after a button is pressed or released.
- *  The joystick must be locked BEFORE entering this function.
- */
-static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
-{
-   ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
-
-   if (!_al_event_source_needs_to_generate_event(es))
-      return;
-
-   event.joystick.type = event_type;
-   event.joystick.timestamp = al_get_time();
-   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
-   event.joystick.stick = 0;
-   event.joystick.axis = 0;
-   event.joystick.pos = 0.0;
-   event.joystick.button = button;
-
-   _al_event_source_emit_event(es, &event);
-}
 
 #endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
 

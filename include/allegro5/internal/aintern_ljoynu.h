@@ -33,8 +33,7 @@ typedef enum {
 #define TOTAL_JOYSTICK_AXES (0x28)
 
 typedef struct {
-   int stick;
-   int axis;
+   _AL_JOYSTICK_OUTPUT output;
    /* XXX reconsider what fields are required after the haptics driver is in */
    int value;
    int min;
@@ -47,6 +46,7 @@ typedef struct {
 /* Map a Linux input button code to button number on the Allegro joystick. */
 typedef struct {
    int ev_code;
+   _AL_JOYSTICK_OUTPUT output;
 } BUTTON_MAPPING;
 
 
@@ -58,7 +58,9 @@ typedef struct ALLEGRO_JOYSTICK_LINUX
    int fd;
    ALLEGRO_USTR *device_name;
 
+   /* Index is raw axis index. */
    AXIS_MAPPING axis_mapping[TOTAL_JOYSTICK_AXES];
+   /* Index is arbitrary, raw button index is in ev_code. */
    BUTTON_MAPPING button_mapping[_AL_MAX_JOYSTICK_BUTTONS];
    ALLEGRO_JOYSTICK_STATE joystate;
    char name[100];

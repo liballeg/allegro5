@@ -6,6 +6,7 @@
 #define _FILE_OFFSET_BITS 64
 #include <ctype.h>
 
+#define ALLEGRO_INTERNAL_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
