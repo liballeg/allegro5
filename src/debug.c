@@ -48,6 +48,7 @@ typedef struct TRACE_INFO
    _AL_VECTOR excluded;
    /* Whether settings have been read from allegro5.cfg or not. */
    bool configured;
+   bool win_use_output_debug_string;
 } TRACE_INFO;
 
 
@@ -61,6 +62,7 @@ static TRACE_INFO trace_info =
    7,
    _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
    _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
+   false,
    false
 };
 
@@ -164,6 +166,12 @@ void _al_configure_logging(void)
       trace_info.flags |= 1;
    else
       trace_info.flags &= ~1;
+
+   v = al_get_config_value(config, "trace", "win_use_output_debug_string");
+   if (!v || strcmp(v, "true"))
+      trace_info.win_use_output_debug_string = false;
+   else
+      trace_info.win_use_output_debug_string = true;
 
    if (!trace_info.configured)
       _al_mutex_init(&trace_info.trace_mutex);
@@ -321,7 +329,7 @@ void _al_trace_suffix(const char *msg, ...)
       fflush(stderr);
 #endif
 #ifdef ALLEGRO_WINDOWS
-      {
+      if (trace_info.win_use_output_debug_string) {
          TCHAR *windows_output = _twin_utf8_to_tchar(static_trace_buffer);
          OutputDebugString(windows_output);
          al_free(windows_output);
