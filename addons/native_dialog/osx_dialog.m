@@ -230,11 +230,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
 #pragma mark Text Log View
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
 @interface ALLEGLogView : NSTextView <NSWindowDelegate>
-#else
-@interface ALLogView : NSTextView
-#endif
 {
 @public
    ALLEGRO_NATIVE_DIALOG *textlog;
@@ -293,7 +289,23 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    [store beginEditing];
    [store appendAttributedString:attributedString];
    [store endEditing];
-   [self scrollRangeToVisible: NSMakeRange(self.string.length, 0)];
+}
+@end
+
+@interface ALLEGScrollView : NSScrollView <NSWindowDelegate>
+{
+}
+- (void)appendText: (NSString*)text;
+@end
+
+@implementation ALLEGScrollView
+
+- (void)appendText: (NSString*)text
+{
+   ALLEGLogView *view = (ALLEGLogView *)[self documentView];
+   [view appendText:text];
+   float bottom = view.frame.size.height;
+   [self.contentView scrollToPoint: NSMakePoint(0, bottom)];
 }
 @end
 
@@ -321,7 +333,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       [win setReleasedWhenClosed: NO];
       [win setTitle: @"Allegro Text Log"];
       [win setMinSize: NSMakeSize(128, 128)];
-      NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame: rect];
+      ALLEGScrollView *scrollView = [[ALLEGScrollView alloc] initWithFrame: rect];
       [scrollView setHasHorizontalScroller: YES];
       [scrollView setHasVerticalScroller: YES];
       [scrollView setAutohidesScrollers: YES];
@@ -349,7 +361,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
       /* Save handles for future use. */
       textlog->window = win; // Non-owning reference
-      textlog->tl_textview = view; // Non-owning reference
+      textlog->tl_textview = scrollView; // Non-owning reference
    });
    /* Now notify al_show_native_textlog that the text log is ready. */
    textlog->is_active = true;
@@ -378,9 +390,9 @@ void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
     if (textlog->is_active) {
-        ALLEGLogView *view = (ALLEGLogView *)textlog->tl_textview;
+        ALLEGScrollView *scrollView = (NSScrollView *)textlog->tl_textview;
         NSString *text = [NSString stringWithUTF8String: al_cstr(textlog->tl_pending_text)];
-        [view performSelectorOnMainThread:@selector(appendText:)
+        [scrollView performSelectorOnMainThread:@selector(appendText:)
                                withObject:text
                             waitUntilDone:NO];
 
