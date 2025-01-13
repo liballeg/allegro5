@@ -13,5 +13,6 @@ android {
             minifyEnabled false
         }
     }
+    namespace("org.liballeg")
 }
 
