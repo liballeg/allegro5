@@ -1,72 +1,104 @@
+#include <math.h>
 #include <stdio.h>
+
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_color.h>
+#include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "common.c"
 
-static void print_joystick_info(ALLEGRO_JOYSTICK *joy)
+
+typedef struct {
+   ALLEGRO_JOYSTICK *joy;
+   char last_event[128];
+} JOYSTICK_SLOT;
+
+#define NUM_SLOTS (6)
+JOYSTICK_SLOT slots[NUM_SLOTS];
+ALLEGRO_FONT *font;
+
+
+
+static JOYSTICK_SLOT *get_slot(ALLEGRO_JOYSTICK *joy)
 {
-   int i, n, a;
-
-   if (!joy)
-      return;
-
-   log_printf("Joystick: '%s'\n", al_get_joystick_name(joy));
-
-   log_printf("  Buttons:");
-   n = al_get_joystick_num_buttons(joy);
-   for (i = 0; i < n; i++) {
-      log_printf(" '%s'", al_get_joystick_button_name(joy, i));
+   for (int i = 0; i < NUM_SLOTS; i++) {
+      if (joy == slots[i].joy)
+         return &slots[i];
    }
-   log_printf("\n");
-
-   n = al_get_joystick_num_sticks(joy);
-   for (i = 0; i < n; i++) {
-      log_printf("  Stick %d: '%s'\n", i, al_get_joystick_stick_name(joy, i));
-
-      for (a = 0; a < al_get_joystick_num_axes(joy, i); a++) {
-         log_printf("    Axis %d: '%s'\n",
-            a, al_get_joystick_axis_name(joy, i, a));
-      }
-   }
+   return NULL;
 }
 
-static void draw(ALLEGRO_JOYSTICK *curr_joy)
+
+
+static void fill_slots(void)
 {
-   int x = 100;
-   int y = 100;
-   ALLEGRO_JOYSTICK_STATE joystate;
-   int i;
-
-   al_clear_to_color(al_map_rgb(0, 0, 0));
-
-   if (curr_joy) {
-      al_get_joystick_state(curr_joy, &joystate);
-      for (i = 0; i < al_get_joystick_num_sticks(curr_joy); i++) {
-         al_draw_filled_circle(
-               x+joystate.stick[i].axis[0]*20 + i * 80,
-               y+joystate.stick[i].axis[1]*20,
-               20, al_map_rgb(255, 255, 255)
-            );
+   int num_joysticks = al_get_num_joysticks();
+   for (int i = 0; i < num_joysticks; i++) {
+      ALLEGRO_JOYSTICK *joy = al_get_joystick(i);
+      bool found = false;
+      for (int j = 0; j < NUM_SLOTS; j++) {
+         if (joy == slots[j].joy) {
+            found = true;
+            break;
+         }
       }
-      for (i = 0; i < al_get_joystick_num_buttons(curr_joy); i++) {
-         if (joystate.button[i]) {
-            al_draw_filled_circle(
-                  i*20+10, 400, 9, al_map_rgb(255, 255, 255)
-                  );
+      if (found)
+         continue;
+      for (int j = 0; j < NUM_SLOTS; j++) {
+         JOYSTICK_SLOT *slot = &slots[j];
+         if (slot->joy == NULL) {
+            slot->joy = joy;
+            break;
          }
       }
    }
-
-   al_flip_display();
 }
+
+
+
+static void draw_slots(void)
+{
+   ALLEGRO_COLOR inactive_color = al_map_rgb(0x80, 0x80, 0x80);
+
+   for (int i = 0; i < NUM_SLOTS; i++) {
+      JOYSTICK_SLOT *slot = &slots[i];
+      bool active = slot->joy != NULL && al_get_joystick_active(slot->joy);
+      ALLEGRO_COLOR active_color = al_color_lch(1., 1., 2 * ALLEGRO_PI * fmod(0.2 * al_get_time() + (float)i / NUM_SLOTS, 1.));
+      ALLEGRO_COLOR color = active ? active_color : inactive_color;
+
+      int x = 5;
+      int y = 5 + i * 80;
+      int w = 630;
+      int h = 75;
+      int dy = al_get_font_line_height(font) + 5;
+      al_draw_rounded_rectangle(x, y, x + w, y + h, 16, 16, color, 3);
+      x += 5;
+      y += 5;
+
+      y += dy;
+      al_draw_textf(font, color, x, y, 0, "Slot: %d", i);
+
+      if (!active) {
+         y += dy;
+         al_draw_textf(font, color, x, y, 0, "Inactive");
+         continue;
+      }
+      y += dy;
+      al_draw_textf(font, color, x, y, 0, "Name: %s", al_get_joystick_name(slot->joy));
+
+      y += dy;
+      al_draw_textf(font, color, x, y, 0, "Last Event: %s", slot->last_event);
+   }
+}
+
+
 
 int main(int argc, char **argv)
 {
-   int num_joysticks;
    ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_JOYSTICK *curr_joy;
    ALLEGRO_DISPLAY *display;
+   ALLEGRO_TIMER *timer;
 
    (void)argc;
    (void)argv;
@@ -79,77 +111,70 @@ int main(int argc, char **argv)
    }
    al_install_keyboard();
    al_init_primitives_addon();
-
-   open_log();
+   al_init_font_addon();
 
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display.\n");
    }
 
+   timer = al_create_timer(1. / 60);
+   al_start_timer(timer);
+   font = al_create_builtin_font();
+
    queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_timer_event_source(timer));
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_joystick_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
 
-   num_joysticks = al_get_num_joysticks();
-   log_printf("Num joysticks: %d\n", num_joysticks);
+   fill_slots();
 
-   if (num_joysticks > 0) {
-      curr_joy = al_get_joystick(0);
-      print_joystick_info(curr_joy);
-   }
-   else {
-      curr_joy = NULL;
-   }
-
-   draw(curr_joy);
-
+   bool redraw = true;
    while (1) {
       ALLEGRO_EVENT event;
+      JOYSTICK_SLOT *slot = NULL;
+      if (redraw && al_is_event_queue_empty(queue)) {
+         al_clear_to_color(al_map_rgb(0, 0, 0));
+         draw_slots();
+         al_flip_display();
+         redraw = false;
+      }
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+
+      if (event.type == ALLEGRO_EVENT_TIMER) {
+         redraw = true;
+      }
+      else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
             event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
          break;
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-         int n = event.keyboard.unichar - '0';
-         if (n >= 0 && n < num_joysticks) {
-            curr_joy = al_get_joystick(n);
-            log_printf("switching to joystick %d\n", n);
-            print_joystick_info(curr_joy);
-         }
-      }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
          al_reconfigure_joysticks();
-         num_joysticks = al_get_num_joysticks();
-         log_printf("after reconfiguration num joysticks = %d\n",
-            num_joysticks);
-         if (curr_joy) {
-            log_printf("current joystick is: %s\n",
-               al_get_joystick_active(curr_joy) ? "active" : "inactive");
-         }
-         curr_joy = al_get_joystick(0);
+         fill_slots();
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
-         log_printf("axis event from %p, stick %d, axis %d\n", event.joystick.id, event.joystick.stick, event.joystick.axis);
+         if ((slot = get_slot(event.joystick.id))) {
+            snprintf(slot->last_event, sizeof(slot->last_event), "ALLEGRO_EVENT_JOYSTICK_AXIS, stick: %d, axis: %d, pos: %.3f",
+                  event.joystick.stick, event.joystick.axis, event.joystick.pos);
+         }
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN) {
-         log_printf("button down event %d from %p\n",
-            event.joystick.button, event.joystick.id);
+         if ((slot = get_slot(event.joystick.id))) {
+            snprintf(slot->last_event, sizeof(slot->last_event), "ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN, button: %d", event.joystick.button);
+         }
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP) {
-         log_printf("button up event %d from %p\n",
-            event.joystick.button, event.joystick.id);
+         if ((slot = get_slot(event.joystick.id))) {
+            snprintf(slot->last_event, sizeof(slot->last_event), "ALLEGRO_EVENT_JOYSTICK_BUTTON_UP, button: %d", event.joystick.button);
+         }
       }
-
-      draw(curr_joy);
    }
 
-   close_log(false);
+   al_uninstall_system();
 
    return 0;
 }

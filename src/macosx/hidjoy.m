@@ -158,6 +158,26 @@ static ALLEGRO_JOYSTICK_OSX *find_joystick(IOHIDDeviceRef ident)
    return NULL;
 }
 
+static ALLEGRO_JOYSTICK_OSX *find_or_insert_joystick(IOHIDDeviceRef ident)
+{
+   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ident);
+   if (joy)
+      return joy;
+   for (int i = 0; i < (int)_al_vector_size(&joysticks); i++) {
+      joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
+      if (joy->cfg_state == JOY_STATE_UNUSED) {
+         joy->ident = ident;
+         return joy;
+      }
+   }
+
+   joy = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_OSX));
+   joy->ident = ident;
+   ALLEGRO_JOYSTICK_OSX **back = _al_vector_alloc_back(&joysticks);
+   *back = joy;
+   return joy;
+}
+
 static const char *get_element_name(IOHIDElementRef elem, const char *default_name)
 {
    CFStringRef name = IOHIDElementGetName(elem);
@@ -446,18 +466,11 @@ static void add_joystick_device(IOHIDDeviceRef ref, bool emit_reconfigure_event)
 {
    al_lock_mutex(add_mutex);
 
-   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
+   ALLEGRO_JOYSTICK_OSX *joy = find_or_insert_joystick(ref);
 
    if (joy && (joy->cfg_state == JOY_STATE_BORN || joy->cfg_state == JOY_STATE_ALIVE)) {
      al_unlock_mutex(add_mutex);
      return;
-   }
-
-   if (joy == NULL) {
-      joy = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_OSX));
-      joy->ident = ref;
-      ALLEGRO_JOYSTICK_OSX **back = _al_vector_alloc_back(&joysticks);
-      *back = joy;
    }
 
    joy->cfg_state = new_joystick_state;

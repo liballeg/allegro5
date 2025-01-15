@@ -628,7 +628,6 @@ static void ljoy_scan(bool configure)
    ALLEGRO_USTR *device_name;
    const ALLEGRO_FS_INTERFACE *fs_interface;
    unsigned i;
-   int t;
 
    /* Clear mark bits. */
    for (i = 0; i < _al_vector_size(&joysticks); i++) {
@@ -649,47 +648,24 @@ static void ljoy_scan(bool configure)
       ljoy_device(device_name);
    }
 
-   /* Then scan /dev/input/by-path for *-event-joystick devices and if
-    * no device is found there scan all files in /dev/input.
-    * Note: That last step might be overkill, we probably don't need
-    * to support non-evdev kernels any longer.
-    */
-   static char const *folders[] = {"/dev/input/by-path", "/dev/input"};
-   for (t = 0; t < 2; t++) {
-      bool found = false;
-      ALLEGRO_FS_ENTRY *dir = al_create_fs_entry(folders[t]);
-      if (al_open_directory(dir)) {
-         static char const *suffix = "-event-joystick";
-         while (true) {
-            ALLEGRO_FS_ENTRY *dev = al_read_directory(dir);
-            if (!dev) {
-               break;
-            }
-            if (al_get_fs_entry_mode(dev) & ALLEGRO_FILEMODE_ISDIR) {
-               al_destroy_fs_entry(dev);
-               continue;
-            }
-            char const *path = al_get_fs_entry_name(dev);
-            /* In the second pass in /dev/input we don't filter anymore.
-               In the first pass, in /dev/input/by-path, strlen(path) > strlen(suffix). */
-            if (t == 1 || strcmp(suffix, path + strlen(path) - strlen(suffix)) == 0) {
-               found = true;
-               al_ustr_assign_cstr(device_name, path);
-               ljoy_device(device_name);
-            }
-            al_destroy_fs_entry(dev);
+   ALLEGRO_FS_ENTRY *dir = al_create_fs_entry("/dev/input");
+   if (al_open_directory(dir)) {
+      while (true) {
+         ALLEGRO_FS_ENTRY *dev = al_read_directory(dir);
+         if (!dev) {
+            break;
          }
-         al_close_directory(dir);
+         if (al_get_fs_entry_mode(dev) & ALLEGRO_FILEMODE_ISDIR) {
+            al_destroy_fs_entry(dev);
+            continue;
+         }
+         al_ustr_assign_cstr(device_name, al_get_fs_entry_name(dev));
+         ljoy_device(device_name);
+         al_destroy_fs_entry(dev);
       }
-      al_destroy_fs_entry(dir);
-      if (found) {
-         /* Don't scan the second folder if we found something in the
-          * first as it would be duplicates.
-          */
-         break;
-      }
-      ALLEGRO_WARN("Could not find joysticks in %s\n", folders[t]);
+      al_close_directory(dir);
    }
+   al_destroy_fs_entry(dir);
 
    al_ustr_free(device_name);
 

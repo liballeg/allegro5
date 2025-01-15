@@ -184,8 +184,8 @@ static void main_loop(void)
 
    while (true) {
       if (al_is_event_queue_empty(event_queue)) {
-         setup_joystick_values(al_get_joystick(0), &state2);
-         draw_all(al_get_joystick(0), &state1, &state2);
+         setup_joystick_values(joy, &state2);
+         draw_all(joy, &state1, &state2);
       }
 
       al_wait_for_event(event_queue, &event);
@@ -234,8 +234,9 @@ static void main_loop(void)
          case ALLEGRO_EVENT_JOYSTICK_CONFIGURATION:
             log_printf("configuration changed\n");
             al_reconfigure_joysticks();
-            setup_joystick_values(al_get_joystick(0), &state1);
-            setup_joystick_values(al_get_joystick(0), &state2);
+            joy = al_get_joystick(0);
+            setup_joystick_values(joy, &state1);
+            setup_joystick_values(joy, &state2);
             break;
 
          /* We received an event of some type we don't know about.
