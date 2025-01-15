@@ -606,6 +606,89 @@ static void joyxi_init_joystick_info(ALLEGRO_JOYSTICK_XINPUT *xjoy)
    }
 }
 
+
+// Source: https://github.com/xan105/node-xinput-ffi/blob/master/lib/util/HardwareID.js
+static const char *joyxi_lookup_device_name(WORD vid, WORD pid)
+{
+   if (vid == 0x045E) {
+      switch (pid) {
+         case 0x028E: return "Xbox360 Controller";
+         case 0x02A1: return "Xbox360 Controller";
+         case 0x028F: return "Xbox360 Wireless Controller";
+         case 0x02E0: return "Xbox One S Controller";
+         case 0x02FF: return "Xbox One Elite Controller";
+         case 0x0202: return "Xbox Controller";
+         case 0x0285: return "Xbox Controller S";
+         case 0x0289: return "Xbox Controller S";
+         case 0x02E3: return "Xbox One Elite Controller";
+         case 0x02EA: return "Xbox One S Controller";
+         case 0x02FD: return "Xbox One S Controller";
+         case 0x02D1: return "Xbox One Controller";
+         case 0x02DD: return "Xbox One Controller";
+         case 0x0B13: return "Xbox Series X/S controller";
+      }
+      return "Microsoft Corp.";
+   }
+   if (vid == 0x054C) {
+      switch (pid) {
+         case 0x0268: return "DualShock 3 / Sixaxis";
+         case 0x05C4: return "DualShock 4";
+         case 0x09CC: return "DualShock 4 (v2)";
+         case 0x0BA0: return "DualShock 4 USB Wireless Adaptor";
+         case 0x0CE6: return "DualSense Wireless Controller"; //PS5
+      }
+      return "Sony Corp.";
+   }
+   if (vid == 0x057E) {
+      switch (pid) {
+         case 0x0306: return "Wii Remote Controller";
+         case 0x0337: return "Wii U GameCube Controller Adapter";
+         case 0x2006: return "Joy-Con L";
+         case 0x2007: return "Joy-Con R";
+         case 0x2009: return "Switch Pro Controller";
+         case 0x200E: return "Joy-Con Charging Grip";
+      }
+      return "Nintendo Co., Ltd";
+   }
+   if (vid == 0x28DE) {
+      switch (pid) {
+         case 0x11FC: return "Steam Controller";
+         case 0x1102: return "Steam Controller";
+         case 0x1142: return "Wireless Steam Controller";
+      }
+      return "Valve Corp.";
+   }
+   if (vid == 0x046D) {
+      switch (pid) {
+         case 0xC21D: return "Logitech Gamepad F310";
+         case 0xC21E: return "Logitech Gamepad F510";
+         case 0xC21F: return "Logitech Gamepad F710";
+         case 0xC242: return "Logitech Chillstream Controller";
+      }
+      return "Logitech Inc.";
+   }
+   return "";
+}
+
+
+static void joyxi_set_name(ALLEGRO_JOYSTICK_XINPUT *xjoy)
+{
+   if (_imp_XInputGetCapabilitiesEx) {
+      XINPUT_CAPABILITIES_EX xicapas;
+      int res = _imp_XInputGetCapabilitiesEx(1, xjoy->index, 0, &xicapas);
+      if (res == ERROR_SUCCESS) {
+         const char *device_name = joyxi_lookup_device_name(xicapas.VendorId, xicapas.ProductId);
+         if (device_name[0] != '\0')
+            sprintf(xjoy->name, device_name);
+         else
+            sprintf(xjoy->name, "XInput Joystick vendor: %x product: %x", xicapas.VendorId, xicapas.ProductId);
+         return;
+      }
+   }
+   sprintf(xjoy->name, "XInput Joystick %d", (int)xjoy->index);
+}
+
+
 /* Initialization API function. */
 static bool joyxi_init_joystick(void)
 {
@@ -632,6 +715,7 @@ static bool joyxi_init_joystick(void)
       joyxi_joysticks[index].active = false;
       joyxi_joysticks[index].index = (DWORD)index;
       joyxi_init_joystick_info(joyxi_joysticks + index);
+      joyxi_set_name(joyxi_joysticks + index);
    }
    /* Now, enable XInput*/
    _imp_XInputEnable(TRUE);
@@ -709,6 +793,7 @@ static bool joyxi_reconfigure_joysticks(void)
       if (joyxi_joysticks[index].active) {
          res = _imp_XInputGetState(joyxi_joysticks[index].index, &joyxi_joysticks[index].state);
          joyxi_joysticks[index].active = (res == ERROR_SUCCESS);
+         joyxi_set_name(joyxi_joysticks + index);
       }
    }
    al_unlock_mutex(joyxi_mutex);
@@ -765,92 +850,10 @@ static void joyxi_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STA
 }
 
 
-// Source: https://github.com/xan105/node-xinput-ffi/blob/master/lib/util/HardwareID.js
-static const char *joyxi_lookup_device_name(WORD vid, WORD pid)
-{
-   if (vid == 0x045E) {
-      switch (pid) {
-         case 0x028E: return "Xbox360 Controller";
-         case 0x02A1: return "Xbox360 Controller";
-         case 0x028F: return "Xbox360 Wireless Controller";
-         case 0x02E0: return "Xbox One S Controller";
-         case 0x02FF: return "Xbox One Elite Controller";
-         case 0x0202: return "Xbox Controller";
-         case 0x0285: return "Xbox Controller S";
-         case 0x0289: return "Xbox Controller S";
-         case 0x02E3: return "Xbox One Elite Controller";
-         case 0x02EA: return "Xbox One S Controller";
-         case 0x02FD: return "Xbox One S Controller";
-         case 0x02D1: return "Xbox One Controller";
-         case 0x02DD: return "Xbox One Controller";
-         case 0x0B13: return "Xbox Series X/S controller";
-      }
-      return "Microsoft Corp.";
-   }
-   if (vid == 0x054C) {
-      switch (pid) {
-         case 0x0268: return "DualShock 3 / Sixaxis";
-         case 0x05C4: return "DualShock 4";
-         case 0x09CC: return "DualShock 4 (v2)";
-         case 0x0BA0: return "DualShock 4 USB Wireless Adaptor";
-         case 0x0CE6: return "DualSense Wireless Controller"; //PS5
-      }
-      return "Sony Corp.";
-   }
-   if (vid == 0x057E) {
-      switch (pid) {
-         case 0x0306: return "Wii Remote Controller";
-         case 0x0337: return "Wii U GameCube Controller Adapter";
-         case 0x2006: return "Joy-Con L";
-         case 0x2007: return "Joy-Con R";
-         case 0x2009: return "Switch Pro Controller";
-         case 0x200E: return "Joy-Con Charging Grip";
-      }
-      return "Nintendo Co., Ltd";
-   }
-   if (vid == 0x28DE) {
-      switch (pid) {
-         case 0x11FC: return "Steam Controller";
-         case 0x1102: return "Steam Controller";
-         case 0x1142: return "Wireless Steam Controller";
-      }
-      return "Valve Corp.";
-   }
-   if (vid == 0x046D) {
-      switch (pid) {
-         case 0xC21D: return "Logitech Gamepad F310";
-         case 0xC21E: return "Logitech Gamepad F510";
-         case 0xC21F: return "Logitech Gamepad F710";
-         case 0xC242: return "Logitech Chillstream Controller";
-      }
-      return "Logitech Inc.";
-   }
-   return "";
-}
-
-
 static const char *joyxi_get_name(ALLEGRO_JOYSTICK *joy)
 {
    ALLEGRO_JOYSTICK_XINPUT *xjoy = (ALLEGRO_JOYSTICK_XINPUT *)joy;
    ASSERT(xjoy);
-
-   if (xjoy->name[0] == '\0') {
-      if (_imp_XInputGetCapabilitiesEx) {
-         XINPUT_CAPABILITIES_EX xicapas;
-         int res = _imp_XInputGetCapabilitiesEx(1, xjoy->index, 0, &xicapas);
-         if (res == ERROR_SUCCESS) {
-            const char *device_name = joyxi_lookup_device_name(xicapas.VendorId, xicapas.ProductId);
-            if (device_name[0] != '\0')
-               sprintf(xjoy->name, device_name);
-            else
-               sprintf(xjoy->name, "XInput Joystick vendor: %x product: %x", xicapas.VendorId, xicapas.ProductId);
-            return xjoy->name;
-         }
-      }
-
-      sprintf(xjoy->name, "XInput Joystick %d", xjoy->index);
-   }
-
    return xjoy->name;
 }
 
