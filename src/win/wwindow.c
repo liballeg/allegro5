@@ -1046,6 +1046,8 @@ int _al_win_init_window(void)
 
    resize_event_thread_mutex = al_create_mutex();
    _al_vector_init(&resizing_displays, sizeof(ALLEGRO_DISPLAY_WIN *));
+   end_resize_event_thread = false;
+   resize_event_thread_ended = false;
    _beginthread(resize_event_thread_proc, 0, 0);
 
    return true;
