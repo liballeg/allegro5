@@ -610,6 +610,7 @@ static void joyxi_init_joystick_info(ALLEGRO_JOYSTICK_XINPUT *xjoy)
 // Source: https://github.com/xan105/node-xinput-ffi/blob/master/lib/util/HardwareID.js
 static const char *joyxi_lookup_device_name(WORD vid, WORD pid)
 {
+   ALLEGRO_DEBUG("Looking up name for joystick vendor: %d, product: %d\n", vid, pid);
    if (vid == 0x045E) {
       switch (pid) {
          case 0x028E: return "Xbox360 Controller";
@@ -681,7 +682,7 @@ static void joyxi_set_name(ALLEGRO_JOYSTICK_XINPUT *xjoy)
          if (device_name[0] != '\0')
             sprintf(xjoy->name, device_name);
          else
-            sprintf(xjoy->name, "XInput Joystick vendor: %x product: %x", xicapas.VendorId, xicapas.ProductId);
+            sprintf(xjoy->name, "XInput Joystick %d", (int)xjoy->index);
          return;
       }
    }
