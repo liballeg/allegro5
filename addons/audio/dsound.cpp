@@ -123,6 +123,9 @@ static char *ds_get_error(HRESULT hr)
       case DSERR_NOAGGREGATION:
          strcpy(ds_err_str, "DSERR_NOAGGREGATION");
          break;
+      case DSERR_NODRIVER:
+         strcpy(ds_err_str, "DSERR_NODRIVER");
+         break;
       case DSERR_OUTOFMEMORY:
          strcpy(ds_err_str, "DSERR_OUTOFMEMORY");
          break;
