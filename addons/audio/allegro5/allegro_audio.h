@@ -368,6 +368,8 @@ ALLEGRO_KCM_AUDIO_FUNC(void, al_fill_silence, (void *buf, unsigned int samples,
 ALLEGRO_KCM_AUDIO_FUNC(int, al_get_num_audio_output_devices, (void));
 ALLEGRO_KCM_AUDIO_FUNC(const ALLEGRO_AUDIO_DEVICE *, al_get_audio_output_device, (int index));
 ALLEGRO_KCM_AUDIO_FUNC(const char *, al_get_audio_device_name, (const ALLEGRO_AUDIO_DEVICE * device));
+ALLEGRO_KCM_AUDIO_FUNC(const bool, al_set_audio_output_device, (const ALLEGRO_AUDIO_DEVICE* device));
+
 
 /* Simple audio layer */
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_reserve_samples, (int reserve_samples));
