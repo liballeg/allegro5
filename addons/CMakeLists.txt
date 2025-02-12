@@ -188,9 +188,6 @@ addons_summary("- Memfile addon" SUPPORT_MEMFILE)
 
 if(WANT_PHYSFS)
     find_package(PhysFS)
-    # FindPhysFS.cmake in cmake-2.6.2 doesn't call this but it should.
-    find_package_handle_standard_args(PHYSFS DEFAULT_MSG
-        PHYSFS_LIBRARY PHYSFS_INCLUDE_DIR)
     mark_as_advanced(PHYSFS_INCLUDE_DIR)
     mark_as_advanced(PHYSFS_LIBRARY)
 
@@ -198,7 +195,7 @@ if(WANT_PHYSFS)
 
     # Does this copy of PhysicsFS require zlib to be linked separately?
     # FindPhysFS should really figure this out for us, but it doesn't.
-    if(PHYSFS_FOUND)
+    if(PhysFS_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${PHYSFS_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${PHYSFS_LIBRARY})
         run_c_compile_test("
@@ -224,7 +221,7 @@ if(WANT_PHYSFS)
         else()
             message("WARNING: PhysicsFS needs zlib, zlib not found, disabling PhysFS support.")
         endif()
-    endif(PHYSFS_FOUND)
+    endif()
 
     if(SUPPORT_PHYSFS)
         add_subdirectory(physfs)
