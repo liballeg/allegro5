@@ -4,8 +4,8 @@
 
 The Allegro project team welcomes security reports and is committed to
 providing prompt attention to security issues. Security issues should be
-reported privately by sending an email to
-<allegro-security@lists.liballeg.org>.
+reported privately by using the Security tab on Github:
+<https://github.com/liballeg/allegro5/security>.
 
 ## Version support
 
