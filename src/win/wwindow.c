@@ -252,7 +252,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    _al_vector_init(&win_display->msg_callbacks, sizeof(ALLEGRO_DISPLAY_WIN_CALLBACK));
 
    style = WS_VISIBLE;
-   ex_style = WS_EX_TOPMOST;
+   ex_style = 0;
 
    window_title = _twin_utf8_to_tchar(al_get_new_window_title());
    my_window = CreateWindowEx(ex_style,
