@@ -307,7 +307,9 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGLogView *view = (ALLEGLogView *)[self documentView];
    [view appendText:text];
    float bottom = view.frame.size.height;
-   [self.contentView scrollToPoint: NSMakePoint(0, bottom)];
+   float container_height = self.frame.size.height;
+   if (bottom > container_height)
+      [self.contentView scrollToPoint: NSMakePoint(0, bottom)];
 }
 @end
 
