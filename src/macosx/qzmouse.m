@@ -313,6 +313,16 @@ static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
    _al_event_source_unlock(&osx_mouse.parent.es);
 }
 
+static NSScreen *screen_from_display_id(CGDirectDisplayID display) {
+   for (NSScreen *screen in [NSScreen screens]) {
+      NSDictionary *info = [screen deviceDescription];
+      NSNumber *display_id = [info objectForKey:@"NSScreenNumber"];
+      if ([display_id unsignedIntValue] == display)
+         return screen;
+   }
+   return nil;
+}
+
 /* osx_set_mouse_xy:
 * Set the current mouse position
 */
@@ -321,12 +331,6 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
    CGPoint pos;
    CGDirectDisplayID display = 0;
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)dpy_;
-   float scaling_factor = 1.0;
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-   scaling_factor = [[NSScreen mainScreen] backingScaleFactor];
-#endif
-   x /= scaling_factor;
-   y /= scaling_factor;
 
    if ((dpy) && !(dpy->parent.flags & ALLEGRO_FULLSCREEN) &&
          !(dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) && (dpy->win)) {
@@ -348,10 +352,19 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
       pos.y = rect.size.height - content.origin.y - content.size.height + point_pos.y;
    }
    else {
-      if (dpy)
+      float scaling_factor = 1.0;
+      NSScreen *screen = nil;
+      if (dpy) {
          display = dpy->display_id;
-      pos.x = x;
-      pos.y = y;
+         screen = screen_from_display_id(display);
+      }
+      if (!screen)
+         screen = [NSScreen mainScreen];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+      scaling_factor = [screen backingScaleFactor];
+#endif
+      pos.x = x / scaling_factor;
+      pos.y = y / scaling_factor;
    }
 
    _al_event_source_lock(&osx_mouse.parent.es);

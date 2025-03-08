@@ -85,7 +85,8 @@ int main(int argc, char **argv)
             break;
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_WARPED) {
-         log_printf("Warp\n");
+         log_printf("Warp to xy=(%d %d) dxy=(%d %d)\n", event.mouse.x, event.mouse.y,
+            event.mouse.dx, event.mouse.dy);
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
          if (right_button_down) {
