@@ -130,7 +130,7 @@ static bool xdpy_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
 
    /* Get the window that will own the selection */
    if (xwindow == None) {
-      ALLEGRO_DEBUG("Couldn't find a window to own the selection");
+      ALLEGRO_DEBUG("Couldn't find a window to own the selection\n");
       return false;
    }
 
@@ -173,7 +173,7 @@ static char *xdpy_get_clipboard_text(ALLEGRO_DISPLAY *display)
 
    Atom XA_CLIPBOARD = XInternAtom(xdisplay, "CLIPBOARD", 0);
    if (XA_CLIPBOARD == None) {
-      ALLEGRO_DEBUG("Couldn't access X clipboard");
+      ALLEGRO_DEBUG("Couldn't access X clipboard\n");
       return NULL;
    }
 
@@ -190,8 +190,11 @@ static char *xdpy_get_clipboard_text(ALLEGRO_DISPLAY *display)
       XConvertSelection(xdisplay, XA_CLIPBOARD, format, selection, owner,
                         CurrentTime);
 
+      _al_mutex_lock(&system->lock);
       glx->is_selectioned = false;
-      if (!_al_display_xglx_await_selection_event(display))
+      bool result = _al_display_xglx_await_selection_event(display);
+      _al_mutex_unlock(&system->lock);
+      if (!result || !glx->is_selectioned)
          return NULL;
    }
 
