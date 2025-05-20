@@ -121,12 +121,10 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
       return NULL;
    }
 
-   //video->filename = al_create_path(filename);
    video->file = al_fopen(filename, "rb");
 
    if (!video->vtable->open_video(video)) {
       ALLEGRO_ERROR("Could not open %s.\n", filename);
-      //al_destroy_path(video->filename);
       al_free(video);
       return NULL;
    }
@@ -138,19 +136,25 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    return video;
 }
 
-ALLEGRO_VIDEO* al_open_video_f(ALLEGRO_FILE* fp)
+/* Function: al_open_video_f
+*/
+ALLEGRO_VIDEO* al_open_video_f(ALLEGRO_FILE* fp, const char* ident)
 {
    ALLEGRO_VIDEO* video;
    const char* ext;
    video = al_calloc(1, sizeof * video);
 
    ASSERT(fp);
-   ext = al_identify_video_f(fp);
+   if (!ident) {
+      ext = al_identify_video_f(fp);
+      al_fseek(fp, 0, ALLEGRO_SEEK_SET);  // rewind to zero after al_identify_video_f
+   }
+   else
+      ext = ident;
    if (!ext) {
       ALLEGRO_ERROR("Could not identify video %s!\n", "file from file interface");
    }
-
-   al_fseek(fp, 0, ALLEGRO_SEEK_SET);  // rewind to zero after al_identify_video_f
+     
    video->vtable = find_handler(ext);
    if (video->vtable == NULL) {
       ALLEGRO_ERROR("No handler for video extension %s - "
@@ -183,7 +187,7 @@ void al_close_video(ALLEGRO_VIDEO *video)
       if (video->es_inited) {
          al_destroy_user_event_source(&video->es);
       }
-      //al_destroy_path(video->filename);
+      al_fclose(video->file);
       _al_unregister_destructor(_al_dtor_list, video->dtor_item);
       al_free(video);
    }
