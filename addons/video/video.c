@@ -187,7 +187,6 @@ void al_close_video(ALLEGRO_VIDEO *video)
       if (video->es_inited) {
          al_destroy_user_event_source(&video->es);
       }
-      al_fclose(video->file);
       _al_unregister_destructor(_al_dtor_list, video->dtor_item);
       al_free(video);
    }

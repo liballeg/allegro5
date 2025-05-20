@@ -189,6 +189,8 @@ See also: [al_get_video_frame]
 
 Since: 5.1.12
 
+## API: al_open_video_f
+
 Opens a video file from an existing `ALLEGRO_FILE*` using the Allegro file interface system. This allows videos to be loaded from custom sources such as memory streams, virtual file systems, archives, or any other source supported by a custom `ALLEGRO_FILE_INTERFACE`.
 
 **Parameters:**
