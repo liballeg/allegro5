@@ -1178,15 +1178,13 @@ static bool do_open_video(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv)
 
 static bool ogv_open_video(ALLEGRO_VIDEO *video)
 {
-   const char *filename;
-   ALLEGRO_FILE *fp;
+      ALLEGRO_FILE *fp;
    OGG_VIDEO *ogv;
    int rc;
-
-   filename = al_path_cstr(video->filename, ALLEGRO_NATIVE_PATH_SEP);
-   fp = al_fopen(filename, "rb");
+   
+   fp = video->file;
    if (!fp) {
-      ALLEGRO_WARN("Failed to open %s.\n", filename);
+      ALLEGRO_WARN("Failed to open %s.\n", "video file from file interface");
       return false;
    }
 
