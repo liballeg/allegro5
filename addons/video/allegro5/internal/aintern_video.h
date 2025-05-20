@@ -32,7 +32,7 @@ struct ALLEGRO_VIDEO {
    /* general */
    bool es_inited;
    ALLEGRO_EVENT_SOURCE es;
-   ALLEGRO_PATH *filename;
+   ALLEGRO_FILE *file;
    bool playing;
    double position;
 

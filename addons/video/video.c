@@ -121,11 +121,10 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
       return NULL;
    }
 
-   video->filename = al_create_path(filename);
+   video->file = al_fopen(filename, "rb");
 
    if (!video->vtable->open_video(video)) {
       ALLEGRO_ERROR("Could not open %s.\n", filename);
-      al_destroy_path(video->filename);
       al_free(video);
       return NULL;
    }
@@ -133,6 +132,48 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    al_init_user_event_source(&video->es);
    video->es_inited = true;
    video->dtor_item = _al_register_destructor(_al_dtor_list, "video", video, (void (*)(void *)) al_close_video);
+
+   return video;
+}
+
+/* Function: al_open_video_f
+*/
+ALLEGRO_VIDEO* al_open_video_f(ALLEGRO_FILE *fp, const char *ident)
+{
+   ALLEGRO_VIDEO *video;
+   const char *ext;
+   video = al_calloc(1, sizeof *video);
+
+   ASSERT(fp);
+   if (!ident) {
+      ext = al_identify_video_f(fp);
+      al_fseek(fp, 0, ALLEGRO_SEEK_SET);  // rewind to zero after al_identify_video_f
+   }
+   else
+      ext = ident;
+   if (!ext) {
+      ALLEGRO_ERROR("Could not identify video file from file interface!\n");
+   }
+
+   video->vtable = find_handler(ext);
+   if (video->vtable == NULL) {
+      ALLEGRO_ERROR("No handler for video extension %s - "
+         "therefore not trying to load video file from file interface.\n", ext);
+      al_free(video);
+      return NULL;
+   }
+
+   video->file = fp;
+
+   if (!video->vtable->open_video(video)) {
+      ALLEGRO_ERROR("Could not open video from from file interface.\n");
+      al_free(video);
+      return NULL;
+   }
+
+   al_init_user_event_source(&video->es);
+   video->es_inited = true;
+   video->dtor_item = _al_register_destructor(_al_dtor_list, "video", video, (void (*)(void*)) al_close_video);
 
    return video;
 }
@@ -146,7 +187,6 @@ void al_close_video(ALLEGRO_VIDEO *video)
       if (video->es_inited) {
          al_destroy_user_event_source(&video->es);
       }
-      al_destroy_path(video->filename);
       _al_unregister_destructor(_al_dtor_list, video->dtor_item);
       al_free(video);
    }

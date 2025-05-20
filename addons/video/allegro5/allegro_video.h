@@ -53,6 +53,7 @@ typedef enum ALLEGRO_VIDEO_POSITION_TYPE ALLEGRO_VIDEO_POSITION_TYPE;
 typedef struct ALLEGRO_VIDEO ALLEGRO_VIDEO;
 
 ALLEGRO_VIDEO_FUNC(ALLEGRO_VIDEO *, al_open_video, (char const *filename));
+ALLEGRO_VIDEO_FUNC(ALLEGRO_VIDEO *, al_open_video_f, (ALLEGRO_FILE *fp, const char *ident));
 ALLEGRO_VIDEO_FUNC(void, al_close_video, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(void, al_start_video, (ALLEGRO_VIDEO *video, ALLEGRO_MIXER *mixer));
 ALLEGRO_VIDEO_FUNC(void, al_start_video_with_voice, (ALLEGRO_VIDEO *video, ALLEGRO_VOICE *voice));

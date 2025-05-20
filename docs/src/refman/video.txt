@@ -189,6 +189,41 @@ See also: [al_get_video_frame]
 
 Since: 5.1.12
 
+## API: al_open_video_f
+
+Opens a video file from an existing `ALLEGRO_FILE*` using the Allegro file interface system. This allows videos to be loaded from custom sources such as memory streams, virtual file systems, archives, or any other source supported by a custom `ALLEGRO_FILE_INTERFACE`.
+
+**Parameters:**
+
+* `file`: A pointer to an `ALLEGRO_FILE` object. Ownership of this file is transferred to the video object; the file will be closed automatically when `al_close_video` is called.
+
+**Returns:**
+A pointer to a new `ALLEGRO_VIDEO` object if successful, or `NULL` on failure.
+
+**Remarks:**
+
+* The function does **not** require the file to be seeked or rewound; it reads from the current position.
+* After calling `al_open_video_f`, you must not manually close the `ALLEGRO_FILE`; call `al_close_video` to free all associated resources.
+* This function mirrors the behavior of other `_f` variants in the Allegro API, enabling video streaming from custom file systems.
+
+**Example:**
+
+~~~~c
+ALLEGRO_FILE *f = al_fopen("video.ogv", "rb");
+if (f) {
+    ALLEGRO_VIDEO *vid = al_open_video_f(f);
+    if (vid) {
+        float fps = al_get_video_fps(vid);
+        // ... use the video ...
+        al_close_video(vid); // also closes f
+    }
+}
+~~~~
+
+See also: [al_open_video]
+
+Since: 5.2.11
+
 ## API: al_get_video_frame
 
 Returns the current video frame. The bitmap is owned by the video so
