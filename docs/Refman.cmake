@@ -71,7 +71,6 @@ set(IMAGES
 #-----------------------------------------------------------------------------#
 
 set(HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html/refman)
-set(MAN_DIR ${CMAKE_CURRENT_BINARY_DIR}/man)
 set(INFO_DIR ${CMAKE_CURRENT_BINARY_DIR}/info)
 set(TEXI_DIR ${CMAKE_CURRENT_BINARY_DIR}/texi)
 set(LATEX_DIR ${CMAKE_CURRENT_BINARY_DIR}/latex)
@@ -330,10 +329,15 @@ endif(WANT_DOCS_HTML)
 #
 #-----------------------------------------------------------------------------#
 
-set(MANDIR "man" CACHE STRING "Install man pages into this directory")
+if(DEFINED MANDIR)
+    message(WARNING
+        "MANDIR is no longer recognized, "
+        "use the standard CMAKE_INSTALL_MANDIR instead"
+    )
+endif()
 
 if(WANT_DOCS_MAN)
-    make_directory(${MAN_DIR})
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man)
 
     set(MAN_PAGES)
     foreach(page ${PAGES_TXT})
@@ -344,14 +348,14 @@ if(WANT_DOCS_MAN)
 
             set(outputs)
             foreach(entry ${entries})
-                list(APPEND outputs ${MAN_DIR}/${entry}.3)
+                list(APPEND outputs ${CMAKE_CURRENT_BINARY_DIR}/man/${entry}.3)
             endforeach(entry)
 
             add_custom_command(
                 OUTPUT ${outputs}
                 DEPENDS ${PROTOS_TIMESTAMP} ${page} make_doc
                 COMMAND ${MAKE_DOC} --to man -- ${page}
-                WORKING_DIRECTORY ${MAN_DIR}
+                WORKING_DIRECTORY man
                 )
 
             list(APPEND MAN_PAGES ${outputs})
@@ -361,7 +365,7 @@ if(WANT_DOCS_MAN)
     add_custom_target(man ALL DEPENDS ${MAN_PAGES})
 
     install(FILES ${MAN_PAGES}
-            DESTINATION ${MANDIR}/man3
+            DESTINATION ${CMAKE_INSTALL_MANDIR}/man3
             )
 endif(WANT_DOCS_MAN)
 
@@ -372,8 +376,8 @@ endif(WANT_DOCS_MAN)
 #-----------------------------------------------------------------------------#
 
 if(WANT_DOCS_INFO AND MAKEINFO)
-    make_directory(${INFO_DIR})
-    make_directory(${TEXI_DIR})
+    file(MAKE_DIRECTORY ${INFO_DIR})
+    file(MAKE_DIRECTORY ${TEXI_DIR})
 
     add_custom_target(info ALL DEPENDS ${INFO_DIR}/refman.info)
     add_custom_command(
@@ -446,7 +450,7 @@ if(MAKE_PDF)
         list(APPEND PDF_IMAGES ${LATEX_DIR}/images/${image}.png)
     endforeach(image)
 
-    make_directory(${PDF_DIR})
+    file(MAKE_DIRECTORY ${PDF_DIR})
     add_custom_target(pdf ALL DEPENDS ${PDF_DIR}/refman.pdf)
     add_custom_command(
         OUTPUT ${PDF_DIR}/refman.pdf

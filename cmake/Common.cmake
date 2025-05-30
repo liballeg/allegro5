@@ -85,7 +85,7 @@ endfunction(sanitize_cmake_link_flags)
 function(add_our_library target framework_name sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
     add_library(${target} ${sources})
-    target_include_directories(${target} INTERFACE $<INSTALL_INTERFACE:include>)
+    target_include_directories(${target} INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     list(APPEND ALLEGRO_TARGETS "${target}")
     list(REMOVE_DUPLICATES ALLEGRO_TARGETS)
     set(ALLEGRO_TARGETS "${ALLEGRO_TARGETS}" CACHE INTERNAL "internal")
@@ -224,16 +224,13 @@ endfunction(set_our_framework_properties)
 
 function(install_our_library target filename)
     install(TARGETS ${target}
-            LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-            ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
             FRAMEWORK DESTINATION "${FRAMEWORK_INSTALL_PREFIX}"
-            RUNTIME DESTINATION "bin"
             # Doesn't work, see below.
             # PUBLIC_HEADER DESTINATION "include"
             )
     if(MSVC AND BUILD_SHARED_LIBS)
         install(FILES ${CMAKE_BINARY_DIR}/lib/\${CMAKE_INSTALL_CONFIG_NAME}/${filename}.pdb
-            DESTINATION lib
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}
             CONFIGURATIONS Debug RelWithDebInfo
         )
     endif()
@@ -244,6 +241,8 @@ endfunction(install_our_library)
 # header files associated with the target.  Instead we use the install(FILES)
 # to install headers.  We reuse the MACOSX_PACKAGE_LOCATION property,
 # substituting the "Headers" prefix with "include".
+
+# NOTE: modern design is to use `target_sources(FILE_SET)` which requires CMake 3.23
 function(install_our_headers)
     if(NOT WANT_FRAMEWORKS)
         foreach(hdr ${ARGN})
