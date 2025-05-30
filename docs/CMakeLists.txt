@@ -145,10 +145,10 @@ add_custom_target(docs
 
 #-----------------------------------------------------------------------------#
 
-make_directory(${CMAKE_CURRENT_BINARY_DIR}/html/refman)
-make_directory(${CMAKE_CURRENT_BINARY_DIR}/txt)
-make_directory(${CMAKE_CURRENT_BINARY_DIR}/texi)
-make_directory(${CMAKE_CURRENT_BINARY_DIR}/latex)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/refman)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/txt)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/texi)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/latex)
 
 # Stick the ALLEGRO_VERSION into a file included by the latex template
 configure_file(

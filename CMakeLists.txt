@@ -44,6 +44,8 @@ project(${ALLEGRO_PROJECT_NAME}${ALLEGRO_PROJECT_SUFFIX}
     HOMEPAGE_URL "https://github.com/liballeg/allegro5"
 )
 
+include(GNUInstallDirs)
+
 set(ALLEGRO_SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -113,9 +115,12 @@ if(NOT IPHONE)
     set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 endif(NOT IPHONE)
 
-# On some 64-bit platforms, libraries should be installed into `lib64'
-# instead of `lib'.  Set this to 64 to do that.
-set(LIB_SUFFIX "" CACHE STRING "Suffix for 'lib' directories, e.g. '64'")
+if(DEFINED LIB_SUFFIX)
+    message(WARNING
+        "LIB_SUFFIX is no longer recognized, "
+        "use the standard CMAKE_INSTALL_LIBDIR instead"
+    )
+endif()
 
 option(WANT_FRAMEWORKS "Want frameworks on Mac OS X" off)
 option(WANT_EMBED
@@ -1216,7 +1221,7 @@ if(INSTALL_PKG_CONFIG_FILES)
                 @ONLY
                 )
             install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
-                DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
+                DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
                 )
         endforeach(name)
     endforeach(versuffix)
@@ -1224,7 +1229,6 @@ endif(INSTALL_PKG_CONFIG_FILES)
 
 # Generate CMake package-config files
 include(CMakePackageConfigHelpers)
-include(GNUInstallDirs)
 
 set(PKG_NAME "Allegro")
 string(TOLOWER ${PKG_NAME} PKG_NAME_LOWER)
