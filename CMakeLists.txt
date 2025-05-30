@@ -5,22 +5,7 @@
 # - some documentation targets still missing
 # - installing documentation
 #
-cmake_minimum_required(VERSION 3.5)
-if(COMMAND cmake_policy)
-    cmake_policy(SET CMP0003 NEW)
-    if(POLICY CMP0026)
-        cmake_policy(SET CMP0026 NEW)
-    endif()
-    if(POLICY CMP0072)
-        cmake_policy(SET CMP0072 NEW)
-    endif()
-    if(POLICY CMP0060)
-        cmake_policy(SET CMP0060 NEW)
-    endif()
-    if(POLICY CMP0075)
-        cmake_policy(SET CMP0075 NEW)
-    endif()
-endif(COMMAND cmake_policy)
+cmake_minimum_required(VERSION 3.12...4.0)
 
 
 #-----------------------------------------------------------------------------#
