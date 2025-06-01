@@ -1,4 +1,4 @@
-include(FindPythonInterp)
+find_package(Python 3.8 REQUIRED COMPONENTS Interpreter)
 
 # Construct list of files whose modification should trigger a rebuild of
 # the Python API.
@@ -13,7 +13,7 @@ if(WIN32)
     add_custom_command(
         OUTPUT python_protos
         DEPENDS ${SOURCES}
-        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/python/checkdocs.py
+        COMMAND Python::Interpreter ${PROJECT_SOURCE_DIR}/python/checkdocs.py
             -c ${CMAKE_C_COMPILER}
             -p python_protos
             -b ${PROJECT_BINARY_DIR}
@@ -24,7 +24,7 @@ else(WIN32)
     add_custom_command(
         OUTPUT python_protos
         DEPENDS ${SOURCES}
-        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/python/checkdocs.py
+        COMMAND Python::Interpreter ${PROJECT_SOURCE_DIR}/python/checkdocs.py
             -p python_protos
             -b ${PROJECT_BINARY_DIR}
             -s ${PROJECT_SOURCE_DIR}
@@ -39,7 +39,7 @@ SET(version "${ALLEGRO_SOVERSION}")
 add_custom_command(
     OUTPUT allegro.py
     DEPENDS python_protos
-    COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/python/generate_python_ctypes.py
+    COMMAND Python::Interpreter ${PROJECT_SOURCE_DIR}/python/generate_python_ctypes.py
         -p python_protos
         -o allegro.py
         -t \"${release}\"
