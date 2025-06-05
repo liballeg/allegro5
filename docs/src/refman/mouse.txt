@@ -13,6 +13,7 @@ Public fields (read only):
 * x - mouse x position
 * y - mouse y position
 * w, z - mouse wheel position (2D 'ball')
+* display - the display the mouse is on (coordinates are relative to this)
 * buttons - mouse buttons bitfield
 
     The zeroth bit is set if the primary mouse button is held down,
