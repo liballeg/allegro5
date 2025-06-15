@@ -38,6 +38,7 @@ static const char *default_glsl_vertex_source =
    "}\n";
 
 static const char *default_glsl_pixel_source =
+   "#version 330 core\n"
    "#ifdef GL_ES\n"
    "precision lowp float;\n"
    "#endif\n"
@@ -99,6 +100,7 @@ static const char *default_glsl_minimal_pixel_source =
    "}\n";
 
 static const char *default_glsl_vertex_source_gl3 =
+   "#version 330 core\n"
    "in vec4 " ALLEGRO_SHADER_VAR_POS ";\n"
    "in vec4 " ALLEGRO_SHADER_VAR_COLOR ";\n"
    "in vec2 " ALLEGRO_SHADER_VAR_TEXCOORD ";\n"
@@ -120,6 +122,7 @@ static const char *default_glsl_vertex_source_gl3 =
    "}\n";
 
 static const char *default_glsl_pixel_source_gl3 =
+   "#version 330 core\n"
    "#ifdef GL_ES\n"
    "precision lowp float;\n"
    "#endif\n"
@@ -163,6 +166,7 @@ static const char *default_glsl_pixel_source_gl3 =
    "}\n";
 
 static const char *default_glsl_minimal_pixel_source_gl3 =
+   "#version 330 core\n"
    "#ifdef GL_ES\n"
    "precision lowp float;\n"
    "#endif\n"
