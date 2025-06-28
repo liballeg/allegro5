@@ -32,6 +32,10 @@ int main(int argc, char *argv[])
          do_print = false;
          continue;
       }
+      if (d_match(line, "^(GETTER|SETTER)")) {
+         do_print = false;
+         continue;
+      }
       /* Prototype ends on blank line. */
       /* TODO: Should the above regexp match it? If so it doesn't here... */
       if (line[0] == 0) {
