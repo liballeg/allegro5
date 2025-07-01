@@ -342,6 +342,24 @@ static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
    return check_gl_error(name);
 }
 
+static bool glsl_set_shader_double(ALLEGRO_SHADER *shader,
+   const char *name, double d)
+{
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
+
+   handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
+
+   glUniform1d(handle, d);
+
+   return check_gl_error(name);
+}
+
 static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
    const char *name, int num_components, const int *i, int num_elems)
 {
@@ -410,6 +428,41 @@ static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
    return check_gl_error(name);
 }
 
+
+static bool glsl_set_shader_double_vector(ALLEGRO_SHADER *shader,
+   const char *name, int num_components, const double *d, int num_elems)
+{
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
+
+   handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
+
+   switch (num_components) {
+      case 1:
+         glUniform1dv(handle, num_elems, d);
+         break;
+      case 2:
+         glUniform2dv(handle, num_elems, d);
+         break;
+      case 3:
+         glUniform3dv(handle, num_elems, d);
+         break;
+      case 4:
+         glUniform4dv(handle, num_elems, d);
+         break;
+      default:
+         ASSERT(false);
+         break;
+   }
+
+   return check_gl_error(name);
+}
+
 static bool glsl_set_shader_bool(ALLEGRO_SHADER *shader,
    const char *name, bool b)
 {
@@ -429,8 +482,10 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_set_shader_matrix,
    glsl_set_shader_int,
    glsl_set_shader_float,
+   glsl_set_shader_double,
    glsl_set_shader_int_vector,
    glsl_set_shader_float_vector,
+   glsl_set_shader_double_vector,
    glsl_set_shader_bool
 };
 

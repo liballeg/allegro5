@@ -119,10 +119,14 @@ static bool hlsl_set_shader_int(ALLEGRO_SHADER *shader,
                const char *name, int i);
 static bool hlsl_set_shader_float(ALLEGRO_SHADER *shader,
                const char *name, float f);
+static bool hlsl_set_shader_double(ALLEGRO_SHADER *shader,
+               const char *name, double d);
 static bool hlsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
                const char *name, int num_components, const int *i, int num_elems);
 static bool hlsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
                const char *name, int num_components, const float *f, int num_elems);
+static bool hlsl_set_shader_double_vector(ALLEGRO_SHADER *shader,
+               const char *name, int num_components, const double *d, int num_elems);
 static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
                const char *name, bool b);
 
@@ -139,8 +143,10 @@ static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
    hlsl_set_shader_matrix,
    hlsl_set_shader_int,
    hlsl_set_shader_float,
+   hlsl_set_shader_double,
    hlsl_set_shader_int_vector,
    hlsl_set_shader_float_vector,
+   hlsl_set_shader_double_vector,
    hlsl_set_shader_bool
 };
 
@@ -444,6 +450,17 @@ static bool hlsl_set_shader_float(ALLEGRO_SHADER *shader,
    return result == D3D_OK;
 }
 
+static bool hlsl_set_shader_double(ALLEGRO_SHADER *shader,
+   const char *name, double d)
+{
+   ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
+   HRESULT result;
+
+   result = hlsl_shader->hlsl_shader->SetFloat(name, (float)d);
+
+   return result == D3D_OK;
+}
+
 static bool hlsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
    const char *name, int num_components, const int *i, int num_elems)
 {
@@ -465,6 +482,23 @@ static bool hlsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
    result = hlsl_shader->hlsl_shader->SetFloatArray(name, f,
       num_components * num_elems);
 
+   return result == D3D_OK;
+}
+
+static bool hlsl_set_shader_double_vector(ALLEGRO_SHADER *shader,
+   const char *name, int num_components, const double *d, int num_elems)
+{
+   ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
+   HRESULT result;
+   float *f = (float *)al_malloc(num_components * num_elems * sizeof(float));
+   for (int i = 0; i < num_components * num_elems; i++) {
+      f[i] = (float)d[i];
+   }
+
+   result = hlsl_shader->hlsl_shader->SetFloatArray(name, f,
+      num_components * num_elems);
+
+   al_free(f);
    return result == D3D_OK;
 }
 
