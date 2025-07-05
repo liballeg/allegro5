@@ -1216,13 +1216,21 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
       Atom _NET_WM_NAME = XInternAtom(system->x11display, "_NET_WM_NAME", False);
       char *list[1] = { (char *) title };
       XTextProperty property;
-
-      Xutf8TextListToTextProperty(system->x11display, list, 1, XUTF8StringStyle,
+      int status = Xutf8TextListToTextProperty(system->x11display, list, 1, XUTF8StringStyle,
          &property);
-      XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
-      XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
-      XSetTextProperty(system->x11display, glx->window, &property, XA_WM_NAME);
-      XFree(property.value);
+
+      if (status == Success) {
+         XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
+         XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
+         XSetTextProperty(system->x11display, glx->window, &property, XA_WM_NAME);
+         XFree(property.value);
+      }
+      else if (status == XLocaleNotSupported) {
+         ALLEGRO_WARN("Couldn't set window title. Xutf8TextListToTextProperty returned XLocaleNotSupported.\n");
+      }
+      else {
+         ALLEGRO_WARN("Couldn't set window title. Xutf8TextListToTextProperty returned: %d\n", status);
+      }
    }
    {
       XClassHint *hint = XAllocClassHint();
