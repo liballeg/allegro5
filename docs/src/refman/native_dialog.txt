@@ -433,8 +433,8 @@ See also: [al_insert_menu_item], [al_remove_menu_item]
 
 ### API: al_insert_menu_item
 
-Inserts a menu item at the spot specified. See the introductory text for a
-detailed explanation of how the `pos` parameter is interpreted.
+Inserts a menu item at the spot specified. See the [introductory text](#menus)
+for a detailed explanation of how the `pos` parameter is interpreted.
 
 The `parent` menu can be a popup menu or a regular menu. To underline
 one character in the `title`, prefix it with an ampersand.
@@ -459,7 +459,8 @@ The `submenu` parameter indicates that this item contains a child menu.
 The child menu must have previously been created with `al_create_menu`,
 and not be associated with any other menu.
 
-Returns `true` on success.
+Returns the index at which the item was inserted (which can be different than
+what is implied by `pos`), or -1 if there was an error.
 
 Since: 5.1.0
 
