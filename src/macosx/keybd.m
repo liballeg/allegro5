@@ -277,6 +277,14 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
          /* https://stackoverflow.com/a/22677690 */
          TISInputSourceRef keyboard_input = TISCopyCurrentKeyboardInputSource();
          CFDataRef layout_data = TISGetInputSourceProperty(keyboard_input, kTISPropertyUnicodeKeyLayoutData);
+         /* https://github.com/microsoft/vscode/issues/23833 */
+         if (!layout_data) {
+            /* TISGetInputSourceProperty returns null with a Japanese keyboard layout.
+             * Using TISCopyCurrentKeyboardLayoutInputSource to fix the NULL return.
+             */
+            keyboard_input = TISCopyCurrentKeyboardLayoutInputSource();
+            layout_data = TISGetInputSourceProperty(keyboard_input, kTISPropertyUnicodeKeyLayoutData);
+         }
          const UCKeyboardLayout *layout = (const UCKeyboardLayout *)CFDataGetBytePtr(layout_data);
 
          CGEventFlags modifier_flags = [event modifierFlags];
