@@ -149,10 +149,6 @@ bool al_init_image_addon(void)
       }
    }
 #endif
-
-#ifdef ALLEGRO_MACOSX
-   success |= _al_osx_register_image_loader();
-#endif
 #endif
 
    if (success)
