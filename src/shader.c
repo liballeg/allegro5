@@ -416,19 +416,19 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
 {
    (void)type;
    bool use_gl3_shader = false;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
 #ifdef ALLEGRO_MACOSX
-   {
-      ALLEGRO_DISPLAY *display = al_get_current_display();
-
-
-      /* Apple's glsl implementation supports either 1.20 shaders, or strictly
-       * versioned 3.2+ shaders which do not use deprecated features.
-       */
-      if (display && (display->flags & ALLEGRO_OPENGL_3_0)) {
-         use_gl3_shader = true;
-      }
+   /* Apple's glsl implementation supports either 1.20 shaders, or strictly
+    * versioned 3.2+ shaders which do not use deprecated features.
+    */
+   if (display && (display->flags & ALLEGRO_OPENGL_3_0)) {
+      use_gl3_shader = true;
    }
 #endif
+   if (display && (display->flags & (ALLEGRO_OPENGL_3_0 | ALLEGRO_OPENGL_FORWARD_COMPATIBLE))) {
+      use_gl3_shader = true;
+   }
+
    switch (resolve_platform(al_get_current_display(), platform)) {
       case ALLEGRO_SHADER_GLSL:
 #ifdef ALLEGRO_CFG_SHADER_GLSL
