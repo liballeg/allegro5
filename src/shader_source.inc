@@ -38,7 +38,6 @@ static const char *default_glsl_vertex_source =
    "}\n";
 
 static const char *default_glsl_pixel_source =
-   "#version 330 core\n"
    "#ifdef GL_ES\n"
    "precision lowp float;\n"
    "#endif\n"
