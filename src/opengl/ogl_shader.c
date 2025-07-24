@@ -450,7 +450,7 @@ static void lookup_varlocs(ALLEGRO_OGL_VARLOCS *varlocs, GLuint program)
    varlocs->alpha_func_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_ALPHA_FUNCTION);
    varlocs->alpha_test_val_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_ALPHA_TEST_VALUE);
 
-   for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
+   for (i = 0; i < ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
       /* al_user_attr_##0 */
       char user_attr_name[sizeof(ALLEGRO_SHADER_VAR_USER_ATTR "999")];
 

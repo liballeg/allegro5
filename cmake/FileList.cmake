@@ -30,15 +30,23 @@ set(ALLEGRO_SRC_FILES
     src/joynu.c
     src/keybdnu.c
     src/libc.c
+    src/line_soft.c
     src/math.c
     src/memblit.c
     src/memdraw.c
     src/memory.c
+    src/misc/aatree.c
+    src/misc/bstrlib.c
+    src/misc/list.c
+    src/misc/vector.c
     src/monitor.c
-    src/mousenu.c
     src/mouse_cursor.c
+    src/mousenu.c
     src/path.c
     src/pixels.c
+    src/point_soft.c
+    src/prim_soft.c
+    src/primitives.c
     src/shader.c
     src/system.c
     src/threads.c
@@ -48,10 +56,6 @@ set(ALLEGRO_SRC_FILES
     src/transformations.c
     src/tri_soft.c
     src/utf8.c
-    src/misc/aatree.c
-    src/misc/bstrlib.c
-    src/misc/list.c
-    src/misc/vector.c
     )
 
 set(ALLEGRO_SRC_WIN_FILES
@@ -264,6 +268,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     # Only files which need to be installed.
     include/allegro5/internal/alconfig.h
+    include/allegro5/internal/aintern_primitives_types.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES

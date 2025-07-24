@@ -1,22 +1,12 @@
 set(PRIMITIVES_SOURCES
     high_primitives.c
-    line_soft.c
-    point_soft.c
     polygon.c
     polyline.c
-    prim_directx.cpp
-    prim_opengl.c
     prim_soft.c
     prim_util.c
     primitives.c
     triangulator.c
     )
-
-if(WIN32)
-    # Add this file conditionally.
-    # The Debian folks want to remove it because it contains precompiled code.
-    list(APPEND PRIMITIVES_SOURCES directx_shaders.cpp)
-endif(WIN32)
 
 set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)
 

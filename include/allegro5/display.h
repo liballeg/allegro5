@@ -100,14 +100,6 @@ enum ALLEGRO_DISPLAY_ORIENTATION
    ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN = 32
 };
 
-
-/* Formally part of the primitives addon. */
-enum
-{
-   _ALLEGRO_PRIM_MAX_USER_ATTR = 10
-};
-
-
 /* Type: ALLEGRO_DISPLAY
  */
 typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;

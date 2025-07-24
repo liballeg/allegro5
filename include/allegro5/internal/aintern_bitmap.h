@@ -6,12 +6,22 @@
 #include "allegro5/display.h"
 #include "allegro5/render_state.h"
 #include "allegro5/transformations.h"
-#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_list.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct ALLEGRO_BLENDER
+{
+   int blend_op;
+   int blend_source;
+   int blend_dest;
+   int blend_alpha_op;
+   int blend_alpha_source;
+   int blend_alpha_dest;
+   ALLEGRO_COLOR blend_color;
+} ALLEGRO_BLENDER;
 
 typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 

@@ -4,6 +4,7 @@
 #include "allegro5/opengl/gl_ext.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_primitives.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -124,7 +125,7 @@ typedef struct ALLEGRO_OGL_VARLOCS
    GLint alpha_test_loc;
    GLint alpha_func_loc;
    GLint alpha_test_val_loc;
-   GLint user_attr_loc[_ALLEGRO_PRIM_MAX_USER_ATTR];
+   GLint user_attr_loc[ALLEGRO_PRIM_MAX_USER_ATTR];
 } ALLEGRO_OGL_VARLOCS;
 
 typedef struct ALLEGRO_OGL_EXTRAS
