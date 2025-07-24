@@ -73,12 +73,16 @@ typedef struct ALLEGRO_DISPLAY_D3D
    int blender_state_alpha_src;
    int blender_state_alpha_dst;
 
+   IDirect3DIndexBuffer9 *loop_index_buffer;
+
    RECT scissor_state;
 
-#ifdef ALLEGRO_CFG_SHADER_HLSL
    LPD3DXEFFECT effect;
-#endif
+   LPD3DXEFFECT primitives_effect;
 } ALLEGRO_DISPLAY_D3D;
+
+
+HRESULT _al_create_default_primitives_hlsl_vertex_shader(LPDIRECT3DDEVICE9 device, LPD3DXEFFECT *shader);
 
 
 AL_FUNC(void, _al_d3d_set_blender, (ALLEGRO_DISPLAY_D3D *disp));
@@ -88,10 +92,8 @@ AL_FUNC(void, _al_set_d3d_sampler_state, (IDirect3DDevice9* device,
 void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display);
 
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-   bool _al_hlsl_set_projview_matrix(LPD3DXEFFECT effect,
-      const ALLEGRO_TRANSFORM *t);
-#endif
+bool _al_hlsl_set_projview_matrix(LPD3DXEFFECT effect,
+   const ALLEGRO_TRANSFORM *t);
 
 #ifdef ALLEGRO_CFG_D3DX9
    typedef HRESULT (WINAPI *_ALLEGRO_D3DXLSFLSPROC)(LPDIRECT3DSURFACE9, const PALETTEENTRY*,

@@ -22,6 +22,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_pixels.h"
+#include "allegro5/internal/aintern_primitives.h"
 #include "allegro5/internal/aintern_tri_soft.h"
 #include <math.h>
 

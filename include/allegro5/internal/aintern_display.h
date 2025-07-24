@@ -3,9 +3,10 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/transformations.h"
-#include "allegro5/display.h"
 #include "allegro5/bitmap.h"
+#include "allegro5/display.h"
 #include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_primitives.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,21 +85,29 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
    /* Issue #725 */
    void (*apply_window_constraints)(ALLEGRO_DISPLAY *display, bool onoff);
+
+   /* Primitives */
+   int (*draw_prim)(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP *texture, const void *vtxs, const ALLEGRO_VERTEX_DECL *decl, int start, int end, int type);
+   int (*draw_prim_indexed)(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP *texture, const void *vtxs, const ALLEGRO_VERTEX_DECL *decl, const int *indices, int num_vtx, int type);
+
+   bool  (*create_vertex_buffer)(ALLEGRO_VERTEX_BUFFER *buf, const void *initial_data, size_t num_vertices, int flags);
+   void  (*destroy_vertex_buffer)(ALLEGRO_VERTEX_BUFFER *buf);
+   void *(*lock_vertex_buffer)(ALLEGRO_VERTEX_BUFFER *buf);
+   void  (*unlock_vertex_buffer)(ALLEGRO_VERTEX_BUFFER *buf);
+
+   bool (*create_vertex_decl)(ALLEGRO_DISPLAY *display, ALLEGRO_VERTEX_DECL *decl);
+
+   bool  (*create_index_buffer)(ALLEGRO_INDEX_BUFFER *buf, const void *initial_data, size_t num_indices, int flags);
+   void  (*destroy_index_buffer)(ALLEGRO_INDEX_BUFFER *buf);
+   void *(*lock_index_buffer)(ALLEGRO_INDEX_BUFFER *buf);
+   void  (*unlock_index_buffer)(ALLEGRO_INDEX_BUFFER *buf);
+
+   int (*draw_vertex_buffer)(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type);
+   int (*draw_indexed_buffer)(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type);
 };
 
 
 struct ALLEGRO_OGL_EXTRAS;
-
-typedef struct ALLEGRO_BLENDER
-{
-   int blend_op;
-   int blend_source;
-   int blend_dest;
-   int blend_alpha_op;
-   int blend_alpha_source;
-   int blend_alpha_dest;
-   ALLEGRO_COLOR blend_color;
-} ALLEGRO_BLENDER;
 
 typedef struct _ALLEGRO_RENDER_STATE {
    int write_mask;

@@ -17,15 +17,13 @@
  */
 
 
-#define ALLEGRO_INTERNAL_UNSTABLE
 #define _AL_NO_BLEND_INLINE_FUNC
 
 #include "allegro5/allegro.h"
-#include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_pixels.h"
-#include "allegro5/internal/aintern_prim.h"
+#include "allegro5/internal/aintern_primitives.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>
 
@@ -520,9 +518,9 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
          state.solid.texture = texture;
 
          if (shade) {
-            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_shade);
+            _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_shade);
          } else {
-            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_opaque);
+            _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_opaque);
          }
       } else {
          int white = 0;
@@ -535,15 +533,15 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
 
          if (shade) {
             if(white) {
-               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white);
+               _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white);
             } else {
-               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade);
+               _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade);
             }
          } else {
             if(white) {
-               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque_white);
+               _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque_white);
             } else {
-               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque);
+               _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque);
             }
          }
       }
@@ -551,24 +549,33 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
       if (grad) {
          state_grad_any_2d state;
          if (shade) {
-            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade);
+            _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade);
          } else {
-            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_opaque);
+            _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_opaque);
          }
       } else {
          state_solid_any_2d state;
          if (shade) {
-            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_shade);
+            _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_shade);
          } else {
-            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_opaque);
+            _al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_opaque);
          }
       }
    }
 }
 
-/* Function: al_draw_soft_line
- */
-void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
+static int bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int w, int h)
+{
+   ASSERT(bmp);
+
+   if (!al_is_bitmap_locked(bmp))
+      return 0;
+   if (x1 + w > bmp->lock_x && y1 + h > bmp->lock_y && x1 < bmp->lock_x + bmp->lock_w && y1 < bmp->lock_y + bmp->lock_h)
+      return 1;
+   return 0;
+}
+
+void _al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
    void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
    void (*step)(uintptr_t, int),
    void (*draw)(uintptr_t, int, int))
@@ -631,7 +638,7 @@ void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
       min_y = clip_min_y;
 
    if (al_is_bitmap_locked(target)) {
-      if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y) ||
+      if (!bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y) ||
           _al_pixel_format_is_video_only(target->locked_region.format))
          return;
    } else {

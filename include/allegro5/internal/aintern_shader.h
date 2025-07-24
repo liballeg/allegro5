@@ -52,6 +52,7 @@ void _al_register_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp);
 void _al_unregister_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp);
 
 ALLEGRO_SHADER *_al_create_default_shader(ALLEGRO_DISPLAY *display);
+const char *_al_get_default_hlsl_vertex_shader(void);
 
 #ifdef ALLEGRO_CFG_SHADER_GLSL
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform);

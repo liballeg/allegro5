@@ -17,21 +17,22 @@
  */
 
 
-# include "allegro5/allegro.h"
-# include "allegro5/allegro_primitives.h"
-# include "allegro5/internal/aintern_prim.h"
-# include "allegro5/internal/aintern_list.h"
-# include <float.h>
-# include <math.h>
+#include <float.h>
+#include <math.h>
+
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_primitives.h"
+#include "allegro5/internal/aintern_list.h"
+#include "allegro5/internal/aintern_prim_addon.h"
 
 
-# define POLY_DEBUG 0
+#define POLY_DEBUG 0
 
 
 /* */
-# define POLY_VERTEX_ATTR_REFLEX      0x0001
-# define POLY_VERTEX_ATTR_EAR_CLIP    0x0002
-# define POLY_VERTEX_ATTR_ALL         (POLY_VERTEX_ATTR_REFLEX | POLY_VERTEX_ATTR_EAR_CLIP)
+#define POLY_VERTEX_ATTR_REFLEX      0x0001
+#define POLY_VERTEX_ATTR_EAR_CLIP    0x0002
+#define POLY_VERTEX_ATTR_ALL         (POLY_VERTEX_ATTR_REFLEX | POLY_VERTEX_ATTR_EAR_CLIP)
 
 
 typedef void (*POLY_EMIT_TRIANGLE)(int, int, int, void*);

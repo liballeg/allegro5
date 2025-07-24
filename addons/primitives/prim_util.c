@@ -16,18 +16,19 @@
  *      See readme.txt for copyright information.
  */
 
+#include <float.h>
+#include <math.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_list.h"
-#include "allegro5/internal/aintern_prim.h"
-#include <float.h>
-#include <math.h>
+#include "allegro5/internal/aintern_prim_addon.h"
 
 #ifdef ALLEGRO_MSVC
    #define hypotf(x, y) _hypotf((x), (y))
 #endif
 
-# define AL_EPSILON         0.001f
+#define AL_EPSILON         0.001f
 
 
 /*
