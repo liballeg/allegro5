@@ -1388,15 +1388,20 @@ static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool on
       _al_mutex_lock(&system->lock);
 
       _al_xwin_reset_size_hints(display);
-      /* Pass the correct value instead of always toggling:
-       * 0 = disable fullscreen, 1 = enable fullscreen
+      /* Use toggle (2) because X11 comments indicate 0/1 may not be reliable
+       * in all cases. Since we only call this when the state needs to change,
+       * toggle will work correctly.
        */
-      _al_xwin_set_fullscreen_window(display, onoff ? 1 : 0);
+      _al_xwin_set_fullscreen_window(display, 2);
       /* XXX Technically, the user may fiddle with the _NET_WM_STATE_FULLSCREEN
        * property outside of Allegro so this flag may not be in sync with
        * reality.
        */
-      display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
+      if (onoff) {
+         display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
+      } else {
+         display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+      }
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
 
       set_compositor_bypass_flag(display);
