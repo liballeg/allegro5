@@ -688,6 +688,10 @@ static void ogl_unlock_region_nonbb_nonfbo(ALLEGRO_BITMAP *bitmap,
       get_glformat(lock_format, 1),
       start_ptr);
 
+   if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
+      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+   }
+
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
