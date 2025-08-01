@@ -16,6 +16,8 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 
+ALLEGRO_DEBUG_CHANNEL("test")
+
 #define MAX_BITMAPS  128
 #define MAX_TRANS    8
 #define MAX_FONTS    16
@@ -964,6 +966,7 @@ static bool do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
    for (op = 0; ; op++) {
       sprintf(buf, "op%d", op);
+      ALLEGRO_INFO("%s\n", buf);
       stmt = al_get_config_value(cfg, testname, buf);
       if (!stmt) {
          /* Check for a common mistake. */
@@ -1679,6 +1682,7 @@ static void partial_tests(ALLEGRO_CONFIG const *cfg, int n)
    ALLEGRO_USTR *name = al_ustr_new("");
 
    while (n > 0) {
+      ALLEGRO_INFO("Running test %s\n", argv[0]);
       /* Automatically prepend "test" for convenience. */
       if (0 == strncmp(argv[0], "test ", 5)) {
          al_ustr_assign_cstr(name, argv[0]);
@@ -1701,6 +1705,7 @@ static void partial_tests(ALLEGRO_CONFIG const *cfg, int n)
       argv++;
       n--;
    }
+   ALLEGRO_INFO("Done running tests\n");
 
    al_ustr_free(name);
 }
