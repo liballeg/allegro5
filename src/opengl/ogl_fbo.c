@@ -566,6 +566,9 @@ bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
 
    ASSERT(bitmap->parent == NULL);
 
+   if (ogl_bitmap->fbo_failed)
+      return false;
+
    /* When a bitmap is set as target bitmap, we try to create an FBO for it. */
    info = ogl_bitmap->fbo_info;
    if (!info) {
@@ -662,6 +665,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
       glDeleteFramebuffersEXT(1, &info->fbo);
       _al_ogl_reset_fbo_info(info);
       ogl_bitmap->fbo_info = NULL;
+      ogl_bitmap->fbo_failed = true;
    }
    else {
       display->ogl_extras->opengl_target = bitmap;

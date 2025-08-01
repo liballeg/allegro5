@@ -79,6 +79,8 @@ typedef struct ALLEGRO_BITMAP_EXTRA_OPENGL
    GLuint texture; /* 0 means, not uploaded yet. */
 
    ALLEGRO_FBO_INFO *fbo_info;
+   /* We tried to create an FBO, but failed... don't keep trying. */
+   bool fbo_failed;
 
    /* When an OpenGL bitmap is locked, the locked region is usually backed by a
     * temporary memory buffer pointed to by lock_buffer.
