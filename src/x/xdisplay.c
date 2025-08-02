@@ -276,6 +276,28 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
                    32, PropModeReplace,
                    (unsigned char *)&_NET_WM_WINDOW_TYPE_NORMAL, 1);
 
+   /* Set allowed actions to ensure maximized windows can still be moved */
+   Atom _NET_WM_ALLOWED_ACTIONS = XInternAtom(system->x11display, "_NET_WM_ALLOWED_ACTIONS", False);
+   Atom _NET_WM_ACTION_MOVE = XInternAtom(system->x11display, "_NET_WM_ACTION_MOVE", False);
+   Atom _NET_WM_ACTION_RESIZE = XInternAtom(system->x11display, "_NET_WM_ACTION_RESIZE", False);
+   Atom _NET_WM_ACTION_MINIMIZE = XInternAtom(system->x11display, "_NET_WM_ACTION_MINIMIZE", False);
+   Atom _NET_WM_ACTION_MAXIMIZE_HORZ = XInternAtom(system->x11display, "_NET_WM_ACTION_MAXIMIZE_HORZ", False);
+   Atom _NET_WM_ACTION_MAXIMIZE_VERT = XInternAtom(system->x11display, "_NET_WM_ACTION_MAXIMIZE_VERT", False);
+   Atom _NET_WM_ACTION_CLOSE = XInternAtom(system->x11display, "_NET_WM_ACTION_CLOSE", False);
+   
+   Atom allowed_actions[] = {
+      _NET_WM_ACTION_MOVE,
+      _NET_WM_ACTION_RESIZE,
+      _NET_WM_ACTION_MINIMIZE,
+      _NET_WM_ACTION_MAXIMIZE_HORZ,
+      _NET_WM_ACTION_MAXIMIZE_VERT,
+      _NET_WM_ACTION_CLOSE
+   };
+   
+   XChangeProperty(system->x11display, d->window, _NET_WM_ALLOWED_ACTIONS, XA_ATOM,
+                   32, PropModeReplace,
+                   (unsigned char *)allowed_actions, sizeof(allowed_actions)/sizeof(Atom));
+
    /* This seems like a good idea */
    set_compositor_bypass_flag(display);
 
