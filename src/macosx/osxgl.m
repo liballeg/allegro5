@@ -15,7 +15,6 @@
 *      See readme.txt for copyright information.
 */
 
-
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
@@ -27,6 +26,7 @@
 #include "allegro5/platform/aintosx.h"
 #include "./osxgl.h"
 #include "allegro5/allegro_osx.h"
+
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
 #endif
@@ -65,9 +65,11 @@ enum {
 #define MINIMUM_WIDTH 48
 #define MINIMUM_HEIGHT 48
 
+
 /* by MAREK */
-#define FILE_URL_SIZE 254
-/* end by MAREK */
+static char **cfileURLs;
+int cfileURLs_n=0;
+/* */ //by MAREK
 
 /* Unsigned integer; data type only avaliable for OS X >= 10.5 */
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1050
@@ -216,9 +218,9 @@ void _al_osx_keyboard_was_installed(BOOL install) {
    /* This is passed onto the event functions so we know where the event came from */
    ALLEGRO_DISPLAY* dpy_ptr;
 }
-/* by MAREK */
+/* by MAREK* /
 - (id)initWithFrame:(NSRect)frameRect;
-/* end by MAREK */
+/* */ //by MAREK
 -(void)setAllegroDisplay: (ALLEGRO_DISPLAY*) ptr;
 -(ALLEGRO_DISPLAY*) allegroDisplay;
 -(void) reshape;
@@ -299,25 +301,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
    });
 }
 
-/* by MAREK */
-@implementation NSString (Char)
-
-/*
- * Convert a NSString to a char pointer
-*/
--(char *)toChar{
-  const char* strUtf8 = [self UTF8String];
-  size_t len          = strlen(strUtf8) + 1;
-  char *toChar        = malloc(len);
-  memcpy(toChar, strUtf8, len);
-  return toChar;
-}
-@end
-/* end by MAREK */
-
 @implementation ALOpenGLView
 
-/*by MAREK*/
+/* by MAREK */
 - (id)initWithFrame:(NSRect)frameRect
 {
     self = [super initWithFrame:frameRect];
@@ -326,8 +312,6 @@ void _al_osx_mouse_was_installed(BOOL install) {
         [self registerForDraggedTypes:@[NSPasteboardTypeFileURL]];
         // Or other types like NSStringPboardType, NSFileContentsPboardType, etc.
     }
-
-    NSString *cachesDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 
     // NSString *logPath = @"allegro5.log";
     // freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
@@ -361,6 +345,16 @@ void _al_osx_mouse_was_installed(BOOL install) {
     {
         // Handle multiple dropped files here
 
+        //freeing filenames
+        if (cfileURLs_n>0)
+        {
+            for (int ni=0; ni<cfileURLs_n; ni++) free(cfileURLs[ni]);
+            free(cfileURLs);
+            cfileURLs_n=0;
+        }
+
+        cfileURLs=malloc(fileURLs.count * sizeof(char*));
+
         for (NSURL *fileURL in fileURLs)
         {
                 NSString *filePath = [fileURL path];
@@ -391,7 +385,12 @@ void _al_osx_mouse_was_installed(BOOL install) {
                 event.drop.x = (int)mousePos.x;
                 event.drop.y = (int)mousePos.y;
                 NSLog(@"Event with file (%d/%d) : %@", n+1, (int)fileURLs.count, filePath);
-                event.drop.text = (char*) cfileURL;
+                //alocating memory for filename
+                cfileURLs[n]=malloc(strlen(cfileURL)+1);
+                //copying
+                strncpy(cfileURLs[n], cfileURL, strlen(cfileURL)+1);
+                //pointer will be unique and not destructed until next drop series
+                event.drop.text = cfileURLs[n];
                 event.drop.is_file = true;
                 event.drop.row = n;
                 if ((n+1)<(int)fileURLs.count) event.drop.is_complete = false;
@@ -410,7 +409,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
     // Optional: Any cleanup after drop
 }
 
-/* end by MAREK*/
+/**/ //by MAREK
 
 -(void) prepareOpenGL
 {
@@ -1764,6 +1763,10 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
          return;
       }
+
+      //////
+      //view->registerForDraggedTypes:@[NSPasteboardTypeFileURL]];
+      //////
       dpy->view = view;
       /* Hook up the view to its display */
       [view setAllegroDisplay: &dpy->parent];
@@ -1994,6 +1997,16 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    al_free(d->vertex_cache);
    al_free(d);
    [pool drain];
+
+   /* by MAREK */
+   //freeing filenames
+   if (cfileURLs_n>0)
+   {
+       for (int ni=0; ni<cfileURLs_n; ni++) free(cfileURLs[ni]);
+       free(cfileURLs);
+       cfileURLs_n=0;
+   }
+   /* */ //by MAREK
 }
 
 /* create_display:
