@@ -651,6 +651,9 @@ static bool xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO
 
    xrandr_crtc *crtc = xrandr_fetch_crtc(s, xscreen, output->crtc);
 
+   if (!crtc)
+      return false;
+
    mi->x1 = crtc->x;
    mi->y1 = crtc->y;
    mi->x2 = crtc->x + crtc->width;
