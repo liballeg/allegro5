@@ -160,7 +160,7 @@ void* al_lock_index_buffer(ALLEGRO_INDEX_BUFFER* buffer, int offset,
 void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 {
    ASSERT(addon_initialized);
-   return _al_unlock_vertex_buffer(buffer);
+   _al_unlock_vertex_buffer(buffer);
 }
 
 /* Function: al_unlock_index_buffer

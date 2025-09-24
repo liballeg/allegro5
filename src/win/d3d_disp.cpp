@@ -3085,7 +3085,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
       if (use_fixed_pipeline) {
          device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &state.old_ttf_state);
          device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-         device->SetTransform(D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
+         device->SetTransform(D3DTS_TEXTURE0, (D3DMATRIX *)mat);
       }
       else {
          d3d_disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_TEX_MATRIX, (D3DXMATRIX *)mat);
