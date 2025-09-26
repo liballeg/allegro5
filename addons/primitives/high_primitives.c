@@ -127,8 +127,8 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
    float x3, float y3, ALLEGRO_COLOR color, float thickness)
 {
 
-   float min_x = min(x1, min(x2, x3));
-   float min_y = min(y1, min(y2, y3));
+   float min_x = fmin(x1, fmin(x2, x3));
+   float min_y = fmin(y1, fmin(y2, y3));
 
    if (thickness > 0) {
       int ii = 0;
@@ -425,7 +425,6 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
    float c;
    float s;
    float x, y, t;
-   float min_x, min_y;
    int ii;
 
    ASSERT(dest);
@@ -449,14 +448,10 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
          for (ii = 0; ii < num_points; ii ++) {
             *dest =       r2 * x + cx;
             *(dest + 1) = r2 * y + cy;
-            *(dest + 3) = r2 * x;
-            *(dest + 4) = r2 * y;
 
             dest = (float*)(((char*)dest) + stride);
             *dest =        r1 * x + cx;
             *(dest + 1) =  r1 * y + cy;
-            *(dest + 3) = r1 * x;
-            *(dest + 4) = r1 * y;
             dest = (float*)(((char*)dest) + stride);
 
             t = x;
@@ -472,14 +467,10 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
 
                *dest =       rx * x + cx + nx;
                *(dest + 1) = ry * y + cy + ny;
-               *(dest + 3) = rx * x + nx;
-               *(dest + 4) = ry * y + ny;
                dest = (float*)(((char*)dest) + stride);
 
                *dest =       rx * x + cx - nx;
                *(dest + 1) = ry * y + cy - ny;
-               *(dest + 3) = rx * x - nx;
-               *(dest + 4) = ry * y - ny;
                dest = (float*)(((char*)dest) + stride);
 
                t = x;
@@ -498,8 +489,6 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
       for (ii = 0; ii < num_points; ii++) {
          *dest =       rx * x + cx;
          *(dest + 1) = ry * y + cy;
-         *(dest + 3) = rx * x;
-         *(dest + 4) = ry * y;
          dest = (float*)(((char*)dest) + stride);
 
          t = x;
@@ -537,11 +526,13 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
       }
 
       al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
-      vertex_cache[0].x = cx; vertex_cache[0].y = cy; vertex_cache[0].u = 0.0f; vertex_cache[0].v = 0.0f;
+      vertex_cache[0].x = cx; vertex_cache[0].y = cy;
 
       for (ii = 0; ii < num_segments + 1; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
+         vertex_cache[ii].u = vertex_cache[ii].x - cx;
+         vertex_cache[ii].v = vertex_cache[ii].y - cy;
       }
 
       al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_LINE_LOOP);
@@ -593,26 +584,28 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
             float vy = ht * (-side_dir_x * (inverted_winding ? -1 : 1) - side_dir_y);
             float dot = vx * midpoint_dir_x + vy * midpoint_dir_y;
 
-            vertex_cache[vtx_id].x = cx + vx; vertex_cache[vtx_id].u = vx;
-            vertex_cache[vtx_id].y = cy + vy; vertex_cache[vtx_id].v = vy;
+            vertex_cache[vtx_id].x = cx + vx;
+            vertex_cache[vtx_id].y = cy + vy;
             vtx_id += vtx_delta;
 
-            vertex_cache[vtx_id].x = cx + dot * midpoint_dir_x; vertex_cache[vtx_id].u = dot * midpoint_dir_x;
-            vertex_cache[vtx_id].y = cy + dot * midpoint_dir_y; vertex_cache[vtx_id].v = dot * midpoint_dir_y;
+            vertex_cache[vtx_id].x = cx + dot * midpoint_dir_x;
+            vertex_cache[vtx_id].y = cy + dot * midpoint_dir_y;
          } else {
-            vertex_cache[vtx_id].x = cx - connect_len * midpoint_dir_x; vertex_cache[vtx_id].u = -connect_len * midpoint_dir_x;
-            vertex_cache[vtx_id].y = cy - connect_len * midpoint_dir_y; vertex_cache[vtx_id].v = -connect_len * midpoint_dir_y;
+            vertex_cache[vtx_id].x = cx - connect_len * midpoint_dir_x;
+            vertex_cache[vtx_id].y = cy - connect_len * midpoint_dir_y;
          }
          vtx_id += vtx_delta;
 
          if(connect_len > r - ht)
             connect_len = r - ht;
-         vertex_cache[vtx_id].x = cx + connect_len * midpoint_dir_x; vertex_cache[vtx_id].u = connect_len * midpoint_dir_x;
-         vertex_cache[vtx_id].y = cy + connect_len * midpoint_dir_y; vertex_cache[vtx_id].v = connect_len * midpoint_dir_y;
+         vertex_cache[vtx_id].x = cx + connect_len * midpoint_dir_x;
+         vertex_cache[vtx_id].y = cy + connect_len * midpoint_dir_y;
 
          for (ii = 0; ii < num_segments + extra_vtx; ii++) {
             vertex_cache[ii].color = color;
             vertex_cache[ii].z = 0;
+            vertex_cache[ii].u = vertex_cache[ii].x - cx;
+            vertex_cache[ii].v = vertex_cache[ii].y - cy;
          }
 
          al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
@@ -648,26 +641,22 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
 
             vertex_cache[0].x = cx + vx;
             vertex_cache[0].y = cy + vy;
-            vertex_cache[0].u = vx;
-            vertex_cache[0].v = vy;
 
             vx = 2 * dot * midpoint_dir_x - vx;
             vy = 2 * dot * midpoint_dir_y - vy;
 
             vertex_cache[num_segments + 1].x = cx + vx;
             vertex_cache[num_segments + 1].y = cy + vy;
-            vertex_cache[num_segments + 1].u = vx;
-            vertex_cache[num_segments + 1].v = vy;
          } else {
             vertex_cache[0].x = cx - connect_len * midpoint_dir_x;
             vertex_cache[0].y = cy - connect_len * midpoint_dir_y;
-            vertex_cache[0].u = -connect_len * midpoint_dir_x;
-            vertex_cache[0].v = -connect_len * midpoint_dir_y;
          }
 
          for (ii = 0; ii < num_segments + extra_vtx; ii++) {
             vertex_cache[ii].color = color;
             vertex_cache[ii].z = 0;
+            vertex_cache[ii].u = vertex_cache[ii].x - cx;
+            vertex_cache[ii].v = vertex_cache[ii].y - cy;
          }
 
          al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
@@ -696,11 +685,13 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
    }
 
    al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
-   vertex_cache[0].x = cx; vertex_cache[0].y = cy; vertex_cache[0].u = 0.0f; vertex_cache[0].v = 0.0f;
+   vertex_cache[0].x = cx; vertex_cache[0].y = cy;
 
    for (ii = 0; ii < num_segments + 1; ii++) {
       vertex_cache[ii].color = color;
       vertex_cache[ii].z = 0;
+      vertex_cache[ii].u = vertex_cache[ii].x - cx;
+      vertex_cache[ii].v = vertex_cache[ii].y - cy;
    }
 
    al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
@@ -733,6 +724,8 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       for (ii = 0; ii < 2 * num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
+         vertex_cache[ii].u = vertex_cache[ii].x - cx;
+         vertex_cache[ii].v = vertex_cache[ii].y - cy;
       }
 
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
@@ -783,11 +776,13 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    }
 
    al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, num_segments);
-   vertex_cache[0].x = cx; vertex_cache[0].y = cy; vertex_cache[0].u = 0.0f; vertex_cache[0].v = 0.0f;
+   vertex_cache[0].x = cx; vertex_cache[0].y = cy;
 
    for (ii = 0; ii < num_segments + 1; ii++) {
       vertex_cache[ii].color = color;
       vertex_cache[ii].z = 0;
+      vertex_cache[ii].u = vertex_cache[ii].x - cx;
+      vertex_cache[ii].v = vertex_cache[ii].y - cy;
    }
 
    al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
@@ -833,6 +828,8 @@ void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_
       for (ii = 0; ii < 2 * num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
+         vertex_cache[ii].u = vertex_cache[ii].x - cx;
+         vertex_cache[ii].v = vertex_cache[ii].y - cy;
       }
 
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
@@ -852,6 +849,8 @@ void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
+         vertex_cache[ii].u = vertex_cache[ii].x - cx;
+         vertex_cache[ii].v = vertex_cache[ii].y - cy;
       }
 
       al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
@@ -899,41 +898,21 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
          vertex_cache[ii + 2 * num_segments].x = x1 + rx - vertex_cache[2 * num_segments - 1 - ii - 1].x;
          vertex_cache[ii + 2 * num_segments].y = y1 + ry - vertex_cache[2 * num_segments - 1 - ii - 1].y;
 
-         vertex_cache[ii + 2 * num_segments + 1].u = vertex_cache[ii + 2 * num_segments + 1].x - x1;
-         vertex_cache[ii + 2 * num_segments + 1].v = vertex_cache[ii + 2 * num_segments + 1].y - y1;
-         vertex_cache[ii + 2 * num_segments].u = vertex_cache[ii + 2 * num_segments].x - x1;
-         vertex_cache[ii + 2 * num_segments].v = vertex_cache[ii + 2 * num_segments].y - y1;
-
          vertex_cache[ii + 4 * num_segments].x = x1 + rx - vertex_cache[ii].x;
          vertex_cache[ii + 4 * num_segments].y = y2 - ry + vertex_cache[ii].y;
          vertex_cache[ii + 4 * num_segments + 1].x = x1 + rx - vertex_cache[ii + 1].x;
          vertex_cache[ii + 4 * num_segments + 1].y = y2 - ry + vertex_cache[ii + 1].y;
 
-         vertex_cache[ii + 4 * num_segments + 1].u = vertex_cache[ii + 4 * num_segments + 1].x - x1;
-         vertex_cache[ii + 4 * num_segments + 1].v = vertex_cache[ii + 4 * num_segments + 1].y - y1;
-         vertex_cache[ii + 4 * num_segments].u = vertex_cache[ii + 4 * num_segments].x - x1;
-         vertex_cache[ii + 4 * num_segments].v = vertex_cache[ii + 4 * num_segments].y - y1;
-
          vertex_cache[ii + 6 * num_segments + 1].x = x2 - rx + vertex_cache[2 * num_segments - 1 - ii].x;
          vertex_cache[ii + 6 * num_segments + 1].y = y2 - ry + vertex_cache[2 * num_segments - 1 - ii].y;
          vertex_cache[ii + 6 * num_segments].x = x2 - rx + vertex_cache[2 * num_segments - 1 - ii - 1].x;
          vertex_cache[ii + 6 * num_segments].y = y2 - ry + vertex_cache[2 * num_segments - 1 - ii - 1].y;
-
-         vertex_cache[ii + 6 * num_segments + 1].u = vertex_cache[ii + 6 * num_segments + 1].x - x1;
-         vertex_cache[ii + 6 * num_segments + 1].v = vertex_cache[ii + 6 * num_segments + 1].y - y1;
-         vertex_cache[ii + 6 * num_segments].u = vertex_cache[ii + 6 * num_segments].x - x1;
-         vertex_cache[ii + 6 * num_segments].v = vertex_cache[ii + 6 * num_segments].y - y1;
       }
       for (ii = 0; ii < 2 * num_segments; ii += 2) {
          vertex_cache[ii].x = x2 - rx + vertex_cache[ii].x;
          vertex_cache[ii].y = y1 + ry - vertex_cache[ii].y;
          vertex_cache[ii + 1].x = x2 - rx + vertex_cache[ii + 1].x;
          vertex_cache[ii + 1].y = y1 + ry - vertex_cache[ii + 1].y;
-
-         vertex_cache[ii].u = vertex_cache[ii].x - x1;
-         vertex_cache[ii].v = vertex_cache[ii].y - y1;
-         vertex_cache[ii + 1].u = vertex_cache[ii + 1].x - x1;
-         vertex_cache[ii + 1].v = vertex_cache[ii + 1].y - y1;
       }
       vertex_cache[8 * num_segments] = vertex_cache[0];
       vertex_cache[8 * num_segments + 1] = vertex_cache[1];
@@ -941,6 +920,8 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 8 * num_segments + 2; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
+         vertex_cache[ii].u = vertex_cache[ii].x - x1;
+         vertex_cache[ii].v = vertex_cache[ii].y - y1;
       }
 
       al_draw_prim(vertex_cache, 0, 0, 0, 8 * num_segments + 2, ALLEGRO_PRIM_TRIANGLE_STRIP);
@@ -978,6 +959,8 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 4 * num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
+         vertex_cache[ii].u = vertex_cache[ii].x - x1;
+         vertex_cache[ii].v = vertex_cache[ii].y - y1;
       }
 
       al_draw_prim(vertex_cache, 0, 0, 0, 4 * num_segments, ALLEGRO_PRIM_LINE_LOOP);
@@ -1012,29 +995,23 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    for (ii = 0; ii < num_segments; ii++) {
       vertex_cache[ii + 1 * num_segments].x = x1 + rx - vertex_cache[num_segments - 1 - ii].x;
       vertex_cache[ii + 1 * num_segments].y = y1 + ry - vertex_cache[num_segments - 1 - ii].y;
-      vertex_cache[ii + 1 * num_segments].u = vertex_cache[ii + 1 * num_segments].x - x1;
-      vertex_cache[ii + 1 * num_segments].v = vertex_cache[ii + 1 * num_segments].y - y1;
 
       vertex_cache[ii + 2 * num_segments].x = x1 + rx - vertex_cache[ii].x;
       vertex_cache[ii + 2 * num_segments].y = y2 - ry + vertex_cache[ii].y;
-      vertex_cache[ii + 2 * num_segments].u = vertex_cache[ii + 2 * num_segments].x - x1;
-      vertex_cache[ii + 2 * num_segments].v = vertex_cache[ii + 2 * num_segments].y - y1;
 
       vertex_cache[ii + 3 * num_segments].x = x2 - rx + vertex_cache[num_segments - 1 - ii].x;
       vertex_cache[ii + 3 * num_segments].y = y2 - ry + vertex_cache[num_segments - 1 - ii].y;
-      vertex_cache[ii + 3 * num_segments].u = vertex_cache[ii + 3 * num_segments].x - x1;
-      vertex_cache[ii + 3 * num_segments].v = vertex_cache[ii + 3 * num_segments].y - y1;
    }
    for (ii = 0; ii < num_segments; ii++) {
       vertex_cache[ii].x = x2 - rx + vertex_cache[ii].x;
       vertex_cache[ii].y = y1 + ry - vertex_cache[ii].y;
-      vertex_cache[ii].u = vertex_cache[ii].x - x1;
-      vertex_cache[ii].v = vertex_cache[ii].y - y1;
    }
 
    for (ii = 0; ii < 4 * num_segments; ii++) {
       vertex_cache[ii].color = color;
       vertex_cache[ii].z = 0;
+      vertex_cache[ii].u = vertex_cache[ii].x - x1;
+      vertex_cache[ii].v = vertex_cache[ii].y - y1;
    }
 
    /*
