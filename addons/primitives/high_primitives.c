@@ -331,8 +331,8 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
 {
    ALLEGRO_VERTEX vtx[3];
 
-   float min_x = min(x1, min(x2, x3));
-   float min_y = min(y1, min(y2, y3));
+   float min_x = fmin(x1, fmin(x2, x3));
+   float min_y = fmin(y1, fmin(y2, y3));
 
    vtx[0].x = x1; vtx[0].y = y1; vtx[0].u = x1 - min_x; vtx[0].v = y1 - min_y;
    vtx[1].x = x2; vtx[1].y = y2; vtx[1].u = x2 - min_x; vtx[1].v = y2 - min_y;
