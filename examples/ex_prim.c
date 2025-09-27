@@ -30,7 +30,7 @@
 
 typedef void (*Screen)(int);
 int ScreenW = 800, ScreenH = 600;
-#define NUM_SCREENS 12
+#define NUM_SCREENS 14
 #define ROTATE_SPEED 0.0001f
 Screen Screens[NUM_SCREENS];
 const char *ScreenName[NUM_SCREENS];
@@ -40,6 +40,7 @@ ALLEGRO_BITMAP* Buffer;
 ALLEGRO_BITMAP* Texture;
 ALLEGRO_COLOR solid_white;
 
+bool UseShader = false;
 int Soft = 0;
 int Blend = 1;
 float Speed = ROTATE_SPEED;
@@ -357,6 +358,146 @@ static void HighFilledPrimitives(int mode)
    }
 }
 
+static void HighFilledPrimitivesShader(int mode)
+{
+   static ALLEGRO_SHADER *shader;
+   if (mode == INIT) {
+      if (!UseShader)
+         return;
+      shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+
+      if (!shader) {
+         abort_example("Failed to create shader.");
+      }
+
+      const char *vertex_shader_file;
+      const char *pixel_shader_file;
+      if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+         vertex_shader_file = "data/ex_prim_high_vertex.glsl";
+         pixel_shader_file = "data/ex_prim_high_pixel.glsl";
+      }
+      else {
+         vertex_shader_file = "data/ex_prim_high_vertex.hlsl";
+         pixel_shader_file = "data/ex_prim_high_pixel.hlsl";
+      }
+
+      if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vertex_shader_file)) {
+         abort_example("al_attach_shader_source_file for vertex shader failed: %s\n",
+            al_get_shader_log(shader));
+      }
+      if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_shader_file)) {
+         abort_example("al_attach_shader_source_file for pixel shader failed: %s\n",
+            al_get_shader_log(shader));
+      }
+      if (!al_build_shader(shader)) {
+         abort_example("al_build_shader for link failed: %s\n", al_get_shader_log(shader));
+      }
+   } else if (mode == LOGIC) {
+      Theta += Speed;
+      al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
+   } else if (mode == DRAW) {
+      if (Blend)
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+      else
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+
+      al_use_transform(&MainTrans);
+      if (!UseShader) {
+         al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Enable shaders (by using --shader arg)");
+      }
+      else if (Soft) {
+         al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Shaders don't work with software rendering");
+      }
+      else {
+         ALLEGRO_SHADER* old_shader = al_get_current_shader();
+         al_use_shader(shader);
+         al_draw_filled_triangle(-100, -100, -150, 200, 100, 200, al_map_rgb_f(0.5, 0.7, 0.3));
+         al_draw_filled_rectangle(20, -50, 200, 50, al_map_rgb_f(0.3, 0.2, 0.6));
+         al_draw_filled_ellipse(-250, 0, 100, 150, al_map_rgb_f(0.3, 0.3, 0.3));
+         al_draw_filled_rounded_rectangle(50, -250, 350, -75, 50, 70, al_map_rgb_f(0.4, 0.2, 0));
+         al_draw_filled_pieslice(200, 125, 50, ALLEGRO_PI / 4, 3 * ALLEGRO_PI / 2, al_map_rgb_f(0.3, 0.3, 0.1));
+         al_use_shader(old_shader);
+      }
+      al_use_transform(&Identity);
+   }
+}
+
+static void HighPrimitivesShader(int mode)
+{
+   static ALLEGRO_SHADER *shader;
+   if (mode == INIT) {
+      if (!UseShader)
+         return;
+      shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+
+      if (!shader) {
+         abort_example("Failed to create shader.");
+      }
+
+      const char *vertex_shader_file;
+      const char *pixel_shader_file;
+      if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+         vertex_shader_file = "data/ex_prim_high_vertex.glsl";
+         pixel_shader_file = "data/ex_prim_high_pixel.glsl";
+      }
+      else {
+         vertex_shader_file = "data/ex_prim_high_vertex.hlsl";
+         pixel_shader_file = "data/ex_prim_high_pixel.hlsl";
+      }
+
+      if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vertex_shader_file)) {
+         abort_example("al_attach_shader_source_file for vertex shader failed: %s\n",
+            al_get_shader_log(shader));
+      }
+      if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_shader_file)) {
+         abort_example("al_attach_shader_source_file for pixel shader failed: %s\n",
+            al_get_shader_log(shader));
+      }
+      if (!al_build_shader(shader)) {
+         abort_example("al_build_shader for link failed: %s\n", al_get_shader_log(shader));
+      }
+   } else if (mode == LOGIC) {
+      Theta += Speed;
+      al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
+   } else if (mode == DRAW) {
+      if (Blend)
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+      else
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+
+      al_use_transform(&MainTrans);
+      if (!UseShader) {
+         al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Enable shaders (by using --shader arg)");
+      }
+      else if (Soft) {
+         al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Shaders don't work with software rendering");
+      }
+      else {
+         ALLEGRO_SHADER* old_shader = al_get_current_shader();
+         al_use_shader(shader);
+         // float points[8] = {
+         //    -300, -200,
+         //    700, 200,
+         //    -700, 200,
+         //    300, -200
+         // };
+
+         al_draw_line(-300, -200, 300, 200, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
+         al_draw_triangle(-150, -250, 0, 250, 150, -250, al_map_rgba_f(0.5, 0, 0.5, 1), Thickness);
+         al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 1), Thickness);
+         al_draw_rounded_rectangle(-200, -125, 200, 125, 50, 100, al_map_rgba_f(0.2, 0.2, 0, 1), Thickness);
+
+         al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
+         al_draw_elliptical_arc(-20, 0, 300, 200, -ALLEGRO_PI / 2, -ALLEGRO_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
+         al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
+         // al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
+         al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
+         al_use_shader(old_shader);
+      }
+      al_use_transform(&Identity);
+   }
+}
+
 static void TransformationsPrimitives(int mode)
 {
    float t = al_get_time();
@@ -638,11 +779,10 @@ int main(int argc, char **argv)
    ALLEGRO_BITMAP* bkg;
    ALLEGRO_COLOR black;
    ALLEGRO_EVENT_QUEUE *queue;
-   bool use_shader = false;
 
    if (argc > 1) {
       if (strcmp(argv[1], "--shader") == 0) {
-         use_shader = true;
+         UseShader = true;
       }
       else {
          abort_example("Invalid command line option: %s", argv[1]);
@@ -658,7 +798,7 @@ int main(int argc, char **argv)
    al_init_primitives_addon();
    init_platform_specific();
 
-   if (use_shader) {
+   if (UseShader) {
       al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
    }
 
@@ -740,6 +880,8 @@ int main(int argc, char **argv)
    Screens[9] = CustomVertexFormatPrimitives;
    Screens[10] = VertexBuffers;
    Screens[11] = IndexedBuffers;
+   Screens[12] = HighPrimitivesShader;
+   Screens[13] = HighFilledPrimitivesShader;
 
    ScreenName[0] = "Low Level Primitives";
    ScreenName[1] = "Indexed Primitives";
@@ -753,6 +895,8 @@ int main(int argc, char **argv)
    ScreenName[9] = "Custom Vertex Format";
    ScreenName[10] = "Vertex Buffers";
    ScreenName[11] = "Indexed Buffers";
+   ScreenName[12] = "High Level Primitives + Shaders";
+   ScreenName[13] = "High Level Filled Primitives + Shaders";
 
    for (ii = 0; ii < NUM_SCREENS; ii++) {
       Screens[ii](INIT);

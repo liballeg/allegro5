@@ -84,6 +84,10 @@ set(DATA_SHADERS
     ex_prim_shader_vertex.hlsl
     ex_prim_wrap_pixel.glsl
     ex_prim_wrap_pixel.hlsl
+    ex_prim_high_vertex.glsl
+    ex_prim_high_vertex.hlsl
+    ex_prim_high_pixel.glsl
+    ex_prim_high_pixel.hlsl
     ex_shader_multitex_pixel.glsl
     ex_shader_multitex_pixel.hlsl
     ex_shader_palette_pixel.glsl
