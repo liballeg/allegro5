@@ -155,8 +155,6 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
        * If the triangle is very flat, draw it as a line
        */
       if(fabsf(cross) < 0.0001f) {
-         float tx, ty, lx, ly;
-         float len;
          /*
           * Find the obtuse vertex via two dot products
           */
@@ -388,6 +386,8 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 4; ii++) {
          vtx[ii].color = color;
          vtx[ii].z = 0;
+         vtx[ii].u = vtx[ii].x - x1;
+         vtx[ii].v = vtx[ii].y - y1;
       }
 
       al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_LINE_LOOP);
@@ -745,6 +745,8 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
+         vertex_cache[ii].u = vertex_cache[ii].x - cx;
+         vertex_cache[ii].v = vertex_cache[ii].y - cy;
       }
 
       al_draw_prim(vertex_cache, 0, 0, 0, num_segments - 1, ALLEGRO_PRIM_LINE_LOOP);
