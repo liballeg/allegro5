@@ -68,10 +68,13 @@ AL_FUNC(bool, al_set_shader_matrix, (const char *name,
    const ALLEGRO_TRANSFORM *matrix));
 AL_FUNC(bool, al_set_shader_int, (const char *name, int i));
 AL_FUNC(bool, al_set_shader_float, (const char *name, float f));
+AL_FUNC(bool, al_set_shader_double, (const char *name, double f));
 AL_FUNC(bool, al_set_shader_int_vector, (const char *name, int num_components,
    const int *i, int num_elems));
 AL_FUNC(bool, al_set_shader_float_vector, (const char *name, int num_components,
    const float *f, int num_elems));
+AL_FUNC(bool, al_set_shader_double_vector, (const char *name, int num_components,
+   const double *f, int num_elems));
 AL_FUNC(bool, al_set_shader_bool, (const char *name, bool b));
 
 AL_FUNC(char const *, al_get_default_shader_source, (ALLEGRO_SHADER_PLATFORM platform,
