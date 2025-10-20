@@ -1057,7 +1057,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 
 #if !defined(ALLEGRO_CFG_OPENGLES)
 #if defined(ALLEGRO_MACOSX)
-   if (disp->flags & (ALLEGRO_PROGRAMMABLE_PIPELINE | ALLEGRO_OPENGL_3_0)) {
+   if ((disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) && (disp->flags & ALLEGRO_OPENGL_3_0)) {
 #else
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #endif
