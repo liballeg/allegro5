@@ -187,6 +187,8 @@ macro(add_our_addon_library target framework_name sources extra_flags link_with)
         set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${extra_flags}")
     else()
         add_our_library(${target} ${framework_name} "${sources}" "${extra_flags}" "${link_with}")
+        target_include_directories(${target} INTERFACE
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
         if(ANDROID)
             record_android_load_libs(${target} "${link_with}")
         endif()
