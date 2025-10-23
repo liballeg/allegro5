@@ -1047,6 +1047,9 @@ if(NOT WANT_MONOLITH)
         "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
         "${PLATFORM_LIBS}"
         )
+    target_include_directories(allegro INTERFACE
+        $<BUILD_INTERFACE:include;${PROJECT_BINARY_DIR}/include>
+        )
 endif(NOT WANT_MONOLITH)
 
 # Addons and examples should link with this target.
@@ -1081,6 +1084,9 @@ if(WANT_MONOLITH)
         "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
         "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
         "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
+        )
+    target_include_directories(allegro_monolith INTERFACE
+        $<BUILD_INTERFACE:include;${PROJECT_BINARY_DIR}/include>
         )
 
     set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
@@ -1231,7 +1237,7 @@ set(PKG_NAME "Allegro")
 string(TOLOWER ${PKG_NAME} PKG_NAME_LOWER)
 
 set(PKG_CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PKG_NAME_LOWER}")
-set(PKG_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(PKG_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake")
 set(PKG_TARGETS_NAME "${PKG_NAME}Targets")
 set(PKG_CONFIG_FILE "${PKG_GENERATED_DIR}/${PKG_NAME}Config.cmake")
 set(PKG_VERSION_FILE "${PKG_GENERATED_DIR}/${PKG_NAME}ConfigVersion.cmake")
@@ -1261,6 +1267,11 @@ install(
   DESTINATION ${PKG_CONFIG_INSTALL_DIR}
 )
 
+# Export build tree to ease development and debugging
+export(EXPORT ${PKG_TARGETS_NAME}
+  FILE "${PKG_GENERATED_DIR}/${PKG_NAME}Targets.cmake"
+  NAMESPACE ${PKG_NAME}::
+)
 
 #-----------------------------------------------------------------------------#
 #
