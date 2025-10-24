@@ -1,7 +1,39 @@
 name: Tests
 on: [push, pull_request]
 jobs:
-    windows_test:
+    windows_msvc_test:
+        name: Windows (MSVC) tests
+        runs-on: windows-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v1
+              with:
+                  fetch-depth: 1
+            - name: Install vcpkg
+              shell: cmd
+              run: |
+                  git clone https://github.com/microsoft/vcpkg.git
+                  cd vcpkg
+                  bootstrap-vcpkg.bat
+            - name: Install Dependencies
+              shell: cmd
+              run: |
+                  cd vcpkg
+                  vcpkg.exe install bzip2 freetype[core] libflac libjpeg-turbo libogg libpng libtheora libvorbis libwebp[core] minimp3 openal-soft opus opusfile physfs zlib directxsdk
+            - name: Configure
+              shell: cmd
+              run: |
+                  set VCPKG_ROOT=${{ github.workspace }}/vcpkg
+                  set PATH=%VCPKG_ROOT%;%PATH%
+                  mkdir build
+                  cd build
+                  cmake .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DWANT_DOCS=off -DSHARED=off -DD3DX9_INCLUDE_DIR=%VCPKG_ROOT%/installed/x64-windows/include/directxsdk -DD3DX9_LIBRARY=%VCPKG_ROOT%/installed/x64-windows/lib/d3dx9.lib
+            - name: Build
+              shell: cmd
+              run: |
+                  cd build
+                  cmake --build . --config RelWithDebInfo
+    windows_msys2_test:
         name: Windows (MSYS2) tests
         runs-on: windows-latest
         steps:
