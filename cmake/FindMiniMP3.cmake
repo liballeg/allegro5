@@ -7,6 +7,7 @@
 # Look for the header file.
 find_path(MINIMP3_INCLUDE_DIRS
     NAMES minimp3.h minimp3_ex.h
+    PATHS minimp3
 )
 mark_as_advanced(MINIMP3_INCLUDE_DIRS)
 
