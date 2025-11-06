@@ -63,8 +63,14 @@ struct ALLEGRO_DISPLAY_INTERFACE
    bool (*set_display_flag)(ALLEGRO_DISPLAY *display, int flag, bool onoff);
    void (*set_window_title)(ALLEGRO_DISPLAY *display, const char *title);
 
+   /* Old batching api. */
    void (*flush_vertex_cache)(ALLEGRO_DISPLAY *d);
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
+
+   /* New batching api. */
+   /* TODO: uint16_t is probably a bad choice... */
+   uint16_t (*prepare_batch)(ALLEGRO_DISPLAY* d, int num_new_vertices, int num_new_indices, void **vertices, uint16_t **indices);
+   void (*draw_batch)(ALLEGRO_DISPLAY *d);
 
    void (*update_transformation)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *target);
 
@@ -149,11 +155,26 @@ struct ALLEGRO_DISPLAY
    /* A list of bitmaps created for this display, sub-bitmaps not included. */
    _AL_VECTOR bitmaps;
 
+   /* Old batching api. */
    int num_cache_vertices;
    bool cache_enabled;
    int vertex_cache_size;
    void* vertex_cache;
    uintptr_t cache_texture;
+
+   /* New batching api.*/
+   ALLEGRO_VERTEX_BUFFER *batch_vertex_buffer;
+   ALLEGRO_INDEX_BUFFER *batch_index_buffer;
+   void *batch_vertices;
+   uint16_t *batch_indices;
+   int batch_vertices_length;
+   int batch_indices_length;
+   int batch_vertices_capacity;
+   int batch_indices_capacity;
+   bool batch_enabled;
+
+   /* Wait, is this right? How does this work for sub-bitmaps? */
+   ALLEGRO_BITMAP *batch_texture;
 
    ALLEGRO_BLENDER cur_blender;
 

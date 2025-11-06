@@ -292,6 +292,74 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 #undef SWAP
 
 
+static void draw_quad_new(ALLEGRO_BITMAP *bitmap,
+    ALLEGRO_COLOR tint,
+    float sx, float sy, float sw, float sh,
+    int flags)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   ALLEGRO_VERTEX *vtx;
+   uint16_t *idx;
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
+
+   (void)flags;
+
+   if (disp->batch_vertices_length != 0 && disp->batch_texture != bitmap) {
+      disp->vt->draw_batch(disp);
+   }
+   disp->batch_texture = bitmap;
+
+   uint16_t first_idx = disp->vt->prepare_batch(disp, 4, 6, (void**)&vtx, &idx);
+
+   vtx[0].x = 0;
+   vtx[0].y = sh;
+   vtx[0].z = 0;
+   vtx[0].u = sx;
+   vtx[0].v = sy + sh;
+   vtx[0].color = tint;
+
+   vtx[1].x = 0;
+   vtx[1].y = 0;
+   vtx[1].z = 0;
+   vtx[1].u = sx;
+   vtx[1].v = sy;
+   vtx[1].color = tint;
+
+   vtx[2].x = sw;
+   vtx[2].y = sh;
+   vtx[2].z = 0;
+   vtx[2].u = sx + sw;
+   vtx[2].v = sy + sh;
+   vtx[2].color = tint;
+
+   vtx[3].x = sw;
+   vtx[3].y = 0;
+   vtx[3].z = 0;
+   vtx[3].u = sx + sw;
+   vtx[3].v = sy;
+   vtx[3].color = tint;
+
+   if (disp->cache_enabled) {
+      /* If drawing is batched, we apply transformations manually. */
+      transform_vertex(&vtx[0].x, &vtx[0].y, &vtx[0].z);
+      transform_vertex(&vtx[1].x, &vtx[1].y, &vtx[1].z);
+      transform_vertex(&vtx[2].x, &vtx[2].y, &vtx[2].z);
+      transform_vertex(&vtx[3].x, &vtx[3].y, &vtx[3].z);
+   }
+
+   idx[0] = first_idx + 0;
+   idx[1] = first_idx + 1;
+   idx[2] = first_idx + 2;
+   idx[3] = first_idx + 1;
+   idx[4] = first_idx + 2;
+   idx[5] = first_idx + 3;
+
+   if (!disp->cache_enabled) {
+      disp->vt->draw_batch(disp);
+   }
+}
+
+
 static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint, float sx, float sy,
    float sw, float sh, int flags)
@@ -372,6 +440,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    }
    if (disp->ogl_extras->opengl_target == target) {
       draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
+      //draw_quad_new(bitmap, tint, sx, sy, sw, sh, flags);
       return;
    }
 
