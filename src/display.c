@@ -91,6 +91,11 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->render_state.alpha_function = ALLEGRO_RENDER_ALWAYS;
    display->render_state.alpha_test_value = 0;
 
+   const char* use_legacy_drawing_api_str =
+      al_get_config_value(al_get_system_config(), "compatibility", "use_legacy_drawing_api");
+   if (use_legacy_drawing_api_str && strcmp(use_legacy_drawing_api_str, "true") == 0)
+      display->use_legacy_drawing_api = true;
+
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    if (settings->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
@@ -531,8 +536,10 @@ void al_hold_bitmap_drawing(bool hold)
       }
 
       if (!hold) {
-         //current_display->vt->flush_vertex_cache(current_display);
-         current_display->vt->draw_batch(current_display);
+         if (current_display->use_legacy_drawing_api)
+            current_display->vt->flush_vertex_cache(current_display);
+         else
+            current_display->vt->draw_batch(current_display);
          /*
           * Reset the hardware transform to match the stored transform.
           */

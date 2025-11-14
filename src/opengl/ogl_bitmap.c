@@ -455,8 +455,10 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
       }
    }
    if (disp->ogl_extras->opengl_target == target) {
-      //draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
-      draw_quad_new(bitmap, tint, sx, sy, sw, sh, flags);
+      if (disp->use_legacy_drawing_api)
+         draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
+      else
+         draw_quad_new(bitmap, tint, sx, sy, sw, sh, flags);
       return;
    }
 

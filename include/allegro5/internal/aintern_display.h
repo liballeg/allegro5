@@ -189,6 +189,8 @@ struct ALLEGRO_DISPLAY
 
    /* Issue #725 */
    bool use_constraints;
+
+   bool use_legacy_drawing_api;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
