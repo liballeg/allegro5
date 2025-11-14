@@ -297,6 +297,7 @@ static void draw_quad_new(ALLEGRO_BITMAP *bitmap,
     float sx, float sy, float sw, float sh,
     int flags)
 {
+   float tex_l, tex_t, tex_r, tex_b, w, h, true_w, true_h;
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_VERTEX *vtx;
    uint16_t *idx;
@@ -311,32 +312,47 @@ static void draw_quad_new(ALLEGRO_BITMAP *bitmap,
 
    uint16_t first_idx = disp->vt->prepare_batch(disp, 4, 6, (void**)&vtx, &idx);
 
+   tex_l = ogl_bitmap->left;
+   tex_r = ogl_bitmap->right;
+   tex_t = ogl_bitmap->top;
+   tex_b = ogl_bitmap->bottom;
+
+   w = bitmap->w;
+   h = bitmap->h;
+   true_w = ogl_bitmap->true_w;
+   true_h = ogl_bitmap->true_h;
+
+   tex_l += sx / true_w;
+   tex_t -= sy / true_h;
+   tex_r -= (w - sx - sw) / true_w;
+   tex_b += (h - sy - sh) / true_h;
+
    vtx[0].x = 0;
    vtx[0].y = sh;
    vtx[0].z = 0;
-   vtx[0].u = sx;
-   vtx[0].v = sy + sh;
+   vtx[0].u = tex_l;
+   vtx[0].v = tex_b;
    vtx[0].color = tint;
 
    vtx[1].x = 0;
    vtx[1].y = 0;
    vtx[1].z = 0;
-   vtx[1].u = sx;
-   vtx[1].v = sy;
+   vtx[1].u = tex_l;
+   vtx[1].v = tex_t;
    vtx[1].color = tint;
 
    vtx[2].x = sw;
    vtx[2].y = sh;
    vtx[2].z = 0;
-   vtx[2].u = sx + sw;
-   vtx[2].v = sy + sh;
+   vtx[2].u = tex_r;
+   vtx[2].v = tex_b;
    vtx[2].color = tint;
 
    vtx[3].x = sw;
    vtx[3].y = 0;
    vtx[3].z = 0;
-   vtx[3].u = sx + sw;
-   vtx[3].v = sy;
+   vtx[3].u = tex_r;
+   vtx[3].v = tex_t;
    vtx[3].color = tint;
 
    if (disp->cache_enabled) {
