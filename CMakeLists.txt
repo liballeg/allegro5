@@ -211,7 +211,8 @@ endif()
 #
 
 if(NOT IPHONE)
-    option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
+    set(WANT_ALLOW_SSE off CACHE STRING "Allow compiler to use SSE instructions (x86)")
+    set_property(CACHE WANT_ALLOW_SSE PROPERTY STRINGS off sse sse2 avx avx2)
 endif(NOT IPHONE)
 
 option(NO_FPU "No floating point unit" off)
@@ -396,24 +397,18 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "i.86")
     set(ARCH_X86 1)
 endif()
 # CMake reports "x86" on my Windows Vista machine
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
     set(ARCH_X86 1)
 endif()
 
 if(ARCH_X86 AND WANT_ALLOW_SSE)
-    if(COMPILER_GCC_OR_CLANG)
-        message(STATUS "Allowing GCC/Clang to use SSE instructions")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse")
-    endif(COMPILER_GCC_OR_CLANG)
-
-    # Flags for other compilers should be added here.
-
-    if(COMPILER_MSVC)
-        message(STATUS "Allowing MSVC to use SSE instructions")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE")
-    endif(COMPILER_MSVC)
+    string(TOUPPER ${WANT_ALLOW_SSE} arch_uc)
+    message(STATUS "Allowing compiler to use ${arch_uc} instructions")
+    add_compile_options(
+        $<$<BOOL:${COMPILER_GCC_OR_CLANG}>:-m${WANT_ALLOW_SSE}>
+        $<$<BOOL:${COMPILER_MSVC}>:/arch:${arch_uc}>
+        # Flags for other compilers should be added here.
+        )
 endif()
 
 #-----------------------------------------------------------------------------#
