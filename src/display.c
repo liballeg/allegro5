@@ -531,7 +531,8 @@ void al_hold_bitmap_drawing(bool hold)
       }
 
       if (!hold) {
-         current_display->vt->flush_vertex_cache(current_display);
+         //current_display->vt->flush_vertex_cache(current_display);
+         current_display->vt->draw_batch(current_display);
          /*
           * Reset the hardware transform to match the stored transform.
           */
