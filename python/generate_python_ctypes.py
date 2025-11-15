@@ -47,6 +47,8 @@ class Allegro:
             "intptr_t": c_void_p,
             "GLuint": c_uint,
             "unsignedlong": c_ulong,
+            "signedlonglong": c_longlong,
+            "unsignedlonglong": c_ulonglong,
             "long": c_long,
             "size_t": c_size_t,
             "off_t": c_int64,
@@ -397,7 +399,8 @@ def _add_dll(name):
 
     try:
         # RTLD_GLOBAL is required under OSX for some reason (?)
-        _dlls.append(CDLL(path, RTLD_GLOBAL))
+        # winmode=0 suppresses security restriction to load from CWD
+        _dlls.append(CDLL(path, RTLD_GLOBAL, winmode=0))
     except OSError:
         # No need to fail here, might just be one of the addons.
         pass
@@ -472,6 +475,11 @@ else:
             f.write(name + " = " + x.__name__ + "\n")
         else:
              structs.add(name)
+
+    f.write("""
+# for prototypes with a pointer to enum
+LP_{0} = POINTER({0})
+\n""".format(c_int.__name__))
 
     # order structs and unions by their dependencies
     structs_list = []
