@@ -45,15 +45,15 @@ def check_references():
 
 def add_struct(line):
     if options.protos:
-        kind = re.match("\s*(\w+)", line).group(1)
+        kind = re.match(r"\s*(\w+)", line).group(1)
         if kind in ["typedef", "struct", "enum", "union"]:
             mob = None
             if kind != "typedef":
-                mob = re.match(kind + "\s+(\w+)", line)
+                mob = re.match(rf"{kind}\s+(\w+)", line)
             if not mob:
-                mob = re.match(".*?(\w+);$", line)
+                mob = re.match(r".*?(\w+);$", line)
             if not mob and kind == "typedef":
-                mob = re.match("typedef.*?\(\s*\*\s*(\w+)\)", line)
+                mob = re.match(r"typedef.*?\(\s*\*\s*(\w+)\)", line)
             if not mob:
                 anonymous_enums[line] = 1
             else:
@@ -132,7 +132,10 @@ def parse_header(lines, filename):
                 cline = ""
 
     for line in lines2:
-        line = line.replace("__attribute__((__stdcall__))", "")
+        line = line.replace("__attribute__((__stdcall__)) ", "") \
+                   .replace("__attribute__((__cdecl__)) ", "")   \
+                   .replace("__attribute__((dllimport)) ", "")
+
         if line.startswith("enum"):
             add_struct(line)
         elif line.startswith("typedef"):
