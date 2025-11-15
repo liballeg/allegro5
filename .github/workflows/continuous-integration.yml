@@ -5,119 +5,175 @@ jobs:
         name: Windows (MSVC) tests
         runs-on: windows-latest
         steps:
-            - name: Checkout
+            - name: 💳 Checkout
               uses: actions/checkout@v1
               with:
                   fetch-depth: 1
-            - name: Install vcpkg
+            - name: 💾 Cache dependencies
+              uses: actions/cache@v4
+              with:
+                path: C:\vcpkg\installed
+                key: ${{ runner.os }}-vcpkg
+            - name: 🌳 Install dependencies
+              run: >-
+                  vcpkg install
+                  bzip2
+                  freetype[core]
+                  libflac
+                  libjpeg-turbo
+                  libogg
+                  libpng
+                  libtheora
+                  libvorbis
+                  libwebp[core]
+                  minimp3
+                  openal-soft
+                  opus
+                  opusfile
+                  physfs
+                  zlib
+                  directxsdk
+            - name: ⚙️ Configure
               shell: cmd
-              run: |
-                  git clone https://github.com/microsoft/vcpkg.git
-                  cd vcpkg
-                  bootstrap-vcpkg.bat
-            - name: Install Dependencies
-              shell: cmd
-              run: |
-                  cd vcpkg
-                  vcpkg.exe install bzip2 freetype[core] libflac libjpeg-turbo libogg libpng libtheora libvorbis libwebp[core] minimp3 openal-soft opus opusfile physfs zlib directxsdk
-            - name: Configure
-              shell: cmd
-              run: |
-                  set VCPKG_ROOT=${{ github.workspace }}/vcpkg
-                  set PATH=%VCPKG_ROOT%;%PATH%
-                  mkdir build
-                  cd build
-                  cmake .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DWANT_DOCS=off -DSHARED=off -DD3DX9_INCLUDE_DIR=%VCPKG_ROOT%/installed/x64-windows/include/directxsdk -DD3DX9_LIBRARY=%VCPKG_ROOT%/installed/x64-windows/lib/d3dx9.lib
-            - name: Build
-              shell: cmd
-              run: |
-                  cd build
-                  cmake --build . --config RelWithDebInfo
+              env:
+                  VCPKG_ROOT: C:/vcpkg
+              run: >-
+                  cmake -B build -S .
+                  -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
+                  -DWANT_DOCS=off
+                  -DSHARED=off
+                  -DWANT_PYTHON_WRAPPER=1
+            - name: ⚒️ Build
+              run: cmake --build build --config RelWithDebInfo
     windows_msys2_test:
         name: Windows (MSYS2) tests
         runs-on: windows-latest
         steps:
-            - name: Checkout
+            - name: 💳 Checkout
               uses: actions/checkout@v1
               with:
                   fetch-depth: 1
-            - uses: msys2/setup-msys2@v2
-            - name: Setup
+            - name: 🚧 Setup msys2
+              uses: msys2/setup-msys2@v2
+              with:
+                  msystem: MINGW64
+                  update: false
+                  install: >-
+                      mingw-w64-x86_64-gcc
+                      mingw-w64-x86_64-cmake
+                      mingw-w64-x86_64-ninja
+                      make
+                      mingw-w64-x86_64-physfs
+                      mingw-w64-x86_64-freetype
+                      mingw-w64-x86_64-libvorbis
+                      mingw-w64-x86_64-flac
+                      mingw-w64-x86_64-dumb
+                      mingw-w64-x86_64-libtheora
+                      mingw-w64-x86_64-libjpeg-turbo
+                      mingw-w64-x86_64-opusfile
+                      mingw-w64-x86_64-enet
+                      mingw-w64-x86_64-libwebp
+                      mingw-w64-x86_64-libopenmpt
+            - name: ⚙️ Configure
               shell: msys2 {0}
-              run: |
-                  pacman --noconfirm -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake make mingw-w64-x86_64-physfs mingw-w64-x86_64-freetype mingw-w64-x86_64-libvorbis mingw-w64-x86_64-flac mingw-w64-x86_64-dumb mingw-w64-x86_64-libtheora mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-opusfile mingw-w64-x86_64-enet mingw-w64-x86_64-libwebp mingw-w64-x86_64-libopenmpt
-                  mkdir build
-            - name: Configure
+              run: cmake -B build -S . -G Ninja
+            - name: ⚒️ Build
               shell: msys2 {0}
-              run: |
-                  cd build
-                  cmake .. -G"MSYS Makefiles"
-            - name: Build
-              shell: msys2 {0}
-              run: |
-                  cd build
-                  make -j2
+              run: cmake --build build
     osx_test:
         name: OSX tests
         runs-on: macos-14
         steps:
-            - name: Checkout
+            - name: 💳 Checkout
               uses: actions/checkout@v1
               with:
                   fetch-depth: 1
-            - name: Setup
-              run: |
-                  brew update && brew install opusfile libvorbis freetype flac physfs dumb theora enet libopenmpt
-                  mkdir build
-            - name: Configure
-              run: |
-                  cd build
-                  cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL -G Xcode
-            - name: Build
-              run: |
-                  cd build
-                  xcodebuild
+            - name: 💾 Cache dependencies
+              uses: actions/cache@v4
+              with:
+                path: ~/Library/Caches/Homebrew/downloads
+                key: ${{ runner.os }}-brew
+            - name: 🚧 Setup
+              env:
+                HOMEBREW_NO_AUTO_UPDATE: 1
+              run: >-
+                  brew install
+                  opusfile
+                  libvorbis
+                  freetype
+                  flac
+                  physfs
+                  dumb
+                  theora
+                  enet
+                  libopenmpt
+            - name: ⚙️ Configure
+              run: cmake -B build -S . -DWANT_SHADERS_GL=$WANT_SHADERS_GL -G Xcode
+            - name: ⚒️ Build
+              run: cmake --build build --config Debug
     ubuntu_test:
         name: Ubuntu tests
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout
+            - name: 💳 Checkout
               uses: actions/checkout@v1
               with:
                   fetch-depth: 1
-            - name: Setup
+            - name: 💾 Cache test bitmaps
+              uses: actions/cache@v4
+              with:
+                path: build/tests/*.zip
+                key: bitmaps
+            - name: 🚧 Setup
+              run: >-
+                  sudo apt-get install -qq -y -o=Dpkg::Use-Pty=0
+                  xvfb
+                  libvorbis-dev
+                  libtheora-dev
+                  libwebp-dev
+                  libphysfs-dev
+                  libopusfile-dev
+                  libdumb1-dev
+                  libflac-dev
+                  libpulse-dev
+                  libgtk-3-dev
+                  pandoc
+                  libcurl4-openssl-dev
+                  libenet-dev
+                  pulseaudio
+                  libasound2-dev
+                  libopenal-dev
+                  libgl1-mesa-dev
+                  libglu-dev
+                  libopenmpt-dev
+            - name: ⚙️ Configure
+              run: >-
+                  cmake -B build -S .
+                  -DCMAKE_BUILD_TYPE=Debug
+                  -DWANT_SHADERS_GL=on
+                  -DWANT_CURL_EXAMPLE=on
+                  -DWANT_PYTHON_WRAPPER=on
+            - name: ⚒️ Build
+              run: cmake --build build
+            - name: 🚀 Run test_driver
               run: |
-                  sudo apt-get update
-                  sudo apt-get install -y xvfb libvorbis-dev libtheora-dev libwebp-dev libphysfs-dev libopusfile-dev libdumb1-dev libflac-dev libpulse-dev libgtk-3-dev pandoc libcurl4-openssl-dev libenet-dev pulseaudio libasound2-dev libopenal-dev libgl1-mesa-dev libglu-dev libopenmpt-dev;
-                  mkdir build
                   cd build
                   . ../tests/grab_bitmap_suites.sh
-            - name: Configure
-              run: |
-                  cd build
-                  cmake .. -DCMAKE_BUILD_TYPE=Debug -DWANT_SHADERS_GL=on -DWANT_CURL_EXAMPLE=on -DWANT_PYTHON_WRAPPER=1
-            - name: Build
-              run: |
-                  cd build
-                  make -j2
-            - name: Run test_driver
-              run: |
-                  cd build
                   find ../tests -name '*.ini' | grep -v 'compressed' | xargs xvfb-run tests/test_driver --save_on_failure --xvfb | tee /tmp/test_out || true
                   mkdir -p test_outputs
                   mv *.png test_outputs
                   grep -q 'failed tests: 0' /tmp/test_out
-            - name: Run other tests
+            - name: 🧪 Run other tests
               run: |
                   cd build
                   make run_standalone_tests
-            - name: Upload artifacts
+            - name: 🩺 Upload artifacts
               if: failure()
               uses: actions/upload-artifact@v4
               with:
                   name: bitmaps
                   path: build/test_outputs
-            - name: Run install_test
+            - name: 🚚 Run install_test
               run: |
                   cd build
                   sudo make install
@@ -125,7 +181,7 @@ jobs:
                   gcc ../misc/install_test.c -o install_test $(pkg-config --cflags --libs allegro_image-debug-5 allegro_ttf-debug-5 allegro_acodec-debug-5 allegro_dialog-debug-5 allegro_primitives-debug-5 allegro_video-debug-5)
                   pulseaudio -D
                   xvfb-run ./install_test
-            - name: Test Python wrapper
+            - name: 🐍 Test Python wrapper
               run: |
                   cd build
                   python python/allegro.py
