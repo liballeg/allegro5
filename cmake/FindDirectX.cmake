@@ -69,6 +69,7 @@ macro(find_component name header library)
                 Include/shared
                 um
                 shared
+                directxsdk
             PATHS
                 "$ENV{DXSDK_DIR}"
                 ${WINSDK_ROOT_DIR}
