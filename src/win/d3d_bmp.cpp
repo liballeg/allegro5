@@ -237,6 +237,80 @@ static void d3d_draw_textured_quad(
       aldisp->vt->flush_vertex_cache(aldisp);
 }
 
+static void d3d_draw_textured_quad_new(
+   ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
+   float sx, float sy, float sw, float sh, int flags)
+{
+   float tex_l, tex_t, tex_r, tex_b, w, h, true_w, true_h;
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bitmap = get_extra(bitmap);
+   ALLEGRO_VERTEX *vtx;
+   int *idx;
+
+   (void)flags;
+
+   if (disp->batch_vertices_length != 0 && disp->batch_texture != bitmap) {
+      disp->vt->draw_batch(disp);
+   }
+   disp->batch_texture = bitmap;
+
+   int first_idx = disp->vt->prepare_batch(disp, 4, 6, (void**)&vtx, (void**)&idx);
+
+   float texture_w = d3d_bitmap->texture_w;
+   float texture_h = d3d_bitmap->texture_h;
+
+   tex_l = sx / texture_w;
+   tex_t = sy / texture_h;
+   tex_r = (sx + sw) / texture_w;
+   tex_b = (sy + sh) / texture_h;
+
+   vtx[0].x = 0;
+   vtx[0].y = sh;
+   vtx[0].z = 0;
+   vtx[0].u = tex_l;
+   vtx[0].v = tex_b;
+   vtx[0].color = tint;
+
+   vtx[1].x = 0;
+   vtx[1].y = 0;
+   vtx[1].z = 0;
+   vtx[1].u = tex_l;
+   vtx[1].v = tex_t;
+   vtx[1].color = tint;
+
+   vtx[2].x = sw;
+   vtx[2].y = sh;
+   vtx[2].z = 0;
+   vtx[2].u = tex_r;
+   vtx[2].v = tex_b;
+   vtx[2].color = tint;
+
+   vtx[3].x = sw;
+   vtx[3].y = 0;
+   vtx[3].z = 0;
+   vtx[3].u = tex_r;
+   vtx[3].v = tex_t;
+   vtx[3].color = tint;
+
+   if (disp->cache_enabled) {
+      /* If drawing is batched, we apply transformations manually. */
+      transform_vertex(&vtx[0].x, &vtx[0].y, &vtx[0].z);
+      transform_vertex(&vtx[1].x, &vtx[1].y, &vtx[1].z);
+      transform_vertex(&vtx[2].x, &vtx[2].y, &vtx[2].z);
+      transform_vertex(&vtx[3].x, &vtx[3].y, &vtx[3].z);
+   }
+
+   idx[0] = first_idx + 0;
+   idx[1] = first_idx + 1;
+   idx[2] = first_idx + 2;
+   idx[3] = first_idx + 1;
+   idx[4] = first_idx + 2;
+   idx[5] = first_idx + 3;
+
+   if (!disp->cache_enabled) {
+      disp->vt->draw_batch(disp);
+   }
+}
+
 /* Copy texture memory to bitmap->memory */
 static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
 {
@@ -815,9 +889,17 @@ static void d3d_draw_bitmap_region(
 
    _al_d3d_set_blender(d3d_dest->display);
 
-   d3d_draw_textured_quad(
-      d3d_dest->display, src, tint,
-      sx, sy, sw, sh, flags);
+   ALLEGRO_DISPLAY* al_disp = (ALLEGRO_DISPLAY*)d3d_dest->display;
+   if (al_disp->use_legacy_drawing_api) {
+      d3d_draw_textured_quad(
+         d3d_dest->display, src, tint,
+         sx, sy, sw, sh, flags);
+   }
+   else {
+      d3d_draw_textured_quad_new(
+         al_disp, src, tint,
+         sx, sy, sw, sh, flags);
+   }
 }
 
 static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,

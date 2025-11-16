@@ -52,6 +52,7 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
    } else {
       ogl->backbuffer = _al_ogl_create_backbuffer(d);
    }
+   d->index_size = 2;
 }
 
 

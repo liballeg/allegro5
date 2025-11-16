@@ -68,8 +68,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
 
    /* New batching api. */
-   /* TODO: uint16_t is probably a bad choice... */
-   uint16_t (*prepare_batch)(ALLEGRO_DISPLAY* d, int num_new_vertices, int num_new_indices, void **vertices, uint16_t **indices);
+   int (*prepare_batch)(ALLEGRO_DISPLAY* d, int num_new_vertices, int num_new_indices, void **vertices, void **indices);
    void (*draw_batch)(ALLEGRO_DISPLAY *d);
 
    void (*update_transformation)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *target);
@@ -163,10 +162,13 @@ struct ALLEGRO_DISPLAY
    uintptr_t cache_texture;
 
    /* New batching api.*/
+   /* TODO: Destroy this */
+   ALLEGRO_VERTEX_DECL *bitmap_vertex_decl;
+   int index_size;
    ALLEGRO_VERTEX_BUFFER *batch_vertex_buffer;
    ALLEGRO_INDEX_BUFFER *batch_index_buffer;
    void *batch_vertices;
-   uint16_t *batch_indices;
+   void *batch_indices;
    int batch_vertices_length;
    int batch_indices_length;
    int batch_vertices_capacity;

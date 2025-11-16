@@ -1945,6 +1945,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    _al_win_post_create_window(display);
 
+   display->index_size = 4;
+
    return display;
 }
 
@@ -2895,6 +2897,101 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    d3d_disp->device->SetTexture(0, NULL);
 }
 
+static int d3d_prepare_batch(ALLEGRO_DISPLAY* disp, int num_new_vertices, int num_new_indices, void **vertices, void **indices)
+{
+   int first_index = disp->batch_vertices_length;
+   disp->batch_vertices_length += num_new_vertices;
+   // TODO: We have to bail out here based on size.
+   if (!disp->batch_vertices) {
+      disp->batch_vertices = al_malloc(num_new_vertices * sizeof(ALLEGRO_VERTEX));
+      disp->batch_vertices_capacity = num_new_vertices;
+   }
+   else {
+      bool do_realloc = false;
+      while (disp->batch_vertices_length > disp->batch_vertices_capacity) {
+         disp->batch_vertices_capacity *= 2;
+         do_realloc = true;
+      }
+      if (do_realloc)
+         disp->batch_vertices = al_realloc(disp->batch_vertices, disp->batch_vertices_capacity * sizeof(ALLEGRO_VERTEX));
+   }
+   *vertices = (ALLEGRO_VERTEX*)disp->batch_vertices + (disp->batch_vertices_length - num_new_vertices);
+
+   disp->batch_indices_length += num_new_indices;
+   if (!disp->batch_indices) {
+      disp->batch_indices = al_malloc(num_new_indices * disp->index_size);
+      disp->batch_indices_capacity = num_new_indices;
+   }
+   else {
+      bool do_realloc = false;
+      while (disp->batch_indices_length > disp->batch_indices_capacity) {
+         disp->batch_indices_capacity *= 2;
+         do_realloc = true;
+      }
+      if (do_realloc)
+         disp->batch_indices = al_realloc(disp->batch_indices, disp->batch_indices_capacity * disp->index_size);
+   }
+   *indices = (char*)disp->batch_indices + disp->index_size * (disp->batch_indices_length - num_new_indices);
+   return first_index;
+}
+
+static void d3d_draw_batch(ALLEGRO_DISPLAY *disp)
+{
+   ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
+
+   if (use_fixed_pipeline) {
+      _al_draw_indexed_prim(disp->batch_vertices, NULL, disp->batch_texture, (const int*)disp->batch_indices, disp->batch_indices_length, ALLEGRO_PRIM_TRIANGLE_LIST);
+   }
+   else {
+      if (!disp->bitmap_vertex_decl) {
+         const ALLEGRO_VERTEX_ELEMENT elems[] = {
+            {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
+            {_ALLEGRO_PRIM_TEX_COORD_INTERNAL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
+            {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
+            {0, 0, 0}
+         };
+         disp->bitmap_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+      }
+
+      if (disp->batch_vertices_length == 0)
+         goto exit;
+      if (disp->batch_indices_length == 0)
+         goto exit;
+      if (d3d_disp->device_lost)
+         return;
+
+      if (!disp->batch_vertex_buffer) {
+         disp->batch_vertex_buffer = _al_create_vertex_buffer(disp->bitmap_vertex_decl, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
+      }
+      if (!disp->batch_vertex_buffer)
+         goto exit;
+
+      if (!disp->batch_index_buffer)
+         disp->batch_index_buffer = _al_create_index_buffer(disp->index_size, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
+      if (!disp->batch_index_buffer)
+         goto exit;
+
+      void *batch_vertices = _al_lock_vertex_buffer(disp->batch_vertex_buffer, 0, disp->batch_vertices_length, ALLEGRO_LOCK_WRITEONLY);
+      if (!batch_vertices)
+         goto exit;
+      void *batch_indices = _al_lock_index_buffer(disp->batch_index_buffer, 0, disp->batch_indices_length, ALLEGRO_LOCK_WRITEONLY);
+      if (!batch_indices)
+         goto exit;
+
+      memcpy(batch_vertices, disp->batch_vertices, disp->batch_vertices_length * sizeof(ALLEGRO_VERTEX));
+      memcpy(batch_indices, disp->batch_indices, disp->batch_indices_length * disp->index_size);
+
+      _al_unlock_vertex_buffer(disp->batch_vertex_buffer);
+      _al_unlock_index_buffer(disp->batch_index_buffer);
+
+      _al_draw_indexed_buffer(disp->batch_vertex_buffer, disp->batch_texture, disp->batch_index_buffer, 0, disp->batch_indices_length, ALLEGRO_PRIM_TRIANGLE_LIST);
+   }
+
+exit:
+   disp->batch_vertices_length = 0;
+   disp->batch_indices_length = 0;
+}
+
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
 {
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
@@ -3066,21 +3163,27 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
       d3d_texture->GetLevelDesc(0, &desc);
       al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
+      mat[2][0] = (float)tex_x / desc.Width;
+      mat[2][1] = (float)tex_y / desc.Height;
+      
       if(decl) {
          if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
             mat[0][0] = 1.0f / desc.Width;
             mat[1][1] = 1.0f / desc.Height;
-         } else {
+         }
+         else if (decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL].attribute) {
+            mat[2][0] = 0.;
+            mat[2][1] = 0.;
+         }
+         else {
             mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
             mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
          }
-      } else {
+      }
+      else {
          mat[0][0] = 1.0f / desc.Width;
          mat[1][1] = 1.0f / desc.Height;
       }
-      mat[2][0] = (float)tex_x / desc.Width;
-      mat[2][1] = (float)tex_y / desc.Height;
-
 
       if (use_fixed_pipeline) {
          device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &state.old_ttf_state);
@@ -3570,6 +3673,8 @@ static bool d3d_create_vertex_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL
     e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
     if(!e->attribute)
       e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+    if(!e->attribute)
+      e = &decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL];
     if(e->attribute) {
       d3delements[idx].Stream = 0;
       d3delements[idx].Offset = e->offset;
@@ -3786,6 +3891,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 
    vt->flush_vertex_cache = d3d_flush_vertex_cache;
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
+   vt->prepare_batch = d3d_prepare_batch;
+   vt->draw_batch = d3d_draw_batch;
 
    vt->update_transformation = d3d_update_transformation;
 

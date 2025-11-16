@@ -152,9 +152,6 @@ typedef struct ALLEGRO_OGL_EXTRAS
    GLuint program_object;
    ALLEGRO_OGL_VARLOCS varlocs;
 
-   /* TODO destroy this */
-   ALLEGRO_VERTEX_DECL *bitmap_vertex_decl;
-
    /* For OpenGL 3.0+ we use a single vao. */
    GLuint vao;
 

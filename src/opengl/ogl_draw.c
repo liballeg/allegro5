@@ -1171,10 +1171,10 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       glDisable(GL_TEXTURE_2D);
    }
 }
-#include <stdio.h>
-static uint16_t ogl_prepare_batch(ALLEGRO_DISPLAY* disp, int num_new_vertices, int num_new_indices, void **vertices, uint16_t **indices)
+
+static int ogl_prepare_batch(ALLEGRO_DISPLAY* disp, int num_new_vertices, int num_new_indices, void **vertices, void **indices)
 {
-   uint16_t first_index = disp->batch_vertices_length;
+   int first_index = disp->batch_vertices_length;
    disp->batch_vertices_length += num_new_vertices;
    // TODO: We have to bail out here based on size.
    if (!disp->batch_vertices) {
@@ -1194,7 +1194,7 @@ static uint16_t ogl_prepare_batch(ALLEGRO_DISPLAY* disp, int num_new_vertices, i
 
    disp->batch_indices_length += num_new_indices;
    if (!disp->batch_indices) {
-      disp->batch_indices = al_malloc(num_new_indices * sizeof(uint16_t));
+      disp->batch_indices = al_malloc(num_new_indices * disp->index_size);
       disp->batch_indices_capacity = num_new_indices;
    }
    else {
@@ -1204,9 +1204,9 @@ static uint16_t ogl_prepare_batch(ALLEGRO_DISPLAY* disp, int num_new_vertices, i
          do_realloc = true;
       }
       if (do_realloc)
-         disp->batch_indices = al_realloc(disp->batch_indices, disp->batch_indices_capacity * sizeof(uint16_t));
+         disp->batch_indices = al_realloc(disp->batch_indices, disp->batch_indices_capacity * disp->index_size);
    }
-   *indices = disp->batch_indices + (disp->batch_indices_length - num_new_indices);
+   *indices = (char*)disp->batch_indices + disp->index_size * (disp->batch_indices_length - num_new_indices);
    return first_index;
 }
 
@@ -1214,14 +1214,14 @@ static void ogl_draw_batch(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
 
-   if (!o->bitmap_vertex_decl) {
+   if (!disp->bitmap_vertex_decl) {
       const ALLEGRO_VERTEX_ELEMENT elems[] = {
          {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
          {_ALLEGRO_PRIM_TEX_COORD_INTERNAL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
          {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
          {0, 0, 0}
       };
-      o->bitmap_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+      disp->bitmap_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
    }
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
@@ -1240,7 +1240,7 @@ static void ogl_draw_batch(ALLEGRO_DISPLAY *disp)
       goto exit;
 
    if (!disp->batch_vertex_buffer) {
-      disp->batch_vertex_buffer = _al_create_vertex_buffer(o->bitmap_vertex_decl, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
+      disp->batch_vertex_buffer = _al_create_vertex_buffer(disp->bitmap_vertex_decl, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
    }
    if (!disp->batch_vertex_buffer)
       goto exit;
