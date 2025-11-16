@@ -248,12 +248,7 @@ static void d3d_draw_textured_quad_new(
 
    (void)flags;
 
-   if (disp->batch_vertices_length != 0 && disp->batch_texture != bitmap) {
-      disp->vt->draw_batch(disp);
-   }
-   disp->batch_texture = bitmap;
-
-   int first_idx = disp->vt->prepare_batch(disp, 4, 6, (void**)&vtx, (void**)&idx);
+   int first_idx = disp->vt->prepare_batch(disp, bitmap, ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
 
    float texture_w = d3d_bitmap->texture_w;
    float texture_h = d3d_bitmap->texture_h;

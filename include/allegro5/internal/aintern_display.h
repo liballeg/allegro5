@@ -68,7 +68,8 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
 
    /* New batching api. */
-   int (*prepare_batch)(ALLEGRO_DISPLAY* d, int num_new_vertices, int num_new_indices, void **vertices, void **indices);
+   int (*prepare_batch)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *bitmap, ALLEGRO_PRIM_TYPE type,
+      int num_new_vertices, int num_new_indices, void **vertices, void **indices);
    void (*draw_batch)(ALLEGRO_DISPLAY *d);
 
    void (*update_transformation)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *target);
@@ -174,9 +175,9 @@ struct ALLEGRO_DISPLAY
    int batch_vertices_capacity;
    int batch_indices_capacity;
    bool batch_enabled;
-
    /* Wait, is this right? How does this work for sub-bitmaps? */
-   ALLEGRO_BITMAP *batch_texture;
+   ALLEGRO_BITMAP *batch_bitmap;
+   ALLEGRO_PRIM_TYPE batch_type;
 
    ALLEGRO_BLENDER cur_blender;
 
@@ -200,6 +201,10 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
 void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int importance);
 int  _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
 int  _al_display_settings_sorter(const void *p0, const void *p1);
+/* This two are internal implementation, call _al_prepare_batch/_al_draw_batch instead in non-implementation code. */
+int  _al_default_prepare_batch(ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_PRIM_TYPE type, int num_new_vertices, int num_new_indices, void **vertices, void **indices);
+void _al_default_draw_batch(ALLEGRO_DISPLAY *disp);
 
 int _al_get_suggested_display_option(ALLEGRO_DISPLAY *d,
    int option, int default_value);

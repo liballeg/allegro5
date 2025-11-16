@@ -305,12 +305,7 @@ static void draw_quad_new(ALLEGRO_BITMAP *bitmap,
 
    (void)flags;
 
-   if (disp->batch_vertices_length != 0 && disp->batch_texture != bitmap) {
-      disp->vt->draw_batch(disp);
-   }
-   disp->batch_texture = bitmap;
-
-   uint16_t first_idx = disp->vt->prepare_batch(disp, 4, 6, (void**)&vtx, (void**)&idx);
+   uint16_t first_idx = disp->vt->prepare_batch(disp, bitmap, ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
 
    tex_l = ogl_bitmap->left;
    tex_r = ogl_bitmap->right;

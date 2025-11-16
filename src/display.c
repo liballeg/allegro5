@@ -32,6 +32,8 @@
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
+#define MAX_BATCH_SIZE ((1 << 16) - 1)
+
 
 /* Function: al_create_display
  */
@@ -725,6 +727,109 @@ int al_get_display_adapter(ALLEGRO_DISPLAY *display)
       }
    }
    return -1;
+}
+
+int _al_default_prepare_batch(ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap, ALLEGRO_PRIM_TYPE type, int num_new_vertices, int num_new_indices, void **vertices, void **indices)
+{
+   if (disp->batch_vertices_length + num_new_vertices > MAX_BATCH_SIZE ||
+       disp->batch_indices_length + num_new_indices > MAX_BATCH_SIZE ||
+       bitmap != disp->batch_bitmap ||
+       type != disp->batch_type) {
+      if (disp->batch_vertices_length > 0)
+         disp->vt->draw_batch(disp);
+   }
+   if (num_new_vertices > MAX_BATCH_SIZE) {
+      ALLEGRO_ERROR("Exceeded maximum vertex batch size:  %d > %d\n", num_new_vertices, MAX_BATCH_SIZE);
+      return -1;
+   }
+   if (num_new_indices > MAX_BATCH_SIZE) {
+      ALLEGRO_ERROR("Exceeded maximum index batch size:  %d > %d\n", num_new_vertices, MAX_BATCH_SIZE);
+      return -1;
+   }
+   disp->batch_bitmap = bitmap;
+   disp->batch_type = type;
+   
+   int first_index = disp->batch_vertices_length;
+   disp->batch_vertices_length += num_new_vertices;
+   if (!disp->batch_vertices) {
+      disp->batch_vertices = al_malloc(num_new_vertices * sizeof(ALLEGRO_VERTEX));
+      disp->batch_vertices_capacity = num_new_vertices;
+   }
+   else {
+      bool do_realloc = false;
+      while (disp->batch_vertices_length > disp->batch_vertices_capacity) {
+         disp->batch_vertices_capacity *= 2;
+         do_realloc = true;
+      }
+      if (do_realloc)
+         disp->batch_vertices = al_realloc(disp->batch_vertices, disp->batch_vertices_capacity * sizeof(ALLEGRO_VERTEX));
+   }
+   *vertices = (ALLEGRO_VERTEX*)disp->batch_vertices + (disp->batch_vertices_length - num_new_vertices);
+
+   disp->batch_indices_length += num_new_indices;
+   if (!disp->batch_indices) {
+      disp->batch_indices = al_malloc(num_new_indices * disp->index_size);
+      disp->batch_indices_capacity = num_new_indices;
+   }
+   else {
+      bool do_realloc = false;
+      while (disp->batch_indices_length > disp->batch_indices_capacity) {
+         disp->batch_indices_capacity *= 2;
+         do_realloc = true;
+      }
+      if (do_realloc)
+         disp->batch_indices = al_realloc(disp->batch_indices, disp->batch_indices_capacity * disp->index_size);
+   }
+   *indices = (char*)disp->batch_indices + disp->index_size * (disp->batch_indices_length - num_new_indices);
+   return first_index;
+}
+
+void _al_default_draw_batch(ALLEGRO_DISPLAY *disp)
+{
+   if (!disp->bitmap_vertex_decl) {
+      const ALLEGRO_VERTEX_ELEMENT elems[] = {
+         {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
+         {_ALLEGRO_PRIM_TEX_COORD_INTERNAL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
+         {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
+         {0, 0, 0}
+      };
+      disp->bitmap_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+   }
+
+   if (disp->batch_vertices_length == 0)
+      goto exit;
+   if (disp->batch_indices_length == 0)
+      goto exit;
+
+   if (!disp->batch_vertex_buffer) {
+      disp->batch_vertex_buffer = _al_create_vertex_buffer(disp->bitmap_vertex_decl, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
+   }
+   if (!disp->batch_vertex_buffer)
+      goto exit;
+
+   if (!disp->batch_index_buffer)
+      disp->batch_index_buffer = _al_create_index_buffer(disp->index_size, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
+   if (!disp->batch_index_buffer)
+      goto exit;
+
+   void *batch_vertices = _al_lock_vertex_buffer(disp->batch_vertex_buffer, 0, disp->batch_vertices_length, ALLEGRO_LOCK_WRITEONLY);
+   if (!batch_vertices)
+      goto exit;
+   void *batch_indices = _al_lock_index_buffer(disp->batch_index_buffer, 0, disp->batch_indices_length, ALLEGRO_LOCK_WRITEONLY);
+   if (!batch_indices)
+      goto exit;
+
+   memcpy(batch_vertices, disp->batch_vertices, disp->batch_vertices_length * sizeof(ALLEGRO_VERTEX));
+   memcpy(batch_indices, disp->batch_indices, disp->batch_indices_length * disp->index_size);
+
+   _al_unlock_vertex_buffer(disp->batch_vertex_buffer);
+   _al_unlock_index_buffer(disp->batch_index_buffer);
+
+   _al_draw_indexed_buffer(disp->batch_vertex_buffer, disp->batch_bitmap, disp->batch_index_buffer, 0, disp->batch_indices_length, ALLEGRO_PRIM_TRIANGLE_LIST);
+
+exit:
+   disp->batch_vertices_length = 0;
+   disp->batch_indices_length = 0;
 }
 
 
