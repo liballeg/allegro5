@@ -4,6 +4,8 @@ jobs:
     windows_msvc_test:
         name: Windows (MSVC) tests
         runs-on: windows-latest
+        env:
+            VCPKG_ROOT: C:/vcpkg
         steps:
             - name: 💳 Checkout
               uses: actions/checkout@v1
@@ -12,7 +14,7 @@ jobs:
             - name: 💾 Cache dependencies
               uses: actions/cache@v4
               with:
-                path: C:\vcpkg\installed
+                path: ${{ env.VCPKG_ROOT }}/installed
                 key: ${{ runner.os }}-vcpkg
             - name: 🌳 Install dependencies
               run: >-
@@ -33,18 +35,28 @@ jobs:
                   physfs
                   zlib
                   directxsdk
-            - name: ⚙️ Configure
-              shell: cmd
-              env:
-                  VCPKG_ROOT: C:/vcpkg
+            - name: ⚙️ Configure static build
               run: >-
                   cmake -B build -S .
-                  -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
+                  -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
                   -DWANT_DOCS=off
                   -DSHARED=off
-                  -DWANT_PYTHON_WRAPPER=1
-            - name: ⚒️ Build
+            - name: ⚒️ Build static
               run: cmake --build build --config RelWithDebInfo
+            - name: ⚙️ Configure shared Debug build
+              run: >-
+                  cmake -B build_shared -S .
+                  -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+                  -DCMAKE_BUILD_TYPE="Debug;RelWithDebInfo"
+                  -DWANT_DOCS=off
+                  -DWANT_PYTHON_WRAPPER=on
+            - name: ⚒️ Build shared
+              run: cmake --build build_shared --config Debug
+            - name: 🐍 Test Python wrapper
+              run: |
+                  cp build_shared/python/allegro.py build_shared/lib/Debug/
+                  cd build_shared/lib/Debug
+                  python allegro.py
     windows_msys2_test:
         name: Windows (MSYS2) tests
         runs-on: windows-latest
@@ -76,10 +88,16 @@ jobs:
                       mingw-w64-x86_64-libopenmpt
             - name: ⚙️ Configure
               shell: msys2 {0}
-              run: cmake -B build -S . -G Ninja
+              run: cmake -B build -S . -G Ninja -DWANT_PYTHON_WRAPPER=on
             - name: ⚒️ Build
               shell: msys2 {0}
               run: cmake --build build
+            - name: 🐍 Test Python wrapper
+              shell: msys2 {0}
+              run: |
+                  cp build/python/allegro.py build/lib/
+                  cd build/lib/
+                  python allegro.py
     osx_test:
         name: OSX tests
         runs-on: macos-14
