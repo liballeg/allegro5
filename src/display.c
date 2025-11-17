@@ -32,8 +32,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
-#define MAX_BATCH_SIZE ((1 << 16) - 1)
-
 
 /* Function: al_create_display
  */
@@ -149,6 +147,12 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    if (display) {
+      _al_destroy_vertex_decl(display->batch_vertex_decl);
+      _al_destroy_vertex_buffer(display->batch_vertex_buffer);
+      _al_destroy_index_buffer(display->batch_index_buffer);
+      al_free(display->batch_vertices);
+      al_free(display->batch_indices);
+
       /* This causes warnings and potential errors on Android because
        * it clears the context and Android needs this thread to have
        * the context bound in its destroy function and to destroy the
@@ -729,21 +733,30 @@ int al_get_display_adapter(ALLEGRO_DISPLAY *display)
    return -1;
 }
 
+static int get_max_batch_size(size_t index_size)
+{
+   if (index_size == 4)
+      return (1 << 20) - 1;
+   else
+      return (1 << 16) - 1;
+}
+
 int _al_default_prepare_batch(ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap, ALLEGRO_PRIM_TYPE type, int num_new_vertices, int num_new_indices, void **vertices, void **indices)
 {
-   if (disp->batch_vertices_length + num_new_vertices > MAX_BATCH_SIZE ||
-       disp->batch_indices_length + num_new_indices > MAX_BATCH_SIZE ||
+   const int max_batch_size = get_max_batch_size(disp->index_size);
+   if (disp->batch_vertices_length + num_new_vertices > max_batch_size ||
+       disp->batch_indices_length + num_new_indices > max_batch_size ||
        bitmap != disp->batch_bitmap ||
        type != disp->batch_type) {
       if (disp->batch_vertices_length > 0)
          disp->vt->draw_batch(disp);
    }
-   if (num_new_vertices > MAX_BATCH_SIZE) {
-      ALLEGRO_ERROR("Exceeded maximum vertex batch size:  %d > %d\n", num_new_vertices, MAX_BATCH_SIZE);
+   if (num_new_vertices > max_batch_size) {
+      ALLEGRO_ERROR("Exceeded maximum vertex batch size:  %d > %d\n", num_new_vertices, max_batch_size);
       return -1;
    }
-   if (num_new_indices > MAX_BATCH_SIZE) {
-      ALLEGRO_ERROR("Exceeded maximum index batch size:  %d > %d\n", num_new_vertices, MAX_BATCH_SIZE);
+   if (num_new_indices > max_batch_size) {
+      ALLEGRO_ERROR("Exceeded maximum index batch size:  %d > %d\n", num_new_vertices, max_batch_size);
       return -1;
    }
    disp->batch_bitmap = bitmap;
@@ -786,14 +799,15 @@ int _al_default_prepare_batch(ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap, ALL
 
 void _al_default_draw_batch(ALLEGRO_DISPLAY *disp)
 {
-   if (!disp->bitmap_vertex_decl) {
+   const int max_batch_size = get_max_batch_size(disp->index_size);
+   if (!disp->batch_vertex_decl) {
       const ALLEGRO_VERTEX_ELEMENT elems[] = {
          {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
          {_ALLEGRO_PRIM_TEX_COORD_INTERNAL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
          {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
          {0, 0, 0}
       };
-      disp->bitmap_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+      disp->batch_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
    }
 
    if (disp->batch_vertices_length == 0)
@@ -802,13 +816,13 @@ void _al_default_draw_batch(ALLEGRO_DISPLAY *disp)
       goto exit;
 
    if (!disp->batch_vertex_buffer) {
-      disp->batch_vertex_buffer = _al_create_vertex_buffer(disp->bitmap_vertex_decl, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
+      disp->batch_vertex_buffer = _al_create_vertex_buffer(disp->batch_vertex_decl, NULL, max_batch_size, ALLEGRO_PRIM_BUFFER_DYNAMIC);
    }
    if (!disp->batch_vertex_buffer)
       goto exit;
 
    if (!disp->batch_index_buffer)
-      disp->batch_index_buffer = _al_create_index_buffer(disp->index_size, NULL, MAX_BATCH_SIZE, ALLEGRO_PRIM_BUFFER_DYNAMIC);
+      disp->batch_index_buffer = _al_create_index_buffer(disp->index_size, NULL, max_batch_size, ALLEGRO_PRIM_BUFFER_DYNAMIC);
    if (!disp->batch_index_buffer)
       goto exit;
 

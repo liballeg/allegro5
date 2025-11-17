@@ -248,7 +248,9 @@ static void d3d_draw_textured_quad_new(
 
    (void)flags;
 
-   int first_idx = disp->vt->prepare_batch(disp, bitmap, ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
+   _AL_BATCH_INDEX_TYPE first_idx = disp->vt->prepare_batch(disp, bitmap, ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
+   if (first_idx < 0)
+      return;
 
    float texture_w = d3d_bitmap->texture_w;
    float texture_h = d3d_bitmap->texture_h;

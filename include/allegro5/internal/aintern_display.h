@@ -163,8 +163,7 @@ struct ALLEGRO_DISPLAY
    uintptr_t cache_texture;
 
    /* New batching api.*/
-   /* TODO: Destroy this */
-   ALLEGRO_VERTEX_DECL *bitmap_vertex_decl;
+   ALLEGRO_VERTEX_DECL *batch_vertex_decl;
    int index_size;
    ALLEGRO_VERTEX_BUFFER *batch_vertex_buffer;
    ALLEGRO_INDEX_BUFFER *batch_index_buffer;
@@ -195,6 +194,12 @@ struct ALLEGRO_DISPLAY
 
    bool use_legacy_drawing_api;
 };
+
+#ifdef ALLEGRO_CFG_OPENGLES2
+   typedef uint16_t _AL_BATCH_INDEX_TYPE;
+#else
+   typedef int _AL_BATCH_INDEX_TYPE;
+#endif
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
 void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);

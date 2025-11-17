@@ -300,12 +300,14 @@ static void draw_quad_new(ALLEGRO_BITMAP *bitmap,
    float tex_l, tex_t, tex_r, tex_b, w, h, true_w, true_h;
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_VERTEX *vtx;
-   uint16_t *idx;
+   _AL_BATCH_INDEX_TYPE *idx;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
 
    (void)flags;
 
-   uint16_t first_idx = disp->vt->prepare_batch(disp, bitmap, ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
+   _AL_BATCH_INDEX_TYPE first_idx = disp->vt->prepare_batch(disp, bitmap, ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
+   if (first_idx < 0)
+      return;
 
    tex_l = ogl_bitmap->left;
    tex_r = ogl_bitmap->right;
