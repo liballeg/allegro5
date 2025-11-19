@@ -86,6 +86,7 @@ jobs:
                       mingw-w64-x86_64-enet
                       mingw-w64-x86_64-libwebp
                       mingw-w64-x86_64-libopenmpt
+                      mingw-w64-x86_64-tools-git
             - name: ⚙️ Configure
               shell: msys2 {0}
               run: cmake -B build -S . -G Ninja -DWANT_PYTHON_WRAPPER=on
