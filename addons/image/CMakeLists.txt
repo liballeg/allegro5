@@ -174,7 +174,6 @@ if(WANT_IMAGE_WEBP AND NOT ALLEGRO_CFG_IIO_SUPPORT_WEBP)
         set(ALLEGRO_CFG_IIO_HAVE_WEBP 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_WEBP 1)
         list(APPEND IMAGE_SOURCES webp.c)
-        DelayLoad(WEBP_LIBRARIES)
         list(APPEND IMAGE_LIBRARIES ${WEBP_LIBRARIES})
         list(APPEND IMAGE_INCLUDE_DIRECTORIES ${WEBP_INCLUDE_DIRS})
         include_directories(SYSTEM ${WEBP_INCLUDE_DIRS})
@@ -190,12 +189,14 @@ configure_file(
     ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_image_cfg.h
     )
 
+DelayLoad(IMAGE_LIBRARIES IMAGE_LINK_OPTIONS)
 add_our_addon_library(allegro_image
     AllegroImage-${ALLEGRO_SOVERSION}
     "${IMAGE_SOURCES};${IMAGE_INCLUDE_FILES}"
     "-DALLEGRO_IIO_SRC"
     "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
     )
+target_link_options(allegro_image PRIVATE ${IMAGE_LINK_OPTIONS})
 
 install_our_headers(${IMAGE_INCLUDE_FILES})
 

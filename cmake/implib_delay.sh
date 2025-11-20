@@ -37,8 +37,9 @@ out_delaylib="lib${libname}_delay.a"
 
 if [[ ! -f "$out_delaylib" ]]; then
     dllname="$(dlltool --identify "$implib" 2>/dev/null | tr -d '\r' | head -n1 || true)"
+    [[ -n "$dllname" ]] || exit 0  # Not a DLL import library; nothing to do
     dllpath="$(which "$dllname" 2>/dev/null | tr -d '\r' | head -n1 || true)"
-    [[ -n "$dllpath" && -f "$dllpath" ]] || die "could not locate $dllname on disk (needed for gendef)"
+    [[ -n "$dllpath" && -f "$dllpath" ]] || die "could not locate $dllname on disk"
     gendef "$dllpath" > /dev/null
     def_file="${dllname%.dll}.def"
     [[ -f "$def_file" ]] || die "gendef did not produce $def_file"
@@ -46,5 +47,5 @@ if [[ ! -f "$out_delaylib" ]]; then
     [[ -f "$out_delaylib" ]] || die "failed to create delay import library: $out_delaylib"
 fi
 
-# printf -- "-l%s_delay\n" "$libname"
-echo "$out_delaylib"
+printf -- "-l%s_delay\n" "$libname"
+# echo "$out_delaylib"
