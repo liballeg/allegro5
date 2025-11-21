@@ -55,7 +55,7 @@ jobs:
             - name: 🔍 Check delay-loaded DLLs
               run: |
                   $env:Path += ";$(Split-Path -Path $(& "${env:programfiles(x86)}\microsoft visual studio\installer\vswhere" -latest -find "**\Hostx64\x64\dumpbin.exe" | Select-Object -Last 1) -Parent)"
-                  function Show-Delay-Dlls {param([string]$file) Echo "Delay-loaded DLLs for ${file}:"; & dumpbin /imports $file | Select-String -Pattern "delay load imports" -Context 0,9999 | Out-String -Stream | Select-String -Pattern ".dll" }
+                  function Show-Delay-Dlls {param([string]$file) Echo "Delay-loaded DLLs for ${file}:"; & dumpbin /dependents $file | ForEach-Object {switch($_) {"  Image has the following delay load dependencies:" {$state=2} "" {$state--} default { if ($state -eq 1) {$_}}}} }
                   Show-Delay-Dlls build_shared\lib\Debug\allegro_audio-5.2.dll
                   Show-Delay-Dlls build_shared\lib\Debug\allegro_acodec-5.2.dll
                   Show-Delay-Dlls build_shared\lib\Debug\allegro_image-5.2.dll
@@ -103,7 +103,7 @@ jobs:
             - name: 🔍 Check delay-loaded DLLs
               run: |
                   $env:Path += ";$(Split-Path -Path $(& "${env:programfiles(x86)}\microsoft visual studio\installer\vswhere" -latest -find "**\Hostx64\x64\dumpbin.exe" | Select-Object -Last 1) -Parent)"
-                  function Show-Delay-Dlls {param([string]$file) Echo "Delay-loaded DLLs for ${file}:"; & dumpbin /imports $file | Select-String -Pattern "delay load imports" -Context 0,9999 | Out-String -Stream | Select-String -Pattern ".dll" }
+                  function Show-Delay-Dlls {param([string]$file) Echo "Delay-loaded DLLs for ${file}:"; & dumpbin /dependents $file | ForEach-Object {switch($_) {"  Image has the following delay load dependencies:" {$state=2} "" {$state--} default { if ($state -eq 1) {$_}}}} }
                   Show-Delay-Dlls build\lib\allegro_audio-5.2.dll
                   Show-Delay-Dlls build\lib\allegro_acodec-5.2.dll
                   Show-Delay-Dlls build\lib\allegro_image-5.2.dll
