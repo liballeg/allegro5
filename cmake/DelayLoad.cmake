@@ -1,3 +1,35 @@
+# TODO: move from addons/acodec/CMakeLists.txt
+# as it is not available yet while building audio.
+function(get_dll_name implib dllname_var)
+    if(MINGW)
+        # Guess the name of dlltool from gcc.
+        string(REGEX REPLACE "gcc.*" dlltool DLLTOOL ${CMAKE_C_COMPILER})
+        execute_process(
+            COMMAND ${DLLTOOL} -I ${implib}
+            OUTPUT_VARIABLE dllname
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+    elseif(MSVC)
+        # Not sure this is the best way.
+        execute_process(
+            COMMAND lib /LIST ${implib}
+            OUTPUT_VARIABLE output
+            )
+        if(output STREQUAL "")
+            message("WARNING: Failed to execute lib /list")
+        else()
+            string(REGEX MATCH "[^\n]+[.]dll" dllname "${output}")
+        endif()
+    endif()
+    if(NOT dllname)
+        # Guess from the basename.
+        get_filename_component(basename "${implib}" NAME_WE)
+        set(dllname "${basename}.dll")
+    endif()
+    message(STATUS "DLL name for ${implib}: ${dllname}")
+    set(${dllname_var} ${dllname} PARENT_SCOPE)
+endfunction(get_dll_name)
+
 # Delay-load helper for Windows linkers.
 #
 # Brief: Receives the name of a CMake variable that holds one or more library
@@ -26,13 +58,7 @@ function(DelayLoad libvar linkvar)
                 continue()
             endif()
             if(MSVC)
-                execute_process(
-                    COMMAND powershell -c "${PROJECT_SOURCE_DIR}/cmake/implib2dll.ps1 '${lib}'"
-                    OUTPUT_VARIABLE DLL
-                    ERROR_VARIABLE ERR
-                    RESULT_VARIABLE RES
-                    OUTPUT_STRIP_TRAILING_WHITESPACE
-                )
+                get_dll_name("${lib}" DLL)
                 list(APPEND OUT "${lib}")
                 if(NOT ${linkvar})
                     list(APPEND OUT "delayimp.lib")
