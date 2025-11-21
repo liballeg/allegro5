@@ -93,6 +93,7 @@ jobs:
                       mingw-w64-x86_64-enet
                       mingw-w64-x86_64-libwebp
                       mingw-w64-x86_64-libopenmpt
+                      mingw-w64-x86_64-openal
                       mingw-w64-x86_64-tools-git
             - name: ⚙️ Configure
               shell: msys2 {0}
