@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 
          color = red;
          for (i = 0; i < MAX_EVENTS; i++) {
-            if (!events[i]) continue;
+            if (!*events[i]) continue;
             al_draw_textf(font, color, x, y, 0, "%s", events[i]);
             color = black;
             y += 20;

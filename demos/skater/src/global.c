@@ -162,7 +162,7 @@ void write_global_config(const char *config)
 static bool load(DATA_ENTRY *d, int id, char const *type, char const *path,
    char const *subfolder, char const *name, char const *ext, int size)
 {
-   static char spath[1024];
+   static char spath[2048];
    sprintf(spath, "%s/%s/%s.%s", path, subfolder, name, ext);
    printf("Loading %s...\n", spath);
    if (!strcmp(type, "font")) d[id].dat = al_load_font(spath, size, 0);
