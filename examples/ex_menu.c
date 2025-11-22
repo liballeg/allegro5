@@ -206,7 +206,7 @@ int main(int argc, char **argv)
             }
             else if (event.user.data1 == DYNAMIC_CREATE_ID) {
                if (dcount < 5) {
-                  char new_name[10];
+                  char new_name[20];
 
                   ++dcount;
                   if (dcount == 1) {
