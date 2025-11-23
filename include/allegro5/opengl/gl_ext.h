@@ -74,17 +74,17 @@
  */
 
 #define AGL_API(type, name, args) AL_VAR(_ALLEGRO_gl##name##_t, _al_gl##name);
-#         include "allegro5/opengl/GLext/gl_ext_alias.h"
+#        include "allegro5/opengl/GLext/gl_ext_alias.h"
 #        include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
 #define AGL_API(type, name, args) AL_VAR(_ALLEGRO_wgl##name##_t, _al_wgl##name);
-#         include "allegro5/opengl/GLext/wgl_ext_alias.h"
+#        include "allegro5/opengl/GLext/wgl_ext_alias.h"
 #        include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 #elif defined ALLEGRO_UNIX
 #define AGL_API(type, name, args) extern _ALLEGRO_glX##name##_t _al_glX##name;
-#         include "allegro5/opengl/GLext/glx_ext_alias.h"
+#        include "allegro5/opengl/GLext/glx_ext_alias.h"
 #        include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
