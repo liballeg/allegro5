@@ -345,11 +345,18 @@ static void HighFilledPrimitives(int mode)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      float poly_points[8] = {
+         -100, 150,
+         0, 80,
+         -30, 60,
+         -120, 40
+      };
 
       al_use_transform(&MainTrans);
 
-      al_draw_filled_triangle(-100, -100, -150, 200, 100, 200, al_map_rgb_f(0.5, 0.7, 0.3));
-      al_draw_filled_rectangle(20, -50, 200, 50, al_map_rgb_f(0.3, 0.2, 0.6));
+      al_draw_filled_triangle(-100, -200, -110, 0, 50, 20, al_map_rgb_f(0.5, 0.7, 0.3));
+      al_draw_filled_polygon(poly_points, 4, al_map_rgb_f(0.8, 0.2, 0.9));
+      al_draw_filled_rectangle(120, -50, 300, 50, al_map_rgb_f(0.3, 0.2, 0.6));
       al_draw_filled_ellipse(-250, 0, 100, 150, al_map_rgb_f(0.3, 0.3, 0.3));
       al_draw_filled_rounded_rectangle(50, -250, 350, -75, 50, 70, al_map_rgb_f(0.4, 0.2, 0));
       al_draw_filled_pieslice(200, 125, 50, ALLEGRO_PI / 4, 3 * ALLEGRO_PI / 2, al_map_rgb_f(0.3, 0.3, 0.1));
@@ -409,10 +416,17 @@ static void HighFilledPrimitivesShader(int mode)
          al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Shaders don't work with software rendering");
       }
       else {
+         // float poly_points[8] = {
+         //    -100, 150,
+         //    0, 80,
+         //    -30, 60,
+         //    -120, 40
+         // };
          ALLEGRO_SHADER* old_shader = al_get_current_shader();
          al_use_shader(shader);
-         al_draw_filled_triangle(-100, -100, -150, 200, 100, 200, al_map_rgb_f(0.5, 0.7, 0.3));
-         al_draw_filled_rectangle(20, -50, 200, 50, al_map_rgb_f(0.3, 0.2, 0.6));
+         al_draw_filled_triangle(-100, -200, -110, 0, 50, 20, al_map_rgb_f(0.5, 0.7, 0.3));
+         // al_draw_filled_polygon(poly_points, 4, al_map_rgb_f(0.8, 0.2, 0.9));
+         al_draw_filled_rectangle(120, -50, 300, 50, al_map_rgb_f(0.3, 0.2, 0.6));
          al_draw_filled_ellipse(-250, 0, 100, 150, al_map_rgb_f(0.3, 0.3, 0.3));
          al_draw_filled_rounded_rectangle(50, -250, 350, -75, 50, 70, al_map_rgb_f(0.4, 0.2, 0));
          al_draw_filled_pieslice(200, 125, 50, ALLEGRO_PI / 4, 3 * ALLEGRO_PI / 2, al_map_rgb_f(0.3, 0.3, 0.1));
@@ -475,12 +489,12 @@ static void HighPrimitivesShader(int mode)
       else {
          ALLEGRO_SHADER* old_shader = al_get_current_shader();
          al_use_shader(shader);
-         // float points[8] = {
-         //    -300, -200,
-         //    700, 200,
-         //    -700, 200,
-         //    300, -200
-         // };
+         float points[8] = {
+            -300, -200,
+            700, 200,
+            -700, 200,
+            300, -200
+         };
 
          al_draw_line(-300, -200, 300, 200, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
          al_draw_triangle(-150, -250, 0, 250, 150, -250, al_map_rgba_f(0.5, 0, 0.5, 1), Thickness);
@@ -490,7 +504,7 @@ static void HighPrimitivesShader(int mode)
          al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
          al_draw_elliptical_arc(-20, 0, 300, 200, -ALLEGRO_PI / 2, -ALLEGRO_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
          al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
-         // al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
+         al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
          al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
          al_use_shader(old_shader);
       }
@@ -1055,7 +1069,6 @@ int main(int argc, char **argv)
 
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](DEINIT);
-
    }
 
    return 0;
