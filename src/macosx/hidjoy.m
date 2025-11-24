@@ -319,6 +319,20 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
    joy->parent.info.num_buttons = num_buttons;
 }
 
+static NSInteger element_compare_func(id val1, id val2)
+{
+    IOHIDElementRef elem1 = [(NSValue *)val1 pointerValue];
+    IOHIDElementRef elem2 = [(NSValue *)val2 pointerValue];
+
+    int usage1 = IOHIDElementGetUsage(elem1);
+    int usage2 = IOHIDElementGetUsage(elem2);
+    if (usage1 < usage2)
+       return kCFCompareLessThan;
+    if (usage1 > usage2)
+       return kCFCompareGreaterThan;
+    return kCFCompareEqualTo;
+}
+
 static bool add_elements_with_mapping(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy, const _AL_JOYSTICK_MAPPING *mapping)
 {
    int num_buttons = 0;
@@ -329,6 +343,10 @@ static bool add_elements_with_mapping(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX 
    int num_axes_mapped = 0;
    _AL_JOYSTICK_OUTPUT *output;
 
+   NSMutableArray* buttons_elems = [[[NSMutableArray alloc] init] autorelease];
+   NSMutableArray* axes_elems = [[[NSMutableArray alloc] init] autorelease];
+   NSMutableArray* hats_elems = [[[NSMutableArray alloc] init] autorelease];
+
    for (int i = 0; i < CFArrayGetCount(elements); i++) {
       IOHIDElementRef elem = (IOHIDElementRef)CFArrayGetValueAtIndex(
          elements,
@@ -338,83 +356,107 @@ static bool add_elements_with_mapping(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX 
       int usage = IOHIDElementGetUsage(elem);
       int usage_page = IOHIDElementGetUsagePage(elem);
       if (IOHIDElementGetType(elem) == kIOHIDElementTypeInput_Button) {
-         int idx = num_buttons;
          // 0x09 is the Button Page.
          if (usage_page != 0x09)
             continue;
-         if (idx >= 0 && idx < _AL_MAX_JOYSTICK_BUTTONS && !joy->buttons[idx].elem) {
-            joy->buttons[idx].elem = elem;
-            output = _al_get_joystick_output(&mapping->button_map, idx);
-            if (output) {
-               joy->buttons[idx].output = *output;
-               num_buttons_mapped++;
-            }
-            num_buttons++;
-         }
+         [buttons_elems addObject: [NSValue valueWithPointer:elem]];
       }
       else if (IOHIDElementGetType(elem) == kIOHIDElementTypeInput_Misc) {
-         long min = IOHIDElementGetLogicalMin(elem);
-         long max = IOHIDElementGetLogicalMax(elem);
-
-         int elem_kind = -1;
          switch (usage) {
             case kHIDUsage_GD_X:
             case kHIDUsage_GD_Y:
             case kHIDUsage_GD_Z:
             case kHIDUsage_GD_Rx:
             case kHIDUsage_GD_Ry:
-            case kHIDUsage_GD_Rz: {
-               elem_kind = 0;
+            case kHIDUsage_GD_Rz:
+            case kHIDUsage_GD_Slider:
+            case kHIDUsage_GD_Dial:
+            case kHIDUsage_GD_Wheel: {
+               [axes_elems addObject: [NSValue valueWithPointer:elem]];
                break;
             }
             case kHIDUsage_GD_Hatswitch: {
-               elem_kind = 1;
+               [hats_elems addObject: [NSValue valueWithPointer:elem]];
                break;
             }
             default:
                continue;
          }
-
-         if (elem_kind < 0)
-            continue;
-
-         if (elem_kind == 1) {
-            if (num_hats >= _AL_MAX_JOYSTICK_AXES)
-               continue;
-
-            HAT_MAPPING *map = &joy->hats[num_hats];
-            map->min = min;
-            map->max = max;
-            map->elem = elem;
-            output = _al_get_joystick_output(&mapping->hat_map, 2 * num_hats);
-            if (output) {
-               map->x_output = *output;
-               num_hats_mapped++;
-            }
-            output = _al_get_joystick_output(&mapping->hat_map, 2 * num_hats + 1);
-            if (output) {
-               map->y_output = *output;
-               num_hats_mapped++;
-            }
-            num_hats++;
-         }
-         else {
-            if (num_axes >= _AL_MAX_JOYSTICK_AXES)
-               continue;
-
-            AXIS_MAPPING *map = &joy->axes[num_axes];
-            map->min = min;
-            map->max = max;
-            map->elem = elem;
-            output = _al_get_joystick_output(&mapping->axis_map, num_axes);
-            if (output) {
-               map->output = *output;
-               num_axes_mapped++;
-            }
-            num_axes++;
-         }
       }
    }
+
+   // This sorting is inspired by what GLFW does.
+   [buttons_elems sortWithOptions:NSSortStable
+               usingComparator:^NSComparisonResult(id val1, id val2) {
+      return element_compare_func(val1, val2);
+   }];
+   [axes_elems sortWithOptions:NSSortStable
+               usingComparator:^NSComparisonResult(id val1, id val2) {
+      return element_compare_func(val1, val2);
+   }];
+   [hats_elems sortWithOptions:NSSortStable
+               usingComparator:^NSComparisonResult(id val1, id val2) {
+      return element_compare_func(val1, val2);
+   }];
+
+   for (int i = 0; i < (int)[buttons_elems count]; i++) {
+      IOHIDElementRef elem = [(NSValue *)buttons_elems[i] pointerValue];
+      int idx = num_buttons;
+      if (idx >= 0 && idx < _AL_MAX_JOYSTICK_BUTTONS && !joy->buttons[idx].elem) {
+         joy->buttons[idx].elem = elem;
+         output = _al_get_joystick_output(&mapping->button_map, idx);
+         if (output) {
+            joy->buttons[idx].output = *output;
+            num_buttons_mapped++;
+         }
+         num_buttons++;
+      }
+   }
+
+   for (int i = 0; i < (int)[axes_elems count]; i++) {
+      IOHIDElementRef elem = [(NSValue *)axes_elems[i] pointerValue];
+      int usage = IOHIDElementGetUsage(elem);
+      long min = IOHIDElementGetLogicalMin(elem);
+      long max = IOHIDElementGetLogicalMax(elem);
+      if (num_axes >= _AL_MAX_JOYSTICK_AXES)
+         continue;
+
+      AXIS_MAPPING *map = &joy->axes[num_axes];
+      map->min = min;
+      map->max = max;
+      map->elem = elem;
+      output = _al_get_joystick_output(&mapping->axis_map, num_axes);
+      if (output) {
+         map->output = *output;
+         num_axes_mapped++;
+      }
+      num_axes++;
+   }
+
+   for (int i = 0; i < (int)[hats_elems count]; i++) {
+      IOHIDElementRef elem = [(NSValue *)hats_elems[i] pointerValue];
+      long min = IOHIDElementGetLogicalMin(elem);
+      long max = IOHIDElementGetLogicalMax(elem);
+      if (num_hats >= _AL_MAX_JOYSTICK_AXES)
+         continue;
+
+      HAT_MAPPING *map = &joy->hats[num_hats];
+      map->min = min;
+      map->max = max;
+      map->elem = elem;
+      output = _al_get_joystick_output(&mapping->hat_map, 2 * num_hats);
+      if (output) {
+         map->x_output = *output;
+         num_hats_mapped++;
+      }
+      output = _al_get_joystick_output(&mapping->hat_map, 2 * num_hats + 1);
+      if (output) {
+         map->y_output = *output;
+         num_hats_mapped++;
+      }
+      num_hats++;
+   }
+
    if (num_axes_mapped != (int)_al_vector_size(&mapping->axis_map)) {
       ALLEGRO_ERROR("Could not use mapping, some axes are not mapped.\n");
       return false;
