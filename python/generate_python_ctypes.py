@@ -295,8 +295,8 @@ class Allegro:
                     n = 0
                     ftype = mob.group(1)
                     if ftype.startswith("struct"):
-                        if ftype == "struct {float axis[5];}":
-                            t = "c_float * 5"
+                        if ftype == "struct {float axis[6];}":
+                            t = "c_float * 6"
                         else:
                             print("Error: Can't parse " + ftype + " yet.")
                             t = None
