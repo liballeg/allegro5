@@ -2,6 +2,92 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+
+Changes from 5.2.10.1 to 5.2.11 (November 2025)
+===============================================
+
+Core
+
+- Remove tabs and trailing spaces from source files (SiegeLord)
+- Disable DebugOutputString on windows for logs by default (#1548) (SiegeLord)
+- Fixed initialization of the resize event thread when calling `al_init` after
+  `al_uninstall_system` (Kevin Wellwood)
+- Add "gamepad" support. This uses the community sourced SDL controller
+  database. See ex_joystick_events for how to use this. (SiegeLord)
+- Fix assorted issues with joystick hotplugging (SiegeLord)
+- Add locks to avoid stale clipboard text (#1629) (Steve Fosdick)
+- Reset the `GL_UNPACK_ROW_LENGTH` after unlocking certain bitmaps (SiegeLord,
+  Alan_Roxdale)
+
+MacOS
+
+- Use a faster method of scrolling to the bottom for MacOS text logs (#1610)
+  (SiegeLord)
+- Fix static linking (SiegeLord)
+- Fix `al_set_mouse_xy` on high resolution MacOS displays (SiegeLord)
+- Add partial support for OpenGL 3 displays. Bitmap drawing works, but
+  primitives addon does not (j-w-c-b)
+- Fix Segfault with Japanese keyboards (John Wood)
+- Remove the native MacOS image loader, it had too many limitations (#1531)
+  (SiegeLord)
+
+Windows
+
+- Handle DSERR_NODRIVER when reporting error in DirectSound driver (Andrew
+  Kravchuk)
+- Don't set WM_EX_TOPMOST for Direct3D FULLSCREEN windows (SiegeLord)
+- Make Python binding work on Windows (Mikhail Titov)
+
+Linux
+
+- Fixed memory leak (Helodity)
+- Fix crash when using the LC_CTYPE=eo.ut8 on X11 (#1651) (SiegeLord)
+- Improve behavior when the display is disconnected (SiegeLord)
+
+TTF addon
+
+- Add color emoji support (Elias Pschernig)
+
+Audio addon
+
+- Fix a race between detaching instances from mixers and reading from them
+  (SiegeLord)
+
+Image addon
+
+- Fix loading of padded PCX files (Mikhail Titov)
+
+Video addon
+
+- Add `al_open_video_f` (jarroddavis68)
+
+Primitives addon
+
+- Move the most of the implementation into the core. This should be
+  feature-neutral, but will enable future unification (#1003) (SiegeLord)
+- Populate the UV coordinates for the vertices in many high-level primitives
+  which enables some shader effects. See `ex_prim` example for how this looks.
+  (Helodity, SiegeLord)
+
+Documentation
+
+- Document `ALLEGRO_MOUSE_STATE.display` (j-w-c-b)
+- Remove GETTER/SETTER from generated docs (j-w-c-b)
+- Fix the the return value of `al_insert_menu_item` (#1648) (SiegeLord)
+
+Build system
+
+- CMake improvements (Cristian Le)
+- Export build tree with CMake to ease debugging (Mikhail Titov)
+- Allow using SIMD instruction sets besides SSE (Mikhail Titov)
+- Check vcpkg locations for dependencies (Mikhail Titov)
+- Assorted CI improvements (SiegeLord, Mikhail Titov)
+
+Examples
+
+- `ex_joystick_hotplugging` is now more exciting (SiegeLord)
+
+
 Changes from 5.2.10 to 5.2.10.1 (December 2024)
 ===============================================
 
