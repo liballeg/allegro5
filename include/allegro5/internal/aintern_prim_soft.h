@@ -19,10 +19,10 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
 void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2);
 void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v);
 
-void _al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
+AL_FUNC(void, _al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
    void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
    void (*step)(uintptr_t, int),
-   void (*draw)(uintptr_t, int, int));
+   void (*draw)(uintptr_t, int, int)));
 
 #ifdef __cplusplus
 }
