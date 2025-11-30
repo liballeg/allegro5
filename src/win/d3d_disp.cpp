@@ -1006,6 +1006,8 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
    }
 
    d3d_call_callbacks(&al_display->display_invalidated_callbacks, al_display);
+   if (disp->primitives_effect)
+      disp->primitives_effect->OnLostDevice();
 
    _al_d3d_release_default_pool_textures((ALLEGRO_DISPLAY *)disp);
    while (disp->render_target && disp->render_target->Release() != 0) {
@@ -1579,6 +1581,9 @@ static void *d3d_display_thread_proc(void *arg)
                _al_event_source_unlock(&al_display->es);
                lost_event_generated = false;
                d3d_call_callbacks(&al_display->display_validated_callbacks, al_display);
+               if (d3d_display->primitives_effect) {
+                  d3d_display->primitives_effect->OnResetDevice();
+               }
                if (d3d_restore_callback) {
                   (*d3d_restore_callback)(al_display);
                }
