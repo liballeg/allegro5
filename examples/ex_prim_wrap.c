@@ -172,12 +172,12 @@ int main(int argc, char **argv)
       const char* pixel_file;
       if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
    #ifdef ALLEGRO_CFG_SHADER_GLSL
-         pixel_file = "data/ex_bitmap_wrap_pixel.glsl";
+         pixel_file = "data/ex_prim_wrap_pixel.glsl";
    #endif
       }
       else {
    #ifdef ALLEGRO_CFG_SHADER_HLSL
-         pixel_file = "data/ex_bitmap_wrap_pixel.hlsl";
+         pixel_file = "data/ex_prim_wrap_pixel.hlsl";
    #endif
       }
 
