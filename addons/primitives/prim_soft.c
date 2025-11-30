@@ -39,4 +39,14 @@ void al_draw_soft_triangle(
    _al_draw_soft_triangle(v1, v2, v3, state, init, first, step, draw);
 }
 
+/* Function: al_draw_soft_line
+ */
+void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
+   void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+   void (*step)(uintptr_t, int),
+   void (*draw)(uintptr_t, int, int))
+{
+   _al_draw_soft_line(v1, v2, state, first, step, draw);
+}
+
 /* vim: set sts=3 sw=3 et: */
