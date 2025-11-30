@@ -59,6 +59,20 @@ HRESULT _al_create_default_primitives_hlsl_vertex_shader(LPDIRECT3DDEVICE9 devic
    );
 
    al_ustr_free(full_source);
+
+   if (res != D3D_OK)
+      return res;
+
+   D3DXHANDLE hTech;
+   hTech = (*shader)->GetTechniqueByName("TECH");
+   if (!hTech)
+      return D3DERR_INVALIDCALL;
+   res = (*shader)->ValidateTechnique(hTech);
+   if (res != D3D_OK)
+      return res;
+   res = (*shader)->SetTechnique(hTech);
+   if (res != D3D_OK)
+      return res;
    return res;
 }
 
