@@ -3,6 +3,19 @@
 These lists serve as summaries; the full histories are in the git repository.
 
 
+Changes from 5.2.11 to 5.2.11.1 (November 2025)
+===============================================
+
+Primitives addon
+
+- Fix segfault when resizing display (SiegeLord)
+- Fix linking issue on Windows (#1691) (SiegeLord)
+
+Examples
+
+- Fix `ex_prim_wrap` (SiegeLord)
+
+
 Changes from 5.2.10.1 to 5.2.11 (November 2025)
 ===============================================
 
