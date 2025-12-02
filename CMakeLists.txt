@@ -1043,7 +1043,7 @@ if(NOT WANT_MONOLITH)
         "${PLATFORM_LIBS}"
         )
     target_include_directories(allegro INTERFACE
-        $<BUILD_INTERFACE:include;${PROJECT_BINARY_DIR}/include>
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include;${PROJECT_BINARY_DIR}/include>"
         )
 endif(NOT WANT_MONOLITH)
 
@@ -1081,7 +1081,7 @@ if(WANT_MONOLITH)
         "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
         )
     target_include_directories(allegro_monolith INTERFACE
-        $<BUILD_INTERFACE:include;${PROJECT_BINARY_DIR}/include>
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include;${PROJECT_BINARY_DIR}/include>"
         )
 
     set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
