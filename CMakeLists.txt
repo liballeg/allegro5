@@ -48,14 +48,19 @@ include(GNUInstallDirs)
 
 set(ALLEGRO_SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Profile."
-      FORCE)
+get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(isMultiConfig)
+    if(NOT CMAKE_CONFIGURATION_TYPES)
+        set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel;Profile" CACHE STRING 
+            "Semicolon separated list of supported configuration types." FORCE)
+    endif()
+else()
+    if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+            "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Profile."
+            FORCE)
+    endif()
 endif()
-# Restrict configuration types to the selected build type.
-# Note: This needs to be done before the project command
-set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 
 if(ANDROID)
     option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
