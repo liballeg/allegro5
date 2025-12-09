@@ -3036,7 +3036,7 @@ struct D3D_STATE
 
 static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, ALLEGRO_DISPLAY *disp)
 {
-   D3D_STATE state;
+   D3D_STATE state{};
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)disp;
 
    if (!(disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) && !use_fixed_pipeline)
