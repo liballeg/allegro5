@@ -49,6 +49,7 @@ typedef struct _AL_JOYSTICK_OUTPUT {
                             * E.g. the second button seen by the driver has
                             * in_idx == 1.
                             */
+   int offset_override;
 
    int button;             /* The output is a button. */
    bool button_enabled;    /* Button output is enabled. */

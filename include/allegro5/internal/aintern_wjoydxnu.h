@@ -51,8 +51,8 @@ typedef struct
    int num_sliders;  TCHAR name_slider[MAX_SLIDERS][NAME_LEN];
    int num_povs;     TCHAR name_pov[MAX_POVS][NAME_LEN];
    int num_buttons;  TCHAR name_button[MAX_BUTTONS][NAME_LEN];
+   DWORD secondary_stick_axis_one, secondary_stick_axis_two;
 } CAPS_AND_NAMES;
-
 
 typedef struct ALLEGRO_JOYSTICK_DIRECTX
 {
