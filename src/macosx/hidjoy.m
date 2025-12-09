@@ -371,7 +371,9 @@ static bool add_elements_with_mapping(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX 
             case kHIDUsage_GD_Rz:
             case kHIDUsage_GD_Slider:
             case kHIDUsage_GD_Dial:
-            case kHIDUsage_GD_Wheel: {
+            case kHIDUsage_GD_Wheel:
+            case kHIDUsage_Sim_Accelerator:
+            case kHIDUsage_Sim_Brake: {
                [axes_elems addObject: [NSValue valueWithPointer:elem]];
                break;
             }
