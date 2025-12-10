@@ -811,6 +811,8 @@ static bool init_joystick(void)
    CFRelease(criteria1);
    CFRelease(criteria);
 
+   _al_vector_init(&joysticks, sizeof(ALLEGRO_JOYSTICK_OSX *));
+
    /* Register for plug/unplug notifications */
    IOHIDManagerRegisterDeviceMatchingCallback(
       hidManagerRef,
@@ -835,8 +837,6 @@ static bool init_joystick(void)
       CFRunLoopGetMain(),
       kCFRunLoopDefaultMode
    );
-
-   _al_vector_init(&joysticks, sizeof(ALLEGRO_JOYSTICK_OSX *));
 
    al_lock_mutex(add_mutex);
 
