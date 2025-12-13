@@ -147,6 +147,8 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
          e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
          if(!e->attribute)
             e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+         if(!e->attribute)
+            e = &decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL];
          if(e->attribute) {
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
@@ -223,6 +225,8 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
          e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
          if(!e->attribute)
             e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+         if(!e->attribute)
+            e = &decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL];
          if(texture && e->attribute) {
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -261,10 +265,10 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
       int true_w, true_h;
       int tex_x, tex_y;
       float mat[4][4] = {
-         {1,  0,  0, 0},
-         {0, -1,  0, 0},
-         {0,  0,  1, 0},
-         {0,  0,  0, 1}
+         {1, 0, 0, 0},
+         {0, 1, 0, 0},
+         {0, 0, 1, 0},
+         {0, 0, 0, 1}
       };
       int height;
 
@@ -279,11 +283,16 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
       mat[3][0] = (float)tex_x / true_w;
       mat[3][1] = (float)(height - tex_y) / true_h;
 
-      if(decl) {
-         if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+      if (decl) {
+         if (decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
             mat[0][0] = 1.0f / true_w;
             mat[1][1] = -1.0f / true_h;
-         } else {
+         }
+         else if (decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL].attribute) {
+            mat[3][0] = 0.;
+            mat[3][1] = 0.;
+         }
+         else {
             mat[0][0] = (float)al_get_bitmap_width(texture) / true_w;
             mat[1][1] = -(float)al_get_bitmap_height(texture) / true_h;
          }
@@ -1161,6 +1170,26 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    }
 }
 
+static int ogl_prepare_batch(ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap, ALLEGRO_PRIM_TYPE type, int num_new_vertices, int num_new_indices, void **vertices, void **indices)
+{
+   return _al_default_prepare_batch(disp, bitmap, type, num_new_vertices, num_new_indices, vertices, indices);
+}
+
+static void ogl_draw_batch(ALLEGRO_DISPLAY *disp)
+{
+   ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
+
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+     if (o->vao == 0) {
+        glGenVertexArrays(1, &o->vao);
+        ALLEGRO_DEBUG("new VAO: %u\n", o->vao);
+     }
+     glBindVertexArray(o->vao);
+   }
+
+   _al_default_draw_batch(disp);
+}
+
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    ALLEGRO_BITMAP *target)
 {
@@ -1216,6 +1245,9 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->clear = ogl_clear;
    vt->draw_pixel = ogl_draw_pixel;
    vt->clear_depth_buffer = ogl_clear_depth_buffer;
+
+   vt->prepare_batch = ogl_prepare_batch;
+   vt->draw_batch = ogl_draw_batch;
 
    vt->flush_vertex_cache = ogl_flush_vertex_cache;
    vt->prepare_vertex_cache = ogl_prepare_vertex_cache;

@@ -1950,6 +1950,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    _al_win_post_create_window(display);
 
+   display->index_size = sizeof(_AL_BATCH_INDEX_TYPE);
+
    return display;
 }
 
@@ -2900,6 +2902,38 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    d3d_disp->device->SetTexture(0, NULL);
 }
 
+static int d3d_prepare_batch(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *bitmap, ALLEGRO_PRIM_TYPE type, int num_new_vertices, int num_new_indices, void **vertices, void **indices)
+{
+   return _al_default_prepare_batch(disp, bitmap, type, num_new_vertices, num_new_indices, vertices, indices);
+}
+
+static void d3d_draw_batch(ALLEGRO_DISPLAY *disp)
+{
+   ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
+   if (d3d_disp->device_lost)
+      goto exit;
+
+   if (use_fixed_pipeline) {
+      if (!disp->batch_vertex_decl) {
+         const ALLEGRO_VERTEX_ELEMENT elems[] = {
+            {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
+            {_ALLEGRO_PRIM_TEX_COORD_INTERNAL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
+            {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
+            {0, 0, 0}
+         };
+         disp->batch_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+      }
+      if (disp->batch_vertices_length > 0)
+         _al_draw_indexed_prim(disp->batch_vertices, disp->batch_vertex_decl, disp->batch_bitmap,
+            (const int*)disp->batch_indices, disp->batch_indices_length, ALLEGRO_PRIM_TRIANGLE_LIST);
+   }
+   else
+      _al_default_draw_batch(disp);
+exit:
+   disp->batch_vertices_length = 0;
+   disp->batch_indices_length = 0;
+}
+
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
 {
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
@@ -3071,21 +3105,27 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
       d3d_texture->GetLevelDesc(0, &desc);
       al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
+      mat[2][0] = (float)tex_x / desc.Width;
+      mat[2][1] = (float)tex_y / desc.Height;
+      
       if(decl) {
          if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
             mat[0][0] = 1.0f / desc.Width;
             mat[1][1] = 1.0f / desc.Height;
-         } else {
+         }
+         else if (decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL].attribute) {
+            mat[2][0] = 0.;
+            mat[2][1] = 0.;
+         }
+         else {
             mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
             mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
          }
-      } else {
+      }
+      else {
          mat[0][0] = 1.0f / desc.Width;
          mat[1][1] = 1.0f / desc.Height;
       }
-      mat[2][0] = (float)tex_x / desc.Width;
-      mat[2][1] = (float)tex_y / desc.Height;
-
 
       if (use_fixed_pipeline) {
          device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &state.old_ttf_state);
@@ -3162,7 +3202,7 @@ static int draw_prim_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       stride = (decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX));
    }
 
-   if((use_fixed_pipeline && decl) || (decl && decl->d3d_decl == 0)) {
+   if((use_fixed_pipeline && decl && decl != disp->batch_vertex_decl) || (decl && decl->d3d_decl == 0)) {
       if(!indices)
          return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
       else
@@ -3575,6 +3615,8 @@ static bool d3d_create_vertex_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL
     e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
     if(!e->attribute)
       e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+    if(!e->attribute)
+      e = &decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL];
     if(e->attribute) {
       d3delements[idx].Stream = 0;
       d3delements[idx].Offset = e->offset;
@@ -3791,6 +3833,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 
    vt->flush_vertex_cache = d3d_flush_vertex_cache;
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
+   vt->prepare_batch = d3d_prepare_batch;
+   vt->draw_batch = d3d_draw_batch;
 
    vt->update_transformation = d3d_update_transformation;
 

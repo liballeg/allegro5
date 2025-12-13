@@ -152,11 +152,14 @@ typedef struct ALLEGRO_OGL_EXTRAS
    GLuint program_object;
    ALLEGRO_OGL_VARLOCS varlocs;
 
-   /* For OpenGL 3.0+ we use a single vao and vbo. */
-   GLuint vao, vbo;
+   /* For OpenGL 3.0+ we use a single vao. */
+   GLuint vao;
 
+   /* For the old drawing pipeline + OpenGL 3.0+ we also use a vbo. */
+   GLuint vbo;
 } ALLEGRO_OGL_EXTRAS;
 
+/* Only used for the old drawing API. */
 typedef struct ALLEGRO_OGL_BITMAP_VERTEX
 {
    float x, y, z;
