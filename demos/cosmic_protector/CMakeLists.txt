@@ -133,6 +133,10 @@ copy_data_dir_to_build(copy_demo_data
     "${CMAKE_CURRENT_BINARY_DIR}/data"
     )
 
+if(EMSCRIPTEN)
+    target_link_options(cosmic_protector PRIVATE "--preload-file" "data")
+endif()
+
 add_dependencies(cosmic_protector copy_demo_data)
 
 #-----------------------------------------------------------------------------#

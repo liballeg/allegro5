@@ -91,6 +91,14 @@ function(example name)
         add_our_executable("${name}" SRCS "${sources}" LIBS "${libs}")
     endif()
     add_dependencies("${name}" copy_example_data)
+
+    if(EMSCRIPTEN)
+        if(MYOPTS_DATA)
+            # Tell emscripten to package assets as a single preload-file ${name}.data
+            target_link_options(${name} PRIVATE "--preload-file" "data")
+        endif()
+    endif(EMSCRIPTEN)
+
 endfunction(example)
 
 #-----------------------------------------------------------------------------#

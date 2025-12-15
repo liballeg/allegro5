@@ -120,6 +120,10 @@ copy_data_dir_to_build(copy_shooter_data
     "${CMAKE_CURRENT_BINARY_DIR}/data"
     )
 
+if(EMSCRIPTEN)
+    target_link_options(shooter PRIVATE "--preload-file" "data")
+endif()
+
 add_dependencies(shooter copy_shooter_data copy_example_data)
 
 #-----------------------------------------------------------------------------#
