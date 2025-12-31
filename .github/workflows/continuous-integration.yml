@@ -144,6 +144,7 @@ jobs:
                 key: bitmaps
             - name: 🚧 Setup
               run: >-
+                  sudo apt-get update &&
                   sudo apt-get install -qq -y -o=Dpkg::Use-Pty=0
                   xvfb
                   libvorbis-dev
