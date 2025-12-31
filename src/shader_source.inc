@@ -188,6 +188,8 @@ static const char *default_glsl_minimal_pixel_source_gl3 =
 #endif /* ALLEGRO_CFG_SHADER_GLSL */
 
 
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+
 static const char *default_hlsl_vertex_source =
    "struct VS_INPUT\n"
    "{\n"
@@ -220,9 +222,6 @@ static const char *default_hlsl_vertex_source =
    "   Output.Position = mul(Input.Position, " ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX ");\n"
    "   return Output;\n"
    "}\n";
-
-
-#ifdef ALLEGRO_CFG_SHADER_HLSL
 
 static const char *default_hlsl_pixel_source =
    "bool " ALLEGRO_SHADER_VAR_USE_TEX ";\n"

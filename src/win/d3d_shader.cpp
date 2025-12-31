@@ -22,69 +22,10 @@
 #include "allegro5/internal/aintern_shader.h"
 
 #include <d3dx9.h>
-#include <stdio.h>
 
 #include "d3d.h"
 
 ALLEGRO_DEBUG_CHANNEL("shader")
-
-/* These few functions are included even when HLSL as a whole is not compiled in, as we're using them unconditionally in the D3D backend. */
-static const char *technique_source_vertex_v2 =
-   "technique TECH\n"
-   "{\n"
-   "   pass p1\n"
-   "   {\n"
-   "      VertexShader = compile vs_2_0 vs_main();\n"
-   "      PixelShader = null;\n"
-   "   }\n"
-   "}\n";
-
-
-HRESULT _al_create_default_primitives_hlsl_vertex_shader(LPDIRECT3DDEVICE9 device, LPD3DXEFFECT *shader)
-{
-   ALLEGRO_USTR *full_source = al_ustr_newf("%s\n%s",
-   _al_get_default_hlsl_vertex_shader(), technique_source_vertex_v2);
-   LPD3DXBUFFER errors;
-
-   HRESULT res = _al_imp_D3DXCreateEffect(
-      device,
-      al_cstr(full_source),
-      al_ustr_size(full_source),
-      NULL,
-      NULL,
-      D3DXSHADER_PACKMATRIX_ROWMAJOR,
-      NULL,
-      shader,
-      &errors
-   );
-
-   al_ustr_free(full_source);
-
-   if (res != D3D_OK)
-      return res;
-
-   D3DXHANDLE hTech;
-   hTech = (*shader)->GetTechniqueByName("TECH");
-   if (!hTech)
-      return D3DERR_INVALIDCALL;
-   res = (*shader)->ValidateTechnique(hTech);
-   if (res != D3D_OK)
-      return res;
-   res = (*shader)->SetTechnique(hTech);
-   if (res != D3D_OK)
-      return res;
-   return res;
-}
-
-
-bool _al_hlsl_set_projview_matrix(
-   LPD3DXEFFECT effect, const ALLEGRO_TRANSFORM *t)
-{
-   HRESULT result = effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
-      (LPD3DXMATRIX)t->m);
-   return result == D3D_OK;
-}
-
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
 
@@ -98,6 +39,16 @@ struct ALLEGRO_SHADER_HLSL_S
 };
 
 static const char *null_source = "";
+
+static const char *technique_source_vertex_v2 =
+   "technique TECH\n"
+   "{\n"
+   "   pass p1\n"
+   "   {\n"
+   "      VertexShader = compile vs_2_0 vs_main();\n"
+   "      PixelShader = null;\n"
+   "   }\n"
+   "}\n";
 
 static const char *technique_source_pixel_v2 =
    "technique TECH\n"
@@ -524,6 +475,14 @@ static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
 
    result = hlsl_shader->hlsl_shader->SetBool(name, b);
 
+   return result == D3D_OK;
+}
+
+bool _al_hlsl_set_projview_matrix(
+   LPD3DXEFFECT effect, const ALLEGRO_TRANSFORM *t)
+{
+   HRESULT result = effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
+      (LPD3DXMATRIX)t->m);
    return result == D3D_OK;
 }
 
