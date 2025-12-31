@@ -336,6 +336,7 @@ if(MACOSX)
     # problems with global variables which are not explicitly initialised.
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-common")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-common")
+    set(CMAKE_EXE_LINKER_FLAGS "-framework AudioToolbox -framework CoreAudio")
 endif(MACOSX)
 
 if(IPHONE)
