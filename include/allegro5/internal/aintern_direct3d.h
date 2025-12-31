@@ -77,12 +77,11 @@ typedef struct ALLEGRO_DISPLAY_D3D
 
    RECT scissor_state;
 
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    LPD3DXEFFECT effect;
-   LPD3DXEFFECT primitives_effect;
+#endif
+   LPDIRECT3DVERTEXSHADER9 primitives_shader;
 } ALLEGRO_DISPLAY_D3D;
-
-
-HRESULT _al_create_default_primitives_hlsl_vertex_shader(LPDIRECT3DDEVICE9 device, LPD3DXEFFECT *shader);
 
 
 AL_FUNC(void, _al_d3d_set_blender, (ALLEGRO_DISPLAY_D3D *disp));
