@@ -469,11 +469,6 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
    return NULL;
 }
 
-const char *_al_get_default_hlsl_vertex_shader(void)
-{
-   return default_hlsl_vertex_source;
-}
-
 void _al_set_bitmap_shader_field(ALLEGRO_BITMAP *bmp, ALLEGRO_SHADER *shader)
 {
    ASSERT(bmp);
