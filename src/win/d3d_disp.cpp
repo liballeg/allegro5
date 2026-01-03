@@ -2960,21 +2960,21 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
    d3d_disp->device->SetViewport(&viewport);
 }
 
-static void* convert_to_fixed_vertices(const void* vtxs, int num_vertices, const int* indices, bool loop, bool pp)
+static void* convert_to_fixed_vertices(const void* vtxs, int num_vertices, const int* indices, bool loop, bool use_programmable_pipeline)
 {
    const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX *)vtxs;
    int ii;
    int num_needed_vertices = num_vertices;
    size_t needed_size;
 
-   if (pp && !indices && !loop) {
+   if (use_programmable_pipeline && !indices && !loop) {
       return (void *)vtxs;
    }
 
    if(loop)
       num_needed_vertices++;
 
-   needed_size = num_needed_vertices * (pp ? sizeof(ALLEGRO_VERTEX) : sizeof(D3D_FIXED_VERTEX));
+   needed_size = num_needed_vertices * (use_programmable_pipeline ? sizeof(ALLEGRO_VERTEX) : sizeof(D3D_FIXED_VERTEX));
 
    if(fixed_buffer == 0) {
       fixed_buffer = (char *)al_malloc(needed_size);
@@ -2985,7 +2985,7 @@ static void* convert_to_fixed_vertices(const void* vtxs, int num_vertices, const
       fixed_buffer_size = new_size;
    }
 
-   if (pp) {
+   if (use_programmable_pipeline) {
       ALLEGRO_VERTEX *buffer = (ALLEGRO_VERTEX*)fixed_buffer;
       for(ii = 0; ii < num_vertices; ii++) {
          if(indices)
@@ -3036,30 +3036,31 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
    bool use_programmable_pipeline = disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE;
    bool use_default_shader = false;
 
-   if (use_programmable_pipeline || use_fixed_pipeline) {
-      state.old_vtx_shader = NULL;
-      _al_d3d_set_blender(d3d_disp);
-   }
-   else {
+   if (!use_programmable_pipeline) {
       /* Manually set the shader without D3DX. */
       IDirect3DPixelShader9* old_pix_shader;
-      device->GetVertexShader(&state.old_vtx_shader);
       device->GetPixelShader(&old_pix_shader);
-      use_default_shader = state.old_vtx_shader == NULL;
-
       if (!old_pix_shader) {
          _al_d3d_set_blender(d3d_disp);
       }
 
+      device->GetVertexShader(&state.old_vtx_shader);
+      use_default_shader = state.old_vtx_shader == NULL;
       if (use_default_shader) {
-         device->SetVertexShader(d3d_disp->primitives_shader);
-         /* See prim_directx_shader.inc */
-         device->SetVertexShaderConstantF(0, (float*)&disp->projview_transform, 4);
+         if (!use_fixed_pipeline) {
+            device->SetVertexShader(d3d_disp->primitives_shader);
+            /* See prim_directx_shader.inc */
+            device->SetVertexShaderConstantF(0, (float*)&disp->projview_transform, 4);
+         }
       }
+   }
+   else {
+      state.old_vtx_shader = NULL;
+      _al_d3d_set_blender(d3d_disp);
    }
 
    /* Set the vertex declarations */
-   if (use_fixed_pipeline) {
+   if (use_fixed_pipeline && !use_programmable_pipeline) {
       device->SetFVF(D3DFVF_FIXED_VERTEX);
    }
    else {
@@ -3072,68 +3073,75 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
    }
 
    /* Set up the texture */
-   if (texture && (use_fixed_pipeline || use_default_shader || use_programmable_pipeline)) {
-      LPDIRECT3DTEXTURE9 d3d_texture;
-      int tex_x, tex_y;
-      D3DSURFACE_DESC desc;
-      float mat[4][4] = {
-         {1, 0, 0, 0},
-         {0, 1, 0, 0},
-         {0, 0, 1, 0},
-         {0, 0, 0, 1}
-      };
+   if (use_default_shader || use_programmable_pipeline) {
+      if (texture) {
+         LPDIRECT3DTEXTURE9 d3d_texture;
+         int tex_x, tex_y;
+         D3DSURFACE_DESC desc;
+         float mat[4][4] = {
+            {1, 0, 0, 0},
+            {0, 1, 0, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 1}
+         };
 
-      d3d_texture = al_get_d3d_video_texture(texture);
+         d3d_texture = al_get_d3d_video_texture(texture);
 
-      d3d_texture->GetLevelDesc(0, &desc);
-      al_get_d3d_texture_position(texture, &tex_x, &tex_y);
+         d3d_texture->GetLevelDesc(0, &desc);
+         al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
-      if(decl) {
-         if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+         if(decl) {
+            if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+               mat[0][0] = 1.0f / desc.Width;
+               mat[1][1] = 1.0f / desc.Height;
+            } else {
+               mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
+               mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
+            }
+         } else {
             mat[0][0] = 1.0f / desc.Width;
             mat[1][1] = 1.0f / desc.Height;
-         } else {
-            mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
-            mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
          }
-      } else {
-         mat[0][0] = 1.0f / desc.Width;
-         mat[1][1] = 1.0f / desc.Height;
-      }
-      mat[2][0] = (float)tex_x / desc.Width;
-      mat[2][1] = (float)tex_y / desc.Height;
+         mat[2][0] = (float)tex_x / desc.Width;
+         mat[2][1] = (float)tex_y / desc.Height;
 
-      if (use_fixed_pipeline) {
-         device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &state.old_ttf_state);
-         device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-         device->SetTransform(D3DTS_TEXTURE0, (D3DMATRIX *)mat);
-      }
-      else if (use_programmable_pipeline) {
+         if (use_programmable_pipeline) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-         d3d_disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_TEX_MATRIX, (D3DXMATRIX *)mat);
-         d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX_MATRIX, true);
-         d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, true);
-         d3d_disp->effect->SetTexture(ALLEGRO_SHADER_VAR_TEX, d3d_texture);
+            d3d_disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_TEX_MATRIX, (D3DXMATRIX *)mat);
+            d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX_MATRIX, true);
+            d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, true);
+            d3d_disp->effect->SetTexture(ALLEGRO_SHADER_VAR_TEX, d3d_texture);
 #endif
+         }
+         else {
+            if (use_fixed_pipeline) {
+               device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &state.old_ttf_state);
+               device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+               device->SetTransform(D3DTS_TEXTURE0, (D3DMATRIX *)mat);
+            }
+            else {
+               /* See prim_directx_shader.inc */
+               float use_tex_matrix[4] = {1.0, 0., 0., 0.};
+               device->SetVertexShaderConstantF(4, (float*)mat, 3);
+               device->SetVertexShaderConstantF(8, use_tex_matrix, 1);
+            }
+         }
+
+         device->SetTexture(0, d3d_texture);
       }
       else {
-         /* See prim_directx_shader.inc */
-         float use_tex_matrix[4] = {1.0, 0., 0., 0.};
-         device->SetVertexShaderConstantF(4, (float*)mat, 3);
-         device->SetVertexShaderConstantF(8, use_tex_matrix, 1);
+         /* Don't unbind the texture here if shaders are used, since the user may
+          * have set the 0'th texture unit manually via the shader API. */
+         if (!use_programmable_pipeline) {
+            device->SetTexture(0, NULL);
+         }
       }
+   }
 
-      device->SetTexture(0, d3d_texture);
+   if (texture) {
       device->GetSamplerState(0, D3DSAMP_ADDRESSU, &state.old_wrap_state[0]);
       device->GetSamplerState(0, D3DSAMP_ADDRESSV, &state.old_wrap_state[1]);
       _al_set_d3d_sampler_state(device, 0, texture, true);
-   }
-   else {
-      /* Don't unbind the texture here if shaders are used, since the user may
-       * have set the 0'th texture unit manually via the shader API. */
-      if (!use_programmable_pipeline) {
-         device->SetTexture(0, NULL);
-      }
    }
 
    return state;
@@ -3155,12 +3163,13 @@ static void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITM
 #endif
    }
 
-   if (texture && (use_fixed_pipeline || use_default_shader || use_programmable_pipeline)) {
+   if (texture) {
       device->SetSamplerState(0, D3DSAMP_ADDRESSU, state.old_wrap_state[0]);
       device->SetSamplerState(0, D3DSAMP_ADDRESSV, state.old_wrap_state[1]);
-      if (use_fixed_pipeline) {
-         device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, state.old_ttf_state);
-      }
+   }
+
+   if (texture && use_default_shader && use_fixed_pipeline) {
+      device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, state.old_ttf_state);
    }
 
    if (!use_programmable_pipeline && use_default_shader) {
@@ -3181,19 +3190,20 @@ static int draw_prim_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    UINT required_passes = 1;
    unsigned int i;
    D3D_STATE state;
+   bool use_programmable_pipeline = disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE;
 
    if (al_is_d3d_device_lost(disp)) {
       return 0;
    }
 
-   if (use_fixed_pipeline) {
+   if (use_fixed_pipeline && !use_programmable_pipeline) {
       stride = (int)sizeof(D3D_FIXED_VERTEX);
    }
    else {
       stride = (decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX));
    }
 
-   if((use_fixed_pipeline && decl) || (decl && decl->d3d_decl == 0)) {
+   if ((use_fixed_pipeline && decl) || (decl && decl->d3d_decl == 0)) {
       if(!indices)
          return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
       else
@@ -3227,18 +3237,18 @@ static int draw_prim_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    if(use_fixed_pipeline) {
       al_lock_mutex(primitives_mutex);
       vtx = convert_to_fixed_vertices(vtx, num_vtx, indices, type == ALLEGRO_PRIM_LINE_LOOP,
-         disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE);
+         use_programmable_pipeline);
    }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (!use_fixed_pipeline && disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+   if (use_programmable_pipeline) {
       d3d_disp->effect->Begin(&required_passes, 0);
    }
 #endif
 
    for (i = 0; i < required_passes; i++) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (!use_fixed_pipeline && disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+      if (use_programmable_pipeline) {
          d3d_disp->effect->BeginPass(i);
       }
 #endif
@@ -3354,7 +3364,7 @@ static int draw_prim_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          }
       }
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (!use_fixed_pipeline && disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+      if (use_programmable_pipeline) {
          d3d_disp->effect->EndPass();
       }
 #endif
@@ -3389,6 +3399,7 @@ static int draw_buffer_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, A
    UINT required_passes = 1;
    unsigned int i;
    D3D_STATE state;
+   bool use_programmable_pipeline = disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE;
 
    if (al_is_d3d_device_lost(disp)) {
       return 0;
@@ -3409,14 +3420,14 @@ static int draw_buffer_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, A
    }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (!use_fixed_pipeline && disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+   if (use_programmable_pipeline) {
       d3d_disp->effect->Begin(&required_passes, 0);
    }
 #endif
 
    for (i = 0; i < required_passes; i++) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+      if (use_programmable_pipeline) {
          d3d_disp->effect->BeginPass(i);
       }
 #endif
@@ -3513,14 +3524,11 @@ static int draw_buffer_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, A
       }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+      if (use_programmable_pipeline) {
          d3d_disp->effect->EndPass();
       }
 #endif
    }
-
-   if (use_fixed_pipeline)
-      al_unlock_mutex(primitives_mutex);
 
    revert_state(state, device, target, texture);
 
