@@ -74,11 +74,11 @@
  * Note x.y.z (= x.y.z.0) has release number 1, and x.y.z.1 has release
  * number 2, just to confuse you.
  */
-#define ALLEGRO_RELEASE_NUMBER   2
+#define ALLEGRO_RELEASE_NUMBER   3
 
 #define ALLEGRO_VERSION_STR      "5.2.11"
-#define ALLEGRO_DATE_STR         "2025"
-#define ALLEGRO_DATE             20251129    /* yyyymmdd */
+#define ALLEGRO_DATE_STR         "2026"
+#define ALLEGRO_DATE             20260104    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER | \
