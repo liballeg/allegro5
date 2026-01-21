@@ -212,12 +212,14 @@ endif(NOT SUPPORT_AUDIO)
 
 include_directories(SYSTEM ${AUDIO_INCLUDE_DIRECTORIES})
 link_directories(${AUDIO_LINK_DIRECTORIES})
+DelayLoad(AUDIO_LIBRARIES AUDIO_LINK_OPTIONS)
 add_our_addon_library(allegro_audio
     AllegroAudio-${ALLEGRO_SOVERSION}
     "${AUDIO_SOURCES};${AUDIO_INCLUDE_FILES}"
     "-DALLEGRO_KCM_AUDIO_SRC"
     "${ALLEGRO_LINK_WITH};${AUDIO_LIBRARIES}"
     )
+target_link_options(allegro_audio PRIVATE ${AUDIO_LINK_OPTIONS})
 
 install_our_headers(${AUDIO_INCLUDE_FILES})
 

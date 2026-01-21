@@ -136,6 +136,9 @@ set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
 
 option(PREFER_STATIC_DEPS "Whether to prefer static dependencies." off)
 
+option(WANT_DELAYLOAD "Use delay-loaded DLLs on Windows" on)
+include(cmake/DelayLoad.cmake)
+
 #
 # Platforms and drivers.
 #
