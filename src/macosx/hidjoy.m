@@ -298,7 +298,7 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
             num_hats++;
          }
          else {
-            if (num_axes >= _AL_MAX_JOYSTICK_AXES)
+            if (num_axes >= _AL_MAX_JOYSTICK_STICKS * _AL_MAX_JOYSTICK_AXES)
                continue;
 
             AXIS_MAPPING *map = &joy->axes[num_axes];
@@ -420,7 +420,7 @@ static bool add_elements_with_mapping(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX 
       int usage = IOHIDElementGetUsage(elem);
       long min = IOHIDElementGetLogicalMin(elem);
       long max = IOHIDElementGetLogicalMax(elem);
-      if (num_axes >= _AL_MAX_JOYSTICK_AXES)
+      if (num_axes >= _AL_MAX_JOYSTICK_STICKS * _AL_MAX_JOYSTICK_AXES)
          continue;
 
       AXIS_MAPPING *map = &joy->axes[num_axes];
@@ -687,7 +687,7 @@ static void value_callback(
       _al_joystick_generate_button_event(&joy->parent, &joy->state, map->output, int_value);
    }
 
-   for (int i = 0; i < _AL_MAX_JOYSTICK_AXES; i++) {
+   for (int i = 0; i < _AL_MAX_JOYSTICK_STICKS * _AL_MAX_JOYSTICK_AXES; i++) {
       AXIS_MAPPING *map = &joy->axes[i];
       if (!map->elem)
          break;
