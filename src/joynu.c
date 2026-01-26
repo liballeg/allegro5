@@ -1045,7 +1045,7 @@ void _al_joystick_generate_axis_event(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_ST
    if (!_al_event_source_needs_to_generate_event(es))
       return;
 
-   if (output.button_enabled) {
+   if (output.button_enabled && output.button < _AL_MAX_JOYSTICK_BUTTONS) {
       ALLEGRO_EVENT_TYPE event_type;
       bool generate;
       float threshold = output.button_threshold;
@@ -1102,7 +1102,8 @@ void _al_joystick_generate_axis_event(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_ST
          enabled = output.neg_enabled;
       }
       if (enabled) {
-         joystate->stick[out_stick].axis[out_axis] = out_pos;
+         if (out_stick < _AL_MAX_JOYSTICK_STICKS && out_axis < _AL_MAX_JOYSTICK_AXES)
+            joystate->stick[out_stick].axis[out_axis] = out_pos;
          event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
          event.joystick.timestamp = al_get_time();
          event.joystick.id = joy;
@@ -1129,7 +1130,7 @@ void _al_joystick_generate_button_event(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_
    if (!_al_event_source_needs_to_generate_event(es))
       return;
 
-   if (output.button_enabled) {
+   if (output.button_enabled && output.button < _AL_MAX_JOYSTICK_BUTTONS) {
       ALLEGRO_EVENT_TYPE event_type;
       bool generate;
       if (value > 0) {
@@ -1165,7 +1166,8 @@ void _al_joystick_generate_button_event(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_
    }
    else if (output.pos_enabled) {
       float pos = value > 0 ? output.pos_max : output.pos_min;
-      joystate->stick[output.pos_stick].axis[output.pos_axis] = pos;
+      if (output.pos_stick < _AL_MAX_JOYSTICK_STICKS && output.pos_axis < _AL_MAX_JOYSTICK_AXES)
+         joystate->stick[output.pos_stick].axis[output.pos_axis] = pos;
       event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
       event.joystick.timestamp = al_get_time();
       event.joystick.id = joy;
