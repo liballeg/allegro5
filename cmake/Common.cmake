@@ -225,11 +225,6 @@ function(set_our_framework_properties target nm)
 endfunction(set_our_framework_properties)
 
 function(install_our_library target filename)
-    install(TARGETS ${target}
-            FRAMEWORK DESTINATION "${FRAMEWORK_INSTALL_PREFIX}"
-            # Doesn't work, see below.
-            # PUBLIC_HEADER DESTINATION "include"
-            )
     if(MSVC AND BUILD_SHARED_LIBS)
         install(FILES ${CMAKE_BINARY_DIR}/lib/\${CMAKE_INSTALL_CONFIG_NAME}/${filename}.pdb
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
