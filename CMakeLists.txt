@@ -1257,10 +1257,6 @@ write_basic_package_version_file(${PKG_VERSION_FILE}
   COMPATIBILITY AnyNewerVersion
 )
 install(
-  TARGETS ${ALLEGRO_TARGETS}
-  EXPORT ${PKG_TARGETS_NAME}
-)
-install(
   EXPORT ${PKG_TARGETS_NAME}
   NAMESPACE ${PKG_NAME}::
   DESTINATION ${PKG_CONFIG_INSTALL_DIR}
@@ -1274,6 +1270,20 @@ install(
 export(EXPORT ${PKG_TARGETS_NAME}
   FILE "${PKG_GENERATED_DIR}/${PKG_NAME}Targets.cmake"
   NAMESPACE ${PKG_NAME}::
+)
+
+#-----------------------------------------------------------------------------#
+#
+#   Misc installation
+#
+#-----------------------------------------------------------------------------#
+
+# This lives here instead of add_our_library primarily because we only set up
+# the PKG_TARGETS_NAME here.
+install(
+  TARGETS ${ALLEGRO_TARGETS}
+  EXPORT ${PKG_TARGETS_NAME}
+  FRAMEWORK DESTINATION "${FRAMEWORK_INSTALL_PREFIX}"
 )
 
 #-----------------------------------------------------------------------------#
