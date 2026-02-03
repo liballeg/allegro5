@@ -24,7 +24,8 @@ jobs:
 
       - name: Install and Build
         run: |
-            sudo apt-get install -y libgl1-mesa-dev libglu-dev libxcursor-dev
+            sudo apt-get update
+            sudo apt-get install -qq -y -o=Dpkg::Use-Pty=0 libgl1-mesa-dev libglu-dev libxcursor-dev
             sudo dpkg -i pandoc-2.19.2-1-amd64.deb
             mkdir build
             cd build
