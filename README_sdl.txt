@@ -77,6 +77,7 @@ emcmake cmake .. \
     -D CMAKE_CXX_FLAGS="${USE_FLAGS[*]}" \
     -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS[*]} -s FULL_ES2=1 -s ASYNCIFY -s TOTAL_MEMORY=2147418112" \
     -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
+    -D CMAKE_EXECUTABLE_SUFFIX_C=".html"
 ```
 
 Emscripten will take care of downloading the dependencies mentioned above via
