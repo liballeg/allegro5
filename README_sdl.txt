@@ -56,9 +56,6 @@ USE_FLAGS=(
     -s USE_LIBJPEG=1
     -s USE_SDL=2
     -s USE_LIBPNG=1
-    -s FULL_ES2=1
-    -s ASYNCIFY
-    -s TOTAL_MEMORY=2147418112
     -O3
     )
 
@@ -78,7 +75,7 @@ emcmake cmake .. \
     -D SDL2_INCLUDE_DIR=$EM_CACHE/sysroot/include \
     -D CMAKE_C_FLAGS="${USE_FLAGS[*]}" \
     -D CMAKE_CXX_FLAGS="${USE_FLAGS[*]}" \
-    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS[*]}" \
+    -D CMAKE_EXE_LINKER_FLAGS="${USE_FLAGS[*]} -s FULL_ES2=1 -s ASYNCIFY -s TOTAL_MEMORY=2147418112" \
     -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
 ```
 
