@@ -19,5 +19,9 @@ Linux this is no problem because you simply can call [al_install_system]. But
 some other system (like OSX) don't allow calling [al_install_system] in the main
 thread. al_run_main will know what to do in that case.
 
-The passed argc and argv will simply be passed on to user_main and the return
-value of user_main will be returned.
+If you're calling this outside a library, define `ALLEGRO_NO_MAGIC_MAIN` before
+including `<allegro5/allegro.h>` to disable the automatic name mangling.
+
+The passed argc and argv are passed on to user_main and the return value of
+user_main will be returned. In certain cases, Allegro may change argv[0] to
+point to a different directory (e.g. when inside a MacOS App bundle).
