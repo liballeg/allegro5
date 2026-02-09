@@ -1,0 +1,35 @@
+<abi-corpus version='2.2' path='build/lib/liballegro_memfile.so' architecture='elf-amd-x86_64' soname='liballegro_memfile.so.5.2'>
+  <elf-needed>
+    <dependency name='liballegro.so.5.2'/>
+    <dependency name='libc.so.6'/>
+  </elf-needed>
+  <elf-function-symbols>
+    <elf-symbol name='al_get_allegro_memfile_version' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_open_memfile' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='addons/memfile/memfile.c' comp-dir-path='build/addons/memfile' language='LANG_C11'>
+    <type-decl name='char' size-in-bits='8' id='type-id-1'/>
+    <type-decl name='long int' size-in-bits='64' id='type-id-2'/>
+    <typedef-decl name='__int64_t' type-id='type-id-2' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='44' column='1' id='type-id-3'/>
+    <typedef-decl name='__uint32_t' type-id='type-id-4' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='42' column='1' id='type-id-5'/>
+    <typedef-decl name='int64_t' type-id='type-id-3' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-intn.h' line='27' column='1' id='type-id-6'/>
+    <typedef-decl name='uint32_t' type-id='type-id-5' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='26' column='1' id='type-id-7'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='type-id-4'/>
+    <qualified-type-def type-id='type-id-1' const='yes' id='type-id-8'/>
+    <pointer-type-def type-id='type-id-8' size-in-bits='64' id='type-id-9'/>
+    <pointer-type-def type-id='type-id-10' size-in-bits='64' id='type-id-11'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-12'/>
+    <function-decl name='al_open_memfile' mangled-name='al_open_memfile' filepath='addons/memfile/memfile.c' line='169' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_open_memfile'>
+      <parameter type-id='type-id-13' name='mem' filepath='addons/memfile/memfile.c' line='169' column='1'/>
+      <parameter type-id='type-id-6' name='size' filepath='addons/memfile/memfile.c' line='169' column='1'/>
+      <parameter type-id='type-id-9' name='mode' filepath='addons/memfile/memfile.c' line='169' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='al_get_allegro_memfile_version' mangled-name='al_get_allegro_memfile_version' filepath='addons/memfile/memfile.c' line='201' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_allegro_memfile_version'>
+      <return type-id='type-id-7'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-12' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-10'/>
+    <type-decl name='void' id='type-id-14'/>
+    <pointer-type-def type-id='type-id-14' id='type-id-13'/>
+  </abi-instr>
+</abi-corpus>
