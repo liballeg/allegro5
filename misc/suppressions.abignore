@@ -1,0 +1,7 @@
+[suppress_function]
+  name_regexp = ^_al_.*
+  change_kind=all
+
+[suppress_type]
+  name_regexp = ^_AL_.*
+  change_kind=all
