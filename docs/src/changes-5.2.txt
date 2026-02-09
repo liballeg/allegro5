@@ -2,6 +2,14 @@
 
 These lists serve as summaries; the full histories are in the git repository.
 
+Changes from 5.2.11.2 to 5.2.11.3 (February 2026)
+=================================================
+
+Core:
+
+- Fix a backwards incompatible change to ALLEGRO_JOYSTICK_STATE (#1718)
+  (SiegeLord)
+
 
 Changes from 5.2.11.1 to 5.2.11.2 (January 2026)
 ===============================================
