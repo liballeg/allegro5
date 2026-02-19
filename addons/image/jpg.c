@@ -254,11 +254,16 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
       /* CMYK. */
       int x, y;
       data->row = al_malloc(w * 4);
+
+      if (data->row == NULL) {
+         data->error = true;
+         ALLEGRO_ERROR("failed to allocate row buffer\n");
+         goto error;
+      }
+
       for (y = cinfo.output_scanline; y < h; y = cinfo.output_scanline) {
-         unsigned char *in[1];
          unsigned char *dest_row;
-         in[0] = data->row;
-         jpeg_read_scanlines(&cinfo, (void *)in, 1);
+         jpeg_read_scanlines(&cinfo, (void *)&data->row, 1);
          dest_row = ((unsigned char *)lock->data) + y * lock->pitch;
          for (x = 0; x < w; x++) {
             /* libjpeg outputs inverted CMYK where 255 = no ink. */
