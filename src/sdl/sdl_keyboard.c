@@ -25,6 +25,7 @@ typedef struct ALLEGRO_KEYBOARD_SDL
    int inverse[1024];
    int unicode[1024];
    int inverse_unicode[1024];
+   int last_down_keycode;
    bool create_extra_char[1024];
    ALLEGRO_DISPLAY *display;
 } ALLEGRO_KEYBOARD_SDL;
@@ -70,7 +71,6 @@ void _al_sdl_keyboard_event(SDL_Event *e)
    _al_event_source_lock(es);
    event.keyboard.timestamp = al_get_time();
    event.keyboard.display = NULL;
-   event.keyboard.modifiers = get_modifiers(e->key.keysym.mod);
    event.keyboard.repeat = false;
 
    if (e->type == SDL_TEXTINPUT) {
@@ -82,17 +82,21 @@ void _al_sdl_keyboard_event(SDL_Event *e)
          if (c <= 0)
             break;
          event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
-         event.keyboard.keycode = c < 1024 ? keyboard->inverse_unicode[c] : 0;
+         event.keyboard.modifiers = get_modifiers(SDL_GetModState());
+         if (keyboard->last_down_keycode != 0) {
+            event.keyboard.keycode = keyboard->last_down_keycode;
+         } else {
+            event.keyboard.keycode = c < 1024 ? keyboard->inverse_unicode[c] : 0;
+         }
          event.keyboard.unichar = c;
          event.keyboard.display = _al_sdl_find_display(e->text.windowID);
          _al_event_source_emit_event(es, &event);
       }
-
    }
    else if (e->type == SDL_KEYDOWN) {
       event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
-      event.keyboard.keycode = keyboard->table[e->key.keysym.scancode];
-      event.keyboard.unichar = keyboard->unicode[e->key.keysym.scancode];
+      event.keyboard.modifiers = get_modifiers(e->key.keysym.mod);
+      event.keyboard.keycode = keyboard->last_down_keycode = keyboard->table[e->key.keysym.scancode];
       event.keyboard.display = _al_sdl_find_display(e->key.windowID);
       if (!e->key.repeat) {
          _al_event_source_emit_event(es, &event);
@@ -105,8 +109,8 @@ void _al_sdl_keyboard_event(SDL_Event *e)
    }
    else if (e->type == SDL_KEYUP) {
       event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+      event.keyboard.modifiers = get_modifiers(e->key.keysym.mod);
       event.keyboard.keycode = keyboard->table[e->key.keysym.scancode];
-      event.keyboard.unichar = keyboard->unicode[e->key.keysym.scancode];
       event.keyboard.display = _al_sdl_find_display(e->key.windowID);
       _al_event_source_emit_event(es, &event);
    }
