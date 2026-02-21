@@ -1412,7 +1412,11 @@ Get the user friendly display name of the device.
 
 Since: 5.2.8
 
+### API: al_set_audio_output_device
 
+Select the audio output device to use.  Currently only implemented on Windows and MacOS/iOS.
+
+Since: 5.2.10
 
 ## Voices
 

@@ -94,8 +94,19 @@ Restart:
       }
    }
 
+   {
+      int count = al_get_num_audio_output_devices(); // returns -1 for unsupported backends
+      log_printf("audio device count: %d\n", count);
+      for (int i = 0; i < count; i++)
+      {
+         const ALLEGRO_AUDIO_DEVICE* device = al_get_audio_output_device(i);
+         log_printf(" --- audio device: %s\n", al_get_audio_device_name(device));
+      }
+   }
+
    log_printf(
       "Press digits to play sounds.\n"
+      "Press F1-F12 keys to select audio output device\n"
       "Space to stop sounds.\n"
       "Add Alt to play sounds repeatedly.\n"
       "'p' to pan the last played sound.\n"
@@ -112,6 +123,17 @@ Restart:
             al_stop_samples();
             if (music) {
                al_set_audio_stream_playing(music, false);
+            }
+         }
+
+         if (event.keyboard.keycode >= ALLEGRO_KEY_F1 && event.keyboard.keycode <= ALLEGRO_KEY_F12) {
+            int device_index = (event.keyboard.keycode - ALLEGRO_KEY_F1 + 12) % 12;
+            const ALLEGRO_AUDIO_DEVICE* device = al_get_audio_output_device(device_index);
+
+            if (device) {
+               log_printf("Selected device #%d %s\n", device_index, al_get_audio_device_name(device));
+
+               al_set_audio_output_device(device);
             }
          }
 
@@ -207,6 +229,9 @@ Restart:
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
             ALLEGRO_ALIGN_LEFT, "1-9 - play the sounds");
+         y += dy;
+         al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
+            ALLEGRO_ALIGN_LEFT, "F1 - F12 select audio output device");
          y += dy;
          al_draw_text(font, al_map_rgb_f(1., 0.5, 0.5), 12, y,
             ALLEGRO_ALIGN_LEFT, "SPACE - stop all sounds");
