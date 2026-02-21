@@ -1,0 +1,367 @@
+<abi-corpus version='2.2' path='build/lib/liballegro_color.so' architecture='elf-amd-x86_64' soname='liballegro_color.so.5.2'>
+  <elf-needed>
+    <dependency name='liballegro.so.5.2'/>
+    <dependency name='libm.so.6'/>
+    <dependency name='libc.so.6'/>
+  </elf-needed>
+  <elf-function-symbols>
+    <elf-symbol name='al_color_cmyk' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_cmyk_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_distance_ciede2000' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_hsl' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_hsl_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_hsv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_hsv_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_html' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_html_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_lab' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_lab_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_lch' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_lch_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_linear' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_linear_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_name' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_name_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_oklab' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_oklab_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_cmyk' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_hsl' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_hsv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_html' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_lab' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_lch' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_linear' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_name' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_oklab' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_xyy' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_xyz' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_rgb_to_yuv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_xyy' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_xyy_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_xyz' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_xyz_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_yuv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_color_yuv_to_rgb' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_allegro_color_version' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_is_color_valid' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='addons/color/color.c' comp-dir-path='build/addons/color' language='LANG_C11'>
+    <type-decl name='bool' size-in-bits='8' id='type-id-1'/>
+    <type-decl name='char' size-in-bits='8' id='type-id-2'/>
+    <type-decl name='double' size-in-bits='64' id='type-id-3'/>
+    <type-decl name='float' size-in-bits='32' id='type-id-4'/>
+    <class-decl name='ALLEGRO_COLOR' size-in-bits='128' is-struct='yes' visibility='default' filepath='include/allegro5/color.h' line='15' column='1' id='type-id-5'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='r' type-id='type-id-4' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='g' type-id='type-id-4' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='b' type-id='type-id-4' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='a' type-id='type-id-4' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='ALLEGRO_COLOR' type-id='type-id-5' filepath='include/allegro5/color.h' line='13' column='1' id='type-id-6'/>
+    <typedef-decl name='__uint32_t' type-id='type-id-7' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='42' column='1' id='type-id-8'/>
+    <typedef-decl name='uint32_t' type-id='type-id-8' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='26' column='1' id='type-id-9'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='type-id-7'/>
+    <pointer-type-def type-id='type-id-2' size-in-bits='64' id='type-id-10'/>
+    <qualified-type-def type-id='type-id-2' const='yes' id='type-id-11'/>
+    <pointer-type-def type-id='type-id-11' size-in-bits='64' id='type-id-12'/>
+    <pointer-type-def type-id='type-id-4' size-in-bits='64' id='type-id-13'/>
+    <function-decl name='al_color_name_to_rgb' mangled-name='al_color_name_to_rgb' filepath='addons/color/color.c' line='210' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_name_to_rgb'>
+      <parameter type-id='type-id-12' name='name' filepath='addons/color/color.c' line='210' column='1'/>
+      <parameter type-id='type-id-13' name='r' filepath='addons/color/color.c' line='210' column='1'/>
+      <parameter type-id='type-id-13' name='g' filepath='addons/color/color.c' line='210' column='1'/>
+      <parameter type-id='type-id-13' name='b' filepath='addons/color/color.c' line='210' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_name' mangled-name='al_color_rgb_to_name' filepath='addons/color/color.c' line='229' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_name'>
+      <parameter type-id='type-id-4' name='r' filepath='addons/color/color.c' line='229' column='1'/>
+      <parameter type-id='type-id-4' name='g' filepath='addons/color/color.c' line='229' column='1'/>
+      <parameter type-id='type-id-4' name='b' filepath='addons/color/color.c' line='229' column='1'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='al_color_name' mangled-name='al_color_name' filepath='addons/color/color.c' line='254' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_name'>
+      <parameter type-id='type-id-12' name='name' filepath='addons/color/color.c' line='254' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_hsv_to_rgb' mangled-name='al_color_hsv_to_rgb' filepath='addons/color/color.c' line='266' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_hsv_to_rgb'>
+      <parameter type-id='type-id-4' name='hue' filepath='addons/color/color.c' line='266' column='1'/>
+      <parameter type-id='type-id-4' name='saturation' filepath='addons/color/color.c' line='266' column='1'/>
+      <parameter type-id='type-id-4' name='value' filepath='addons/color/color.c' line='266' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='267' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='267' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='267' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_hsv' mangled-name='al_color_rgb_to_hsv' filepath='addons/color/color.c' line='294' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_hsv'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='294' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='294' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='294' column='1'/>
+      <parameter type-id='type-id-13' name='hue' filepath='addons/color/color.c' line='295' column='1'/>
+      <parameter type-id='type-id-13' name='saturation' filepath='addons/color/color.c' line='295' column='1'/>
+      <parameter type-id='type-id-13' name='value' filepath='addons/color/color.c' line='295' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_hsv' mangled-name='al_color_hsv' filepath='addons/color/color.c' line='339' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_hsv'>
+      <parameter type-id='type-id-4' name='h' filepath='addons/color/color.c' line='339' column='1'/>
+      <parameter type-id='type-id-4' name='s' filepath='addons/color/color.c' line='339' column='1'/>
+      <parameter type-id='type-id-4' name='v' filepath='addons/color/color.c' line='339' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_hsl_to_rgb' mangled-name='al_color_hsl_to_rgb' filepath='addons/color/color.c' line='367' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_hsl_to_rgb'>
+      <parameter type-id='type-id-4' name='hue' filepath='addons/color/color.c' line='367' column='1'/>
+      <parameter type-id='type-id-4' name='saturation' filepath='addons/color/color.c' line='367' column='1'/>
+      <parameter type-id='type-id-4' name='lightness' filepath='addons/color/color.c' line='367' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='368' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='368' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='368' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_hsl' mangled-name='al_color_rgb_to_hsl' filepath='addons/color/color.c' line='389' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_hsl'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='389' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='389' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='389' column='1'/>
+      <parameter type-id='type-id-13' name='hue' filepath='addons/color/color.c' line='390' column='1'/>
+      <parameter type-id='type-id-13' name='saturation' filepath='addons/color/color.c' line='390' column='1'/>
+      <parameter type-id='type-id-13' name='lightness' filepath='addons/color/color.c' line='390' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_hsl' mangled-name='al_color_hsl' filepath='addons/color/color.c' line='436' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_hsl'>
+      <parameter type-id='type-id-4' name='h' filepath='addons/color/color.c' line='436' column='1'/>
+      <parameter type-id='type-id-4' name='s' filepath='addons/color/color.c' line='436' column='1'/>
+      <parameter type-id='type-id-4' name='l' filepath='addons/color/color.c' line='436' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_cmyk_to_rgb' mangled-name='al_color_cmyk_to_rgb' filepath='addons/color/color.c' line='446' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_cmyk_to_rgb'>
+      <parameter type-id='type-id-4' name='cyan' filepath='addons/color/color.c' line='446' column='1'/>
+      <parameter type-id='type-id-4' name='magenta' filepath='addons/color/color.c' line='446' column='1'/>
+      <parameter type-id='type-id-4' name='yellow' filepath='addons/color/color.c' line='446' column='1'/>
+      <parameter type-id='type-id-4' name='key' filepath='addons/color/color.c' line='447' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='447' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='447' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='447' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_cmyk' mangled-name='al_color_rgb_to_cmyk' filepath='addons/color/color.c' line='458' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_cmyk'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='458' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='458' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='458' column='1'/>
+      <parameter type-id='type-id-13' name='cyan' filepath='addons/color/color.c' line='459' column='1'/>
+      <parameter type-id='type-id-13' name='magenta' filepath='addons/color/color.c' line='459' column='1'/>
+      <parameter type-id='type-id-13' name='yellow' filepath='addons/color/color.c' line='459' column='1'/>
+      <parameter type-id='type-id-13' name='key' filepath='addons/color/color.c' line='459' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_cmyk' mangled-name='al_color_cmyk' filepath='addons/color/color.c' line='480' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_cmyk'>
+      <parameter type-id='type-id-4' name='c' filepath='addons/color/color.c' line='480' column='1'/>
+      <parameter type-id='type-id-4' name='m' filepath='addons/color/color.c' line='480' column='1'/>
+      <parameter type-id='type-id-4' name='y' filepath='addons/color/color.c' line='480' column='1'/>
+      <parameter type-id='type-id-4' name='k' filepath='addons/color/color.c' line='480' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_yuv_to_rgb' mangled-name='al_color_yuv_to_rgb' filepath='addons/color/color.c' line='490' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_yuv_to_rgb'>
+      <parameter type-id='type-id-4' name='y' filepath='addons/color/color.c' line='490' column='1'/>
+      <parameter type-id='type-id-4' name='u' filepath='addons/color/color.c' line='490' column='1'/>
+      <parameter type-id='type-id-4' name='v' filepath='addons/color/color.c' line='490' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='491' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='491' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='491' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_yuv' mangled-name='al_color_rgb_to_yuv' filepath='addons/color/color.c' line='504' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_yuv'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='504' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='504' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='504' column='1'/>
+      <parameter type-id='type-id-13' name='y' filepath='addons/color/color.c' line='505' column='1'/>
+      <parameter type-id='type-id-13' name='u' filepath='addons/color/color.c' line='505' column='1'/>
+      <parameter type-id='type-id-13' name='v' filepath='addons/color/color.c' line='505' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_yuv' mangled-name='al_color_yuv' filepath='addons/color/color.c' line='518' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_yuv'>
+      <parameter type-id='type-id-4' name='y' filepath='addons/color/color.c' line='518' column='1'/>
+      <parameter type-id='type-id-4' name='u' filepath='addons/color/color.c' line='518' column='1'/>
+      <parameter type-id='type-id-4' name='v' filepath='addons/color/color.c' line='518' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_html' mangled-name='al_color_rgb_to_html' filepath='addons/color/color.c' line='528' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_html'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='528' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='528' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='528' column='1'/>
+      <parameter type-id='type-id-10' name='string' filepath='addons/color/color.c' line='529' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_html_to_rgb' mangled-name='al_color_html_to_rgb' filepath='addons/color/color.c' line='538' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_html_to_rgb'>
+      <parameter type-id='type-id-12' name='string' filepath='addons/color/color.c' line='538' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='539' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='539' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='539' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_color_html' mangled-name='al_color_html' filepath='addons/color/color.c' line='568' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_html'>
+      <parameter type-id='type-id-12' name='string' filepath='addons/color/color.c' line='568' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_get_allegro_color_version' mangled-name='al_get_allegro_color_version' filepath='addons/color/color.c' line='581' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_allegro_color_version'>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='al_color_linear_to_rgb' mangled-name='al_color_linear_to_rgb' filepath='addons/color/color.c' line='607' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_linear_to_rgb'>
+      <parameter type-id='type-id-4' name='r' filepath='addons/color/color.c' line='607' column='1'/>
+      <parameter type-id='type-id-4' name='g' filepath='addons/color/color.c' line='607' column='1'/>
+      <parameter type-id='type-id-4' name='b' filepath='addons/color/color.c' line='607' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='608' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='608' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='608' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_linear' mangled-name='al_color_rgb_to_linear' filepath='addons/color/color.c' line='618' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_linear'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='618' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='618' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='618' column='1'/>
+      <parameter type-id='type-id-13' name='r' filepath='addons/color/color.c' line='619' column='1'/>
+      <parameter type-id='type-id-13' name='g' filepath='addons/color/color.c' line='619' column='1'/>
+      <parameter type-id='type-id-13' name='b' filepath='addons/color/color.c' line='619' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_linear' mangled-name='al_color_linear' filepath='addons/color/color.c' line='629' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_linear'>
+      <parameter type-id='type-id-4' name='r' filepath='addons/color/color.c' line='629' column='1'/>
+      <parameter type-id='type-id-4' name='g' filepath='addons/color/color.c' line='629' column='1'/>
+      <parameter type-id='type-id-4' name='b' filepath='addons/color/color.c' line='629' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_xyz_to_rgb' mangled-name='al_color_xyz_to_rgb' filepath='addons/color/color.c' line='639' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_xyz_to_rgb'>
+      <parameter type-id='type-id-4' name='x' filepath='addons/color/color.c' line='639' column='1'/>
+      <parameter type-id='type-id-4' name='y' filepath='addons/color/color.c' line='639' column='1'/>
+      <parameter type-id='type-id-4' name='z' filepath='addons/color/color.c' line='639' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='640' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='640' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='640' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_xyz' mangled-name='al_color_rgb_to_xyz' filepath='addons/color/color.c' line='653' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_xyz'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='653' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='653' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='653' column='1'/>
+      <parameter type-id='type-id-13' name='x' filepath='addons/color/color.c' line='654' column='1'/>
+      <parameter type-id='type-id-13' name='y' filepath='addons/color/color.c' line='654' column='1'/>
+      <parameter type-id='type-id-13' name='z' filepath='addons/color/color.c' line='654' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_xyz' mangled-name='al_color_xyz' filepath='addons/color/color.c' line='667' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_xyz'>
+      <parameter type-id='type-id-4' name='x' filepath='addons/color/color.c' line='667' column='1'/>
+      <parameter type-id='type-id-4' name='y' filepath='addons/color/color.c' line='667' column='1'/>
+      <parameter type-id='type-id-4' name='z' filepath='addons/color/color.c' line='667' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_lab_to_rgb' mangled-name='al_color_lab_to_rgb' filepath='addons/color/color.c' line='689' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_lab_to_rgb'>
+      <parameter type-id='type-id-4' name='l' filepath='addons/color/color.c' line='689' column='1'/>
+      <parameter type-id='type-id-4' name='a' filepath='addons/color/color.c' line='689' column='1'/>
+      <parameter type-id='type-id-4' name='b' filepath='addons/color/color.c' line='689' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='690' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='690' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='690' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_lab' mangled-name='al_color_rgb_to_lab' filepath='addons/color/color.c' line='701' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_lab'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='701' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='701' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='701' column='1'/>
+      <parameter type-id='type-id-13' name='l' filepath='addons/color/color.c' line='702' column='1'/>
+      <parameter type-id='type-id-13' name='a' filepath='addons/color/color.c' line='702' column='1'/>
+      <parameter type-id='type-id-13' name='b' filepath='addons/color/color.c' line='702' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_lab' mangled-name='al_color_lab' filepath='addons/color/color.c' line='717' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_lab'>
+      <parameter type-id='type-id-4' name='l' filepath='addons/color/color.c' line='717' column='1'/>
+      <parameter type-id='type-id-4' name='a' filepath='addons/color/color.c' line='717' column='1'/>
+      <parameter type-id='type-id-4' name='b' filepath='addons/color/color.c' line='717' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_lch_to_rgb' mangled-name='al_color_lch_to_rgb' filepath='addons/color/color.c' line='727' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_lch_to_rgb'>
+      <parameter type-id='type-id-4' name='l' filepath='addons/color/color.c' line='727' column='1'/>
+      <parameter type-id='type-id-4' name='c' filepath='addons/color/color.c' line='727' column='1'/>
+      <parameter type-id='type-id-4' name='h' filepath='addons/color/color.c' line='727' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='728' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='728' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='728' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_lch' mangled-name='al_color_rgb_to_lch' filepath='addons/color/color.c' line='738' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_lch'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='738' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='738' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='738' column='1'/>
+      <parameter type-id='type-id-13' name='l' filepath='addons/color/color.c' line='739' column='1'/>
+      <parameter type-id='type-id-13' name='c' filepath='addons/color/color.c' line='739' column='1'/>
+      <parameter type-id='type-id-13' name='h' filepath='addons/color/color.c' line='739' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_lch' mangled-name='al_color_lch' filepath='addons/color/color.c' line='750' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_lch'>
+      <parameter type-id='type-id-4' name='l' filepath='addons/color/color.c' line='750' column='1'/>
+      <parameter type-id='type-id-4' name='c' filepath='addons/color/color.c' line='750' column='1'/>
+      <parameter type-id='type-id-4' name='h' filepath='addons/color/color.c' line='750' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_xyy_to_rgb' mangled-name='al_color_xyy_to_rgb' filepath='addons/color/color.c' line='760' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_xyy_to_rgb'>
+      <parameter type-id='type-id-4' name='x' filepath='addons/color/color.c' line='760' column='1'/>
+      <parameter type-id='type-id-4' name='y' filepath='addons/color/color.c' line='760' column='1'/>
+      <parameter type-id='type-id-4' name='y2' filepath='addons/color/color.c' line='760' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='761' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='761' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='761' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_xyy' mangled-name='al_color_rgb_to_xyy' filepath='addons/color/color.c' line='771' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_xyy'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='771' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='771' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='771' column='1'/>
+      <parameter type-id='type-id-13' name='x' filepath='addons/color/color.c' line='772' column='1'/>
+      <parameter type-id='type-id-13' name='y' filepath='addons/color/color.c' line='772' column='1'/>
+      <parameter type-id='type-id-13' name='y2' filepath='addons/color/color.c' line='772' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_xyy' mangled-name='al_color_xyy' filepath='addons/color/color.c' line='783' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_xyy'>
+      <parameter type-id='type-id-4' name='x' filepath='addons/color/color.c' line='783' column='1'/>
+      <parameter type-id='type-id-4' name='y' filepath='addons/color/color.c' line='783' column='1'/>
+      <parameter type-id='type-id-4' name='y2' filepath='addons/color/color.c' line='783' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <function-decl name='al_color_distance_ciede2000' mangled-name='al_color_distance_ciede2000' filepath='addons/color/color.c' line='793' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_distance_ciede2000'>
+      <parameter type-id='type-id-6' name='color1' filepath='addons/color/color.c' line='793' column='1'/>
+      <parameter type-id='type-id-6' name='color2' filepath='addons/color/color.c' line='794' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+    <function-decl name='al_is_color_valid' mangled-name='al_is_color_valid' filepath='addons/color/color.c' line='843' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_is_color_valid'>
+      <parameter type-id='type-id-6' name='color' filepath='addons/color/color.c' line='843' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_color_oklab_to_rgb' mangled-name='al_color_oklab_to_rgb' filepath='addons/color/color.c' line='853' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_oklab_to_rgb'>
+      <parameter type-id='type-id-4' name='ol' filepath='addons/color/color.c' line='853' column='1'/>
+      <parameter type-id='type-id-4' name='oa' filepath='addons/color/color.c' line='853' column='1'/>
+      <parameter type-id='type-id-4' name='ob' filepath='addons/color/color.c' line='853' column='1'/>
+      <parameter type-id='type-id-13' name='red' filepath='addons/color/color.c' line='854' column='1'/>
+      <parameter type-id='type-id-13' name='green' filepath='addons/color/color.c' line='854' column='1'/>
+      <parameter type-id='type-id-13' name='blue' filepath='addons/color/color.c' line='854' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_rgb_to_oklab' mangled-name='al_color_rgb_to_oklab' filepath='addons/color/color.c' line='874' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_rgb_to_oklab'>
+      <parameter type-id='type-id-4' name='red' filepath='addons/color/color.c' line='874' column='1'/>
+      <parameter type-id='type-id-4' name='green' filepath='addons/color/color.c' line='874' column='1'/>
+      <parameter type-id='type-id-4' name='blue' filepath='addons/color/color.c' line='874' column='1'/>
+      <parameter type-id='type-id-13' name='ol' filepath='addons/color/color.c' line='875' column='1'/>
+      <parameter type-id='type-id-13' name='oa' filepath='addons/color/color.c' line='875' column='1'/>
+      <parameter type-id='type-id-13' name='ob' filepath='addons/color/color.c' line='875' column='1'/>
+      <return type-id='type-id-14'/>
+    </function-decl>
+    <function-decl name='al_color_oklab' mangled-name='al_color_oklab' filepath='addons/color/color.c' line='894' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_color_oklab'>
+      <parameter type-id='type-id-4' name='l' filepath='addons/color/color.c' line='894' column='1'/>
+      <parameter type-id='type-id-4' name='a' filepath='addons/color/color.c' line='894' column='1'/>
+      <parameter type-id='type-id-4' name='b' filepath='addons/color/color.c' line='894' column='1'/>
+      <return type-id='type-id-6'/>
+    </function-decl>
+    <type-decl name='void' id='type-id-14'/>
+  </abi-instr>
+</abi-corpus>

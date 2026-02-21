@@ -1,0 +1,1110 @@
+<abi-corpus version='2.2' path='build/lib/liballegro_acodec.so' architecture='elf-amd-x86_64' soname='liballegro_acodec.so.5.2'>
+  <elf-needed>
+    <dependency name='liballegro_audio.so.5.2'/>
+    <dependency name='libFLAC.so.12'/>
+    <dependency name='libdumb.so.1'/>
+    <dependency name='libopenmpt.so.0'/>
+    <dependency name='libvorbisfile.so.3'/>
+    <dependency name='libopusfile.so.0'/>
+    <dependency name='liballegro.so.5.2'/>
+    <dependency name='libc.so.6'/>
+  </elf-needed>
+  <elf-function-symbols>
+    <elf-symbol name='_al_acodec_start_feed_thread' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_acodec_stop_feed_thread' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_669' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_amf' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_asy' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_flac' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_it' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_mod' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_mp3' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_mtm' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_ogg_opus' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_ogg_vorbis' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_okt' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_psm' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_ptm' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_riff' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_s3m' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_stm' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_voc' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_wav' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_identify_xm' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_flac' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_flac_audio_stream' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_flac_audio_stream_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_flac_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_mp3' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_mp3_audio_stream' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_mp3_audio_stream_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_mp3_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_opus' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_opus_audio_stream' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_opus_audio_stream_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_opus_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_vorbis' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_vorbis_audio_stream' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_vorbis_audio_stream_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_ogg_vorbis_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_voc' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_voc_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_wav' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_wav_audio_stream' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_wav_audio_stream_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_wav_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_register_dumb_loaders' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_register_openmpt_loaders' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_save_wav' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_save_wav_f' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_allegro_acodec_version' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_init_acodec_addon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_is_acodec_addon_initialized' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_decode_frame' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_ex_close' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_ex_open' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_ex_open_buf' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_init' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_iterate' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_iterate_buf' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_load' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='mp3dec_load_buf' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='addons/acodec/acodec.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <type-decl name='bool' size-in-bits='8' id='type-id-1'/>
+    <typedef-decl name='__uint32_t' type-id='type-id-2' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='42' column='1' id='type-id-3'/>
+    <typedef-decl name='uint32_t' type-id='type-id-3' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='26' column='1' id='type-id-4'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='type-id-2'/>
+    <function-decl name='al_get_allegro_acodec_version' mangled-name='al_get_allegro_acodec_version' filepath='addons/acodec/acodec.c' line='13' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_allegro_acodec_version'>
+      <return type-id='type-id-4'/>
+    </function-decl>
+    <function-decl name='al_init_acodec_addon' mangled-name='al_init_acodec_addon' filepath='addons/acodec/acodec.c' line='21' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_init_acodec_addon'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_is_acodec_addon_initialized' mangled-name='al_is_acodec_addon_initialized' filepath='addons/acodec/acodec.c' line='99' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_is_acodec_addon_initialized'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/dumb.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <function-decl name='_al_register_dumb_loaders' mangled-name='_al_register_dumb_loaders' filepath='addons/acodec/dumb.c' line='651' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_register_dumb_loaders'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/flac.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-5' size-in-bits='64' id='type-id-6'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-7'/>
+    <function-decl name='_al_load_flac' mangled-name='_al_load_flac' filepath='addons/acodec/flac.c' line='536' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_flac'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/flac.c' line='536' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_flac_f' mangled-name='_al_load_flac_f' filepath='addons/acodec/flac.c' line='555' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_flac_f'>
+      <parameter type-id='type-id-6' name='f' filepath='addons/acodec/flac.c' line='555' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_flac_audio_stream' mangled-name='_al_load_flac_audio_stream' filepath='addons/acodec/flac.c' line='584' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_flac_audio_stream'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/flac.c' line='584' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/flac.c' line='585' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/flac.c' line='585' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_load_flac_audio_stream_f' mangled-name='_al_load_flac_audio_stream_f' filepath='addons/acodec/flac.c' line='605' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_flac_audio_stream_f'>
+      <parameter type-id='type-id-6' name='f' filepath='addons/acodec/flac.c' line='605' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/flac.c' line='606' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/flac.c' line='606' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_identify_flac' mangled-name='_al_identify_flac' filepath='addons/acodec/flac.c' line='643' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_flac'>
+      <parameter type-id='type-id-6' name='f' filepath='addons/acodec/flac.c' line='643' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-7' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-5'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/helper.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <function-decl name='_al_acodec_start_feed_thread' mangled-name='_al_acodec_start_feed_thread' filepath='addons/acodec/helper.c' line='8' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_acodec_start_feed_thread'>
+      <parameter type-id='type-id-11' name='stream' filepath='addons/acodec/helper.c' line='8' column='1'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='_al_acodec_stop_feed_thread' mangled-name='_al_acodec_stop_feed_thread' filepath='addons/acodec/helper.c' line='28' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_acodec_stop_feed_thread'>
+      <parameter type-id='type-id-11' name='stream' filepath='addons/acodec/helper.c' line='28' column='1'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/modaudio.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-13' size-in-bits='64' id='type-id-14'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-15'/>
+    <function-decl name='_al_identify_it' mangled-name='_al_identify_it' filepath='addons/acodec/modaudio.c' line='18' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_it'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='18' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_669' mangled-name='_al_identify_669' filepath='addons/acodec/modaudio.c' line='28' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_669'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='28' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_amf' mangled-name='_al_identify_amf' filepath='addons/acodec/modaudio.c' line='38' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_amf'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='38' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_asy' mangled-name='_al_identify_asy' filepath='addons/acodec/modaudio.c' line='48' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_asy'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='48' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_mtm' mangled-name='_al_identify_mtm' filepath='addons/acodec/modaudio.c' line='58' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_mtm'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='58' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_okt' mangled-name='_al_identify_okt' filepath='addons/acodec/modaudio.c' line='68' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_okt'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='68' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_psm' mangled-name='_al_identify_psm' filepath='addons/acodec/modaudio.c' line='78' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_psm'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='78' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_ptm' mangled-name='_al_identify_ptm' filepath='addons/acodec/modaudio.c' line='88' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_ptm'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='88' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_riff' mangled-name='_al_identify_riff' filepath='addons/acodec/modaudio.c' line='100' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_riff'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='100' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_stm' mangled-name='_al_identify_stm' filepath='addons/acodec/modaudio.c' line='121' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_stm'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='121' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_mod' mangled-name='_al_identify_mod' filepath='addons/acodec/modaudio.c' line='140' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_mod'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='140' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_s3m' mangled-name='_al_identify_s3m' filepath='addons/acodec/modaudio.c' line='166' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_s3m'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='166' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_xm' mangled-name='_al_identify_xm' filepath='addons/acodec/modaudio.c' line='178' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_xm'>
+      <parameter type-id='type-id-14' name='f' filepath='addons/acodec/modaudio.c' line='178' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-15' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-13'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/mp3.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <array-type-def dimensions='2' type-id='type-id-16' size-in-bits='18432' id='type-id-17'>
+      <subrange length='2' lower-bound='0' upper-bound='1' type-id='type-id-18' id='type-id-19'/>
+      <subrange length='288' lower-bound='0' upper-bound='287' type-id='type-id-18' id='type-id-20'/>
+    </array-type-def>
+    <array-type-def dimensions='1' type-id='type-id-16' size-in-bits='30720' id='type-id-21'>
+      <subrange length='960' lower-bound='0' upper-bound='959' type-id='type-id-18' id='type-id-22'/>
+    </array-type-def>
+    <class-decl name='mp3dec_ex_t' size-in-bits='53568' is-struct='yes' naming-typedef-id='type-id-23' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='28' column='1' id='type-id-24'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='mp3d' type-id='type-id-25' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='30' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='53376'>
+        <var-decl name='file' type-id='type-id-26' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='31' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='53504'>
+        <var-decl name='seek_method' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='32' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='53536'>
+        <var-decl name='is_file' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='34' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='mp3dec_file_info_t' size-in-bits='256' is-struct='yes' naming-typedef-id='type-id-28' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='15' column='1' id='type-id-29'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='buffer' type-id='type-id-30' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='samples' type-id='type-id-10' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='18' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='channels' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='19' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='160'>
+        <var-decl name='hz' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='19' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='layer' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='19' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='224'>
+        <var-decl name='avg_bitrate_kbps' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='19' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='mp3dec_frame_info_t' size-in-bits='160' is-struct='yes' naming-typedef-id='type-id-31' visibility='default' filepath='build/deps/include/minimp3.h' line='13' column='1' id='type-id-32'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='frame_bytes' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3.h' line='15' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='channels' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3.h' line='15' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='hz' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3.h' line='15' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='layer' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3.h' line='15' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='bitrate_kbps' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3.h' line='15' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='mp3dec_map_info_t' size-in-bits='128' is-struct='yes' naming-typedef-id='type-id-26' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='22' column='1' id='type-id-33'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='buffer' type-id='type-id-34' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='24' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='size' type-id='type-id-10' visibility='default' filepath='build/deps/include/minimp3_ex.h' line='25' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='mp3dec_t' size-in-bits='53344' is-struct='yes' naming-typedef-id='type-id-25' visibility='default' filepath='build/deps/include/minimp3.h' line='18' column='1' id='type-id-35'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='mdct_overlap' type-id='type-id-17' visibility='default' filepath='build/deps/include/minimp3.h' line='20' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='18432'>
+        <var-decl name='qmf_state' type-id='type-id-21' visibility='default' filepath='build/deps/include/minimp3.h' line='20' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='49152'>
+        <var-decl name='reserv' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3.h' line='21' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='49184'>
+        <var-decl name='free_format_bytes' type-id='type-id-27' visibility='default' filepath='build/deps/include/minimp3.h' line='21' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='49216'>
+        <var-decl name='header' type-id='type-id-36' visibility='default' filepath='build/deps/include/minimp3.h' line='22' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='49248'>
+        <var-decl name='reserv_buf' type-id='type-id-37' visibility='default' filepath='build/deps/include/minimp3.h' line='22' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='MP3D_ITERATE_CB' type-id='type-id-38' filepath='build/deps/include/minimp3_ex.h' line='38' column='1' id='type-id-39'/>
+    <typedef-decl name='MP3D_PROGRESS_CB' type-id='type-id-40' filepath='build/deps/include/minimp3_ex.h' line='39' column='1' id='type-id-41'/>
+    <typedef-decl name='mp3d_sample_t' type-id='type-id-42' filepath='build/deps/include/minimp3.h' line='31' column='1' id='type-id-43'/>
+    <typedef-decl name='mp3dec_ex_t' type-id='type-id-24' filepath='build/deps/include/minimp3_ex.h' line='36' column='1' id='type-id-23'/>
+    <typedef-decl name='mp3dec_file_info_t' type-id='type-id-29' filepath='build/deps/include/minimp3_ex.h' line='20' column='1' id='type-id-28'/>
+    <typedef-decl name='mp3dec_frame_info_t' type-id='type-id-32' filepath='build/deps/include/minimp3.h' line='16' column='1' id='type-id-31'/>
+    <typedef-decl name='mp3dec_map_info_t' type-id='type-id-33' filepath='build/deps/include/minimp3_ex.h' line='26' column='1' id='type-id-26'/>
+    <typedef-decl name='mp3dec_t' type-id='type-id-35' filepath='build/deps/include/minimp3.h' line='23' column='1' id='type-id-25'/>
+    <array-type-def dimensions='1' type-id='type-id-44' size-in-bits='32' id='type-id-36'>
+      <subrange length='4' lower-bound='0' upper-bound='3' type-id='type-id-18' id='type-id-45'/>
+    </array-type-def>
+    <array-type-def dimensions='1' type-id='type-id-44' size-in-bits='4088' id='type-id-37'>
+      <subrange length='511' lower-bound='0' upper-bound='510' type-id='type-id-18' id='type-id-46'/>
+    </array-type-def>
+    <qualified-type-def type-id='type-id-47' const='yes' id='type-id-48'/>
+    <pointer-type-def type-id='type-id-48' size-in-bits='64' id='type-id-34'/>
+    <pointer-type-def type-id='type-id-49' size-in-bits='64' id='type-id-38'/>
+    <pointer-type-def type-id='type-id-50' size-in-bits='64' id='type-id-40'/>
+    <pointer-type-def type-id='type-id-43' size-in-bits='64' id='type-id-30'/>
+    <pointer-type-def type-id='type-id-23' size-in-bits='64' id='type-id-51'/>
+    <pointer-type-def type-id='type-id-28' size-in-bits='64' id='type-id-52'/>
+    <pointer-type-def type-id='type-id-31' size-in-bits='64' id='type-id-53'/>
+    <pointer-type-def type-id='type-id-25' size-in-bits='64' id='type-id-54'/>
+    <pointer-type-def type-id='type-id-55' size-in-bits='64' id='type-id-56'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-57'/>
+    <function-decl name='_al_load_mp3' mangled-name='_al_load_mp3' filepath='addons/acodec/mp3.c' line='48' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_mp3'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/mp3.c' line='48' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_mp3_f' mangled-name='_al_load_mp3_f' filepath='addons/acodec/mp3.c' line='67' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_mp3_f'>
+      <parameter type-id='type-id-56' name='f' filepath='addons/acodec/mp3.c' line='67' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_mp3_audio_stream' mangled-name='_al_load_mp3_audio_stream' filepath='addons/acodec/mp3.c' line='108' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_mp3_audio_stream'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/mp3.c' line='108' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/mp3.c' line='108' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/mp3.c' line='108' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_load_mp3_audio_stream_f' mangled-name='_al_load_mp3_audio_stream_f' filepath='addons/acodec/mp3.c' line='257' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_mp3_audio_stream_f'>
+      <parameter type-id='type-id-56' name='f' filepath='addons/acodec/mp3.c' line='257' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/mp3.c' line='257' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/mp3.c' line='257' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_identify_mp3' mangled-name='_al_identify_mp3' filepath='addons/acodec/mp3.c' line='494' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_mp3'>
+      <parameter type-id='type-id-56' name='f' filepath='addons/acodec/mp3.c' line='494' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='mp3dec_init' mangled-name='mp3dec_init' filepath='build/deps/include/minimp3.h' line='1680' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_init'>
+      <parameter type-id='type-id-54' name='dec' filepath='build/deps/include/minimp3.h' line='1680' column='1'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='mp3dec_decode_frame' mangled-name='mp3dec_decode_frame' filepath='build/deps/include/minimp3.h' line='1685' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_decode_frame'>
+      <parameter type-id='type-id-54' name='dec' filepath='build/deps/include/minimp3.h' line='1685' column='1'/>
+      <parameter type-id='type-id-34' name='mp3' filepath='build/deps/include/minimp3.h' line='1685' column='1'/>
+      <parameter type-id='type-id-27' name='mp3_bytes' filepath='build/deps/include/minimp3.h' line='1685' column='1'/>
+      <parameter type-id='type-id-30' name='pcm' filepath='build/deps/include/minimp3.h' line='1685' column='1'/>
+      <parameter type-id='type-id-53' name='info' filepath='build/deps/include/minimp3.h' line='1685' column='1'/>
+      <return type-id='type-id-27'/>
+    </function-decl>
+    <function-decl name='mp3dec_load_buf' mangled-name='mp3dec_load_buf' filepath='build/deps/include/minimp3_ex.h' line='93' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_load_buf'>
+      <parameter type-id='type-id-54' name='dec' filepath='build/deps/include/minimp3_ex.h' line='93' column='1'/>
+      <parameter type-id='type-id-34' name='buf' filepath='build/deps/include/minimp3_ex.h' line='93' column='1'/>
+      <parameter type-id='type-id-10' name='buf_size' filepath='build/deps/include/minimp3_ex.h' line='93' column='1'/>
+      <parameter type-id='type-id-52' name='info' filepath='build/deps/include/minimp3_ex.h' line='93' column='1'/>
+      <parameter type-id='type-id-41' name='progress_cb' filepath='build/deps/include/minimp3_ex.h' line='93' column='1'/>
+      <parameter type-id='type-id-58' name='user_data' filepath='build/deps/include/minimp3_ex.h' line='93' column='1'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='mp3dec_iterate_buf' mangled-name='mp3dec_iterate_buf' filepath='build/deps/include/minimp3_ex.h' line='166' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_iterate_buf'>
+      <parameter type-id='type-id-34' name='buf' filepath='build/deps/include/minimp3_ex.h' line='166' column='1'/>
+      <parameter type-id='type-id-10' name='buf_size' filepath='build/deps/include/minimp3_ex.h' line='166' column='1'/>
+      <parameter type-id='type-id-39' name='callback' filepath='build/deps/include/minimp3_ex.h' line='166' column='1'/>
+      <parameter type-id='type-id-58' name='user_data' filepath='build/deps/include/minimp3_ex.h' line='166' column='1'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='mp3dec_ex_open_buf' mangled-name='mp3dec_ex_open_buf' filepath='build/deps/include/minimp3_ex.h' line='201' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_ex_open_buf'>
+      <parameter type-id='type-id-51' name='dec' filepath='build/deps/include/minimp3_ex.h' line='201' column='1'/>
+      <parameter type-id='type-id-34' name='buf' filepath='build/deps/include/minimp3_ex.h' line='201' column='1'/>
+      <parameter type-id='type-id-10' name='buf_size' filepath='build/deps/include/minimp3_ex.h' line='201' column='1'/>
+      <parameter type-id='type-id-27' name='seek_method' filepath='build/deps/include/minimp3_ex.h' line='201' column='1'/>
+      <return type-id='type-id-27'/>
+    </function-decl>
+    <function-decl name='mp3dec_load' mangled-name='mp3dec_load' filepath='build/deps/include/minimp3_ex.h' line='348' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_load'>
+      <parameter type-id='type-id-54' name='dec' filepath='build/deps/include/minimp3_ex.h' line='348' column='1'/>
+      <parameter type-id='type-id-8' name='file_name' filepath='build/deps/include/minimp3_ex.h' line='348' column='1'/>
+      <parameter type-id='type-id-52' name='info' filepath='build/deps/include/minimp3_ex.h' line='348' column='1'/>
+      <parameter type-id='type-id-41' name='progress_cb' filepath='build/deps/include/minimp3_ex.h' line='348' column='1'/>
+      <parameter type-id='type-id-58' name='user_data' filepath='build/deps/include/minimp3_ex.h' line='348' column='1'/>
+      <return type-id='type-id-27'/>
+    </function-decl>
+    <function-decl name='mp3dec_iterate' mangled-name='mp3dec_iterate' filepath='build/deps/include/minimp3_ex.h' line='359' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_iterate'>
+      <parameter type-id='type-id-8' name='file_name' filepath='build/deps/include/minimp3_ex.h' line='359' column='1'/>
+      <parameter type-id='type-id-39' name='callback' filepath='build/deps/include/minimp3_ex.h' line='359' column='1'/>
+      <parameter type-id='type-id-58' name='user_data' filepath='build/deps/include/minimp3_ex.h' line='359' column='1'/>
+      <return type-id='type-id-27'/>
+    </function-decl>
+    <function-decl name='mp3dec_ex_close' mangled-name='mp3dec_ex_close' filepath='build/deps/include/minimp3_ex.h' line='370' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_ex_close'>
+      <parameter type-id='type-id-51' name='dec' filepath='build/deps/include/minimp3_ex.h' line='370' column='1'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='mp3dec_ex_open' mangled-name='mp3dec_ex_open' filepath='build/deps/include/minimp3_ex.h' line='379' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='mp3dec_ex_open'>
+      <parameter type-id='type-id-51' name='dec' filepath='build/deps/include/minimp3_ex.h' line='379' column='1'/>
+      <parameter type-id='type-id-8' name='file_name' filepath='build/deps/include/minimp3_ex.h' line='379' column='1'/>
+      <parameter type-id='type-id-27' name='seek_method' filepath='build/deps/include/minimp3_ex.h' line='379' column='1'/>
+      <return type-id='type-id-27'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-57' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-55'/>
+    <function-type size-in-bits='64' id='type-id-49'>
+      <parameter type-id='type-id-58'/>
+      <parameter type-id='type-id-34'/>
+      <parameter type-id='type-id-27'/>
+      <parameter type-id='type-id-10'/>
+      <parameter type-id='type-id-53'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-50'>
+      <parameter type-id='type-id-58'/>
+      <parameter type-id='type-id-10'/>
+      <parameter type-id='type-id-10'/>
+      <parameter type-id='type-id-53'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/ogg.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-59' size-in-bits='64' id='type-id-60'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-61'/>
+    <function-decl name='_al_load_ogg_vorbis' mangled-name='_al_load_ogg_vorbis' filepath='addons/acodec/ogg.c' line='191' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_vorbis'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/ogg.c' line='191' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_ogg_vorbis_f' mangled-name='_al_load_ogg_vorbis_f' filepath='addons/acodec/ogg.c' line='212' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_vorbis_f'>
+      <parameter type-id='type-id-60' name='file' filepath='addons/acodec/ogg.c' line='212' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_ogg_vorbis_audio_stream' mangled-name='_al_load_ogg_vorbis_audio_stream' filepath='addons/acodec/ogg.c' line='427' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_vorbis_audio_stream'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/ogg.c' line='427' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/ogg.c' line='428' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/ogg.c' line='428' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_load_ogg_vorbis_audio_stream_f' mangled-name='_al_load_ogg_vorbis_audio_stream_f' filepath='addons/acodec/ogg.c' line='450' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_vorbis_audio_stream_f'>
+      <parameter type-id='type-id-60' name='file' filepath='addons/acodec/ogg.c' line='450' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/ogg.c' line='451' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/ogg.c' line='451' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_identify_ogg_vorbis' mangled-name='_al_identify_ogg_vorbis' filepath='addons/acodec/ogg.c' line='527' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_ogg_vorbis'>
+      <parameter type-id='type-id-60' name='f' filepath='addons/acodec/ogg.c' line='527' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-61' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-59'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/openmpt.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <function-decl name='_al_register_openmpt_loaders' mangled-name='_al_register_openmpt_loaders' filepath='addons/acodec/openmpt.c' line='309' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_register_openmpt_loaders'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/opus.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-62' size-in-bits='64' id='type-id-63'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-64'/>
+    <function-decl name='_al_load_ogg_opus' mangled-name='_al_load_ogg_opus' filepath='addons/acodec/opus.c' line='174' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_opus'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/opus.c' line='174' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_ogg_opus_f' mangled-name='_al_load_ogg_opus_f' filepath='addons/acodec/opus.c' line='195' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_opus_f'>
+      <parameter type-id='type-id-63' name='file' filepath='addons/acodec/opus.c' line='195' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_ogg_opus_audio_stream' mangled-name='_al_load_ogg_opus_audio_stream' filepath='addons/acodec/opus.c' line='372' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_opus_audio_stream'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/opus.c' line='372' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/opus.c' line='373' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/opus.c' line='373' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_load_ogg_opus_audio_stream_f' mangled-name='_al_load_ogg_opus_audio_stream_f' filepath='addons/acodec/opus.c' line='395' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_ogg_opus_audio_stream_f'>
+      <parameter type-id='type-id-63' name='file' filepath='addons/acodec/opus.c' line='395' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/opus.c' line='396' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/opus.c' line='396' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_identify_ogg_opus' mangled-name='_al_identify_ogg_opus' filepath='addons/acodec/opus.c' line='470' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_ogg_opus'>
+      <parameter type-id='type-id-63' name='f' filepath='addons/acodec/opus.c' line='470' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-64' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-62'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/voc.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-65' size-in-bits='64' id='type-id-66'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-67'/>
+    <function-decl name='_al_load_voc' mangled-name='_al_load_voc' filepath='addons/acodec/voc.c' line='230' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_voc'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/voc.c' line='230' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_voc_f' mangled-name='_al_load_voc_f' filepath='addons/acodec/voc.c' line='251' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_voc_f'>
+      <parameter type-id='type-id-66' name='file' filepath='addons/acodec/voc.c' line='251' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_identify_voc' mangled-name='_al_identify_voc' filepath='addons/acodec/voc.c' line='360' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_voc'>
+      <parameter type-id='type-id-66' name='f' filepath='addons/acodec/voc.c' line='360' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-67' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-65'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/acodec/wav.c' comp-dir-path='build/addons/acodec' language='LANG_C11'>
+    <type-decl name='char' size-in-bits='8' id='type-id-68'/>
+    <type-decl name='double' size-in-bits='64' id='type-id-69'/>
+    <enum-decl name='ALLEGRO_AUDIO_DEPTH' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='71' column='1' id='type-id-70'>
+      <underlying-type type-id='type-id-71'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_INT8' value='0'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_INT16' value='1'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_INT24' value='2'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_FLOAT32' value='3'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_UNSIGNED' value='8'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_UINT8' value='8'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_UINT16' value='9'/>
+      <enumerator name='ALLEGRO_AUDIO_DEPTH_UINT24' value='10'/>
+    </enum-decl>
+    <enum-decl name='ALLEGRO_CHANNEL_CONF' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='96' column='1' id='type-id-72'>
+      <underlying-type type-id='type-id-71'/>
+      <enumerator name='ALLEGRO_CHANNEL_CONF_1' value='16'/>
+      <enumerator name='ALLEGRO_CHANNEL_CONF_2' value='32'/>
+      <enumerator name='ALLEGRO_CHANNEL_CONF_3' value='48'/>
+      <enumerator name='ALLEGRO_CHANNEL_CONF_4' value='64'/>
+      <enumerator name='ALLEGRO_CHANNEL_CONF_5_1' value='81'/>
+      <enumerator name='ALLEGRO_CHANNEL_CONF_6_1' value='97'/>
+      <enumerator name='ALLEGRO_CHANNEL_CONF_7_1' value='113'/>
+    </enum-decl>
+    <enum-decl name='ALLEGRO_MIXER_QUALITY' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='132' column='1' id='type-id-73'>
+      <underlying-type type-id='type-id-71'/>
+      <enumerator name='ALLEGRO_MIXER_QUALITY_POINT' value='272'/>
+      <enumerator name='ALLEGRO_MIXER_QUALITY_LINEAR' value='273'/>
+      <enumerator name='ALLEGRO_MIXER_QUALITY_CUBIC' value='274'/>
+    </enum-decl>
+    <enum-decl name='ALLEGRO_PLAYMODE' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='118' column='1' id='type-id-74'>
+      <underlying-type type-id='type-id-71'/>
+      <enumerator name='ALLEGRO_PLAYMODE_ONCE' value='256'/>
+      <enumerator name='ALLEGRO_PLAYMODE_LOOP' value='257'/>
+      <enumerator name='ALLEGRO_PLAYMODE_BIDIR' value='258'/>
+      <enumerator name='_ALLEGRO_PLAYMODE_STREAM_ONCE' value='259'/>
+      <enumerator name='_ALLEGRO_PLAYMODE_STREAM_ONEDIR' value='260'/>
+      <enumerator name='ALLEGRO_PLAYMODE_LOOP_ONCE' value='261'/>
+      <enumerator name='_ALLEGRO_PLAYMODE_STREAM_LOOP_ONCE' value='262'/>
+    </enum-decl>
+    <type-decl name='float' size-in-bits='32' id='type-id-16'/>
+    <type-decl name='int' size-in-bits='32' id='type-id-27'/>
+    <array-type-def dimensions='1' type-id='type-id-27' size-in-bits='1024' id='type-id-75'>
+      <subrange length='32' lower-bound='0' upper-bound='31' type-id='type-id-18' id='type-id-76'/>
+    </array-type-def>
+    <type-decl name='short int' size-in-bits='16' id='type-id-77'/>
+    <type-decl name='signed char' size-in-bits='8' id='type-id-78'/>
+    <class-decl name='ALLEGRO_AUDIO_DRIVER' size-in-bits='960' is-struct='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='64' column='1' id='type-id-79'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='specifier' type-id='type-id-8' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='65' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='open' type-id='type-id-80' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='67' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='close' type-id='type-id-81' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='68' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='allocate_voice' type-id='type-id-82' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='70' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='deallocate_voice' type-id='type-id-83' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='71' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='load_voice' type-id='type-id-84' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='73' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='unload_voice' type-id='type-id-83' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='74' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='start_voice' type-id='type-id-82' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='76' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='stop_voice' type-id='type-id-82' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='77' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='voice_is_playing' type-id='type-id-85' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='79' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='get_voice_position' type-id='type-id-86' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='81' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='704'>
+        <var-decl name='set_voice_position' type-id='type-id-87' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='82' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='768'>
+        <var-decl name='allocate_recorder' type-id='type-id-88' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='85' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='832'>
+        <var-decl name='deallocate_recorder' type-id='type-id-89' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='86' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='896'>
+        <var-decl name='get_output_devices' type-id='type-id-90' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='88' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_AUDIO_RECORDER' size-in-bits='1664' is-struct='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='13' column='1' id='type-id-91'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='source' type-id='type-id-92' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='14' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='thread' type-id='type-id-93' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='16' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='mutex' type-id='type-id-94' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1152'>
+        <var-decl name='cond' type-id='type-id-95' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='18' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1216'>
+        <var-decl name='depth' type-id='type-id-96' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='22' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1248'>
+        <var-decl name='chan_conf' type-id='type-id-97' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='23' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1280'>
+        <var-decl name='frequency' type-id='type-id-2' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='24' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='fragments' type-id='type-id-98' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='26' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1408'>
+        <var-decl name='fragment_count' type-id='type-id-2' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='29' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1440'>
+        <var-decl name='samples' type-id='type-id-2' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='32' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1472'>
+        <var-decl name='fragment_size' type-id='type-id-10' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='35' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1536'>
+        <var-decl name='sample_size' type-id='type-id-2' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='38' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1568'>
+        <var-decl name='is_recording' type-id='type-id-99' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='41' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1600'>
+        <var-decl name='extra' type-id='type-id-58' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='45' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_AUDIO_STREAM' size-in-bits='3392' is-struct='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='257' column='1' id='type-id-100'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='spl' type-id='type-id-101' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='258' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2176'>
+        <var-decl name='buf_count' type-id='type-id-2' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='263' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2240'>
+        <var-decl name='main_buffer' type-id='type-id-58' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='268' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2304'>
+        <var-decl name='pending_bufs' type-id='type-id-98' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='274' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2368'>
+        <var-decl name='used_bufs' type-id='type-id-98' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='275' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2432'>
+        <var-decl name='is_draining' type-id='type-id-99' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='288' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2496'>
+        <var-decl name='consumed_fragments' type-id='type-id-102' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='295' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2560'>
+        <var-decl name='feed_thread' type-id='type-id-93' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='300' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2624'>
+        <var-decl name='feed_thread_started_mutex' type-id='type-id-94' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='301' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2688'>
+        <var-decl name='feed_thread_started_cond' type-id='type-id-95' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='302' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2752'>
+        <var-decl name='feed_thread_started' type-id='type-id-1' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='303' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2760'>
+        <var-decl name='quit_feed_thread' type-id='type-id-99' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='304' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2816'>
+        <var-decl name='unload_feeder' type-id='type-id-103' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='305' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2880'>
+        <var-decl name='rewind_feeder' type-id='type-id-104' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='306' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2944'>
+        <var-decl name='seek_feeder' type-id='type-id-105' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='307' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3008'>
+        <var-decl name='get_feeder_position' type-id='type-id-106' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='308' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3072'>
+        <var-decl name='get_feeder_length' type-id='type-id-107' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='309' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3136'>
+        <var-decl name='set_feeder_loop' type-id='type-id-108' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='310' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3200'>
+        <var-decl name='feeder' type-id='type-id-109' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='311' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3264'>
+        <var-decl name='dtor_item' type-id='type-id-110' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='318' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3328'>
+        <var-decl name='extra' type-id='type-id-58' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='320' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_EVENT_SOURCE' size-in-bits='1024' is-struct='yes' visibility='default' filepath='include/allegro5/events.h' line='76' column='1' id='type-id-111'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='__pad' type-id='type-id-75' visibility='default' filepath='include/allegro5/events.h' line='78' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_MIXER' size-in-bits='2688' is-struct='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='336' column='1' id='type-id-112'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='ss' type-id='type-id-101' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='337' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2176'>
+        <var-decl name='quality' type-id='type-id-113' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='340' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2240'>
+        <var-decl name='postprocess_callback' type-id='type-id-114' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='342' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2304'>
+        <var-decl name='pp_callback_userdata' type-id='type-id-58' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='343' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2368'>
+        <var-decl name='streams' type-id='type-id-115' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='345' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2624'>
+        <var-decl name='dtor_item' type-id='type-id-110' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='349' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_SAMPLE' size-in-bits='320' is-struct='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='145' column='1' id='type-id-116'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='depth' type-id='type-id-96' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='146' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='chan_conf' type-id='type-id-97' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='147' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='frequency' type-id='type-id-2' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='148' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='len' type-id='type-id-27' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='149' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='buffer' type-id='type-id-117' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='150' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='free_buf' type-id='type-id-1' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='151' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='dtor_item' type-id='type-id-110' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='155' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_SAMPLE_INSTANCE' size-in-bits='2176' is-struct='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='190' column='1' id='type-id-118'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='es' type-id='type-id-92' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='193' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='spl_data' type-id='type-id-119' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='195' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='is_playing' type-id='type-id-99' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='197' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1376'>
+        <var-decl name='loop' type-id='type-id-120' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='200' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1408'>
+        <var-decl name='speed' type-id='type-id-16' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='201' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1440'>
+        <var-decl name='gain' type-id='type-id-16' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='202' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1472'>
+        <var-decl name='pan' type-id='type-id-16' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='203' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1504'>
+        <var-decl name='pos' type-id='type-id-27' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='208' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1536'>
+        <var-decl name='pos_bresenham_error' type-id='type-id-27' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='209' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1568'>
+        <var-decl name='loop_start' type-id='type-id-27' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='211' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1600'>
+        <var-decl name='loop_end' type-id='type-id-27' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='212' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1632'>
+        <var-decl name='step' type-id='type-id-27' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='214' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1664'>
+        <var-decl name='step_denom' type-id='type-id-27' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='215' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1728'>
+        <var-decl name='matrix' type-id='type-id-121' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='220' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1792'>
+        <var-decl name='is_mixer' type-id='type-id-1' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='226' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1856'>
+        <var-decl name='spl_read' type-id='type-id-122' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='227' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1920'>
+        <var-decl name='mutex' type-id='type-id-94' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='232' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1984'>
+        <var-decl name='parent' type-id='type-id-123' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='238' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2112'>
+        <var-decl name='dtor_item' type-id='type-id-110' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='241' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_VOICE' size-in-bits='704' is-struct='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='101' column='1' id='type-id-124'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='depth' type-id='type-id-96' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='102' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='chan_conf' type-id='type-id-97' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='103' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='frequency' type-id='type-id-2' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='105' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='buffer_size' type-id='type-id-10' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='107' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='num_buffers' type-id='type-id-10' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='108' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='attached_stream' type-id='type-id-125' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='111' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='is_streaming' type-id='type-id-1' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='116' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='mutex' type-id='type-id-94' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='119' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='cond' type-id='type-id-95' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='120' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='dtor_item' type-id='type-id-110' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='122' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='driver' type-id='type-id-126' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='124' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='extra' type-id='type-id-58' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='129' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_AL_VECTOR' size-in-bits='256' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='9' column='1' id='type-id-127'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='_itemsize' type-id='type-id-10' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='12' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='_items' type-id='type-id-128' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='13' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='_size' type-id='type-id-10' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='14' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='_unused' type-id='type-id-10' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='15' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='sample_parent_t' size-in-bits='128' is-struct='yes' naming-typedef-id='type-id-123' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='180' column='1' id='type-id-129'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='u' type-id='type-id-130' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='185' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='is_voice' type-id='type-id-1' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='186' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='ALLEGRO_AUDIO_DEPTH' type-id='type-id-70' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='191' column='1' id='type-id-96'/>
+    <typedef-decl name='ALLEGRO_AUDIO_DRIVER' type-id='type-id-79' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='63' column='1' id='type-id-131'/>
+    <typedef-decl name='ALLEGRO_AUDIO_STREAM' type-id='type-id-100' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='166' column='1' id='type-id-132'/>
+    <typedef-decl name='ALLEGRO_CHANNEL_CONF' type-id='type-id-72' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='192' column='1' id='type-id-97'/>
+    <typedef-decl name='ALLEGRO_EVENT_SOURCE' type-id='type-id-111' filepath='include/allegro5/events.h' line='74' column='1' id='type-id-92'/>
+    <typedef-decl name='ALLEGRO_MIXER' type-id='type-id-112' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='171' column='1' id='type-id-133'/>
+    <typedef-decl name='ALLEGRO_MIXER_QUALITY' type-id='type-id-73' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='194' column='1' id='type-id-113'/>
+    <typedef-decl name='ALLEGRO_PLAYMODE' type-id='type-id-74' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='193' column='1' id='type-id-120'/>
+    <typedef-decl name='ALLEGRO_SAMPLE' type-id='type-id-116' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='146' column='1' id='type-id-119'/>
+    <typedef-decl name='ALLEGRO_SAMPLE_INSTANCE' type-id='type-id-118' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='161' column='1' id='type-id-101'/>
+    <typedef-decl name='ALLEGRO_VOICE' type-id='type-id-124' filepath='addons/acodec/../audio/allegro5/allegro_audio.h' line='176' column='1' id='type-id-134'/>
+    <typedef-decl name='_AL_VECTOR' type-id='type-id-127' filepath='include/allegro5/internal/aintern_vector.h' line='16' column='1' id='type-id-115'/>
+    <typedef-decl name='__int16_t' type-id='type-id-77' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='39' column='1' id='type-id-135'/>
+    <typedef-decl name='__int32_t' type-id='type-id-27' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='41' column='1' id='type-id-136'/>
+    <typedef-decl name='__int8_t' type-id='type-id-78' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='37' column='1' id='type-id-137'/>
+    <typedef-decl name='__uint16_t' type-id='type-id-138' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='40' column='1' id='type-id-139'/>
+    <typedef-decl name='__uint64_t' type-id='type-id-18' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='45' column='1' id='type-id-140'/>
+    <typedef-decl name='__uint8_t' type-id='type-id-44' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='38' column='1' id='type-id-141'/>
+    <typedef-decl name='any_buffer_t' type-id='type-id-142' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='143' column='1' id='type-id-117'/>
+    <typedef-decl name='get_feeder_length_t' type-id='type-id-143' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='254' column='1' id='type-id-107'/>
+    <typedef-decl name='get_feeder_position_t' type-id='type-id-143' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='253' column='1' id='type-id-106'/>
+    <typedef-decl name='int16_t' type-id='type-id-135' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-intn.h' line='25' column='1' id='type-id-42'/>
+    <typedef-decl name='int32_t' type-id='type-id-136' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-intn.h' line='26' column='1' id='type-id-144'/>
+    <typedef-decl name='int8_t' type-id='type-id-137' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-intn.h' line='24' column='1' id='type-id-145'/>
+    <typedef-decl name='postprocess_callback_t' type-id='type-id-146' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='327' column='1' id='type-id-114'/>
+    <typedef-decl name='rewind_feeder_t' type-id='type-id-147' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='251' column='1' id='type-id-104'/>
+    <typedef-decl name='sample_parent_t' type-id='type-id-129' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='187' column='1' id='type-id-123'/>
+    <typedef-decl name='seek_feeder_t' type-id='type-id-148' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='252' column='1' id='type-id-105'/>
+    <typedef-decl name='set_feeder_loop_t' type-id='type-id-149' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='255' column='1' id='type-id-108'/>
+    <typedef-decl name='size_t' type-id='type-id-18' filepath='/usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h' line='214' column='1' id='type-id-10'/>
+    <typedef-decl name='stream_callback_t' type-id='type-id-150' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='249' column='1' id='type-id-109'/>
+    <typedef-decl name='stream_reader_t' type-id='type-id-151' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='177' column='1' id='type-id-122'/>
+    <typedef-decl name='uint16_t' type-id='type-id-139' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='25' column='1' id='type-id-152'/>
+    <typedef-decl name='uint64_t' type-id='type-id-140' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='27' column='1' id='type-id-102'/>
+    <typedef-decl name='uint8_t' type-id='type-id-141' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='24' column='1' id='type-id-47'/>
+    <typedef-decl name='unload_feeder_t' type-id='type-id-153' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='250' column='1' id='type-id-103'/>
+    <union-decl name='any_buffer_t' size-in-bits='64' naming-typedef-id='type-id-117' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='134' column='1' id='type-id-142'>
+      <data-member access='public'>
+        <var-decl name='f32' type-id='type-id-121' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='135' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='u24' type-id='type-id-154' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='136' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='s24' type-id='type-id-155' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='137' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='u16' type-id='type-id-156' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='138' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='s16' type-id='type-id-157' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='139' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='u8' type-id='type-id-158' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='140' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='s8' type-id='type-id-159' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='141' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='ptr' type-id='type-id-58' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='142' column='1'/>
+      </data-member>
+    </union-decl>
+    <union-decl name='__anonymous_union__' size-in-bits='64' is-anonymous='yes' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='181' column='1' id='type-id-130'>
+      <data-member access='public'>
+        <var-decl name='mixer' type-id='type-id-160' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='182' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='voice' type-id='type-id-161' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='183' column='1'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='ptr' type-id='type-id-58' visibility='default' filepath='addons/acodec/../audio/allegro5/internal/aintern_audio.h' line='184' column='1'/>
+      </data-member>
+    </union-decl>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='type-id-71'/>
+    <type-decl name='unsigned char' size-in-bits='8' id='type-id-44'/>
+    <type-decl name='unsigned long int' size-in-bits='64' id='type-id-18'/>
+    <type-decl name='unsigned short int' size-in-bits='16' id='type-id-138'/>
+    <pointer-type-def type-id='type-id-131' size-in-bits='64' id='type-id-126'/>
+    <pointer-type-def type-id='type-id-91' size-in-bits='64' id='type-id-162'/>
+    <pointer-type-def type-id='type-id-132' size-in-bits='64' id='type-id-11'/>
+    <pointer-type-def type-id='type-id-133' size-in-bits='64' id='type-id-160'/>
+    <pointer-type-def type-id='type-id-119' size-in-bits='64' id='type-id-9'/>
+    <pointer-type-def type-id='type-id-101' size-in-bits='64' id='type-id-125'/>
+    <pointer-type-def type-id='type-id-134' size-in-bits='64' id='type-id-161'/>
+    <pointer-type-def type-id='type-id-163' size-in-bits='64' id='type-id-90'/>
+    <pointer-type-def type-id='type-id-164' size-in-bits='64' id='type-id-147'/>
+    <pointer-type-def type-id='type-id-165' size-in-bits='64' id='type-id-148'/>
+    <pointer-type-def type-id='type-id-166' size-in-bits='64' id='type-id-149'/>
+    <pointer-type-def type-id='type-id-167' size-in-bits='64' id='type-id-85'/>
+    <pointer-type-def type-id='type-id-68' size-in-bits='64' id='type-id-128'/>
+    <qualified-type-def type-id='type-id-134' const='yes' id='type-id-168'/>
+    <pointer-type-def type-id='type-id-168' size-in-bits='64' id='type-id-169'/>
+    <qualified-type-def type-id='type-id-68' const='yes' id='type-id-170'/>
+    <pointer-type-def type-id='type-id-170' size-in-bits='64' id='type-id-8'/>
+    <pointer-type-def type-id='type-id-171' size-in-bits='64' id='type-id-143'/>
+    <pointer-type-def type-id='type-id-16' size-in-bits='64' id='type-id-121'/>
+    <pointer-type-def type-id='type-id-172' size-in-bits='64' id='type-id-80'/>
+    <pointer-type-def type-id='type-id-173' size-in-bits='64' id='type-id-88'/>
+    <pointer-type-def type-id='type-id-174' size-in-bits='64' id='type-id-82'/>
+    <pointer-type-def type-id='type-id-175' size-in-bits='64' id='type-id-87'/>
+    <pointer-type-def type-id='type-id-176' size-in-bits='64' id='type-id-84'/>
+    <pointer-type-def type-id='type-id-42' size-in-bits='64' id='type-id-157'/>
+    <pointer-type-def type-id='type-id-144' size-in-bits='64' id='type-id-155'/>
+    <pointer-type-def type-id='type-id-145' size-in-bits='64' id='type-id-159'/>
+    <pointer-type-def type-id='type-id-177' size-in-bits='64' id='type-id-150'/>
+    <pointer-type-def type-id='type-id-152' size-in-bits='64' id='type-id-156'/>
+    <pointer-type-def type-id='type-id-4' size-in-bits='64' id='type-id-154'/>
+    <pointer-type-def type-id='type-id-47' size-in-bits='64' id='type-id-158'/>
+    <pointer-type-def type-id='type-id-178' size-in-bits='64' id='type-id-86'/>
+    <pointer-type-def type-id='type-id-2' size-in-bits='64' id='type-id-179'/>
+    <pointer-type-def type-id='type-id-180' size-in-bits='64' id='type-id-81'/>
+    <pointer-type-def type-id='type-id-181' size-in-bits='64' id='type-id-89'/>
+    <pointer-type-def type-id='type-id-182' size-in-bits='64' id='type-id-153'/>
+    <pointer-type-def type-id='type-id-183' size-in-bits='64' id='type-id-83'/>
+    <pointer-type-def type-id='type-id-184' size-in-bits='64' id='type-id-146'/>
+    <pointer-type-def type-id='type-id-185' size-in-bits='64' id='type-id-151'/>
+    <pointer-type-def type-id='type-id-58' size-in-bits='64' id='type-id-98'/>
+    <qualified-type-def type-id='type-id-1' volatile='yes' id='type-id-99'/>
+    <pointer-type-def type-id='type-id-186' size-in-bits='64' id='type-id-95'/>
+    <pointer-type-def type-id='type-id-187' size-in-bits='64' id='type-id-188'/>
+    <pointer-type-def type-id='type-id-189' size-in-bits='64' id='type-id-94'/>
+    <pointer-type-def type-id='type-id-190' size-in-bits='64' id='type-id-93'/>
+    <pointer-type-def type-id='type-id-191' size-in-bits='64' id='type-id-192'/>
+    <pointer-type-def type-id='type-id-193' size-in-bits='64' id='type-id-110'/>
+    <class-decl name='ALLEGRO_COND' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-194'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-195'/>
+    <class-decl name='ALLEGRO_MUTEX' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-196'/>
+    <class-decl name='ALLEGRO_THREAD' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-197'/>
+    <class-decl name='_AL_LIST' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-198'/>
+    <class-decl name='_AL_LIST_ITEM' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-199'/>
+    <function-decl name='_al_load_wav' mangled-name='_al_load_wav' filepath='addons/acodec/wav.c' line='302' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_wav'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/wav.c' line='302' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_wav_f' mangled-name='_al_load_wav_f' filepath='addons/acodec/wav.c' line='321' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_wav_f'>
+      <parameter type-id='type-id-188' name='fp' filepath='addons/acodec/wav.c' line='321' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='_al_load_wav_audio_stream' mangled-name='_al_load_wav_audio_stream' filepath='addons/acodec/wav.c' line='352' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_wav_audio_stream'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/wav.c' line='352' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/wav.c' line='353' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/wav.c' line='353' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_load_wav_audio_stream_f' mangled-name='_al_load_wav_audio_stream_f' filepath='addons/acodec/wav.c' line='376' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_wav_audio_stream_f'>
+      <parameter type-id='type-id-188' name='f' filepath='addons/acodec/wav.c' line='376' column='1'/>
+      <parameter type-id='type-id-10' name='buffer_count' filepath='addons/acodec/wav.c' line='377' column='1'/>
+      <parameter type-id='type-id-2' name='samples' filepath='addons/acodec/wav.c' line='377' column='1'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+    <function-decl name='_al_save_wav' mangled-name='_al_save_wav' filepath='addons/acodec/wav.c' line='419' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_save_wav'>
+      <parameter type-id='type-id-8' name='filename' filepath='addons/acodec/wav.c' line='419' column='1'/>
+      <parameter type-id='type-id-9' name='spl' filepath='addons/acodec/wav.c' line='419' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_save_wav_f' mangled-name='_al_save_wav_f' filepath='addons/acodec/wav.c' line='440' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_save_wav_f'>
+      <parameter type-id='type-id-188' name='pf' filepath='addons/acodec/wav.c' line='440' column='1'/>
+      <parameter type-id='type-id-9' name='spl' filepath='addons/acodec/wav.c' line='440' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_identify_wav' mangled-name='_al_identify_wav' filepath='addons/acodec/wav.c' line='531' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_identify_wav'>
+      <parameter type-id='type-id-188' name='f' filepath='addons/acodec/wav.c' line='531' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-195' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-187'/>
+    <typedef-decl name='_AL_LIST' type-id='type-id-198' filepath='include/allegro5/internal/aintern_list.h' line='8' column='1' id='type-id-191'/>
+    <typedef-decl name='_AL_LIST_ITEM' type-id='type-id-199' filepath='include/allegro5/internal/aintern_list.h' line='9' column='1' id='type-id-193'/>
+    <typedef-decl name='ALLEGRO_THREAD' type-id='type-id-197' filepath='include/allegro5/threads.h' line='27' column='1' id='type-id-190'/>
+    <typedef-decl name='ALLEGRO_MUTEX' type-id='type-id-196' filepath='include/allegro5/threads.h' line='31' column='1' id='type-id-189'/>
+    <typedef-decl name='ALLEGRO_COND' type-id='type-id-194' filepath='include/allegro5/threads.h' line='35' column='1' id='type-id-186'/>
+    <type-decl name='void' id='type-id-12'/>
+    <pointer-type-def type-id='type-id-12' id='type-id-58'/>
+    <function-type size-in-bits='64' id='type-id-163'>
+      <return type-id='type-id-192'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-164'>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-165'>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-69'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-166'>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-69'/>
+      <parameter type-id='type-id-69'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-167'>
+      <parameter type-id='type-id-169'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-171'>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-69'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-172'>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-173'>
+      <parameter type-id='type-id-162'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-174'>
+      <parameter type-id='type-id-161'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-175'>
+      <parameter type-id='type-id-161'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-176'>
+      <parameter type-id='type-id-161'/>
+      <parameter type-id='type-id-58'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-177'>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-58'/>
+      <parameter type-id='type-id-10'/>
+      <return type-id='type-id-10'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-178'>
+      <parameter type-id='type-id-169'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-180'>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-181'>
+      <parameter type-id='type-id-162'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-182'>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-183'>
+      <parameter type-id='type-id-161'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-184'>
+      <parameter type-id='type-id-58'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-58'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-185'>
+      <parameter type-id='type-id-58'/>
+      <parameter type-id='type-id-98'/>
+      <parameter type-id='type-id-179'/>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-10'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+  </abi-instr>
+</abi-corpus>
