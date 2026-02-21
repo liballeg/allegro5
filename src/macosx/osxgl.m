@@ -16,6 +16,7 @@
 */
 
 
+#define GL_SILENCE_DEPRECATION
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
@@ -211,6 +212,8 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 {
    /* This is passed onto the event functions so we know where the event came from */
    ALLEGRO_DISPLAY* dpy_ptr;
+   NSSize frame_size;
+   bool will_resize;
 }
 -(void)setAllegroDisplay: (ALLEGRO_DISPLAY*) ptr;
 -(ALLEGRO_DISPLAY*) allegroDisplay;
@@ -240,11 +243,13 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 /* Window delegate methods */
 -(void) windowDidBecomeMain:(NSNotification*) notification;
 -(void) windowDidResignMain:(NSNotification*) notification;
+-(NSSize) windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize;
 -(void) windowDidResize:(NSNotification*) notification;
 -(void) enterFullScreenWindowMode;
 -(void) exitFullScreenWindowMode;
 -(void) finishExitingFullScreenWindowMode;
 -(void) maximize;
+-(void) setFrameSize: (NSSize) newSize;
 -(NSRect) windowWillUseStandardFrame:
    (NSWindow *) window
    defaultFrame: (NSRect) newFrame;
@@ -604,6 +609,11 @@ void _al_osx_mouse_was_installed(BOOL install) {
    _al_osx_switch_keyboard_focus(dpy_ptr, false);
    _al_event_source_unlock(src);
 }
+-(NSSize) windowWillResize: (NSWindow*)sender toSize: (NSSize)frameSize
+{
+    will_resize = true;
+    return frameSize;
+}
 -(void) windowDidResize:(NSNotification*) notification
 {
    (void)notification;
@@ -682,6 +692,28 @@ void _al_osx_mouse_was_installed(BOOL install) {
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    [dpy->win performZoom: nil];
 }
+
+-(void) setFrameSize: (NSSize) newSize
+{
+   // This is called by MacOS to resize the window - and it will call
+   // glViewport as part of the resize, which will mess up any client
+   // drawing that is going on in the user thread at the same time.
+   // So if this was the result of a resize we defer the call to when
+   // al_acknowledge_resize is called.
+   frame_size = newSize;
+   if (will_resize) {
+      will_resize = false;
+   }
+   else {
+      [self setRealFrameSize];
+   }
+}
+
+-(void) setRealFrameSize
+{
+   [super setFrameSize:frame_size];
+}
+
 
 /* Called by NSWindow's zoom: method while determining the frame
  * a window may be zoomed to.
@@ -2105,6 +2137,8 @@ static bool acknowledge_resize_display_win_main_thread(ALLEGRO_DISPLAY *d)
 
    d->w = NSWidth(content);
    d->h = NSHeight(content);
+   ALOpenGLView *view = window.contentView;
+   [view setRealFrameSize];
 
    return true;
 }
