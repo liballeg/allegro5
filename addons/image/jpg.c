@@ -190,14 +190,27 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    jpeg_create_decompress(&cinfo);
    jpeg_packfile_src(&cinfo, fp, data->buffer);
    jpeg_read_header(&cinfo, true);
+
+   switch (cinfo.jpeg_color_space) {
+      case JCS_CMYK:
+      case JCS_YCCK:
+         /* CMYK and YCCK to RGB conversion isn't supported. This also converts YCCK to CMYK. */
+         cinfo.out_color_space = JCS_CMYK;
+         break;
+      default:
+         /* libjpeg can convert most other color spaces to RGB. */
+         cinfo.out_color_space = JCS_RGB;
+         break;
+   }
+
    jpeg_start_decompress(&cinfo);
 
    w = cinfo.output_width;
    h = cinfo.output_height;
    s = cinfo.output_components;
 
-   /* Only one and three components make sense in a JPG file. */
-   if (s != 1 && s != 3) {
+   /* Only three or four components make sense at this point. */
+   if (s != 3 && s != 4) {
       data->error = true;
       ALLEGRO_ERROR("%d components makes no sense\n", s);
       goto error;
@@ -237,22 +250,30 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
          jpeg_read_scanlines(&cinfo, (void *)out, 1);
       }
    }
-   else if (s == 1) {
-      /* Greyscale. */
-      unsigned char *in;
-      unsigned char *out;
+   else if (s == 4) {
+      /* CMYK. */
       int x, y;
+      data->row = al_malloc(w * 4);
 
-      data->row = al_malloc(w);
+      if (data->row == NULL) {
+         data->error = true;
+         ALLEGRO_ERROR("failed to allocate row buffer\n");
+         goto error;
+      }
+
       for (y = cinfo.output_scanline; y < h; y = cinfo.output_scanline) {
+         unsigned char *dest_row;
          jpeg_read_scanlines(&cinfo, (void *)&data->row, 1);
-         in = data->row;
-         out = ((unsigned char *)lock->data) + y * lock->pitch;
+         dest_row = ((unsigned char *)lock->data) + y * lock->pitch;
          for (x = 0; x < w; x++) {
-            *out++ = *in;
-            *out++ = *in;
-            *out++ = *in;
-            in++;
+            /* libjpeg outputs inverted CMYK where 255 = no ink. */
+            unsigned char c = data->row[x * 4 + 0];
+            unsigned char m = data->row[x * 4 + 1];
+            unsigned char y2 = data->row[x * 4 + 2];
+            unsigned char k = data->row[x * 4 + 3];
+            dest_row[x * 3 + 0] = (unsigned char)(c * k / 255);
+            dest_row[x * 3 + 1] = (unsigned char)(m * k / 255);
+            dest_row[x * 3 + 2] = (unsigned char)(y2 * k / 255);
          }
       }
    }
