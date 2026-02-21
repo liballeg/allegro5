@@ -32,8 +32,10 @@ find_path(GDIPLUS_INCLUDE_DIR
         Include
         Include/um
         Include/shared
+        um
     PATHS
         "${WINSDK_ROOT_DIR}"
+        ${WIN10_SDK_PATH}/Include/${WIN10_SDK_VERSION}
     )
 if(EXISTS ${GDIPLUS_INCLUDE_DIR}/GdiPlus.h)
     set(GDIPLUS_LOWERCASE 0 CACHE INTERNAL "Is GdiPlus.h spelt with lowercase?")
