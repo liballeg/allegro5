@@ -602,7 +602,7 @@ released as if [al_release_haptic_effect] had been called, so there
 is no need to call it again manually in this case. However,
 if true is returned, it is necessary to call [al_release_haptic_effect]
 when the effect isn't needed anymore, to prevent the amount of available
-effects on the haptic devicefrom running out.
+effects on the haptic device from running out.
 
 Since: 5.1.8
 
