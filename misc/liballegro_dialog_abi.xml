@@ -1,0 +1,1279 @@
+<abi-corpus version='2.2' path='build/lib/liballegro_dialog.so' architecture='elf-amd-x86_64' soname='liballegro_dialog.so.5.2'>
+  <elf-needed>
+    <dependency name='libgtk-3.so.0'/>
+    <dependency name='libgdk-3.so.0'/>
+    <dependency name='libgobject-2.0.so.0'/>
+    <dependency name='libglib-2.0.so.0'/>
+    <dependency name='liballegro.so.5.2'/>
+    <dependency name='libc.so.6'/>
+  </elf-needed>
+  <elf-function-symbols>
+    <elf-symbol name='_al_append_native_text_log' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_close_native_text_log' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_destroy_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_destroy_menu_item_at' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_emit_menu_event' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_find_menu_item_unique' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_find_parent_menu_by_id' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_get_menu_display_height' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_ensure_thread' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_get_window' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_init_args' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_lock_args' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_make_transient' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_release_args' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_set_display_overridable_interface' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_gtk_wait_for_args' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_hide_display_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_init_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_init_native_dialog_addon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_init_popup_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_insert_menu_item_at' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_open_native_text_log' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_show_display_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_show_native_file_dialog' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_show_native_message_box' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_show_popup_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_shutdown_native_dialog_addon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_update_menu_item_at' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_walk_over_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_append_menu_item' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_append_native_text_log' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_build_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_clone_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_clone_menu_for_popup' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_close_native_text_log' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_create_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_create_native_file_dialog' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_create_popup_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_destroy_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_destroy_native_file_dialog' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_disable_menu_event_source' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_enable_menu_event_source' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_find_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_find_menu_item' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_allegro_native_dialog_version' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_default_menu_event_source' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_display_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_menu_item_caption' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_menu_item_flags' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_menu_item_icon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_native_file_dialog_count' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_native_file_dialog_path' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_native_text_log_event_source' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_init_native_dialog_addon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_insert_menu_item' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_is_native_dialog_addon_initialized' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_open_native_text_log' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_popup_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_remove_display_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_remove_menu_item' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_set_display_menu' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_set_menu_item_caption' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_set_menu_item_flags' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_set_menu_item_icon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_show_native_file_dialog' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_show_native_message_box' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_shutdown_native_dialog_addon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_toggle_menu_item_flags' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='addons/native_dialog/dialog.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <type-decl name='bool' size-in-bits='8' id='type-id-1'/>
+    <type-decl name='char' size-in-bits='8' id='type-id-2'/>
+    <enum-decl name='ALLEGRO_SYSTEM_MOUSE_CURSOR' filepath='include/allegro5/mouse_cursor.h' line='12' column='1' id='type-id-3'>
+      <underlying-type type-id='type-id-4'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE' value='0'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT' value='1'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW' value='2'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY' value='3'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION' value='4'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT' value='5'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE' value='6'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N' value='7'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W' value='8'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S' value='9'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E' value='10'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW' value='11'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW' value='12'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE' value='13'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE' value='14'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS' value='15'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION' value='16'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK' value='17'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT' value='18'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE' value='19'/>
+      <enumerator name='ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS' value='20'/>
+    </enum-decl>
+    <type-decl name='float' size-in-bits='32' id='type-id-5'/>
+    <array-type-def dimensions='2' type-id='type-id-5' size-in-bits='512' id='type-id-6'>
+      <subrange length='4' lower-bound='0' upper-bound='3' type-id='type-id-7' id='type-id-8'/>
+      <subrange length='4' lower-bound='0' upper-bound='3' type-id='type-id-7' id='type-id-8'/>
+    </array-type-def>
+    <type-decl name='int' size-in-bits='32' id='type-id-9'/>
+    <array-type-def dimensions='1' type-id='type-id-9' size-in-bits='1024' id='type-id-10'>
+      <subrange length='32' lower-bound='0' upper-bound='31' type-id='type-id-7' id='type-id-11'/>
+    </array-type-def>
+    <array-type-def dimensions='1' type-id='type-id-9' size-in-bits='1152' id='type-id-12'>
+      <subrange length='36' lower-bound='0' upper-bound='35' type-id='type-id-7' id='type-id-13'/>
+    </array-type-def>
+    <type-decl name='long int' size-in-bits='64' id='type-id-14'/>
+    <class-decl name='ALLEGRO_BLENDER' size-in-bits='320' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='92' column='1' id='type-id-15'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='blend_op' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='94' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='blend_source' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='95' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='blend_dest' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='96' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='blend_alpha_op' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='97' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='blend_alpha_source' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='98' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='160'>
+        <var-decl name='blend_alpha_dest' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='99' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='blend_color' type-id='type-id-16' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='100' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_COLOR' size-in-bits='128' is-struct='yes' visibility='default' filepath='include/allegro5/color.h' line='15' column='1' id='type-id-17'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='r' type-id='type-id-5' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='g' type-id='type-id-5' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='b' type-id='type-id-5' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='a' type-id='type-id-5' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_DISPLAY' size-in-bits='5056' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='124' column='1' id='type-id-18'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='es' type-id='type-id-19' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='127' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='vt' type-id='type-id-20' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='128' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='refresh_rate' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='129' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1120'>
+        <var-decl name='flags' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='130' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1152'>
+        <var-decl name='w' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='131' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1184'>
+        <var-decl name='h' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='131' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1216'>
+        <var-decl name='min_w' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='132' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1248'>
+        <var-decl name='min_h' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='132' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1280'>
+        <var-decl name='max_w' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='133' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1312'>
+        <var-decl name='max_h' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='133' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='backbuffer_format' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='135' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1408'>
+        <var-decl name='extra_settings' type-id='type-id-21' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='137' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2816'>
+        <var-decl name='ogl_extras' type-id='type-id-22' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='138' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2880'>
+        <var-decl name='bitmaps' type-id='type-id-23' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='141' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3136'>
+        <var-decl name='num_cache_vertices' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='143' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3168'>
+        <var-decl name='cache_enabled' type-id='type-id-1' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='144' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3200'>
+        <var-decl name='vertex_cache_size' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='145' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3264'>
+        <var-decl name='vertex_cache' type-id='type-id-24' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='146' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3328'>
+        <var-decl name='cache_texture' type-id='type-id-25' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='147' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3392'>
+        <var-decl name='cur_blender' type-id='type-id-26' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='149' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3712'>
+        <var-decl name='default_shader' type-id='type-id-27' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='151' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3776'>
+        <var-decl name='projview_transform' type-id='type-id-28' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='153' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4288'>
+        <var-decl name='render_state' type-id='type-id-29' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='155' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4480'>
+        <var-decl name='display_invalidated_callbacks' type-id='type-id-23' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='157' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4736'>
+        <var-decl name='display_validated_callbacks' type-id='type-id-23' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='158' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4992'>
+        <var-decl name='use_constraints' type-id='type-id-1' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='161' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_DISPLAY_INTERFACE' size-in-bits='2944' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='16' column='1' id='type-id-30'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='id' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='18' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='create_display' type-id='type-id-31' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='19' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='destroy_display' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='20' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='set_current_display' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='21' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='unset_current_display' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='22' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='clear' type-id='type-id-34' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='23' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='draw_pixel' type-id='type-id-35' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='24' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='flip_display' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='25' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='update_display_region' type-id='type-id-36' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='26' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='acknowledge_resize' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='28' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='resize_display' type-id='type-id-37' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='29' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='704'>
+        <var-decl name='quick_size' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='30' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='768'>
+        <var-decl name='get_orientation' type-id='type-id-38' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='31' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='832'>
+        <var-decl name='create_bitmap' type-id='type-id-39' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='33' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='896'>
+        <var-decl name='set_target_bitmap' type-id='type-id-40' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='36' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='960'>
+        <var-decl name='get_backbuffer' type-id='type-id-41' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='37' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='is_compatible_bitmap' type-id='type-id-42' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='39' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='switch_out' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='40' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1152'>
+        <var-decl name='switch_in' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='41' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1216'>
+        <var-decl name='draw_memory_bitmap_region' type-id='type-id-43' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='43' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1280'>
+        <var-decl name='wait_for_vsync' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='46' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='set_mouse_cursor' type-id='type-id-44' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='48' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1408'>
+        <var-decl name='set_system_mouse_cursor' type-id='type-id-45' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='50' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1472'>
+        <var-decl name='show_mouse_cursor' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='52' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1536'>
+        <var-decl name='hide_mouse_cursor' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='53' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1600'>
+        <var-decl name='set_icons' type-id='type-id-46' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='55' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1664'>
+        <var-decl name='set_window_position' type-id='type-id-47' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='57' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1728'>
+        <var-decl name='get_window_position' type-id='type-id-48' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='58' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1792'>
+        <var-decl name='get_window_borders' type-id='type-id-49' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='59' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1856'>
+        <var-decl name='set_window_constraints' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='60' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1920'>
+        <var-decl name='get_window_constraints' type-id='type-id-49' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='61' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1984'>
+        <var-decl name='set_display_flag' type-id='type-id-51' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='62' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2048'>
+        <var-decl name='set_window_title' type-id='type-id-52' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='63' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2112'>
+        <var-decl name='flush_vertex_cache' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='65' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2176'>
+        <var-decl name='prepare_vertex_cache' type-id='type-id-53' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='66' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2240'>
+        <var-decl name='update_transformation' type-id='type-id-40' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='68' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2304'>
+        <var-decl name='shutdown' type-id='type-id-54' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='71' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2368'>
+        <var-decl name='acknowledge_drawing_halt' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='73' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2432'>
+        <var-decl name='acknowledge_drawing_resume' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='74' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2496'>
+        <var-decl name='set_display_option' type-id='type-id-47' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='76' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2560'>
+        <var-decl name='clear_depth_buffer' type-id='type-id-55' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='78' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2624'>
+        <var-decl name='update_render_state' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='79' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2688'>
+        <var-decl name='get_clipboard_text' type-id='type-id-56' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='81' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2752'>
+        <var-decl name='set_clipboard_text' type-id='type-id-57' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='82' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2816'>
+        <var-decl name='has_clipboard_text' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='83' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2880'>
+        <var-decl name='apply_window_constraints' type-id='type-id-58' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='86' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_EVENT_SOURCE' size-in-bits='1024' is-struct='yes' visibility='default' filepath='include/allegro5/events.h' line='76' column='1' id='type-id-59'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='__pad' type-id='type-id-10' visibility='default' filepath='include/allegro5/events.h' line='78' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_EXTRA_DISPLAY_SETTINGS' size-in-bits='1408' is-struct='yes' naming-typedef-id='type-id-21' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='114' column='1' id='type-id-60'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='required' type-id='type-id-61' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='116' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='suggested' type-id='type-id-61' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='116' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='settings' type-id='type-id-12' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='117' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1280'>
+        <var-decl name='info' type-id='type-id-24' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='120' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='index' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='121' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1376'>
+        <var-decl name='score' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='121' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_TRANSFORM' size-in-bits='512' is-struct='yes' visibility='default' filepath='include/allegro5/transformations.h' line='14' column='1' id='type-id-62'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='m' type-id='type-id-6' visibility='default' filepath='include/allegro5/transformations.h' line='15' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_ALLEGRO_RENDER_STATE' size-in-bits='192' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='103' column='1' id='type-id-63'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='write_mask' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='104' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='depth_test' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='105' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='depth_function' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='105' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='alpha_test' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='106' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='alpha_function' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='106' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='160'>
+        <var-decl name='alpha_test_value' type-id='type-id-9' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='106' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_AL_VECTOR' size-in-bits='256' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='9' column='1' id='type-id-64'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='_itemsize' type-id='type-id-65' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='12' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='_items' type-id='type-id-66' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='13' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='_size' type-id='type-id-65' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='14' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='_unused' type-id='type-id-65' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='15' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='ALLEGRO_BLENDER' type-id='type-id-15' filepath='include/allegro5/internal/aintern_display.h' line='101' column='1' id='type-id-26'/>
+    <typedef-decl name='ALLEGRO_COLOR' type-id='type-id-17' filepath='include/allegro5/color.h' line='13' column='1' id='type-id-16'/>
+    <typedef-decl name='ALLEGRO_DISPLAY' type-id='type-id-18' filepath='include/allegro5/display.h' line='113' column='1' id='type-id-67'/>
+    <typedef-decl name='ALLEGRO_DISPLAY_INTERFACE' type-id='type-id-30' filepath='include/allegro5/internal/aintern_display.h' line='14' column='1' id='type-id-68'/>
+    <typedef-decl name='ALLEGRO_EVENT_SOURCE' type-id='type-id-59' filepath='include/allegro5/events.h' line='74' column='1' id='type-id-19'/>
+    <typedef-decl name='ALLEGRO_EXTRA_DISPLAY_SETTINGS' type-id='type-id-60' filepath='include/allegro5/internal/aintern_display.h' line='122' column='1' id='type-id-21'/>
+    <typedef-decl name='ALLEGRO_SYSTEM_MOUSE_CURSOR' type-id='type-id-3' filepath='include/allegro5/mouse_cursor.h' line='35' column='1' id='type-id-69'/>
+    <typedef-decl name='ALLEGRO_TRANSFORM' type-id='type-id-62' filepath='include/allegro5/transformations.h' line='12' column='1' id='type-id-28'/>
+    <typedef-decl name='_ALLEGRO_RENDER_STATE' type-id='type-id-63' filepath='include/allegro5/internal/aintern_display.h' line='107' column='1' id='type-id-29'/>
+    <typedef-decl name='_AL_VECTOR' type-id='type-id-64' filepath='include/allegro5/internal/aintern_vector.h' line='16' column='1' id='type-id-23'/>
+    <typedef-decl name='__int64_t' type-id='type-id-14' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='44' column='1' id='type-id-70'/>
+    <typedef-decl name='__uint32_t' type-id='type-id-71' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='42' column='1' id='type-id-72'/>
+    <typedef-decl name='int64_t' type-id='type-id-70' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-intn.h' line='27' column='1' id='type-id-61'/>
+    <typedef-decl name='size_t' type-id='type-id-7' filepath='/usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h' line='214' column='1' id='type-id-65'/>
+    <typedef-decl name='uint32_t' type-id='type-id-72' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='26' column='1' id='type-id-73'/>
+    <typedef-decl name='uintptr_t' type-id='type-id-7' filepath='/usr/include/stdint.h' line='79' column='1' id='type-id-25'/>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='type-id-4'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='type-id-71'/>
+    <type-decl name='unsigned long int' size-in-bits='64' id='type-id-7'/>
+    <pointer-type-def type-id='type-id-74' size-in-bits='64' id='type-id-41'/>
+    <pointer-type-def type-id='type-id-75' size-in-bits='64' id='type-id-39'/>
+    <pointer-type-def type-id='type-id-16' size-in-bits='64' id='type-id-76'/>
+    <pointer-type-def type-id='type-id-67' size-in-bits='64' id='type-id-77'/>
+    <pointer-type-def type-id='type-id-78' size-in-bits='64' id='type-id-31'/>
+    <pointer-type-def type-id='type-id-68' size-in-bits='64' id='type-id-20'/>
+    <pointer-type-def type-id='type-id-79' size-in-bits='64' id='type-id-33'/>
+    <pointer-type-def type-id='type-id-80' size-in-bits='64' id='type-id-42'/>
+    <pointer-type-def type-id='type-id-81' size-in-bits='64' id='type-id-44'/>
+    <pointer-type-def type-id='type-id-82' size-in-bits='64' id='type-id-57'/>
+    <pointer-type-def type-id='type-id-83' size-in-bits='64' id='type-id-49'/>
+    <pointer-type-def type-id='type-id-84' size-in-bits='64' id='type-id-51'/>
+    <pointer-type-def type-id='type-id-85' size-in-bits='64' id='type-id-37'/>
+    <pointer-type-def type-id='type-id-86' size-in-bits='64' id='type-id-50'/>
+    <pointer-type-def type-id='type-id-87' size-in-bits='64' id='type-id-45'/>
+    <pointer-type-def type-id='type-id-2' size-in-bits='64' id='type-id-66'/>
+    <pointer-type-def type-id='type-id-88' size-in-bits='64' id='type-id-56'/>
+    <qualified-type-def type-id='type-id-2' const='yes' id='type-id-89'/>
+    <pointer-type-def type-id='type-id-89' size-in-bits='64' id='type-id-90'/>
+    <pointer-type-def type-id='type-id-91' size-in-bits='64' id='type-id-38'/>
+    <pointer-type-def type-id='type-id-9' size-in-bits='64' id='type-id-92'/>
+    <pointer-type-def type-id='type-id-93' size-in-bits='64' id='type-id-54'/>
+    <pointer-type-def type-id='type-id-94' size-in-bits='64' id='type-id-32'/>
+    <pointer-type-def type-id='type-id-95' size-in-bits='64' id='type-id-40'/>
+    <pointer-type-def type-id='type-id-96' size-in-bits='64' id='type-id-43'/>
+    <pointer-type-def type-id='type-id-97' size-in-bits='64' id='type-id-34'/>
+    <pointer-type-def type-id='type-id-98' size-in-bits='64' id='type-id-58'/>
+    <pointer-type-def type-id='type-id-99' size-in-bits='64' id='type-id-52'/>
+    <pointer-type-def type-id='type-id-100' size-in-bits='64' id='type-id-55'/>
+    <pointer-type-def type-id='type-id-101' size-in-bits='64' id='type-id-35'/>
+    <pointer-type-def type-id='type-id-102' size-in-bits='64' id='type-id-48'/>
+    <pointer-type-def type-id='type-id-103' size-in-bits='64' id='type-id-46'/>
+    <pointer-type-def type-id='type-id-104' size-in-bits='64' id='type-id-47'/>
+    <pointer-type-def type-id='type-id-105' size-in-bits='64' id='type-id-36'/>
+    <pointer-type-def type-id='type-id-106' size-in-bits='64' id='type-id-53'/>
+    <pointer-type-def type-id='type-id-107' size-in-bits='64' id='type-id-108'/>
+    <pointer-type-def type-id='type-id-108' size-in-bits='64' id='type-id-109'/>
+    <pointer-type-def type-id='type-id-110' size-in-bits='64' id='type-id-111'/>
+    <pointer-type-def type-id='type-id-112' size-in-bits='64' id='type-id-113'/>
+    <pointer-type-def type-id='type-id-114' size-in-bits='64' id='type-id-22'/>
+    <pointer-type-def type-id='type-id-115' size-in-bits='64' id='type-id-27'/>
+    <qualified-type-def type-id='type-id-110' const='yes' id='type-id-116'/>
+    <pointer-type-def type-id='type-id-116' size-in-bits='64' id='type-id-117'/>
+    <class-decl name='ALLEGRO_BITMAP' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-118'/>
+    <class-decl name='ALLEGRO_FILECHOOSER' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-119'/>
+    <class-decl name='ALLEGRO_MOUSE_CURSOR' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-120'/>
+    <class-decl name='ALLEGRO_OGL_EXTRAS' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-114'/>
+    <class-decl name='ALLEGRO_SHADER' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-121'/>
+    <function-decl name='al_get_allegro_native_dialog_version' mangled-name='al_get_allegro_native_dialog_version' filepath='addons/native_dialog/dialog.c' line='167' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_allegro_native_dialog_version'>
+      <return type-id='type-id-73'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_BITMAP' type-id='type-id-118' filepath='include/allegro5/bitmap.h' line='12' column='1' id='type-id-107'/>
+    <typedef-decl name='ALLEGRO_MOUSE_CURSOR' type-id='type-id-120' filepath='include/allegro5/mouse_cursor.h' line='10' column='1' id='type-id-112'/>
+    <type-decl name='void' id='type-id-122'/>
+    <typedef-decl name='ALLEGRO_FILECHOOSER' type-id='type-id-119' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='38' column='1' id='type-id-110'/>
+    <function-decl name='al_init_native_dialog_addon' mangled-name='al_init_native_dialog_addon' filepath='addons/native_dialog/dialog.c' line='18' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_init_native_dialog_addon'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_is_native_dialog_addon_initialized' mangled-name='al_is_native_dialog_addon_initialized' filepath='addons/native_dialog/dialog.c' line='35' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_is_native_dialog_addon_initialized'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_shutdown_native_dialog_addon' mangled-name='al_shutdown_native_dialog_addon' filepath='addons/native_dialog/dialog.c' line='42' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_shutdown_native_dialog_addon'>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_create_native_file_dialog' mangled-name='al_create_native_file_dialog' filepath='addons/native_dialog/dialog.c' line='53' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_create_native_file_dialog'>
+      <parameter type-id='type-id-90' name='initial_path' filepath='addons/native_dialog/dialog.c' line='54' column='1'/>
+      <parameter type-id='type-id-90' name='title' filepath='addons/native_dialog/dialog.c' line='55' column='1'/>
+      <parameter type-id='type-id-90' name='patterns' filepath='addons/native_dialog/dialog.c' line='56' column='1'/>
+      <parameter type-id='type-id-9' name='mode' filepath='addons/native_dialog/dialog.c' line='57' column='1'/>
+      <return type-id='type-id-111'/>
+    </function-decl>
+    <function-decl name='al_show_native_file_dialog' mangled-name='al_show_native_file_dialog' filepath='addons/native_dialog/dialog.c' line='78' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_show_native_file_dialog'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/dialog.c' line='78' column='1'/>
+      <parameter type-id='type-id-111' name='dialog' filepath='addons/native_dialog/dialog.c' line='79' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_get_native_file_dialog_count' mangled-name='al_get_native_file_dialog_count' filepath='addons/native_dialog/dialog.c' line='87' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_native_file_dialog_count'>
+      <parameter type-id='type-id-117' name='dialog' filepath='addons/native_dialog/dialog.c' line='87' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='al_get_native_file_dialog_path' mangled-name='al_get_native_file_dialog_path' filepath='addons/native_dialog/dialog.c' line='95' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_native_file_dialog_path'>
+      <parameter type-id='type-id-117' name='dialog' filepath='addons/native_dialog/dialog.c' line='96' column='1'/>
+      <parameter type-id='type-id-65' name='i' filepath='addons/native_dialog/dialog.c' line='96' column='1'/>
+      <return type-id='type-id-90'/>
+    </function-decl>
+    <function-decl name='al_destroy_native_file_dialog' mangled-name='al_destroy_native_file_dialog' filepath='addons/native_dialog/dialog.c' line='106' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_destroy_native_file_dialog'>
+      <parameter type-id='type-id-111' name='dialog' filepath='addons/native_dialog/dialog.c' line='106' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_show_native_message_box' mangled-name='al_show_native_message_box' filepath='addons/native_dialog/dialog.c' line='129' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_show_native_message_box'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/dialog.c' line='129' column='1'/>
+      <parameter type-id='type-id-90' name='title' filepath='addons/native_dialog/dialog.c' line='130' column='1'/>
+      <parameter type-id='type-id-90' name='heading' filepath='addons/native_dialog/dialog.c' line='130' column='1'/>
+      <parameter type-id='type-id-90' name='text' filepath='addons/native_dialog/dialog.c' line='130' column='1'/>
+      <parameter type-id='type-id-90' name='buttons' filepath='addons/native_dialog/dialog.c' line='131' column='1'/>
+      <parameter type-id='type-id-9' name='flags' filepath='addons/native_dialog/dialog.c' line='131' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_SHADER' type-id='type-id-121' filepath='include/allegro5/shader.h' line='14' column='1' id='type-id-115'/>
+    <pointer-type-def type-id='type-id-122' id='type-id-24'/>
+    <function-type size-in-bits='64' id='type-id-74'>
+      <parameter type-id='type-id-77'/>
+      <return type-id='type-id-108'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-75'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-108'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-78'>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-77'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-79'>
+      <parameter type-id='type-id-77'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-80'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-108'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-81'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-113'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-82'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-90'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-87'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-69'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-83'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-92'/>
+      <parameter type-id='type-id-92'/>
+      <parameter type-id='type-id-92'/>
+      <parameter type-id='type-id-92'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-84'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-1'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-85'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-86'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-88'>
+      <parameter type-id='type-id-77'/>
+      <return type-id='type-id-66'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-91'>
+      <parameter type-id='type-id-77'/>
+      <return type-id='type-id-9'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-93'>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-94'>
+      <parameter type-id='type-id-77'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-95'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-108'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-96'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-108'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-97'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-76'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-98'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-1'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-99'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-90'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-100'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-5'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-101'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-76'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-102'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-92'/>
+      <parameter type-id='type-id-92'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-103'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-109'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-104'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-105'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-122'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-106'>
+      <parameter type-id='type-id-77'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-24'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/gtk_dialog.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <class-decl name='_GObject' size-in-bits='192' is-struct='yes' visibility='default' filepath='/usr/include/glib-2.0/gobject/gobject.h' line='252' column='1' id='type-id-123'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='g_type_instance' type-id='type-id-124' visibility='default' filepath='/usr/include/glib-2.0/gobject/gobject.h' line='254' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='ref_count' type-id='type-id-125' visibility='default' filepath='/usr/include/glib-2.0/gobject/gobject.h' line='257' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='qdata' type-id='type-id-126' visibility='default' filepath='/usr/include/glib-2.0/gobject/gobject.h' line='258' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_GTypeClass' size-in-bits='64' is-struct='yes' visibility='default' filepath='/usr/include/glib-2.0/gobject/gtype.h' line='451' column='1' id='type-id-127'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='g_type' type-id='type-id-128' visibility='default' filepath='/usr/include/glib-2.0/gobject/gtype.h' line='454' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_GTypeInstance' size-in-bits='64' is-struct='yes' visibility='default' filepath='/usr/include/glib-2.0/gobject/gtype.h' line='461' column='1' id='type-id-129'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='g_class' type-id='type-id-130' visibility='default' filepath='/usr/include/glib-2.0/gobject/gtype.h' line='464' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_GtkWidget' size-in-bits='256' is-struct='yes' visibility='default' filepath='/usr/include/gtk-3.0/gtk/gtkwidget.h' line='133' column='1' id='type-id-131'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='parent_instance' type-id='type-id-132' visibility='default' filepath='/usr/include/gtk-3.0/gtk/gtkwidget.h' line='135' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='priv' type-id='type-id-133' visibility='default' filepath='/usr/include/gtk-3.0/gtk/gtkwidget.h' line='139' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='GInitiallyUnowned' type-id='type-id-123' filepath='/usr/include/glib-2.0/gobject/gobject.h' line='194' column='1' id='type-id-132'/>
+    <typedef-decl name='GType' type-id='type-id-134' filepath='/usr/include/glib-2.0/gobject/gtype.h' line='427' column='1' id='type-id-128'/>
+    <typedef-decl name='GTypeClass' type-id='type-id-127' filepath='/usr/include/glib-2.0/gobject/gtype.h' line='434' column='1' id='type-id-135'/>
+    <typedef-decl name='GTypeInstance' type-id='type-id-129' filepath='/usr/include/glib-2.0/gobject/gtype.h' line='436' column='1' id='type-id-124'/>
+    <typedef-decl name='GtkWidget' type-id='type-id-131' filepath='/usr/include/gtk-3.0/gtk/gtktypes.h' line='46' column='1' id='type-id-136'/>
+    <typedef-decl name='gsize' type-id='type-id-7' filepath='/usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h' line='83' column='1' id='type-id-134'/>
+    <typedef-decl name='guint' type-id='type-id-71' filepath='/usr/include/glib-2.0/glib/gtypes.h' line='61' column='1' id='type-id-125'/>
+    <pointer-type-def type-id='type-id-135' size-in-bits='64' id='type-id-130'/>
+    <pointer-type-def type-id='type-id-136' size-in-bits='64' id='type-id-137'/>
+    <pointer-type-def type-id='type-id-138' size-in-bits='64' id='type-id-126'/>
+    <pointer-type-def type-id='type-id-139' size-in-bits='64' id='type-id-133'/>
+    <class-decl name='_GData' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-140'/>
+    <class-decl name='_GtkWidgetPrivate' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-141'/>
+    <function-decl name='_al_init_native_dialog_addon' mangled-name='_al_init_native_dialog_addon' filepath='addons/native_dialog/gtk_dialog.c' line='15' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_init_native_dialog_addon'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_shutdown_native_dialog_addon' mangled-name='_al_shutdown_native_dialog_addon' filepath='addons/native_dialog/gtk_dialog.c' line='29' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_shutdown_native_dialog_addon'>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='_al_gtk_make_transient' mangled-name='_al_gtk_make_transient' filepath='addons/native_dialog/gtk_dialog.c' line='54' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_make_transient'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/gtk_dialog.c' line='54' column='1'/>
+      <parameter type-id='type-id-137' name='window' filepath='addons/native_dialog/gtk_dialog.c' line='54' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <typedef-decl name='GData' type-id='type-id-140' filepath='/usr/include/glib-2.0/glib/gdataset.h' line='38' column='1' id='type-id-138'/>
+    <typedef-decl name='GtkWidgetPrivate' type-id='type-id-141' filepath='/usr/include/gtk-3.0/gtk/gtkwidget.h' line='66' column='1' id='type-id-139'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/gtk_filesel.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <class-decl name='ALLEGRO_NATIVE_DIALOG' size-in-bits='2560' is-struct='yes' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='26' column='1' id='type-id-142'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='title' type-id='type-id-143' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='28' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='flags' type-id='type-id-9' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='29' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='fc_initial_path' type-id='type-id-144' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='32' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='fc_path_count' type-id='type-id-65' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='33' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='fc_paths' type-id='type-id-145' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='34' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='fc_patterns' type-id='type-id-23' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='37' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='fc_patterns_ustr' type-id='type-id-143' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='38' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='mb_heading' type-id='type-id-143' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='41' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='704'>
+        <var-decl name='mb_text' type-id='type-id-143' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='42' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='768'>
+        <var-decl name='mb_buttons' type-id='type-id-143' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='43' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='832'>
+        <var-decl name='mb_pressed_button' type-id='type-id-9' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='44' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='896'>
+        <var-decl name='tl_thread' type-id='type-id-146' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='47' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='960'>
+        <var-decl name='tl_text_cond' type-id='type-id-147' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='48' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='tl_text_mutex' type-id='type-id-148' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='49' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='tl_pending_text' type-id='type-id-143' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='50' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1152'>
+        <var-decl name='tl_init_error' type-id='type-id-1' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='51' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1160'>
+        <var-decl name='tl_done' type-id='type-id-1' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='52' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1168'>
+        <var-decl name='tl_have_pending' type-id='type-id-1' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='53' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1184'>
+        <var-decl name='tl_events' type-id='type-id-19' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='54' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2240'>
+        <var-decl name='tl_textview' type-id='type-id-24' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='55' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2304'>
+        <var-decl name='is_active' type-id='type-id-1' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='58' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2368'>
+        <var-decl name='window' type-id='type-id-24' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='59' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2432'>
+        <var-decl name='async_queue' type-id='type-id-24' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='60' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2496'>
+        <var-decl name='dtor_item' type-id='type-id-149' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='62' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='ALLEGRO_NATIVE_DIALOG' type-id='type-id-142' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='21' column='1' id='type-id-150'/>
+    <pointer-type-def type-id='type-id-150' size-in-bits='64' id='type-id-151'/>
+    <pointer-type-def type-id='type-id-152' size-in-bits='64' id='type-id-147'/>
+    <pointer-type-def type-id='type-id-153' size-in-bits='64' id='type-id-148'/>
+    <pointer-type-def type-id='type-id-154' size-in-bits='64' id='type-id-144'/>
+    <pointer-type-def type-id='type-id-144' size-in-bits='64' id='type-id-145'/>
+    <pointer-type-def type-id='type-id-155' size-in-bits='64' id='type-id-146'/>
+    <pointer-type-def type-id='type-id-156' size-in-bits='64' id='type-id-149'/>
+    <class-decl name='ALLEGRO_COND' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-157'/>
+    <class-decl name='ALLEGRO_MUTEX' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-158'/>
+    <class-decl name='ALLEGRO_PATH' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-159'/>
+    <class-decl name='ALLEGRO_THREAD' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-160'/>
+    <class-decl name='_AL_LIST_ITEM' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-161'/>
+    <function-decl name='_al_show_native_file_dialog' mangled-name='_al_show_native_file_dialog' filepath='addons/native_dialog/gtk_filesel.c' line='152' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_show_native_file_dialog'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/gtk_filesel.c' line='152' column='1'/>
+      <parameter type-id='type-id-151' name='fd' filepath='addons/native_dialog/gtk_filesel.c' line='153' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='_AL_LIST_ITEM' type-id='type-id-161' filepath='include/allegro5/internal/aintern_list.h' line='9' column='1' id='type-id-156'/>
+    <typedef-decl name='ALLEGRO_PATH' type-id='type-id-159' filepath='include/allegro5/path.h' line='20' column='1' id='type-id-154'/>
+    <typedef-decl name='ALLEGRO_THREAD' type-id='type-id-160' filepath='include/allegro5/threads.h' line='27' column='1' id='type-id-155'/>
+    <typedef-decl name='ALLEGRO_MUTEX' type-id='type-id-158' filepath='include/allegro5/threads.h' line='31' column='1' id='type-id-153'/>
+    <typedef-decl name='ALLEGRO_COND' type-id='type-id-157' filepath='include/allegro5/threads.h' line='35' column='1' id='type-id-152'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/gtk_menu.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-162' size-in-bits='64' id='type-id-163'/>
+    <class-decl name='ALLEGRO_BITMAP' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-164'/>
+    <function-decl name='_al_init_menu' mangled-name='_al_init_menu' filepath='addons/native_dialog/gtk_menu.c' line='165' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_init_menu'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/gtk_menu.c' line='165' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_init_popup_menu' mangled-name='_al_init_popup_menu' filepath='addons/native_dialog/gtk_menu.c' line='175' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_init_popup_menu'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/gtk_menu.c' line='175' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_destroy_menu' mangled-name='_al_destroy_menu' filepath='addons/native_dialog/gtk_menu.c' line='192' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_destroy_menu'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/gtk_menu.c' line='192' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_insert_menu_item_at' mangled-name='_al_insert_menu_item_at' filepath='addons/native_dialog/gtk_menu.c' line='223' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_insert_menu_item_at'>
+      <parameter type-id='type-id-166' name='item' filepath='addons/native_dialog/gtk_menu.c' line='223' column='1'/>
+      <parameter type-id='type-id-9' name='i' filepath='addons/native_dialog/gtk_menu.c' line='223' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_destroy_menu_item_at' mangled-name='_al_destroy_menu_item_at' filepath='addons/native_dialog/gtk_menu.c' line='252' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_destroy_menu_item_at'>
+      <parameter type-id='type-id-166' name='item' filepath='addons/native_dialog/gtk_menu.c' line='252' column='1'/>
+      <parameter type-id='type-id-9' name='i' filepath='addons/native_dialog/gtk_menu.c' line='252' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_update_menu_item_at' mangled-name='_al_update_menu_item_at' filepath='addons/native_dialog/gtk_menu.c' line='287' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_update_menu_item_at'>
+      <parameter type-id='type-id-166' name='item' filepath='addons/native_dialog/gtk_menu.c' line='287' column='1'/>
+      <parameter type-id='type-id-9' name='i' filepath='addons/native_dialog/gtk_menu.c' line='287' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_show_display_menu' mangled-name='_al_show_display_menu' filepath='addons/native_dialog/gtk_menu.c' line='323' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_show_display_menu'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/gtk_menu.c' line='323' column='1'/>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/gtk_menu.c' line='323' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_hide_display_menu' mangled-name='_al_hide_display_menu' filepath='addons/native_dialog/gtk_menu.c' line='355' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_hide_display_menu'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/gtk_menu.c' line='355' column='1'/>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/gtk_menu.c' line='355' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_show_popup_menu' mangled-name='_al_show_popup_menu' filepath='addons/native_dialog/gtk_menu.c' line='432' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_show_popup_menu'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/gtk_menu.c' line='432' column='1'/>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/gtk_menu.c' line='432' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_get_menu_display_height' mangled-name='_al_get_menu_display_height' filepath='addons/native_dialog/gtk_menu.c' line='455' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_get_menu_display_height'>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_BITMAP' type-id='type-id-164' filepath='include/allegro5/bitmap.h' line='12' column='1' id='type-id-162'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/gtk_msgbox.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <function-decl name='_al_show_native_message_box' mangled-name='_al_show_native_message_box' filepath='addons/native_dialog/gtk_msgbox.c' line='122' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_show_native_message_box'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/gtk_msgbox.c' line='122' column='1'/>
+      <parameter type-id='type-id-151' name='fd' filepath='addons/native_dialog/gtk_msgbox.c' line='123' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/gtk_textlog.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <function-decl name='_al_open_native_text_log' mangled-name='_al_open_native_text_log' filepath='addons/native_dialog/gtk_textlog.c' line='129' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_open_native_text_log'>
+      <parameter type-id='type-id-151' name='textlog' filepath='addons/native_dialog/gtk_textlog.c' line='129' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_append_native_text_log' mangled-name='_al_append_native_text_log' filepath='addons/native_dialog/gtk_textlog.c' line='176' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_append_native_text_log'>
+      <parameter type-id='type-id-151' name='textlog' filepath='addons/native_dialog/gtk_textlog.c' line='176' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='_al_close_native_text_log' mangled-name='_al_close_native_text_log' filepath='addons/native_dialog/gtk_textlog.c' line='205' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_close_native_text_log'>
+      <parameter type-id='type-id-151' name='textlog' filepath='addons/native_dialog/gtk_textlog.c' line='205' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/gtk_thread.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <typedef-decl name='GSourceFunc' type-id='type-id-167' filepath='/usr/include/glib-2.0/glib/gmain.h' line='195' column='1' id='type-id-168'/>
+    <typedef-decl name='gboolean' type-id='type-id-169' filepath='/usr/include/glib-2.0/glib/gtypes.h' line='56' column='1' id='type-id-170'/>
+    <typedef-decl name='gint' type-id='type-id-9' filepath='/usr/include/glib-2.0/glib/gtypes.h' line='55' column='1' id='type-id-169'/>
+    <pointer-type-def type-id='type-id-171' size-in-bits='64' id='type-id-167'/>
+    <function-decl name='_al_gtk_ensure_thread' mangled-name='_al_gtk_ensure_thread' filepath='addons/native_dialog/gtk_thread.c' line='59' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_ensure_thread'>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_gtk_init_args' mangled-name='_al_gtk_init_args' filepath='addons/native_dialog/gtk_thread.c' line='107' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_init_args'>
+      <parameter type-id='type-id-24' name='ptr' filepath='addons/native_dialog/gtk_thread.c' line='107' column='1'/>
+      <parameter type-id='type-id-65' name='size' filepath='addons/native_dialog/gtk_thread.c' line='107' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_gtk_wait_for_args' mangled-name='_al_gtk_wait_for_args' filepath='addons/native_dialog/gtk_thread.c' line='127' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_wait_for_args'>
+      <parameter type-id='type-id-168' name='func' filepath='addons/native_dialog/gtk_thread.c' line='127' column='1'/>
+      <parameter type-id='type-id-24' name='data' filepath='addons/native_dialog/gtk_thread.c' line='127' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_gtk_lock_args' mangled-name='_al_gtk_lock_args' filepath='addons/native_dialog/gtk_thread.c' line='149' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_lock_args'>
+      <parameter type-id='type-id-172' name='data' filepath='addons/native_dialog/gtk_thread.c' line='149' column='1'/>
+      <return type-id='type-id-24'/>
+    </function-decl>
+    <function-decl name='_al_gtk_release_args' mangled-name='_al_gtk_release_args' filepath='addons/native_dialog/gtk_thread.c' line='158' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_release_args'>
+      <parameter type-id='type-id-172' name='data' filepath='addons/native_dialog/gtk_thread.c' line='158' column='1'/>
+      <return type-id='type-id-170'/>
+    </function-decl>
+    <typedef-decl name='gpointer' type-id='type-id-24' filepath='/usr/include/glib-2.0/glib/gtypes.h' line='109' column='1' id='type-id-172'/>
+    <function-type size-in-bits='64' id='type-id-171'>
+      <parameter type-id='type-id-172' name='data'/>
+      <return type-id='type-id-170'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/gtk_xgtk.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <function-decl name='_al_gtk_set_display_overridable_interface' mangled-name='_al_gtk_set_display_overridable_interface' filepath='addons/native_dialog/gtk_xgtk.c' line='547' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_set_display_overridable_interface'>
+      <parameter type-id='type-id-1' name='on' filepath='addons/native_dialog/gtk_xgtk.c' line='547' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_gtk_get_window' mangled-name='_al_gtk_get_window' filepath='addons/native_dialog/gtk_xgtk.c' line='554' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_gtk_get_window'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/gtk_xgtk.c' line='554' column='1'/>
+      <return type-id='type-id-137'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/menu.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <class-decl name='ALLEGRO_MENU' size-in-bits='1536' is-struct='yes' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='105' column='1' id='type-id-173'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='es' type-id='type-id-19' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='107' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='display' type-id='type-id-77' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='108' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='parent' type-id='type-id-166' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='109' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1152'>
+        <var-decl name='items' type-id='type-id-23' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='110' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1408'>
+        <var-decl name='is_event_source' type-id='type-id-1' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='112' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1416'>
+        <var-decl name='is_popup_menu' type-id='type-id-1' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='113' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1472'>
+        <var-decl name='extra1' type-id='type-id-24' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='115' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_MENU_INFO' size-in-bits='192' is-struct='yes' visibility='default' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='50' column='1' id='type-id-174'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='caption' type-id='type-id-90' visibility='default' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='51' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='id' type-id='type-id-175' visibility='default' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='52' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='flags' type-id='type-id-9' visibility='default' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='53' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='icon' type-id='type-id-176' visibility='default' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='54' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_MENU_ITEM' size-in-bits='448' is-struct='yes' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='77' column='1' id='type-id-177'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='parent' type-id='type-id-165' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='79' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='popup' type-id='type-id-165' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='80' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='caption' type-id='type-id-143' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='81' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='icon' type-id='type-id-176' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='82' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='unique_id' type-id='type-id-175' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='85' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='272'>
+        <var-decl name='id' type-id='type-id-175' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='87' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='288'>
+        <var-decl name='flags' type-id='type-id-9' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='89' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='extra1' type-id='type-id-24' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='90' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='extra2' type-id='type-id-24' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='90' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_AL_MENU_ID' size-in-bits='128' is-struct='yes' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='98' column='1' id='type-id-178'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='menu' type-id='type-id-165' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='100' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='unique_id' type-id='type-id-175' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='101' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='80'>
+        <var-decl name='id' type-id='type-id-175' visibility='default' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='102' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_al_tagbstring' size-in-bits='128' is-struct='yes' visibility='default' filepath='include/allegro5/utf8.h' line='20' column='1' id='type-id-179'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='mlen' type-id='type-id-9' visibility='default' filepath='include/allegro5/utf8.h' line='21' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='slen' type-id='type-id-9' visibility='default' filepath='include/allegro5/utf8.h' line='22' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='data' type-id='type-id-180' visibility='default' filepath='include/allegro5/utf8.h' line='23' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='ALLEGRO_MENU' type-id='type-id-173' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='46' column='1' id='type-id-181'/>
+    <typedef-decl name='ALLEGRO_MENU_INFO' type-id='type-id-174' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='55' column='1' id='type-id-182'/>
+    <typedef-decl name='ALLEGRO_MENU_ITEM' type-id='type-id-177' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='75' column='1' id='type-id-183'/>
+    <typedef-decl name='ALLEGRO_USTR' type-id='type-id-179' filepath='include/allegro5/utf8.h' line='12' column='1' id='type-id-184'/>
+    <typedef-decl name='_AL_MENU_ID' type-id='type-id-178' filepath='addons/native_dialog/allegro5/internal/aintern_native_dialog.h' line='96' column='1' id='type-id-185'/>
+    <typedef-decl name='__uint16_t' type-id='type-id-186' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='40' column='1' id='type-id-187'/>
+    <typedef-decl name='uint16_t' type-id='type-id-187' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='25' column='1' id='type-id-175'/>
+    <type-decl name='unsigned char' size-in-bits='8' id='type-id-188'/>
+    <type-decl name='unsigned short int' size-in-bits='16' id='type-id-186'/>
+    <pointer-type-def type-id='type-id-181' size-in-bits='64' id='type-id-165'/>
+    <pointer-type-def type-id='type-id-165' size-in-bits='64' id='type-id-189'/>
+    <pointer-type-def type-id='type-id-182' size-in-bits='64' id='type-id-190'/>
+    <pointer-type-def type-id='type-id-183' size-in-bits='64' id='type-id-166'/>
+    <pointer-type-def type-id='type-id-184' size-in-bits='64' id='type-id-143'/>
+    <pointer-type-def type-id='type-id-185' size-in-bits='64' id='type-id-191'/>
+    <pointer-type-def type-id='type-id-192' size-in-bits='64' id='type-id-193'/>
+    <pointer-type-def type-id='type-id-188' size-in-bits='64' id='type-id-180'/>
+    <pointer-type-def type-id='type-id-194' size-in-bits='64' id='type-id-176'/>
+    <class-decl name='ALLEGRO_BITMAP' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-195'/>
+    <function-decl name='_al_walk_over_menu' mangled-name='_al_walk_over_menu' filepath='addons/native_dialog/menu.c' line='89' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_walk_over_menu'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='89' column='1'/>
+      <parameter type-id='type-id-193' name='proc' filepath='addons/native_dialog/menu.c' line='90' column='1'/>
+      <parameter type-id='type-id-24' name='extra' filepath='addons/native_dialog/menu.c' line='90' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_create_menu' mangled-name='al_create_menu' filepath='addons/native_dialog/menu.c' line='314' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_create_menu'>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='al_create_popup_menu' mangled-name='al_create_popup_menu' filepath='addons/native_dialog/menu.c' line='333' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_create_popup_menu'>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='al_clone_menu' mangled-name='al_clone_menu' filepath='addons/native_dialog/menu.c' line='357' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_clone_menu'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='357' column='1'/>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='al_clone_menu_for_popup' mangled-name='al_clone_menu_for_popup' filepath='addons/native_dialog/menu.c' line='364' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_clone_menu_for_popup'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='364' column='1'/>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='al_build_menu' mangled-name='al_build_menu' filepath='addons/native_dialog/menu.c' line='371' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_build_menu'>
+      <parameter type-id='type-id-190' name='info' filepath='addons/native_dialog/menu.c' line='371' column='1'/>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='al_append_menu_item' mangled-name='al_append_menu_item' filepath='addons/native_dialog/menu.c' line='383' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_append_menu_item'>
+      <parameter type-id='type-id-165' name='parent' filepath='addons/native_dialog/menu.c' line='383' column='1'/>
+      <parameter type-id='type-id-90' name='title' filepath='addons/native_dialog/menu.c' line='383' column='1'/>
+      <parameter type-id='type-id-175' name='id' filepath='addons/native_dialog/menu.c' line='383' column='1'/>
+      <parameter type-id='type-id-9' name='flags' filepath='addons/native_dialog/menu.c' line='384' column='1'/>
+      <parameter type-id='type-id-176' name='icon' filepath='addons/native_dialog/menu.c' line='384' column='1'/>
+      <parameter type-id='type-id-165' name='submenu' filepath='addons/native_dialog/menu.c' line='384' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='al_insert_menu_item' mangled-name='al_insert_menu_item' filepath='addons/native_dialog/menu.c' line='395' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_insert_menu_item'>
+      <parameter type-id='type-id-165' name='parent' filepath='addons/native_dialog/menu.c' line='395' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='395' column='1'/>
+      <parameter type-id='type-id-90' name='title' filepath='addons/native_dialog/menu.c' line='395' column='1'/>
+      <parameter type-id='type-id-175' name='id' filepath='addons/native_dialog/menu.c' line='396' column='1'/>
+      <parameter type-id='type-id-9' name='flags' filepath='addons/native_dialog/menu.c' line='396' column='1'/>
+      <parameter type-id='type-id-176' name='icon' filepath='addons/native_dialog/menu.c' line='396' column='1'/>
+      <parameter type-id='type-id-165' name='submenu' filepath='addons/native_dialog/menu.c' line='396' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='al_remove_menu_item' mangled-name='al_remove_menu_item' filepath='addons/native_dialog/menu.c' line='462' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_remove_menu_item'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='462' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='462' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_find_menu' mangled-name='al_find_menu' filepath='addons/native_dialog/menu.c' line='479' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_find_menu'>
+      <parameter type-id='type-id-165' name='haystack' filepath='addons/native_dialog/menu.c' line='479' column='1'/>
+      <parameter type-id='type-id-175' name='id' filepath='addons/native_dialog/menu.c' line='479' column='1'/>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='al_find_menu_item' mangled-name='al_find_menu_item' filepath='addons/native_dialog/menu.c' line='489' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_find_menu_item'>
+      <parameter type-id='type-id-165' name='haystack' filepath='addons/native_dialog/menu.c' line='489' column='1'/>
+      <parameter type-id='type-id-175' name='id' filepath='addons/native_dialog/menu.c' line='489' column='1'/>
+      <parameter type-id='type-id-189' name='menu' filepath='addons/native_dialog/menu.c' line='489' column='1'/>
+      <parameter type-id='type-id-92' name='index' filepath='addons/native_dialog/menu.c' line='490' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='_al_find_menu_item_unique' mangled-name='_al_find_menu_item_unique' filepath='addons/native_dialog/menu.c' line='516' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_find_menu_item_unique'>
+      <parameter type-id='type-id-165' name='haystack' filepath='addons/native_dialog/menu.c' line='516' column='1'/>
+      <parameter type-id='type-id-175' name='unique_id' filepath='addons/native_dialog/menu.c' line='516' column='1'/>
+      <parameter type-id='type-id-189' name='menu' filepath='addons/native_dialog/menu.c' line='516' column='1'/>
+      <parameter type-id='type-id-92' name='index' filepath='addons/native_dialog/menu.c' line='517' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_get_menu_item_caption' mangled-name='al_get_menu_item_caption' filepath='addons/native_dialog/menu.c' line='539' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_menu_item_caption'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='539' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='539' column='1'/>
+      <return type-id='type-id-90'/>
+    </function-decl>
+    <function-decl name='al_set_menu_item_caption' mangled-name='al_set_menu_item_caption' filepath='addons/native_dialog/menu.c' line='552' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_set_menu_item_caption'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='552' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='552' column='1'/>
+      <parameter type-id='type-id-90' name='caption' filepath='addons/native_dialog/menu.c' line='552' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_get_menu_item_flags' mangled-name='al_get_menu_item_flags' filepath='addons/native_dialog/menu.c' line='569' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_menu_item_flags'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='569' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='569' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='al_set_menu_item_flags' mangled-name='al_set_menu_item_flags' filepath='addons/native_dialog/menu.c' line='581' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_set_menu_item_flags'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='581' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='581' column='1'/>
+      <parameter type-id='type-id-9' name='flags' filepath='addons/native_dialog/menu.c' line='581' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_toggle_menu_item_flags' mangled-name='al_toggle_menu_item_flags' filepath='addons/native_dialog/menu.c' line='607' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_toggle_menu_item_flags'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='607' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='607' column='1'/>
+      <parameter type-id='type-id-9' name='flags' filepath='addons/native_dialog/menu.c' line='607' column='1'/>
+      <return type-id='type-id-9'/>
+    </function-decl>
+    <function-decl name='al_get_menu_item_icon' mangled-name='al_get_menu_item_icon' filepath='addons/native_dialog/menu.c' line='634' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_menu_item_icon'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='634' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='634' column='1'/>
+      <return type-id='type-id-176'/>
+    </function-decl>
+    <function-decl name='al_set_menu_item_icon' mangled-name='al_set_menu_item_icon' filepath='addons/native_dialog/menu.c' line='647' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_set_menu_item_icon'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='647' column='1'/>
+      <parameter type-id='type-id-9' name='pos' filepath='addons/native_dialog/menu.c' line='647' column='1'/>
+      <parameter type-id='type-id-176' name='icon' filepath='addons/native_dialog/menu.c' line='647' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_destroy_menu' mangled-name='al_destroy_menu' filepath='addons/native_dialog/menu.c' line='666' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_destroy_menu'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='666' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_get_default_menu_event_source' mangled-name='al_get_default_menu_event_source' filepath='addons/native_dialog/menu.c' line='709' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_default_menu_event_source'>
+      <return type-id='type-id-196'/>
+    </function-decl>
+    <function-decl name='al_enable_menu_event_source' mangled-name='al_enable_menu_event_source' filepath='addons/native_dialog/menu.c' line='716' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_enable_menu_event_source'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='716' column='1'/>
+      <return type-id='type-id-196'/>
+    </function-decl>
+    <function-decl name='al_disable_menu_event_source' mangled-name='al_disable_menu_event_source' filepath='addons/native_dialog/menu.c' line='730' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_disable_menu_event_source'>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='730' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_get_display_menu' mangled-name='al_get_display_menu' filepath='addons/native_dialog/menu.c' line='742' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_display_menu'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/menu.c' line='742' column='1'/>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='al_set_display_menu' mangled-name='al_set_display_menu' filepath='addons/native_dialog/menu.c' line='760' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_set_display_menu'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/menu.c' line='760' column='1'/>
+      <parameter type-id='type-id-165' name='menu' filepath='addons/native_dialog/menu.c' line='760' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_popup_menu' mangled-name='al_popup_menu' filepath='addons/native_dialog/menu.c' line='841' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_popup_menu'>
+      <parameter type-id='type-id-165' name='popup' filepath='addons/native_dialog/menu.c' line='841' column='1'/>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/menu.c' line='841' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <function-decl name='al_remove_display_menu' mangled-name='al_remove_display_menu' filepath='addons/native_dialog/menu.c' line='865' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_remove_display_menu'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/menu.c' line='865' column='1'/>
+      <return type-id='type-id-165'/>
+    </function-decl>
+    <function-decl name='_al_find_parent_menu_by_id' mangled-name='_al_find_parent_menu_by_id' filepath='addons/native_dialog/menu.c' line='882' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_find_parent_menu_by_id'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/menu.c' line='882' column='1'/>
+      <parameter type-id='type-id-175' name='unique_id' filepath='addons/native_dialog/menu.c' line='882' column='1'/>
+      <return type-id='type-id-191'/>
+    </function-decl>
+    <function-decl name='_al_emit_menu_event' mangled-name='_al_emit_menu_event' filepath='addons/native_dialog/menu.c' line='904' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_emit_menu_event'>
+      <parameter type-id='type-id-77' name='display' filepath='addons/native_dialog/menu.c' line='904' column='1'/>
+      <parameter type-id='type-id-175' name='unique_id' filepath='addons/native_dialog/menu.c' line='904' column='1'/>
+      <return type-id='type-id-1'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_BITMAP' type-id='type-id-195' filepath='include/allegro5/bitmap.h' line='12' column='1' id='type-id-194'/>
+    <function-type size-in-bits='64' id='type-id-192'>
+      <parameter type-id='type-id-165'/>
+      <parameter type-id='type-id-166'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-24'/>
+      <return type-id='type-id-1'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/native_dialog/textlog.c' comp-dir-path='build/addons/native_dialog' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-19' size-in-bits='64' id='type-id-196'/>
+    <pointer-type-def type-id='type-id-197' size-in-bits='64' id='type-id-198'/>
+    <class-decl name='ALLEGRO_TEXTLOG' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-199'/>
+    <typedef-decl name='ALLEGRO_TEXTLOG' type-id='type-id-199' filepath='addons/native_dialog/allegro5/allegro_native_dialog.h' line='42' column='1' id='type-id-197'/>
+    <function-decl name='al_open_native_text_log' mangled-name='al_open_native_text_log' filepath='addons/native_dialog/textlog.c' line='39' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_open_native_text_log'>
+      <parameter type-id='type-id-90' name='title' filepath='addons/native_dialog/textlog.c' line='39' column='1'/>
+      <parameter type-id='type-id-9' name='flags' filepath='addons/native_dialog/textlog.c' line='39' column='1'/>
+      <return type-id='type-id-198'/>
+    </function-decl>
+    <function-decl name='al_close_native_text_log' mangled-name='al_close_native_text_log' filepath='addons/native_dialog/textlog.c' line='92' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_close_native_text_log'>
+      <parameter type-id='type-id-198' name='textlog' filepath='addons/native_dialog/textlog.c' line='92' column='1'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_append_native_text_log' mangled-name='al_append_native_text_log' filepath='addons/native_dialog/textlog.c' line='135' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_append_native_text_log'>
+      <parameter type-id='type-id-198' name='textlog' filepath='addons/native_dialog/textlog.c' line='135' column='1'/>
+      <parameter type-id='type-id-90' name='format' filepath='addons/native_dialog/textlog.c' line='136' column='1'/>
+      <parameter is-variadic='yes'/>
+      <return type-id='type-id-122'/>
+    </function-decl>
+    <function-decl name='al_get_native_text_log_event_source' mangled-name='al_get_native_text_log_event_source' filepath='addons/native_dialog/textlog.c' line='164' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_native_text_log_event_source'>
+      <parameter type-id='type-id-198' name='textlog' filepath='addons/native_dialog/textlog.c' line='165' column='1'/>
+      <return type-id='type-id-196'/>
+    </function-decl>
+    <type-decl name='variadic parameter type' id='type-id-200'/>
+  </abi-instr>
+</abi-corpus>

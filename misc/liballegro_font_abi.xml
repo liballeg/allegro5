@@ -1,0 +1,1378 @@
+<abi-corpus version='2.2' path='build/lib/liballegro_font.so' architecture='elf-amd-x86_64' soname='liballegro_font.so.5.2'>
+  <elf-needed>
+    <dependency name='liballegro.so.5.2'/>
+    <dependency name='libc.so.6'/>
+  </elf-needed>
+  <elf-function-symbols>
+    <elf-symbol name='_al_load_bitmap_font' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_load_bmfont_xml' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_al_xml_parse' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_create_builtin_font' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_destroy_font' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_do_multiline_text' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_do_multiline_ustr' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_glyph' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_justified_text' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_justified_textf' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_justified_ustr' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_multiline_text' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_multiline_textf' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_multiline_ustr' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_text' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_textf' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_draw_ustr' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_allegro_font_version' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_fallback_font' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_font_ascent' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_font_descent' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_font_line_height' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_font_ranges' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_glyph' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_glyph_advance' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_glyph_dimensions' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_glyph_width' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_text_dimensions' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_text_width' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_ustr_dimensions' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_get_ustr_width' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_grab_font_from_bitmap' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_init_font_addon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_is_font_addon_initialized' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_load_bitmap_font' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_load_bitmap_font_flags' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_load_font' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_register_font_loader' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_set_fallback_font' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='al_shutdown_font_addon' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='_al_font_vtable_color' size='104' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='addons/font/bmfont.c' comp-dir-path='build/addons/font' language='LANG_C11'>
+    <function-decl name='_al_load_bmfont_xml' mangled-name='_al_load_bmfont_xml' filepath='addons/font/bmfont.c' line='479' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_bmfont_xml'>
+      <parameter type-id='type-id-1' name='filename' filepath='addons/font/bmfont.c' line='479' column='1'/>
+      <parameter type-id='type-id-2' name='size' filepath='addons/font/bmfont.c' line='479' column='1'/>
+      <parameter type-id='type-id-2' name='font_flags' filepath='addons/font/bmfont.c' line='480' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/font/font.c' comp-dir-path='build/addons/font' language='LANG_C11'>
+    <type-decl name='bool' size-in-bits='8' id='type-id-4'/>
+    <type-decl name='char' size-in-bits='8' id='type-id-5'/>
+    <enum-decl name='ALLEGRO_BITMAP_WRAP' filepath='include/allegro5/bitmap.h' line='17' column='1' id='type-id-6'>
+      <underlying-type type-id='type-id-7'/>
+      <enumerator name='ALLEGRO_BITMAP_WRAP_DEFAULT' value='0'/>
+      <enumerator name='ALLEGRO_BITMAP_WRAP_REPEAT' value='1'/>
+      <enumerator name='ALLEGRO_BITMAP_WRAP_CLAMP' value='2'/>
+      <enumerator name='ALLEGRO_BITMAP_WRAP_MIRROR' value='3'/>
+    </enum-decl>
+    <enum-decl name='ALLEGRO_SYSTEM_MOUSE_CURSOR' filepath='include/allegro5/mouse_cursor.h' line='12' column='1' id='type-id-8'>
+      <underlying-type type-id='type-id-7'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE' value='0'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT' value='1'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW' value='2'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY' value='3'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION' value='4'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT' value='5'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE' value='6'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N' value='7'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W' value='8'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S' value='9'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E' value='10'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW' value='11'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW' value='12'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE' value='13'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE' value='14'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS' value='15'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION' value='16'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK' value='17'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT' value='18'/>
+      <enumerator name='ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE' value='19'/>
+      <enumerator name='ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS' value='20'/>
+    </enum-decl>
+    <type-decl name='float' size-in-bits='32' id='type-id-9'/>
+    <array-type-def dimensions='2' type-id='type-id-9' size-in-bits='512' id='type-id-10'>
+      <subrange length='4' lower-bound='0' upper-bound='3' type-id='type-id-11' id='type-id-12'/>
+      <subrange length='4' lower-bound='0' upper-bound='3' type-id='type-id-11' id='type-id-12'/>
+    </array-type-def>
+    <type-decl name='int' size-in-bits='32' id='type-id-2'/>
+    <array-type-def dimensions='1' type-id='type-id-2' size-in-bits='1024' id='type-id-13'>
+      <subrange length='32' lower-bound='0' upper-bound='31' type-id='type-id-11' id='type-id-14'/>
+    </array-type-def>
+    <array-type-def dimensions='1' type-id='type-id-2' size-in-bits='1152' id='type-id-15'>
+      <subrange length='36' lower-bound='0' upper-bound='35' type-id='type-id-11' id='type-id-16'/>
+    </array-type-def>
+    <type-decl name='long int' size-in-bits='64' id='type-id-17'/>
+    <class-decl name='ALLEGRO_BITMAP' size-in-bits='3456' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='18' column='1' id='type-id-18'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='vt' type-id='type-id-19' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='20' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='_format' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='28' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='_flags' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='29' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='_depth' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='30' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='160'>
+        <var-decl name='_samples' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='31' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='_display' type-id='type-id-20' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='32' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='_wrap_u' type-id='type-id-21' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='33' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='288'>
+        <var-decl name='_wrap_v' type-id='type-id-21' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='34' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='_memory_format' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='37' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='352'>
+        <var-decl name='w' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='39' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='h' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='39' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='416'>
+        <var-decl name='pitch' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='44' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='cl' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='54' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='480'>
+        <var-decl name='cr_excl' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='55' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='ct' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='56' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='544'>
+        <var-decl name='cb_excl' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='57' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='locked' type-id='type-id-4' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='73' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='608'>
+        <var-decl name='lock_x' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='74' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='lock_y' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='75' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='672'>
+        <var-decl name='lock_w' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='76' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='704'>
+        <var-decl name='lock_h' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='77' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='768'>
+        <var-decl name='lock_data' type-id='type-id-22' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='78' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='832'>
+        <var-decl name='lock_flags' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='79' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='896'>
+        <var-decl name='locked_region' type-id='type-id-23' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='80' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='transform' type-id='type-id-24' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='83' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1600'>
+        <var-decl name='inverse_transform' type-id='type-id-24' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='84' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2112'>
+        <var-decl name='inverse_transform_dirty' type-id='type-id-4' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='85' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2144'>
+        <var-decl name='proj_transform' type-id='type-id-24' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='86' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2656'>
+        <var-decl name='use_bitmap_blender' type-id='type-id-4' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='89' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2688'>
+        <var-decl name='blender' type-id='type-id-25' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='90' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3008'>
+        <var-decl name='shader' type-id='type-id-26' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='95' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3072'>
+        <var-decl name='parent' type-id='type-id-27' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='98' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3136'>
+        <var-decl name='xofs' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='99' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3168'>
+        <var-decl name='yofs' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='100' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3200'>
+        <var-decl name='memory' type-id='type-id-28' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='103' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3264'>
+        <var-decl name='extra' type-id='type-id-22' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='106' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3328'>
+        <var-decl name='dtor_item' type-id='type-id-29' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='108' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3392'>
+        <var-decl name='dirty' type-id='type-id-4' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='111' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_BITMAP_INTERFACE' size-in-bits='704' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='114' column='1' id='type-id-30'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='id' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='116' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='draw_bitmap_region' type-id='type-id-31' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='118' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='upload_bitmap' type-id='type-id-32' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='126' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='update_clipping_rectangle' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='128' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='destroy_bitmap' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='130' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='lock_region' type-id='type-id-34' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='132' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='unlock_region' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='135' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='lock_compressed_region' type-id='type-id-35' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='137' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='unlock_compressed_region' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='140' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='bitmap_pointer_changed' type-id='type-id-36' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='143' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='backup_dirty_bitmap' type-id='type-id-33' visibility='default' filepath='include/allegro5/internal/aintern_bitmap.h' line='146' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_BLENDER' size-in-bits='320' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='92' column='1' id='type-id-37'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='blend_op' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='94' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='blend_source' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='95' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='blend_dest' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='96' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='blend_alpha_op' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='97' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='blend_alpha_source' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='98' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='160'>
+        <var-decl name='blend_alpha_dest' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='99' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='blend_color' type-id='type-id-38' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='100' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_COLOR' size-in-bits='128' is-struct='yes' visibility='default' filepath='include/allegro5/color.h' line='15' column='1' id='type-id-39'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='r' type-id='type-id-9' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='g' type-id='type-id-9' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='b' type-id='type-id-9' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='a' type-id='type-id-9' visibility='default' filepath='include/allegro5/color.h' line='17' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_DISPLAY' size-in-bits='5056' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='124' column='1' id='type-id-40'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='es' type-id='type-id-41' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='127' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='vt' type-id='type-id-42' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='128' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='refresh_rate' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='129' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1120'>
+        <var-decl name='flags' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='130' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1152'>
+        <var-decl name='w' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='131' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1184'>
+        <var-decl name='h' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='131' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1216'>
+        <var-decl name='min_w' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='132' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1248'>
+        <var-decl name='min_h' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='132' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1280'>
+        <var-decl name='max_w' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='133' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1312'>
+        <var-decl name='max_h' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='133' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='backbuffer_format' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='135' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1408'>
+        <var-decl name='extra_settings' type-id='type-id-43' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='137' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2816'>
+        <var-decl name='ogl_extras' type-id='type-id-44' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='138' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2880'>
+        <var-decl name='bitmaps' type-id='type-id-45' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='141' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3136'>
+        <var-decl name='num_cache_vertices' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='143' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3168'>
+        <var-decl name='cache_enabled' type-id='type-id-4' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='144' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3200'>
+        <var-decl name='vertex_cache_size' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='145' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3264'>
+        <var-decl name='vertex_cache' type-id='type-id-22' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='146' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3328'>
+        <var-decl name='cache_texture' type-id='type-id-46' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='147' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3392'>
+        <var-decl name='cur_blender' type-id='type-id-25' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='149' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3712'>
+        <var-decl name='default_shader' type-id='type-id-26' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='151' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='3776'>
+        <var-decl name='projview_transform' type-id='type-id-24' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='153' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4288'>
+        <var-decl name='render_state' type-id='type-id-47' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='155' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4480'>
+        <var-decl name='display_invalidated_callbacks' type-id='type-id-45' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='157' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4736'>
+        <var-decl name='display_validated_callbacks' type-id='type-id-45' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='158' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='4992'>
+        <var-decl name='use_constraints' type-id='type-id-4' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='161' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_DISPLAY_INTERFACE' size-in-bits='2944' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='16' column='1' id='type-id-48'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='id' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='18' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='create_display' type-id='type-id-49' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='19' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='destroy_display' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='20' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='set_current_display' type-id='type-id-51' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='21' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='unset_current_display' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='22' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='clear' type-id='type-id-52' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='23' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='draw_pixel' type-id='type-id-53' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='24' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='flip_display' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='25' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='update_display_region' type-id='type-id-54' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='26' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='acknowledge_resize' type-id='type-id-51' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='28' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='resize_display' type-id='type-id-55' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='29' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='704'>
+        <var-decl name='quick_size' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='30' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='768'>
+        <var-decl name='get_orientation' type-id='type-id-56' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='31' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='832'>
+        <var-decl name='create_bitmap' type-id='type-id-57' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='33' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='896'>
+        <var-decl name='set_target_bitmap' type-id='type-id-58' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='36' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='960'>
+        <var-decl name='get_backbuffer' type-id='type-id-59' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='37' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1024'>
+        <var-decl name='is_compatible_bitmap' type-id='type-id-60' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='39' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1088'>
+        <var-decl name='switch_out' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='40' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1152'>
+        <var-decl name='switch_in' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='41' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1216'>
+        <var-decl name='draw_memory_bitmap_region' type-id='type-id-61' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='43' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1280'>
+        <var-decl name='wait_for_vsync' type-id='type-id-51' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='46' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='set_mouse_cursor' type-id='type-id-62' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='48' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1408'>
+        <var-decl name='set_system_mouse_cursor' type-id='type-id-63' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='50' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1472'>
+        <var-decl name='show_mouse_cursor' type-id='type-id-51' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='52' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1536'>
+        <var-decl name='hide_mouse_cursor' type-id='type-id-51' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='53' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1600'>
+        <var-decl name='set_icons' type-id='type-id-64' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='55' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1664'>
+        <var-decl name='set_window_position' type-id='type-id-65' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='57' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1728'>
+        <var-decl name='get_window_position' type-id='type-id-66' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='58' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1792'>
+        <var-decl name='get_window_borders' type-id='type-id-67' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='59' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1856'>
+        <var-decl name='set_window_constraints' type-id='type-id-68' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='60' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1920'>
+        <var-decl name='get_window_constraints' type-id='type-id-67' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='61' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1984'>
+        <var-decl name='set_display_flag' type-id='type-id-69' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='62' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2048'>
+        <var-decl name='set_window_title' type-id='type-id-70' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='63' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2112'>
+        <var-decl name='flush_vertex_cache' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='65' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2176'>
+        <var-decl name='prepare_vertex_cache' type-id='type-id-71' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='66' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2240'>
+        <var-decl name='update_transformation' type-id='type-id-58' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='68' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2304'>
+        <var-decl name='shutdown' type-id='type-id-72' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='71' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2368'>
+        <var-decl name='acknowledge_drawing_halt' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='73' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2432'>
+        <var-decl name='acknowledge_drawing_resume' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='74' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2496'>
+        <var-decl name='set_display_option' type-id='type-id-65' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='76' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2560'>
+        <var-decl name='clear_depth_buffer' type-id='type-id-73' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='78' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2624'>
+        <var-decl name='update_render_state' type-id='type-id-50' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='79' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2688'>
+        <var-decl name='get_clipboard_text' type-id='type-id-74' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='81' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2752'>
+        <var-decl name='set_clipboard_text' type-id='type-id-75' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='82' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2816'>
+        <var-decl name='has_clipboard_text' type-id='type-id-51' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='83' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='2880'>
+        <var-decl name='apply_window_constraints' type-id='type-id-76' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='86' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_EVENT_SOURCE' size-in-bits='1024' is-struct='yes' visibility='default' filepath='include/allegro5/events.h' line='76' column='1' id='type-id-77'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='__pad' type-id='type-id-13' visibility='default' filepath='include/allegro5/events.h' line='78' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_EXTRA_DISPLAY_SETTINGS' size-in-bits='1408' is-struct='yes' naming-typedef-id='type-id-43' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='114' column='1' id='type-id-78'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='required' type-id='type-id-79' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='116' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='suggested' type-id='type-id-79' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='116' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='settings' type-id='type-id-15' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='117' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1280'>
+        <var-decl name='info' type-id='type-id-22' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='120' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1344'>
+        <var-decl name='index' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='121' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='1376'>
+        <var-decl name='score' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='121' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_FONT' size-in-bits='320' is-struct='yes' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='8' column='1' id='type-id-80'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='data' type-id='type-id-22' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='10' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='height' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='11' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='fallback' type-id='type-id-3' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='12' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='vtable' type-id='type-id-81' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='13' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='dtor_item' type-id='type-id-29' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='14' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_FONT_VTABLE' size-in-bits='832' is-struct='yes' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='18' column='1' id='type-id-82'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='font_height' type-id='type-id-83' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='20' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='font_ascent' type-id='type-id-83' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='21' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='font_descent' type-id='type-id-83' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='22' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='char_length' type-id='type-id-84' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='23' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='text_length' type-id='type-id-85' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='24' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='render_char' type-id='type-id-86' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='25' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='render' type-id='type-id-87' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='26' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='destroy' type-id='type-id-88' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='27' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='get_text_dimensions' type-id='type-id-89' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='28' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='get_font_ranges' type-id='type-id-90' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='30' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='get_glyph_dimensions' type-id='type-id-91' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='33' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='704'>
+        <var-decl name='get_glyph_advance' type-id='type-id-92' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='35' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='768'>
+        <var-decl name='get_glyph' type-id='type-id-93' visibility='default' filepath='addons/font/allegro5/internal/aintern_font.h' line='38' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_GLYPH' size-in-bits='320' is-struct='yes' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='55' column='1' id='type-id-94'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='bitmap' type-id='type-id-27' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='57' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='x' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='58' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='y' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='59' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='w' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='60' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='160'>
+        <var-decl name='h' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='61' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='kerning' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='62' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='224'>
+        <var-decl name='offset_x' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='63' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='offset_y' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='64' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='288'>
+        <var-decl name='advance' type-id='type-id-2' visibility='default' filepath='addons/font/allegro5/allegro_font.h' line='65' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_LOCKED_REGION' size-in-bits='192' is-struct='yes' visibility='default' filepath='include/allegro5/bitmap_lock.h' line='24' column='1' id='type-id-95'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='data' type-id='type-id-22' visibility='default' filepath='include/allegro5/bitmap_lock.h' line='25' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='format' type-id='type-id-2' visibility='default' filepath='include/allegro5/bitmap_lock.h' line='26' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='pitch' type-id='type-id-2' visibility='default' filepath='include/allegro5/bitmap_lock.h' line='27' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='pixel_size' type-id='type-id-2' visibility='default' filepath='include/allegro5/bitmap_lock.h' line='28' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='ALLEGRO_TRANSFORM' size-in-bits='512' is-struct='yes' visibility='default' filepath='include/allegro5/transformations.h' line='14' column='1' id='type-id-96'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='m' type-id='type-id-10' visibility='default' filepath='include/allegro5/transformations.h' line='15' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_ALLEGRO_RENDER_STATE' size-in-bits='192' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='103' column='1' id='type-id-97'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='write_mask' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='104' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='depth_test' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='105' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='depth_function' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='105' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='alpha_test' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='106' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='alpha_function' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='106' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='160'>
+        <var-decl name='alpha_test_value' type-id='type-id-2' visibility='default' filepath='include/allegro5/internal/aintern_display.h' line='106' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_AL_VECTOR' size-in-bits='256' is-struct='yes' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='9' column='1' id='type-id-98'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='_itemsize' type-id='type-id-99' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='12' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='_items' type-id='type-id-100' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='13' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='_size' type-id='type-id-99' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='14' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='_unused' type-id='type-id-99' visibility='default' filepath='include/allegro5/internal/aintern_vector.h' line='15' column='1'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='_al_tagbstring' size-in-bits='128' is-struct='yes' visibility='default' filepath='include/allegro5/utf8.h' line='20' column='1' id='type-id-101'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='mlen' type-id='type-id-2' visibility='default' filepath='include/allegro5/utf8.h' line='21' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='slen' type-id='type-id-2' visibility='default' filepath='include/allegro5/utf8.h' line='22' column='1'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='data' type-id='type-id-28' visibility='default' filepath='include/allegro5/utf8.h' line='23' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='ALLEGRO_BITMAP' type-id='type-id-18' filepath='include/allegro5/bitmap.h' line='12' column='1' id='type-id-102'/>
+    <typedef-decl name='ALLEGRO_BITMAP_INTERFACE' type-id='type-id-30' filepath='include/allegro5/internal/aintern_bitmap.h' line='16' column='1' id='type-id-103'/>
+    <typedef-decl name='ALLEGRO_BITMAP_WRAP' type-id='type-id-6' filepath='include/allegro5/bitmap.h' line='22' column='1' id='type-id-21'/>
+    <typedef-decl name='ALLEGRO_BLENDER' type-id='type-id-37' filepath='include/allegro5/internal/aintern_display.h' line='101' column='1' id='type-id-25'/>
+    <typedef-decl name='ALLEGRO_COLOR' type-id='type-id-39' filepath='include/allegro5/color.h' line='13' column='1' id='type-id-38'/>
+    <typedef-decl name='ALLEGRO_DISPLAY' type-id='type-id-40' filepath='include/allegro5/display.h' line='113' column='1' id='type-id-104'/>
+    <typedef-decl name='ALLEGRO_DISPLAY_INTERFACE' type-id='type-id-48' filepath='include/allegro5/internal/aintern_display.h' line='14' column='1' id='type-id-105'/>
+    <typedef-decl name='ALLEGRO_EVENT_SOURCE' type-id='type-id-77' filepath='include/allegro5/events.h' line='74' column='1' id='type-id-41'/>
+    <typedef-decl name='ALLEGRO_EXTRA_DISPLAY_SETTINGS' type-id='type-id-78' filepath='include/allegro5/internal/aintern_display.h' line='122' column='1' id='type-id-43'/>
+    <typedef-decl name='ALLEGRO_FONT' type-id='type-id-80' filepath='addons/font/allegro5/allegro_font.h' line='48' column='1' id='type-id-106'/>
+    <typedef-decl name='ALLEGRO_FONT_VTABLE' type-id='type-id-82' filepath='addons/font/allegro5/internal/aintern_font.h' line='6' column='1' id='type-id-107'/>
+    <typedef-decl name='ALLEGRO_GLYPH' type-id='type-id-94' filepath='addons/font/allegro5/allegro_font.h' line='53' column='1' id='type-id-108'/>
+    <typedef-decl name='ALLEGRO_LOCKED_REGION' type-id='type-id-95' filepath='include/allegro5/bitmap_lock.h' line='23' column='1' id='type-id-23'/>
+    <typedef-decl name='ALLEGRO_SYSTEM_MOUSE_CURSOR' type-id='type-id-8' filepath='include/allegro5/mouse_cursor.h' line='35' column='1' id='type-id-109'/>
+    <typedef-decl name='ALLEGRO_TRANSFORM' type-id='type-id-96' filepath='include/allegro5/transformations.h' line='12' column='1' id='type-id-24'/>
+    <typedef-decl name='ALLEGRO_USTR' type-id='type-id-101' filepath='include/allegro5/utf8.h' line='12' column='1' id='type-id-110'/>
+    <typedef-decl name='_ALLEGRO_RENDER_STATE' type-id='type-id-97' filepath='include/allegro5/internal/aintern_display.h' line='107' column='1' id='type-id-47'/>
+    <typedef-decl name='_AL_VECTOR' type-id='type-id-98' filepath='include/allegro5/internal/aintern_vector.h' line='16' column='1' id='type-id-45'/>
+    <typedef-decl name='__int64_t' type-id='type-id-17' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='44' column='1' id='type-id-111'/>
+    <typedef-decl name='__uint32_t' type-id='type-id-112' filepath='/usr/include/x86_64-linux-gnu/bits/types.h' line='42' column='1' id='type-id-113'/>
+    <typedef-decl name='int64_t' type-id='type-id-111' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-intn.h' line='27' column='1' id='type-id-79'/>
+    <typedef-decl name='size_t' type-id='type-id-11' filepath='/usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h' line='214' column='1' id='type-id-99'/>
+    <typedef-decl name='uint32_t' type-id='type-id-113' filepath='/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h' line='26' column='1' id='type-id-114'/>
+    <typedef-decl name='uintptr_t' type-id='type-id-11' filepath='/usr/include/stdint.h' line='79' column='1' id='type-id-46'/>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='type-id-7'/>
+    <type-decl name='unsigned char' size-in-bits='8' id='type-id-115'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='type-id-112'/>
+    <type-decl name='unsigned long int' size-in-bits='64' id='type-id-11'/>
+    <pointer-type-def type-id='type-id-102' size-in-bits='64' id='type-id-27'/>
+    <pointer-type-def type-id='type-id-116' size-in-bits='64' id='type-id-59'/>
+    <pointer-type-def type-id='type-id-117' size-in-bits='64' id='type-id-57'/>
+    <pointer-type-def type-id='type-id-27' size-in-bits='64' id='type-id-118'/>
+    <pointer-type-def type-id='type-id-103' size-in-bits='64' id='type-id-19'/>
+    <pointer-type-def type-id='type-id-38' size-in-bits='64' id='type-id-119'/>
+    <pointer-type-def type-id='type-id-104' size-in-bits='64' id='type-id-20'/>
+    <pointer-type-def type-id='type-id-120' size-in-bits='64' id='type-id-49'/>
+    <pointer-type-def type-id='type-id-105' size-in-bits='64' id='type-id-42'/>
+    <pointer-type-def type-id='type-id-106' size-in-bits='64' id='type-id-3'/>
+    <pointer-type-def type-id='type-id-121' size-in-bits='64' id='type-id-122'/>
+    <pointer-type-def type-id='type-id-107' size-in-bits='64' id='type-id-81'/>
+    <pointer-type-def type-id='type-id-108' size-in-bits='64' id='type-id-123'/>
+    <pointer-type-def type-id='type-id-23' size-in-bits='64' id='type-id-124'/>
+    <pointer-type-def type-id='type-id-125' size-in-bits='64' id='type-id-35'/>
+    <pointer-type-def type-id='type-id-126' size-in-bits='64' id='type-id-34'/>
+    <pointer-type-def type-id='type-id-127' size-in-bits='64' id='type-id-32'/>
+    <pointer-type-def type-id='type-id-128' size-in-bits='64' id='type-id-51'/>
+    <pointer-type-def type-id='type-id-129' size-in-bits='64' id='type-id-60'/>
+    <pointer-type-def type-id='type-id-130' size-in-bits='64' id='type-id-62'/>
+    <pointer-type-def type-id='type-id-131' size-in-bits='64' id='type-id-75'/>
+    <pointer-type-def type-id='type-id-132' size-in-bits='64' id='type-id-67'/>
+    <pointer-type-def type-id='type-id-133' size-in-bits='64' id='type-id-69'/>
+    <pointer-type-def type-id='type-id-134' size-in-bits='64' id='type-id-55'/>
+    <pointer-type-def type-id='type-id-135' size-in-bits='64' id='type-id-68'/>
+    <pointer-type-def type-id='type-id-136' size-in-bits='64' id='type-id-63'/>
+    <pointer-type-def type-id='type-id-137' size-in-bits='64' id='type-id-91'/>
+    <pointer-type-def type-id='type-id-138' size-in-bits='64' id='type-id-93'/>
+    <pointer-type-def type-id='type-id-5' size-in-bits='64' id='type-id-100'/>
+    <pointer-type-def type-id='type-id-139' size-in-bits='64' id='type-id-74'/>
+    <qualified-type-def type-id='type-id-106' const='yes' id='type-id-140'/>
+    <pointer-type-def type-id='type-id-140' size-in-bits='64' id='type-id-141'/>
+    <qualified-type-def type-id='type-id-110' const='yes' id='type-id-142'/>
+    <pointer-type-def type-id='type-id-142' size-in-bits='64' id='type-id-143'/>
+    <qualified-type-def type-id='type-id-5' const='yes' id='type-id-144'/>
+    <pointer-type-def type-id='type-id-144' size-in-bits='64' id='type-id-1'/>
+    <pointer-type-def type-id='type-id-145' size-in-bits='64' id='type-id-56'/>
+    <pointer-type-def type-id='type-id-146' size-in-bits='64' id='type-id-90'/>
+    <pointer-type-def type-id='type-id-147' size-in-bits='64' id='type-id-83'/>
+    <pointer-type-def type-id='type-id-148' size-in-bits='64' id='type-id-85'/>
+    <pointer-type-def type-id='type-id-149' size-in-bits='64' id='type-id-84'/>
+    <pointer-type-def type-id='type-id-150' size-in-bits='64' id='type-id-92'/>
+    <pointer-type-def type-id='type-id-151' size-in-bits='64' id='type-id-87'/>
+    <pointer-type-def type-id='type-id-152' size-in-bits='64' id='type-id-86'/>
+    <pointer-type-def type-id='type-id-2' size-in-bits='64' id='type-id-153'/>
+    <pointer-type-def type-id='type-id-115' size-in-bits='64' id='type-id-28'/>
+    <pointer-type-def type-id='type-id-154' size-in-bits='64' id='type-id-72'/>
+    <pointer-type-def type-id='type-id-155' size-in-bits='64' id='type-id-33'/>
+    <pointer-type-def type-id='type-id-156' size-in-bits='64' id='type-id-36'/>
+    <pointer-type-def type-id='type-id-157' size-in-bits='64' id='type-id-31'/>
+    <pointer-type-def type-id='type-id-158' size-in-bits='64' id='type-id-50'/>
+    <pointer-type-def type-id='type-id-159' size-in-bits='64' id='type-id-58'/>
+    <pointer-type-def type-id='type-id-160' size-in-bits='64' id='type-id-61'/>
+    <pointer-type-def type-id='type-id-161' size-in-bits='64' id='type-id-52'/>
+    <pointer-type-def type-id='type-id-162' size-in-bits='64' id='type-id-76'/>
+    <pointer-type-def type-id='type-id-163' size-in-bits='64' id='type-id-70'/>
+    <pointer-type-def type-id='type-id-164' size-in-bits='64' id='type-id-73'/>
+    <pointer-type-def type-id='type-id-165' size-in-bits='64' id='type-id-53'/>
+    <pointer-type-def type-id='type-id-166' size-in-bits='64' id='type-id-66'/>
+    <pointer-type-def type-id='type-id-167' size-in-bits='64' id='type-id-64'/>
+    <pointer-type-def type-id='type-id-168' size-in-bits='64' id='type-id-65'/>
+    <pointer-type-def type-id='type-id-169' size-in-bits='64' id='type-id-54'/>
+    <pointer-type-def type-id='type-id-170' size-in-bits='64' id='type-id-88'/>
+    <pointer-type-def type-id='type-id-171' size-in-bits='64' id='type-id-89'/>
+    <pointer-type-def type-id='type-id-172' size-in-bits='64' id='type-id-71'/>
+    <pointer-type-def type-id='type-id-173' size-in-bits='64' id='type-id-174'/>
+    <pointer-type-def type-id='type-id-175' size-in-bits='64' id='type-id-44'/>
+    <pointer-type-def type-id='type-id-176' size-in-bits='64' id='type-id-26'/>
+    <pointer-type-def type-id='type-id-177' size-in-bits='64' id='type-id-29'/>
+    <class-decl name='ALLEGRO_MOUSE_CURSOR' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-178'/>
+    <class-decl name='ALLEGRO_OGL_EXTRAS' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-175'/>
+    <class-decl name='ALLEGRO_SHADER' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-179'/>
+    <class-decl name='_AL_LIST_ITEM' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-180'/>
+    <function-decl name='al_init_font_addon' mangled-name='al_init_font_addon' filepath='addons/font/font.c' line='367' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_init_font_addon'>
+      <return type-id='type-id-4'/>
+    </function-decl>
+    <function-decl name='al_is_font_addon_initialized' mangled-name='al_is_font_addon_initialized' filepath='addons/font/font.c' line='393' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_is_font_addon_initialized'>
+      <return type-id='type-id-4'/>
+    </function-decl>
+    <function-decl name='al_shutdown_font_addon' mangled-name='al_shutdown_font_addon' filepath='addons/font/font.c' line='402' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_shutdown_font_addon'>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_register_font_loader' mangled-name='al_register_font_loader' filepath='addons/font/font.c' line='426' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_register_font_loader'>
+      <parameter type-id='type-id-1' name='extension' filepath='addons/font/font.c' line='426' column='1'/>
+      <parameter type-id='type-id-122' name='load_font' filepath='addons/font/font.c' line='427' column='1'/>
+      <return type-id='type-id-4'/>
+    </function-decl>
+    <function-decl name='al_load_font' mangled-name='al_load_font' filepath='addons/font/font.c' line='450' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_load_font'>
+      <parameter type-id='type-id-1' name='filename' filepath='addons/font/font.c' line='450' column='1'/>
+      <parameter type-id='type-id-2' name='size' filepath='addons/font/font.c' line='450' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/font.c' line='450' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+    <function-decl name='al_get_allegro_font_version' mangled-name='al_get_allegro_font_version' filepath='addons/font/font.c' line='497' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_allegro_font_version'>
+      <return type-id='type-id-114'/>
+    </function-decl>
+    <var-decl name='_al_font_vtable_color' type-id='type-id-107' mangled-name='_al_font_vtable_color' visibility='default' filepath='addons/font/font.h' line='6' column='1' elf-symbol-id='_al_font_vtable_color'/>
+    <typedef-decl name='_AL_LIST_ITEM' type-id='type-id-180' filepath='include/allegro5/internal/aintern_list.h' line='9' column='1' id='type-id-177'/>
+    <typedef-decl name='ALLEGRO_MOUSE_CURSOR' type-id='type-id-178' filepath='include/allegro5/mouse_cursor.h' line='10' column='1' id='type-id-173'/>
+    <typedef-decl name='ALLEGRO_SHADER' type-id='type-id-179' filepath='include/allegro5/shader.h' line='14' column='1' id='type-id-176'/>
+    <type-decl name='void' id='type-id-181'/>
+    <pointer-type-def type-id='type-id-181' id='type-id-22'/>
+    <function-type size-in-bits='64' id='type-id-116'>
+      <parameter type-id='type-id-20'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-117'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-27'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-120'>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-20'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-121'>
+      <parameter type-id='type-id-1' name='filename'/>
+      <parameter type-id='type-id-2' name='size'/>
+      <parameter type-id='type-id-2' name='flags'/>
+      <return type-id='type-id-3'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-125'>
+      <parameter type-id='type-id-27'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-124'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-126'>
+      <parameter type-id='type-id-27'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-124'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-127'>
+      <parameter type-id='type-id-27'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-128'>
+      <parameter type-id='type-id-20'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-129'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-27'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-130'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-174'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-131'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-1'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-136'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-109'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-132'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-133'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-4'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-134'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-135'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-137'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-138'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-123'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-139'>
+      <parameter type-id='type-id-20'/>
+      <return type-id='type-id-100'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-145'>
+      <parameter type-id='type-id-20'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-146'>
+      <parameter type-id='type-id-3'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-153'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-147'>
+      <parameter type-id='type-id-141'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-151'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-38'/>
+      <parameter type-id='type-id-143'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-152'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-38'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-148'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-143'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-149'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-150'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-154'>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-155'>
+      <parameter type-id='type-id-27'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-156'>
+      <parameter type-id='type-id-27'/>
+      <parameter type-id='type-id-27'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-157'>
+      <parameter type-id='type-id-27'/>
+      <parameter type-id='type-id-38'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-158'>
+      <parameter type-id='type-id-20'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-159'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-27'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-160'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-27'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-161'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-119'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-162'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-4'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-163'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-1'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-164'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-9'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-165'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-9'/>
+      <parameter type-id='type-id-119'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-166'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-167'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-118'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-168'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-169'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-170'>
+      <parameter type-id='type-id-3'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-171'>
+      <parameter type-id='type-id-141'/>
+      <parameter type-id='type-id-143'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <parameter type-id='type-id-153'/>
+      <return type-id='type-id-181'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-172'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-2'/>
+      <return type-id='type-id-22'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/font/fontbmp.c' comp-dir-path='build/addons/font' language='LANG_C11'>
+    <qualified-type-def type-id='type-id-2' const='yes' id='type-id-182'/>
+    <pointer-type-def type-id='type-id-182' size-in-bits='64' id='type-id-183'/>
+    <function-decl name='_al_load_bitmap_font' mangled-name='_al_load_bitmap_font' filepath='addons/font/fontbmp.c' line='137' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_load_bitmap_font'>
+      <parameter type-id='type-id-1' name='fname' filepath='addons/font/fontbmp.c' line='137' column='1'/>
+      <parameter type-id='type-id-2' name='size' filepath='addons/font/fontbmp.c' line='137' column='1'/>
+      <parameter type-id='type-id-2' name='font_flags' filepath='addons/font/fontbmp.c' line='137' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+    <function-decl name='al_load_bitmap_font' mangled-name='al_load_bitmap_font' filepath='addons/font/fontbmp.c' line='181' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_load_bitmap_font'>
+      <parameter type-id='type-id-1' name='fname' filepath='addons/font/fontbmp.c' line='181' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+    <function-decl name='al_load_bitmap_font_flags' mangled-name='al_load_bitmap_font_flags' filepath='addons/font/fontbmp.c' line='197' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_load_bitmap_font_flags'>
+      <parameter type-id='type-id-1' name='fname' filepath='addons/font/fontbmp.c' line='197' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/fontbmp.c' line='197' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+    <function-decl name='al_grab_font_from_bitmap' mangled-name='al_grab_font_from_bitmap' filepath='addons/font/fontbmp.c' line='206' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_grab_font_from_bitmap'>
+      <parameter type-id='type-id-27' name='bmp' filepath='addons/font/fontbmp.c' line='206' column='1'/>
+      <parameter type-id='type-id-2' name='ranges_n' filepath='addons/font/fontbmp.c' line='207' column='1'/>
+      <parameter type-id='type-id-183' name='ranges' filepath='addons/font/fontbmp.c' line='207' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/font/stdfont.c' comp-dir-path='build/addons/font' language='LANG_C11'>
+    <function-decl name='al_create_builtin_font' mangled-name='al_create_builtin_font' filepath='addons/font/stdfont.c' line='447' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_create_builtin_font'>
+      <return type-id='type-id-3'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/font/text.c' comp-dir-path='build/addons/font' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-184' size-in-bits='64' id='type-id-185'/>
+    <pointer-type-def type-id='type-id-186' size-in-bits='64' id='type-id-187'/>
+    <function-decl name='al_draw_ustr' mangled-name='al_draw_ustr' filepath='addons/font/text.c' line='75' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_ustr'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='75' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='76' column='1'/>
+      <parameter type-id='type-id-9' name='x' filepath='addons/font/text.c' line='76' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='76' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='76' column='1'/>
+      <parameter type-id='type-id-143' name='ustr' filepath='addons/font/text.c' line='77' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_text' mangled-name='al_draw_text' filepath='addons/font/text.c' line='102' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_text'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='102' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='103' column='1'/>
+      <parameter type-id='type-id-9' name='x' filepath='addons/font/text.c' line='103' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='103' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='103' column='1'/>
+      <parameter type-id='type-id-1' name='text' filepath='addons/font/text.c' line='104' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_justified_ustr' mangled-name='al_draw_justified_ustr' filepath='addons/font/text.c' line='115' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_justified_ustr'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='115' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='116' column='1'/>
+      <parameter type-id='type-id-9' name='x1' filepath='addons/font/text.c' line='116' column='1'/>
+      <parameter type-id='type-id-9' name='x2' filepath='addons/font/text.c' line='116' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='117' column='1'/>
+      <parameter type-id='type-id-9' name='diff' filepath='addons/font/text.c' line='117' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='117' column='1'/>
+      <parameter type-id='type-id-143' name='ustr' filepath='addons/font/text.c' line='117' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_justified_text' mangled-name='al_draw_justified_text' filepath='addons/font/text.c' line='200' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_justified_text'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='200' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='201' column='1'/>
+      <parameter type-id='type-id-9' name='x1' filepath='addons/font/text.c' line='201' column='1'/>
+      <parameter type-id='type-id-9' name='x2' filepath='addons/font/text.c' line='201' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='202' column='1'/>
+      <parameter type-id='type-id-9' name='diff' filepath='addons/font/text.c' line='202' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='202' column='1'/>
+      <parameter type-id='type-id-1' name='text' filepath='addons/font/text.c' line='202' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_textf' mangled-name='al_draw_textf' filepath='addons/font/text.c' line='213' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_textf'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='213' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='213' column='1'/>
+      <parameter type-id='type-id-9' name='x' filepath='addons/font/text.c' line='214' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='214' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='214' column='1'/>
+      <parameter type-id='type-id-1' name='format' filepath='addons/font/text.c' line='215' column='1'/>
+      <parameter is-variadic='yes'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_justified_textf' mangled-name='al_draw_justified_textf' filepath='addons/font/text.c' line='246' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_justified_textf'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='246' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='247' column='1'/>
+      <parameter type-id='type-id-9' name='x1' filepath='addons/font/text.c' line='247' column='1'/>
+      <parameter type-id='type-id-9' name='x2' filepath='addons/font/text.c' line='247' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='247' column='1'/>
+      <parameter type-id='type-id-9' name='diff' filepath='addons/font/text.c' line='248' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='248' column='1'/>
+      <parameter type-id='type-id-1' name='format' filepath='addons/font/text.c' line='248' column='1'/>
+      <parameter is-variadic='yes'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_get_ustr_width' mangled-name='al_get_ustr_width' filepath='addons/font/text.c' line='269' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_ustr_width'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='269' column='1'/>
+      <parameter type-id='type-id-143' name='ustr' filepath='addons/font/text.c' line='269' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_get_text_width' mangled-name='al_get_text_width' filepath='addons/font/text.c' line='281' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_text_width'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='281' column='1'/>
+      <parameter type-id='type-id-1' name='str' filepath='addons/font/text.c' line='281' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_get_font_line_height' mangled-name='al_get_font_line_height' filepath='addons/font/text.c' line='297' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_font_line_height'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='297' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_get_font_ascent' mangled-name='al_get_font_ascent' filepath='addons/font/text.c' line='307' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_font_ascent'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='307' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_get_font_descent' mangled-name='al_get_font_descent' filepath='addons/font/text.c' line='317' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_font_descent'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='317' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_get_ustr_dimensions' mangled-name='al_get_ustr_dimensions' filepath='addons/font/text.c' line='327' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_ustr_dimensions'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='327' column='1'/>
+      <parameter type-id='type-id-143' name='ustr' filepath='addons/font/text.c' line='328' column='1'/>
+      <parameter type-id='type-id-153' name='bbx' filepath='addons/font/text.c' line='329' column='1'/>
+      <parameter type-id='type-id-153' name='bby' filepath='addons/font/text.c' line='329' column='1'/>
+      <parameter type-id='type-id-153' name='bbw' filepath='addons/font/text.c' line='329' column='1'/>
+      <parameter type-id='type-id-153' name='bbh' filepath='addons/font/text.c' line='329' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_get_text_dimensions' mangled-name='al_get_text_dimensions' filepath='addons/font/text.c' line='341' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_text_dimensions'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='341' column='1'/>
+      <parameter type-id='type-id-1' name='text' filepath='addons/font/text.c' line='342' column='1'/>
+      <parameter type-id='type-id-153' name='bbx' filepath='addons/font/text.c' line='343' column='1'/>
+      <parameter type-id='type-id-153' name='bby' filepath='addons/font/text.c' line='343' column='1'/>
+      <parameter type-id='type-id-153' name='bbw' filepath='addons/font/text.c' line='343' column='1'/>
+      <parameter type-id='type-id-153' name='bbh' filepath='addons/font/text.c' line='343' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_destroy_font' mangled-name='al_destroy_font' filepath='addons/font/text.c' line='357' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_destroy_font'>
+      <parameter type-id='type-id-3' name='f' filepath='addons/font/text.c' line='357' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_get_font_ranges' mangled-name='al_get_font_ranges' filepath='addons/font/text.c' line='370' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_font_ranges'>
+      <parameter type-id='type-id-3' name='f' filepath='addons/font/text.c' line='370' column='1'/>
+      <parameter type-id='type-id-2' name='ranges_count' filepath='addons/font/text.c' line='370' column='1'/>
+      <parameter type-id='type-id-153' name='ranges' filepath='addons/font/text.c' line='370' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_draw_glyph' mangled-name='al_draw_glyph' filepath='addons/font/text.c' line='377' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_glyph'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='377' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='377' column='1'/>
+      <parameter type-id='type-id-9' name='x' filepath='addons/font/text.c' line='377' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='377' column='1'/>
+      <parameter type-id='type-id-2' name='codepoint' filepath='addons/font/text.c' line='378' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_get_glyph_width' mangled-name='al_get_glyph_width' filepath='addons/font/text.c' line='385' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_glyph_width'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='385' column='1'/>
+      <parameter type-id='type-id-2' name='codepoint' filepath='addons/font/text.c' line='385' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_get_glyph_dimensions' mangled-name='al_get_glyph_dimensions' filepath='addons/font/text.c' line='392' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_glyph_dimensions'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='392' column='1'/>
+      <parameter type-id='type-id-2' name='codepoint' filepath='addons/font/text.c' line='393' column='1'/>
+      <parameter type-id='type-id-153' name='bbx' filepath='addons/font/text.c' line='393' column='1'/>
+      <parameter type-id='type-id-153' name='bby' filepath='addons/font/text.c' line='393' column='1'/>
+      <parameter type-id='type-id-153' name='bbw' filepath='addons/font/text.c' line='393' column='1'/>
+      <parameter type-id='type-id-153' name='bbh' filepath='addons/font/text.c' line='393' column='1'/>
+      <return type-id='type-id-4'/>
+    </function-decl>
+    <function-decl name='al_get_glyph_advance' mangled-name='al_get_glyph_advance' filepath='addons/font/text.c' line='400' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_glyph_advance'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='400' column='1'/>
+      <parameter type-id='type-id-2' name='codepoint1' filepath='addons/font/text.c' line='400' column='1'/>
+      <parameter type-id='type-id-2' name='codepoint2' filepath='addons/font/text.c' line='400' column='1'/>
+      <return type-id='type-id-2'/>
+    </function-decl>
+    <function-decl name='al_get_glyph' mangled-name='al_get_glyph' filepath='addons/font/text.c' line='407' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_glyph'>
+      <parameter type-id='type-id-141' name='f' filepath='addons/font/text.c' line='407' column='1'/>
+      <parameter type-id='type-id-2' name='prev_codepoint' filepath='addons/font/text.c' line='407' column='1'/>
+      <parameter type-id='type-id-2' name='codepoint' filepath='addons/font/text.c' line='407' column='1'/>
+      <parameter type-id='type-id-123' name='glyph' filepath='addons/font/text.c' line='407' column='1'/>
+      <return type-id='type-id-4'/>
+    </function-decl>
+    <function-decl name='al_do_multiline_ustr' mangled-name='al_do_multiline_ustr' filepath='addons/font/text.c' line='516' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_do_multiline_ustr'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='516' column='1'/>
+      <parameter type-id='type-id-9' name='max_width' filepath='addons/font/text.c' line='516' column='1'/>
+      <parameter type-id='type-id-143' name='ustr' filepath='addons/font/text.c' line='517' column='1'/>
+      <parameter type-id='type-id-185' name='cb' filepath='addons/font/text.c' line='518' column='1'/>
+      <parameter type-id='type-id-22' name='extra' filepath='addons/font/text.c' line='519' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_do_multiline_text' mangled-name='al_do_multiline_text' filepath='addons/font/text.c' line='582' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_do_multiline_text'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='582' column='1'/>
+      <parameter type-id='type-id-9' name='max_width' filepath='addons/font/text.c' line='583' column='1'/>
+      <parameter type-id='type-id-1' name='text' filepath='addons/font/text.c' line='583' column='1'/>
+      <parameter type-id='type-id-187' name='cb' filepath='addons/font/text.c' line='584' column='1'/>
+      <parameter type-id='type-id-22' name='extra' filepath='addons/font/text.c' line='585' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_multiline_ustr' mangled-name='al_draw_multiline_ustr' filepath='addons/font/text.c' line='629' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_multiline_ustr'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='629' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='630' column='1'/>
+      <parameter type-id='type-id-9' name='x' filepath='addons/font/text.c' line='630' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='630' column='1'/>
+      <parameter type-id='type-id-9' name='max_width' filepath='addons/font/text.c' line='630' column='1'/>
+      <parameter type-id='type-id-9' name='line_height' filepath='addons/font/text.c' line='630' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='631' column='1'/>
+      <parameter type-id='type-id-143' name='ustr' filepath='addons/font/text.c' line='631' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_multiline_text' mangled-name='al_draw_multiline_text' filepath='addons/font/text.c' line='656' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_multiline_text'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='656' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='657' column='1'/>
+      <parameter type-id='type-id-9' name='x' filepath='addons/font/text.c' line='657' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='657' column='1'/>
+      <parameter type-id='type-id-9' name='max_width' filepath='addons/font/text.c' line='657' column='1'/>
+      <parameter type-id='type-id-9' name='line_height' filepath='addons/font/text.c' line='657' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='658' column='1'/>
+      <parameter type-id='type-id-1' name='text' filepath='addons/font/text.c' line='658' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_draw_multiline_textf' mangled-name='al_draw_multiline_textf' filepath='addons/font/text.c' line='672' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_draw_multiline_textf'>
+      <parameter type-id='type-id-141' name='font' filepath='addons/font/text.c' line='672' column='1'/>
+      <parameter type-id='type-id-38' name='color' filepath='addons/font/text.c' line='673' column='1'/>
+      <parameter type-id='type-id-9' name='x' filepath='addons/font/text.c' line='673' column='1'/>
+      <parameter type-id='type-id-9' name='y' filepath='addons/font/text.c' line='673' column='1'/>
+      <parameter type-id='type-id-9' name='max_width' filepath='addons/font/text.c' line='673' column='1'/>
+      <parameter type-id='type-id-9' name='line_height' filepath='addons/font/text.c' line='673' column='1'/>
+      <parameter type-id='type-id-2' name='flags' filepath='addons/font/text.c' line='674' column='1'/>
+      <parameter type-id='type-id-1' name='format' filepath='addons/font/text.c' line='674' column='1'/>
+      <parameter is-variadic='yes'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_set_fallback_font' mangled-name='al_set_fallback_font' filepath='addons/font/text.c' line='695' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_set_fallback_font'>
+      <parameter type-id='type-id-3' name='font' filepath='addons/font/text.c' line='695' column='1'/>
+      <parameter type-id='type-id-3' name='fallback' filepath='addons/font/text.c' line='695' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <function-decl name='al_get_fallback_font' mangled-name='al_get_fallback_font' filepath='addons/font/text.c' line='702' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='al_get_fallback_font'>
+      <parameter type-id='type-id-3' name='font' filepath='addons/font/text.c' line='702' column='1'/>
+      <return type-id='type-id-3'/>
+    </function-decl>
+    <type-decl name='variadic parameter type' id='type-id-188'/>
+    <function-type size-in-bits='64' id='type-id-184'>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-143'/>
+      <parameter type-id='type-id-22'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-186'>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-1'/>
+      <parameter type-id='type-id-2'/>
+      <parameter type-id='type-id-22'/>
+      <return type-id='type-id-4'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='addons/font/xml.c' comp-dir-path='build/addons/font' language='LANG_C11'>
+    <enum-decl name='XmlState' naming-typedef-id='type-id-189' filepath='addons/font/xml.h' line='1' column='1' id='type-id-190'>
+      <underlying-type type-id='type-id-7'/>
+      <enumerator name='Outside' value='0'/>
+      <enumerator name='ElementName' value='1'/>
+      <enumerator name='AttributeName' value='2'/>
+      <enumerator name='AttributeStart' value='3'/>
+      <enumerator name='AttributeValue' value='4'/>
+    </enum-decl>
+    <typedef-decl name='XmlState' type-id='type-id-190' filepath='addons/font/xml.h' line='7' column='1' id='type-id-189'/>
+    <pointer-type-def type-id='type-id-191' size-in-bits='64' id='type-id-192'/>
+    <pointer-type-def type-id='type-id-193' size-in-bits='64' id='type-id-194'/>
+    <class-decl name='ALLEGRO_FILE' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-195'/>
+    <function-decl name='_al_xml_parse' mangled-name='_al_xml_parse' filepath='addons/font/xml.c' line='47' column='1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_al_xml_parse'>
+      <parameter type-id='type-id-194' name='f' filepath='addons/font/xml.c' line='47' column='1'/>
+      <parameter type-id='type-id-192' name='callback' filepath='addons/font/xml.c' line='48' column='1'/>
+      <parameter type-id='type-id-22' name='u' filepath='addons/font/xml.c' line='49' column='1'/>
+      <return type-id='type-id-181'/>
+    </function-decl>
+    <typedef-decl name='ALLEGRO_FILE' type-id='type-id-195' filepath='include/allegro5/file.h' line='15' column='1' id='type-id-193'/>
+    <function-type size-in-bits='64' id='type-id-191'>
+      <parameter type-id='type-id-189'/>
+      <parameter type-id='type-id-1'/>
+      <parameter type-id='type-id-22'/>
+      <return type-id='type-id-2'/>
+    </function-type>
+  </abi-instr>
+</abi-corpus>
