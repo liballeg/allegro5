@@ -51,7 +51,7 @@ set(ALLEGRO_SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(isMultiConfig)
     if(NOT CMAKE_CONFIGURATION_TYPES)
-        set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel;Profile" CACHE STRING 
+        set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel;Profile" CACHE STRING
             "Semicolon separated list of supported configuration types." FORCE)
     endif()
 else()
@@ -386,6 +386,9 @@ if(ALLEGRO_SDL)
    set(ALLEGRO_MACOSX 0)
    set(WANT_X11 off)
    include(FindSDL2)
+   if (NOT SDL2_FOUND)
+       message(FATAL_ERROR "SDL support requires SDL2 library.")
+   endif()
 endif(ALLEGRO_SDL)
 
 # Tell the compiler it can use SSE instructions on x86 architectures.
