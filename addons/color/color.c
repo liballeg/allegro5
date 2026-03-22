@@ -634,6 +634,20 @@ ALLEGRO_COLOR al_color_linear(float r, float g, float b)
 }
 
 
+/* Function: al_mix_color
+ */
+ALLEGRO_COLOR al_mix_color(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2, float factor)
+{
+   float r1, g1, b1, r2, g2, b2;
+   al_color_rgb_to_linear(c1.r, c1.g, c1.b, &r1, &g1, &b1);
+   al_color_rgb_to_linear(c2.r, c2.g, c2.b, &r2, &g2, &b2);
+   float rm = r1 * (1 - factor) + r2 * factor;
+   float gm = g1 * (1 - factor) + g2 * factor;
+   float bm = b1 * (1 - factor) + b2 * factor;
+   return al_color_linear(rm, gm, bm);
+}
+
+
 /* Function: al_color_xyz_to_rgb
  */
 void al_color_xyz_to_rgb(float x, float y, float z,

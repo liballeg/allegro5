@@ -545,4 +545,15 @@ values.
 
 Since: 5.2.8
 
-See also: [al_color_linera], [al_color_rgb_to_linear]
+See also: [al_color_linear], [al_color_rgb_to_linear]
+
+
+## API: al_mix_color
+
+Blend two colors using linear interpolation in linear color space.
+The input colors are converted to linear space, interpolated using the
+given factor (in the range 0..1), then converted back to RGB.
+
+Since: 5.2.12
+
+See also: [al_color_rgb_to_linear]
