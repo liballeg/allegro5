@@ -92,6 +92,7 @@ ALLEGRO_COLOR_FUNC(void, al_color_linear_to_rgb, (float x, float y, float z,
 ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_linear, (float red, float green, float blue,
    float *x, float *y, float *z));
 ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_linear, (float r, float g, float b));
+ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_mix_color, (ALLEGRO_COLOR c1, ALLEGRO_COLOR c2, float factor));
 
 #ifdef __cplusplus
    }
