@@ -100,6 +100,7 @@ void _al_sdl_keyboard_event(SDL_Event *e)
 
       if (keyboard->create_extra_char[e->key.keysym.scancode]) {
          event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+         event.keyboard.unichar = keyboard->unicode[e->key.keysym.scancode];
          _al_event_source_emit_event(es, &event);
       }
    }
