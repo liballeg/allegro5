@@ -32,6 +32,9 @@ enum {
 
 extern NSBundle *_al_osx_bundle;
 
+/* Minimum stack size for the thread that runs the user's main(). */
+#define MIN_USER_MAIN_STACK_SIZE (8 * 1024 * 1024)
+
 /* For compatibility with the unix code */
 static int    __crt0_argc;
 static char **__crt0_argv;
@@ -152,6 +155,8 @@ static BOOL in_bundle(void)
     NSString* exename, *resdir;
     NSFileManager* fm;
     BOOL isDir;
+    NSThread *thread;
+    size_t stack_size;
 
     (void)aNotification;
 
@@ -192,9 +197,24 @@ static BOOL in_bundle(void)
     }
     /* else: not in a bundle so don't chdir */
 
-    [NSThread detachNewThreadSelector: @selector(app_main:)
-                             toTarget: [AllegroAppDelegate class]
-                           withObject: nil];
+    thread = [[NSThread alloc] initWithTarget:[AllegroAppDelegate class]
+                                     selector:@selector(app_main:)
+                                       object:nil];
+    /* Give it at least the main thread's stack, which honours a custom
+     * -stack_size link flag. [[NSThread mainThread] stackSize] can't be
+     * used for this: it reports 512 KB for the main thread too.
+     */
+    stack_size = pthread_get_stacksize_np(pthread_self());
+    if (stack_size < MIN_USER_MAIN_STACK_SIZE)
+        stack_size = MIN_USER_MAIN_STACK_SIZE;
+    /* setStackSize: throws for sizes that aren't a multiple of 4 KB, and
+     * macOS 10.12-10.14 report an unrounded RLIMIT_STACK here.
+     */
+    stack_size = (stack_size + 4095) & ~(size_t)4095;
+    [thread setStackSize:stack_size];
+    [thread start];
+    [thread release];
+
     return;
 }
 
