@@ -4,6 +4,7 @@
 #ifndef __al_included_allegro5_aintuthr_h
 #define __al_included_allegro5_aintuthr_h
 
+#include <time.h>
 #include <pthread.h>
 #include "allegro5/internal/aintern_thread.h"
 
@@ -70,7 +71,15 @@ AL_INLINE(void, _al_mutex_unlock, (struct _AL_MUTEX *m),
 
 AL_INLINE(void, _al_cond_init, (struct _AL_COND *cond),
 {
+#ifdef ALLEGRO_CFG_HAVE_PTHREAD_CONDATTR_SETCLOCK
+   pthread_condattr_t attr;
+   pthread_condattr_init(&attr);
+   pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+   pthread_cond_init(&cond->cond, &attr);
+   pthread_condattr_destroy(&attr);
+#else
    pthread_cond_init(&cond->cond, NULL);
+#endif
 })
 
 AL_INLINE(void, _al_cond_destroy, (struct _AL_COND *cond),
