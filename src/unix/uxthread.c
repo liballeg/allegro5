@@ -16,7 +16,7 @@
  */
 
 
-#define _XOPEN_SOURCE 500       /* for Unix98 recursive mutexes */
+#define _XOPEN_SOURCE 600       /* for Unix98 recursive mutexes and monotonic clock condvars */
                                 /* XXX: added configure test */
 
 #include <sys/time.h>

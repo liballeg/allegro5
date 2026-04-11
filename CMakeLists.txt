@@ -728,6 +728,22 @@ if(UNIX) # includes MACOSX
             message(FATAL_ERROR
                 "Unix port requires pthreads support, not detected.")
         endif(NOT CMAKE_USE_PTHREADS_INIT)
+
+        set(CMAKE_REQUIRED_LIBRARIES Threads::Threads)
+        run_c_compile_test("
+            #define _XOPEN_SOURCE 600
+            #include <pthread.h>
+            #include <time.h>
+            int main(void) {
+                pthread_condattr_t attr;
+                pthread_condattr_init(&attr);
+                pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+                return 0;
+            }
+            "
+            ALLEGRO_CFG_HAVE_PTHREAD_CONDATTR_SETCLOCK
+        )
+        set(CMAKE_REQUIRED_LIBRARIES)
     endif()
 endif(UNIX)
 

@@ -56,6 +56,8 @@ int _internal_clock_gettime(clockid_t clock_id, struct timespec* t)
 // verified.
 #if defined(ALLEGRO_MACOSX)
 #define CLOCK_ID CLOCK_MONOTONIC_RAW
+#elif defined(ALLEGRO_CFG_HAVE_PTHREAD_CONDATTR_SETCLOCK)
+#define CLOCK_ID CLOCK_MONOTONIC
 #else
 #define CLOCK_ID CLOCK_REALTIME
 #endif
@@ -108,7 +110,7 @@ void _al_unix_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 
    ASSERT(ut);
 
-   _al_clock_gettime(CLOCK_REALTIME, &now);
+   _al_clock_gettime(CLOCK_ID, &now);
 
    if (seconds <= 0.0) {
       ut->abstime.tv_sec = now.tv_sec;
