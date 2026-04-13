@@ -175,6 +175,34 @@ You can then directly stream real-time sample data to a mixer or a voice using
 an [ALLEGRO_AUDIO_STREAM] or play complete sounds using an [ALLEGRO_SAMPLE_INSTANCE].
 The latter simply points to an [ALLEGRO_SAMPLE] and will stream it for you.
 
+## Logging
+
+A good start to debugging problems with Allegro is to look at the logs. On most
+platforms Allegro will log certain information (e.g. why it couldn't load a
+bitmap, etc) to a log file named `allegro.log` in the current working
+directory. You can configure the filename using the `ALLEGRO_TRACE` environment
+variable. As a special case, the `-` filename will make Allegro log to stdout.
+On some platforms creating a log file is infeasible, so Allegro will instead
+log to stderr. On Android, Allegro uses the Android logging system (accessible
+via `adb logcat`). See the example `allegro5.cfg` for documentation on how to
+configure the used debug channels, logging levels and trace format.
+
+In release builds, the logs are disabled by default. There are three easy ways
+to re-enable the logs:
+
+1. Set `ALLEGRO_TRACE_LEVEL` environment variable to `debug` before starting
+   your program.
+
+2. Call `al_set_config_value(al_get_system_config(), "trace", "level","debug");`
+   before `al_init()`.
+
+3. Create an `allegro5.cfg` next to the executable with the contents:
+
+~~~~ini
+[trace]
+level=debug
+~~~~
+
 ## Unstable API
 
 Some of Allegro's API is marked as unstable, which means that in future versions
