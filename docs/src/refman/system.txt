@@ -241,14 +241,11 @@ Since: 5.0.6, 5.1.0
 
 ## API: al_register_trace_handler
 
-Register a callback which is called whenever Allegro writes something to its
-log files. The default logging to allegro.log is disabled while this callback
+Register a callback which is called whenever Allegro logs some information. The
+default logging output (described in [Logging]) is disabled while this callback
 is active. Pass NULL to revert to the default logging.
 
 This function may be called prior to al_install_system.
-
-See the example allegro5.cfg for documentation on how to configure the used
-debug channels, logging levels and trace format.
 
 Since: 5.1.5
 
