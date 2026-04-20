@@ -28,10 +28,14 @@ Convert beats per minute to seconds.
 
 ## API: al_create_timer
 
-Allocates and initializes a timer. If successful, a pointer to a new timer
-object is returned, otherwise NULL is returned.  *speed_secs* is in seconds per
-"tick", and must be positive. The new timer is initially stopped and needs to
-be started with [al_start_timer] before [ALLEGRO_EVENT_TIMER] events are sent.
+Allocates and initializes a timer. A timer "ticks" every *speed_secs* seconds,
+emitting [ALLEGRO_EVENT_TIMER] events and incrementing its internal counter. A
+typical use of a timer is to run a game's logic at some fixed rate.
+
+If successful, a pointer to a new timer object is returned, otherwise NULL is
+returned.  *speed_secs* must be positive. The new timer is initially stopped
+and needs to be started with [al_start_timer] before [ALLEGRO_EVENT_TIMER]
+events are sent.
 
 Usage note: typical granularity is on the order of microseconds, but with
 some drivers might only be milliseconds.
@@ -81,15 +85,17 @@ See also: [al_create_timer]
 
 ## API: al_get_timer_count
 
-Return the timer's counter value. The timer can be started or stopped.
+Return the timer's counter value. The timer can be started or stopped. The
+count value may be positive or negative, but will always be incremented by +1
+at each tick.
 
 See also: [al_set_timer_count]
 
 ## API: al_set_timer_count
 
-Set the timer's counter value. The timer can be started or stopped.
-The count value may be positive or negative, but will always be incremented
-by +1 at each tick.
+Set the timer's counter value. The timer can be started or stopped. The count
+value may be positive or negative, but will always be incremented by +1 at each
+tick.
 
 See also: [al_get_timer_count], [al_add_timer_count]
 
