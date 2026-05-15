@@ -222,6 +222,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
             spl->pos = 0;
          else
             spl->pos = spl->loop_end - 1;
+         _al_kcm_emit_sample_finished_event(spl);
          spl->is_playing = false;
          return false;
 
@@ -233,6 +234,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
             spl->pos = 0;
          else
             spl->pos = spl->spl_data.len - 1;
+         _al_kcm_emit_sample_finished_event(spl);
          spl->is_playing = false;
          return false;
 

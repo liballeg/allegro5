@@ -391,6 +391,9 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, _al_word_size_to_depth_conf, (int wo
 
 ALLEGRO_KCM_AUDIO_FUNC(void, _al_emit_audio_event, (int event_type));
 
+/* Helper to emit a sample finished event */
+void _al_kcm_emit_sample_finished_event(ALLEGRO_SAMPLE_INSTANCE *spl);
+
 #endif
 
 /* vim: set sts=3 sw=3 et: */
