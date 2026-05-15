@@ -610,11 +610,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       return NULL;
    }
 
-   if (w <= 0 || h <= 0) {
-      ALLEGRO_ERROR("Invalid window size %dx%d\n", w, h);
-      return NULL;
-   }
-
    flags = al_get_new_display_flags();
    if (flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL) {
       if (gtk_override_vt == NULL) {
@@ -627,9 +622,29 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       }
    }
 
+   adapter = al_get_new_display_adapter();
+
+   /* FULLSCREEN_WINDOW ignores the passed size (see al_create_display docs);
+    * substitute the desktop size of the target adapter so this path matches
+    * the wgl/d3d behaviour and (0, 0) is accepted as a "use desktop" request.
+    */
+   if ((w <= 0 || h <= 0) && (flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+      ALLEGRO_MONITOR_INFO mi;
+      int a = (adapter < 0) ? _al_xglx_get_default_adapter(system) : adapter;
+      if (_al_xglx_get_monitor_info(system, a, &mi)) {
+         w = mi.x2 - mi.x1;
+         h = mi.y2 - mi.y1;
+         ALLEGRO_DEBUG("FULLSCREEN_WINDOW: using desktop size %dx%d from adapter %d\n", w, h, a);
+      }
+   }
+
+   if (w <= 0 || h <= 0) {
+      ALLEGRO_ERROR("Failed to determine a reasonable window size, got: %dx%d\n", w, h);
+      return NULL;
+   }
+
    _al_mutex_lock(&system->lock);
 
-   adapter = al_get_new_display_adapter();
    display = xdpy_create_display_locked(system, flags, w, h, adapter);
 
    _al_mutex_unlock(&system->lock);
