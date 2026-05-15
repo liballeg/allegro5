@@ -634,11 +634,12 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       if (_al_xglx_get_monitor_info(system, a, &mi)) {
          w = mi.x2 - mi.x1;
          h = mi.y2 - mi.y1;
+         ALLEGRO_DEBUG("FULLSCREEN_WINDOW: using desktop size %dx%d from adapter %d\n", w, h, a);
       }
    }
 
    if (w <= 0 || h <= 0) {
-      ALLEGRO_ERROR("Invalid window size %dx%d\n", w, h);
+      ALLEGRO_ERROR("Failed to determine a reasonable window size, got: %dx%d\n", w, h);
       return NULL;
    }
 
