@@ -432,6 +432,11 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_is_audio_recorder_recording, (ALLEGRO_AUDIO_RECO
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_audio_recorder_event_source,
    (ALLEGRO_AUDIO_RECORDER *r));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_RECORDER_EVENT *, al_get_audio_recorder_event, (ALLEGRO_EVENT *event));
+ALLEGRO_KCM_AUDIO_FUNC(unsigned int, al_get_audio_recorder_frequency, (const ALLEGRO_AUDIO_RECORDER *r));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, al_get_audio_recorder_depth, (const ALLEGRO_AUDIO_RECORDER *r));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_CHANNEL_CONF, al_get_audio_recorder_channels, (const ALLEGRO_AUDIO_RECORDER *r));
+ALLEGRO_KCM_AUDIO_FUNC(unsigned int, al_get_audio_recorder_fragment_count, (const ALLEGRO_AUDIO_RECORDER *r));
+ALLEGRO_KCM_AUDIO_FUNC(unsigned int, al_get_audio_recorder_samples, (const ALLEGRO_AUDIO_RECORDER *r));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_destroy_audio_recorder, (ALLEGRO_AUDIO_RECORDER *r));
 
 #endif

@@ -1373,6 +1373,54 @@ Since: 5.1.1
 
 > *[Unstable API]:* The API may need a slight redesign.
 
+### API: al_get_audio_recorder_frequency
+
+Return the audio recorder frequency (in Hz), as passed to
+[al_create_audio_recorder].
+
+Since: 5.2.12
+
+> *[Unstable API]:* The API may need a slight redesign.
+
+### API: al_get_audio_recorder_depth
+
+Return the audio recorder depth, as passed to [al_create_audio_recorder].
+
+See also: [ALLEGRO_AUDIO_DEPTH].
+
+Since: 5.2.12
+
+> *[Unstable API]:* The API may need a slight redesign.
+
+### API: al_get_audio_recorder_channels
+
+Return the audio recorder channel configuration, as passed to
+[al_create_audio_recorder].
+
+See also: [ALLEGRO_CHANNEL_CONF].
+
+Since: 5.2.12
+
+> *[Unstable API]:* The API may need a slight redesign.
+
+### API: al_get_audio_recorder_fragment_count
+
+Return the number of fragment buffers used by the audio recorder, as passed
+to [al_create_audio_recorder].
+
+Since: 5.2.12
+
+> *[Unstable API]:* The API may need a slight redesign.
+
+### API: al_get_audio_recorder_samples
+
+Return the number of samples per fragment used by the audio recorder, as
+passed to [al_create_audio_recorder].
+
+Since: 5.2.12
+
+> *[Unstable API]:* The API may need a slight redesign.
+
 ### API: al_destroy_audio_recorder
 
 Destroys the audio recorder and frees all resources associated with it. It

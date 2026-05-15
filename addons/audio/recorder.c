@@ -138,6 +138,46 @@ ALLEGRO_EVENT_SOURCE *al_get_audio_recorder_event_source(ALLEGRO_AUDIO_RECORDER 
    return &r->source;
 }
 
+/* Function: al_get_audio_recorder_frequency
+ */
+unsigned int al_get_audio_recorder_frequency(const ALLEGRO_AUDIO_RECORDER *r)
+{
+   ASSERT(r);
+   return r->frequency;
+}
+
+/* Function: al_get_audio_recorder_depth
+ */
+ALLEGRO_AUDIO_DEPTH al_get_audio_recorder_depth(const ALLEGRO_AUDIO_RECORDER *r)
+{
+   ASSERT(r);
+   return r->depth;
+}
+
+/* Function: al_get_audio_recorder_channels
+ */
+ALLEGRO_CHANNEL_CONF al_get_audio_recorder_channels(const ALLEGRO_AUDIO_RECORDER *r)
+{
+   ASSERT(r);
+   return r->chan_conf;
+}
+
+/* Function: al_get_audio_recorder_fragment_count
+ */
+unsigned int al_get_audio_recorder_fragment_count(const ALLEGRO_AUDIO_RECORDER *r)
+{
+   ASSERT(r);
+   return r->fragment_count;
+}
+
+/* Function: al_get_audio_recorder_samples
+ */
+unsigned int al_get_audio_recorder_samples(const ALLEGRO_AUDIO_RECORDER *r)
+{
+   ASSERT(r);
+   return r->samples;
+}
+
 /* Function: al_destroy_audio_recorder
  */
 void al_destroy_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
