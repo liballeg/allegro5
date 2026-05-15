@@ -162,6 +162,8 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
    }
    spl->spl_data.free_buf = false;
 
+   al_init_user_event_source(&spl->es);
+
    spl->loop = ALLEGRO_PLAYMODE_ONCE;
    spl->speed = 1.0f;
    spl->gain = 1.0f;
@@ -205,6 +207,7 @@ void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *spl, bool unregister)
       }
 
       _al_kcm_detach_from_parent(spl);
+      al_destroy_user_event_source(&spl->es);
       stream_free(spl);
    }
 }
