@@ -481,6 +481,12 @@ Stop an sample instance playing.
 
 See also: [al_play_sample_instance]
 
+### API: al_get_sample_instance_event_source
+
+Retrieve the associated event source.
+
+See also: [ALLEGRO_EVENT_AUDIO_SAMPLE_FINISHED]
+
 ### API: al_get_sample_instance_channels
 
 Return the channel configuration of the sample instance's sample data.
@@ -1927,6 +1933,14 @@ You must always check the values for the buffer and samples as they
 are not guaranteed to be exactly what was originally specified.
 
 Since: 5.1.1
+
+> *[Unstable API]:* The API may need a slight redesign.
+
+#### ALLEGRO_EVENT_AUDIO_SAMPLE_FINISHED
+
+Sent when a sample instance is finished. Currently, this event is only emitted by sample instances attached to mixers.
+
+Since 5.2.12
 
 > *[Unstable API]:* The API may need a slight redesign.
 
