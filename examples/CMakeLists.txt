@@ -246,6 +246,7 @@ example(ex_mixer_pp ${AUDIO} ${ACODEC} ${PRIM} ${IMAGE} ${DATA_IMAGES} ${DATA_AU
 example(ex_record ${AUDIO} ${ACODEC} ${PRIM})
 example(ex_record_name ${AUDIO} ${ACODEC} ${PRIM} ${IMAGE} ${FONT})
 example(ex_resample_test ${AUDIO})
+example(ex_sample_finished CONSOLE ${AUDIO} ${ACODEC})
 example(ex_saw ${AUDIO})
 example(ex_stream_file CONSOLE ${AUDIO} ${ACODEC})
 example(ex_stream_seek ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${IMAGE} ${DATA_IMAGES} ${DATA_AUDIO})
