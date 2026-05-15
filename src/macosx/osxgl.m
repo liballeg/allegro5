@@ -1534,6 +1534,21 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
     * window can be created.
     */
    if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN_WINDOW) {
+      /* FULLSCREEN_WINDOW ignores the passed size (see al_create_display
+       * docs); substitute the target adapter's desktop size so callers may
+       * pass (0, 0) and so the temporary view below is created at a sane
+       * extent.
+       */
+      if (w <= 0 || h <= 0) {
+         ALLEGRO_MONITOR_INFO mi;
+         int adapter = al_get_new_display_adapter();
+         if (adapter < 0)
+            adapter = 0;
+         if (al_get_monitor_info(adapter, &mi)) {
+            w = mi.x2 - mi.x1;
+            h = mi.y2 - mi.y1;
+         }
+      }
       __block BOOL ok;
       dispatch_sync(dispatch_get_main_queue(), ^{
          NSRect rc = NSMakeRect(0, 0, w,  h);
