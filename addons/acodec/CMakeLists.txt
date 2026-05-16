@@ -451,12 +451,14 @@ configure_file(
     ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_acodec_cfg.h
     )
 
+DelayLoad(ACODEC_LIBRARIES ACODEC_LINK_OPTIONS)
 add_our_addon_library(allegro_acodec
     AllegroAcodec-${ALLEGRO_SOVERSION}
     "${ACODEC_SOURCES};${ACODEC_INCLUDE_FILES}"
     "-DALLEGRO_ACODEC_SRC ${FLAC__NO_DLL}"
     "${AUDIO_LINK_WITH};${ACODEC_LIBRARIES}"
     )
+target_link_options(allegro_acodec PRIVATE "${ACODEC_LINK_OPTIONS}")
 
 if(SUPPORT_OPENMPT AND SHARED AND NOT WANT_MONOLITH)
     set_target_properties(allegro_acodec PROPERTIES LINKER_LANGUAGE CXX)
