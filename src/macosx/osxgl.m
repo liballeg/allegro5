@@ -1874,7 +1874,6 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
       CVDisplayLinkRelease(dpy->display_link);
    }
    al_free(d->vertex_cache);
-   al_free(d);
    [pool drain];
 }
 
