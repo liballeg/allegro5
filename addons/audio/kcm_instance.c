@@ -193,6 +193,9 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
  */
 void al_destroy_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
+   if (spl) {
+      al_destroy_user_event_source(&spl->es);
+   }
    _al_kcm_destroy_sample(spl, true);
 }
 
@@ -207,7 +210,6 @@ void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *spl, bool unregister)
       }
 
       _al_kcm_detach_from_parent(spl);
-      al_destroy_user_event_source(&spl->es);
       stream_free(spl);
    }
 }

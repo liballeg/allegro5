@@ -188,8 +188,6 @@ typedef struct {
 
 /* The sample struct also serves the base of ALLEGRO_AUDIO_STREAM, ALLEGRO_MIXER. */
 struct ALLEGRO_SAMPLE_INSTANCE {
-   /* ALLEGRO_SAMPLE_INSTANCE does not generate any events yet but ALLEGRO_AUDIO_STREAM
-    * does, which can inherit only ALLEGRO_SAMPLE_INSTANCE. */
    ALLEGRO_EVENT_SOURCE es;
 
    ALLEGRO_SAMPLE       spl_data;
