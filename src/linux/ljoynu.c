@@ -1015,9 +1015,19 @@ static void ljoy_process_new_data(void *data)
    _al_event_source_lock(es);
    {
       struct input_event input_events[32];
-      int bytes, nr, i;
+      bool first = true;
 
-      while ((bytes = read(joy->fd, &input_events, sizeof input_events)) > 0) {
+      while (true) {
+         int nr, i;
+         int bytes = read(joy->fd, &input_events, sizeof input_events);
+         if (bytes <= 0) {
+            if (first) {
+               ALLEGRO_DEBUG("%s disconnected.\n", al_cstr(joy->device_name));
+               _al_unix_stop_watching_fd(joy->fd);
+            }
+            break;
+         }
+         first = false;
          nr = bytes / sizeof(struct input_event);
 
          for (i = 0; i < nr; i++) {
