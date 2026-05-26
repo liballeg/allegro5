@@ -97,8 +97,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    }
    if (!lr) {
       ALLEGRO_ERROR("Failed to lock bitmap.\n");
-      al_free(buf);
-      return NULL;
+      goto error;
    }
 
    xx = 0;                      /* index into buf, only for bpp = 8 */
@@ -109,9 +108,17 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
 
       while (x < bytes_per_line * bpp / 8) {
          ch = al_fgetc(f);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            goto error;
+         }
          if ((ch & 0xC0) == 0xC0) { /* a run */
             c = (ch & 0x3F);
             ch = al_fgetc(f);
+            if (al_feof(f)) {
+               ALLEGRO_ERROR("Unexpected EOF.\n");
+               goto error;
+            }
          }
          else {
             c = 1;                  /* single pixel */
@@ -182,6 +189,10 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    }
 
    return b;
+error:
+   al_free(buf);
+   al_destroy_bitmap(b);
+   return NULL;
 }
 
 bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
