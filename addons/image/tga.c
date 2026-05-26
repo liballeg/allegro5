@@ -53,15 +53,24 @@ static unsigned char *rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
 
    do {
       count = al_fgetc(f);
+      if (count == EOF) {
+         ALLEGRO_ERROR("Unexpected EOF.\n");
+         return NULL;
+      }
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          value = al_fgetc(f);
+         if (value == EOF) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
          while (count--)
             *b++ = value;
       }
@@ -71,9 +80,14 @@ static unsigned char *rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          b = raw_tga_read8(b, count, f);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
       }
    } while (c < w);
    return b;
@@ -115,15 +129,24 @@ static unsigned int *rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
 
    do {
       count = al_fgetc(f);
+      if (count == EOF) {
+         ALLEGRO_ERROR("Unexpected EOF.\n");
+         return NULL;
+      }
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          color = single_tga_read32(f);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
          while (count--)
             *b++ = color;
       }
@@ -133,9 +156,14 @@ static unsigned int *rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          b = raw_tga_read32(b, count, f);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
       }
    } while (c < w);
    return b;
@@ -179,15 +207,24 @@ static unsigned char *rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
 
    do {
       count = al_fgetc(f);
+      if (count == EOF) {
+         ALLEGRO_ERROR("Unexpected EOF.\n");
+         return NULL;
+      }
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          single_tga_read24(f, color);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
          while (count--) {
             b[0] = color[0];
             b[1] = color[1];
@@ -201,9 +238,14 @@ static unsigned char *rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          b = raw_tga_read24(b, count, f);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
       }
    } while (c < w);
    return b;
@@ -245,15 +287,24 @@ static unsigned short *rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
 
    do {
       count = al_fgetc(f);
+      if (count == EOF) {
+         ALLEGRO_ERROR("Unexpected EOF.\n");
+         return NULL;
+      }
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          color = single_tga_read16(f);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
          while (count--)
             *b++ = color;
       }
@@ -263,9 +314,14 @@ static unsigned short *rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
          c += count;
          if (c > w) {
             /* Stepped past the end of the line, error */
+            ALLEGRO_ERROR("RLE packet crosses scanlines.\n");
             return NULL;
          }
          b = raw_tga_read16(b, count, f);
+         if (al_feof(f)) {
+            ALLEGRO_ERROR("Unexpected EOF.\n");
+            return NULL;
+         }
       }
    } while (c < w);
    return b;
@@ -277,7 +333,7 @@ typedef unsigned char palette_entry[3];
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
- *  packfile. The packfile is not closed by this function.
+ *  file. The file is not closed by this function.
  */
 ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 {
@@ -593,9 +649,9 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 
 
 /* Like save_tga but writes into the ALLEGRO_FILE given instead of a new file.
- *  The packfile is not closed after writing is completed. On success the
- *  offset into the file is left after the TGA file just written. On failure
- *  the offset is left at the end of whatever incomplete data was written.
+ *  The file is not closed after writing is completed. On success the offset
+ *  into the file is left after the TGA file just written. On failure the
+ *  offset is left at the end of whatever incomplete data was written.
  */
 bool _al_save_tga_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
