@@ -455,7 +455,7 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
     unsigned char *glyph_data;
 
     if (glyph->page_bitmap || glyph->region.x < 0)
-        return;
+       return;
 
     /* We shouldn't ever get here, as cache misses
      * should have been set to ft_index = 0. */
@@ -483,7 +483,7 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
 
     e = FT_Load_Glyph(face, ft_index, ft_load_flags);
     if (e) {
-       ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
+       ALLEGRO_WARN("Failed loading glyph %d.\n", ft_index);
     }
 
     glyph->offset_x = face->glyph->bitmap_left;
@@ -501,7 +501,10 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
        /* Even though this glyph has no "region", include the 2-pixel border in the size */
        glyph->region.w = w + 4;
        glyph->region.h = h + 4;
-       ALLEGRO_DEBUG("Glyph %d has zero size. (pixel mode %d)\n", ft_index, face->glyph->bitmap.pixel_mode);
+       if (FT_HAS_COLOR(face))
+          ALLEGRO_DEBUG("Glyph %d has color tables, which cannot be rendered.\n", ft_index);
+       else
+          ALLEGRO_DEBUG("Glyph %d has zero size. (pixel mode %d)\n", ft_index, face->glyph->bitmap.pixel_mode);
        return;
     }
 
