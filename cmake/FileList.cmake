@@ -136,6 +136,13 @@ set(ALLEGRO_SRC_X_FILES
     src/linux/ljoynu.c
     )
 
+set(ALLEGRO_SRC_WAYLAND_FILES
+    src/wayland/wldisplay.c
+    src/wayland/wlevents.c
+    src/wayland/wlsystem.c
+    src/wayland/xdg-shell-protocol.c
+    )
+
 set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidjoy.m
     src/macosx/hidman.m

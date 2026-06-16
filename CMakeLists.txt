@@ -145,6 +145,7 @@ option(WANT_X11_XF86VIDMODE "X11 XF86VidMode Extension support" on)
 option(WANT_X11_XINERAMA "X11 Xinerama Extension support" on)
 option(WANT_X11_XRANDR "X11 XRandR Extension support" on)
 option(WANT_X11_XSCREENSAVER "X11 XScreenSaver Extension support" on)
+option(WANT_WAYLAND "Wayland backend" on)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
@@ -336,6 +337,7 @@ if(MACOSX)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
     set(ALLEGRO_UNIX 0)
     set(WANT_X11 off)
+    set(WANT_WAYLAND off)
 
     # This flag is required on some versions of Mac OS X to avoid linker
     # problems with global variables which are not explicitly initialised.
@@ -349,6 +351,7 @@ if(IPHONE)
     set(ALLEGRO_UNIX 0)
     set(ALLEGRO_LITTLE_ENDIAN 1)
     set(WANT_X11 off)
+    set(WANT_WAYLAND off)
     set(GL_AUTO_BUILD_TYPE "gles2+")
     set(WANT_GLES3 yes)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
@@ -363,6 +366,7 @@ if(ANDROID)
    set(ALLEGRO_ANDROID 1)
    set(ALLEGRO_CFG_PTHREADS_TLS 1)
    set(WANT_X11 off)
+   set(WANT_WAYLAND off)
    set(GL_AUTO_BUILD_TYPE "gles2+")
 endif(ANDROID)
 
@@ -385,6 +389,7 @@ if(ALLEGRO_SDL)
    set(ALLEGRO_UNIX 0)
    set(ALLEGRO_MACOSX 0)
    set(WANT_X11 off)
+   set(WANT_WAYLAND off)
    include(FindSDL2)
    if (NOT SDL2_FOUND)
        message(FATAL_ERROR "SDL support requires SDL2 library.")
@@ -859,6 +864,31 @@ if(SUPPORT_X11)
 endif(SUPPORT_X11)
 
 #
+# Wayland
+#
+
+if (WANT_WAYLAND)
+    find_package(WAYLAND)
+    if (WAYLAND_FOUND)
+        set(SUPPORT_WAYLAND 1)
+        set(ALLEGRO_WAYLAND 1)
+
+        # Core protocol support
+        check_include_file("wayland-client.h" HAVE_WAYLAND_CLIENT_H)
+        check_include_file("wayland-cursor.h" HAVE_WAYLAND_CURSOR_H)
+        check_include_file("wayland-egl.h" HAVE_WAYLAND_EGL_H)
+
+        if(NOT HAVE_WAYLAND_CLIENT_H)
+            message(FATAL_ERROR "Wayland client headers not found.")
+        endif(NOT HAVE_WAYLAND_CLIENT_H)
+    endif(WAYLAND_FOUND)
+endif(WANT_WAYLAND)
+
+if (SUPPORT_WAYLAND)
+    set(CMAKE_REQUIRED_LIBRARIES ${WAYLAND_LIBRARIES})
+endif(SUPPORT_WAYLAND)
+
+#
 # Windows
 #
 
@@ -945,6 +975,11 @@ if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
 endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
+
+if(SUPPORT_WAYLAND)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WAYLAND_FILES})
+    list(APPEND PLATFORM_LIBS ${WAYLAND_LIBRARIES})
+endif(SUPPORT_WAYLAND)
 
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
