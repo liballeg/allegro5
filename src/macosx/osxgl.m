@@ -430,17 +430,19 @@ void _al_osx_mouse_was_installed(BOOL install) {
 /* Cursor handling */
 - (void) viewDidMoveToWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
-   if (dpy->tracking) {
-      [self removeTrackingArea: dpy->tracking];
+   if (dpy) {
+      if (dpy->tracking) {
+         [self removeTrackingArea: dpy->tracking];
+      }
+      dpy->tracking = create_tracking_area(self);
+      [self addTrackingArea: dpy->tracking];
    }
-   dpy->tracking = create_tracking_area(self);
-   [self addTrackingArea: dpy->tracking];
 }
 
 - (void) viewWillMoveToWindow: (NSWindow*) newWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    (void)newWindow;
-   if (([self window] != nil) && (dpy->tracking != 0)) {
+   if (dpy && ([self window] != nil) && (dpy->tracking != 0)) {
       [self removeTrackingArea:dpy->tracking];
       dpy->tracking = 0;
    }
@@ -1844,7 +1846,16 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
          }
 #endif
       }
+      if (dpy->view) {
+         if (dpy->tracking) {
+            [dpy->view removeTrackingArea:dpy->tracking];
+            dpy->tracking = nil;
+         }
+         [(ALOpenGLView*)dpy->view setAllegroDisplay:nil];
+      }
       if (dpy->win) {
+         // Disconnect delegate to prevent any callbacks during window closure
+         [dpy->win setDelegate:nil];
          // Destroy the containing window if there is one
          [dpy->win close];
          dpy->win = nil;
