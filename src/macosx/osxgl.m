@@ -236,6 +236,12 @@ static bool resize_display_win_main_thread(ALLEGRO_DISPLAY *d, int w, int h);
 
 static void clear_to_black(NSOpenGLContext *context)
 {
+   /* Only the thread the context is current on may issue GL commands against
+    * it - anywhere else this would race with whatever that thread is drawing.
+    */
+   if ([NSOpenGLContext currentContext] != context)
+      return;
+
    /* Clear and flush (for double buffering) */
    glClearColor(0, 0, 0, 1);
    glClear(GL_COLOR_BUFFER_BIT);
