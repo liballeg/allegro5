@@ -27,6 +27,7 @@
 #include "allegro5/platform/aintosx.h"
 #include "./osxgl.h"
 #include "allegro5/allegro_osx.h"
+#include <pthread.h>
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
 #endif
@@ -153,11 +154,82 @@ static const char *allegro_pixel_format_names[] = {
    "ALLEGRO_DISPLAY_OPTIONS_COUNT"
 };
 
+/* ALOpenGLContext:
+ * An NSOpenGLContext that never reallocates its drawable behind the back of
+ * the thread that is drawing with it.
+ *
+ * Whenever the view geometry changes - a window resize, a move to a screen
+ * with a different backing scale, and so on - AppKit sends -update to the
+ * context from the main thread. That reallocates the context's drawable, which
+ * is not safe to do while another thread is issuing GL commands against the
+ * same context. Allegro runs the user's code, and hence all of its drawing, on
+ * a separate thread, so resizing a window while the program is drawing
+ * corrupts the GL driver's internal state and crashes.
+ *
+ * The update cannot simply be moved to the drawing thread either: -update
+ * insists on running on the main thread whenever the context has a view. So
+ * instead the spontaneous updates only take note that an update is due, and
+ * osx_update_context() below hands the work back to the main thread at a point
+ * where the drawing thread is blocked waiting for it.
+ *
+ * SDL marshals the update to the main thread the same way - see
+ * -[SDLOpenGLContext explicitUpdate] in its src/video/cocoa/SDL_cocoaopengl.m.
+ */
+@interface ALOpenGLContext : NSOpenGLContext
+{
+   volatile int update_pending;
+}
+-(BOOL) updatePending;
+-(void) reallyUpdate;
+@end
+
+@implementation ALOpenGLContext
+
+-(void) update
+{
+   __atomic_store_n(&update_pending, 1, __ATOMIC_SEQ_CST);
+}
+
+-(BOOL) updatePending
+{
+   return __atomic_load_n(&update_pending, __ATOMIC_SEQ_CST) != 0;
+}
+
+/* Main thread only, and only while the drawing thread is not drawing. */
+-(void) reallyUpdate
+{
+   /* Cleared first so that an update requested while this one is running is
+    * not lost.
+    */
+   __atomic_store_n(&update_pending, 0, __ATOMIC_SEQ_CST);
+   [super update];
+}
+
+@end
+
+/* osx_update_context:
+ * Apply a deferred -update, blocking until the main thread has done it.
+ * Call from the display's own thread only, and only in between frames: no GL
+ * command may be in flight while the drawable is reallocated.
+ */
+static void osx_update_context(ALLEGRO_DISPLAY_OSX_WIN *dpy, bool force)
+{
+   ALOpenGLContext *ctx = (ALOpenGLContext *) dpy->ctx;
+
+   if (ctx == nil || (!force && ![ctx updatePending]))
+      return;
+
+   if (pthread_main_np())
+      [ctx reallyUpdate];
+   else
+      dispatch_sync(dispatch_get_main_queue(), ^{ [ctx reallyUpdate]; });
+}
+
 /* Module functions */
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
-static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
+static ALOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
 static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h);
 static bool resize_display_win_main_thread(ALLEGRO_DISPLAY *d, int w, int h);
@@ -754,6 +826,7 @@ static bool set_current_display(ALLEGRO_DISPLAY* d) {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    if (dpy->ctx != nil) {
       [dpy->ctx makeCurrentContext];
+      osx_update_context(dpy, false);
    }
    _al_ogl_set_extensions(d->ogl_extras->extension_api);
    return true;
@@ -763,7 +836,7 @@ static bool set_current_display(ALLEGRO_DISPLAY* d) {
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
-   [dpy->ctx performSelectorOnMainThread:@selector(update) withObject:nil waitUntilDone:YES];
+   osx_update_context(dpy, true);
    _al_ogl_setup_gl(d);
 }
 
@@ -1083,16 +1156,16 @@ static void osx_run_fullscreen_display(ALLEGRO_DISPLAY_OSX_WIN* dpy)
  * Returns:
  *  The new context or nil if it cannot be created.
  */
-static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group)
+static ALOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group)
 {
    // Iterate through all existing displays and try and find one that's compatible
    _AL_VECTOR* dpys = &al_get_system_driver()->displays;
    unsigned int i;
-   NSOpenGLContext* compat = nil;
+   ALOpenGLContext* compat = nil;
 
    for (i = 0; i < _al_vector_size(dpys); ++i) {
       ALLEGRO_DISPLAY_OSX_WIN* other = *(ALLEGRO_DISPLAY_OSX_WIN**) _al_vector_ref(dpys, i);
-      compat = [[NSOpenGLContext alloc] initWithFormat:fmt shareContext: other->ctx];
+      compat = [[ALOpenGLContext alloc] initWithFormat:fmt shareContext: other->ctx];
       if (compat != nil) {
       // OK, we can share with this one
          *group = other->display_group;
@@ -1104,7 +1177,7 @@ static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, u
       // Set to a new group
       *group = next_display_group++;
       ALLEGRO_DEBUG("Creating new display group %d\n", *group);
-      compat = [[NSOpenGLContext alloc] initWithFormat:fmt shareContext: nil];
+      compat = [[ALOpenGLContext alloc] initWithFormat:fmt shareContext: nil];
    }
    return compat;
 }
