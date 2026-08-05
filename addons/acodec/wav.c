@@ -118,7 +118,6 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
       }
       else {
          if (!memcmp(buffer, "data", 4)) {
-            ALLEGRO_ERROR("Bad RIFF type.\n");
             break;
          }
          ALLEGRO_INFO("Ignoring chunk: %c%c%c%c\n", buffer[0], buffer[1],
