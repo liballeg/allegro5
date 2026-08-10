@@ -147,11 +147,12 @@ ALLEGRO_THREAD *al_create_thread_with_stacksize(
 void al_run_detached_thread(void *(*proc)(void *arg), void *arg)
 {
    ALLEGRO_THREAD *outer = create_thread();
+   _AL_THREAD thread;
    outer->thread_state = THREAD_STATE_DETACHED;
    outer->arg = arg;
    outer->proc = proc;
-   _al_thread_create(&outer->thread, detached_thread_func_trampoline, outer);
-   _al_thread_detach(&outer->thread);
+   _al_thread_create(&thread, detached_thread_func_trampoline, outer);
+   _al_thread_detach(&thread);
 }
 
 
