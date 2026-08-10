@@ -663,7 +663,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_openal_driver = {
    NULL,
    NULL,
 
-   NULL
+   NULL,
+   NULL,
 };
 
 /* vim: set sts=3 sw=3 et: */
