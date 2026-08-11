@@ -52,6 +52,13 @@ jobs:
                   -DWANT_PYTHON_WRAPPER=on
             - name: ⚒️ Build shared
               run: cmake --build build_shared --config Debug
+            - name: 🔍 Check delay-loaded DLLs
+              run: |
+                  $env:Path += ";$(Split-Path -Path $(& "${env:programfiles(x86)}\microsoft visual studio\installer\vswhere" -latest -find "**\Hostx64\x64\dumpbin.exe" | Select-Object -Last 1) -Parent)"
+                  function Show-Delay-Dlls {param([string]$file) Echo "Delay-loaded DLLs for ${file}:"; & dumpbin /dependents $file | ForEach-Object {switch($_) {"  Image has the following delay load dependencies:" {$state=2} "" {$state--} default { if ($state -eq 1) {$_}}}} }
+                  Show-Delay-Dlls build_shared\lib\Debug\allegro_audio-5.2.dll
+                  Show-Delay-Dlls build_shared\lib\Debug\allegro_acodec-5.2.dll
+                  Show-Delay-Dlls build_shared\lib\Debug\allegro_image-5.2.dll
             - name: 🐍 Test Python wrapper
               run: |
                   cp build_shared/python/allegro.py build_shared/lib/Debug/
@@ -86,12 +93,21 @@ jobs:
                       mingw-w64-x86_64-enet
                       mingw-w64-x86_64-libwebp
                       mingw-w64-x86_64-libopenmpt
+                      mingw-w64-x86_64-openal
+                      mingw-w64-x86_64-tools-git
             - name: ⚙️ Configure
               shell: msys2 {0}
               run: cmake -B build -S . -G Ninja -DWANT_PYTHON_WRAPPER=on
             - name: ⚒️ Build
               shell: msys2 {0}
               run: cmake --build build
+            - name: 🔍 Check delay-loaded DLLs
+              run: |
+                  $env:Path += ";$(Split-Path -Path $(& "${env:programfiles(x86)}\microsoft visual studio\installer\vswhere" -latest -find "**\Hostx64\x64\dumpbin.exe" | Select-Object -Last 1) -Parent)"
+                  function Show-Delay-Dlls {param([string]$file) Echo "Delay-loaded DLLs for ${file}:"; & dumpbin /dependents $file | ForEach-Object {switch($_) {"  Image has the following delay load dependencies:" {$state=2} "" {$state--} default { if ($state -eq 1) {$_}}}} }
+                  Show-Delay-Dlls build\lib\allegro_audio-5.2.dll
+                  Show-Delay-Dlls build\lib\allegro_acodec-5.2.dll
+                  Show-Delay-Dlls build\lib\allegro_image-5.2.dll
             - name: 🐍 Test Python wrapper
               shell: msys2 {0}
               run: |

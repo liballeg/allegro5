@@ -244,7 +244,7 @@ static void error_callback(const FLAC__StreamDecoder *decoder,
    (void)decoder;
    (void)client_data;
 
-#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+#if defined(ALLEGRO_CFG_ACODEC_FLAC_DLL) || defined(WANT_DELAYLOAD)
    (void)status;
    ALLEGRO_ERROR("Got FLAC error callback\n"); /* lazy */
 #else
@@ -498,7 +498,7 @@ static FLACFILE *flac_open(ALLEGRO_FILE* f)
       seek_callback, tell_callback, length_callback, eof_callback,
       write_callback, metadata_callback, error_callback, ff);
    if (init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
-#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+#if defined(ALLEGRO_CFG_ACODEC_FLAC_DLL) || defined(WANT_DELAYLOAD)
       ALLEGRO_ERROR("Error initializing FLAC decoder\n"); /* lazy */
 #else
       ALLEGRO_ERROR("Error initializing FLAC decoder: %s\n",
