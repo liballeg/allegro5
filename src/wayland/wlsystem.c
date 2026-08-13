@@ -4,6 +4,8 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintwl.h"
 
+#include <EGL/egl.h>
+
 ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *wl_vt;
@@ -80,6 +82,9 @@ static const struct wl_registry_listener registry_listener = {
 static ALLEGRO_SYSTEM *wl_initialize(int flags) {
     struct wl_display *display;
     struct wl_registry *registry;
+    EGLint major;
+    EGLint minor;
+
     ALLEGRO_SYSTEM_WAYLAND *s;
 
     (void)flags;
@@ -102,6 +107,25 @@ static ALLEGRO_SYSTEM *wl_initialize(int flags) {
      * XDG window management base.
      */
 
+    /* EGL initialization.  The Wayland display is the native display
+     * handle, and eglGetPlatformDisplay() (core in EGL 1.5) implicitly
+     * tells the driver which extension to load. */
+    s->egl_display = eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_EXT, display, NULL);
+    if (s->egl_display == EGL_NO_DISPLAY) {
+        ALLEGRO_ERROR("eglGetPlatformDisplay failed: %#x\n", eglGetError());
+        wl_display_disconnect(display);
+        al_free(s);
+        return NULL;
+    }
+
+    if (!eglInitialize(s->egl_display, &major, &minor)) {
+        ALLEGRO_ERROR("eglInitialize failed: %#x\n", eglGetError());
+        wl_display_disconnect(display);
+        al_free(s);
+        return NULL;
+    }
+    ALLEGRO_INFO("Initialized EGL %d.%d on Wayland\n", major, minor);
+
     _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_WAYLAND *));
 
     s->system.vt = wl_vt;
@@ -111,6 +135,9 @@ static ALLEGRO_SYSTEM *wl_initialize(int flags) {
 
     if (s->display) {
         ALLEGRO_INFO("Wayland driver connected to Wayland\n");
+
+        _al_mutex_init(&s->lock);
+        _al_cond_init(&s->configured_cond);
 
         _al_thread_create(&s->wlevents_thread, _al_wl_background_thread, s);
         s->have_wlevents_thread = true;
@@ -155,9 +182,16 @@ static void wl_shutdown_system(void)
         wl_registry_destroy(swl->registry);
     }
 
+    if (swl->egl_display != EGL_NO_DISPLAY) {
+        eglTerminate(swl->egl_display);
+    }
+
     if (swl->display) {
         wl_display_disconnect(swl->display);
     }
+
+    _al_cond_destroy(&swl->configured_cond);
+    _al_mutex_destroy(&swl->lock);
 
     al_free(swl);
 }
@@ -180,6 +214,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_wayland_driver(void)
 
     wl_vt->id = ALLEGRO_SYSTEM_ID_WAYLAND;
     wl_vt->initialize = wl_initialize;
+    wl_vt->get_display_driver = wl_get_display_driver;
     /* The rest of the functions need to go here */
     wl_vt->shutdown_system = wl_shutdown_system;
     wl_vt->get_path = _al_unix_get_path;

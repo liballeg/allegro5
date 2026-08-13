@@ -881,6 +881,13 @@ if (WANT_WAYLAND)
         if(NOT HAVE_WAYLAND_CLIENT_H)
             message(FATAL_ERROR "Wayland client headers not found.")
         endif(NOT HAVE_WAYLAND_CLIENT_H)
+
+        check_library_exists(EGL eglCreateContext "" CAN_EGL)
+        if (CAN_EGL)
+            find_library(EGL_LIB "EGL")
+            list(APPEND WAYLAND_LIBRARIES "${EGL_LIB}")
+        endif(CAN_EGL)
+
     endif(WAYLAND_FOUND)
 endif(WANT_WAYLAND)
 

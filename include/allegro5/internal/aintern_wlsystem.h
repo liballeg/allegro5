@@ -20,9 +20,20 @@ struct ALLEGRO_SYSTEM_WAYLAND
     struct xdg_wm_base *wm_base;
     struct wl_shm *shm;
 
+    /* OpenGL stuff */
+    EGLDisplay egl_display;
+
+    /* for events */
     bool have_wlevents_thread;
     _AL_THREAD wlevents_thread;
+
+    /* to access anything Wayland */
     _AL_MUTEX lock;
+
+    /* signalled (while holding the lock) whenever a surface gets
+     * configured by the compositor, so display creation can block
+     * until the initial configure arrives */
+    _AL_COND configured_cond;
 
     struct wl_seat *seat;
 
