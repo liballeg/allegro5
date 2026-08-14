@@ -137,10 +137,12 @@ set(ALLEGRO_SRC_X_FILES
     )
 
 set(ALLEGRO_SRC_WAYLAND_FILES
+    src/wayland/cursor-shape-protocol.c
     src/wayland/wldisplay.c
     src/wayland/wleglconfig.c
     src/wayland/wlevents.c
     src/wayland/wlfullscreen.c
+    src/wayland/wlinput.c
     src/wayland/wlsystem.c
     src/wayland/xdg-decoration-protocol.c
     src/wayland/xdg-shell-protocol.c

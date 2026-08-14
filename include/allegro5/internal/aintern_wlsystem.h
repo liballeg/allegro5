@@ -3,6 +3,7 @@
 
 #include "allegro5/internal/aintern_wl.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/platform/cursor-shape-client-protocol.h"
 #include "allegro5/platform/xdg-shell-client-protocol.h"
 
 /* ALLEGRO_SYSTEM with Wayland extra data */
@@ -42,6 +43,12 @@ struct ALLEGRO_SYSTEM_WAYLAND
      * configured by the compositor, so display creation can block
      * until the initial configure arrives */
     _AL_COND configured_cond;
+
+    /* video adapters: one entry per wl_output, of struct ALLEGRO_WL_OUTPUT * */
+    _AL_VECTOR outputs;
+
+    /* core cursor-shape protocol, so we can control the pointer cursor */
+    struct wp_cursor_shape_manager_v1 *cursor_shape_manager;
 
     struct wl_seat *seat;
 

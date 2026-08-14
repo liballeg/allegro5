@@ -1,11 +1,16 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_wlsystem.h"
 #include "allegro5/internal/aintern_wlevents.h"
+#include "allegro5/internal/aintern_wlfullscreen.h"
+#include "allegro5/internal/aintern_wlinput.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintwl.h"
+#include "allegro5/platform/cursor-shape-client-protocol.h"
 #include "allegro5/platform/xdg-decoration-client-protocol.h"
 
 #include <libdecor.h>
+#include <wayland-client.h>
+#include <xkbcommon/xkbcommon.h>
 
 #include <EGL/egl.h>
 
@@ -54,6 +59,26 @@ static void registry_handle_global(void *data,
         }
     }
 
+    if (strcmp(interface, wl_output_interface.name) == 0) {
+        struct wl_output *output = wl_registry_bind(
+            registry, name, &wl_output_interface, 4);
+        if (output)
+            _al_wayland_add_output(s, output, name);
+    }
+
+    if (strcmp(interface, wl_seat_interface.name) == 0) {
+        struct wl_seat *seat = wl_registry_bind(
+            registry, name, &wl_seat_interface, 8);
+        if (seat)
+            _al_wl_seat_add(s, seat);
+    }
+
+    if (strcmp(interface, wp_cursor_shape_manager_v1_interface.name) == 0) {
+        s->cursor_shape_manager = wl_registry_bind(
+            registry, name, &wp_cursor_shape_manager_v1_interface, 2);
+        ALLEGRO_INFO("Wayland cursor shape manager created\n");
+    }
+
     if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
         s->wm_base = wl_registry_bind(
             registry,
@@ -85,10 +110,11 @@ static void registry_handle_global(void *data,
 static void registry_handle_global_remove(void *data, struct wl_registry *registry,
 		uint32_t name)
 {
-	/* This space deliberately left blank */
-    (void)data;
+	ALLEGRO_SYSTEM_WAYLAND *s = data;
     (void)registry;
-    (void)name;
+
+    /* Only outputs are tracked at the moment. */
+    _al_wayland_remove_output(s, name);
 }
 
 static const struct wl_registry_listener registry_listener = {
@@ -116,6 +142,16 @@ static ALLEGRO_SYSTEM *wl_initialize(int flags) {
 
     s = al_calloc(1, sizeof *s);
 
+    /* These are filled in by the registry listener, which runs during the
+     * roundtrip below, so they must exist before then. */
+    _al_vector_init(&s->outputs, sizeof (struct ALLEGRO_WL_OUTPUT *));
+
+    /* Needed as soon as the first keymap event arrives (which can happen
+     * during the roundtrips below). */
+    s->xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+    if (!s->xkb_context)
+        ALLEGRO_WARN("Failed to create xkb context; keyboard input disabled\n");
+
     registry = wl_display_get_registry(display);
     wl_registry_add_listener(registry, &registry_listener, s);
 	wl_display_roundtrip(display);
@@ -123,6 +159,11 @@ static ALLEGRO_SYSTEM *wl_initialize(int flags) {
      * shared memory (used for software rendering), and the
      * XDG window management base.
      */
+
+    /* A second roundtrip delivers the async events that arrive after
+     * binding: wl_output geometry/mode, and the wl_seat capabilities
+     * (which bind the keyboard and pointer objects). */
+    wl_display_roundtrip(display);
 
     /* EGL initialization.  The Wayland display is the native display
      * handle, and eglGetPlatformDisplay() (core in EGL 1.5) implicitly
@@ -199,6 +240,22 @@ static void wl_shutdown_system(void)
     }
     _al_vector_free(&s->displays);
 
+    while (_al_vector_size(&swl->outputs) > 0) {
+        struct ALLEGRO_WL_OUTPUT *o;
+        o = *((struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&swl->outputs, 0));
+        wl_output_destroy(o->output);
+        al_free(o);
+        _al_vector_delete_at(&swl->outputs, 0);
+    }
+    _al_vector_free(&swl->outputs);
+
+    _al_wl_input_shutdown(swl);
+
+    if (swl->xkb_context) {
+        xkb_context_unref(swl->xkb_context);
+        swl->xkb_context = NULL;
+    }
+
     /* shm, compositor, wm_base were implicitly created */
     if (swl->shm) {
         wl_shm_destroy(swl->shm);
@@ -214,6 +271,10 @@ static void wl_shutdown_system(void)
 
     if (swl->decoration_manager) {
         zxdg_decoration_manager_v1_destroy(swl->decoration_manager);
+    }
+
+    if (swl->cursor_shape_manager) {
+        wp_cursor_shape_manager_v1_destroy(swl->cursor_shape_manager);
     }
 
     if (swl->decor) {
@@ -248,6 +309,32 @@ static ALLEGRO_DISPLAY_INTERFACE *wl_get_display_driver(void)
     return driver;
 }
 
+static int wl_get_num_video_adapters(void)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    return _al_wayland_get_num_video_adapters(system);
+}
+
+
+static bool wl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    return _al_wayland_get_monitor_info(system, adapter, info);
+}
+
+
+static ALLEGRO_KEYBOARD_DRIVER *wl_get_keyboard_driver(void)
+{
+    return _al_wl_keyboard_driver();
+}
+
+
+static ALLEGRO_MOUSE_DRIVER *wl_get_mouse_driver(void)
+{
+    return _al_wl_mouse_driver();
+}
+
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_wayland_driver(void)
 {
@@ -258,7 +345,10 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_wayland_driver(void)
     wl_vt->id = ALLEGRO_SYSTEM_ID_WAYLAND;
     wl_vt->initialize = wl_initialize;
     wl_vt->get_display_driver = wl_get_display_driver;
-    /* The rest of the functions need to go here */
+    wl_vt->get_num_video_adapters = wl_get_num_video_adapters;
+    wl_vt->get_monitor_info = wl_get_monitor_info;
+    wl_vt->get_keyboard_driver = wl_get_keyboard_driver;
+    wl_vt->get_mouse_driver = wl_get_mouse_driver;
     wl_vt->shutdown_system = wl_shutdown_system;
     wl_vt->get_path = _al_unix_get_path;
     wl_vt->get_time = _al_unix_get_time;

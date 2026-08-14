@@ -900,6 +900,14 @@ if (WANT_WAYLAND)
         include_directories(SYSTEM ${PKG_LIBDECOR_INCLUDE_DIRS})
         list(APPEND WAYLAND_LIBRARIES ${PKG_LIBDECOR_LIBRARIES})
 
+        # libxkbcommon translates Wayland keymaps/keysyms to Allegro keysyms.
+        pkg_check_modules(PKG_XKBCOMMON xkbcommon)
+        if (NOT PKG_XKBCOMMON_FOUND)
+            message(FATAL_ERROR "xkbcommon not found; it is required for the Wayland backend.")
+        endif(NOT PKG_XKBCOMMON_FOUND)
+        include_directories(SYSTEM ${PKG_XKBCOMMON_INCLUDE_DIRS})
+        list(APPEND WAYLAND_LIBRARIES ${PKG_XKBCOMMON_LIBRARIES})
+
     endif(WAYLAND_FOUND)
 endif(WANT_WAYLAND)
 

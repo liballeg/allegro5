@@ -214,8 +214,6 @@ static struct libdecor_frame_interface wldpy_frame_interface = {
 static bool wldpy_create_display_window(ALLEGRO_SYSTEM_WAYLAND *system,
     ALLEGRO_DISPLAY_WAYLAND *d, int w, int h, int adapter)
 {
-    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
-
     /* create the Wayland window now */
     d->surface = wl_compositor_create_surface(system->compositor);
 
