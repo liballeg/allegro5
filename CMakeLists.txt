@@ -888,6 +888,18 @@ if (WANT_WAYLAND)
             list(APPEND WAYLAND_LIBRARIES "${EGL_LIB}")
         endif(CAN_EGL)
 
+        # libdecor provides window decorations (client-side frames, or
+        # server-side where the compositor supports it) and takes care of
+        # the xdg-shell surface management.  It is a hard requirement of
+        # the Wayland backend.
+        find_package(PkgConfig)
+        pkg_check_modules(PKG_LIBDECOR libdecor-0)
+        if (NOT PKG_LIBDECOR_FOUND)
+            message(FATAL_ERROR "libdecor not found (package libdecor-0); it is required for the Wayland backend.")
+        endif(NOT PKG_LIBDECOR_FOUND)
+        include_directories(SYSTEM ${PKG_LIBDECOR_INCLUDE_DIRS})
+        list(APPEND WAYLAND_LIBRARIES ${PKG_LIBDECOR_LIBRARIES})
+
     endif(WAYLAND_FOUND)
 endif(WANT_WAYLAND)
 

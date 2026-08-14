@@ -142,6 +142,7 @@ set(ALLEGRO_SRC_WAYLAND_FILES
     src/wayland/wlevents.c
     src/wayland/wlfullscreen.c
     src/wayland/wlsystem.c
+    src/wayland/xdg-decoration-protocol.c
     src/wayland/xdg-shell-protocol.c
     )
 

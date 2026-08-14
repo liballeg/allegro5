@@ -30,6 +30,14 @@ struct ALLEGRO_SYSTEM_WAYLAND
     /* to access anything Wayland */
     _AL_MUTEX lock;
 
+    /* libdecor context for window decorations; NULL if it failed to
+     * initialise, which leaves windows undecorated */
+    struct libdecor *decor;
+
+    /* server-side window decorations, if the compositor offers them
+     * (only used when libdecor is not active) */
+    struct zxdg_decoration_manager_v1 *decoration_manager;
+
     /* signalled (while holding the lock) whenever a surface gets
      * configured by the compositor, so display creation can block
      * until the initial configure arrives */

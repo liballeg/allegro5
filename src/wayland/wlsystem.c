@@ -3,6 +3,9 @@
 #include "allegro5/internal/aintern_wlevents.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintwl.h"
+#include "allegro5/platform/xdg-decoration-client-protocol.h"
+
+#include <libdecor.h>
 
 #include <EGL/egl.h>
 
@@ -62,6 +65,20 @@ static void registry_handle_global(void *data,
             s->wm_base,
             &xdg_wm_base_listener,
             NULL);
+    }
+
+    if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0) {
+        /* Server-side window decorations.  This is optional: compositors
+         * that don't offer it leave us with client-side decorations, which
+         * for now means none at all. */
+        s->decoration_manager = wl_registry_bind(
+            registry,
+            name,
+            &zxdg_decoration_manager_v1_interface,
+            1);
+        if (s->decoration_manager) {
+            ALLEGRO_INFO("Wayland decoration manager created\n");
+        }
     }
 }
 
@@ -126,6 +143,23 @@ static ALLEGRO_SYSTEM *wl_initialize(int flags) {
     }
     ALLEGRO_INFO("Initialized EGL %d.%d on Wayland\n", major, minor);
 
+    /* libdecor provides window decorations and manages the xdg-shell
+     * surfaces.  It is a hard build dependency, but may still fail to
+     * initialise at runtime (eg. no decoration plugin installed), in
+     * which case we fall back to undecorated windows. */
+    s->decor = libdecor_new(display, NULL);
+    if (s->decor) {
+        ALLEGRO_INFO("libdecor initialised\n");
+        /* Let libdecor finish its startup handshake (it needs an event
+         * roundtrip for its internal sync callback) before any window
+         * is created. */
+        wl_display_roundtrip(display);
+    }
+    else {
+        ALLEGRO_WARN("libdecor failed to initialise; "
+            "windows will be undecorated\n");
+    }
+
     _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_WAYLAND *));
 
     s->system.vt = wl_vt;
@@ -176,6 +210,15 @@ static void wl_shutdown_system(void)
 
     if (swl->wm_base) {
         xdg_wm_base_destroy(swl->wm_base);
+    }
+
+    if (swl->decoration_manager) {
+        zxdg_decoration_manager_v1_destroy(swl->decoration_manager);
+    }
+
+    if (swl->decor) {
+        libdecor_unref(swl->decor);
+        swl->decor = NULL;
     }
 
     if (swl->registry) {

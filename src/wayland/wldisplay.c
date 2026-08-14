@@ -1,6 +1,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_wl.h"
 #include "allegro5/internal/aintern_wldisplay.h"
@@ -9,6 +10,9 @@
 #include "allegro5/internal/aintern_wlsystem.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/platform/aintwl.h"
+#include "allegro5/platform/xdg-decoration-client-protocol.h"
+
+#include <libdecor.h>
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
@@ -36,6 +40,177 @@ static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = xdg_surface_configure, 
 };
 
+
+/* Emit a display event from the Wayland event thread into the display's
+ * event source.  Nothing is emitted when there are no listeners, which
+ * conveniently suppresses the initial configure during al_create_display. */
+static void wldpy_emit_display_event(ALLEGRO_DISPLAY *display, int type)
+{
+    ALLEGRO_EVENT_SOURCE *es = &display->es;
+
+    _al_event_source_lock(es);
+    if (_al_event_source_needs_to_generate_event(es)) {
+        ALLEGRO_EVENT event;
+        event.display.type = type;
+        event.display.timestamp = al_get_time();
+        event.display.x = 0;
+        event.display.y = 0;
+        event.display.width = display->w;
+        event.display.height = display->h;
+        _al_event_source_emit_event(es, &event);
+    }
+    _al_event_source_unlock(es);
+}
+
+
+/* Shared size-change handling for xdg_toplevel configure and libdecor
+ * configure callbacks: record the compositor's requested size and emit an
+ * ALLEGRO_EVENT_DISPLAY_RESIZE, which the app acknowledges. */
+static void wldpy_handle_configure_size(ALLEGRO_DISPLAY_WAYLAND *d,
+    int width, int height)
+{
+    /* 0x0 means the compositor has no preference; keep the current size. */
+    if (width <= 0 || height <= 0)
+        return;
+
+    /* A configure echoing the pre-programmatic-resize size was generated
+     * before the app requested the new size (eg. GNOME's delayed initial
+     * configure); drop it so al_resize_display() isn't reverted. */
+    if (d->programmatic_resize) {
+        d->programmatic_resize = false;
+        if (width == d->pre_resize_w && height == d->pre_resize_h)
+            return;
+    }
+
+    d->pending_w = width;
+    d->pending_h = height;
+
+    /* Report a size change to the app, which will call al_acknowledge_resize
+     * to actually apply it. */
+    if (width != d->display.w || height != d->display.h) {
+        ALLEGRO_EVENT_SOURCE *es = &d->display.es;
+        _al_event_source_lock(es);
+        if (_al_event_source_needs_to_generate_event(es)) {
+            ALLEGRO_EVENT event;
+            event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+            event.display.timestamp = al_get_time();
+            event.display.x = 0;
+            event.display.y = 0;
+            event.display.width = width;
+            event.display.height = height;
+            _al_event_source_emit_event(es, &event);
+        }
+        _al_event_source_unlock(es);
+    }
+}
+
+
+static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel,
+    int32_t width, int32_t height, struct wl_array *states)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)xdg_toplevel;
+    (void)states;
+
+    wldpy_handle_configure_size(d, width, height);
+}
+
+
+static void xdg_toplevel_close(void *data, struct xdg_toplevel *xdg_toplevel)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)xdg_toplevel;
+
+    wldpy_emit_display_event(&d->display, ALLEGRO_EVENT_DISPLAY_CLOSE);
+}
+
+
+static const struct xdg_toplevel_listener xdg_toplevel_listener = {
+    .configure = xdg_toplevel_configure,
+    .close = xdg_toplevel_close,
+};
+
+
+/* libdecor frame callbacks.  libdecor dispatches its xdg events through the
+ * same display/event queue that our background thread pumps, so these run on
+ * the event thread exactly like the xdg handlers above. */
+
+static void wldpy_frame_configure(struct libdecor_frame *frame,
+    struct libdecor_configuration *configuration, void *data)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    int w = 0, h = 0;
+
+    if (libdecor_configuration_get_content_size(configuration, frame, &w, &h))
+        wldpy_handle_configure_size(d, w, h);
+
+    /* This is also the signal that the window is live: it wakes up the
+     * thread blocked in wldpy_create_display_locked(). */
+    d->configured = true;
+    _al_cond_broadcast(&system->configured_cond);
+
+    /* Apply the content size we are actually presenting and ack the
+     * configure (libdecor_frame_commit() acks when given the
+     * configuration). */
+    struct libdecor_state *state =
+        libdecor_state_new(d->display.w, d->display.h);
+    libdecor_frame_commit(frame, state, configuration);
+    libdecor_state_free(state);
+}
+
+
+static void wldpy_frame_close(struct libdecor_frame *frame, void *data)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)frame;
+
+    wldpy_emit_display_event(&d->display, ALLEGRO_EVENT_DISPLAY_CLOSE);
+}
+
+
+static void wldpy_frame_commit(struct libdecor_frame *frame, void *data)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)frame;
+
+    /* The decoration asked the main surface to be committed. */
+    wl_surface_commit(d->surface);
+}
+
+
+/* Informational: reports what decoration mode the compositor settled on. */
+static void xdg_toplevel_decoration_configure(void *data,
+    struct zxdg_toplevel_decoration_v1 *decoration, uint32_t mode)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)decoration;
+
+    switch (mode) {
+    case ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE:
+        ALLEGRO_DEBUG("wldpy: using server-side decorations\n");
+        d->server_side_decorated = true;
+        break;
+    case ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE:
+    default:
+        ALLEGRO_DEBUG("wldpy: no server-side decorations\n");
+        d->server_side_decorated = false;
+        break;
+    }
+}
+
+
+static const struct zxdg_toplevel_decoration_v1_listener
+    xdg_toplevel_decoration_listener = {
+    .configure = xdg_toplevel_decoration_configure,
+};
+
+static struct libdecor_frame_interface wldpy_frame_interface = {
+    .configure = wldpy_frame_configure,
+    .close = wldpy_frame_close,
+    .commit = wldpy_frame_commit,
+};
+
 static bool wldpy_create_display_window(ALLEGRO_SYSTEM_WAYLAND *system,
     ALLEGRO_DISPLAY_WAYLAND *d, int w, int h, int adapter)
 {
@@ -43,19 +218,59 @@ static bool wldpy_create_display_window(ALLEGRO_SYSTEM_WAYLAND *system,
 
     /* create the Wayland window now */
     d->surface = wl_compositor_create_surface(system->compositor);
-    d->xdg_surface = xdg_wm_base_get_xdg_surface(system->wm_base, d->surface);
 
-    xdg_surface_add_listener(d->xdg_surface, &xdg_surface_listener, d);
-    d->xdg_toplevel = xdg_surface_get_toplevel(d->xdg_surface);
+    if (system->decor) {
+        /* Decorate the content surface with libdecor, which creates and
+         * manages the xdg_surface/xdg_toplevel itself. */
+        d->frame = libdecor_decorate(system->decor, d->surface,
+            &wldpy_frame_interface, d);
+        if (!d->frame) {
+            ALLEGRO_ERROR("libdecor_decorate failed\n");
+            return false;
+        }
 
-    /* new window position */
+        const char *title = al_get_new_window_title();
+        if (title)
+            libdecor_frame_set_title(d->frame, title);
+        libdecor_frame_set_app_id(d->frame, al_get_app_name());
+        libdecor_frame_set_min_content_size(d->frame, 1, 1);
 
-    /* todo: where to place window title? */
-    const char* new_title = al_get_new_window_title();
-    if (new_title)
-        xdg_toplevel_set_title(d->xdg_toplevel, new_title);
+        /* Present the requested content size and map the window. */
+        struct libdecor_state *state = libdecor_state_new(w, h);
+        libdecor_frame_commit(d->frame, state, NULL);
+        libdecor_state_free(state);
+        libdecor_frame_map(d->frame);
+        wl_surface_commit(d->surface);
+    }
+    else {
+        /* Fallback: bare xdg-toplevel without decorations. */
+        d->xdg_surface = xdg_wm_base_get_xdg_surface(system->wm_base, d->surface);
 
-    wl_surface_commit(d->surface);
+        xdg_surface_add_listener(d->xdg_surface, &xdg_surface_listener, d);
+
+        d->xdg_toplevel = xdg_surface_get_toplevel(d->xdg_surface);
+        xdg_toplevel_add_listener(d->xdg_toplevel, &xdg_toplevel_listener, d);
+
+        /* Request server-side decorations if the compositor offers them. */
+        if (system->decoration_manager) {
+            d->toplevel_decoration =
+                zxdg_decoration_manager_v1_get_toplevel_decoration(
+                    system->decoration_manager, d->xdg_toplevel);
+            zxdg_toplevel_decoration_v1_add_listener(d->toplevel_decoration,
+                &xdg_toplevel_decoration_listener, d);
+            zxdg_toplevel_decoration_v1_set_mode(d->toplevel_decoration,
+                ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
+        }
+
+        /* new window position */
+
+        /* todo: where to place window title? */
+        const char *new_title = al_get_new_window_title();
+        if (new_title)
+            xdg_toplevel_set_title(d->xdg_toplevel, new_title);
+
+        wl_surface_commit(d->surface);
+    }
 
     return true;
 }
@@ -211,6 +426,10 @@ static void wldpy_free_display(ALLEGRO_DISPLAY *display)
     }
 
     /* Tear down the Wayland shell objects. */
+    if (d->frame)
+        libdecor_frame_unref(d->frame);
+    if (d->toplevel_decoration)
+        zxdg_toplevel_decoration_v1_destroy(d->toplevel_decoration);
     if (d->xdg_toplevel)
         xdg_toplevel_destroy(d->xdg_toplevel);
     if (d->xdg_surface)
@@ -296,10 +515,72 @@ static void wldpy_update_display_region(ALLEGRO_DISPLAY *display,
 }
 
 
+/* Apply a new size to the display: resize the EGL window (takes effect on
+ * the next commit, flushed by the event thread), update the window geometry
+ * hint, and resize the backbuffer.  Called from the app thread. */
+static void wldpy_apply_size(ALLEGRO_DISPLAY *display, int w, int h)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    _al_mutex_lock(&system->lock);
+
+    display->w = w;
+    display->h = h;
+
+    if (d->egl_window)
+        wl_egl_window_resize(d->egl_window, w, h, 0, 0);
+    if (d->xdg_surface)
+        xdg_surface_set_window_geometry(d->xdg_surface, 0, 0, w, h);
+
+    /* Tell libdecor about the new content size (also needed for
+     * application-driven resizes); outside a configure callback, pass
+     * a NULL configuration. */
+    if (d->frame) {
+        struct libdecor_state *state = libdecor_state_new(w, h);
+        libdecor_frame_commit(d->frame, state, NULL);
+        libdecor_state_free(state);
+    }
+
+    /* Resize the backbuffer and update its transformations. */
+    if (display->ogl_extras->backbuffer)
+        _al_ogl_setup_gl(display);
+
+    _al_mutex_unlock(&system->lock);
+}
+
+
+static bool wldpy_resize_display(ALLEGRO_DISPLAY *display, int w, int h)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    ALLEGRO_DEBUG("wldpy: resize_display (%d, %d)\n", w, h);
+
+    /* Compositors may send a configure echoing the old size that was
+     * generated before this request arrived; remember the pre-resize size
+     * so the configure handler can recognise and drop the stale event. */
+    d->programmatic_resize = true;
+    d->pre_resize_w = display->w;
+    d->pre_resize_h = display->h;
+
+    wldpy_apply_size(display, w, h);
+    return true;
+}
+
+
 static bool wldpy_acknowledge_resize(ALLEGRO_DISPLAY *display)
 {
-    /* Resize handling is not implemented yet; the window keeps its size. */
-    (void)display;
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    /* Apply the size the compositor requested via xdg_toplevel configure. */
+    if (d->pending_w != 0 && d->pending_h != 0
+        && (d->pending_w != display->w || d->pending_h != display->h)) {
+        int w = d->pending_w;
+        int h = d->pending_h;
+        ALLEGRO_DEBUG("wldpy: acknowledge_resize (%d, %d)\n", w, h);
+        wldpy_apply_size(display, w, h);
+    }
+
     return true;
 }
 
@@ -327,6 +608,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
     wldpy_vt.flip_display = wldpy_flip_display;
     wldpy_vt.update_display_region = wldpy_update_display_region;
     wldpy_vt.acknowledge_resize = wldpy_acknowledge_resize;
+    wldpy_vt.resize_display = wldpy_resize_display;
     wldpy_vt.create_bitmap = _al_ogl_create_bitmap;
     wldpy_vt.get_backbuffer = _al_ogl_get_backbuffer;
     wldpy_vt.set_target_bitmap = _al_ogl_set_target_bitmap;
