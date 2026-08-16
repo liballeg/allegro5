@@ -592,6 +592,17 @@ static bool wldpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
     return true;
 }
 
+static void wldpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    /* libdecor owns the toplevel when active; otherwise we manage a bare
+     * xdg-toplevel ourselves. */
+    if (d->frame)
+        libdecor_frame_set_title(d->frame, title);
+    else if (d->xdg_toplevel)
+        xdg_toplevel_set_title(d->xdg_toplevel, title);
+}
 
 /* Obtain a refernence to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
@@ -612,6 +623,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
     wldpy_vt.set_target_bitmap = _al_ogl_set_target_bitmap;
     wldpy_vt.is_compatible_bitmap = wldpy_is_compatible_bitmap;
     wldpy_vt.update_render_state = _al_ogl_update_render_state;
+
+    wldpy_vt.set_window_title = wldpy_set_window_title;
 
     _al_ogl_add_drawing_functions(&wldpy_vt);
 
