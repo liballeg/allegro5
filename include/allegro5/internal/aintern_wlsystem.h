@@ -5,6 +5,7 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/cursor-shape-client-protocol.h"
 #include "allegro5/platform/xdg-shell-client-protocol.h"
+#include "allegro5/platform/pointer-constraints-client-protocol.h"
 
 /* ALLEGRO_SYSTEM with Wayland extra data */
 struct ALLEGRO_SYSTEM_WAYLAND
@@ -49,6 +50,10 @@ struct ALLEGRO_SYSTEM_WAYLAND
 
     /* core cursor-shape protocol, so we can control the pointer cursor */
     struct wp_cursor_shape_manager_v1 *cursor_shape_manager;
+
+    /* pointer-constraints: used to emulate mouse warping (set_mouse_xy) via
+     * a locked pointer + cursor position hint */
+    struct zwp_pointer_constraints_v1 *pointer_constraints;
 
     struct wl_seat *seat;
 

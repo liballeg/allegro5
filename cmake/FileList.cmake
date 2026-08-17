@@ -138,6 +138,7 @@ set(ALLEGRO_SRC_X_FILES
 
 set(ALLEGRO_SRC_WAYLAND_FILES
     src/wayland/cursor-shape-protocol.c
+    src/wayland/pointer-constraints-protocol.c
     src/wayland/wldisplay.c
     src/wayland/wleglconfig.c
     src/wayland/wlevents.c

@@ -18,6 +18,7 @@
 #include "allegro5/internal/aintern_wlinput.h"
 #include "allegro5/internal/aintern_wlsystem.h"
 #include "allegro5/platform/cursor-shape-client-protocol.h"
+#include "allegro5/platform/pointer-constraints-client-protocol.h"
 
 ALLEGRO_DEBUG_CHANNEL("wlinput")
 
@@ -885,13 +886,16 @@ static ALLEGRO_MOUSE *wl_mouse_get_mouse(void)
     return &the_mouse.parent;
 }
 
-
+/* This is hardcoded based on evdev mapping 8 mouse buttons 
+ * and the fact that Wayland doesn't really keep track of
+ * these things. We could just use evdev here though.
+ */
 static unsigned int wl_mouse_get_num_buttons(void)
 {
     return 8;
 }
 
-
+/* See above. */
 static unsigned int wl_mouse_get_num_axes(void)
 {
     return 2;
@@ -900,19 +904,67 @@ static unsigned int wl_mouse_get_num_axes(void)
 
 static bool wl_mouse_set_xy(ALLEGRO_DISPLAY *display, int x, int y)
 {
-    /* Warping the pointer is not supported by Wayland. */
-    (void)display;
-    (void)x;
-    (void)y;
-    return false;
+    ALLEGRO_SYSTEM_WAYLAND *s = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    struct zwp_locked_pointer_v1 *lock;
+    int w, h;
+
+    /* Limited implementation of mouse warping that requires locking
+     * the pointer and then moving it. This only works while the
+     * pointer is over the display. */
+
+    if (the_mouse.display != display)
+        return false;
+
+    if (!s->pointer_constraints || !the_mouse.wl_pointer || !d->surface)
+        return false;
+
+    /* The compositor rejects hints outside the surface. */
+    w = al_get_display_width(display);
+    h = al_get_display_height(display);
+    if (x < 0 || y < 0 || x >= w || y >= h)
+        return false;
+
+    lock = zwp_pointer_constraints_v1_lock_pointer(s->pointer_constraints,
+        d->surface, the_mouse.wl_pointer, NULL,
+        ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_ONESHOT);
+    if (!lock)
+        return false;
+
+    zwp_locked_pointer_v1_set_cursor_position_hint(lock,
+        wl_fixed_from_int(x), wl_fixed_from_int(y));
+    zwp_locked_pointer_v1_destroy(lock);
+
+    /* This requires a wl_display_roundtrip, but that's handled by the
+     * background thread. */
+    return true;
 }
 
 
 static bool wl_mouse_set_axis(int which, int value)
 {
-    (void)which;
-    (void)value;
-    return false;
+    /* Wayland does not have the equivalent X11 function that
+     * globally sets this, so it's entirely local. This copies 
+     * the xmouse_set_mouse_axis impl otherwise! */
+    if (which != 2 && which != 3)
+        return false;
+
+    _al_event_source_lock(&the_mouse.parent.es);
+    {
+        int z = which == 2 ? value : the_mouse.state.z;
+        int w = which == 3 ? value : the_mouse.state.w;
+        int dz = z - the_mouse.state.z;
+        int dw = w - the_mouse.state.w;
+
+        if (dz != 0 || dw != 0) {
+            the_mouse.state.z = z;
+            the_mouse.state.w = w;
+            emit_mouse_event(ALLEGRO_EVENT_MOUSE_AXES, 0, 0, 0, dz, dw);
+        }
+    }
+    _al_event_source_unlock(&the_mouse.parent.es);
+
+    return true;
 }
 
 

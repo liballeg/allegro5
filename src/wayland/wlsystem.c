@@ -7,6 +7,7 @@
 #include "allegro5/platform/aintwl.h"
 #include "allegro5/platform/cursor-shape-client-protocol.h"
 #include "allegro5/platform/xdg-decoration-client-protocol.h"
+#include "allegro5/platform/pointer-constraints-client-protocol.h"
 
 #include <libdecor.h>
 #include <wayland-client.h>
@@ -77,6 +78,16 @@ static void registry_handle_global(void *data,
         s->cursor_shape_manager = wl_registry_bind(
             registry, name, &wp_cursor_shape_manager_v1_interface, 2);
         ALLEGRO_INFO("Wayland cursor shape manager created\n");
+    }
+
+    if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0) {
+        /* Optional: used to emulate mouse warping via a locked pointer +
+         * cursor position hint (al_set_mouse_xy). */
+        s->pointer_constraints = wl_registry_bind(
+            registry, name, &zwp_pointer_constraints_v1_interface, 1);
+        if (s->pointer_constraints) {
+            ALLEGRO_INFO("Wayland pointer constraints created\n");
+        }
     }
 
     if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
@@ -275,6 +286,10 @@ static void wl_shutdown_system(void)
 
     if (swl->cursor_shape_manager) {
         wp_cursor_shape_manager_v1_destroy(swl->cursor_shape_manager);
+    }
+
+    if (swl->pointer_constraints) {
+        zwp_pointer_constraints_v1_destroy(swl->pointer_constraints);
     }
 
     if (swl->decor) {
