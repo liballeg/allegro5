@@ -12,7 +12,7 @@
 #include "allegro5/platform/aintwl.h"
 #include "allegro5/platform/xdg-decoration-client-protocol.h"
 
-#include <libdecor.h>
+#include <libdecor-0/libdecor.h>
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
@@ -20,6 +20,8 @@ static ALLEGRO_DISPLAY_INTERFACE wldpy_vt;
 
 static void wldpy_destroy_display(ALLEGRO_DISPLAY *display);
 static void wldpy_free_display(ALLEGRO_DISPLAY *display);
+
+static bool wldpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial) 
 { 
@@ -322,9 +324,9 @@ static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
         _al_cond_wait(&system->configured_cond, &system->lock);
     }
 
-    /* fullscreen behavior? need to find "wl_output" first */
+    /* wl_output found after the configure wait */
     if (display->flags & ALLEGRO_FULLSCREEN) {
-        /* xdg_toplevel_set_fullscreen() */
+        wldpy_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, true);
     }
 
     return d;
@@ -594,14 +596,78 @@ static bool wldpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
 
 static void wldpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
     ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
 
     /* libdecor owns the toplevel when active; otherwise we manage a bare
-     * xdg-toplevel ourselves. */
+     * xdg-toplevel ourselves.  libdecor/GTK is not thread-safe, so these
+     * calls must be serialized with the configure callback, which runs on
+     * the event thread under system->lock. */
+    _al_mutex_lock(&system->lock);
     if (d->frame)
         libdecor_frame_set_title(d->frame, title);
     else if (d->xdg_toplevel)
         xdg_toplevel_set_title(d->xdg_toplevel, title);
+    _al_mutex_unlock(&system->lock);
+}
+
+static bool wldpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    bool ret = false;
+
+    /* libdecor/GTK is not thread-safe, so this lock is necessary */
+    _al_mutex_lock(&system->lock);
+
+    switch (flag) {
+        case ALLEGRO_FRAMELESS:
+        {
+            if (d->frame) {
+                libdecor_frame_set_visibility(d->frame, !onoff);
+                ret = true;
+            }
+            break;
+        }
+        case ALLEGRO_MAXIMIZED:
+        {
+            if (onoff) {
+                if (d->frame)
+                    libdecor_frame_set_maximized(d->frame);
+                else if (d->xdg_toplevel)
+                    xdg_toplevel_set_maximized(d->xdg_toplevel);
+            } else {
+                if (d->frame)
+                    libdecor_frame_unset_maximized(d->frame);
+                else if (d->xdg_toplevel)
+                    xdg_toplevel_unset_maximized(d->xdg_toplevel);
+            }
+            ret = true;
+            break;
+        }
+        /* On Wayland there is no mode-switching, so ALLEGRO_FULLSCREEN and
+         * ALLEGRO_FULLSCREEN_WINDOW both just request fullscreen. */
+        case ALLEGRO_FULLSCREEN:
+        case ALLEGRO_FULLSCREEN_WINDOW:
+        {
+            if (onoff) {
+                if (d->frame)
+                    libdecor_frame_set_fullscreen(d->frame, NULL);
+                else if (d->xdg_toplevel)
+                    xdg_toplevel_set_fullscreen(d->xdg_toplevel, NULL);
+            } else {
+                if (d->frame)
+                    libdecor_frame_unset_fullscreen(d->frame);
+                else if (d->xdg_toplevel)
+                    xdg_toplevel_unset_fullscreen(d->xdg_toplevel);
+            }
+            ret = true;
+            break;
+        }
+    }
+
+    _al_mutex_unlock(&system->lock);
+    return ret;
 }
 
 /* Obtain a refernence to this driver. */
@@ -625,6 +691,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
     wldpy_vt.update_render_state = _al_ogl_update_render_state;
 
     wldpy_vt.set_window_title = wldpy_set_window_title;
+    wldpy_vt.set_display_flag = wldpy_set_display_flag;
 
     _al_ogl_add_drawing_functions(&wldpy_vt);
 
