@@ -1004,6 +1004,41 @@ if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
 endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
 
 if(SUPPORT_WAYLAND)
+    # Generate the Wayland client protocol code from the vendored XML files
+    # (src/wayland/protocols) at build time.  The XML files are the source
+    # of truth; the generated headers/sources are build artifacts and are
+    # never committed.
+    find_program(WAYLAND_SCANNER_EXECUTABLE wayland-scanner)
+    if(NOT WAYLAND_SCANNER_EXECUTABLE)
+        message(FATAL_ERROR "wayland-scanner not found; it is required to build the Wayland backend.")
+    endif()
+
+    set(WAYLAND_PROTOCOL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/wayland/protocols)
+    set(WAYLAND_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/wayland)
+
+    # _wayland_generate_protocol(name xml)
+    # Generates <name>-client-protocol.h (into build/include) and
+    # <name>-protocol.c (into the build dir) from the given XML.
+    function(_wayland_generate_protocol name xml)
+        set(header ${CMAKE_CURRENT_BINARY_DIR}/include/allegro5/platform/${name}-client-protocol.h)
+        set(code  ${WAYLAND_GEN_DIR}/${name}-protocol.c)
+        add_custom_command(
+            OUTPUT ${header} ${code}
+            COMMAND ${WAYLAND_SCANNER_EXECUTABLE} client-header ${xml} ${header}
+            COMMAND ${WAYLAND_SCANNER_EXECUTABLE} private-code  ${xml} ${code}
+            DEPENDS ${xml}
+            COMMENT "Generating Wayland protocol ${name}"
+            VERBATIM
+        )
+        list(APPEND ALLEGRO_SRC_WAYLAND_FILES ${code})
+        set(ALLEGRO_SRC_WAYLAND_FILES ${ALLEGRO_SRC_WAYLAND_FILES} PARENT_SCOPE)
+    endfunction()
+
+    _wayland_generate_protocol(cursor-shape        ${WAYLAND_PROTOCOL_DIR}/cursor-shape-v1.xml)
+    _wayland_generate_protocol(xdg-shell           ${WAYLAND_PROTOCOL_DIR}/xdg-shell.xml)
+    _wayland_generate_protocol(xdg-decoration     ${WAYLAND_PROTOCOL_DIR}/xdg-decoration-unstable-v1.xml)
+    _wayland_generate_protocol(pointer-constraints ${WAYLAND_PROTOCOL_DIR}/pointer-constraints-unstable-v1.xml)
+
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WAYLAND_FILES})
     list(APPEND PLATFORM_LIBS ${WAYLAND_LIBRARIES})
 endif(SUPPORT_WAYLAND)
