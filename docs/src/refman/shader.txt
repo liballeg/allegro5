@@ -263,8 +263,9 @@ is incompatible with the target bitmap.
 Since: 5.1.6
 
 See also: [al_destroy_shader], [al_set_shader_sampler], [al_set_shader_matrix],
-[al_set_shader_int], [al_set_shader_float], [al_set_shader_bool],
-[al_set_shader_int_vector], [al_set_shader_float_vector], [al_get_current_shader]
+[al_set_shader_int], [al_set_shader_float], [al_set_shader_double], [al_set_shader_bool],
+[al_set_shader_int_vector], [al_set_shader_float_vector], [al_set_shader_double_vector],
+[al_get_current_shader]
 
 ## API: al_get_current_shader
 
@@ -343,6 +344,20 @@ Since: 5.1.0
 
 See also: [al_use_shader]
 
+## API: al_set_shader_double
+
+Sets a double uniform of the target bitmap's shader.
+
+Returns true on success. Otherwise returns false, e.g. if the uniform by that
+name does not exist in the shader.
+
+> *Note:* This is not supported on Direct3D backend. The function succeeds, but
+> values are passed as floats.
+
+Since: 5.2.11
+
+See also: [al_use_shader]
+
 ## API: al_set_shader_bool
 
 Sets a boolean uniform of the target bitmap's shader.
@@ -382,13 +397,22 @@ name does not exist in the shader.
 
 Since: 5.1.0
 
-See also: [al_set_shader_float_vector], [al_use_shader]
+See also: [al_set_shader_float_vector], [al_set_shader_double_vector], [al_use_shader]
 
 ## API: al_set_shader_float_vector
 
 Same as [al_set_shader_int_vector] except all values are float instead of int.
 
 Since: 5.1.0
+
+## API: al_set_shader_double_vector
+
+Same as [al_set_shader_int_vector] except all values are double instead of int.
+
+> *Note:* This is not supported on Direct3D backend. The function succeeds, but
+> values are passed as floats.
+
+Since: 5.2.11
 
 See also: [al_set_shader_int_vector], [al_use_shader]
 
