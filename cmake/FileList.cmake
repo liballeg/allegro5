@@ -146,9 +146,8 @@ set(ALLEGRO_SRC_WAYLAND_FILES
     )
 
 # The Wayland client protocol files (*-protocol.c, *-client-protocol.h) are
-# generated at build time from the vendored XML files in
-# src/wayland/protocols/ by wayland-scanner (see the SUPPORT_WAYLAND block
-# in CMakeLists.txt).
+# generated at build time from the system wayland-protocols package by
+# wayland-scanner (see the SUPPORT_WAYLAND block in CMakeLists.txt).
 
 set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidjoy.m

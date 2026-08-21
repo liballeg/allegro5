@@ -676,7 +676,6 @@ static bool wldpy_set_window_constraints(ALLEGRO_DISPLAY *display, int min_w, in
     display->min_h = min_h;
     display->max_w = max_w;
     display->max_h = max_h;
-    
     return true;
 }
 
@@ -691,7 +690,7 @@ static bool wldpy_get_window_constraints(ALLEGRO_DISPLAY *display, int *min_w, i
     return true;
 }
 
-static bool wldpy_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
+static void wldpy_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
 {
     ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
     ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;

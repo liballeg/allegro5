@@ -1004,16 +1004,22 @@ if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
 endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
 
 if(SUPPORT_WAYLAND)
-    # Generate the Wayland client protocol code from the vendored XML files
-    # (src/wayland/protocols) at build time.  The XML files are the source
-    # of truth; the generated headers/sources are build artifacts and are
-    # never committed.
+    # Generate the Wayland client protocol code from the system protocol XML
+    # files at build time.  Generated headers/sources stay in the build tree
+    # and are never committed.
     find_program(WAYLAND_SCANNER_EXECUTABLE wayland-scanner)
     if(NOT WAYLAND_SCANNER_EXECUTABLE)
         message(FATAL_ERROR "wayland-scanner not found; it is required to build the Wayland backend.")
     endif()
 
-    set(WAYLAND_PROTOCOL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/wayland/protocols)
+    # Protocol XML files are provided by the wayland-protocols package rather
+    # than vendored in the source tree.
+    pkg_check_modules(PKG_WAYLAND_PROTOCOLS REQUIRED wayland-protocols)
+    pkg_get_variable(WAYLAND_PROTOCOL_DIR wayland-protocols pkgdatadir)
+    if(NOT WAYLAND_PROTOCOL_DIR)
+        message(FATAL_ERROR "Could not determine the wayland-protocols data directory.")
+    endif()
+
     set(WAYLAND_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/wayland)
 
     # _wayland_generate_protocol(name xml)
@@ -1024,9 +1030,12 @@ if(SUPPORT_WAYLAND)
         set(code  ${WAYLAND_GEN_DIR}/${name}-protocol.c)
         add_custom_command(
             OUTPUT ${header} ${code}
-            COMMAND ${WAYLAND_SCANNER_EXECUTABLE} client-header ${xml} ${header}
-            COMMAND ${WAYLAND_SCANNER_EXECUTABLE} private-code  ${xml} ${code}
-            DEPENDS ${xml}
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                ${CMAKE_CURRENT_BINARY_DIR}/include/allegro5/platform
+                ${WAYLAND_GEN_DIR}
+            COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" client-header "${xml}" "${header}"
+            COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" private-code  "${xml}" "${code}"
+            DEPENDS "${xml}" "${WAYLAND_SCANNER_EXECUTABLE}"
             COMMENT "Generating Wayland protocol ${name}"
             VERBATIM
         )
@@ -1034,10 +1043,20 @@ if(SUPPORT_WAYLAND)
         set(ALLEGRO_SRC_WAYLAND_FILES ${ALLEGRO_SRC_WAYLAND_FILES} PARENT_SCOPE)
     endfunction()
 
-    _wayland_generate_protocol(cursor-shape        ${WAYLAND_PROTOCOL_DIR}/cursor-shape-v1.xml)
-    _wayland_generate_protocol(xdg-shell           ${WAYLAND_PROTOCOL_DIR}/xdg-shell.xml)
-    _wayland_generate_protocol(xdg-decoration     ${WAYLAND_PROTOCOL_DIR}/xdg-decoration-unstable-v1.xml)
-    _wayland_generate_protocol(pointer-constraints ${WAYLAND_PROTOCOL_DIR}/pointer-constraints-unstable-v1.xml)
+    _wayland_generate_protocol(cursor-shape
+        ${WAYLAND_PROTOCOL_DIR}/staging/cursor-shape/cursor-shape-v1.xml)
+    _wayland_generate_protocol(xdg-shell
+        ${WAYLAND_PROTOCOL_DIR}/stable/xdg-shell/xdg-shell.xml)
+    _wayland_generate_protocol(xdg-decoration
+        ${WAYLAND_PROTOCOL_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml)
+    _wayland_generate_protocol(pointer-constraints
+        ${WAYLAND_PROTOCOL_DIR}/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml)
+
+    # cursor-shape-v1.xml refers to zwp_tablet_tool_v2.  Generate the tablet
+    # protocol as well so the cursor-shape object file has its interface
+    # definition at link time.
+    _wayland_generate_protocol(tablet-v2
+        ${WAYLAND_PROTOCOL_DIR}/unstable/tablet/tablet-unstable-v2.xml)
 
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WAYLAND_FILES})
     list(APPEND PLATFORM_LIBS ${WAYLAND_LIBRARIES})
