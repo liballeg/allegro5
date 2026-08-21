@@ -19,6 +19,8 @@
  *   D          toggle the display-options panel
  *   C          warp the mouse to the window center (al_set_mouse_xy)
  *   Z          fake wheel scroll: al_set_mouse_z(state.z + 100)
+ *   N          cycle window-constraint presets (al_set_window_constraints)
+ *   V          toggle constraints on/off (al_apply_window_constraints)
  *   + / -      ball speed
  *   F / X / B  feature probes: ALLEGRO_FULLSCREEN / ALLEGRO_MAXIMIZED /
  *              ALLEGRO_FRAMELESS via al_set_display_flag (reports the honest
@@ -87,6 +89,7 @@ struct Demo {
    bool paused;
    bool show_monitors;
    bool show_options;
+   bool constraints_on;
    int title_mode;      /* 0 = auto (fps/size), else custom title index */
    int fps;
    float speed;         /* ball speed, px/s */
@@ -191,12 +194,13 @@ static void draw_scene(Demo *d, double now)
       "Allegro 5 Wayland backend demo");
    al_draw_filled_rectangle(18, 28, 18 + 10 * 22, 30, cyan);
    al_draw_textf(font, dim, 320, 22, ALLEGRO_ALIGN_LEFT,
-      "ESC quit | R resize | T title | M monitors | D options | F/X/B probes");
+      "ESC quit | R resize | T title | N constraints | V on/off | "
+      "M monitors | D options | F/X/B probes | C warp | Z wheel");
 
    /* --- Stats panel (top right) --- */
    ALLEGRO_MOUSE_STATE ms;
    al_get_mouse_state(&ms);
-   al_draw_filled_rounded_rectangle(w - 260, 54, w - 8, 140, 6, 6, panel);
+   al_draw_filled_rounded_rectangle(w - 260, 54, w - 8, 158, 6, 6, panel);
    al_draw_textf(font, white, w - 250, 60, 0, "fps %d    %dx%d", d->fps, w, h);
    al_draw_textf(font, dim, w - 250, 76, 0, "ball speed %d px/s%s",
       (int)d->speed, d->paused ? "  (paused)" : "");
@@ -206,6 +210,14 @@ static void draw_scene(Demo *d, double now)
       ms.z, ms.w, al_get_num_video_adapters());
    al_draw_textf(font, cyan, w - 250, 124, 0,
       "wheel / +/- change ball speed");
+   {
+      int mnw, mnh, mxw, mxh;
+      if (al_get_window_constraints(d->display, &mnw, &mnh, &mxw, &mxh)) {
+         al_draw_textf(font, dim, w - 250, 140, 0,
+            "constraints min %dx%d max %dx%d %s",
+            mnw, mnh, mxw, mxh, d->constraints_on ? "(on)" : "(off)");
+      }
+   }
 
    /* --- Event log (left column) --- */
    al_draw_filled_rounded_rectangle(8, 54, 420, 54 + MAX_LOG * 15 + 10,
@@ -430,6 +442,41 @@ int main(int argc, char **argv)
                   break;
                case ALLEGRO_KEY_B:
                   probe_flag(&d, ALLEGRO_FRAMELESS, "FRAMELESS", &frameless);
+                  break;
+               case ALLEGRO_KEY_N: {
+                  /* Presets for window constraints; 0 = unconstrained.
+                   * al_set_window_constraints stores them, then
+                   * al_apply_window_constraints pushes them to the
+                   * compositor and re-resizes (drag the window edges to
+                   * feel the clamp). */
+                  static const struct { int mnw, mnh, mxw, mxh; } presets[] = {
+                     {0, 0, 0, 0},        /* none */
+                     {320, 240, 0, 0},    /* min only */
+                     {320, 240, 800, 600},
+                     {480, 360, 1024, 768},
+                  };
+                  static int preset = 0;
+                  preset = (preset + 1) %
+                     (int)(sizeof presets / sizeof presets[0]);
+                  bool ok = al_set_window_constraints(d.display,
+                     presets[preset].mnw, presets[preset].mnh,
+                     presets[preset].mxw, presets[preset].mxh);
+                  add_log("constraints preset %d: min %dx%d max %dx%d -> %s",
+                     preset, presets[preset].mnw, presets[preset].mnh,
+                     presets[preset].mxw, presets[preset].mxh,
+                     ok ? "true" : "false");
+                  if (ok) {
+                     al_apply_window_constraints(d.display, true);
+                     d.constraints_on = true;
+                     add_log("constraints applied (drag the edges)");
+                  }
+                  break;
+               }
+               case ALLEGRO_KEY_V:
+                  d.constraints_on = !d.constraints_on;
+                  al_apply_window_constraints(d.display, d.constraints_on);
+                  add_log("constraints %s",
+                     d.constraints_on ? "applied" : "released");
                   break;
             }
             redraw = true;

@@ -670,7 +670,52 @@ static bool wldpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onof
     return ret;
 }
 
-/* Obtain a refernence to this driver. */
+static bool wldpy_set_window_constraints(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h)
+{
+    display->min_w = min_w;
+    display->min_h = min_h;
+    display->max_w = max_w;
+    display->max_h = max_h;
+    
+    return true;
+}
+
+static bool wldpy_get_window_constraints(ALLEGRO_DISPLAY *display, int *min_w, int *min_h, int *max_w, int *max_h)
+{
+    /* Is the x11 implementation supposed to allow dereferencing potentially null ptrs? */
+    if (min_w) *min_w = display->min_w;
+    if (min_h) *min_h = display->min_h;
+    if (max_w) *max_w = display->max_w;
+    if (max_h) *max_h = display->max_h;
+
+    return true;
+}
+
+static bool wldpy_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    display->use_constraints = onoff;
+
+    /* libdecor/GTK is not thread-safe, so this lock is necessary */
+    _al_mutex_lock(&system->lock);
+
+    /* Branchless... */
+    if (d->frame) {
+        libdecor_frame_set_min_content_size(d->frame, display->min_w * onoff, display->min_h * onoff);
+        libdecor_frame_set_max_content_size(d->frame, display->max_w * onoff, display->max_h * onoff);
+    } else if (d->xdg_toplevel) {
+        xdg_toplevel_set_min_size(d->xdg_toplevel, display->min_w * onoff, display->min_h * onoff);
+        xdg_toplevel_set_max_size(d->xdg_toplevel, display->max_w * onoff, display->max_h * onoff);
+    }
+
+    _al_mutex_unlock(&system->lock);
+    /* This contains an implicit call to libdecor_commit_frame which resizes */
+    al_resize_display(display, display->w, display->h);
+    wldpy_emit_display_event(display, ALLEGRO_EVENT_DISPLAY_RESIZE);
+}
+
+/* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
 {
     if (wldpy_vt.create_display)
@@ -692,6 +737,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
 
     wldpy_vt.set_window_title = wldpy_set_window_title;
     wldpy_vt.set_display_flag = wldpy_set_display_flag;
+    wldpy_vt.get_window_constraints = wldpy_get_window_constraints;
+    wldpy_vt.set_window_constraints = wldpy_set_window_constraints;
+    wldpy_vt.apply_window_constraints = wldpy_apply_window_constraints;
 
     _al_ogl_add_drawing_functions(&wldpy_vt);
 
