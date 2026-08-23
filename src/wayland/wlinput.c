@@ -58,10 +58,7 @@ typedef struct ALLEGRO_MOUSE_WAYLAND {
 
     struct wl_pointer *wl_pointer;
     struct wp_cursor_shape_device_v1 *cursor_shape;
-    ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id;
     uint32_t cursor_serial;
-    ALLEGRO_MOUSE_CURSOR_WAYLAND *custom_cursor;
-    bool cursor_hidden;
     bool installed;
 
     ALLEGRO_DISPLAY *display;    /* display the pointer is over */
@@ -456,12 +453,12 @@ static bool wl_cursor_shape_for_id(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id,
 }
 
 static void wl_mouse_apply_cursor_shape(ALLEGRO_MOUSE_WAYLAND *mouse,
-    uint32_t serial)
+    ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id, uint32_t serial)
 {
     uint32_t shape;
 
     if (mouse->cursor_shape
-        && wl_cursor_shape_for_id(mouse->cursor_id, &shape)) {
+        && wl_cursor_shape_for_id(cursor_id, &shape)) {
         wp_cursor_shape_device_v1_set_shape(mouse->cursor_shape, serial,
             shape);
     }
@@ -470,25 +467,29 @@ static void wl_mouse_apply_cursor_shape(ALLEGRO_MOUSE_WAYLAND *mouse,
 static bool wl_mouse_apply_cursor(ALLEGRO_MOUSE_WAYLAND *mouse,
     uint32_t serial)
 {
-    if (!mouse->wl_pointer)
-        return false;
+    ALLEGRO_DISPLAY_WAYLAND *display;
 
-    if (mouse->cursor_hidden) {
+    if (!mouse->wl_pointer || !mouse->display)
+        return false;
+    display = (ALLEGRO_DISPLAY_WAYLAND *)mouse->display;
+
+    if (display->cursor_hidden) {
         if (serial)
             wl_pointer_set_cursor(mouse->wl_pointer, serial, NULL, 0, 0);
         return true;
     }
 
-    if (mouse->custom_cursor) {
+    if (display->custom_cursor) {
         if (serial)
             wl_pointer_set_cursor(mouse->wl_pointer, serial,
-                mouse->custom_cursor->surface,
-                mouse->custom_cursor->x_focus, mouse->custom_cursor->y_focus);
+                display->custom_cursor->surface,
+                display->custom_cursor->x_focus,
+                display->custom_cursor->y_focus);
         return true;
     }
     if (mouse->cursor_shape) {
         if (serial)
-            wl_mouse_apply_cursor_shape(mouse, serial);
+            wl_mouse_apply_cursor_shape(mouse, display->cursor_id, serial);
         return true;
     }
 
@@ -502,8 +503,8 @@ static void wl_pointer_handle_enter(void *data, struct wl_pointer *wl_pointer,
 {
     ALLEGRO_MOUSE_WAYLAND *mouse = data;
     ALLEGRO_DISPLAY *display;
+    ALLEGRO_DISPLAY_WAYLAND *wl_display;
     (void)wl_pointer;
-    (void)serial;
 
     display = surface_to_display(surface);
     if (!display)
@@ -514,12 +515,12 @@ static void wl_pointer_handle_enter(void *data, struct wl_pointer *wl_pointer,
      * crossed from a libdecor decoration surface, which can use its own
      * resize cursor. */
     mouse->cursor_serial = serial;
-    if (mouse->cursor_id == ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE)
-        mouse->cursor_id = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
-    wl_mouse_apply_cursor(mouse, serial);
-
     mouse->display = display;
     mouse->state.display = display;
+    wl_display = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    if (wl_display->cursor_id == ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE)
+        wl_display->cursor_id = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
+    wl_mouse_apply_cursor(mouse, serial);
     mouse->state.x = wl_fixed_to_int(sx);
     mouse->state.y = wl_fixed_to_int(sy);
 
@@ -817,6 +818,8 @@ bool _al_wl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 {
     ALLEGRO_SYSTEM_WAYLAND *s =
         (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *wl_display =
+        (ALLEGRO_DISPLAY_WAYLAND *)display;
     uint32_t shape;
     bool supported;
 
@@ -827,8 +830,8 @@ bool _al_wl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
     _al_mutex_lock(&s->lock);
     supported = s->cursor_shape_manager != NULL;
     if (supported) {
-        the_mouse.cursor_id = cursor_id;
-        the_mouse.custom_cursor = NULL;
+        wl_display->cursor_id = cursor_id;
+        wl_display->custom_cursor = NULL;
         if (the_mouse.display == display)
             wl_mouse_apply_cursor(&the_mouse, the_mouse.cursor_serial);
     }
@@ -1007,12 +1010,18 @@ void _al_wl_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
         (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
     ALLEGRO_MOUSE_CURSOR_WAYLAND *wl_cursor =
         (ALLEGRO_MOUSE_CURSOR_WAYLAND *)cursor;
+    int i;
 
     _al_mutex_lock(&s->lock);
-    if (the_mouse.custom_cursor == wl_cursor) {
-        the_mouse.custom_cursor = NULL;
-        if (the_mouse.display)
-            wl_mouse_apply_cursor(&the_mouse, the_mouse.cursor_serial);
+    for (i = 0; i < (int)_al_vector_size(&s->system.displays); i++) {
+        ALLEGRO_DISPLAY_WAYLAND **slot =
+            _al_vector_ref(&s->system.displays, i);
+        ALLEGRO_DISPLAY_WAYLAND *display = *slot;
+        if (display->custom_cursor == wl_cursor) {
+            display->custom_cursor = NULL;
+            if ((ALLEGRO_DISPLAY *)display == the_mouse.display)
+                wl_mouse_apply_cursor(&the_mouse, the_mouse.cursor_serial);
+        }
     }
     if (wl_cursor->surface)
         wl_surface_destroy(wl_cursor->surface);
@@ -1033,12 +1042,14 @@ bool _al_wl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
         (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
     ALLEGRO_MOUSE_CURSOR_WAYLAND *wl_cursor =
         (ALLEGRO_MOUSE_CURSOR_WAYLAND *)cursor;
+    ALLEGRO_DISPLAY_WAYLAND *wl_display =
+        (ALLEGRO_DISPLAY_WAYLAND *)display;
 
     if (!wl_cursor || !wl_cursor->surface)
         return false;
 
     _al_mutex_lock(&s->lock);
-    the_mouse.custom_cursor = wl_cursor;
+    wl_display->custom_cursor = wl_cursor;
     if (the_mouse.display == display)
         wl_mouse_apply_cursor(&the_mouse, the_mouse.cursor_serial);
     _al_mutex_unlock(&s->lock);
@@ -1051,6 +1062,8 @@ bool _al_wl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
     ALLEGRO_SYSTEM_WAYLAND *s =
         (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *wl_display =
+        (ALLEGRO_DISPLAY_WAYLAND *)display;
     bool supported;
 
     _al_mutex_lock(&s->lock);
@@ -1059,7 +1072,7 @@ bool _al_wl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
         /* wl_pointer.set_cursor(NULL) is the protocol-defined hidden
          * cursor.  If the pointer is not focused yet, the flag is applied
          * by the next pointer-enter handler with its fresh serial. */
-        the_mouse.cursor_hidden = true;
+        wl_display->cursor_hidden = true;
         if (the_mouse.display == display)
             wl_mouse_apply_cursor(&the_mouse, the_mouse.cursor_serial);
     }
@@ -1073,14 +1086,16 @@ bool _al_wl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
     ALLEGRO_SYSTEM_WAYLAND *s =
         (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *wl_display =
+        (ALLEGRO_DISPLAY_WAYLAND *)display;
     bool supported;
 
     _al_mutex_lock(&s->lock);
     supported = the_mouse.wl_pointer != NULL
-        && (the_mouse.custom_cursor != NULL
+        && (wl_display->custom_cursor != NULL
             || the_mouse.cursor_shape != NULL);
     if (supported) {
-        the_mouse.cursor_hidden = false;
+        wl_display->cursor_hidden = false;
         if (the_mouse.display == display)
             supported = wl_mouse_apply_cursor(&the_mouse,
                 the_mouse.cursor_serial);
@@ -1088,6 +1103,70 @@ bool _al_wl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
     _al_mutex_unlock(&s->lock);
 
     return supported;
+}
+
+
+static void wl_release_keyboard(void)
+{
+    if (the_keyboard.wl_keyboard) {
+        wl_keyboard_destroy(the_keyboard.wl_keyboard);
+        the_keyboard.wl_keyboard = NULL;
+    }
+    if (the_keyboard.keymap) {
+        xkb_keymap_unref(the_keyboard.keymap);
+        the_keyboard.keymap = NULL;
+    }
+    if (the_keyboard.xkb_state) {
+        xkb_state_unref(the_keyboard.xkb_state);
+        the_keyboard.xkb_state = NULL;
+    }
+
+    the_keyboard.display = NULL;
+    the_keyboard.state.display = NULL;
+    the_keyboard.repeat_key = ALLEGRO_KEY_NONE;
+    the_keyboard.repeat_time = 0;
+    if (the_keyboard.installed) {
+        _al_event_source_lock(&the_keyboard.parent.es);
+        memset(&the_keyboard.state.__key_down__internal__, 0,
+            sizeof the_keyboard.state.__key_down__internal__);
+        _al_event_source_unlock(&the_keyboard.parent.es);
+    }
+}
+
+
+static void wl_release_pointer(void)
+{
+    ALLEGRO_DISPLAY *display = the_mouse.display;
+
+    if (display && the_mouse.installed) {
+        _al_event_source_lock(&the_mouse.parent.es);
+        if (_al_event_source_needs_to_generate_event(&the_mouse.parent.es)) {
+            ALLEGRO_EVENT event;
+            event.mouse.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
+            event.mouse.timestamp = al_get_time();
+            event.mouse.display = display;
+            event.mouse.x = the_mouse.state.x;
+            event.mouse.y = the_mouse.state.y;
+            event.mouse.button = 0;
+            event.mouse.pressure = 0.0;
+            _al_event_source_emit_event(&the_mouse.parent.es, &event);
+        }
+        _al_event_source_unlock(&the_mouse.parent.es);
+    }
+
+    if (the_mouse.cursor_shape) {
+        wp_cursor_shape_device_v1_destroy(the_mouse.cursor_shape);
+        the_mouse.cursor_shape = NULL;
+    }
+    if (the_mouse.wl_pointer) {
+        wl_pointer_destroy(the_mouse.wl_pointer);
+        the_mouse.wl_pointer = NULL;
+    }
+
+    the_mouse.display = NULL;
+    the_mouse.state.display = NULL;
+    the_mouse.state.buttons = 0;
+    the_mouse.cursor_serial = 0;
 }
 
 
@@ -1110,6 +1189,10 @@ static void seat_handle_capabilities(void *data, struct wl_seat *seat,
             ALLEGRO_INFO("wlinput: keyboard device added\n");
         }
     }
+    else if (the_keyboard.wl_keyboard) {
+        wl_release_keyboard();
+        ALLEGRO_INFO("wlinput: keyboard device removed\n");
+    }
     if (capabilities & WL_SEAT_CAPABILITY_POINTER) {
         if (!the_mouse.wl_pointer) {
             the_mouse.wl_pointer = wl_seat_get_pointer(seat);
@@ -1122,6 +1205,10 @@ static void seat_handle_capabilities(void *data, struct wl_seat *seat,
             }
             ALLEGRO_INFO("wlinput: pointer device added\n");
         }
+    }
+    else if (the_mouse.wl_pointer) {
+        wl_release_pointer();
+        ALLEGRO_INFO("wlinput: pointer device removed\n");
     }
 }
 
@@ -1149,27 +1236,12 @@ void _al_wl_seat_add(ALLEGRO_SYSTEM_WAYLAND *s, struct wl_seat *seat)
 
 void _al_wl_input_shutdown(ALLEGRO_SYSTEM_WAYLAND *s)
 {
-    (void)s;
+    wl_release_keyboard();
+    wl_release_pointer();
 
-    if (the_keyboard.wl_keyboard) {
-        wl_keyboard_destroy(the_keyboard.wl_keyboard);
-        the_keyboard.wl_keyboard = NULL;
-    }
-    if (the_keyboard.keymap) {
-        xkb_keymap_unref(the_keyboard.keymap);
-        the_keyboard.keymap = NULL;
-    }
-    if (the_keyboard.xkb_state) {
-        xkb_state_unref(the_keyboard.xkb_state);
-        the_keyboard.xkb_state = NULL;
-    }
-    if (the_mouse.wl_pointer) {
-        wl_pointer_destroy(the_mouse.wl_pointer);
-        the_mouse.wl_pointer = NULL;
-    }
-    if (the_mouse.cursor_shape) {
-        wp_cursor_shape_device_v1_destroy(the_mouse.cursor_shape);
-        the_mouse.cursor_shape = NULL;
+    if (s && s->seat) {
+        wl_seat_destroy(s->seat);
+        s->seat = NULL;
     }
 }
 
@@ -1265,7 +1337,6 @@ static bool wl_mouse_init(void)
 
     _al_event_source_init(&the_mouse.parent.es);
     memset(&the_mouse.state, 0, sizeof the_mouse.state);
-    the_mouse.cursor_id = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
     the_mouse.cursor_serial = 0;
     the_mouse.installed = true;
     return true;

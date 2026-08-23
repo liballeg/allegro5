@@ -30,6 +30,11 @@ void _al_wayland_remove_output(ALLEGRO_SYSTEM_WAYLAND *s,
 /* fullscreen and multi monitor stuff */
 int _al_wayland_get_num_video_adapters(ALLEGRO_SYSTEM_WAYLAND *s);
 int _al_wayland_get_default_adapter(ALLEGRO_SYSTEM_WAYLAND *s);
+/* Caller must hold s->lock. */
+int _al_wayland_get_output_scale_locked(ALLEGRO_SYSTEM_WAYLAND *s,
+    int adapter);
+int _al_wayland_get_output_scale_for_output_locked(
+    ALLEGRO_SYSTEM_WAYLAND *s, struct wl_output *output);
 bool _al_wayland_get_monitor_info(ALLEGRO_SYSTEM_WAYLAND *s,
     int adapter, ALLEGRO_MONITOR_INFO *info);
 

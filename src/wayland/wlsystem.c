@@ -89,6 +89,22 @@ static void registry_handle_global(void *data,
         ALLEGRO_INFO("Wayland cursor shape manager created\n");
     }
 
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (strcmp(interface, wp_fractional_scale_manager_v1_interface.name) == 0) {
+        s->fractional_scale_manager = wl_registry_bind(
+            registry, name, &wp_fractional_scale_manager_v1_interface,
+            wl_clamp_version(version, 1));
+        ALLEGRO_INFO("Wayland fractional-scale manager created\n");
+    }
+
+    if (strcmp(interface, wp_viewporter_interface.name) == 0) {
+        s->viewporter = wl_registry_bind(
+            registry, name, &wp_viewporter_interface,
+            wl_clamp_version(version, 1));
+        ALLEGRO_INFO("Wayland viewporter created\n");
+    }
+#endif
+
     if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0) {
         /* Optional: used to emulate mouse warping via a locked pointer +
          * cursor position hint (al_set_mouse_xy). */
@@ -173,6 +189,12 @@ static void wl_cleanup_initialization(ALLEGRO_SYSTEM_WAYLAND *s,
         zxdg_decoration_manager_v1_destroy(s->decoration_manager);
     if (s->cursor_shape_manager)
         wp_cursor_shape_manager_v1_destroy(s->cursor_shape_manager);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (s->fractional_scale_manager)
+        wp_fractional_scale_manager_v1_destroy(s->fractional_scale_manager);
+    if (s->viewporter)
+        wp_viewporter_destroy(s->viewporter);
+#endif
     if (s->pointer_constraints)
         zwp_pointer_constraints_v1_destroy(s->pointer_constraints);
     if (registry)
@@ -354,6 +376,14 @@ static void wl_shutdown_system(void)
     if (swl->cursor_shape_manager) {
         wp_cursor_shape_manager_v1_destroy(swl->cursor_shape_manager);
     }
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (swl->fractional_scale_manager) {
+        wp_fractional_scale_manager_v1_destroy(swl->fractional_scale_manager);
+    }
+    if (swl->viewporter) {
+        wp_viewporter_destroy(swl->viewporter);
+    }
+#endif
 
     if (swl->pointer_constraints) {
         zwp_pointer_constraints_v1_destroy(swl->pointer_constraints);

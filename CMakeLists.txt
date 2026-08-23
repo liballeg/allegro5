@@ -1052,6 +1052,18 @@ if(SUPPORT_WAYLAND)
     _wayland_generate_protocol(pointer-constraints
         ${WAYLAND_PROTOCOL_DIR}/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml)
 
+    # Fractional scaling requires both the staging fractional-scale protocol
+    # and the stable viewporter protocol. Keep this optional so older
+    # wayland-protocols packages still build the backend with integer scaling.
+    if(EXISTS ${WAYLAND_PROTOCOL_DIR}/staging/fractional-scale/fractional-scale-v1.xml
+       AND EXISTS ${WAYLAND_PROTOCOL_DIR}/stable/viewporter/viewporter.xml)
+        set(ALLEGRO_WAYLAND_FRACTIONAL_SCALE 1)
+        _wayland_generate_protocol(fractional-scale
+            ${WAYLAND_PROTOCOL_DIR}/staging/fractional-scale/fractional-scale-v1.xml)
+        _wayland_generate_protocol(viewporter
+            ${WAYLAND_PROTOCOL_DIR}/stable/viewporter/viewporter.xml)
+    endif()
+
     # cursor-shape-v1.xml refers to zwp_tablet_tool_v2.  Generate the tablet
     # protocol as well so the cursor-shape object file has its interface
     # definition at link time.

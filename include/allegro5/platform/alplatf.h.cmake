@@ -117,6 +117,9 @@
 /* Define if you need support for Wayland. */
 #cmakedefine ALLEGRO_WAYLAND
 
+/* Define if fractional-scale and viewporter protocols are available. */
+#cmakedefine ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+
 /*---------------------------------------------------------------------------*/
 
 /* Define if target platform is linux. */

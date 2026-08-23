@@ -149,6 +149,34 @@ int _al_wayland_get_default_adapter(ALLEGRO_SYSTEM_WAYLAND *s)
 }
 
 
+int _al_wayland_get_output_scale_locked(ALLEGRO_SYSTEM_WAYLAND *s,
+    int adapter)
+{
+    if (adapter >= 0 && adapter < (int)_al_vector_size(&s->outputs)) {
+        struct ALLEGRO_WL_OUTPUT *o;
+        o = *((struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&s->outputs,
+            adapter));
+        return o->scale > 0 ? o->scale : 1;
+    }
+    return 1;
+}
+
+
+int _al_wayland_get_output_scale_for_output_locked(
+    ALLEGRO_SYSTEM_WAYLAND *s, struct wl_output *output)
+{
+    int i;
+
+    for (i = 0; i < (int)_al_vector_size(&s->outputs); i++) {
+        struct ALLEGRO_WL_OUTPUT *o;
+        o = *((struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&s->outputs, i));
+        if (o->output == output)
+            return o->scale > 0 ? o->scale : 1;
+    }
+    return 1;
+}
+
+
 bool _al_wayland_get_monitor_info(ALLEGRO_SYSTEM_WAYLAND *s,
     int adapter, ALLEGRO_MONITOR_INFO *info)
 {

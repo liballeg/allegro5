@@ -26,6 +26,103 @@ static bool wldpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onof
 static bool wldpy_set_display_flag_locked(ALLEGRO_DISPLAY *display,
     int flag, bool onoff);
 
+static int wldpy_scaled_dimension(int logical, uint32_t scale_120)
+{
+    uint64_t scaled = (uint64_t)logical * scale_120 + 60;
+    return (int)(scaled / 120);
+}
+
+static void wldpy_set_scale_120_locked(ALLEGRO_DISPLAY_WAYLAND *d,
+    uint32_t scale_120)
+{
+    bool changed;
+    int buffer_scale;
+
+    if (scale_120 == 0)
+        scale_120 = 120;
+    if (!d->use_fractional_scale && d->surface
+        && wl_proxy_get_version((struct wl_proxy *)d->surface) < 3)
+        scale_120 = 120;
+    changed = d->scale_120 != scale_120;
+    d->scale_120 = scale_120;
+
+    if (d->use_fractional_scale) {
+        /* fractional-scale requires buffer_scale to remain 1; the
+         * viewporter maps the physical buffer to logical surface units. */
+        if (d->surface
+            && wl_proxy_get_version((struct wl_proxy *)d->surface) >= 3)
+            wl_surface_set_buffer_scale(d->surface, 1);
+        if (d->viewport)
+            wp_viewport_set_destination(d->viewport,
+                d->display.w, d->display.h);
+    }
+    else {
+        buffer_scale = (int)((scale_120 + 60) / 120);
+        if (buffer_scale < 1)
+            buffer_scale = 1;
+        if (d->surface
+            && wl_proxy_get_version((struct wl_proxy *)d->surface) >= 3)
+            wl_surface_set_buffer_scale(d->surface, buffer_scale);
+    }
+
+    if (d->egl_window)
+        wl_egl_window_resize(d->egl_window,
+            wldpy_scaled_dimension(d->display.w, scale_120),
+            wldpy_scaled_dimension(d->display.h, scale_120), 0, 0);
+    if (d->display.ogl_extras)
+        d->display.ogl_extras->drawable_scale = scale_120 / 120.0f;
+    if (changed)
+        d->scale_changed = true;
+}
+
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+static void wldpy_fractional_scale_preferred(void *data,
+    struct wp_fractional_scale_v1 *fractional_scale, uint32_t scale)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = data;
+    (void)fractional_scale;
+
+    d->fractional_scale_received = true;
+    ALLEGRO_DEBUG("wldpy: preferred fractional scale %u/120\n", scale);
+    wldpy_set_scale_120_locked(d, scale);
+}
+
+static const struct wp_fractional_scale_v1_listener
+    wldpy_fractional_scale_listener = {
+        .preferred_scale = wldpy_fractional_scale_preferred,
+    };
+#endif
+
+static void wldpy_surface_enter(void *data, struct wl_surface *surface,
+    struct wl_output *output)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = data;
+    ALLEGRO_SYSTEM_WAYLAND *system =
+        (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    int scale;
+
+    (void)surface;
+    scale = _al_wayland_get_output_scale_for_output_locked(system, output);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (d->use_fractional_scale && d->fractional_scale_received)
+        return;
+#endif
+    wldpy_set_scale_120_locked(d, (uint32_t)scale * 120);
+}
+
+static void wldpy_surface_leave(void *data, struct wl_surface *surface,
+    struct wl_output *output)
+{
+    (void)data;
+    (void)surface;
+    (void)output;
+}
+
+static const struct wl_surface_listener wldpy_surface_listener = {
+    .enter = wldpy_surface_enter,
+    .leave = wldpy_surface_leave,
+};
+
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial) 
 { 
     ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
@@ -175,7 +272,9 @@ static void wldpy_frame_configure(struct libdecor_frame *frame,
         /* Keep the wl_egl_window in sync wi frame commit. This comes up
          * when constraints are applied. */
         if (d->egl_window)
-            wl_egl_window_resize(d->egl_window, w, h, 0, 0);
+            wl_egl_window_resize(d->egl_window,
+                wldpy_scaled_dimension(w, d->scale_120),
+                wldpy_scaled_dimension(h, d->scale_120), 0, 0);
     }
 
     /* This is also the signal that the window is live: it wakes up the
@@ -250,6 +349,34 @@ static bool wldpy_create_display_window(ALLEGRO_SYSTEM_WAYLAND *system,
 {
     /* create the Wayland window now */
     d->surface = wl_compositor_create_surface(system->compositor);
+    if (!d->surface)
+        return false;
+
+    wl_surface_add_listener(d->surface, &wldpy_surface_listener, d);
+
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (system->fractional_scale_manager && system->viewporter) {
+        d->fractional_scale =
+            wp_fractional_scale_manager_v1_get_fractional_scale(
+                system->fractional_scale_manager, d->surface);
+        d->viewport = wp_viewporter_get_viewport(system->viewporter,
+            d->surface);
+        if (d->fractional_scale && d->viewport) {
+            d->use_fractional_scale = true;
+            wp_fractional_scale_v1_add_listener(d->fractional_scale,
+                &wldpy_fractional_scale_listener, d);
+        }
+        else {
+            if (d->fractional_scale)
+                wp_fractional_scale_v1_destroy(d->fractional_scale);
+            if (d->viewport)
+                wp_viewport_destroy(d->viewport);
+            d->fractional_scale = NULL;
+            d->viewport = NULL;
+        }
+    }
+#endif
+    wldpy_set_scale_120_locked(d, d->scale_120);
 
     if (system->decor) {
         /* Decorate the content surface with libdecor, which creates and
@@ -328,6 +455,7 @@ static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
     display->refresh_rate = al_get_new_display_refresh_rate();
     display->flags = flags;
     display->flags |= ALLEGRO_OPENGL;
+    d->cursor_id = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
 
     ALLEGRO_DEBUG("selected adapter %i\n", adapter);
     if (adapter < 0)
@@ -336,6 +464,9 @@ static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
         d->adapter = adapter;
     
     ALLEGRO_DEBUG("wldpy: selected adapter %i\n", d->adapter);
+    d->scale_120 = (uint32_t)_al_wayland_get_output_scale_locked(
+        system, d->adapter) * 120;
+    ogl->drawable_scale = d->scale_120 / 120.0f;
 
     /* Pick an EGL config for this display before creating anything. */
     _al_wlegl_config_select_visual(d);
@@ -347,7 +478,9 @@ static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
     _al_event_source_init(&display->es);
 
     if (!wldpy_create_display_window(system, d, w, h, adapter)) {
-        /* not sure what to do here */
+        ALLEGRO_ERROR("Failed to create Wayland display surface.\n");
+        wldpy_free_display(display);
+        return NULL;
     }
 
     /* Wait for the compositor to configure the surface.  The
@@ -357,10 +490,17 @@ static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
      * variable rather than dispatching the socket directly.
      * dispatching anything already queued here as well, just in case
      * the event thread is not running. */
+    ALLEGRO_TIMEOUT configure_timeout;
+    al_init_timeout(&configure_timeout, 10.0);
     while (!d->configured) {
         wl_display_dispatch_pending(system->display);
         wl_display_flush(system->display);
-        _al_cond_wait(&system->configured_cond, &system->lock);
+        if (_al_cond_timedwait(&system->configured_cond, &system->lock,
+              &configure_timeout) == -1) {
+            ALLEGRO_ERROR("Timed out waiting for Wayland surface configure.\n");
+            wldpy_free_display(display);
+            return NULL;
+        }
     }
 
     /* wl_output found after the configure wait.  The system lock is already
@@ -473,6 +613,12 @@ static void wldpy_free_display(ALLEGRO_DISPLAY *display)
         xdg_toplevel_destroy(d->xdg_toplevel);
     if (d->xdg_surface)
         xdg_surface_destroy(d->xdg_surface);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (d->fractional_scale)
+        wp_fractional_scale_v1_destroy(d->fractional_scale);
+    if (d->viewport)
+        wp_viewport_destroy(d->viewport);
+#endif
     if (d->surface)
         wl_surface_destroy(d->surface);
 
@@ -538,6 +684,21 @@ static void wldpy_flip_display(ALLEGRO_DISPLAY *display)
 {
     ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
     ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    bool scale_changed;
+
+    /* Surface enter events run on the Wayland thread. Refresh the current
+     * target's viewport on the application thread, where the GL context is
+     * current. */
+    _al_mutex_lock(&system->lock);
+    scale_changed = d->scale_changed;
+    d->scale_changed = false;
+    _al_mutex_unlock(&system->lock);
+    if (scale_changed) {
+        ALLEGRO_BITMAP *target = al_get_target_bitmap();
+        if (target && _al_get_bitmap_display(target) == display
+            && display->vt->update_transformation)
+            display->vt->update_transformation(display, target);
+    }
 
     eglSwapBuffers(system->egl_display, d->egl_surface);
 }
@@ -587,9 +748,15 @@ static void wldpy_apply_size(ALLEGRO_DISPLAY *display, int w, int h)
     }
 
     if (d->egl_window)
-        wl_egl_window_resize(d->egl_window, w, h, 0, 0);
+        wl_egl_window_resize(d->egl_window,
+            wldpy_scaled_dimension(w, d->scale_120),
+            wldpy_scaled_dimension(h, d->scale_120), 0, 0);
     if (d->xdg_surface)
         xdg_surface_set_window_geometry(d->xdg_surface, 0, 0, w, h);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (d->viewport)
+        wp_viewport_set_destination(d->viewport, w, h);
+#endif
 
     /* Tell libdecor about the new content size (also needed for
      * application-driven resizes); outside a configure callback, pass

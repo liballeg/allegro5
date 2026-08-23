@@ -6,6 +6,10 @@
 #include "allegro5/platform/cursor-shape-client-protocol.h"
 #include "allegro5/platform/xdg-shell-client-protocol.h"
 #include "allegro5/platform/pointer-constraints-client-protocol.h"
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+#include "allegro5/platform/fractional-scale-client-protocol.h"
+#include "allegro5/platform/viewporter-client-protocol.h"
+#endif
 
 /* ALLEGRO_SYSTEM with Wayland extra data */
 struct ALLEGRO_SYSTEM_WAYLAND
@@ -50,6 +54,11 @@ struct ALLEGRO_SYSTEM_WAYLAND
 
     /* core cursor-shape protocol, so we can control the pointer cursor */
     struct wp_cursor_shape_manager_v1 *cursor_shape_manager;
+
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    struct wp_fractional_scale_manager_v1 *fractional_scale_manager;
+    struct wp_viewporter *viewporter;
+#endif
 
     /* pointer-constraints: used to emulate mouse warping (set_mouse_xy) via
      * a locked pointer + cursor position hint */

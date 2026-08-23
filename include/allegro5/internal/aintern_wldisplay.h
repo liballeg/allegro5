@@ -9,6 +9,10 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_wl.h"
 
+struct ALLEGRO_MOUSE_CURSOR_WAYLAND;
+struct wp_fractional_scale_v1;
+struct wp_viewport;
+
 /* ALLEGRO_DISPLAY with Wayland-specific data */
 struct ALLEGRO_DISPLAY_WAYLAND {
     /* Needs to be first member */
@@ -41,6 +45,21 @@ struct ALLEGRO_DISPLAY_WAYLAND {
      * size before that request, used to recognise the stale event. */
     bool programmatic_resize;
     int pre_resize_w, pre_resize_h;
+
+    /* Cursor state belongs to the display, not the singleton wl_pointer.
+     * The pointer device selects these settings when it enters a surface. */
+    ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id;
+    struct ALLEGRO_MOUSE_CURSOR_WAYLAND *custom_cursor;
+    bool cursor_hidden;
+
+    /* Preferred scale is represented as scale / 120 by the fractional-scale
+     * protocol.  scale_120 is also used for integer-only compositors. */
+    uint32_t scale_120;
+    bool use_fractional_scale;
+    bool fractional_scale_received;
+    struct wp_fractional_scale_v1 *fractional_scale;
+    struct wp_viewport *viewport;
+    bool scale_changed;
 
     /* EGL/OpenGL */
     struct wl_egl_window *egl_window;

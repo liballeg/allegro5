@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
@@ -278,7 +280,9 @@ bool _al_wlegl_config_create_context(ALLEGRO_DISPLAY_WAYLAND *d)
    /* Create the wl_egl_window and the EGL surface backed by it.  The size
     * sent to the compositor is that requested at display creation; it may be
     * overridden later by xdg configure events. */
-   d->egl_window = wl_egl_window_create(d->surface, display->w, display->h);
+   d->egl_window = wl_egl_window_create(d->surface,
+      (int)((uint64_t)display->w * d->scale_120 / 120),
+      (int)((uint64_t)display->h * d->scale_120 / 120));
    if (!d->egl_window) {
       ALLEGRO_ERROR("wl_egl_window_create failed.\n");
       eglDestroyContext(system->egl_display, d->egl_context);
