@@ -23,16 +23,12 @@
  *   V          toggle constraints on/off (al_apply_window_constraints)
  *   + / -      ball speed
  *   F / X / B  feature probes: ALLEGRO_FULLSCREEN / ALLEGRO_MAXIMIZED /
- *              ALLEGRO_FRAMELESS via al_set_display_flag (reports the honest
- *              return value; the backend returns false until these are
- *              implemented)
+ *              ALLEGRO_FRAMELESS via al_set_display_flag
  *   mouse wheel also changes ball speed
  *
- * Deliberately NOT called here: al_set_mouse_cursor / al_set_system_mouse_cursor
- * / al_show_mouse_cursor / al_hide_mouse_cursor / al_create_mouse_cursor /
- * al_get_num_display_modes / al_get_display_mode -- those vtable slots are
- * still NULL in the Wayland backend and the core wrappers ASSERT or
- * dereference them (crash), so they cannot be exercised yet.
+ * Cursor creation, custom/system cursor switching, hide/show, and vsync
+ * option tests live in ex_wayland2 so this demo can stay focused on window
+ * events and display management.
  */
 
 #include <math.h>
