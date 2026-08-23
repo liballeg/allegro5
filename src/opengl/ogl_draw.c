@@ -1187,10 +1187,18 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
 
    if (target->parent) {
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_extra = target->parent->extra;
+      int scale = ogl_extra->is_backbuffer
+         && disp->ogl_extras->drawable_scale > 0
+         ? disp->ogl_extras->drawable_scale : 1;
       /* glViewport requires the bottom-left coordinate of the corner. */
-      glViewport(target->xofs, ogl_extra->true_h - (target->yofs + target->h), target->w, target->h);
+      glViewport(target->xofs * scale,
+         ogl_extra->true_h * scale
+            - (target->yofs + target->h) * scale,
+         target->w * scale, target->h * scale);
    } else {
-      glViewport(0, 0, target->w, target->h);
+      int scale = disp->ogl_extras->drawable_scale > 0
+         ? disp->ogl_extras->drawable_scale : 1;
+      glViewport(0, 0, target->w * scale, target->h * scale);
    }
 }
 
