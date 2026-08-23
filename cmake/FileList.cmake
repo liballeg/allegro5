@@ -136,6 +136,19 @@ set(ALLEGRO_SRC_X_FILES
     src/linux/ljoynu.c
     )
 
+set(ALLEGRO_SRC_WAYLAND_FILES
+    src/wayland/wldisplay.c
+    src/wayland/wleglconfig.c
+    src/wayland/wlevents.c
+    src/wayland/wlfullscreen.c
+    src/wayland/wlinput.c
+    src/wayland/wlsystem.c
+    )
+
+# The Wayland client protocol files (*-protocol.c, *-client-protocol.h) are
+# generated at build time from the system wayland-protocols package by
+# wayland-scanner (see the SUPPORT_WAYLAND block in CMakeLists.txt).
+
 set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidjoy.m
     src/macosx/hidman.m

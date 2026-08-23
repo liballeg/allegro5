@@ -112,6 +112,10 @@
 /* Define if XInput 2.2 X11 extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XINPUT2
 
+/*---------------------------------------------------------------------------*/
+
+/* Define if you need support for Wayland. */
+#cmakedefine ALLEGRO_WAYLAND
 
 /*---------------------------------------------------------------------------*/
 

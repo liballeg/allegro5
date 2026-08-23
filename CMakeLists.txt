@@ -145,6 +145,7 @@ option(WANT_X11_XF86VIDMODE "X11 XF86VidMode Extension support" on)
 option(WANT_X11_XINERAMA "X11 Xinerama Extension support" on)
 option(WANT_X11_XRANDR "X11 XRandR Extension support" on)
 option(WANT_X11_XSCREENSAVER "X11 XScreenSaver Extension support" on)
+option(WANT_WAYLAND "Wayland backend" on)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
@@ -336,6 +337,7 @@ if(MACOSX)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
     set(ALLEGRO_UNIX 0)
     set(WANT_X11 off)
+    set(WANT_WAYLAND off)
 
     # This flag is required on some versions of Mac OS X to avoid linker
     # problems with global variables which are not explicitly initialised.
@@ -349,6 +351,7 @@ if(IPHONE)
     set(ALLEGRO_UNIX 0)
     set(ALLEGRO_LITTLE_ENDIAN 1)
     set(WANT_X11 off)
+    set(WANT_WAYLAND off)
     set(GL_AUTO_BUILD_TYPE "gles2+")
     set(WANT_GLES3 yes)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
@@ -363,6 +366,7 @@ if(ANDROID)
    set(ALLEGRO_ANDROID 1)
    set(ALLEGRO_CFG_PTHREADS_TLS 1)
    set(WANT_X11 off)
+   set(WANT_WAYLAND off)
    set(GL_AUTO_BUILD_TYPE "gles2+")
 endif(ANDROID)
 
@@ -385,6 +389,7 @@ if(ALLEGRO_SDL)
    set(ALLEGRO_UNIX 0)
    set(ALLEGRO_MACOSX 0)
    set(WANT_X11 off)
+   set(WANT_WAYLAND off)
    include(FindSDL2)
    if (NOT SDL2_FOUND)
        message(FATAL_ERROR "SDL support requires SDL2 library.")
@@ -859,6 +864,58 @@ if(SUPPORT_X11)
 endif(SUPPORT_X11)
 
 #
+# Wayland
+#
+
+if (WANT_WAYLAND)
+    find_package(WAYLAND)
+    if (WAYLAND_FOUND)
+        set(SUPPORT_WAYLAND 1)
+        set(ALLEGRO_WAYLAND 1)
+
+        # Core protocol support
+        check_include_file("wayland-client.h" HAVE_WAYLAND_CLIENT_H)
+        check_include_file("wayland-cursor.h" HAVE_WAYLAND_CURSOR_H)
+        check_include_file("wayland-egl.h" HAVE_WAYLAND_EGL_H)
+
+        if(NOT HAVE_WAYLAND_CLIENT_H)
+            message(FATAL_ERROR "Wayland client headers not found.")
+        endif(NOT HAVE_WAYLAND_CLIENT_H)
+
+        check_library_exists(EGL eglCreateContext "" CAN_EGL)
+        if (CAN_EGL)
+            find_library(EGL_LIB "EGL")
+            list(APPEND WAYLAND_LIBRARIES "${EGL_LIB}")
+        endif(CAN_EGL)
+
+        # libdecor provides window decorations (client-side frames, or
+        # server-side where the compositor supports it) and takes care of
+        # the xdg-shell surface management.  It is a hard requirement of
+        # the Wayland backend.
+        find_package(PkgConfig)
+        pkg_check_modules(PKG_LIBDECOR libdecor-0)
+        if (NOT PKG_LIBDECOR_FOUND)
+            message(FATAL_ERROR "libdecor not found (package libdecor-0); it is required for the Wayland backend.")
+        endif(NOT PKG_LIBDECOR_FOUND)
+        include_directories(SYSTEM ${PKG_LIBDECOR_INCLUDE_DIRS})
+        list(APPEND WAYLAND_LIBRARIES ${PKG_LIBDECOR_LIBRARIES})
+
+        # libxkbcommon translates Wayland keymaps/keysyms to Allegro keysyms.
+        pkg_check_modules(PKG_XKBCOMMON xkbcommon)
+        if (NOT PKG_XKBCOMMON_FOUND)
+            message(FATAL_ERROR "xkbcommon not found; it is required for the Wayland backend.")
+        endif(NOT PKG_XKBCOMMON_FOUND)
+        include_directories(SYSTEM ${PKG_XKBCOMMON_INCLUDE_DIRS})
+        list(APPEND WAYLAND_LIBRARIES ${PKG_XKBCOMMON_LIBRARIES})
+
+    endif(WAYLAND_FOUND)
+endif(WANT_WAYLAND)
+
+if (SUPPORT_WAYLAND)
+    set(CMAKE_REQUIRED_LIBRARIES ${WAYLAND_LIBRARIES})
+endif(SUPPORT_WAYLAND)
+
+#
 # Windows
 #
 
@@ -945,6 +1002,65 @@ if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
 endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
+
+if(SUPPORT_WAYLAND)
+    # Generate the Wayland client protocol code from the system protocol XML
+    # files at build time.  Generated headers/sources stay in the build tree
+    # and are never committed.
+    find_program(WAYLAND_SCANNER_EXECUTABLE wayland-scanner)
+    if(NOT WAYLAND_SCANNER_EXECUTABLE)
+        message(FATAL_ERROR "wayland-scanner not found; it is required to build the Wayland backend.")
+    endif()
+
+    # Protocol XML files are provided by the wayland-protocols package rather
+    # than vendored in the source tree.
+    pkg_check_modules(PKG_WAYLAND_PROTOCOLS REQUIRED wayland-protocols)
+    pkg_get_variable(WAYLAND_PROTOCOL_DIR wayland-protocols pkgdatadir)
+    if(NOT WAYLAND_PROTOCOL_DIR)
+        message(FATAL_ERROR "Could not determine the wayland-protocols data directory.")
+    endif()
+
+    set(WAYLAND_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/wayland)
+
+    # _wayland_generate_protocol(name xml)
+    # Generates <name>-client-protocol.h (into build/include) and
+    # <name>-protocol.c (into the build dir) from the given XML.
+    function(_wayland_generate_protocol name xml)
+        set(header ${CMAKE_CURRENT_BINARY_DIR}/include/allegro5/platform/${name}-client-protocol.h)
+        set(code  ${WAYLAND_GEN_DIR}/${name}-protocol.c)
+        add_custom_command(
+            OUTPUT ${header} ${code}
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                ${CMAKE_CURRENT_BINARY_DIR}/include/allegro5/platform
+                ${WAYLAND_GEN_DIR}
+            COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" client-header "${xml}" "${header}"
+            COMMAND "${WAYLAND_SCANNER_EXECUTABLE}" private-code  "${xml}" "${code}"
+            DEPENDS "${xml}" "${WAYLAND_SCANNER_EXECUTABLE}"
+            COMMENT "Generating Wayland protocol ${name}"
+            VERBATIM
+        )
+        list(APPEND ALLEGRO_SRC_WAYLAND_FILES ${code})
+        set(ALLEGRO_SRC_WAYLAND_FILES ${ALLEGRO_SRC_WAYLAND_FILES} PARENT_SCOPE)
+    endfunction()
+
+    _wayland_generate_protocol(cursor-shape
+        ${WAYLAND_PROTOCOL_DIR}/staging/cursor-shape/cursor-shape-v1.xml)
+    _wayland_generate_protocol(xdg-shell
+        ${WAYLAND_PROTOCOL_DIR}/stable/xdg-shell/xdg-shell.xml)
+    _wayland_generate_protocol(xdg-decoration
+        ${WAYLAND_PROTOCOL_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml)
+    _wayland_generate_protocol(pointer-constraints
+        ${WAYLAND_PROTOCOL_DIR}/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml)
+
+    # cursor-shape-v1.xml refers to zwp_tablet_tool_v2.  Generate the tablet
+    # protocol as well so the cursor-shape object file has its interface
+    # definition at link time.
+    _wayland_generate_protocol(tablet-v2
+        ${WAYLAND_PROTOCOL_DIR}/unstable/tablet/tablet-unstable-v2.xml)
+
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WAYLAND_FILES})
+    list(APPEND PLATFORM_LIBS ${WAYLAND_LIBRARIES})
+endif(SUPPORT_WAYLAND)
 
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})

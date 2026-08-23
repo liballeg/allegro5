@@ -31,7 +31,7 @@
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX && !defined ALLEGRO_WAYLAND
    #include "allegro5/internal/aintern_xdisplay.h"
    #include "allegro5/internal/aintern_xsystem.h"
 #endif
@@ -499,7 +499,7 @@ static bool _ogl_is_extension_supported(const char *extension,
       }
    }
 
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX && !defined ALLEGRO_WAYLAND
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
       ALLEGRO_SYSTEM_XGLX *sys = (void*)al_get_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
@@ -769,7 +769,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    CFRelease(bundle_url);
 #endif
 
-#if defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#if defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX && !defined ALLEGRO_WAYLAND
    ALLEGRO_DEBUG("GLX Extensions:\n");
    ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
