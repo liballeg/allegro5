@@ -556,7 +556,11 @@ See also: [al_acknowledge_resize]
 When the user receives a [resize event][ALLEGRO_EVENT_DISPLAY_RESIZE]
 from a resizable display, if they wish the display to be resized they
 must call this function to let the graphics driver know that it can now
-resize the display. Returns true on success.
+resize the display. 
+On Android, resize events can be generated for
+displays not created with ALLEGRO_RESIZABLE; such events must still be
+acknowledged, or the application will hang.
+Returns true on success.
 
 Adjusts the clipping rectangle to the full size of the backbuffer. This also
 resets the backbuffers projection transform to default orthographic transform
