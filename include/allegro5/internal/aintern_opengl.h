@@ -145,7 +145,7 @@ typedef struct ALLEGRO_OGL_EXTRAS
    bool is_shared;
 
    /* Physical drawable scale; normally 1, used by Wayland HiDPI. */
-   int drawable_scale;
+   float drawable_scale;
 
    ALLEGRO_FBO_INFO fbos[ALLEGRO_MAX_OPENGL_FBOS];
 

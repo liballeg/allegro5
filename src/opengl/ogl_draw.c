@@ -29,6 +29,11 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
+static int ogl_scale_dimension(int value, float scale)
+{
+   return (int)(value * scale + 0.5f);
+}
+
 /* FIXME: For some reason x86_64 Android crashes for me when calling
  * glBlendColor - so adding this hack to disable it.
  */
@@ -1187,18 +1192,20 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
 
    if (target->parent) {
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_extra = target->parent->extra;
-      int scale = ogl_extra->is_backbuffer
-         && disp->ogl_extras->drawable_scale > 0
-         ? disp->ogl_extras->drawable_scale : 1;
+      float scale = ogl_extra->is_backbuffer
+         && disp->ogl_extras->drawable_scale > 0.0f
+         ? disp->ogl_extras->drawable_scale : 1.0f;
       /* glViewport requires the bottom-left coordinate of the corner. */
-      glViewport(target->xofs * scale,
-         ogl_extra->true_h * scale
-            - (target->yofs + target->h) * scale,
-         target->w * scale, target->h * scale);
+      glViewport(ogl_scale_dimension(target->xofs, scale),
+         ogl_scale_dimension(ogl_extra->true_h
+            - (target->yofs + target->h), scale),
+         ogl_scale_dimension(target->w, scale),
+         ogl_scale_dimension(target->h, scale));
    } else {
-      int scale = disp->ogl_extras->drawable_scale > 0
-         ? disp->ogl_extras->drawable_scale : 1;
-      glViewport(0, 0, target->w * scale, target->h * scale);
+      float scale = disp->ogl_extras->drawable_scale > 0.0f
+         ? disp->ogl_extras->drawable_scale : 1.0f;
+      glViewport(0, 0, ogl_scale_dimension(target->w, scale),
+         ogl_scale_dimension(target->h, scale));
    }
 }
 

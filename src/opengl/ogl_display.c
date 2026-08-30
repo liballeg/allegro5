@@ -33,6 +33,11 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
+static int ogl_scale_dimension(int value, float scale)
+{
+   return (int)(value * scale + 0.5f);
+}
+
 /* Helper to set up GL state as we want it. */
 void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 {
@@ -150,17 +155,19 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
       #ifdef ALLEGRO_IPHONE
       _al_iphone_clip(bitmap, x_1, y_1, x_2, y_2);
       #else
-      int scale = 1;
+      float scale = 1.0f;
       ALLEGRO_DISPLAY *display =
          _al_get_bitmap_display((ALLEGRO_BITMAP *)bitmap);
       if (display && display->ogl_extras
           && bitmap->parent && bitmap->parent->extra
           && ((ALLEGRO_BITMAP_EXTRA_OPENGL *)bitmap->parent->extra)->is_backbuffer
-          && display->ogl_extras->drawable_scale > 0)
+          && display->ogl_extras->drawable_scale > 0.0f)
          scale = display->ogl_extras->drawable_scale;
       /* OpenGL is upside down, so must adjust y_2 to the height. */
-      glScissor(x_1 * scale, (h - y_2) * scale,
-         (x_2 - x_1) * scale, (y_2 - y_1) * scale);
+      glScissor(ogl_scale_dimension(x_1, scale),
+         ogl_scale_dimension(h - y_2, scale),
+         ogl_scale_dimension(x_2 - x_1, scale),
+         ogl_scale_dimension(y_2 - y_1, scale));
       #endif
    }
 }
