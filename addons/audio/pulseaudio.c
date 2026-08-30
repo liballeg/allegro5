@@ -575,7 +575,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
    pulseaudio_allocate_recorder,
    pulseaudio_deallocate_recorder,
 
-   pulseaudio_get_output_devices
+   pulseaudio_get_output_devices,
+   NULL,
 };
 
 /* vim: set sts=3 sw=3 et: */
