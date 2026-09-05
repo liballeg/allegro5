@@ -1,6 +1,9 @@
 #ifndef __al_included_allegro5_aintern_system_h
 #define __al_included_allegro5_aintern_system_h
 
+/* For debugging. */
+#include <stdio.h>
+
 #include "allegro5/system.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_dtor.h"

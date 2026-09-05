@@ -1946,6 +1946,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    _al_win_post_create_window(display);
 
+   display->batch_index_size = sizeof(_AL_BATCH_INDEX_TYPE);
+
    return display;
 }
 
@@ -2896,6 +2898,41 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    d3d_disp->device->SetTexture(0, NULL);
 }
 
+static int d3d_prepare_batch(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *bitmap, ALLEGRO_PRIM_TYPE type, int num_new_vertices, int num_new_indices, void **vertices, void **indices)
+{
+   return _al_default_prepare_batch(disp, bitmap, type, num_new_vertices, num_new_indices, vertices, indices);
+}
+
+static void d3d_draw_batch(ALLEGRO_DISPLAY *disp)
+{
+   ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
+   if (d3d_disp->device_lost)
+      goto exit;
+
+   if (use_fixed_pipeline) {
+      if (!disp->batch_vertex_decl) {
+         const ALLEGRO_VERTEX_ELEMENT elems[] = {
+            {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
+            {_ALLEGRO_PRIM_TEX_COORD_INTERNAL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
+            {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
+            {0, 0, 0}
+         };
+         disp->batch_vertex_decl = _al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+      }
+      if (disp->batch_vertices_length > 0)
+         _al_draw_indexed_prim(disp->batch_vertices, disp->batch_vertex_decl, disp->batch_bitmap,
+            (const int*)disp->batch_indices, disp->batch_indices_length, ALLEGRO_PRIM_TRIANGLE_LIST);
+   }
+   else {
+      /* D3D buffers don't have a sufficiently efficient update API for us to use. */
+      disp->batch_use_buffers = false;
+      _al_default_draw_batch(disp);
+   }
+exit:
+   disp->batch_vertices_length = 0;
+   disp->batch_indices_length = 0;
+}
+
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
 {
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
@@ -3094,7 +3131,12 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
             if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
                mat[0][0] = 1.0f / desc.Width;
                mat[1][1] = 1.0f / desc.Height;
-            } else {
+            }
+            else if (decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL].attribute) {
+               mat[2][0] = 0.;
+               mat[2][1] = 0.;
+            }
+            else {
                mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
                mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
             }
@@ -3203,7 +3245,7 @@ static int draw_prim_common(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       stride = (decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX));
    }
 
-   if ((use_fixed_pipeline && decl) || (decl && decl->d3d_decl == 0)) {
+   if ((use_fixed_pipeline && decl && decl != disp->batch_vertex_decl) || (decl && decl->d3d_decl == 0)) {
       if(!indices)
          return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
       else
@@ -3625,6 +3667,8 @@ static bool d3d_create_vertex_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL
     e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
     if(!e->attribute)
       e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+    if(!e->attribute)
+      e = &decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL];
     if(e->attribute) {
       d3delements[idx].Stream = 0;
       d3delements[idx].Offset = e->offset;
@@ -3671,7 +3715,7 @@ static bool d3d_create_vertex_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL
   return true;
 }
 
-static bool d3d_create_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
+static bool d3d_create_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t size, int flags)
 {
    LPDIRECT3DDEVICE9 device;
    IDirect3DVertexBuffer9* d3d_vbuff;
@@ -3693,7 +3737,7 @@ static bool d3d_create_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
       fvf = 0;
    }
 
-   res = device->CreateVertexBuffer(stride * num_vertices, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
+   res = device->CreateVertexBuffer(size, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
                                     fvf, D3DPOOL_MANAGED, &d3d_vbuff, 0);
    if (res != D3D_OK) {
       ALLEGRO_WARN("CreateVertexBuffer failed: %ld.\n", res);
@@ -3702,7 +3746,7 @@ static bool d3d_create_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
 
    if (initial_data != NULL) {
       d3d_vbuff->Lock(0, 0, &locked_memory, 0);
-      memcpy(locked_memory, initial_data, stride * num_vertices);
+      memcpy(locked_memory, initial_data, size);
       d3d_vbuff->Unlock();
    }
 
@@ -3711,7 +3755,7 @@ static bool d3d_create_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    return true;
 }
 
-static bool d3d_create_index_buffer(ALLEGRO_INDEX_BUFFER* buf, const void* initial_data, size_t num_indices, int flags)
+static bool d3d_create_index_buffer(ALLEGRO_INDEX_BUFFER* buf, const void* initial_data, size_t size, int flags)
 {
    LPDIRECT3DDEVICE9 device;
    IDirect3DIndexBuffer9* d3d_ibuff;
@@ -3726,7 +3770,7 @@ static bool d3d_create_index_buffer(ALLEGRO_INDEX_BUFFER* buf, const void* initi
 
    device = al_get_d3d_device(al_get_current_display());
 
-   res = device->CreateIndexBuffer(num_indices * buf->index_size, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
+   res = device->CreateIndexBuffer(size, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
                                    buf->index_size == 4 ? D3DFMT_INDEX32 : D3DFMT_INDEX16, D3DPOOL_MANAGED, &d3d_ibuff, 0);
    if (res != D3D_OK) {
       ALLEGRO_WARN("CreateIndexBuffer failed: %ld.\n", res);
@@ -3735,7 +3779,7 @@ static bool d3d_create_index_buffer(ALLEGRO_INDEX_BUFFER* buf, const void* initi
 
    if (initial_data != NULL) {
       d3d_ibuff->Lock(0, 0, &locked_memory, 0);
-      memcpy(locked_memory, initial_data, num_indices * buf->index_size);
+      memcpy(locked_memory, initial_data, size);
       d3d_ibuff->Unlock();
    }
 
@@ -3785,12 +3829,64 @@ static void* d3d_lock_index_buffer(ALLEGRO_INDEX_BUFFER* buf)
 
 static void d3d_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf)
 {
-   ((IDirect3DVertexBuffer9*)buf->common.handle)->Unlock();
+   HRESULT res = ((IDirect3DVertexBuffer9*)buf->common.handle)->Unlock();
+   if (res != D3D_OK)
+      ALLEGRO_WARN("Unlocking vertex buffer failed: %ld.\n", res);
 }
 
 static void d3d_unlock_index_buffer(ALLEGRO_INDEX_BUFFER* buf)
 {
-   ((IDirect3DIndexBuffer9*)buf->common.handle)->Unlock();
+   HRESULT res = ((IDirect3DIndexBuffer9*)buf->common.handle)->Unlock();
+   if (res != D3D_OK)
+      ALLEGRO_WARN("Unlocking index buffer failed: %ld.\n", res);
+}
+
+static bool d3d_update_vertex_buffer(ALLEGRO_VERTEX_BUFFER *buf, const void *vertices, size_t offt, size_t length)
+{
+   void *dest;
+   IDirect3DVertexBuffer9 *d3d_buff = (IDirect3DVertexBuffer9*)buf->common.handle;
+   HRESULT res = d3d_buff->Lock((UINT)offt, (UINT)length, &dest, 0);
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("Locking vertex buffer failed: %ld.\n", res);
+      return false;
+   }
+   memcpy(dest, vertices, length);
+   res = d3d_buff->Unlock();
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("Unlocking vertex buffer failed: %ld.\n", res);
+      return false;
+   }
+   return true;
+}
+
+static bool d3d_update_index_buffer(ALLEGRO_INDEX_BUFFER *buf, const void *indices, size_t offt, size_t length)
+{
+   void *dest;
+   IDirect3DIndexBuffer9 *d3d_buff = (IDirect3DIndexBuffer9*)buf->common.handle;
+   HRESULT res = d3d_buff->Lock((UINT)offt, (UINT)length, &dest, 0);
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("Locking index buffer failed: %ld.\n", res);
+      return false;
+   }
+   memcpy(dest, indices, length);
+   res = d3d_buff->Unlock();
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("Unlocking index buffer failed: %ld.\n", res);
+      return false;
+   }
+   return true;
+}
+
+static bool d3d_resize_vertex_buffer(ALLEGRO_VERTEX_BUFFER *buf, size_t new_size)
+{
+   d3d_destroy_vertex_buffer(buf);
+   return d3d_create_vertex_buffer(buf, NULL, new_size, buf->common.flags);
+}
+
+static bool d3d_resize_index_buffer(ALLEGRO_INDEX_BUFFER *buf, size_t new_size)
+{
+   d3d_destroy_index_buffer(buf);
+   return d3d_create_index_buffer(buf, NULL, new_size, buf->common.flags);
 }
 
 /* Initialize and obtain a reference to this driver. */
@@ -3841,6 +3937,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 
    vt->flush_vertex_cache = d3d_flush_vertex_cache;
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
+   vt->prepare_batch = d3d_prepare_batch;
+   vt->draw_batch = d3d_draw_batch;
 
    vt->update_transformation = d3d_update_transformation;
 
@@ -3855,11 +3953,15 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->destroy_vertex_buffer = d3d_destroy_vertex_buffer;
    vt->lock_vertex_buffer = d3d_lock_vertex_buffer;
    vt->unlock_vertex_buffer = d3d_unlock_vertex_buffer;
+   vt->update_vertex_buffer = d3d_update_vertex_buffer;
+   vt->resize_vertex_buffer = d3d_resize_vertex_buffer;
 
    vt->create_index_buffer = d3d_create_index_buffer;
    vt->destroy_index_buffer = d3d_destroy_index_buffer;
    vt->lock_index_buffer = d3d_lock_index_buffer;
    vt->unlock_index_buffer = d3d_unlock_index_buffer;
+   vt->update_index_buffer = d3d_update_index_buffer;
+   vt->resize_index_buffer = d3d_resize_index_buffer;
 
    vt->draw_vertex_buffer = d3d_draw_vertex_buffer;
    vt->draw_indexed_buffer = d3d_draw_indexed_buffer;

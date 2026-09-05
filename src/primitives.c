@@ -161,7 +161,9 @@ ALLEGRO_VERTEX_BUFFER* _al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
    ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
    ret->common.size = num_vertices;
    ret->common.write_only = !(flags & ALLEGRO_PRIM_BUFFER_READWRITE);
+   ret->common.flags = flags;
    ret->decl = decl;
+   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
 
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
    if (flags & ALLEGRO_PRIM_BUFFER_READWRITE)
@@ -172,7 +174,7 @@ ALLEGRO_VERTEX_BUFFER* _al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
    ASSERT(disp);
    ASSERT(disp->vt);
    if (disp->vt->create_vertex_buffer) {
-      if (disp->vt->create_vertex_buffer(ret, initial_data, num_vertices, flags))
+      if (disp->vt->create_vertex_buffer(ret, initial_data, num_vertices * stride, flags))
          return ret;
    }
 
@@ -208,7 +210,7 @@ ALLEGRO_INDEX_BUFFER* _al_create_index_buffer(int index_size,
    ASSERT(disp);
    ASSERT(disp->vt);
    if (disp->vt->create_index_buffer) {
-      if (disp->vt->create_index_buffer(ret, initial_data, num_indices, flags))
+      if (disp->vt->create_index_buffer(ret, initial_data, num_indices * index_size, flags))
          return ret;
    }
 
@@ -471,6 +473,60 @@ int _al_get_index_buffer_size(ALLEGRO_INDEX_BUFFER* buffer)
 {
    ASSERT(buffer);
    return buffer->common.size;
+}
+
+bool _al_update_vertex_buffer(ALLEGRO_VERTEX_BUFFER *buffer, const void *vertices, size_t offt, size_t num_vertices)
+{
+   ASSERT(buffer);
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   int stride = buffer->decl ? buffer->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+   ASSERT(disp);
+   ASSERT(disp->vt);
+   if (disp->vt->update_vertex_buffer)
+      return disp->vt->update_vertex_buffer(buffer, vertices, offt * stride, num_vertices * stride);
+   return false;
+}
+
+bool _al_update_index_buffer(ALLEGRO_INDEX_BUFFER *buffer, const void *indices, size_t offt, size_t num_indices)
+{
+   ASSERT(buffer);
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   int stride = buffer->index_size;
+   ASSERT(disp);
+   ASSERT(disp->vt);
+   if (disp->vt->update_index_buffer)
+      return disp->vt->update_index_buffer(buffer, indices, offt * stride, num_indices * stride);
+   return false;
+}
+
+bool _al_resize_vertex_buffer(ALLEGRO_VERTEX_BUFFER *buffer, size_t new_size)
+{
+   ASSERT(buffer);
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   int stride = buffer->decl ? buffer->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+   ASSERT(disp);
+   ASSERT(disp->vt);
+   if (disp->vt->resize_vertex_buffer) {
+      bool res = disp->vt->resize_vertex_buffer(buffer, stride * new_size);
+      buffer->common.size = new_size;
+      return res;
+   }
+   return false;
+}
+
+bool _al_resize_index_buffer(ALLEGRO_INDEX_BUFFER *buffer, size_t new_size)
+{
+   ASSERT(buffer);
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   int stride = buffer->index_size;
+   ASSERT(disp);
+   ASSERT(disp->vt);
+   if (disp->vt->resize_index_buffer) {
+      bool res = disp->vt->resize_index_buffer(buffer, stride * new_size);
+      buffer->common.size = new_size;
+      return res;
+   }
+   return false;
 }
 
 /* vim: set sts=3 sw=3 et: */

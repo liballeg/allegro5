@@ -20,6 +20,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_primitives.h"
 #include "allegro5/internal/aintern_prim_soft.h"
+#include "allegro5/opengl/gl_ext.h"
 
 #ifdef ALLEGRO_ANDROID
 #include "allegro5/internal/aintern_android.h"
@@ -123,6 +124,7 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
    GLenum type;
    int ncoord;
    bool normalized;
+   ALLEGRO_OGL_EXTRAS *o = display->ogl_extras;
 
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
@@ -147,6 +149,8 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
          e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
          if(!e->attribute)
             e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+         if(!e->attribute)
+            e = &decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL];
          if(e->attribute) {
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
@@ -223,6 +227,8 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
          e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
          if(!e->attribute)
             e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+         if(!e->attribute)
+            e = &decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL];
          if(texture && e->attribute) {
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -256,100 +262,109 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
 #endif
    }
 
-   if (texture) {
-      GLuint gl_texture = al_get_opengl_texture(texture);
-      int true_w, true_h;
-      int tex_x, tex_y;
-      float mat[4][4] = {
-         {1,  0,  0, 0},
-         {0, -1,  0, 0},
-         {0,  0,  1, 0},
-         {0,  0,  0, 1}
-      };
-      int height;
+   if (texture != o->opengl_source || decl != o->opengl_decl || display->use_legacy_drawing_api) {
+      o->opengl_source = texture;
+      o->opengl_decl = decl;
+      if (texture) {
+         GLuint gl_texture = al_get_opengl_texture(texture);
+         int true_w, true_h;
+         int tex_x, tex_y;
+         float mat[4][4] = {
+            {1, 0, 0, 0},
+            {0, 1, 0, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 1}
+         };
+         int height;
 
-      if (texture->parent)
-         height = texture->parent->h;
-      else
-         height = texture->h;
+         if (texture->parent)
+            height = texture->parent->h;
+         else
+            height = texture->h;
 
-      al_get_opengl_texture_size(texture, &true_w, &true_h);
-      al_get_opengl_texture_position(texture, &tex_x, &tex_y);
+         al_get_opengl_texture_size(texture, &true_w, &true_h);
+         al_get_opengl_texture_position(texture, &tex_x, &tex_y);
 
-      mat[3][0] = (float)tex_x / true_w;
-      mat[3][1] = (float)(height - tex_y) / true_h;
+         mat[3][0] = (float)tex_x / true_w;
+         mat[3][1] = (float)(height - tex_y) / true_h;
 
-      if(decl) {
-         if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+         if (decl) {
+            if (decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+               mat[0][0] = 1.0f / true_w;
+               mat[1][1] = -1.0f / true_h;
+            }
+            else if (decl->elements[_ALLEGRO_PRIM_TEX_COORD_INTERNAL].attribute) {
+               mat[3][0] = 0.;
+               mat[3][1] = 0.;
+            }
+            else {
+               mat[0][0] = (float)al_get_bitmap_width(texture) / true_w;
+               mat[1][1] = -(float)al_get_bitmap_height(texture) / true_h;
+            }
+         } else {
             mat[0][0] = 1.0f / true_w;
             mat[1][1] = -1.0f / true_h;
-         } else {
-            mat[0][0] = (float)al_get_bitmap_width(texture) / true_w;
-            mat[1][1] = -(float)al_get_bitmap_height(texture) / true_h;
          }
-      } else {
-         mat[0][0] = 1.0f / true_w;
-         mat[1][1] = -1.0f / true_h;
-      }
 
-      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
-         glBindTexture(GL_TEXTURE_2D, gl_texture);
-      }
+         if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+            glBindTexture(GL_TEXTURE_2D, gl_texture);
+         }
 
-      ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
-      _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
+         ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
+         _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 
-      if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+         if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
-         GLint handle;
+            GLint handle;
 
-         handle = display->ogl_extras->varlocs.tex_matrix_loc;
-         if (handle >= 0)
-            glUniformMatrix4fv(handle, 1, false, (float *)mat);
+            handle = display->ogl_extras->varlocs.tex_matrix_loc;
+            if (handle >= 0)
+               glUniformMatrix4fv(handle, 1, false, (float *)mat);
 
-         handle = display->ogl_extras->varlocs.use_tex_matrix_loc;
-         if (handle >= 0)
-            glUniform1i(handle, 1);
+            handle = display->ogl_extras->varlocs.use_tex_matrix_loc;
+            if (handle >= 0)
+               glUniform1i(handle, 1);
 
-         if (display->ogl_extras->varlocs.use_tex_loc >= 0) {
-            glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 1);
+            if (display->ogl_extras->varlocs.use_tex_loc >= 0) {
+               glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 1);
+            }
+            if (display->ogl_extras->varlocs.tex_loc >= 0) {
+               glActiveTexture(GL_TEXTURE0);
+               glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
+               glUniform1i(display->ogl_extras->varlocs.tex_loc, 0); // 0th sampler
+
+               if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
+                  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+               if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
+                  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            }
+#endif
          }
-         if (display->ogl_extras->varlocs.tex_loc >= 0) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
-            glUniform1i(display->ogl_extras->varlocs.tex_loc, 0); // 0th sampler
-
+         else {
+#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
+            glMatrixMode(GL_TEXTURE);
+            glLoadMatrixf(mat[0]);
+            glMatrixMode(GL_MODELVIEW);
+            glEnable(GL_TEXTURE_2D);
             if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+#endif
          }
-#endif
-      }
-      else {
-#ifdef ALLEGRO_CFG_OPENGL_FIXED_FUNCTION
-         glMatrixMode(GL_TEXTURE);
-         glLoadMatrixf(mat[0]);
-         glMatrixMode(GL_MODELVIEW);
-         glEnable(GL_TEXTURE_2D);
-         if (wrap_u == ALLEGRO_BITMAP_WRAP_DEFAULT)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-         if (wrap_v == ALLEGRO_BITMAP_WRAP_DEFAULT)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-#endif
-      }
-   } else {
-      /* Don't unbind the texture here if shaders are used, since the user may
-       * have set the 0'th texture unit manually via the shader API. */
-      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
-         glBindTexture(GL_TEXTURE_2D, 0);
+      } else {
+         /* Don't unbind the texture here if shaders are used, since the user may
+          * have set the 0'th texture unit manually via the shader API. */
+         if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+            glBindTexture(GL_TEXTURE_2D, 0);
+         }
       }
    }
 }
 
 static void revert_state(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* texture)
 {
-   if(texture) {
+   if(texture && display->use_legacy_drawing_api) {
       ALLEGRO_BITMAP_WRAP wrap_u, wrap_v;
       _al_get_bitmap_wrap(texture, &wrap_u, &wrap_v);
 
@@ -625,11 +640,9 @@ static int ogl_draw_indexed_buffer(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
    return draw_prim_indexed_common(target, texture, vertex_buffer, NULL, vertex_buffer->decl, index_buffer, NULL, start, end, type);
 }
 
-static bool create_buffer_common(_AL_BUFFER_COMMON* common, GLenum type, const void* initial_data, GLsizeiptr size, int flags)
+static GLenum convert_buffer_flags(int flags)
 {
-   GLuint vbo;
    GLenum usage;
-
    switch (flags)
    {
 #if !defined ALLEGRO_CFG_OPENGLES
@@ -646,6 +659,13 @@ static bool create_buffer_common(_AL_BUFFER_COMMON* common, GLenum type, const v
       default:
          usage = GL_STATIC_DRAW;
    }
+   return usage;
+}
+
+static bool create_buffer_common(_AL_BUFFER_COMMON* common, GLenum type, const void* initial_data, GLsizeiptr size, int flags)
+{
+   GLuint vbo;
+   GLenum usage = convert_buffer_flags(flags);
 
    glGenBuffers(1, &vbo);
    glBindBuffer(type, vbo);
@@ -660,15 +680,14 @@ static bool create_buffer_common(_AL_BUFFER_COMMON* common, GLenum type, const v
    return true;
 }
 
-static bool ogl_create_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
+static bool ogl_create_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t size, int flags)
 {
-   int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   return create_buffer_common(&buf->common, GL_ARRAY_BUFFER, initial_data, num_vertices * stride, flags);
+   return create_buffer_common(&buf->common, GL_ARRAY_BUFFER, initial_data, size, flags);
 }
 
-static bool ogl_create_index_buffer(ALLEGRO_INDEX_BUFFER* buf, const void* initial_data, size_t num_indices, int flags)
+static bool ogl_create_index_buffer(ALLEGRO_INDEX_BUFFER* buf, const void* initial_data, size_t size, int flags)
 {
-   return create_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER, initial_data, num_indices * buf->index_size, flags);;
+   return create_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER, initial_data, size, flags);
 }
 
 static void ogl_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf)
@@ -732,6 +751,42 @@ static void ogl_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buf)
 static void ogl_unlock_index_buffer(ALLEGRO_INDEX_BUFFER* buf)
 {
    unlock_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER);
+}
+
+static bool update_buffer_common(_AL_BUFFER_COMMON* common, const void *data, size_t offt, size_t size, GLenum type)
+{
+   glBindBuffer(type, (GLuint)common->handle);
+   glBufferSubData(type, offt, size, data);
+   glBindBuffer(type, 0);
+   return true; // TODO: Error handling?
+}
+
+static bool ogl_update_vertex_buffer(ALLEGRO_VERTEX_BUFFER *buf, const void *vertices, size_t offt, size_t length)
+{
+   return update_buffer_common(&buf->common, vertices, offt, length, GL_ARRAY_BUFFER);
+}
+
+static bool ogl_update_index_buffer(ALLEGRO_INDEX_BUFFER *buf, const void *indices, size_t offt, size_t length)
+{
+   return update_buffer_common(&buf->common, indices, offt, length, GL_ELEMENT_ARRAY_BUFFER);
+}
+
+static bool resize_buffer_common(_AL_BUFFER_COMMON* common, size_t new_size, GLenum type)
+{
+   glBindBuffer(type, (GLuint)common->handle);
+   glBufferData(type, new_size, NULL, convert_buffer_flags(common->flags));
+   glBindBuffer(type, 0); // TODO: Remove
+   return true; // TODO: Error handling?
+}
+
+static bool ogl_resize_vertex_buffer(ALLEGRO_VERTEX_BUFFER *buf, size_t new_size)
+{
+   return resize_buffer_common(&buf->common, new_size, GL_ARRAY_BUFFER);
+}
+
+static bool ogl_resize_index_buffer(ALLEGRO_INDEX_BUFFER *buf, size_t new_size)
+{
+   return resize_buffer_common(&buf->common, new_size, GL_ELEMENT_ARRAY_BUFFER);
 }
 
 static void try_const_color(ALLEGRO_DISPLAY *ogl_disp, ALLEGRO_COLOR *c)
@@ -1161,6 +1216,27 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    }
 }
 
+static int ogl_prepare_batch(ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap, ALLEGRO_PRIM_TYPE type,
+      int num_new_vertices, int num_new_indices, void **vertices, void **indices)
+{
+   return _al_default_prepare_batch(disp, bitmap, type, num_new_vertices, num_new_indices, vertices, indices);
+}
+
+static void ogl_draw_batch(ALLEGRO_DISPLAY *disp)
+{
+   ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
+
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+     if (o->vao == 0) {
+        glGenVertexArrays(1, &o->vao);
+        ALLEGRO_DEBUG("new VAO: %u\n", o->vao);
+     }
+     glBindVertexArray(o->vao);
+   }
+
+   _al_default_draw_batch(disp);
+}
+
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    ALLEGRO_BITMAP *target)
 {
@@ -1217,6 +1293,9 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->draw_pixel = ogl_draw_pixel;
    vt->clear_depth_buffer = ogl_clear_depth_buffer;
 
+   vt->prepare_batch = ogl_prepare_batch;
+   vt->draw_batch = ogl_draw_batch;
+
    vt->flush_vertex_cache = ogl_flush_vertex_cache;
    vt->prepare_vertex_cache = ogl_prepare_vertex_cache;
    vt->update_transformation = ogl_update_transformation;
@@ -1228,11 +1307,15 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->destroy_vertex_buffer = ogl_destroy_vertex_buffer;
    vt->lock_vertex_buffer = ogl_lock_vertex_buffer;
    vt->unlock_vertex_buffer = ogl_unlock_vertex_buffer;
+   vt->update_vertex_buffer = ogl_update_vertex_buffer;
+   vt->resize_vertex_buffer = ogl_resize_vertex_buffer;
 
    vt->create_index_buffer = ogl_create_index_buffer;
    vt->destroy_index_buffer = ogl_destroy_index_buffer;
    vt->lock_index_buffer = ogl_lock_index_buffer;
    vt->unlock_index_buffer = ogl_unlock_index_buffer;
+   vt->update_index_buffer = ogl_update_index_buffer;
+   vt->resize_index_buffer = ogl_resize_index_buffer;
 
    vt->draw_vertex_buffer = ogl_draw_vertex_buffer;
    vt->draw_indexed_buffer = ogl_draw_indexed_buffer;
