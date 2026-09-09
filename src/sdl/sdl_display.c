@@ -352,12 +352,72 @@ static bool sdl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
    return true;
 }
 
+/* SDL has system cursors of its own (on Emscripten they become CSS cursor
+ * names), so map Allegro's to them. Created lazily and kept for the life of
+ * the process.
+ */
 static bool sdl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
       ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
+   static SDL_Cursor *cursors[ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS];
+   SDL_SystemCursor sdl_id;
    (void)display;
-   (void)cursor_id;
-   return false;
+
+   switch (cursor_id) {
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
+         sdl_id = SDL_SYSTEM_CURSOR_ARROW;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
+         sdl_id = SDL_SYSTEM_CURSOR_WAIT;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS:
+         sdl_id = SDL_SYSTEM_CURSOR_WAITARROW;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
+         sdl_id = SDL_SYSTEM_CURSOR_IBEAM;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE:
+         sdl_id = SDL_SYSTEM_CURSOR_SIZEALL;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S:
+         sdl_id = SDL_SYSTEM_CURSOR_SIZENS;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E:
+         sdl_id = SDL_SYSTEM_CURSOR_SIZEWE;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE:
+         sdl_id = SDL_SYSTEM_CURSOR_SIZENWSE;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE:
+         sdl_id = SDL_SYSTEM_CURSOR_SIZENESW;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION:
+         sdl_id = SDL_SYSTEM_CURSOR_CROSSHAIR;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT:
+         sdl_id = SDL_SYSTEM_CURSOR_HAND;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE:
+         sdl_id = SDL_SYSTEM_CURSOR_NO;
+         break;
+      default:
+         return false;
+   }
+
+   if (!cursors[cursor_id]) {
+      cursors[cursor_id] = SDL_CreateSystemCursor(sdl_id);
+      if (!cursors[cursor_id])
+         return false;
+   }
+   SDL_SetCursor(cursors[cursor_id]);
+   return true;
 }
 
 static bool sdl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
