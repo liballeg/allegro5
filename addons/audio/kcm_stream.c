@@ -732,10 +732,14 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
                   bytes - bytes_written);
                bytes_written += bw;
                maybe_unlock_mutex(stream_mutex);
+               if (bw == 0)
+                  break;
             }
          }
-         else if (bytes_written < bytes) {
-            /* Fill the rest of the fragment with silence. */
+         if (bytes_written < bytes) {
+            /* Fill the rest of the fragment with silence. This happens towards
+             * the end of non-looped streams and looped streams with zero-length
+             * loops. */
             int silence_samples = (bytes - bytes_written) /
                (al_get_channel_count(stream->spl.spl_data.chan_conf) *
                 al_get_audio_depth_size(stream->spl.spl_data.depth));
