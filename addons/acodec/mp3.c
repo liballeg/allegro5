@@ -216,22 +216,6 @@ static size_t mp3_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
             mp3file->dec.last_error);
          mp3file->error_reported = true;
       }
-      return samples_read * sizeof(mp3d_sample_t);
-   }
-   if (samples_read < samples_needed
-       && stream->spl.loop != _ALLEGRO_PLAYMODE_STREAM_ONCE) {
-      if (!mp3_stream_rewind(stream))
-         return samples_read * sizeof(mp3d_sample_t);
-      samples_read += mp3dec_ex_read(&mp3file->dec,
-         (mp3d_sample_t *)data + samples_read,
-         samples_needed - samples_read);
-      if (mp3file->dec.last_error) {
-         if (!mp3file->error_reported) {
-            ALLEGRO_WARN("MP3 stream decode failed: %d.\n",
-               mp3file->dec.last_error);
-            mp3file->error_reported = true;
-         }
-      }
    }
 
    return samples_read * sizeof(mp3d_sample_t);
