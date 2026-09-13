@@ -299,7 +299,7 @@ static bool sdl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 
 static ALLEGRO_MOUSE_CURSOR* sdl_create_mouse_cursor(ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
 {
-   SDL_Cursor *cursor;
+   SDL_Cursor *cursor = NULL;
    ALLEGRO_MOUSE_CURSOR_SDL *sdl_cursor;
 
    int w = al_get_bitmap_width(sprite);
