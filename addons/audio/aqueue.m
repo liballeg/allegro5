@@ -47,6 +47,12 @@ typedef struct ALLEGRO_AQ_DATA {
    int bits_per_sample;
    int channels;
    bool playing;
+   /* Number of live feeder threads: incremented before one starts,
+    * decremented by the thread as its last act. deallocate_voice waits for
+    * it to reach zero so no thread touches this struct after it has been
+    * freed. A counter rather than a flag, because a voice stopped and
+    * restarted within the old thread's exit window briefly has two. */
+   int threads_running;
    unsigned int buffer_size;
    unsigned char *silence;
    ALLEGRO_VOICE *voice;
@@ -320,6 +326,23 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
 static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
+
+   /* stop_voice only asks the feeder thread to exit (the queue is disposed
+    * asynchronously and the thread notices 'playing' at its next run loop
+    * timeout, up to 50ms later). Wait for it here rather than in stop_voice:
+    * stop_voice runs with the voice mutex held, and the thread's buffer
+    * callback takes that mutex, so waiting there could deadlock. This method
+    * is called without the mutex.
+    *
+    * The polling could go away if the feeder threads were created with
+    * al_create_thread instead of al_run_detached_thread, as the other
+    * drivers do: keep each thread's handle (more than one can be alive
+    * after a quick stop/start, so a list, not a single pointer) and
+    * al_join_thread them all here. */
+   while (__atomic_load_n(&ex_data->threads_running, __ATOMIC_SEQ_CST) > 0) {
+      al_rest(0.001);
+   }
+
    al_free(ex_data->silence);
    al_free(ex_data);
    voice->extra = NULL;
@@ -428,6 +451,8 @@ static void *stream_proc(void *in_data)
 
    THREAD_END
 
+   __atomic_sub_fetch(&ex_data->threads_running, 1, __ATOMIC_SEQ_CST);
+
    return NULL;
 }
 
@@ -443,6 +468,7 @@ static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
    if (voice->is_streaming && !ex_data->playing) {
       *(ALLEGRO_VOICE**)_al_vector_alloc_back(&saved_voices) = voice;
       ex_data->playing = true;
+      __atomic_add_fetch(&ex_data->threads_running, 1, __ATOMIC_SEQ_CST);
       al_run_detached_thread(stream_proc, voice);
       return 0;
    }
