@@ -8,6 +8,7 @@
  * view.  Values are filled in by the wl_output listener events. */
 struct ALLEGRO_WL_OUTPUT {
     struct wl_output *output;   /* owned proxy */
+    ALLEGRO_SYSTEM_WAYLAND *system;
     uint32_t registry_name;     /* used to match global removal */
 
     /* from geometry: position in the global compositor coordinate space */

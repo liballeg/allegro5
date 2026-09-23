@@ -55,8 +55,10 @@ static void output_scale(void *data, struct wl_output *output, int32_t factor)
     struct ALLEGRO_WL_OUTPUT *o = data;
     (void)output;
 
-    if (factor > 0)
+    if (factor > 0 && o->scale != factor) {
         o->scale = factor;
+        _al_wayland_display_output_scale_changed(o);
+    }
 }
 
 
@@ -95,6 +97,7 @@ void _al_wayland_add_output(ALLEGRO_SYSTEM_WAYLAND *s,
     struct ALLEGRO_WL_OUTPUT *o = al_calloc(1, sizeof *o);
 
     o->output = output;
+    o->system = s;
     o->registry_name = registry_name;
     o->scale = 1;
 
@@ -120,9 +123,10 @@ void _al_wayland_remove_output(ALLEGRO_SYSTEM_WAYLAND *s,
     for (i = 0; i < (int)_al_vector_size(&s->outputs); i++) {
         o = *((struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&s->outputs, i));
         if (o->registry_name == registry_name) {
+            _al_vector_delete_at(&s->outputs, i);
+            _al_wayland_display_output_removed(o);
             wl_output_destroy(o->output);
             al_free(o);
-            _al_vector_delete_at(&s->outputs, i);
             ALLEGRO_INFO("wlfullscreen: output removed\n");
             return;
         }

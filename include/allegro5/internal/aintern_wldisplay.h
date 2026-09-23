@@ -8,10 +8,12 @@
 
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_wl.h"
+#include "allegro5/internal/aintern_vector.h"
 
 struct ALLEGRO_MOUSE_CURSOR_WAYLAND;
 struct wp_fractional_scale_v1;
 struct wp_viewport;
+struct ALLEGRO_WL_OUTPUT;
 
 /* ALLEGRO_DISPLAY with Wayland-specific data */
 struct ALLEGRO_DISPLAY_WAYLAND {
@@ -60,6 +62,7 @@ struct ALLEGRO_DISPLAY_WAYLAND {
     struct wp_fractional_scale_v1 *fractional_scale;
     struct wp_viewport *viewport;
     bool scale_changed;
+    _AL_VECTOR entered_outputs; /* struct ALLEGRO_WL_OUTPUT * */
 
     /* EGL/OpenGL */
     struct wl_egl_window *egl_window;
@@ -67,5 +70,14 @@ struct ALLEGRO_DISPLAY_WAYLAND {
     EGLContext egl_context;
     EGLConfig egl_config;
 };
+
+/* Called with the Wayland system lock held by surface/output listeners. */
+void _al_wayland_display_output_enter(ALLEGRO_DISPLAY_WAYLAND *display,
+    struct wl_output *output);
+void _al_wayland_display_output_leave(ALLEGRO_DISPLAY_WAYLAND *display,
+    struct wl_output *output);
+void _al_wayland_display_output_scale_changed(
+    struct ALLEGRO_WL_OUTPUT *output);
+void _al_wayland_display_output_removed(struct ALLEGRO_WL_OUTPUT *output);
 
 #endif

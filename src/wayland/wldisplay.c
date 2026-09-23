@@ -97,31 +97,127 @@ static void wldpy_surface_enter(void *data, struct wl_surface *surface,
     struct wl_output *output)
 {
     ALLEGRO_DISPLAY_WAYLAND *d = data;
-    ALLEGRO_SYSTEM_WAYLAND *system =
-        (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
-    int scale;
-
     (void)surface;
-    scale = _al_wayland_get_output_scale_for_output_locked(system, output);
-#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
-    if (d->use_fractional_scale && d->fractional_scale_received)
-        return;
-#endif
-    wldpy_set_scale_120_locked(d, (uint32_t)scale * 120);
+    _al_wayland_display_output_enter(d, output);
 }
 
 static void wldpy_surface_leave(void *data, struct wl_surface *surface,
     struct wl_output *output)
 {
-    (void)data;
+    ALLEGRO_DISPLAY_WAYLAND *d = data;
     (void)surface;
-    (void)output;
+    _al_wayland_display_output_leave(d, output);
 }
 
 static const struct wl_surface_listener wldpy_surface_listener = {
     .enter = wldpy_surface_enter,
     .leave = wldpy_surface_leave,
 };
+
+static void wldpy_update_integer_scale_locked(ALLEGRO_DISPLAY_WAYLAND *d)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system =
+        (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    uint32_t scale = 120;
+    size_t i;
+
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (d->use_fractional_scale && d->fractional_scale_received)
+        return;
+#endif
+
+    if (_al_vector_size(&d->entered_outputs) > 0) {
+        scale = 0;
+        for (i = 0; i < _al_vector_size(&d->entered_outputs); i++) {
+            struct ALLEGRO_WL_OUTPUT *output =
+                *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(
+                    &d->entered_outputs, i);
+            uint32_t output_scale = (uint32_t)(output->scale > 0
+                ? output->scale : 1) * 120;
+            if (output_scale > scale)
+                scale = output_scale;
+        }
+    }
+    else {
+        scale = (uint32_t)_al_wayland_get_output_scale_locked(
+            system, d->adapter) * 120;
+    }
+
+    wldpy_set_scale_120_locked(d, scale);
+}
+
+void _al_wayland_display_output_enter(ALLEGRO_DISPLAY_WAYLAND *d,
+    struct wl_output *output_proxy)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system =
+        (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    size_t i;
+
+    for (i = 0; i < _al_vector_size(&system->outputs); i++) {
+        struct ALLEGRO_WL_OUTPUT *output =
+            *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&system->outputs, i);
+        if (output->output == output_proxy) {
+            struct ALLEGRO_WL_OUTPUT **slot;
+            if (!_al_vector_contains(&d->entered_outputs, &output)) {
+                slot = _al_vector_alloc_back(&d->entered_outputs);
+                *slot = output;
+            }
+            wldpy_update_integer_scale_locked(d);
+            return;
+        }
+    }
+}
+
+void _al_wayland_display_output_leave(ALLEGRO_DISPLAY_WAYLAND *d,
+    struct wl_output *output_proxy)
+{
+    size_t i;
+
+    for (i = 0; i < _al_vector_size(&d->entered_outputs); i++) {
+        struct ALLEGRO_WL_OUTPUT *output =
+            *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&d->entered_outputs, i);
+        if (output->output == output_proxy) {
+            _al_vector_delete_at(&d->entered_outputs, i);
+            break;
+        }
+    }
+    wldpy_update_integer_scale_locked(d);
+}
+
+void _al_wayland_display_output_scale_changed(struct ALLEGRO_WL_OUTPUT *output)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = output->system;
+    size_t i, j;
+
+    for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+        ALLEGRO_DISPLAY_WAYLAND *d =
+            *(ALLEGRO_DISPLAY_WAYLAND **)_al_vector_ref(
+                &system->system.displays, i);
+        for (j = 0; j < _al_vector_size(&d->entered_outputs); j++) {
+            struct ALLEGRO_WL_OUTPUT *entered =
+                *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(
+                    &d->entered_outputs, j);
+            if (entered == output) {
+                wldpy_update_integer_scale_locked(d);
+                break;
+            }
+        }
+    }
+}
+
+void _al_wayland_display_output_removed(struct ALLEGRO_WL_OUTPUT *output)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = output->system;
+    size_t i;
+
+    for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+        ALLEGRO_DISPLAY_WAYLAND *d =
+            *(ALLEGRO_DISPLAY_WAYLAND **)_al_vector_ref(
+                &system->system.displays, i);
+        if (_al_vector_find_and_delete(&d->entered_outputs, &output))
+            wldpy_update_integer_scale_locked(d);
+    }
+}
 
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial) 
 { 
@@ -456,6 +552,8 @@ static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
     display->flags = flags;
     display->flags |= ALLEGRO_OPENGL;
     d->cursor_id = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
+    _al_vector_init(&d->entered_outputs,
+        sizeof(struct ALLEGRO_WL_OUTPUT *));
 
     ALLEGRO_DEBUG("selected adapter %i\n", adapter);
     if (adapter < 0)
@@ -623,6 +721,7 @@ static void wldpy_free_display(ALLEGRO_DISPLAY *display)
         wl_surface_destroy(d->surface);
 
     _al_event_source_free(&display->es);
+    _al_vector_free(&d->entered_outputs);
 
     al_free(display->ogl_extras);
     al_free(display);
