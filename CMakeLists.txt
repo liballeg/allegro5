@@ -1071,6 +1071,13 @@ if(SUPPORT_WAYLAND)
         ${WAYLAND_PROTOCOL_DIR}/unstable/tablet/tablet-unstable-v2.xml)
 
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WAYLAND_FILES})
+    # The Linux evdev joystick and haptic drivers are normally included with
+    # the X11 sources. A Wayland-only build needs to include them separately.
+    if(NOT SUPPORT_X11 AND ALLEGRO_HAVE_LINUX_INPUT_H)
+        list(APPEND LIBRARY_SOURCES
+            src/linux/lhaptic.c
+            src/linux/ljoynu.c)
+    endif()
     list(APPEND PLATFORM_LIBS ${WAYLAND_LIBRARIES})
 endif(SUPPORT_WAYLAND)
 
