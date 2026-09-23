@@ -10,6 +10,9 @@
 #include "allegro5/platform/fractional-scale-client-protocol.h"
 #include "allegro5/platform/viewporter-client-protocol.h"
 #endif
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+#include "allegro5/platform/idle-inhibit-client-protocol.h"
+#endif
 
 /* ALLEGRO_SYSTEM with Wayland extra data */
 struct ALLEGRO_SYSTEM_WAYLAND
@@ -69,6 +72,11 @@ struct ALLEGRO_SYSTEM_WAYLAND
     uint32_t seat_registry_name;
 
     struct wl_data_device_manager *data_device_manager;
+
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    struct zwp_idle_inhibit_manager_v1 *idle_inhibit_manager;
+    bool inhibit_screensaver;
+#endif
 
     struct xkb_context *xkb_context;
 };

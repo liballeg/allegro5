@@ -473,6 +473,14 @@ static bool wldpy_create_display_window(ALLEGRO_SYSTEM_WAYLAND *system,
     }
 #endif
     wldpy_set_scale_120_locked(d, d->scale_120);
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    if (system->inhibit_screensaver && system->idle_inhibit_manager) {
+        d->idle_inhibitor = zwp_idle_inhibit_manager_v1_create_inhibitor(
+            system->idle_inhibit_manager, d->surface);
+        if (!d->idle_inhibitor)
+            ALLEGRO_WARN("Failed to inhibit Wayland idle on new display.\n");
+    }
+#endif
 
     if (system->decor) {
         /* Decorate the content surface with libdecor, which creates and
@@ -716,6 +724,10 @@ static void wldpy_free_display(ALLEGRO_DISPLAY *display)
         wp_fractional_scale_v1_destroy(d->fractional_scale);
     if (d->viewport)
         wp_viewport_destroy(d->viewport);
+#endif
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    if (d->idle_inhibitor)
+        zwp_idle_inhibitor_v1_destroy(d->idle_inhibitor);
 #endif
     if (d->surface)
         wl_surface_destroy(d->surface);

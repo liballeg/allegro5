@@ -13,6 +13,7 @@
 struct ALLEGRO_MOUSE_CURSOR_WAYLAND;
 struct wp_fractional_scale_v1;
 struct wp_viewport;
+struct zwp_idle_inhibitor_v1;
 struct ALLEGRO_WL_OUTPUT;
 
 /* ALLEGRO_DISPLAY with Wayland-specific data */
@@ -63,6 +64,9 @@ struct ALLEGRO_DISPLAY_WAYLAND {
     struct wp_viewport *viewport;
     bool scale_changed;
     _AL_VECTOR entered_outputs; /* struct ALLEGRO_WL_OUTPUT * */
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    struct zwp_idle_inhibitor_v1 *idle_inhibitor;
+#endif
 
     /* EGL/OpenGL */
     struct wl_egl_window *egl_window;

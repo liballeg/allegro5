@@ -120,6 +120,9 @@
 /* Define if fractional-scale and viewporter protocols are available. */
 #cmakedefine ALLEGRO_WAYLAND_FRACTIONAL_SCALE
 
+/* Define if the Wayland idle-inhibit protocol is available. */
+#cmakedefine ALLEGRO_WAYLAND_IDLE_INHIBIT
+
 /*---------------------------------------------------------------------------*/
 
 /* Define if target platform is linux. */

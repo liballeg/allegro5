@@ -2,6 +2,7 @@
 #include "allegro5/internal/aintern_wlsystem.h"
 #include "allegro5/internal/aintern_wlevents.h"
 #include "allegro5/internal/aintern_wlfullscreen.h"
+#include "allegro5/internal/aintern_wldisplay.h"
 #include "allegro5/internal/aintern_wlinput.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintwl.h"
@@ -88,6 +89,15 @@ static void registry_handle_global(void *data,
             wl_clamp_version(version, 2));
         ALLEGRO_INFO("Wayland cursor shape manager created\n");
     }
+
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    if (strcmp(interface, zwp_idle_inhibit_manager_v1_interface.name) == 0) {
+        s->idle_inhibit_manager = wl_registry_bind(
+            registry, name, &zwp_idle_inhibit_manager_v1_interface,
+            wl_clamp_version(version, 1));
+        ALLEGRO_INFO("Wayland idle-inhibit manager created\n");
+    }
+#endif
 
 #ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
     if (strcmp(interface, wp_fractional_scale_manager_v1_interface.name) == 0) {
@@ -193,6 +203,10 @@ static void wl_cleanup_initialization(ALLEGRO_SYSTEM_WAYLAND *s,
         zxdg_decoration_manager_v1_destroy(s->decoration_manager);
     if (s->cursor_shape_manager)
         wp_cursor_shape_manager_v1_destroy(s->cursor_shape_manager);
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    if (s->idle_inhibit_manager)
+        zwp_idle_inhibit_manager_v1_destroy(s->idle_inhibit_manager);
+#endif
 #ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
     if (s->fractional_scale_manager)
         wp_fractional_scale_manager_v1_destroy(s->fractional_scale_manager);
@@ -383,6 +397,11 @@ static void wl_shutdown_system(void)
     if (swl->cursor_shape_manager) {
         wp_cursor_shape_manager_v1_destroy(swl->cursor_shape_manager);
     }
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    if (swl->idle_inhibit_manager) {
+        zwp_idle_inhibit_manager_v1_destroy(swl->idle_inhibit_manager);
+    }
+#endif
 #ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
     if (swl->fractional_scale_manager) {
         wp_fractional_scale_manager_v1_destroy(swl->fractional_scale_manager);
@@ -471,6 +490,71 @@ static ALLEGRO_MOUSE_DRIVER *wl_get_mouse_driver(void)
 }
 
 
+static bool wl_inhibit_screensaver(bool inhibit)
+{
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    ALLEGRO_SYSTEM_WAYLAND *system =
+        (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    size_t i;
+
+    _al_mutex_lock(&system->lock);
+    if (!system->idle_inhibit_manager) {
+        _al_mutex_unlock(&system->lock);
+        return false;
+    }
+    if (system->inhibit_screensaver == inhibit) {
+        _al_mutex_unlock(&system->lock);
+        return true;
+    }
+
+    if (inhibit) {
+        for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+            ALLEGRO_DISPLAY_WAYLAND *d =
+                *(ALLEGRO_DISPLAY_WAYLAND **)_al_vector_ref(
+                    &system->system.displays, i);
+            if (!d->idle_inhibitor && d->surface) {
+                d->idle_inhibitor = zwp_idle_inhibit_manager_v1_create_inhibitor(
+                    system->idle_inhibit_manager, d->surface);
+                if (!d->idle_inhibitor) {
+                    size_t j;
+                    for (j = 0; j < i; j++) {
+                        ALLEGRO_DISPLAY_WAYLAND *created =
+                            *(ALLEGRO_DISPLAY_WAYLAND **)_al_vector_ref(
+                                &system->system.displays, j);
+                        if (created->idle_inhibitor) {
+                            zwp_idle_inhibitor_v1_destroy(
+                                created->idle_inhibitor);
+                            created->idle_inhibitor = NULL;
+                        }
+                    }
+                    _al_mutex_unlock(&system->lock);
+                    return false;
+                }
+            }
+        }
+        system->inhibit_screensaver = true;
+    }
+    else {
+        for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+            ALLEGRO_DISPLAY_WAYLAND *d =
+                *(ALLEGRO_DISPLAY_WAYLAND **)_al_vector_ref(
+                    &system->system.displays, i);
+            if (d->idle_inhibitor) {
+                zwp_idle_inhibitor_v1_destroy(d->idle_inhibitor);
+                d->idle_inhibitor = NULL;
+            }
+        }
+        system->inhibit_screensaver = false;
+    }
+    _al_mutex_unlock(&system->lock);
+    return true;
+#else
+    (void)inhibit;
+    return false;
+#endif
+}
+
+
 static ALLEGRO_JOYSTICK_DRIVER *wl_get_joystick_driver(void)
 {
     return _al_joystick_driver_list[0].driver;
@@ -501,6 +585,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_wayland_driver(void)
     wl_vt->get_mouse_driver = wl_get_mouse_driver;
     wl_vt->get_joystick_driver = wl_get_joystick_driver;
     wl_vt->get_haptic_driver = wl_get_haptic_driver;
+    wl_vt->inhibit_screensaver = wl_inhibit_screensaver;
     wl_vt->shutdown_system = wl_shutdown_system;
     wl_vt->create_mouse_cursor = _al_wl_create_mouse_cursor;
     wl_vt->destroy_mouse_cursor = _al_wl_destroy_mouse_cursor;

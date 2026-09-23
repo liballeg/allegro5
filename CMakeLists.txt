@@ -1052,6 +1052,12 @@ if(SUPPORT_WAYLAND)
     _wayland_generate_protocol(pointer-constraints
         ${WAYLAND_PROTOCOL_DIR}/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml)
 
+    if(EXISTS "${WAYLAND_PROTOCOL_DIR}/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml")
+        set(ALLEGRO_WAYLAND_IDLE_INHIBIT 1)
+        _wayland_generate_protocol(idle-inhibit
+            ${WAYLAND_PROTOCOL_DIR}/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml)
+    endif()
+
     # Fractional scaling requires both the staging fractional-scale protocol
     # and the stable viewporter protocol. Keep this optional so older
     # wayland-protocols packages still build the backend with integer scaling.
