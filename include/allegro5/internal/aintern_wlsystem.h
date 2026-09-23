@@ -28,6 +28,7 @@ struct ALLEGRO_SYSTEM_WAYLAND
 
     /* OpenGL stuff */
     EGLDisplay egl_display;
+    bool egl_initialized;
 
     /* for events */
     bool have_wlevents_thread;
@@ -65,6 +66,7 @@ struct ALLEGRO_SYSTEM_WAYLAND
     struct zwp_pointer_constraints_v1 *pointer_constraints;
 
     struct wl_seat *seat;
+    uint32_t seat_registry_name;
 
     struct wl_data_device_manager *data_device_manager;
 

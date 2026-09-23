@@ -1227,10 +1227,24 @@ static const struct wl_seat_listener seat_listener = {
 };
 
 
-void _al_wl_seat_add(ALLEGRO_SYSTEM_WAYLAND *s, struct wl_seat *seat)
+void _al_wl_seat_add(ALLEGRO_SYSTEM_WAYLAND *s, struct wl_seat *seat,
+    uint32_t registry_name)
 {
+    if (s->seat) {
+        /* This backend currently exposes one keyboard and pointer device. */
+        wl_seat_destroy(seat);
+        return;
+    }
     s->seat = seat;
+    s->seat_registry_name = registry_name;
     wl_seat_add_listener(seat, &seat_listener, s);
+}
+
+
+void _al_wl_seat_remove(ALLEGRO_SYSTEM_WAYLAND *s, uint32_t registry_name)
+{
+    if (s && s->seat && s->seat_registry_name == registry_name)
+        _al_wl_input_shutdown(s);
 }
 
 
@@ -1242,6 +1256,7 @@ void _al_wl_input_shutdown(ALLEGRO_SYSTEM_WAYLAND *s)
     if (s && s->seat) {
         wl_seat_destroy(s->seat);
         s->seat = NULL;
+        s->seat_registry_name = 0;
     }
 }
 

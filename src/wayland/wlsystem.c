@@ -79,7 +79,7 @@ static void registry_handle_global(void *data,
             registry, name, &wl_seat_interface,
             wl_clamp_version(version, 8));
         if (seat)
-            _al_wl_seat_add(s, seat);
+            _al_wl_seat_add(s, seat, name);
     }
 
     if (strcmp(interface, wp_cursor_shape_manager_v1_interface.name) == 0) {
@@ -150,8 +150,8 @@ static void registry_handle_global_remove(void *data, struct wl_registry *regist
 	ALLEGRO_SYSTEM_WAYLAND *s = data;
     (void)registry;
 
-    /* Only outputs are tracked at the moment. */
     _al_wayland_remove_output(s, name);
+    _al_wl_seat_remove(s, name);
 }
 
 static const struct wl_registry_listener registry_listener = {
@@ -159,7 +159,7 @@ static const struct wl_registry_listener registry_listener = {
 	.global_remove = registry_handle_global_remove,
 };
 
-/* Cleanup for failures before the event thread and EGL/libdecor are started. */
+/* Cleanup for failures before the event thread is started. */
 static void wl_cleanup_initialization(ALLEGRO_SYSTEM_WAYLAND *s,
     struct wl_display *display, struct wl_registry *registry)
 {
@@ -179,6 +179,10 @@ static void wl_cleanup_initialization(ALLEGRO_SYSTEM_WAYLAND *s,
     }
     _al_vector_free(&s->outputs);
 
+    if (s->decor)
+        libdecor_unref(s->decor);
+    if (s->egl_initialized)
+        eglTerminate(s->egl_display);
     if (s->shm)
         wl_shm_destroy(s->shm);
     if (s->compositor)
@@ -271,17 +275,16 @@ static ALLEGRO_SYSTEM *wl_initialize(int flags) {
     s->egl_display = eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_EXT, display, NULL);
     if (s->egl_display == EGL_NO_DISPLAY) {
         ALLEGRO_ERROR("eglGetPlatformDisplay failed: %#x\n", eglGetError());
-        wl_display_disconnect(display);
-        al_free(s);
+        wl_cleanup_initialization(s, display, registry);
         return NULL;
     }
 
     if (!eglInitialize(s->egl_display, &major, &minor)) {
         ALLEGRO_ERROR("eglInitialize failed: %#x\n", eglGetError());
-        wl_display_disconnect(display);
-        al_free(s);
+        wl_cleanup_initialization(s, display, registry);
         return NULL;
     }
+    s->egl_initialized = true;
     ALLEGRO_INFO("Initialized EGL %d.%d on Wayland\n", major, minor);
 
     /* libdecor provides window decorations and manages the xdg-shell
@@ -294,7 +297,11 @@ static ALLEGRO_SYSTEM *wl_initialize(int flags) {
         /* Let libdecor finish its startup handshake (it needs an event
          * roundtrip for its internal sync callback) before any window
          * is created. */
-        wl_display_roundtrip(display);
+        if (wl_display_roundtrip(display) < 0) {
+            ALLEGRO_ERROR("Wayland libdecor startup roundtrip failed.\n");
+            wl_cleanup_initialization(s, display, registry);
+            return NULL;
+        }
     }
     else {
         ALLEGRO_WARN("libdecor failed to initialise; "
@@ -398,8 +405,9 @@ static void wl_shutdown_system(void)
         wl_registry_destroy(swl->registry);
     }
 
-    if (swl->egl_display != EGL_NO_DISPLAY) {
+    if (swl->egl_initialized) {
         eglTerminate(swl->egl_display);
+        swl->egl_initialized = false;
     }
 
     if (swl->display) {

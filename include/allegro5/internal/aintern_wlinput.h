@@ -18,7 +18,9 @@ typedef struct ALLEGRO_MOUSE_CURSOR_WAYLAND {
 } ALLEGRO_MOUSE_CURSOR_WAYLAND;
 
 /* Called from the registry handler when a wl_seat global appears. */
-void _al_wl_seat_add(ALLEGRO_SYSTEM_WAYLAND *s, struct wl_seat *seat);
+void _al_wl_seat_add(ALLEGRO_SYSTEM_WAYLAND *s, struct wl_seat *seat,
+    uint32_t registry_name);
+void _al_wl_seat_remove(ALLEGRO_SYSTEM_WAYLAND *s, uint32_t registry_name);
 
 /* Destroys the seat and its keyboard/pointer objects. */
 void _al_wl_input_shutdown(ALLEGRO_SYSTEM_WAYLAND *s);
