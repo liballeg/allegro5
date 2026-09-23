@@ -471,6 +471,18 @@ static ALLEGRO_MOUSE_DRIVER *wl_get_mouse_driver(void)
 }
 
 
+static ALLEGRO_JOYSTICK_DRIVER *wl_get_joystick_driver(void)
+{
+    return _al_joystick_driver_list[0].driver;
+}
+
+
+static ALLEGRO_HAPTIC_DRIVER *wl_get_haptic_driver(void)
+{
+    return _al_haptic_driver_list[0].driver;
+}
+
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_wayland_driver(void)
 {
@@ -487,6 +499,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_wayland_driver(void)
     wl_vt->get_display_mode = wl_get_display_mode;
     wl_vt->get_keyboard_driver = wl_get_keyboard_driver;
     wl_vt->get_mouse_driver = wl_get_mouse_driver;
+    wl_vt->get_joystick_driver = wl_get_joystick_driver;
+    wl_vt->get_haptic_driver = wl_get_haptic_driver;
     wl_vt->shutdown_system = wl_shutdown_system;
     wl_vt->create_mouse_cursor = _al_wl_create_mouse_cursor;
     wl_vt->destroy_mouse_cursor = _al_wl_destroy_mouse_cursor;
