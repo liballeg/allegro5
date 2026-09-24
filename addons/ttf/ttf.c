@@ -464,7 +464,7 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
     // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
 
     ft_load_flags = FT_LOAD_RENDER;
-    if (face->num_fixed_sizes) {
+    if (!FT_IS_SCALABLE(face) && face->num_fixed_sizes) {
        // This is a bitmap font with fixed sizes, let's load them in
        // color if available.
        ft_load_flags |= FT_LOAD_COLOR;
@@ -982,13 +982,10 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     }
     al_destroy_path(path);
 
-    if (face->num_fixed_sizes) {
-        // TODO: we always pick the first size
-        FT_Select_Size(face, 0);
-    } else if (h > 0) {
+    if (FT_IS_SCALABLE(face) && h > 0) {
        FT_Set_Pixel_Sizes(face, w, h);
     }
-    else {
+    else if (FT_IS_SCALABLE(face)) {
        /* Set the "real dimension" of the font to be the passed size,
         * in pixels.
         */
@@ -1001,6 +998,10 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
        req.horiResolution = 0;
        req.vertResolution = 0;
        FT_Request_Size(face, &req);
+    }
+    else if (face->num_fixed_sizes) {
+       // Bitmap-only font: use its first available fixed strike.
+       FT_Select_Size(face, 0);
     }
 
     ALLEGRO_DEBUG("Font %s loaded with pixel size %d x %d.\n", filename,
