@@ -32,12 +32,10 @@ struct _AL_MUTEX
 
 struct _AL_COND
 {
-   long nWaitersBlocked;
-   long nWaitersGone;
-   long nWaitersToUnblock;
-   HANDLE semBlockQueue;
-   CRITICAL_SECTION semBlockLock;
-   CRITICAL_SECTION mtxUnblockLock;
+   /* A CONDITION_VARIABLE, spelled via winnt.h so this header still builds
+    * in files that pin _WIN32_WINNT below Vista.
+    */
+   RTL_CONDITION_VARIABLE cv;
 };
 
 typedef struct ALLEGRO_TIMEOUT_WIN ALLEGRO_TIMEOUT_WIN;
