@@ -173,6 +173,10 @@ AL_FUNC(int, al_get_display_option, (ALLEGRO_DISPLAY *display, int option));
 /*Deferred drawing*/
 AL_FUNC(void, al_hold_bitmap_drawing, (bool hold));
 AL_FUNC(bool, al_is_bitmap_drawing_held, (void));
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
+AL_FUNC(void, al_hold_drawing, (bool hold, int flags));
+AL_FUNC(bool, al_is_drawing_held, (void));
+#endif
 
 /* Miscellaneous */
 AL_FUNC(void, al_acknowledge_drawing_halt, (ALLEGRO_DISPLAY *display));

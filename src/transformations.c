@@ -45,6 +45,9 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
    if (!target)
       return;
 
+   if (al_is_drawing_held())
+      return;
+
    /* Changes to a back buffer should affect the front buffer, and vice versa.
     * Currently we rely on the fact that in the OpenGL drivers the back buffer
     * and front buffer bitmaps are exactly the same, and the DirectX driver
@@ -432,23 +435,11 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
 void al_transform_coordinates_3d(const ALLEGRO_TRANSFORM *trans,
    float *x, float *y, float *z)
 {
-   float rx, ry, rz;
    ASSERT(trans);
    ASSERT(x);
    ASSERT(y);
    ASSERT(z);
-
-   #define M(i, j) trans->m[i][j]
-
-   rx = M(0, 0) * *x + M(1, 0) * *y + M(2, 0) * *z + M(3, 0);
-   ry = M(0, 1) * *x + M(1, 1) * *y + M(2, 1) * *z + M(3, 1);
-   rz = M(0, 2) * *x + M(1, 2) * *y + M(2, 2) * *z + M(3, 2);
-
-   #undef M
-
-   *x = rx;
-   *y = ry;
-   *z = rz;
+   _al_transform_coordinates_3d(trans, x, y, z);
 }
 
 /* Function: al_transform_coordinates_4d

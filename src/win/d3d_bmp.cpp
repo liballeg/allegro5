@@ -26,6 +26,7 @@
 #include "allegro5/internal/aintern_memblit.h"
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_transform.h"
 #include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
 #include "allegro5/platform/aintwin.h"
 
@@ -129,9 +130,9 @@ void _al_d3d_bmp_destroy(void)
    vt = NULL;
 }
 
-static INLINE void transform_vertex(float* x, float* y, float* z)
+static INLINE void transform_vertex(const ALLEGRO_TRANSFORM *trans, float* x, float* y, float* z)
 {
-   al_transform_coordinates_3d(al_get_current_transform(), x, y, z);
+   _al_transform_coordinates_3d(trans, x, y, z);
 }
 
 /*
@@ -213,10 +214,11 @@ static void d3d_draw_textured_quad(
    vertices[5].v = tv_end; \
 \
    if (aldisp->cache_enabled) { \
-      transform_vertex(&vertices[0].x, &vertices[0].y, &vertices[0].z); \
-      transform_vertex(&vertices[1].x, &vertices[1].y, &vertices[1].z); \
-      transform_vertex(&vertices[2].x, &vertices[2].y, &vertices[2].z); \
-      transform_vertex(&vertices[5].x, &vertices[5].y, &vertices[5].z); \
+      const ALLEGRO_TRANSFORM *trans = al_get_current_transform(); \
+      transform_vertex(trans, &vertices[0].x, &vertices[0].y, &vertices[0].z); \
+      transform_vertex(trans, &vertices[1].x, &vertices[1].y, &vertices[1].z); \
+      transform_vertex(trans, &vertices[2].x, &vertices[2].y, &vertices[2].z); \
+      transform_vertex(trans, &vertices[5].x, &vertices[5].y, &vertices[5].z); \
    } \
     \
    vertices[3] = vertices[0]; \
@@ -235,6 +237,103 @@ static void d3d_draw_textured_quad(
 
    if (!aldisp->cache_enabled)
       aldisp->vt->flush_vertex_cache(aldisp);
+}
+
+static void d3d_draw_textured_quad_new(
+   ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap, const ALLEGRO_TRANSFORM *trans, ALLEGRO_COLOR tint,
+   float sx, float sy, float sw, float sh, int flags)
+{
+   float tex_l, tex_t, tex_r, tex_b;
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bitmap = get_extra(bitmap);
+   ALLEGRO_VERTEX *vtx;
+   _AL_BATCH_INDEX_TYPE *idx;
+
+   (void)flags;
+
+   int first_idx;
+   bool use_indices = (disp->cache_enabled || disp->batch_enabled) && disp->batch_use_indices;
+   if (use_indices)
+      first_idx = disp->vt->prepare_batch(disp, bitmap,
+            ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
+   else
+      first_idx = disp->vt->prepare_batch(disp, bitmap,
+            ALLEGRO_PRIM_TRIANGLE_LIST, 6, 0, (void**)&vtx, (void**)&idx);
+   if (first_idx < 0)
+      return;
+
+   float texture_w = d3d_bitmap->texture_w;
+   float texture_h = d3d_bitmap->texture_h;
+
+   tex_l = sx / texture_w;
+   tex_t = sy / texture_h;
+   tex_r = (sx + sw) / texture_w;
+   tex_b = (sy + sh) / texture_h;
+
+   vtx[0].x = 0;
+   vtx[0].y = sh;
+   vtx[0].z = 0;
+   vtx[0].u = tex_l;
+   vtx[0].v = tex_b;
+   vtx[0].color = tint;
+
+   vtx[1].x = 0;
+   vtx[1].y = 0;
+   vtx[1].z = 0;
+   vtx[1].u = tex_l;
+   vtx[1].v = tex_t;
+   vtx[1].color = tint;
+
+   vtx[2].x = sw;
+   vtx[2].y = sh;
+   vtx[2].z = 0;
+   vtx[2].u = tex_r;
+   vtx[2].v = tex_b;
+   vtx[2].color = tint;
+
+   if (use_indices) {
+      vtx[3].x = sw;
+      vtx[3].y = 0;
+      vtx[3].z = 0;
+      vtx[3].u = tex_r;
+      vtx[3].v = tex_t;
+      vtx[3].color = tint;
+   }
+   else {
+      vtx[4].x = sw;
+      vtx[4].y = 0;
+      vtx[4].z = 0;
+      vtx[4].u = tex_r;
+      vtx[4].v = tex_t;
+      vtx[4].color = tint;
+   }
+
+   if (trans == NULL) {
+      trans = al_get_current_transform();
+   }
+   transform_vertex(trans, &vtx[0].x, &vtx[0].y, &vtx[0].z);
+   transform_vertex(trans, &vtx[1].x, &vtx[1].y, &vtx[1].z);
+   transform_vertex(trans, &vtx[2].x, &vtx[2].y, &vtx[2].z);
+   if (use_indices)
+      transform_vertex(trans, &vtx[3].x, &vtx[3].y, &vtx[3].z);
+   else
+      transform_vertex(trans, &vtx[4].x, &vtx[4].y, &vtx[4].z);
+
+   if (use_indices) {
+      idx[0] = first_idx + 0;
+      idx[1] = first_idx + 1;
+      idx[2] = first_idx + 2;
+      idx[3] = first_idx + 1;
+      idx[4] = first_idx + 3;
+      idx[5] = first_idx + 2;
+   }
+   else {
+      vtx[3] = vtx[1];
+      vtx[5] = vtx[2];
+   }
+
+   if (!disp->cache_enabled && !disp->batch_enabled) {
+      disp->vt->draw_batch(disp);
+   }
 }
 
 /* Copy texture memory to bitmap->memory */
@@ -728,6 +827,7 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
 static void d3d_draw_bitmap_region(
    ALLEGRO_BITMAP *src,
+   ALLEGRO_TRANSFORM *local_trans,
    ALLEGRO_COLOR tint,
    float sx, float sy, float sw, float sh, int flags)
 {
@@ -738,7 +838,7 @@ static void d3d_draw_bitmap_region(
    ASSERT(src->parent == NULL);
 
    if (!_al_d3d_render_to_texture_supported()) {
-      _al_draw_bitmap_region_memory(src, tint,
+      _al_draw_bitmap_region_memory(src, local_trans, tint,
          (int)sx, (int)sy, (int)sw, (int)sh, 0, 0,
          (int)flags);
       return;
@@ -803,7 +903,7 @@ static void d3d_draw_bitmap_region(
          al_get_bitmap_flags(src)
       );
       if (tmp_bmp) {
-         d3d_draw_bitmap_region(tmp_bmp, tint,
+         d3d_draw_bitmap_region(tmp_bmp, local_trans, tint,
             sx, sy, sw, sh, flags);
          al_destroy_bitmap(tmp_bmp);
          if (desc.MultiSampleType != D3DMULTISAMPLE_NONE) {
@@ -815,9 +915,17 @@ static void d3d_draw_bitmap_region(
 
    _al_d3d_set_blender(d3d_dest->display);
 
-   d3d_draw_textured_quad(
-      d3d_dest->display, src, tint,
-      sx, sy, sw, sh, flags);
+   ALLEGRO_DISPLAY* al_disp = (ALLEGRO_DISPLAY*)d3d_dest->display;
+   if (al_disp->use_legacy_drawing_api) {
+      d3d_draw_textured_quad(
+         d3d_dest->display, src, tint,
+         sx, sy, sw, sh, flags);
+   }
+   else {
+      d3d_draw_textured_quad_new(
+         al_disp, src, local_trans, tint,
+         sx, sy, sw, sh, flags);
+   }
 }
 
 static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
