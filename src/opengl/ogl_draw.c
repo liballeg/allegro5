@@ -339,9 +339,7 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
 #endif
       }
    } else {
-      /* Don't unbind the texture here if shaders are used, since the user may
-       * have set the 0'th texture unit manually via the shader API. */
-      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) || display->ogl_extras->clear_texture_unit_0) {
          glBindTexture(GL_TEXTURE_2D, 0);
       }
    }
