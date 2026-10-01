@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro5_aintern_opengl_h
 #define __al_included_allegro5_aintern_opengl_h
 
+#include <stdint.h>
+
 #include "allegro5/opengl/gl_ext.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
@@ -143,6 +145,11 @@ typedef struct ALLEGRO_OGL_EXTRAS
 
    /* True if display resources are shared among displays. */
    bool is_shared;
+
+#ifdef ALLEGRO_WAYLAND
+   /* Atomic 120ths of a scale factor, updated by the Wayland event thread. */
+   volatile uint32_t drawable_scale_120;
+#endif
 
    ALLEGRO_FBO_INFO fbos[ALLEGRO_MAX_OPENGL_FBOS];
 
