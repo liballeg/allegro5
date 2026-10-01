@@ -280,9 +280,13 @@ bool _al_wlegl_config_create_context(ALLEGRO_DISPLAY_WAYLAND *d)
    /* Create the wl_egl_window and the EGL surface backed by it.  The size
     * sent to the compositor is that requested at display creation; it may be
     * overridden later by xdg configure events. */
+   uint32_t scale_120 = __sync_val_compare_and_swap(
+      &display->ogl_extras->drawable_scale_120, 0, 0);
+   if (scale_120 == 0)
+      scale_120 = 120;
    d->egl_window = wl_egl_window_create(d->surface,
-      (int)((uint64_t)display->w * d->scale_120 / 120),
-      (int)((uint64_t)display->h * d->scale_120 / 120));
+      (int)(((uint64_t)display->w * scale_120 + 60) / 120),
+      (int)(((uint64_t)display->h * scale_120 + 60) / 120));
    if (!d->egl_window) {
       ALLEGRO_ERROR("wl_egl_window_create failed.\n");
       eglDestroyContext(system->egl_display, d->egl_context);

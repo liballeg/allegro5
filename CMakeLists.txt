@@ -1312,6 +1312,7 @@ endif(WANT_EXAMPLES)
 #-----------------------------------------------------------------------------#
 
 if(WANT_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif(WANT_TESTS)
 

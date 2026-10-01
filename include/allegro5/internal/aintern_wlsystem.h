@@ -14,6 +14,8 @@
 #include "allegro5/platform/idle-inhibit-client-protocol.h"
 #endif
 
+struct ALLEGRO_WL_CLIPBOARD_TRANSFER;
+
 /* ALLEGRO_SYSTEM with Wayland extra data */
 struct ALLEGRO_SYSTEM_WAYLAND
 {
@@ -72,6 +74,13 @@ struct ALLEGRO_SYSTEM_WAYLAND
     uint32_t seat_registry_name;
 
     struct wl_data_device_manager *data_device_manager;
+    uint32_t data_device_manager_registry_name;
+    struct wl_data_device *data_device;
+    void *clipboard_source_state;
+    struct ALLEGRO_WL_CLIPBOARD_TRANSFER *clipboard_transfers;
+    void *clipboard_offer;
+    void *pending_clipboard_offer;
+    uint32_t input_serial;
 
 #ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
     struct zwp_idle_inhibit_manager_v1 *idle_inhibit_manager;

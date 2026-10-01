@@ -83,5 +83,6 @@ void _al_wayland_display_output_leave(ALLEGRO_DISPLAY_WAYLAND *display,
 void _al_wayland_display_output_scale_changed(
     struct ALLEGRO_WL_OUTPUT *output);
 void _al_wayland_display_output_removed(struct ALLEGRO_WL_OUTPUT *output);
+float _al_wl_get_drawable_scale(ALLEGRO_DISPLAY *display);
 
 #endif

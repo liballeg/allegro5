@@ -9,6 +9,7 @@
 #include "allegro5/internal/aintern_wlfullscreen.h"
 #include "allegro5/internal/aintern_wlinput.h"
 #include "allegro5/internal/aintern_wlsystem.h"
+#include "allegro5/internal/aintern_wlclipboard.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/platform/aintwl.h"
 #include "allegro5/platform/xdg-decoration-client-protocol.h"
@@ -45,6 +46,9 @@ static void wldpy_set_scale_120_locked(ALLEGRO_DISPLAY_WAYLAND *d,
         scale_120 = 120;
     changed = d->scale_120 != scale_120;
     d->scale_120 = scale_120;
+    if (d->display.ogl_extras)
+        __sync_lock_test_and_set(
+            &d->display.ogl_extras->drawable_scale_120, scale_120);
 
     if (d->use_fractional_scale) {
         /* fractional-scale requires buffer_scale to remain 1; the
@@ -52,9 +56,11 @@ static void wldpy_set_scale_120_locked(ALLEGRO_DISPLAY_WAYLAND *d,
         if (d->surface
             && wl_proxy_get_version((struct wl_proxy *)d->surface) >= 3)
             wl_surface_set_buffer_scale(d->surface, 1);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
         if (d->viewport)
             wp_viewport_set_destination(d->viewport,
                 d->display.w, d->display.h);
+#endif
     }
     else {
         buffer_scale = (int)((scale_120 + 60) / 120);
@@ -69,8 +75,6 @@ static void wldpy_set_scale_120_locked(ALLEGRO_DISPLAY_WAYLAND *d,
         wl_egl_window_resize(d->egl_window,
             wldpy_scaled_dimension(d->display.w, scale_120),
             wldpy_scaled_dimension(d->display.h, scale_120), 0, 0);
-    if (d->display.ogl_extras)
-        d->display.ogl_extras->drawable_scale = scale_120 / 120.0f;
     if (changed)
         d->scale_changed = true;
 }
@@ -217,6 +221,18 @@ void _al_wayland_display_output_removed(struct ALLEGRO_WL_OUTPUT *output)
         if (_al_vector_find_and_delete(&d->entered_outputs, &output))
             wldpy_update_integer_scale_locked(d);
     }
+}
+
+float _al_wl_get_drawable_scale(ALLEGRO_DISPLAY *display)
+{
+    uint32_t scale_120;
+
+    if (al_get_system_id() != ALLEGRO_SYSTEM_ID_WAYLAND)
+        return 1.0f;
+
+    scale_120 = __sync_val_compare_and_swap(
+        &display->ogl_extras->drawable_scale_120, 0, 0);
+    return scale_120 > 0 ? scale_120 / 120.0f : 1.0f;
 }
 
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial) 
@@ -572,7 +588,6 @@ static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
     ALLEGRO_DEBUG("wldpy: selected adapter %i\n", d->adapter);
     d->scale_120 = (uint32_t)_al_wayland_get_output_scale_locked(
         system, d->adapter) * 120;
-    ogl->drawable_scale = d->scale_120 / 120.0f;
 
     /* Pick an EGL config for this display before creating anything. */
     _al_wlegl_config_select_visual(d);
@@ -734,7 +749,11 @@ static void wldpy_free_display(ALLEGRO_DISPLAY *display)
 
     _al_event_source_free(&display->es);
     _al_vector_free(&d->entered_outputs);
+    _al_vector_free(&display->bitmaps);
+    _al_vector_free(&display->display_invalidated_callbacks);
+    _al_vector_free(&display->display_validated_callbacks);
 
+    al_free(display->vertex_cache);
     al_free(display->ogl_extras);
     al_free(display);
 
@@ -746,11 +765,74 @@ static void wldpy_destroy_display(ALLEGRO_DISPLAY *display)
 {
     ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
 
+    ALLEGRO_DISPLAY *living = NULL;
+    ALLEGRO_OGL_EXTRAS *ogl = display->ogl_extras;
+    ALLEGRO_STATE saved;
+    size_t i;
+
     ALLEGRO_DEBUG("wldpy_destroy_display\n");
+
+    al_store_state(&saved, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
+    al_set_target_bitmap(NULL);
+    _al_set_current_display_only(display);
+
+    _al_mutex_lock(&system->lock);
+    _al_wl_input_display_destroyed(display);
+    for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+        ALLEGRO_DISPLAY *candidate = *(ALLEGRO_DISPLAY **)_al_vector_ref(
+            &system->system.displays, i);
+        if (candidate != display) {
+            living = candidate;
+            break;
+        }
+    }
+    _al_mutex_unlock(&system->lock);
+
+    /* Readback/conversion and making EGL contexts current can need Wayland
+     * dispatch, so do not hold the system lock during GPU cleanup. */
+    while (_al_vector_size(&display->bitmaps) > 0) {
+        ALLEGRO_BITMAP *bitmap = *(ALLEGRO_BITMAP **)_al_vector_ref_back(
+            &display->bitmaps);
+        if (living) {
+            ALLEGRO_BITMAP **slot;
+            /* FBOs are context-local, even when textures are shared. In
+             * particular, transient FBO metadata lives in this display. */
+            al_remove_opengl_fbo(bitmap);
+            slot = _al_vector_alloc_back(&living->bitmaps);
+            *slot = bitmap;
+            bitmap->_display = living;
+            _al_vector_delete_at(&display->bitmaps,
+                _al_vector_size(&display->bitmaps) - 1);
+        }
+        else {
+            _al_convert_to_memory_bitmap(bitmap);
+        }
+    }
+
+    _al_set_current_display_only(display);
+    for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
+        if (ogl->fbos[i].fbo_state != FBO_INFO_UNUSED) {
+            _al_ogl_del_fbo(&ogl->fbos[i]);
+            _al_ogl_reset_fbo_info(&ogl->fbos[i]);
+        }
+    }
+    if (ogl->backbuffer) {
+        _al_ogl_destroy_backbuffer(ogl->backbuffer);
+        ogl->backbuffer = NULL;
+    }
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+    if (ogl->vao)
+        glDeleteVertexArrays(1, &ogl->vao);
+    if (ogl->vbo)
+        glDeleteBuffers(1, &ogl->vbo);
+#endif
+    al_set_target_bitmap(NULL);
+    _al_ogl_unmanage_extensions(display);
 
     _al_mutex_lock(&system->lock);
     wldpy_free_display(display);
     _al_mutex_unlock(&system->lock);
+    al_restore_state(&saved);
 
     ALLEGRO_DEBUG("wldpy_destroy_display finished\n");
 }
@@ -807,8 +889,10 @@ static void wldpy_flip_display(ALLEGRO_DISPLAY *display)
     if (scale_changed) {
         ALLEGRO_BITMAP *target = al_get_target_bitmap();
         if (target && _al_get_bitmap_display(target) == display
-            && display->vt->update_transformation)
+            && display->vt->update_transformation) {
             display->vt->update_transformation(display, target);
+            _al_ogl_setup_bitmap_clipping(target);
+        }
     }
 
     eglSwapBuffers(system->egl_display, d->egl_surface);
@@ -1124,6 +1208,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
     wldpy_vt.set_window_constraints = wldpy_set_window_constraints;
     wldpy_vt.apply_window_constraints = wldpy_apply_window_constraints;
 
+    _al_wl_clipboard_add_functions(&wldpy_vt);
     _al_ogl_add_drawing_functions(&wldpy_vt);
 
     return &wldpy_vt;

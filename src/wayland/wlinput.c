@@ -19,6 +19,8 @@
 #include "allegro5/internal/aintern_wl.h"
 #include "allegro5/internal/aintern_wldisplay.h"
 #include "allegro5/internal/aintern_wlinput.h"
+#include "allegro5/internal/aintern_wlclipboard.h"
+#include "allegro5/internal/aintern_wlscroll.h"
 #include "allegro5/internal/aintern_wlsystem.h"
 #include "allegro5/platform/cursor-shape-client-protocol.h"
 #include "allegro5/platform/pointer-constraints-client-protocol.h"
@@ -59,6 +61,7 @@ typedef struct ALLEGRO_MOUSE_WAYLAND {
     struct wl_pointer *wl_pointer;
     struct wp_cursor_shape_device_v1 *cursor_shape;
     uint32_t cursor_serial;
+    ALLEGRO_WL_SCROLL_AXIS scroll[2];
     bool installed;
 
     ALLEGRO_DISPLAY *display;    /* display the pointer is over */
@@ -227,8 +230,8 @@ static void wl_keyboard_handle_key(void *data, struct wl_keyboard *wl_keyboard,
     bool is_repeat;
 
     (void)wl_keyboard;
-    (void)serial;
     (void)time;
+    ((ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver())->input_serial = serial;
 
     /* key is a hardware keycode, offset by 8 like X11. */
     key += 8;
@@ -557,6 +560,7 @@ static void wl_pointer_handle_leave(void *data, struct wl_pointer *wl_pointer,
     mouse->display = NULL;
     mouse->state.display = NULL;
     mouse->state.buttons = 0;
+    memset(mouse->scroll, 0, sizeof mouse->scroll);
 
     _al_event_source_lock(&mouse->parent.es);
     if (_al_event_source_needs_to_generate_event(&mouse->parent.es)) {
@@ -658,8 +662,8 @@ static void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer,
     int al_button;
     bool down = (state == WL_POINTER_BUTTON_STATE_PRESSED);
     (void)wl_pointer;
-    (void)serial;
     (void)time;
+    ((ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver())->input_serial = serial;
 
     if (!mouse->display)
         return;
@@ -683,31 +687,15 @@ static void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer,
 }
 
 
-static void wl_pointer_handle_axis(void *data, struct wl_pointer *wl_pointer,
-    uint32_t time, uint32_t axis, wl_fixed_t value)
+static void wl_mouse_flush_scroll(ALLEGRO_MOUSE_WAYLAND *mouse)
 {
-    ALLEGRO_MOUSE_WAYLAND *mouse = data;
-    int dz = 0, dw = 0;
-    (void)wl_pointer;
-    (void)time;
-
-    if (!mouse->display)
-        return;
-
-    /* axis_discrete may not be sent; fall back to the continuous value,
-     * for which libinput roughly uses 10.0 per notch. */
-    int notches = (int)round(wl_fixed_to_double(value) / 10.0);
-    if (notches == 0 && value != 0)
-        notches = value > 0 ? 1 : -1;
-
     int precision = al_get_mouse_wheel_precision();
-    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
-        dz = notches * precision;
-    else if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL)
-        dw = notches * precision;
-    else
-        return;
+    /* Wayland's positive vertical axis points down; Allegro's z points up. */
+    int dz = -_al_wl_scroll_flush(&mouse->scroll[0], precision);
+    int dw = _al_wl_scroll_flush(&mouse->scroll[1], precision);
 
+    if (!mouse->display || (!dz && !dw))
+        return;
     _al_event_source_lock(&mouse->parent.es);
     mouse->state.z += dz;
     mouse->state.w += dw;
@@ -715,38 +703,37 @@ static void wl_pointer_handle_axis(void *data, struct wl_pointer *wl_pointer,
     _al_event_source_unlock(&mouse->parent.es);
 }
 
+static void wl_pointer_handle_axis(void *data, struct wl_pointer *wl_pointer,
+    uint32_t time, uint32_t axis, wl_fixed_t value)
+{
+    ALLEGRO_MOUSE_WAYLAND *mouse = data;
+    (void)time;
+
+    if (!mouse->display || axis > WL_POINTER_AXIS_HORIZONTAL_SCROLL)
+        return;
+    mouse->scroll[axis].continuous += wl_fixed_to_double(value);
+    /* Older pointers have no frame or discrete events. */
+    if (wl_proxy_get_version((struct wl_proxy *)wl_pointer) <
+        WL_POINTER_FRAME_SINCE_VERSION)
+        wl_mouse_flush_scroll(mouse);
+}
 
 static void wl_pointer_handle_axis_discrete(void *data, struct wl_pointer *wl_pointer,
     uint32_t axis, int32_t discrete)
 {
     ALLEGRO_MOUSE_WAYLAND *mouse = data;
-    int dz = 0, dw = 0;
     (void)wl_pointer;
 
-    if (!mouse->display)
+    if (!mouse->display || axis > WL_POINTER_AXIS_HORIZONTAL_SCROLL)
         return;
-
-    int precision = al_get_mouse_wheel_precision();
-    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
-        dz = discrete * precision;
-    else if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL)
-        dw = discrete * precision;
-    else
-        return;
-
-    _al_event_source_lock(&mouse->parent.es);
-    mouse->state.z += dz;
-    mouse->state.w += dw;
-    emit_mouse_event(ALLEGRO_EVENT_MOUSE_AXES, 0, 0, 0, dz, dw);
-    _al_event_source_unlock(&mouse->parent.es);
+    mouse->scroll[axis].discrete += discrete;
+    mouse->scroll[axis].have_discrete = true;
 }
-
 
 static void wl_pointer_handle_frame(void *data, struct wl_pointer *wl_pointer)
 {
-    (void)data;
     (void)wl_pointer;
-    /* Events are emitted immediately, so there is nothing to batch up. */
+    wl_mouse_flush_scroll(data);
 }
 
 
@@ -773,26 +760,12 @@ static void wl_pointer_handle_axis_value120(void *data, struct wl_pointer *wl_po
     uint32_t axis, int32_t value120)
 {
     ALLEGRO_MOUSE_WAYLAND *mouse = data;
-    int dz = 0, dw = 0;
     (void)wl_pointer;
 
-    if (!mouse->display)
+    if (!mouse->display || axis > WL_POINTER_AXIS_HORIZONTAL_SCROLL)
         return;
-
-    int notches = value120 / 120;
-    int precision = al_get_mouse_wheel_precision();
-    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
-        dz = notches * precision;
-    else if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL)
-        dw = notches * precision;
-    else
-        return;
-
-    _al_event_source_lock(&mouse->parent.es);
-    mouse->state.z += dz;
-    mouse->state.w += dw;
-    emit_mouse_event(ALLEGRO_EVENT_MOUSE_AXES, 0, 0, 0, dz, dw);
-    _al_event_source_unlock(&mouse->parent.es);
+    mouse->scroll[axis].value120 += value120;
+    mouse->scroll[axis].have_value120 = true;
 }
 
 
@@ -1167,6 +1140,7 @@ static void wl_release_pointer(void)
     the_mouse.state.display = NULL;
     the_mouse.state.buttons = 0;
     the_mouse.cursor_serial = 0;
+    memset(the_mouse.scroll, 0, sizeof the_mouse.scroll);
 }
 
 
@@ -1238,6 +1212,7 @@ void _al_wl_seat_add(ALLEGRO_SYSTEM_WAYLAND *s, struct wl_seat *seat,
     s->seat = seat;
     s->seat_registry_name = registry_name;
     wl_seat_add_listener(seat, &seat_listener, s);
+    _al_wl_clipboard_seat_changed(s);
 }
 
 
@@ -1254,9 +1229,33 @@ void _al_wl_input_shutdown(ALLEGRO_SYSTEM_WAYLAND *s)
     wl_release_pointer();
 
     if (s && s->seat) {
-        wl_seat_destroy(s->seat);
+        struct wl_seat *seat = s->seat;
         s->seat = NULL;
         s->seat_registry_name = 0;
+        _al_wl_clipboard_seat_changed(s);
+        wl_seat_destroy(seat);
+    }
+}
+
+
+void _al_wl_input_display_destroyed(ALLEGRO_DISPLAY *display)
+{
+    if (the_keyboard.display == display) {
+        the_keyboard.display = NULL;
+        the_keyboard.state.display = NULL;
+        the_keyboard.repeat_key = ALLEGRO_KEY_NONE;
+        the_keyboard.repeat_time = 0;
+        _al_event_source_lock(&the_keyboard.parent.es);
+        memset(&the_keyboard.state.__key_down__internal__, 0,
+            sizeof the_keyboard.state.__key_down__internal__);
+        _al_event_source_unlock(&the_keyboard.parent.es);
+    }
+    if (the_mouse.display == display) {
+        the_mouse.display = NULL;
+        the_mouse.state.display = NULL;
+        the_mouse.state.buttons = 0;
+        the_mouse.cursor_serial = 0;
+        memset(the_mouse.scroll, 0, sizeof the_mouse.scroll);
     }
 }
 

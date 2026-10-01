@@ -29,6 +29,10 @@
 #include "allegro5/internal/aintern_android.h"
 #endif
 
+#ifdef ALLEGRO_WAYLAND
+#include "allegro5/internal/aintern_wldisplay.h"
+#endif
+
 #include "ogl_helpers.h"
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
@@ -158,16 +162,24 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
       float scale = 1.0f;
       ALLEGRO_DISPLAY *display =
          _al_get_bitmap_display((ALLEGRO_BITMAP *)bitmap);
-      if (display && display->ogl_extras
-          && bitmap->parent && bitmap->parent->extra
-          && ((ALLEGRO_BITMAP_EXTRA_OPENGL *)bitmap->parent->extra)->is_backbuffer
-          && display->ogl_extras->drawable_scale > 0.0f)
-         scale = display->ogl_extras->drawable_scale;
-      /* OpenGL is upside down, so must adjust y_2 to the height. */
-      glScissor(ogl_scale_dimension(x_1, scale),
-         ogl_scale_dimension(h - y_2, scale),
-         ogl_scale_dimension(x_2 - x_1, scale),
-         ogl_scale_dimension(y_2 - y_1, scale));
+      const ALLEGRO_BITMAP *root = bitmap->parent ? bitmap->parent : bitmap;
+      if (display && root->extra
+          && ((ALLEGRO_BITMAP_EXTRA_OPENGL *)root->extra)->is_backbuffer) {
+#ifdef ALLEGRO_WAYLAND
+         scale = _al_wl_get_drawable_scale(display);
+#endif
+      }
+      /* OpenGL is upside down, so convert the clip's top and bottom
+       * coordinates before scaling. Scaling the width independently can
+       * lose a pixel at fractional scales. */
+      {
+         int scaled_x1 = ogl_scale_dimension(x_1, scale);
+         int scaled_x2 = ogl_scale_dimension(x_2, scale);
+         int scaled_y1 = ogl_scale_dimension(h - y_2, scale);
+         int scaled_y2 = ogl_scale_dimension(h - y_1, scale);
+         glScissor(scaled_x1, scaled_y1,
+            scaled_x2 - scaled_x1, scaled_y2 - scaled_y1);
+      }
       #endif
    }
 }

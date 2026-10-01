@@ -142,6 +142,7 @@ set(ALLEGRO_SRC_WAYLAND_FILES
     src/wayland/wlevents.c
     src/wayland/wlfullscreen.c
     src/wayland/wlinput.c
+    src/wayland/wlclipboard.c
     src/wayland/wlsystem.c
     )
 

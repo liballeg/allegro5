@@ -25,6 +25,10 @@
 #include "allegro5/internal/aintern_android.h"
 #endif
 
+#ifdef ALLEGRO_WAYLAND
+#include "allegro5/internal/aintern_wldisplay.h"
+#endif
+
 #include "ogl_helpers.h"
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
@@ -1192,18 +1196,29 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
 
    if (target->parent) {
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_extra = target->parent->extra;
-      float scale = ogl_extra->is_backbuffer
-         && disp->ogl_extras->drawable_scale > 0.0f
-         ? disp->ogl_extras->drawable_scale : 1.0f;
-      /* glViewport requires the bottom-left coordinate of the corner. */
-      glViewport(ogl_scale_dimension(target->xofs, scale),
-         ogl_scale_dimension(ogl_extra->true_h
-            - (target->yofs + target->h), scale),
-         ogl_scale_dimension(target->w, scale),
-         ogl_scale_dimension(target->h, scale));
+      float scale = 1.0f;
+#ifdef ALLEGRO_WAYLAND
+      if (ogl_extra->is_backbuffer)
+         scale = _al_wl_get_drawable_scale(disp);
+#endif
+      /* glViewport requires the bottom-left coordinate of the corner.
+       * Scale both edges so fractional scaling preserves the full extent. */
+      {
+         int x1 = ogl_scale_dimension(target->xofs, scale);
+         int x2 = ogl_scale_dimension(target->xofs + target->w, scale);
+         int y1 = ogl_scale_dimension(ogl_extra->true_h
+            - (target->yofs + target->h), scale);
+         int y2 = ogl_scale_dimension(ogl_extra->true_h - target->yofs,
+            scale);
+         glViewport(x1, y1, x2 - x1, y2 - y1);
+      }
    } else {
-      float scale = disp->ogl_extras->drawable_scale > 0.0f
-         ? disp->ogl_extras->drawable_scale : 1.0f;
+      float scale = 1.0f;
+#ifdef ALLEGRO_WAYLAND
+      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_extra = target->extra;
+      if (ogl_extra && ogl_extra->is_backbuffer)
+         scale = _al_wl_get_drawable_scale(disp);
+#endif
       glViewport(0, 0, ogl_scale_dimension(target->w, scale),
          ogl_scale_dimension(target->h, scale));
    }

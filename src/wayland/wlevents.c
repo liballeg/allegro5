@@ -4,6 +4,7 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_wl.h"
 #include "allegro5/internal/aintern_wlinput.h"
+#include "allegro5/internal/aintern_wlclipboard.h"
 #include "allegro5/internal/aintern_wlsystem.h"
 #include "allegro5/internal/aintern_wlevents.h"
 
@@ -33,11 +34,10 @@ void _al_wl_background_thread(_AL_THREAD *self, void *arg)
         else
             wl_display_cancel_read(s->display);
         wl_display_dispatch_pending(s->display);
+        _al_wl_clipboard_reap_transfers(s);
 
-        _al_mutex_unlock(&s->lock);
-
-        /* Emit key-repeat events for a held key.  Runs on this thread so
-         * it is serialised with the key event handlers above. */
+        /* Serialize repeats with input focus changes and display teardown. */
         _al_wl_keyboard_repeat_tick();
+        _al_mutex_unlock(&s->lock);
     }
 }

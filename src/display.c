@@ -60,7 +60,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    settings = &display->extra_settings;
    flags = settings->required | settings->suggested;
-   if (!(flags & (1 << ALLEGRO_AUTO_CONVERT_BITMAPS))) {
+   if (!(flags & ((int64_t)1 << ALLEGRO_AUTO_CONVERT_BITMAPS))) {
       settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS] = 1;
    }
    settings->settings[ALLEGRO_DEFAULT_SHADER_PLATFORM] =

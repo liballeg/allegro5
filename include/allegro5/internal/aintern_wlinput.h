@@ -24,6 +24,8 @@ void _al_wl_seat_remove(ALLEGRO_SYSTEM_WAYLAND *s, uint32_t registry_name);
 
 /* Destroys the seat and its keyboard/pointer objects. */
 void _al_wl_input_shutdown(ALLEGRO_SYSTEM_WAYLAND *s);
+/* Clear input focus before freeing a display; caller holds the system lock. */
+void _al_wl_input_display_destroyed(ALLEGRO_DISPLAY *display);
 
 /* Emits held-key repeat events; called periodically by the event thread. */
 void _al_wl_keyboard_repeat_tick(void);

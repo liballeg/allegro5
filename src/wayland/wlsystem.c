@@ -4,6 +4,7 @@
 #include "allegro5/internal/aintern_wlfullscreen.h"
 #include "allegro5/internal/aintern_wldisplay.h"
 #include "allegro5/internal/aintern_wlinput.h"
+#include "allegro5/internal/aintern_wlclipboard.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintwl.h"
 #include "allegro5/platform/cursor-shape-client-protocol.h"
@@ -81,6 +82,15 @@ static void registry_handle_global(void *data,
             wl_clamp_version(version, 8));
         if (seat)
             _al_wl_seat_add(s, seat, name);
+    }
+
+    if (strcmp(interface, wl_data_device_manager_interface.name) == 0) {
+        s->data_device_manager = wl_registry_bind(
+            registry, name, &wl_data_device_manager_interface,
+            wl_clamp_version(version, 3));
+        s->data_device_manager_registry_name = name;
+        _al_wl_clipboard_seat_changed(s);
+        ALLEGRO_INFO("Wayland data-device manager created\n");
     }
 
     if (strcmp(interface, wp_cursor_shape_manager_v1_interface.name) == 0) {
@@ -162,6 +172,13 @@ static void registry_handle_global_remove(void *data, struct wl_registry *regist
 
     _al_wayland_remove_output(s, name);
     _al_wl_seat_remove(s, name);
+    if (s->data_device_manager &&
+        s->data_device_manager_registry_name == name) {
+        _al_wl_clipboard_shutdown(s);
+        wl_data_device_manager_destroy(s->data_device_manager);
+        s->data_device_manager = NULL;
+        s->data_device_manager_registry_name = 0;
+    }
 }
 
 static const struct wl_registry_listener registry_listener = {
@@ -189,6 +206,9 @@ static void wl_cleanup_initialization(ALLEGRO_SYSTEM_WAYLAND *s,
     }
     _al_vector_free(&s->outputs);
 
+    _al_wl_clipboard_shutdown(s);
+    if (s->data_device_manager)
+        wl_data_device_manager_destroy(s->data_device_manager);
     if (s->decor)
         libdecor_unref(s->decor);
     if (s->egl_initialized)
@@ -370,6 +390,7 @@ static void wl_shutdown_system(void)
     }
     _al_vector_free(&swl->outputs);
 
+    _al_wl_clipboard_shutdown(swl);
     _al_wl_input_shutdown(swl);
 
     if (swl->xkb_context) {
@@ -396,6 +417,9 @@ static void wl_shutdown_system(void)
 
     if (swl->cursor_shape_manager) {
         wp_cursor_shape_manager_v1_destroy(swl->cursor_shape_manager);
+    }
+    if (swl->data_device_manager) {
+        wl_data_device_manager_destroy(swl->data_device_manager);
     }
 #ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
     if (swl->idle_inhibit_manager) {
