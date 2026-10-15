@@ -26,6 +26,7 @@ ElectricSolstice
 Elias Pschernig
 Eric Botcazou
 Erich Erstu
+Ernesto Luis Malta Rodrigues Filho (Lohkdesgds)
 Evert Glebbeek
 Firat Salgur
 Gabriel Queiroz
