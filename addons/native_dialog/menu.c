@@ -663,6 +663,24 @@ void al_set_menu_item_icon(ALLEGRO_MENU *menu, int pos, ALLEGRO_BITMAP *icon)
    }
 }
 
+/* Function: al_get_menu_parent
+ */
+ALLEGRO_MENU *al_get_menu_parent(ALLEGRO_MENU *menu)
+{
+   ASSERT(menu);
+
+   return menu->parent ? menu->parent->parent : NULL;
+}
+
+/* Function: al_is_menu_popup
+ */
+bool al_is_menu_popup(ALLEGRO_MENU* menu)
+{
+   ASSERT(menu);
+
+   return menu->is_popup_menu;
+}
+
 /* Function: al_destroy_menu
  */
 void al_destroy_menu(ALLEGRO_MENU *menu)

@@ -89,6 +89,8 @@ ALLEGRO_DIALOG_FUNC(int, al_insert_menu_item, (ALLEGRO_MENU *parent, int pos, ch
 ALLEGRO_DIALOG_FUNC(bool, al_remove_menu_item, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu_for_popup, (ALLEGRO_MENU *menu));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_get_menu_parent, (ALLEGRO_MENU *menu));
+ALLEGRO_DIALOG_FUNC(bool, al_is_menu_popup, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(void, al_destroy_menu, (ALLEGRO_MENU *menu));
 
 /* properties */
