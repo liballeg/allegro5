@@ -508,16 +508,6 @@ Returns `NULL` if it has no parent (the root of the stack).
 
 Since: 5.2.12.0
 
-### API: al_get_menu_item_submenu
-
-Gets the submenu under this menu, if there was one when this item was
-appended or inserted in a menu.
-
-Returns `NULL` if this item in this menu has no submenu, or if the item
-itself does not exist in this menu (by its position or id).
-
-Since: 5.2.12.0
-
 See also: [al_append_menu_item], [al_insert_menu_item]
 
 ### API: al_is_menu_popup
@@ -618,6 +608,24 @@ If a video bitmap is passed, it will automatically be converted to a memory
 bitmap, so it is preferable to pass a memory bitmap.
 
 Since: 5.1.0
+
+### API: al_get_menu_item_submenu
+
+Gets the submenu associated with the menu item, if there was one when this
+item was appended or inserted in a menu.
+
+Returns `NULL` if this item in this menu has no submenu, or if the item
+itself does not exist in this menu (by its position or id).
+
+Since: 5.2.12.0
+
+### API: al_get_menu_item_id
+
+Returns the id associated with the menu item.
+
+Returns `-1` if the item was not found.
+
+Since: 5.2.12.0
 
 See also: [al_get_menu_item_icon], [al_clone_bitmap]
 
