@@ -628,6 +628,25 @@ int al_get_menu_item_id(ALLEGRO_MENU *menu, int pos)
    return item ? item->id : -1;
 }
 
+/* Function: al_get_menu_item_pos
+ */
+int al_get_menu_item_pos(ALLEGRO_MENU *menu, uint16_t id)
+{
+   ALLEGRO_MENU_ITEM** slot;
+   size_t i;
+   
+   ASSERT(menu);
+
+   for (i = 0; i < _al_vector_size(&menu->items); ++i) {
+      slot = _al_vector_ref(&menu->items, i);
+
+      if ((*slot)->id == id)
+         return (int)i;
+   }
+
+   return -1;
+}
+
 /* Function: al_toggle_menu_item_flags
  */
 int al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
