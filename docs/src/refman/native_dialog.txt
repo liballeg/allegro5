@@ -508,6 +508,18 @@ Returns `NULL` if it has no parent (the root of the stack).
 
 Since: 5.2.12.0
 
+### API: al_get_menu_item_submenu
+
+Gets the submenu under this menu, if there was one when this item was
+appended or inserted in a menu.
+
+Returns `NULL` if this item in this menu has no submenu, or if the item
+itself does not exist in this menu (by its position or id).
+
+Since: 5.2.12.0
+
+See also: [al_append_menu_item], [al_insert_menu_item]
+
 ### API: al_is_menu_popup
 
 Gets if the menu was created for popup or not.
