@@ -90,7 +90,6 @@ ALLEGRO_DIALOG_FUNC(bool, al_remove_menu_item, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu_for_popup, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_get_menu_parent, (ALLEGRO_MENU *menu));
-ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_get_menu_item_submenu, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(bool, al_is_menu_popup, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(void, al_destroy_menu, (ALLEGRO_MENU *menu));
 
@@ -99,6 +98,8 @@ ALLEGRO_DIALOG_FUNC(const char *, al_get_menu_item_caption, (ALLEGRO_MENU *menu,
 ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_caption, (ALLEGRO_MENU *menu, int pos, const char *caption));
 ALLEGRO_DIALOG_FUNC(int, al_get_menu_item_flags, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_flags, (ALLEGRO_MENU *menu, int pos, int flags));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_get_menu_item_submenu, (ALLEGRO_MENU *menu, int pos));
+ALLEGRO_DIALOG_FUNC(int, al_get_menu_item_id, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_BITMAP *, al_get_menu_item_icon, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_icon, (ALLEGRO_MENU *menu, int pos, ALLEGRO_BITMAP *icon));
 

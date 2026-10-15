@@ -604,6 +604,30 @@ void al_set_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
    }
 }
 
+/* Function: al_get_menu_item_submenu
+ */
+ALLEGRO_MENU* al_get_menu_item_submenu(ALLEGRO_MENU *menu, int pos)
+{
+   ALLEGRO_MENU_ITEM *item;
+
+   ASSERT(menu);
+
+   item = interpret_menu_id_param(&menu, &pos);
+   return item ? item->popup : NULL;
+}
+
+/* Function: al_get_menu_item_id
+ */
+int al_get_menu_item_id(ALLEGRO_MENU *menu, int pos)
+{
+   ALLEGRO_MENU_ITEM *item;
+
+   ASSERT(menu);
+
+   item = interpret_menu_id_param(&menu, &pos);
+   return item ? item->id : -1;
+}
+
 /* Function: al_toggle_menu_item_flags
  */
 int al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
@@ -670,18 +694,6 @@ ALLEGRO_MENU *al_get_menu_parent(ALLEGRO_MENU *menu)
    ASSERT(menu);
 
    return menu->parent ? menu->parent->parent : NULL;
-}
-
-/* Function: al_get_menu_item_submenu
- */
-ALLEGRO_MENU* al_get_menu_item_submenu(ALLEGRO_MENU *menu, int pos)
-{
-   ALLEGRO_MENU_ITEM *item;
-
-   ASSERT(menu);
-
-   item = interpret_menu_id_param(&menu, &pos);
-   return item ? item->popup : NULL;
 }
 
 /* Function: al_is_menu_popup
