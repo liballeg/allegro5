@@ -500,6 +500,25 @@ Since: 5.1.0
 
 See also: [al_clone_menu]
 
+### API: al_get_menu_parent
+
+Gets the parent of the menu, if there is one.
+
+Returns `NULL` if it has no parent (the root of the stack).
+
+Since: 5.2.12.0
+
+### API: al_is_menu_popup
+
+Gets if the menu was created for popup or not.
+
+Returns `true` if it was created with `al_create_popup_menu` or `false`
+if it was created with `al_create_menu`.
+
+Since: 5.2.12.0
+
+See also: [al_create_popup_menu], [al_create_menu]
+
 ### API: al_destroy_menu
 
 Destroys an entire menu, including its sub-menus. Any references to it or
