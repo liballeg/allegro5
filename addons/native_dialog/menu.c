@@ -672,6 +672,18 @@ ALLEGRO_MENU *al_get_menu_parent(ALLEGRO_MENU *menu)
    return menu->parent ? menu->parent->parent : NULL;
 }
 
+/* Function: al_get_menu_item_submenu
+ */
+ALLEGRO_MENU* al_get_menu_item_submenu(ALLEGRO_MENU *menu, int pos)
+{
+   ALLEGRO_MENU_ITEM *item;
+
+   ASSERT(menu);
+
+   item = interpret_menu_id_param(&menu, &pos);
+   return item ? item->popup : NULL;
+}
+
 /* Function: al_is_menu_popup
  */
 bool al_is_menu_popup(ALLEGRO_MENU* menu)
