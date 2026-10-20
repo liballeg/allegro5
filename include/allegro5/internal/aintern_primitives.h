@@ -30,6 +30,7 @@ typedef struct _AL_BUFFER_COMMON {
    int local_buffer_length;
    int lock_offset;
    int lock_length;
+   int flags;
 } _AL_BUFFER_COMMON;
 
 struct ALLEGRO_VERTEX_BUFFER {
@@ -45,10 +46,10 @@ struct ALLEGRO_INDEX_BUFFER {
 /*
 * Primary Functions
 */
-AL_FUNC(int, _al_draw_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, int start, int end, int type));
-AL_FUNC(int, _al_draw_indexed_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
-AL_FUNC(int, _al_draw_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, int start, int end, int type));
-AL_FUNC(int, _al_draw_indexed_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type));
+AL_FUNC(int, _al_draw_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, int start, int end, int type, bool prim_addon));
+AL_FUNC(int, _al_draw_indexed_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type, bool prim_addon));
+AL_FUNC(int, _al_draw_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, int start, int end, int type, bool prim_addon));
+AL_FUNC(int, _al_draw_indexed_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type, bool prim_addon));
 
 AL_FUNC(ALLEGRO_VERTEX_DECL*, _al_create_vertex_decl, (const ALLEGRO_VERTEX_ELEMENT* elements, int stride));
 AL_FUNC(void, _al_destroy_vertex_decl, (ALLEGRO_VERTEX_DECL* decl));
@@ -61,6 +62,8 @@ AL_FUNC(void, _al_destroy_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
 AL_FUNC(void*, _al_lock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer, int offset, int length, int flags));
 AL_FUNC(void, _al_unlock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
 AL_FUNC(int, _al_get_vertex_buffer_size, (ALLEGRO_VERTEX_BUFFER* buffer));
+AL_FUNC(bool, _al_update_vertex_buffer, (ALLEGRO_VERTEX_BUFFER *buf, const void *vertices, size_t offt, size_t num_vertices));
+AL_FUNC(bool, _al_resize_vertex_buffer, (ALLEGRO_VERTEX_BUFFER *buf, size_t new_size));
 
 /*
  * Index buffers
@@ -70,6 +73,8 @@ AL_FUNC(void, _al_destroy_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer));
 AL_FUNC(void*, _al_lock_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer, int offset, int length, int flags));
 AL_FUNC(void, _al_unlock_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer));
 AL_FUNC(int, _al_get_index_buffer_size, (ALLEGRO_INDEX_BUFFER* buffer));
+AL_FUNC(bool, _al_update_index_buffer, (ALLEGRO_INDEX_BUFFER *buf, const void *indices, size_t offt, size_t num_indices));
+AL_FUNC(bool, _al_resize_index_buffer, (ALLEGRO_INDEX_BUFFER *buf, size_t new_size));
 
 AL_FUNC(int, _al_draw_buffer_common_soft, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type));
 

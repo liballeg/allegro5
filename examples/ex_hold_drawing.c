@@ -1,0 +1,634 @@
+#define ALLEGRO_UNSTABLE
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_opengl.h>
+#include <allegro5/allegro_primitives.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include "common.c"
+
+ALLEGRO_DEBUG_CHANNEL("main")
+
+#define FPS 60
+#define NUM_SAMPLES 300
+#define MAX_SPRITES 1024
+#define SIZE 128
+#define NUM_OBJECTS (27 + 1)
+
+typedef struct Sprite {
+   float x, y, dx, dy;
+} Sprite;
+
+char const *text[] = {
+   "H - toggle held drawing",
+   "Space - toggle memory bitmaps",
+   "B - toggle alpha blending",
+   "Up/Down/PgUp/PgDn - change object count",
+   "T - change object type",
+   "F1 - toggle help text"
+};
+
+struct Example {
+   Sprite objects[MAX_SPRITES];
+   bool use_memory_bitmaps;
+   int blending;
+   ALLEGRO_DISPLAY *display;
+   ALLEGRO_BITMAP *bitmap;
+   bool hold_drawing;
+   int object_count;
+   int object_type;
+   bool show_help;
+   ALLEGRO_FONT *font;
+
+   int t;
+
+   ALLEGRO_COLOR white;
+   ALLEGRO_COLOR half_white;
+   ALLEGRO_COLOR dark;
+   ALLEGRO_COLOR red;
+
+   int ftpos;
+   int num_samples;
+   double frame_times[NUM_SAMPLES];
+   double direct_frame_dts[NUM_SAMPLES];
+   double next_fps_time;
+} example;
+
+static void add_time(double direct_dt)
+{
+   int ftpos = example.ftpos++;
+   example.num_samples += 1;
+   example.frame_times[ftpos] = al_get_time();
+   example.direct_frame_dts[ftpos] = direct_dt;
+   if (example.ftpos >= NUM_SAMPLES)
+      example.ftpos = 0;
+   if (example.num_samples > NUM_SAMPLES)
+      example.num_samples = NUM_SAMPLES;
+}
+
+static void get_fps(int *average, int *minmax, int *direct_average)
+{
+   int i;
+   double min_dt = 1;
+   double max_dt = 1 / 1000000.0;
+   double min_direct_dt = 1;
+   double max_direct_dt = 1 / 1000000.0;
+   double av = 0;
+   double direct_av = 0;
+   double d;
+   int num_samples;
+   for (i = 0; i < example.num_samples; i++) {
+      if (i == example.ftpos)
+         continue;
+      int prev = i - 1;
+      if (prev < 0)
+         prev += NUM_SAMPLES;
+      if (prev >= example.num_samples)
+         continue;
+
+      double dt = example.frame_times[i] - example.frame_times[prev];
+      if (dt < min_dt)
+         min_dt = dt;
+      if (dt > max_dt)
+         max_dt = dt;
+      av += dt;
+
+      double direct_dt = example.direct_frame_dts[i];
+      if (direct_dt < min_direct_dt)
+         min_direct_dt = direct_dt;
+      if (direct_dt > max_direct_dt)
+         max_direct_dt = direct_dt;
+      direct_av += direct_dt;
+   }
+   num_samples = example.num_samples > 0 ? example.num_samples - 1 : 1;
+   av /= num_samples;
+   direct_av /= num_samples;
+   (void)direct_av;
+   *average = ceil(1 / av);
+   *direct_average = ceil(1 / min_direct_dt);
+   d = 1 / min_dt - 1 / max_dt;
+   *minmax = floor(d / 2);
+}
+
+static void add_object(void)
+{
+   if (example.object_count < MAX_SPRITES) {
+      int w = al_get_display_width(example.display);
+      int h = al_get_display_height(example.display);
+      int i = example.object_count++;
+      Sprite *s = example.objects + i;
+      float a = rand() % 360;
+      s->x = rand() % (w - SIZE);
+      s->y = rand() % (h - SIZE);
+      s->dx = cos(a) * FPS * 2;
+      s->dy = sin(a) * FPS * 2;
+   }
+}
+
+static void add_objects(int n)
+{
+    int i;
+    for (i = 0; i < n; i++)
+       add_object();
+}
+
+static void remove_objects(int n)
+{
+   example.object_count -= n;
+   if (example.object_count < 0)
+      example.object_count = 0;
+}
+
+static void object_update(Sprite *s)
+{
+   int w = al_get_display_width(example.display);
+   int h = al_get_display_height(example.display);
+
+   s->x += s->dx / FPS;
+   s->y += s->dy / FPS;
+
+   if (s->x < 0) {
+      s->x = -s->x;
+      s->dx = -s->dx;
+   }
+   if (s->x + SIZE > w) {
+      s->x = -s->x + 2 * (w - SIZE);
+      s->dx = -s->dx;
+   }
+   if (s->y < 0) {
+      s->y = -s->y;
+      s->dy = -s->dy;
+   }
+   if (s->y + SIZE > h) {
+      s->y = -s->y + 2 * (h - SIZE);
+      s->dy = -s->dy;
+   }
+
+   if (SIZE > w) s->x = w / 2 - SIZE / 2;
+   if (SIZE > h) s->y = h / 2 - SIZE / 2;
+}
+
+static void update(void)
+{
+   int i;
+   for (i = 0; i < example.object_count; i++)
+      object_update(example.objects + i);
+
+   example.t++;
+   if (example.t == 60) {
+      ALLEGRO_DEBUG("tick\n");
+      example.t = 0;
+   }
+}
+
+static void redraw(void)
+{
+   int w = al_get_display_width(example.display);
+   int h = al_get_display_height(example.display);
+   int i;
+   int f1, f2, df;
+   int fh = al_get_font_line_height(example.font);
+   char const *info[] = {"textures", "memory buffers"};
+   char const *binfo[] = {"alpha", "additive", "tinted", "solid", "alpha test"};
+   ALLEGRO_COLOR tint = example.white;
+
+   if (example.blending == 0) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      tint = example.half_white;
+   }
+   else if (example.blending == 1) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+      tint = example.dark;
+   }
+   else if (example.blending == 2) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      tint = example.red;
+   }
+   else if (example.blending == 3) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   }
+
+   if (example.blending == 4) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+      al_set_render_state(ALLEGRO_ALPHA_TEST, true);
+      al_set_render_state(ALLEGRO_ALPHA_FUNCTION, ALLEGRO_RENDER_GREATER);
+      al_set_render_state(ALLEGRO_ALPHA_TEST_VALUE, 128);
+   }
+   else {
+      al_set_render_state(ALLEGRO_ALPHA_TEST, false);
+   }
+
+   if (example.hold_drawing) {
+      al_hold_drawing(true, 0);
+   }
+   for (i = 0; i < example.object_count; i++) {
+      Sprite *s = example.objects + i;
+      int sz = SIZE;
+      float r, g, b, a;
+      al_unmap_rgba_f(tint, &r, &g, &b, &a);
+      ALLEGRO_COLOR prim_tint = al_map_rgba_f(r * 0.5, g, b, a);
+      int chosen_object_type;
+      if (example.object_type < NUM_OBJECTS - 1)
+         chosen_object_type = example.object_type;
+      else
+         chosen_object_type = (i % (NUM_OBJECTS - 1));
+
+      float spline_points[8] = {
+         s->x + sz, s->y,
+         s->x - sz, s->y + sz,
+         s->x + 2 * sz, s->y + sz,
+         s->x, s->y
+      };
+      float poly_points[8] = {
+         s->x, s->y,
+         s->x + 0.25 * sz, s->y + sz,
+         s->x + 0.75 * sz, s->y + sz,
+         s->x + sz, s->y
+      };
+
+      switch (chosen_object_type) {
+         case  0:
+            al_draw_tinted_bitmap(example.bitmap, tint, s->x, s->y, 0);
+         break;
+         case  1:
+            al_draw_filled_rectangle(s->x, s->y, s->x + sz, s->y + sz, prim_tint);
+         break;
+         case  2:
+            al_draw_filled_circle(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, prim_tint);
+         break;
+         case  3:
+            al_draw_filled_triangle(s->x, s->y, s->x + sz, s->y + sz / 2.0, s->x + sz / 2.0, s->y + sz, prim_tint);
+         break;
+         case  4:
+            al_draw_filled_pieslice(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, ALLEGRO_PI / 4., ALLEGRO_PI * 1.25, prim_tint);
+         break;
+         case  5:
+            al_draw_filled_rounded_rectangle(s->x, s->y, s->x + sz, s->y + sz, 32., 64., prim_tint);
+         break;
+         case  6:
+            al_draw_rectangle(s->x, s->y, s->x + sz, s->y + sz, prim_tint, 5);
+         break;
+         case  7:
+            al_draw_circle(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, prim_tint, 16);
+         break;
+         case  8:
+            al_draw_circle(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, prim_tint, -1);
+         break;
+         case  9:
+            al_draw_line(s->x, s->y, s->x + sz, s->y + sz, prim_tint, 5.);
+         break;
+         case 10:
+            al_draw_triangle(s->x, s->y, s->x + sz, s->y + sz / 2.0, s->x + sz / 2.0, s->y + sz, prim_tint, 5.);
+         break;
+         case 11:
+            al_draw_triangle(s->x, s->y, s->x + sz / 2.0, s->y + sz / 2.0, s->x + sz / 2.0, s->y + sz * 0.25, prim_tint, 5.);
+         break;
+         case 12:
+            al_draw_triangle(s->x, s->y, s->x + sz / 2.0, s->y + sz / 2.0, s->x + sz / 2.0, s->y + sz, prim_tint, 5.);
+         break;
+         case 13:
+            al_draw_pieslice(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, ALLEGRO_PI / 4., ALLEGRO_PI * 0.5, prim_tint, 30);
+         break;
+         case 14:
+            al_draw_pieslice(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, ALLEGRO_PI / 4., ALLEGRO_PI * 1.25, prim_tint, 30);
+         break;
+         case 15:
+            al_draw_pieslice(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, ALLEGRO_PI / 4., ALLEGRO_PI * 0.05, prim_tint, 30);
+         break;
+         case 16:
+            al_draw_arc(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, ALLEGRO_PI / 4., ALLEGRO_PI * 1.25, prim_tint, 30);
+         break;
+         case 17:
+            al_draw_arc(s->x + sz / 2.0, s->y + sz / 2.0, sz / 2.0, ALLEGRO_PI / 4., ALLEGRO_PI * 1.25, prim_tint, -1);
+         break;
+         case 18:
+            al_draw_rounded_rectangle(s->x, s->y, s->x + sz, s->y + sz, 32., 64., prim_tint, 5);
+         break;
+         case 19:
+            al_draw_rounded_rectangle(s->x, s->y, s->x + sz, s->y + sz, 32., 64., prim_tint, -1);
+         break;
+         case 20:
+            al_draw_spline(spline_points, prim_tint, 30.);
+         break;
+         case 21:
+            al_draw_spline(spline_points, prim_tint, -1);
+         break;
+         case 22: {
+            float vertices[2 * 128];
+            al_calculate_spline(vertices, 2 * sizeof(float), spline_points, 0, 128);
+            al_draw_ribbon(vertices, 2 * sizeof(float), prim_tint, 30., 128);
+            break;
+         }
+         case 23:
+            al_draw_polyline(poly_points, 2 * sizeof(float), 4, ALLEGRO_LINE_JOIN_ROUND, ALLEGRO_LINE_CAP_ROUND, prim_tint, 0, 1.);
+         break;
+         case 24:
+            al_draw_polyline(poly_points, 2 * sizeof(float), 4, ALLEGRO_LINE_JOIN_ROUND, ALLEGRO_LINE_CAP_ROUND, prim_tint, 16., 1.);
+         break;
+         case 25:
+            al_draw_polygon(poly_points, 4, ALLEGRO_LINE_JOIN_ROUND, prim_tint, 16., 1.);
+         break;
+         case 26:
+            al_draw_filled_polygon(poly_points, 4, prim_tint);
+         break;
+      }
+   }
+   if (example.hold_drawing) {
+      al_hold_drawing(false, 0);
+   }
+
+   get_fps(&f1, &f2, &df);
+
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+   if (example.show_help) {
+      int dh = fh * 3.5;
+      for (i = 5; i >= 0; i--) {
+         al_draw_text(example.font, example.white, 0, h - dh, 0, text[i]);
+         dh += fh * 6;
+      }
+   }
+
+   al_draw_textf(example.font, example.white, 0, 0, 0, "count: %d",
+      example.object_count);
+   al_draw_textf(example.font, example.white, 0, fh, 0, "size: %d",
+      SIZE);
+   al_draw_textf(example.font, example.white, 0, fh * 2, 0, "%s",
+      info[example.use_memory_bitmaps]);
+   al_draw_textf(example.font, example.white, 0, fh * 3, 0, "%s",
+      binfo[example.blending]);
+   al_draw_textf(example.font, example.white, 0, fh * 4, 0, "held: %s",
+      example.hold_drawing ? "true" : "false");
+   al_draw_textf(example.font, example.white, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d +- %-4d",
+      f1, f2);
+   al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "Direct FPS: %4d / sec", df);
+
+   if (al_get_time() > example.next_fps_time) {
+      log_printf("Direct FPS: %4d / sec\n", df); fflush(stdout);
+      example.next_fps_time += 1.0;
+   }
+}
+
+int main(int argc, char **argv)
+{
+   ALLEGRO_TIMER *timer;
+   ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_MONITOR_INFO info;
+   const char* bitmap_filename = NULL;
+   int w = 640, h = 480;
+   bool done = false;
+   bool need_redraw = true;
+   bool background = false;
+   bool add_max = false;
+   bool opengl_3_0 = false;
+   example.show_help = true;
+   example.hold_drawing = false;
+
+   for (int i = 1; i < argc; i++) {
+      if (strcmp(argv[i], "--add-max") == 0)
+         add_max = true;
+      else if (strcmp(argv[i], "--opengl-3.0") == 0)
+         opengl_3_0 = true;
+      else if (bitmap_filename == NULL)
+         bitmap_filename = argv[i];
+      else {
+         printf("Usage: %s [BITMAP_FILENAME [--add-max] [--opengl-3.0]\n", argv[0]);
+         return 0;
+      }
+   }
+   if (bitmap_filename == NULL)
+      bitmap_filename = "data/mysha256x256.png";
+
+   if (!al_init()) {
+      abort_example("Failed to init Allegro.\n");
+   }
+
+   if (!al_init_image_addon()) {
+      abort_example("Failed to init IIO addon.\n");
+   }
+
+   al_init_font_addon();
+   al_init_primitives_addon();
+   init_platform_specific();
+
+   open_log();
+
+   al_get_num_video_adapters();
+   al_get_monitor_info(0, &info);
+
+   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
+                             ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
+   if (opengl_3_0)
+      al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE | ALLEGRO_OPENGL_3_0 | ALLEGRO_OPENGL | ALLEGRO_OPENGL_CORE_PROFILE);
+   example.display = al_create_display(w, h);
+   if (!example.display) {
+      abort_example("Error creating display.\n");
+   }
+
+   w = al_get_display_width(example.display);
+   h = al_get_display_height(example.display);
+
+   ALLEGRO_BITMAP *buffer = al_create_bitmap(w, h);
+   if (!buffer) {
+      abort_example("Error creating buffer\n");
+   }
+
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   ALLEGRO_BITMAP *memory_buffer = al_create_bitmap(w, h);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   if (!memory_buffer) {
+      abort_example("Error creating memory buffer\n");
+   }
+
+   if (!al_install_keyboard()) {
+      abort_example("Error installing keyboard.\n");
+   }
+
+   if (!al_install_mouse()) {
+      abort_example("Error installing mouse.\n");
+   }
+
+   example.font = al_create_builtin_font();
+   if (!example.font) {
+      abort_example("Error creating builtin font\n");
+   }
+
+   example.bitmap = al_load_bitmap(bitmap_filename);
+   if (!example.bitmap) {
+      abort_example("Error loading %s\n", bitmap_filename);
+   }
+
+   example.white = al_map_rgb_f(1, 1, 1);
+   example.half_white = al_map_rgba_f(0.5, 0.5, 0.5, 0.5);
+   example.dark = al_map_rgb(15, 15, 15);
+   example.red = al_map_rgb_f(1, 0.2, 0.1);
+   if (add_max)
+      add_objects(MAX_SPRITES);
+   else
+      add_objects(64);
+
+   timer = al_create_timer(1.0 / FPS);
+
+   queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_mouse_event_source());
+   al_register_event_source(queue, al_get_timer_event_source(timer));
+
+   if (al_install_touch_input())
+      al_register_event_source(queue, al_get_touch_input_event_source());
+   al_register_event_source(queue, al_get_display_event_source(example.display));
+
+   al_start_timer(timer);
+
+   while (!done) {
+      float x, y;
+      ALLEGRO_EVENT event;
+      w = al_get_display_width(example.display);
+      h = al_get_display_height(example.display);
+
+      if (!background && need_redraw && al_is_event_queue_empty(queue)) {
+         double t = -al_get_time();
+
+         if (example.use_memory_bitmaps)
+            al_set_target_bitmap(memory_buffer);
+         else
+            al_set_target_bitmap(buffer);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_clear_to_color(al_map_rgb_f(0, 0, 0));
+         redraw();
+         t += al_get_time();
+
+         al_set_target_bitmap(al_get_backbuffer(example.display));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_clear_to_color(al_map_rgb_f(0, 0, 0));
+         if (example.use_memory_bitmaps)
+            al_draw_bitmap(memory_buffer, 0, 0, 0);
+         else
+            al_draw_bitmap(buffer, 0, 0, 0);
+
+         add_time(t);
+         al_flip_display();
+         need_redraw = false;
+      }
+
+      al_wait_for_event(queue, &event);
+      switch (event.type) {
+         case ALLEGRO_EVENT_KEY_CHAR: /* includes repeats */
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+               done = true;
+            else if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
+               add_objects(1);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
+               remove_objects(1);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_PGUP) {
+               add_objects(MAX_SPRITES / 10);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_PGDN) {
+               remove_objects(MAX_SPRITES / 10);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_F1) {
+               example.show_help ^= 1;
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+               example.use_memory_bitmaps ^= 1;
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_B) {
+               example.blending++;
+               if (example.blending == 5)
+                  example.blending = 0;
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_T) {
+               if (event.keyboard.modifiers & ALLEGRO_KEYMOD_SHIFT) {
+                  example.object_type -= 1;
+                  if (example.object_type < 0)
+                     example.object_type = NUM_OBJECTS - 1;
+               }
+               else
+                  example.object_type = (example.object_type + 1) % NUM_OBJECTS;
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_H) {
+               example.num_samples = 0;
+               example.ftpos = 0;
+               example.hold_drawing ^= 1;
+            }
+            break;
+
+         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            done = true;
+            break;
+
+         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+
+            background = true;
+            al_acknowledge_drawing_halt(event.display.source);
+
+            break;
+
+         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+            background = false;
+            al_acknowledge_drawing_resume(event.display.source);
+            break;
+
+         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+            al_acknowledge_resize(event.display.source);
+            break;
+
+         case ALLEGRO_EVENT_TIMER:
+            update();
+            need_redraw = true;
+            break;
+
+         case ALLEGRO_EVENT_TOUCH_BEGIN:
+            x = event.touch.x;
+            y = event.touch.y;
+            goto click;
+
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+            x = event.mouse.x;
+            y = event.mouse.y;
+            goto click;
+
+         click:
+         {
+            int fh = al_get_font_line_height(example.font);
+
+            if (x < fh * 12 && y >= h - fh * 30) {
+               int button = (y - (h - fh * 30)) / (fh * 6);
+               if (button == 0) {
+                  example.use_memory_bitmaps ^= 1;
+               }
+               if (button == 1) {
+                  example.blending++;
+                  if (example.blending == 5)
+                     example.blending = 0;
+               }
+               if (button == 3) {
+                  if (x < fh * 6)
+                     remove_objects(example.object_count / 2);
+                  else
+                     add_objects(example.object_count);
+               }
+               if (button == 2) {
+                  example.object_type = (example.object_type + 1) % NUM_OBJECTS;
+               }
+               if (button == 4) {
+                  example.show_help ^= 1;
+               }
+
+            }
+            break;
+         }
+      }
+   }
+
+   al_destroy_bitmap(example.bitmap);
+   al_destroy_display(example.display);
+   close_log(true);
+
+   return 0;
+}
+
+/* vim: set sts=3 sw=3 et: */
