@@ -231,6 +231,8 @@ void _al_sdl_joystick_event(SDL_Event *e)
       ALLEGRO_JOYSTICK_SDL *joy = get_joystick(e->jaxis.which);
       if (joy->allegro.info.type != ALLEGRO_JOYSTICK_TYPE_UNKNOWN)
          return;
+      if (e->jaxis.axis >= _AL_MAX_JOYSTICK_STICKS * 2)
+         return;
       event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
       event.joystick.id = &joy->allegro;
       event.joystick.stick = e->jaxis.axis / 2;
@@ -243,6 +245,8 @@ void _al_sdl_joystick_event(SDL_Event *e)
       ALLEGRO_JOYSTICK_SDL *joy = get_joystick(e->jbutton.which);
       if (joy->allegro.info.type != ALLEGRO_JOYSTICK_TYPE_UNKNOWN)
          return;
+      if (e->jbutton.button >= _AL_MAX_JOYSTICK_BUTTONS)
+         return;
       event.joystick.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
       event.joystick.id = &joy->allegro;
       event.joystick.stick = 0;
@@ -254,6 +258,8 @@ void _al_sdl_joystick_event(SDL_Event *e)
    else if (e->type == SDL_JOYBUTTONUP) {
       ALLEGRO_JOYSTICK_SDL *joy = get_joystick(e->jbutton.which);
       if (joy->allegro.info.type != ALLEGRO_JOYSTICK_TYPE_UNKNOWN)
+         return;
+      if (e->jbutton.button >= _AL_MAX_JOYSTICK_BUTTONS)
          return;
       event.joystick.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
       event.joystick.id = &joy->allegro;
@@ -288,46 +294,81 @@ static void clear_joysticks(void)
          joy->sdl_gc = NULL;
       }
       _al_destroy_joystick_info(&joy->allegro.info);
+      /* That leaves the type and the stick flags, which would carry over if
+       * this slot is reused for a different kind of joystick.
+       */
+      memset(&joy->allegro.info, 0, sizeof(joy->allegro.info));
       /* Note that we deliberately keep the joystick id as is, so we can reuse it. */
    }
 }
 
+/* The number of sticks and buttons of a raw (non game controller) SDL
+ * joystick that Allegro exposes. SDL reports whatever the device declares:
+ * DirectInput devices can report up to 256 buttons (e.g. 8BitDo receivers'
+ * vendor interface does), but _AL_JOYSTICK_INFO and ALLEGRO_JOYSTICK_STATE
+ * have room for only _AL_MAX_JOYSTICK_BUTTONS buttons and
+ * _AL_MAX_JOYSTICK_STICKS sticks; the rest are dropped.
+ */
+static int raw_num_axes(SDL_Joystick *sdl)
+{
+   int an = SDL_JoystickNumAxes(sdl);
+   if (an < 0)
+      return 0;
+   return an > _AL_MAX_JOYSTICK_STICKS * 2 ? _AL_MAX_JOYSTICK_STICKS * 2 : an;
+}
+
+static int raw_num_buttons(SDL_Joystick *sdl)
+{
+   int bn = SDL_JoystickNumButtons(sdl);
+   if (bn < 0)
+      return 0;
+   return bn > _AL_MAX_JOYSTICK_BUTTONS ? _AL_MAX_JOYSTICK_BUTTONS : bn;
+}
+
 static bool sdl_init_joystick(void)
 {
+   /* Hold SDL's joystick lock for the whole scan. Device indices are only
+    * stable while it is held: SDL's RawInput and WGI backends (Windows) add
+    * and remove devices from their own threads, which shifts the index of
+    * every device after the changed one. Without the lock, consecutive calls
+    * below with the same index could each see a different device.
+    */
+   SDL_LockJoysticks();
    num_joysticks = SDL_NumJoysticks();
    for (int i = 0; i < num_joysticks; i++) {
       ALLEGRO_JOYSTICK_SDL *joy = get_or_insert_joystick(SDL_JoystickGetDeviceInstanceID(i));
+      _AL_JOYSTICK_INFO *info = &joy->allegro.info;
       SDL_JoystickGUID sdl_guid = SDL_JoystickGetDeviceGUID(i);
-      memcpy(&joy->allegro.info.guid, &sdl_guid, sizeof(ALLEGRO_JOYSTICK_GUID));
+      memcpy(&info->guid, &sdl_guid, sizeof(ALLEGRO_JOYSTICK_GUID));
 
-      if (SDL_IsGameController(i) && !compat_5_2_10()) {
+      bool is_gc = SDL_IsGameController(i);
+      if (is_gc && !compat_5_2_10()) {
          joy->sdl_gc = SDL_GameControllerOpen(i);
-         _al_fill_gamepad_info(&joy->allegro.info);
+         _al_fill_gamepad_info(info);
          SDL_GameControllerEventState(SDL_ENABLE);
          continue;
       }
 
       joy->sdl = SDL_JoystickOpen(i);
-      _AL_JOYSTICK_INFO *info = &joy->allegro.info;
-      int an = SDL_JoystickNumAxes(joy->sdl);
-      int a;
+      int an = raw_num_axes(joy->sdl);
       info->num_sticks = an / 2;
-      for (a = 0; a < an; a++) {
-         info->stick[a / 2].num_axes = 2;
-         info->stick[a / 2].name = _al_strdup("stick");
-         info->stick[a / 2].axis[0].name = _al_strdup("X");
-         info->stick[a / 2].axis[1].name = _al_strdup("Y");
+      for (int s = 0; s < info->num_sticks; s++) {
+         info->stick[s].num_axes = 2;
+         info->stick[s].name = _al_strdup("stick");
+         info->stick[s].axis[0].name = _al_strdup("X");
+         info->stick[s].axis[1].name = _al_strdup("Y");
       }
 
-      int bn = SDL_JoystickNumButtons(joy->sdl);
+      int bn = raw_num_buttons(joy->sdl);
       info->num_buttons = bn;
-      int b;
-      for (b = 0; b < bn; b++) {
-         info->button[b].name = _al_strdup(SDL_IsGameController(i) ?
-            SDL_GameControllerGetStringForButton(b) : "button");
+      for (int b = 0; b < bn; b++) {
+         /* NULL for b >= SDL_CONTROLLER_BUTTON_MAX. */
+         const char *name = is_gc ? SDL_GameControllerGetStringForButton(b) : NULL;
+         info->button[b].name = _al_strdup(name ? name : "button");
       }
       SDL_JoystickEventState(SDL_ENABLE);
    }
+   SDL_UnlockJoysticks();
    return true;
 }
 
@@ -404,12 +445,12 @@ static void sdl_get_joystick_state(ALLEGRO_JOYSTICK *joy,
    }
    else {
       SDL_Joystick *sdl = joy_sdl->sdl;
-      int an = SDL_JoystickNumAxes(sdl);
+      int an = raw_num_axes(sdl);
       int i;
       for (i = 0; i < an; i++) {
          ret_state->stick[i / 2].axis[i % 2] = AXIS(SDL_JoystickGetAxis(sdl, i));
       }
-      int bn = SDL_JoystickNumButtons(sdl);
+      int bn = raw_num_buttons(sdl);
       for (i = 0; i < bn; i++) {
          ret_state->button[i] = BUTTON(SDL_JoystickGetButton(sdl, i));
       }
