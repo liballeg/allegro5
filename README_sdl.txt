@@ -8,7 +8,7 @@ window and OpenGL context.
 Dependencies
 ------------
 
-SDL2 is required.
+SDL2 2.0.7 or newer is required.
 
 
 Building
