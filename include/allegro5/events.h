@@ -277,7 +277,7 @@ AL_FUNC(bool, al_wait_for_event_timed, (ALLEGRO_EVENT_QUEUE*,
                                         float secs));
 AL_FUNC(bool, al_wait_for_event_until, (ALLEGRO_EVENT_QUEUE *queue,
                                         ALLEGRO_EVENT *ret_event,
-                                        ALLEGRO_TIMEOUT *timeout));
+                                        const ALLEGRO_TIMEOUT *timeout));
 
 #ifdef __cplusplus
    }
