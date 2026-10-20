@@ -189,12 +189,14 @@ configure_file(
     ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_image_cfg.h
     )
 
+DelayLoad(IMAGE_LIBRARIES IMAGE_LINK_OPTIONS)
 add_our_addon_library(allegro_image
     AllegroImage-${ALLEGRO_SOVERSION}
     "${IMAGE_SOURCES};${IMAGE_INCLUDE_FILES}"
     "-DALLEGRO_IIO_SRC"
     "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
     )
+target_link_options(allegro_image PRIVATE ${IMAGE_LINK_OPTIONS})
 
 install_our_headers(${IMAGE_INCLUDE_FILES})
 

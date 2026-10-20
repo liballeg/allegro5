@@ -8,6 +8,7 @@
 
 
 /* Define if the library should be loaded dynamically. */
+#cmakedefine WANT_DELAYLOAD
 #cmakedefine ALLEGRO_CFG_ACODEC_FLAC_DLL "@ALLEGRO_CFG_ACODEC_FLAC_DLL@"
 #cmakedefine ALLEGRO_CFG_ACODEC_DUMB_DLL "@ALLEGRO_CFG_ACODEC_DUMB_DLL@"
 #cmakedefine ALLEGRO_CFG_ACODEC_VORBISFILE_DLL "@ALLEGRO_CFG_ACODEC_VORBISFILE_DLL@"
