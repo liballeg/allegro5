@@ -36,12 +36,6 @@
    #include "allegro5/internal/aintern_xsystem.h"
 #endif
 
-#if defined __APPLE__ && !defined ALLEGRO_IPHONE
-#include <OpenGL/glu.h>
-#elif !defined ALLEGRO_CFG_OPENGLES
-#include <GL/glu.h>
-#endif
-
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
 
@@ -709,7 +703,6 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
  */
 void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 {
-   //const GLubyte *buf;
 #if defined ALLEGRO_MACOSX
    CFURLRef bundle_url;
 #endif
@@ -727,10 +720,6 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       ALLEGRO_DEBUG("OpenGL Extensions:\n");
       print_extensions((char const *)glGetString(GL_EXTENSIONS));
    }
-
-   /* Print out GLU version */
-   //buf = gluGetString(GLU_VERSION);
-   //ALLEGRO_INFO("GLU Version : %s\n", buf);
 
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    /* Get glXGetProcAddress entry */
