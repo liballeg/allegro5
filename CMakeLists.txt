@@ -617,14 +617,20 @@ if(WANT_OPENGL)
     endif()
 
     if(GL_REAL_BUILD_TYPE MATCHES "gl$")
-        if(OPENGL_FOUND AND OPENGL_GLU_FOUND)
+        if(OPENGL_FOUND)
             set(SUPPORT_OPENGL 1)
             set(ALLEGRO_CFG_OPENGL 1)
             set(ALLEGRO_CFG_OPENGL_FIXED_FUNCTION 1)
             # We assume that the OpenGL library is not very old.
             set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
             if(OPENGL_opengl_LIBRARY) # prefer GLVND if available
-                set(OPENGL_LIBRARIES ${OPENGL_opengl_LIBRARY} ${OPENGL_glu_LIBRARY})
+                set(OPENGL_LIBRARIES ${OPENGL_opengl_LIBRARY})
+            endif()
+            # Allegro doesn't use GLU, but FindOpenGL adds it to OPENGL_LIBRARIES
+            # whenever it is found, which made libGLU a runtime requirement on
+            # Linux. Drop it. (On macOS GL and GLU are the same OpenGL.framework.)
+            if(OPENGL_glu_LIBRARY AND NOT OPENGL_glu_LIBRARY STREQUAL OPENGL_gl_LIBRARY)
+                list(REMOVE_ITEM OPENGL_LIBRARIES ${OPENGL_glu_LIBRARY})
             endif()
             include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
             set(OPENGL_SUMMARY "- OpenGL: Desktop")
