@@ -215,7 +215,10 @@ endif()
 
 if(SUPPORT_OPENGL AND NOT SUPPORT_OPENGLES)
     example(ex_gldepth ${FONT} ${IMAGE})
-    example(ex_glext)
+    # The only user of GLU, which the library itself doesn't link.
+    if(OPENGL_GLU_FOUND)
+        example(ex_glext EXTRA_LIBS ${OPENGL_glu_LIBRARY})
+    endif()
     example(ex_opengl)
     example(ex_opengl_pixel_shader ${IMAGE})
 endif()
