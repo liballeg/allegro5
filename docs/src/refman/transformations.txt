@@ -218,8 +218,18 @@ inverse before inverting it if you are in doubt.
 
 * trans - Transformation to invert
 
-> *Note*: Allegro's transformation inversion functions work correctly only
-with 2D transformations.
+> *Note*: For 3D invert transform, use [al_invert_transform_3d].
+
+See also: [al_check_inverse]
+
+## API: al_invert_transform_3d
+
+Inverts the passed transformation, like al_invert_transform, but for 3D
+transformations.
+
+*Parameters:*
+
+* trans - Transformation to invert
 
 See also: [al_check_inverse]
 

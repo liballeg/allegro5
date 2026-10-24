@@ -272,13 +272,34 @@ void al_build_camera_transform(ALLEGRO_TRANSFORM *trans,
  */
 void al_invert_transform(ALLEGRO_TRANSFORM *trans)
 {
+   float det, t;
+   ASSERT(trans);
+
+   det =  trans->m[0][0] *  trans->m[1][1] -  trans->m[1][0] *  trans->m[0][1];
+
+   t =  trans->m[3][0];
+   trans->m[3][0] = ( trans->m[1][0] *  trans->m[3][1] - t *  trans->m[1][1]) / det;
+   trans->m[3][1] = (t *  trans->m[0][1] -  trans->m[0][0] *  trans->m[3][1]) / det;
+
+   t =  trans->m[0][0];
+   trans->m[0][0] =  trans->m[1][1] / det;
+   trans->m[1][1] = t / det;
+
+   trans->m[0][1] = - trans->m[0][1] / det;
+   trans->m[1][0] = - trans->m[1][0] / det;
+}
+
+/* Function: al_invert_transform_3d
+ */
+void al_invert_transform_3d(ALLEGRO_TRANSFORM *trans)
+{
    float dst[16];
    float det;
    int i, j;
 
    ASSERT(trans);
 
-   #define M(x) trans->m[(x) / 4][(x) % 4]
+#define M(x) trans->m[(x) / 4][(x) % 4]
 
    dst[0]  =  M(5) * M(10) * M(15) - M(5) * M(11) * M(14) - M(9) * M(6) * M(15) + M(9) * M(7) * M(14) + M(13) * M(6) * M(11) - M(13) * M(7) * M(10);
    dst[4]  = -M(4) * M(10) * M(15) + M(4) * M(11) * M(14) + M(8) * M(6) * M(15) - M(8) * M(7) * M(14) - M(12) * M(6) * M(11) + M(12) * M(7) * M(10);
