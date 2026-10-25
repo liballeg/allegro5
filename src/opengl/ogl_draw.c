@@ -396,12 +396,18 @@ static void revert_state(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* texture)
 
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+      int i;
       if (display->ogl_extras->varlocs.pos_loc >= 0)
          glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
       if (display->ogl_extras->varlocs.color_loc >= 0)
          glDisableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
       if (display->ogl_extras->varlocs.texcoord_loc >= 0)
          glDisableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
+      for (i = 0; i < ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
+         if (display->ogl_extras->varlocs.user_attr_loc[i] >= 0)
+            glDisableVertexAttribArray(display->ogl_extras->varlocs.user_attr_loc[i]);
+      }
+
 #endif
    }
    else {
