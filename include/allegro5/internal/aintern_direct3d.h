@@ -91,8 +91,10 @@ AL_FUNC(void, _al_set_d3d_sampler_state, (IDirect3DDevice9* device,
 void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display);
 
+#ifdef ALLEGRO_CFG_SHADER_HLSL
 bool _al_hlsl_set_projview_matrix(LPD3DXEFFECT effect,
    const ALLEGRO_TRANSFORM *t);
+#endif
 
 #ifdef ALLEGRO_CFG_D3DX9
    typedef HRESULT (WINAPI *_ALLEGRO_D3DXLSFLSPROC)(LPDIRECT3DSURFACE9, const PALETTEENTRY*,
