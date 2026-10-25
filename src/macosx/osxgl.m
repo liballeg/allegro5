@@ -405,6 +405,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    [super reshape];
 
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   if (!dpy) return;
    if (dpy->tracking) {
       [self removeTrackingArea: dpy->tracking];
       dpy->tracking = create_tracking_area(self);
@@ -508,6 +509,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 /* Cursor handling */
 - (void) viewDidMoveToWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   if (!dpy) return;
    if (dpy->tracking) {
       [self removeTrackingArea: dpy->tracking];
    }
@@ -517,6 +519,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 
 - (void) viewWillMoveToWindow: (NSWindow*) newWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   if (!dpy) return;
    (void)newWindow;
    if (([self window] != nil) && (dpy->tracking != 0)) {
       [self removeTrackingArea:dpy->tracking];
@@ -527,6 +530,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) mouseEntered: (NSEvent*) evt
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   if (!dpy) return;
    ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
    if (dpy->show_cursor) {
       [dpy->cursor set];
@@ -542,6 +546,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) mouseExited: (NSEvent*) evt
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   if (!dpy) return;
    ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
    if (!dpy->show_cursor) {
       [NSCursor unhide];
@@ -571,6 +576,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) viewDidChangeBackingProperties
 {
    [super viewDidChangeBackingProperties];
+   if (!dpy_ptr) return;
    if (!(al_get_display_flags(dpy_ptr) & ALLEGRO_RESIZABLE) &&
        dpy_ptr->ogl_extras) {
       resize_display_win_main_thread(dpy_ptr, al_get_display_width(dpy_ptr), al_get_display_height(dpy_ptr));
@@ -1938,11 +1944,18 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
          }
 #endif
       }
+      // The window is the view's only owner, so closing it may free the
+      // view. Keep the view alive until it is detached from the display;
+      // this has to happen on the main thread, before the display is freed.
+      NSView* view = [dpy->view retain];
       if (dpy->win) {
          // Destroy the containing window if there is one
          [dpy->win close];
          dpy->win = nil;
       }
+      [(ALOpenGLView*)view setAllegroDisplay: NULL];
+      [view release];
+      dpy->view = nil;
    });
    _al_ogl_unmanage_extensions(&dpy->parent);
    [dpy->ctx release];
