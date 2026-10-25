@@ -601,12 +601,14 @@ static bool parse_sdl_joystick_mapping(const char *str, _AL_JOYSTICK_MAPPING *ma
       if (strncmp(c, "platform:", n) == 0) {
          c += n;
          n = strcspn(c, ",");
-         if (n >= sizeof(mapping->platform) || c[n] != ',') {
-            ALLEGRO_ERROR("Platform too long or missing trailing comma.\n");
+         if (n >= sizeof(mapping->platform)) {
+            ALLEGRO_ERROR("Platform too long.\n");
             return false;
          }
          memcpy(mapping->platform, c, n);
-         c += n + 1;
+         /* Like the other fields, the trailing comma is optional on the last
+          * one; the separator is consumed below. */
+         c += n;
       }
       else {
          for (int i = 0; i < (int)(sizeof(fields) / sizeof(fields[0])); i++) {
@@ -853,9 +855,9 @@ bool al_set_joystick_mappings_f(ALLEGRO_FILE *f)
    while (al_fgets(f, line, sizeof(line))) {
       char* line_start = line;
       char* line_end = line + strlen(line);
-      while (isspace(*line_start))
+      while (isspace((unsigned char)*line_start))
          line_start++;
-      while (line_end > line_start && isspace(*(line_end - 1))) {
+      while (line_end > line_start && isspace((unsigned char)*(line_end - 1))) {
          line_end--;
          *line_end = '\0';
       }
@@ -865,12 +867,15 @@ bool al_set_joystick_mappings_f(ALLEGRO_FILE *f)
       if (!mapping)
          return false;
       if (!parse_sdl_joystick_mapping(line_start, mapping)) {
-         ALLEGRO_ERROR("Could not parse mapping line: %s\n", line);
+         /* Skip the line rather than abandoning the rest of the file. */
+         ALLEGRO_WARN("Could not parse mapping line: %s\n", line_start);
 #ifdef JOYSTICK_DEBUG
          print_mapping(mapping);
          printf("========================");
 #endif
-         return false;
+         destroy_joystick_mapping(mapping);
+         _al_vector_delete_at(&joystick_mappings, _al_vector_size(&joystick_mappings) - 1);
+         continue;
       }
    }
    ALLEGRO_INFO("Parsed %d joystick mappings\n", (int)_al_vector_size(&joystick_mappings));
