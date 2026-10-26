@@ -773,7 +773,6 @@ static bool parse_sdl_joystick_mapping(const char *str, _AL_JOYSTICK_MAPPING *ma
                   return false;
                if (field->button >= 0) {
                   if (in_sign != 0) {
-                     printf("Button with in sign? 2\n");
                      return false;
                   }
                   output->button = field->button;
