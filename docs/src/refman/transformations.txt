@@ -224,14 +224,14 @@ See also: [al_check_inverse]
 
 ## API: al_invert_transform_3d
 
-Inverts the passed transformation, like al_invert_transform, but for 3D
+Inverts the passed transformation, like [al_invert_transform], but for 3D
 transformations.
 
 *Parameters:*
 
 * trans - Transformation to invert
 
-See also: [al_check_inverse]
+See also: [al_check_inverse_3d]
 
 ## API: al_transpose_transform
 
@@ -279,10 +279,27 @@ the transformation will be invertible.
 *Returns:*
 1 if the transformation is invertible, 0 otherwise
 
-> *Note*: Allegro's transformation inversion functions work correctly only
-with 2D transformations.
+> *Note*: This Allegro transformation inversion functions work correctly only
+with 2D transformations. Check [al_check_inverse_3d] for the complete test.
 
 See also: [al_invert_transform]
+
+## API: al_check_inverse_3d
+
+Similar to [al_check_inverse], but designed to use with the full matrix.
+This implementation may have different results for the tolerance, but,
+as the 2D implementation, around 1e-7 should be good enough for most
+cases.
+
+*Parameters:*
+
+* trans - Transformation to check
+* tol - Tolerance
+
+*Returns:*
+1 if the transformation is invertible, 0 otherwise
+
+See also: [al_invert_transform_3d]
 
 ## API: al_identity_transform
 
