@@ -129,6 +129,16 @@ static void property_listener(void *inClientData, AudioSessionPropertyID inID, U
 }
 #endif
 
+static int _aqueue_set_audio_output_device(ALLEGRO_AUDIO_DEVICE* output_device) {
+   AudioObjectPropertyAddress  propertyAddress;
+   propertyAddress.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+   propertyAddress.mScope = kAudioDevicePropertyScopeOutput;
+   propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+
+   return AudioObjectSetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, 
+                              sizeof(AudioDeviceID), output_device->identifier) != noErr;
+}
+
 static bool _aqueue_device_has_scope(AudioObjectID deviceID, AudioObjectPropertyScope scope)
 {
     AudioObjectPropertyAddress propertyAddress = {
@@ -683,5 +693,6 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
    _aqueue_deallocate_recorder,
 
    _aqueue_get_output_devices,
+   _aqueue_set_audio_output_device,
 };
 
