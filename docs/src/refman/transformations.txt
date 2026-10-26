@@ -218,7 +218,8 @@ inverse before inverting it if you are in doubt.
 
 * trans - Transformation to invert
 
-> *Note*: For 3D invert transform, use [al_invert_transform_3d].
+> *Note*: This Allegro transformation inversion function work correctly only
+with 2D transformations. Check [al_invert_transform_3d] for the 3D variant.
 
 See also: [al_check_inverse]
 
@@ -279,8 +280,8 @@ the transformation will be invertible.
 *Returns:*
 1 if the transformation is invertible, 0 otherwise
 
-> *Note*: This Allegro transformation inversion functions work correctly only
-with 2D transformations. Check [al_check_inverse_3d] for the complete test.
+> *Note*: This Allegro transformation inversion function work correctly only
+with 2D transformations. Check [al_check_inverse_3d] for the 3D variant.
 
 See also: [al_invert_transform]
 
