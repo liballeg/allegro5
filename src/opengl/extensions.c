@@ -28,10 +28,14 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
 
+#if defined ALLEGRO_WAYLAND && !defined ALLEGRO_WITH_XWINDOWS
+   #include <EGL/egl.h>
+#endif
+
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX && !defined ALLEGRO_WAYLAND
    #include "allegro5/internal/aintern_xdisplay.h"
    #include "allegro5/internal/aintern_xsystem.h"
 #endif
@@ -51,7 +55,9 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
    /* FIXME: set ALLEGRO_GLXGETPROCADDRESSARB on configure time, if
     * glXGetProcAddressARB must be used!
     */
-   #if defined ALLEGRO_GLXGETPROCADDRESSARB
+   #if defined ALLEGRO_WAYLAND && !defined ALLEGRO_WITH_XWINDOWS
+      #define alXGetProcAddress eglGetProcAddress
+   #elif defined ALLEGRO_GLXGETPROCADDRESSARB
       #define alXGetProcAddress glXGetProcAddressARB
    #elif defined ALLEGRO_RASPBERRYPI
       #define alXGetProcAddress eglGetProcAddress
@@ -273,7 +279,11 @@ static VOID_FPTR load_extension(const char* name)
 #ifdef ALLEGRO_WINDOWS
    fptr = (VOID_FPTR)wglGetProcAddress(name);
 #elif defined ALLEGRO_UNIX
+#if defined ALLEGRO_RASPBERRYPI || (defined ALLEGRO_WAYLAND && !defined ALLEGRO_WITH_XWINDOWS)
+   fptr = (VOID_FPTR)alXGetProcAddress(name);
+#else
    fptr = (VOID_FPTR)alXGetProcAddress((const GLubyte*)name);
+#endif
 #elif defined ALLEGRO_MACOSX
    CFStringRef cfstr = CFStringCreateWithCStringNoCopy(NULL, name,
       kCFStringEncodingUTF8, kCFAllocatorNull);
@@ -493,7 +503,7 @@ static bool _ogl_is_extension_supported(const char *extension,
       }
    }
 
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX && !defined ALLEGRO_WAYLAND
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
       ALLEGRO_SYSTEM_XGLX *sys = (void*)al_get_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
@@ -607,7 +617,7 @@ void *al_get_opengl_proc_address(const char *name)
        * address. Unfortunately glXGetProcAddress is an extension
        * and may not be available on all platforms
        */
-#if defined ALLEGRO_RASPBERRYPI
+#if defined ALLEGRO_RASPBERRYPI || (defined ALLEGRO_WAYLAND && !defined ALLEGRO_WITH_XWINDOWS)
       symbol = alXGetProcAddress(name);
 #else
       symbol = alXGetProcAddress((const GLubyte *)name);
@@ -758,7 +768,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    CFRelease(bundle_url);
 #endif
 
-#if defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#if defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX && !defined ALLEGRO_WAYLAND
    ALLEGRO_DEBUG("GLX Extensions:\n");
    ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
