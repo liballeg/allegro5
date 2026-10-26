@@ -9,6 +9,7 @@
 ALLEGRO_DEBUG_CHANNEL("main")
 
 #define FPS 60
+#define NUM_SAMPLES 300
 #define MAX_SPRITES 1024
 
 typedef struct Sprite {
@@ -20,7 +21,7 @@ char const *text[] = {
    "Space - toggle use of textures",
    "B - toggle alpha blending",
    "Left/Right - change bitmap size",
-   "Up/Down - change bitmap count",
+   "Up/Down/PgUp/PgDn - change bitmap count",
    "F1 - toggle help text"
 };
 
@@ -43,40 +44,65 @@ struct Example {
    ALLEGRO_COLOR dark;
    ALLEGRO_COLOR red;
 
-   double direct_speed_measure;
-
    int ftpos;
-   double frame_times[FPS];
+   int num_samples;
+   double frame_times[NUM_SAMPLES];
+   double direct_frame_dts[NUM_SAMPLES];
+   double next_fps_time;
 } example;
 
-static void add_time(void)
+static void add_time(double direct_dt)
 {
-   example.frame_times[example.ftpos++] = al_get_time();
-   if (example.ftpos >= FPS)
+   int ftpos = example.ftpos++;
+   example.num_samples += 1;
+   example.frame_times[ftpos] = al_get_time();
+   example.direct_frame_dts[ftpos] = direct_dt;
+   if (example.ftpos >= NUM_SAMPLES)
       example.ftpos = 0;
+   if (example.num_samples > NUM_SAMPLES)
+      example.num_samples = NUM_SAMPLES;
 }
 
-static void get_fps(int *average, int *minmax)
+static void get_fps(int *average, int *minmax, int *direct_average)
 {
    int i;
-   int prev = FPS - 1;
    double min_dt = 1;
    double max_dt = 1 / 1000000.0;
+   double min_direct_dt = 1;
+   double max_direct_dt = 1 / 1000000.0;
    double av = 0;
+   double direct_av = 0;
    double d;
-   for (i = 0; i < FPS; i++) {
-      if (i != example.ftpos) {
-         double dt = example.frame_times[i] - example.frame_times[prev];
-         if (dt < min_dt)
-            min_dt = dt;
-         if (dt > max_dt)
-            max_dt = dt;
-         av += dt;
-      }
-      prev = i;
+   int num_samples;
+   for (i = 0; i < example.num_samples; i++) {
+      if (i == example.ftpos)
+         continue;
+      int prev = i - 1;
+      if (prev < 0)
+         prev += NUM_SAMPLES;
+      if (prev >= example.num_samples)
+         continue;
+
+      double dt = example.frame_times[i] - example.frame_times[prev];
+      if (dt < min_dt)
+         min_dt = dt;
+      if (dt > max_dt)
+         max_dt = dt;
+      av += dt;
+
+      double direct_dt = example.direct_frame_dts[i];
+      if (direct_dt < min_direct_dt)
+         min_direct_dt = direct_dt;
+      if (direct_dt > max_direct_dt)
+         max_direct_dt = direct_dt;
+      direct_av += direct_dt;
    }
-   av /= (FPS - 1);
+   num_samples = example.num_samples > 0 ? example.num_samples - 1 : 1;
+   av /= num_samples;
+   direct_av /= num_samples;
+   (void)direct_av;
    *average = ceil(1 / av);
+   *direct_average = ceil(1 / min_direct_dt);
    d = 1 / min_dt - 1 / max_dt;
    *minmax = floor(d / 2);
 }
@@ -171,7 +197,7 @@ static void update(void)
 
    example.t++;
    if (example.t == 60) {
-      ALLEGRO_DEBUG("tick");
+      ALLEGRO_DEBUG("tick\n");
       example.t = 0;
    }
 }
@@ -181,7 +207,7 @@ static void redraw(void)
    int w = al_get_display_width(example.display);
    int h = al_get_display_height(example.display);
    int i;
-   int f1, f2;
+   int f1, f2, df;
    int fh = al_get_font_line_height(example.font);
    char const *info[] = {"textures", "memory buffers"};
    char const *binfo[] = {"alpha", "additive", "tinted", "solid", "alpha test"};
@@ -224,6 +250,8 @@ static void redraw(void)
       al_hold_bitmap_drawing(false);
    }
 
+   get_fps(&f1, &f2, &df);
+
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    if (example.show_help) {
       int dh = fh * 3.5;
@@ -241,13 +269,14 @@ static void redraw(void)
       info[example.use_memory_bitmaps]);
    al_draw_textf(example.font, example.white, 0, fh * 3, 0, "%s",
       binfo[example.blending]);
-
-   get_fps(&f1, &f2);
    al_draw_textf(example.font, example.white, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d +- %-4d",
       f1, f2);
-   al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "%4d / sec",
-      (int)(1.0 / example.direct_speed_measure));
+   al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "Direct FPS: %4d / sec", df);
 
+   if (al_get_time() > example.next_fps_time) {
+      log_printf("Direct FPS: %4d / sec\n", df); fflush(stdout);
+      example.next_fps_time += 1.0;
+   }
 }
 
 int main(int argc, char **argv)
@@ -255,20 +284,30 @@ int main(int argc, char **argv)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_MONITOR_INFO info;
-   const char* bitmap_filename;
+   const char* bitmap_filename = NULL;
    int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
    bool background = false;
+   bool add_max = false;
+   bool opengl_3_0 = false;
    example.show_help = true;
    example.hold_bitmap_drawing = false;
 
-   if (argc > 1) {
-      bitmap_filename = argv[1];
+   for (int i = 1; i < argc; i++) {
+      if (strcmp(argv[i], "--add-max") == 0)
+         add_max = true;
+      else if (strcmp(argv[i], "--opengl-3.0") == 0)
+         opengl_3_0 = true;
+      else if (bitmap_filename == NULL)
+         bitmap_filename = argv[i];
+      else {
+         printf("Usage: %s [BITMAP_FILENAME [--add-max] [--opengl-3.0]\n", argv[0]);
+         return 0;
+      }
    }
-   else {
+   if (bitmap_filename == NULL)
       bitmap_filename = "data/mysha256x256.png";
-   }
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");
@@ -281,12 +320,15 @@ int main(int argc, char **argv)
    al_init_font_addon();
    init_platform_specific();
 
-   al_get_num_video_adapters();
+   open_log();
 
+   al_get_num_video_adapters();
    al_get_monitor_info(0, &info);
 
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
                              ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
+   if (opengl_3_0)
+      al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE | ALLEGRO_OPENGL_3_0 | ALLEGRO_OPENGL);
    example.display = al_create_display(w, h);
    if (!example.display) {
       abort_example("Error creating display.\n");
@@ -295,6 +337,11 @@ int main(int argc, char **argv)
    w = al_get_display_width(example.display);
    h = al_get_display_height(example.display);
 
+   ALLEGRO_BITMAP *buffer = al_create_bitmap(w, h);
+   if (!buffer) {
+      abort_example("Error creating buffer\n");
+   }
+
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
    }
@@ -302,8 +349,6 @@ int main(int argc, char **argv)
    if (!al_install_mouse()) {
       abort_example("Error installing mouse.\n");
    }
-
-   al_install_touch_input();
 
    example.font = al_create_builtin_font();
    if (!example.font) {
@@ -320,8 +365,10 @@ int main(int argc, char **argv)
    example.dark = al_map_rgb(15, 15, 15);
    example.red = al_map_rgb_f(1, 0.2, 0.1);
    change_size(256);
-   add_sprite();
-   add_sprite();
+   if (add_max)
+      add_sprites(MAX_SPRITES);
+   else
+      add_sprites(2);
 
    timer = al_create_timer(1.0 / FPS);
 
@@ -344,11 +391,19 @@ int main(int argc, char **argv)
 
       if (!background && need_redraw && al_is_event_queue_empty(queue)) {
          double t = -al_get_time();
-         add_time();
+
+         al_set_target_bitmap(buffer);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          redraw();
          t += al_get_time();
-         example.direct_speed_measure  = t;
+
+         al_set_target_bitmap(al_get_backbuffer(example.display));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_clear_to_color(al_map_rgb_f(0, 0, 0));
+         al_draw_bitmap(buffer, 0, 0, 0);
+
+         add_time(t);
          al_flip_display();
          need_redraw = false;
       }
@@ -363,6 +418,12 @@ int main(int argc, char **argv)
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
                remove_sprites(1);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_PGUP) {
+               add_sprites(MAX_SPRITES / 10);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_PGDN) {
+               remove_sprites(MAX_SPRITES / 10);
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
                change_size(example.bitmap_size - 1);
@@ -383,6 +444,8 @@ int main(int argc, char **argv)
                   example.blending = 0;
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_H) {
+               example.num_samples = 0;
+               example.ftpos = 0;
                example.hold_bitmap_drawing ^= 1;
             }
             break;
@@ -460,6 +523,8 @@ int main(int argc, char **argv)
    }
 
    al_destroy_bitmap(example.bitmap);
+   al_destroy_display(example.display);
+   close_log(true);
 
    return 0;
 }

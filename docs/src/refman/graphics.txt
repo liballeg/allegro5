@@ -1642,20 +1642,62 @@ transformation while the drawing is held.
 
 No drawing is guaranteed to take place until you disable the hold. Thus, the
 idiom of this function's usage is to enable the deferred bitmap drawing, draw as
-many bitmaps as possible, taking care to stagger bitmaps that share parent
+many bitmaps as possible, taking care to group bitmaps that share parent
 bitmaps, and then disable deferred drawing. As mentioned above, this function
 also works with bitmap and truetype fonts, so if multiple lines of text need to
 be drawn, this function can speed things up.
 
-See also: [al_is_bitmap_drawing_held]
+See also: [al_is_bitmap_drawing_held] [al_hold_drawing]
 
 ### API: al_is_bitmap_drawing_held
 
 Returns whether the deferred bitmap drawing mode is turned on or off.
 
-See also: [al_hold_bitmap_drawing]
+See also: [al_hold_bitmap_drawing] [al_hold_drawing]
 
+### API: al_hold_drawing
 
+Enables or disables held drawing. This allows for efficient drawing
+of many bitmaps and high level primitives (from the primitives addon). Peak
+efficiency is achieved when the bitmaps share a parent bitmap, such as
+sub-bitmaps from a tilesheet or simply identical bitmaps. Drawing bitmaps that
+do not share a parent is less efficient, so it is advisable to group bitmap
+drawing calls such that the parent bitmap is the same for large number of those
+calls. For high level primitives peak efficiency is achieved by grouping
+polygonal primitives (filled and thick outlined ones) and line primitives (zero
+width outlined primitives) separately.
+
+While deferred drawing is enabled, the only functions that can be used are the
+bitmap, high level primitive and font drawing functions. Changing the state
+such as the blending modes and transformations will result in undefined
+behaviour. Note that this is different than [al_hold_bitmap_drawing] which
+allowed changing transformations (this may change in the future via the flags
+argument).
+
+No drawing is guaranteed to take place until you disable the hold. Thus, the
+idiom of this function's usage is to enable the deferred drawing, draw as many
+bitmaps/primitives as possible, taking care to group bitmaps that share parent
+bitmaps, and then disable deferred drawing. As mentioned above, this function
+also works with bitmap and truetype fonts, so if multiple lines of text need to
+be drawn, this function can speed things up.
+
+The flags argument must be set to zero.
+
+Since: 5.2.12
+
+> *[Unstable API]:* This API is new and subject to refinement.
+
+See also: [al_is_drawing_held]
+
+### API: al_is_drawing_held
+
+Returns whether the deferred drawing mode is turned on or off.
+
+Since: 5.2.12
+
+> *[Unstable API]:* This API is new and subject to refinement.
+
+See also: [al_hold_drawing]
 
 ## Image I/O
 

@@ -24,8 +24,8 @@
 static ALLEGRO_COLOR solid_white = {1, 1, 1, 1};
 
 
-static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
-   float sx, float sy, float sw, float sh, int flags)
+static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_TRANSFORM *local_trans,
+      ALLEGRO_COLOR tint, float sx, float sy, float sw, float sh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_DISPLAY *display = _al_get_bitmap_display(dest);
@@ -36,7 +36,7 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
    /* If destination is memory, do a memory blit */
    if (al_get_bitmap_flags(dest) & ALLEGRO_MEMORY_BITMAP ||
        _al_pixel_format_is_compressed(al_get_bitmap_format(dest))) {
-      _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
+      _al_draw_bitmap_region_memory(bitmap, local_trans, tint, sx, sy, sw, sh, 0, 0, flags);
    }
    else {
       /* if source is memory or incompatible */
@@ -44,16 +44,16 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
           (!al_is_compatible_bitmap(bitmap)))
       {
          if (display && display->vt->draw_memory_bitmap_region) {
-            display->vt->draw_memory_bitmap_region(display, bitmap,
+            display->vt->draw_memory_bitmap_region(display, bitmap, local_trans,
                sx, sy, sw, sh, flags);
          }
          else {
-            _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
+            _al_draw_bitmap_region_memory(bitmap, local_trans, tint, sx, sy, sw, sh, 0, 0, flags);
          }
       }
       else {
          /* Compatible display bitmap, use full acceleration */
-         bitmap->vt->draw_bitmap_region(bitmap, tint, sx, sy, sw, sh, flags);
+         bitmap->vt->draw_bitmap_region(bitmap, local_trans, tint, sx, sy, sw, sh, flags);
       }
    }
 }
@@ -65,14 +65,14 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
    float sx, float sy, float sw, float sh, float dx, float dy,
    int flags)
 {
-   ALLEGRO_TRANSFORM backup;
+   ALLEGRO_TRANSFORM current;
    ALLEGRO_TRANSFORM t;
    ALLEGRO_BITMAP *parent = bitmap;
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
    float const orig_sw = sw;
    float const orig_sh = sh;
    ASSERT(bitmap);
 
-   al_copy_transform(&backup, al_get_current_transform());
    al_identity_transform(&t);
 
    if (bitmap->parent) {
@@ -112,11 +112,83 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
    al_scale_transform(&t, xscale, yscale);
    al_rotate_transform(&t, angle);
    al_translate_transform(&t, dx, dy);
-   al_compose_transform(&t, &backup);
 
-   al_use_transform(&t);
-   _bitmap_drawer(parent, tint, sx, sy, sw, sh, flags);
-   al_use_transform(&backup);
+   /* The interaction of held drawing and transformations is a bit complex:
+    *
+    * The core issue is that hold_bitmap_drawing was written to respect calls to
+    * al_use_transform while bitmap drawing is held.
+    *
+    * hold_drawing() does NOT respect that, so a change was made to separate the
+    * local transformation (absorbing the args to al_draw_*_bitmap functions)
+    * and the "current transformation"
+    *
+    * Pre 5.2.12 behavior + legacy pipeline
+    *
+    * hold_bitmap(true)
+    *    identity -> gpu
+    *
+    * use_transform(t):
+    *    cur_transform = t
+    *    if !hold_bitmap:
+    *       cur_transform -> gpu
+    *
+    * draw_bitmap():
+    *    old_cur_transform = cur_transform
+    *    use_transform(cur_transform @ local_transform)
+    *    if gpu:
+    *       if hold_bitmap == true:
+    *          vtx = cur_transform @ vtx
+    *    else:
+    *       vtx = cur_transform @ vtx
+    *    use_transform(old_cur_transform)
+    *
+    * hold_bitmap(false)
+    *    cur_transform -> gpu
+    *
+    * Post 5.2.12 behavior
+    *
+    * hold_drawing(true):
+    *    identity -> gpu
+    *
+    * hold_drawing(true):
+    *    nothing
+    *
+    * use_transform(t):
+    *    if hold_drawing:
+    *       return
+    *    cur_transform = t
+    *    if !hold_bitmap:
+    *       cur_transform -> gpu
+    *
+    * draw_bitmap():
+    *    if hold_bitmap:
+    *       old_cur_transform = cur_transform
+    *       use_transform(cur_transform @ local_transform)
+    *       local_transform = NULL
+    *       vtx = cur_transform @ vtx
+    *       use_transform(old_cur_transform)
+    *    else:
+    *       if gpu:
+    *          vtx = local_transform @ vtx
+    *       else:
+    *          vtx = cur_transform @ vtx
+    */
+
+   ALLEGRO_TRANSFORM *local_trans = &t;
+   if (disp && (disp->cache_enabled || disp->use_legacy_drawing_api)) {
+      ALLEGRO_TRANSFORM composed;
+      al_copy_transform(&composed, &t);
+      al_copy_transform(&current, al_get_current_transform());
+      al_compose_transform(&composed, &current);
+      al_use_transform(&composed);
+      /* NULL = identity. This needs to be identity because the memory drawers
+       * compose the local transform with the current transform. */
+      local_trans = NULL;
+   }
+   _bitmap_drawer(parent, local_trans, tint, sx, sy, sw, sh, flags);
+   if (disp && (disp->cache_enabled || disp->use_legacy_drawing_api)) {
+      al_use_transform(&current);
+   }
 }
 
 
