@@ -407,13 +407,13 @@ int al_check_inverse_3d(const ALLEGRO_TRANSFORM *trans, float tol)
 
 #undef M
 
-   norm = 0.0f;
+   norm = 1.0f;
 
    for (i = 0; i < 4; ++i) {
-      float row_sum = 0.0;
+      float row_sum = 0.0f;
 
       for (j = 0; j < 4; ++j)
-         row_sum += fabs(dst[j + i * 4]);
+         row_sum += fabsf(trans->m[i][j]);
 
       if (row_sum > norm)
          norm = row_sum;
@@ -422,7 +422,7 @@ int al_check_inverse_3d(const ALLEGRO_TRANSFORM *trans, float tol)
    if (!isfinite(det) || !isfinite(norm))
       return 0;
 
-   return fabs(det) > tol * norm;   
+   return fabsf(det) > tol * norm;
 }
 
 /* Function: al_translate_transform
