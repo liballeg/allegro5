@@ -55,7 +55,7 @@ static _AL_MUTEX user_event_refcount_mutex = _AL_MUTEX_UNINITED;
 /* forward declarations */
 static void shutdown_events(void);
 static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *ret_event, const ALLEGRO_TIMEOUT *timeout);
+   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout);
 static void copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src);
 static void ref_if_user_event(ALLEGRO_EVENT *event);
 static void unref_if_user_event(ALLEGRO_EVENT *event);
@@ -450,7 +450,7 @@ bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
 /* Function: al_wait_for_event_until
  */
 bool al_wait_for_event_until(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *ret_event, const ALLEGRO_TIMEOUT *timeout)
+   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
 {
    ASSERT(queue);
 
@@ -462,7 +462,7 @@ bool al_wait_for_event_until(ALLEGRO_EVENT_QUEUE *queue,
 
 
 static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *ret_event, const ALLEGRO_TIMEOUT *timeout)
+   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
 {
    bool timed_out = false;
    ALLEGRO_EVENT *next_event = NULL;
