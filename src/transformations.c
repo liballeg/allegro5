@@ -289,6 +289,53 @@ void al_invert_transform(ALLEGRO_TRANSFORM *trans)
    trans->m[1][0] = - trans->m[1][0] / det;
 }
 
+/* Function: al_invert_transform_3d
+ */
+void al_invert_transform_3d(ALLEGRO_TRANSFORM *trans)
+{
+   float dst[16];
+   float det;
+   int i, j;
+
+   ASSERT(trans);
+
+#define M(x) trans->m[(x) / 4][(x) % 4]
+
+   dst[0]  =  M(5) * M(10) * M(15) - M(5) * M(11) * M(14) - M(9) * M(6) * M(15) + M(9) * M(7) * M(14) + M(13) * M(6) * M(11) - M(13) * M(7) * M(10);
+   dst[4]  = -M(4) * M(10) * M(15) + M(4) * M(11) * M(14) + M(8) * M(6) * M(15) - M(8) * M(7) * M(14) - M(12) * M(6) * M(11) + M(12) * M(7) * M(10);
+   dst[8]  =  M(4) * M(9)  * M(15) - M(4) * M(11) * M(13) - M(8) * M(5) * M(15) + M(8) * M(7) * M(13) + M(12) * M(5) * M(11) - M(12) * M(7) * M(9);
+   dst[12] = -M(4) * M(9)  * M(14) + M(4) * M(10) * M(13) + M(8) * M(5) * M(14) - M(8) * M(6) * M(13) - M(12) * M(5) * M(10) + M(12) * M(6) * M(9);
+
+   dst[1]  = -M(1) * M(10) * M(15) + M(1) * M(11) * M(14) + M(9) * M(2) * M(15) - M(9) * M(3) * M(14) - M(13) * M(2) * M(11) + M(13) * M(3) * M(10);
+   dst[5]  =  M(0) * M(10) * M(15) - M(0) * M(11) * M(14) - M(8) * M(2) * M(15) + M(8) * M(3) * M(14) + M(12) * M(2) * M(11) - M(12) * M(3) * M(10);
+   dst[9]  = -M(0) * M(9)  * M(15) + M(0) * M(11) * M(13) + M(8) * M(1) * M(15) - M(8) * M(3) * M(13) - M(12) * M(1) * M(11) + M(12) * M(3) * M(9);
+   dst[13] =  M(0) * M(9)  * M(14) - M(0) * M(10) * M(13) - M(8) * M(1) * M(14) + M(8) * M(2) * M(13) + M(12) * M(1) * M(10) - M(12) * M(2) * M(9);
+
+   dst[2]  =  M(1) * M(6)  * M(15) - M(1) * M(7)  * M(14) - M(5) * M(2) * M(15) + M(5) * M(3) * M(14) + M(13) * M(2) * M(7)  - M(13) * M(3) * M(6);
+   dst[6]  = -M(0) * M(6)  * M(15) + M(0) * M(7)  * M(14) + M(4) * M(2) * M(15) - M(4) * M(3) * M(14) - M(12) * M(2) * M(7)  + M(12) * M(3) * M(6);
+   dst[10] =  M(0) * M(5)  * M(15) - M(0) * M(7)  * M(13) - M(4) * M(1) * M(15) + M(4) * M(3) * M(13) + M(12) * M(1) * M(7)  - M(12) * M(3) * M(5);
+   dst[14] = -M(0) * M(5)  * M(14) + M(0) * M(6)  * M(13) + M(4) * M(1) * M(14) - M(4) * M(2) * M(13) - M(12) * M(1) * M(6)  + M(12) * M(2) * M(5);
+
+   dst[3]  = -M(1) * M(6)  * M(11) + M(1) * M(7)  * M(10) + M(5) * M(2) * M(11) - M(5) * M(3) * M(10) - M(9)  * M(2) * M(7)  + M(9)  * M(3) * M(6);
+   dst[7]  =  M(0) * M(6)  * M(11) - M(0) * M(7)  * M(10) - M(4) * M(2) * M(11) + M(4) * M(3) * M(10) + M(8)  * M(2) * M(7)  - M(8)  * M(3) * M(6);
+   dst[11] = -M(0) * M(5)  * M(11) + M(0) * M(7)  * M(9)  + M(4) * M(1) * M(11) - M(4) * M(3) * M(9)  - M(8)  * M(1) * M(7)  + M(8)  * M(3) * M(5);
+   dst[15] =  M(0) * M(5)  * M(10) - M(0) * M(6)  * M(9)  - M(4) * M(1) * M(10) + M(4) * M(2) * M(9)  + M(8)  * M(1) * M(6)  - M(8)  * M(2) * M(5);
+
+   det = M(0) * dst[0] + M(1) * dst[4] + M(2) * dst[8] + M(3) * dst[12];
+
+#undef M
+
+   ASSERT(det != 0.0f); // Matrix is singular and cannot be inverted
+
+   det = 1.0f / det;
+
+   for (i = 0; i < 4; i++) {
+      for (j = 0; j < 4; j++) {
+         trans->m[i][j] = dst[i * 4 + j] * det;
+      }
+   }
+}
+
 /* Function: al_transpose_transform
  */
 void al_transpose_transform(ALLEGRO_TRANSFORM *trans)
