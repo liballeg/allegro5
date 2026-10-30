@@ -71,7 +71,7 @@ void _al_sdl_display_event(SDL_Event *e)
       if (e->window.event == SDL_WINDOWEVENT_CLOSE) {
          event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
       }
-      if (e->window.event == SDL_WINDOWEVENT_RESIZED) {
+      if (e->window.event == SDL_WINDOWEVENT_RESIZED && d) {
          float ratio = _al_sdl_get_display_pixel_ratio(d);
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
          event.display.width = e->window.data1 * ratio;
