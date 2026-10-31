@@ -38,6 +38,14 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
+   ogl->clear_texture_unit_0 = true;
+   const char* opengl_clear_texture_unit_0_value =
+      al_get_config_value(al_get_system_config(), "compatibility", "opengl_clear_texture_unit_0");
+   if (opengl_clear_texture_unit_0_value && strncmp(opengl_clear_texture_unit_0_value, "false", 5) == 0)
+      ogl->clear_texture_unit_0 = false;
+   else
+      ogl->clear_texture_unit_0 = true;
+
    if (ogl->backbuffer) {
       ALLEGRO_BITMAP *target = al_get_target_bitmap();
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
