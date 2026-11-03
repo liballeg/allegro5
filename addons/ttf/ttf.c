@@ -725,11 +725,11 @@ static int ttf_render(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
    int prev_ft_index = -1;
    int32_t prev_ch = -1;
    int32_t ch;
-   bool hold;
+   bool drawing_held = al_is_drawing_held();
+   bool bitmap_held = al_is_bitmap_drawing_held();
 
-   hold = al_is_bitmap_drawing_held();
-   al_hold_bitmap_drawing(true);
-
+   if (!drawing_held && !bitmap_held)
+      al_hold_bitmap_drawing(true);
    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
       int ft_index = FT_Get_Char_Index(face, ch);
       advance += render_glyph(f, color, prev_ft_index, ft_index, prev_ch, ch,
@@ -737,8 +737,8 @@ static int ttf_render(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
       prev_ft_index = ft_index;
       prev_ch = ch;
    }
-
-   al_hold_bitmap_drawing(hold);
+   if (!drawing_held && !bitmap_held)
+      al_hold_bitmap_drawing(false);
 
    return advance;
 }

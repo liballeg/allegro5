@@ -73,7 +73,7 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    ALLEGRO_BITMAP* texture, int start, int end, int type)
 {
    ASSERT(addon_initialized);
-   return _al_draw_prim(vtxs, decl, texture, start, end, type);
+   return _al_draw_prim(vtxs, decl, texture, start, end, type, true);
 }
 
 /* Function: al_draw_indexed_prim
@@ -82,7 +82,7 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type)
 {
    ASSERT(addon_initialized);
-   return _al_draw_indexed_prim(vtxs, decl, texture, indices, num_vtx, type);
+   return _al_draw_indexed_prim(vtxs, decl, texture, indices, num_vtx, type, true);
 }
 
 /* Function: al_get_allegro_primitives_version
@@ -177,7 +177,7 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
    ALLEGRO_BITMAP* texture, int start, int end, int type)
 {
    ASSERT(addon_initialized);
-   return _al_draw_vertex_buffer(vertex_buffer, texture, start, end, type);
+   return _al_draw_vertex_buffer(vertex_buffer, texture, start, end, type, true);
 }
 
 /* Function: al_draw_indexed_buffer
@@ -187,7 +187,7 @@ int al_draw_indexed_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
    int start, int end, int type)
 {
    ASSERT(addon_initialized);
-   return _al_draw_indexed_buffer(vertex_buffer, texture, index_buffer, start, end, type);
+   return _al_draw_indexed_buffer(vertex_buffer, texture, index_buffer, start, end, type, true);
 }
 
 /* Function: al_get_vertex_buffer_size

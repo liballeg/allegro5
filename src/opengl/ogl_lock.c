@@ -128,6 +128,7 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
       old_disp = disp;
       _al_set_current_display_only(_al_get_bitmap_display(bitmap));
    }
+   _al_get_bitmap_display(bitmap)->ogl_extras->opengl_source = NULL;
 
    ok = true;
 
@@ -459,6 +460,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
       old_disp = disp;
       _al_set_current_display_only(_al_get_bitmap_display(bitmap));
    }
+   _al_get_bitmap_display(bitmap)->ogl_extras->opengl_source = NULL;
 
    /* Keep this in sync with ogl_lock_region. */
    int previous_alignment;

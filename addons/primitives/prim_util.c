@@ -19,8 +19,10 @@
 #include <float.h>
 #include <math.h>
 
+#define ALLEGRO_INTERNAL_UNSTABLE
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
+#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_list.h"
 #include "allegro5/internal/aintern_prim_addon.h"
 
@@ -171,6 +173,7 @@ void _al_prim_cache_init(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALLEGR
 
 void _al_prim_cache_init_ex(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALLEGRO_COLOR color, void* user_data)
 {
+   cache->disp      = al_get_current_display();
    cache->size      = 0;
    cache->current   = cache->buffer;
    cache->color     = color;
@@ -185,68 +188,147 @@ void _al_prim_cache_term(ALLEGRO_PRIM_VERTEX_CACHE* cache)
 
 void _al_prim_cache_flush(ALLEGRO_PRIM_VERTEX_CACHE* cache)
 {
-   if (cache->size == 0)
-      return;
-
-   if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_TRIANGLE)
-      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_TRIANGLE_LIST);
-   else if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP)
-      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_LINE_STRIP);
-
-   if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP)
-   {
-      cache->buffer[0] = *(cache->current - 1);
-      cache->current   = cache->buffer + 1;
-      cache->size      = 1;
+   ALLEGRO_DISPLAY *disp = cache->disp;
+   if (disp && !disp->use_legacy_drawing_api && !disp->batch_enabled && !_al_prim_disable_batching()) {
+      disp->vt->draw_batch(disp);
    }
-   else
-   {
-      cache->current = cache->buffer;
-      cache->size    = 0;
+   else {
+      if (cache->size == 0)
+         return;
+
+      if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_TRIANGLE)
+         al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_TRIANGLE_LIST);
+      else if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP)
+         al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_LINE_STRIP);
+
+      if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP) {
+         cache->buffer[0] = *(cache->current - 1);
+         cache->current   = cache->buffer + 1;
+         cache->size      = 1;
+      }
+      else {
+         cache->current = cache->buffer;
+         cache->size    = 0;
+      }
    }
 }
 
 void _al_prim_cache_push_triangle(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* v0, const float* v1, const float* v2)
 {
-   if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 3))
-      _al_prim_cache_flush(cache);
+   ALLEGRO_VERTEX* current;
+   _AL_BATCH_INDEX_TYPE* idx = NULL;
+   int first_idx = 0;
+   bool use_batching;
+   ALLEGRO_DISPLAY *disp = cache->disp;
+   if (disp && !disp->use_legacy_drawing_api && !_al_prim_disable_batching()) {
+      if (disp->batch_enabled) {
+         first_idx = disp->vt->prepare_batch(disp, NULL,
+            ALLEGRO_PRIM_TRIANGLE_LIST, 3, 3, (void**)&current, (void**)&idx);
+      }
+      else {
+         first_idx = disp->vt->prepare_batch(disp, NULL,
+            ALLEGRO_PRIM_TRIANGLE_LIST, 3, 0, (void**)&current, (void**)&idx);
+      }
+      if (first_idx < 0)
+         return;
+      use_batching = true;
+   }
+   else {
+      if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 3))
+         _al_prim_cache_flush(cache);
+      current = cache->current;
+      use_batching = false;
+   }
 
-   cache->current->x     = v0[0];
-   cache->current->y     = v0[1];
-   cache->current->z     = 0.0f;
-   cache->current->color = cache->color;
+   current->x     = v0[0];
+   current->y     = v0[1];
+   current->z     = 0.0f;
+   current->color = cache->color;
 
-   ++cache->current;
+   ++current;
 
-   cache->current->x     = v1[0];
-   cache->current->y     = v1[1];
-   cache->current->z     = 0.0f;
-   cache->current->color = cache->color;
+   current->x     = v1[0];
+   current->y     = v1[1];
+   current->z     = 0.0f;
+   current->color = cache->color;
 
-   ++cache->current;
+   ++current;
 
-   cache->current->x     = v2[0];
-   cache->current->y     = v2[1];
-   cache->current->z     = 0.0f;
-   cache->current->color = cache->color;
+   current->x     = v2[0];
+   current->y     = v2[1];
+   current->z     = 0.0f;
+   current->color = cache->color;
 
-   ++cache->current;
+   ++current;
 
-   cache->size += 3;
+   if (!use_batching) {
+      cache->current = current;
+      cache->size += 3;
+   }
+   else if (use_batching && disp->batch_enabled) {
+      idx[0] = first_idx + 0;
+      idx[1] = first_idx + 1;
+      idx[2] = first_idx + 2;
+   }
 
    //al_draw_triangle(v0[0], v0[1], v1[0], v1[1], v2[0], v2[1], cache->color, 1.0f);
 }
 
-void _al_prim_cache_push_point(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* v)
+void _al_prim_cache_push_segment(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* v0, const float* v1)
 {
-   if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 1))
-      _al_prim_cache_flush(cache);
+   ALLEGRO_VERTEX* current;
+   _AL_BATCH_INDEX_TYPE* idx = NULL;
+   int first_idx = 0;
+   bool use_batching;
+   ALLEGRO_DISPLAY *disp = cache->disp;
+   if (disp && !disp->use_legacy_drawing_api && !_al_prim_disable_batching()) {
+      if (disp->batch_enabled) {
+         first_idx = disp->vt->prepare_batch(disp, NULL,
+            ALLEGRO_PRIM_LINE_LIST, 2, 2, (void**)&current, (void**)&idx);
+      }
+      else {
+         first_idx = disp->vt->prepare_batch(disp, NULL,
+            ALLEGRO_PRIM_LINE_LIST, 2, 0, (void**)&current, (void**)&idx);
+      }
+      if (first_idx < 0)
+         return;
+      use_batching = true;
+   }
+   else {
+      if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 2))
+         _al_prim_cache_flush(cache);
+      current = cache->current;
+      use_batching = false;
+   }
 
-   cache->current->x     = v[0];
-   cache->current->y     = v[1];
-   cache->current->z     = 0.0f;
-   cache->current->color = cache->color;
+   current->x     = v0[0];
+   current->y     = v0[1];
+   current->z     = 0.0f;
+   current->color = cache->color;
 
-   ++cache->current;
-   ++cache->size;
+   ++current;
+
+   current->x     = v1[0];
+   current->y     = v1[1];
+   current->z     = 0.0f;
+   current->color = cache->color;
+
+   ++current;
+
+   if (!use_batching) {
+      cache->current = current;
+      cache->size += 2;
+   }
+   else if (use_batching && disp->batch_enabled) {
+      idx[0] = first_idx + 0;
+      idx[1] = first_idx + 1;
+   }
+}
+
+bool _al_prim_disable_batching(void)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   if (!target)
+      return true;
+   return (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP) || al_is_bitmap_locked(target);
 }
