@@ -858,6 +858,17 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                break;
          }
          return 1;
+      case WM_MOUSEACTIVATE:
+         /* By default a click on an inactive window both activates it and
+          * gets delivered to the window. Eat client-area clicks so the
+          * click that refocuses the window doesn't register as a mouse
+          * press. This matches OS X, where -acceptsFirstMouse: defaults
+          * to NO. Non-client clicks (title bar, borders) keep the default
+          * behavior so dragging/resizing works on the activating click.
+          */
+         if (LOWORD(lParam) == HTCLIENT)
+            return MA_ACTIVATEANDEAT;
+         break;
       case WM_ACTIVATE:
          if (HIWORD(wParam) && LOWORD(wParam) != WA_INACTIVE)
             break;
