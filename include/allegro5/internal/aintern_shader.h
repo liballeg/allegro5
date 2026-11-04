@@ -28,10 +28,13 @@ struct ALLEGRO_SHADER_INTERFACE
          const ALLEGRO_TRANSFORM *matrix);
    bool (*set_shader_int)(ALLEGRO_SHADER *shader, const char *name, int i);
    bool (*set_shader_float)(ALLEGRO_SHADER *shader, const char *name, float f);
+   bool (*set_shader_double)(ALLEGRO_SHADER *shader, const char *name, double d);
    bool (*set_shader_int_vector)(ALLEGRO_SHADER *shader, const char *name,
          int elem_size, const int *i, int num_elems);
    bool (*set_shader_float_vector)(ALLEGRO_SHADER *shader, const char *name,
          int elem_size, const float *f, int num_elems);
+   bool (*set_shader_double_vector)(ALLEGRO_SHADER *shader, const char *name,
+         int elem_size, const double *d, int num_elems);
    bool (*set_shader_bool)(ALLEGRO_SHADER *shader, const char *name, bool b);
 };
 
