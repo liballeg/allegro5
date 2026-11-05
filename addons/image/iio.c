@@ -1,12 +1,45 @@
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_image.h"
 #include "allegro5/internal/aintern_image_cfg.h"
+#include "allegro5/internal/aintern_bitmap.h"
+
+#include "iio.h"
 
 
 /* globals */
 static bool iio_inited = false;
+
+
+/* Stores a copy of a loaded image's palette on the bitmap, for
+ * al_get_bitmap_palette. Loaders call this only when ALLEGRO_KEEP_PALETTE
+ * is set.
+ */
+void _al_install_palette(ALLEGRO_BITMAP *bitmap, const PalEntry *pal, int count)
+{
+   unsigned char *data;
+   int i;
+
+   if (count <= 0)
+      return;
+
+   data = al_malloc(count * 4);
+   if (!data)
+      return;
+
+   for (i = 0; i < count; i++) {
+      data[i * 4 + 0] = pal[i].r;
+      data[i * 4 + 1] = pal[i].g;
+      data[i * 4 + 2] = pal[i].b;
+      data[i * 4 + 3] = pal[i].a;
+   }
+
+   /* This takes ownership of data. */
+   _al_set_bitmap_palette_raw(bitmap, data, count);
+}
 
 
 /* Function: al_init_image_addon
