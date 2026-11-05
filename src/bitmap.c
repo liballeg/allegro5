@@ -798,6 +798,23 @@ void _al_convert_bitmap_data(
 }
 
 
+static void copy_bitmap_palette(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dest)
+{
+   void *data;
+
+   if (src->parent)
+      src = src->parent;
+   if (!src->palette_data)
+      return;
+
+   data = al_malloc(src->palette_count * 4);
+   if (!data)
+      return;
+   memcpy(data, src->palette_data, src->palette_count * 4);
+   _al_set_bitmap_palette_raw(dest, data, src->palette_count);
+}
+
+
 /* Function: al_clone_bitmap
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -812,6 +829,10 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
       al_destroy_bitmap(clone);
       return NULL;
    }
+   /* al_convert_bitmap goes through here too, so this also keeps the
+    * palette of a converted bitmap.
+    */
+   copy_bitmap_palette(bitmap, clone);
    return clone;
 }
 
