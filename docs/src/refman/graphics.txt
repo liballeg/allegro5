@@ -831,6 +831,29 @@ See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_flags]
 
 Returns the height of a bitmap in pixels.
 
+### API: al_get_bitmap_palette
+
+Gets the palette of an indexed image that was loaded with the
+ALLEGRO_KEEP_PALETTE flag. Returns the number of palette entries, or 0 if
+the bitmap has no palette. If `palette` is not NULL, it must have room for
+that many entries; pass NULL first to find out how many there are.
+
+A sub-bitmap returns its parent's palette.
+
+The palette's colors are not premultiplied by their alpha (see
+ALLEGRO_NO_PREMULTIPLIED_ALPHA in [al_load_bitmap_flags]).
+
+Palettes are kept for 1, 2, 4 and 8-bit .bmp files, 8-bit .pcx files and
+paletted .png files. PNG palettes are only kept by Allegro's own (libpng)
+PNG loader: when the image addon uses a platform's native loader for PNG
+instead, such as GDI+ on Windows, no palette is kept.
+
+Since: 5.2.12
+
+> *[Unstable API]:* This API is new and subject to refinement.
+
+See also: [al_load_bitmap_flags]
+
 ### API: al_get_bitmap_width
 
 Returns the width of a bitmap in pixels.
@@ -1829,6 +1852,12 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
 ALLEGRO_KEEP_INDEX
 :   Load the palette indices of 8-bit .bmp and .pcx files instead of the rgb colors.
     Since 5.1.0.
+
+ALLEGRO_KEEP_PALETTE
+:   Keep the palette of an indexed image, so that it can be read with
+    [al_get_bitmap_palette]. Combine it with ALLEGRO_KEEP_INDEX to get both
+    the indices and the colors they stand for.
+    Since 5.2.12.
 
 ALLEGRO_KEEP_BITMAP_FORMAT
 :   Force the resulting [ALLEGRO_BITMAP] to use the same format as the file.

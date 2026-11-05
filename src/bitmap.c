@@ -839,31 +839,37 @@ void _al_get_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP *wrap_u, AL
    *wrap_v = bitmap->_wrap_v;
 }
 
-/* Function: al_get_palette
+
+/* Function: al_get_bitmap_palette
  */
-int al_get_bitmap_palette(ALLEGRO_BITMAP* bitmap, ALLEGRO_COLOR* palette)
+int al_get_bitmap_palette(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *palette)
 {
+   const unsigned char *data;
+   int count, i;
    ASSERT(bitmap);
-   int i;
-   unsigned char* data;
+
    if (bitmap->parent)
       bitmap = bitmap->parent;
    if (!bitmap->palette_data)
       return 0;
-   int count = bitmap->palette_count;
+
+   count = bitmap->palette_count;
    if (palette) {
       data = bitmap->palette_data;
-      for (i=0; i<count; ++i) {
-         palette[i] = al_map_rgba(data[0], data[1], data[2], data[3]);
-         data += 4;
+      for (i = 0; i < count; i++) {
+         palette[i] = al_map_rgba(data[i * 4], data[i * 4 + 1],
+            data[i * 4 + 2], data[i * 4 + 3]);
       }
    }
    return count;
 }
+
+
 /* Internal function.
  * Note: this takes ownership of 'data'
  */
-void _al_set_bitmap_palette_raw(ALLEGRO_BITMAP *bitmap, void *data, int count) {
+void _al_set_bitmap_palette_raw(ALLEGRO_BITMAP *bitmap, void *data, int count)
+{
    if (bitmap->palette_data)
       al_free(bitmap->palette_data);
    bitmap->palette_data = data;
