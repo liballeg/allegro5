@@ -76,6 +76,8 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
    bitmap->memory = al_malloc(pitch * h);
    bitmap->use_bitmap_blender = false;
    bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
+   bitmap->palette_count = 0;
+   bitmap->palette_data = NULL;
    al_get_new_bitmap_wrap(&bitmap->_wrap_u, &bitmap->_wrap_v);
 
    _al_register_convert_bitmap(bitmap);
@@ -90,6 +92,8 @@ static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
    if (bmp->memory)
       al_free(bmp->memory);
+   if (bmp->palette_data)
+      al_free(bmp->palette_data);
    al_free(bmp);
 }
 
@@ -156,6 +160,8 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    bitmap->use_bitmap_blender = false;
    bitmap->blender.blend_color = al_map_rgba(0, 0, 0, 0);
    al_get_new_bitmap_wrap(&bitmap->_wrap_u, &bitmap->_wrap_v);
+   bitmap->palette_count = 0;
+   bitmap->palette_data = NULL;
 
    /* The display driver should have set the bitmap->memory field if
     * appropriate; video bitmaps may leave it NULL.
@@ -244,6 +250,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
       if (bitmap->memory)
          al_free(bitmap->memory);
+      if (bitmap->palette_data)
+         al_free(bitmap->palette_data);
    }
 
    al_free(bitmap);
@@ -595,6 +603,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->xofs = x;
    bitmap->yofs = y;
    bitmap->memory = NULL;
+   bitmap->palette_count = 0;
+   bitmap->palette_data = NULL;
 
    bitmap->dtor_item = _al_register_destructor(_al_dtor_list, "sub_bitmap", bitmap,
       (void (*)(void *))al_destroy_bitmap);
@@ -788,6 +798,23 @@ void _al_convert_bitmap_data(
 }
 
 
+static void copy_bitmap_palette(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dest)
+{
+   void *data;
+
+   if (src->parent)
+      src = src->parent;
+   if (!src->palette_data)
+      return;
+
+   data = al_malloc(src->palette_count * 4);
+   if (!data)
+      return;
+   memcpy(data, src->palette_data, src->palette_count * 4);
+   _al_set_bitmap_palette_raw(dest, data, src->palette_count);
+}
+
+
 /* Function: al_clone_bitmap
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -802,6 +829,10 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
       al_destroy_bitmap(clone);
       return NULL;
    }
+   /* al_convert_bitmap goes through here too, so this also keeps the
+    * palette of a converted bitmap.
+    */
+   copy_bitmap_palette(bitmap, clone);
    return clone;
 }
 
@@ -827,6 +858,43 @@ void _al_get_bitmap_wrap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_WRAP *wrap_u, AL
 
    *wrap_u = bitmap->_wrap_u;
    *wrap_v = bitmap->_wrap_v;
+}
+
+
+/* Function: al_get_bitmap_palette
+ */
+int al_get_bitmap_palette(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *palette)
+{
+   const unsigned char *data;
+   int count, i;
+   ASSERT(bitmap);
+
+   if (bitmap->parent)
+      bitmap = bitmap->parent;
+   if (!bitmap->palette_data)
+      return 0;
+
+   count = bitmap->palette_count;
+   if (palette) {
+      data = bitmap->palette_data;
+      for (i = 0; i < count; i++) {
+         palette[i] = al_map_rgba(data[i * 4], data[i * 4 + 1],
+            data[i * 4 + 2], data[i * 4 + 3]);
+      }
+   }
+   return count;
+}
+
+
+/* Internal function.
+ * Note: this takes ownership of 'data'
+ */
+void _al_set_bitmap_palette_raw(ALLEGRO_BITMAP *bitmap, void *data, int count)
+{
+   if (bitmap->palette_data)
+      al_free(bitmap->palette_data);
+   bitmap->palette_data = data;
+   bitmap->palette_count = count;
 }
 
 /* vim: set ts=8 sts=3 sw=3 et: */

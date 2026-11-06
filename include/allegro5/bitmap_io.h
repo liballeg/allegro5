@@ -14,7 +14,8 @@
 enum {
    ALLEGRO_KEEP_BITMAP_FORMAT       = 0x0002,   /* was a bitmap flag in 5.0 */
    ALLEGRO_NO_PREMULTIPLIED_ALPHA   = 0x0200,   /* was a bitmap flag in 5.0 */
-   ALLEGRO_KEEP_INDEX               = 0x0800
+   ALLEGRO_KEEP_INDEX               = 0x0800,
+   ALLEGRO_KEEP_PALETTE             = 0x2000
 };
 
 typedef ALLEGRO_BITMAP *(*ALLEGRO_IIO_LOADER_FUNCTION)(const char *filename, int flags);
