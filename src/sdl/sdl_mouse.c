@@ -64,7 +64,8 @@ void _al_sdl_mouse_event(SDL_Event *e)
 
    if (e->type == SDL_WINDOWEVENT) {
       d = find_display(e->window.windowID);
-      mouse->ratio = _al_sdl_get_display_pixel_ratio(d);
+      if (d)
+         mouse->ratio = _al_sdl_get_display_pixel_ratio(d);
       if (e->window.event == SDL_WINDOWEVENT_ENTER) {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
          SDL_GetMouseState(&event.mouse.x, &event.mouse.y);
