@@ -24,6 +24,9 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_memblit.h"
 #include "allegro5/internal/aintern_opengl.h"
+#ifdef ALLEGRO_WAYLAND
+#include "allegro5/internal/aintern_wldisplay.h"
+#endif
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_transform.h"
@@ -320,6 +323,17 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
          /* Source and target cannot both be the back-buffer. */
          ASSERT(!ogl_target->is_backbuffer);
+
+#ifdef ALLEGRO_WAYLAND
+         /* glCopyTexSubImage2D cannot resample a physical HiDPI buffer into
+          * a logical-sized texture. The software path uses scale-aware
+          * backbuffer locking and uploads the logical pixels instead. */
+         if (_al_wl_get_drawable_scale(_al_get_bitmap_display(bitmap)) != 1.0f) {
+            _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh,
+               0, 0, flags);
+            return;
+         }
+#endif
 
          /* If we only translate, we can do this fast. */
          if (_al_transform_is_translation(al_get_current_transform(),

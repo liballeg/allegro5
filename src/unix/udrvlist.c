@@ -20,6 +20,10 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_system.h"
 
+#if defined ALLEGRO_WAYLAND
+#include "allegro5/platform/aintwl.h"
+#endif
+
 #if defined ALLEGRO_WITH_XWINDOWS
 #ifndef ALLEGRO_RASPBERRYPI
 #include "allegro5/platform/aintxglx.h"
@@ -36,6 +40,10 @@
 void _al_register_system_interfaces(void)
 {
    ALLEGRO_SYSTEM_INTERFACE **add;
+#if defined ALLEGRO_WAYLAND
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_wayland_driver();
+#endif
 #if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_xglx_driver();
