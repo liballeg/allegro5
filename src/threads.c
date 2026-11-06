@@ -211,9 +211,9 @@ void al_join_thread(ALLEGRO_THREAD *thread, void **ret_value)
          thread->thread_state = THREAD_STATE_JOINING;
          _al_cond_broadcast(&thread->cond);
          _al_mutex_unlock(&thread->mutex);
+         _al_thread_join(&thread->thread);
          _al_cond_destroy(&thread->cond);
          _al_mutex_destroy(&thread->mutex);
-         _al_thread_join(&thread->thread);
          thread->thread_state = THREAD_STATE_JOINED;
          break;
       case THREAD_STATE_STARTING:
