@@ -1,3 +1,29 @@
+# These backend regressions only need the core library, not the addons
+# required by the general rendering test driver below.
+if(SUPPORT_WAYLAND)
+    if(WANT_MONOLITH)
+        set(WAYLAND_TEST_LINK_WITH ${ALLEGRO_MONOLITH_LINK_WITH})
+    else()
+        set(WAYLAND_TEST_LINK_WITH ${ALLEGRO_LINK_WITH})
+    endif()
+    add_our_executable(test_wayland_clipboard
+        LIBS ${WAYLAND_TEST_LINK_WITH} ${WAYLAND_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
+        DEFINES ALLEGRO_SRC ALLEGRO_LIB_BUILD)
+    add_our_executable(test_wayland_render
+        LIBS ${WAYLAND_TEST_LINK_WITH} ${OPENGL_LIBRARIES} ${WAYLAND_LIBRARIES}
+        DEFINES ALLEGRO_SRC ALLEGRO_LIB_BUILD)
+    add_test(NAME wayland_clipboard_scroll COMMAND test_wayland_clipboard)
+    set_tests_properties(wayland_clipboard_scroll PROPERTIES TIMEOUT 15)
+    add_custom_target(run_wayland_unit_tests
+        DEPENDS test_wayland_clipboard
+        COMMAND test_wayland_clipboard)
+    # Requires a running Wayland compositor; the unit target is headless.
+    add_custom_target(run_wayland_tests
+        DEPENDS test_wayland_clipboard test_wayland_render
+        COMMAND test_wayland_clipboard
+        COMMAND test_wayland_render)
+endif()
+
 if(NOT ALLEGRO_LINK_WITH OR NOT ALLEGRO_MAIN_LINK_WITH OR
         NOT IMAGE_LINK_WITH OR NOT COLOR_LINK_WITH OR
         NOT FONT_LINK_WITH OR NOT TTF_LINK_WITH OR
