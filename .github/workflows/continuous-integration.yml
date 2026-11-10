@@ -100,7 +100,7 @@ jobs:
                   python allegro.py
     osx_test:
         name: OSX tests
-        runs-on: macos-14
+        runs-on: macos-15
         steps:
             - name: 💳 Checkout
               uses: actions/checkout@v1
