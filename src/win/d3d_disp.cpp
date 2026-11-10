@@ -3130,9 +3130,8 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          device->SetTexture(0, d3d_texture);
       }
       else {
-         /* Don't unbind the texture here if shaders are used, since the user may
-          * have set the 0'th texture unit manually via the shader API. */
-         if (!use_programmable_pipeline) {
+         ALLEGRO_SYSTEM *system = al_get_system_driver();
+         if (!use_programmable_pipeline || system->prim_clear_texture_unit_0) {
             device->SetTexture(0, NULL);
          }
       }
