@@ -20,6 +20,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_primitives.h"
 #include "allegro5/internal/aintern_prim_soft.h"
+#include "allegro5/internal/aintern_system.h"
 
 #ifdef ALLEGRO_ANDROID
 #include "allegro5/internal/aintern_android.h"
@@ -339,9 +340,8 @@ static void setup_state(ALLEGRO_DISPLAY *display, const char* vtxs, const ALLEGR
 #endif
       }
    } else {
-      /* Don't unbind the texture here if shaders are used, since the user may
-       * have set the 0'th texture unit manually via the shader API. */
-      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+      ALLEGRO_SYSTEM *system = al_get_system_driver();
+      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) || system->prim_clear_texture_unit_0) {
          glBindTexture(GL_TEXTURE_2D, 0);
       }
    }
