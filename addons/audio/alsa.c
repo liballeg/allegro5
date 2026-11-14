@@ -142,6 +142,7 @@ Error:
 static void alsa_close(void)
 {
    _al_list_destroy(output_device_list);
+   output_device_list = NULL;
 
    if (alsa_device != default_device)
       al_free(alsa_device);
