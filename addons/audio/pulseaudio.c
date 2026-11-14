@@ -182,6 +182,7 @@ static int pulseaudio_open(void)
 static void pulseaudio_close(void)
 {
    _al_list_destroy(output_device_list);
+   output_device_list = NULL;
 }
 
 static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
