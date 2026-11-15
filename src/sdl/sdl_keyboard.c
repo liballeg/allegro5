@@ -73,6 +73,7 @@ void _al_sdl_keyboard_event(SDL_Event *e)
    event.keyboard.display = NULL;
    event.keyboard.repeat = false;
    event.keyboard.unichar = 0;
+   event.keyboard.keycode = 0;
 
    if (e->type == SDL_TEXTINPUT) {
       ALLEGRO_USTR_INFO info;
