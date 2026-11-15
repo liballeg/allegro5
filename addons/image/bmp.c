@@ -680,7 +680,10 @@ static bool read_RGB_image_indices(ALLEGRO_FILE *f, int flags,
    // Includes enough space to read the padding for a line
    linesize = (width + 3) & ~3;
 
-   // Indices are always 8-bit, so no need to adjust linesize
+   // The line functions for less than 8 bits per pixel expand the indices
+   // in place, a whole byte's worth of pixels at a time.
+   if (infoheader->biBitCount < 8)
+      linesize *= (8 / infoheader->biBitCount);
 
    linebuf = al_malloc(linesize);
 
@@ -1293,6 +1296,9 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
+   // Only paletted images have indices to keep; deeper ones load as RGB.
+   keep_index = keep_index && infoheader.biBitCount <= 8;
+
    /* In BITMAPINFOHEADER (V1) the RGB bit masks are not part of the header.
     * In BITMAPV2INFOHEADER they form part of the header, but only valid when
     * for BITFIELDS images.
@@ -1418,7 +1424,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return bmp;
    }
 
-   if (infoheader.biBitCount <= 8 && keep_index) {
+   if (keep_index) {
       lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
          ALLEGRO_LOCK_WRITEONLY);
    }
