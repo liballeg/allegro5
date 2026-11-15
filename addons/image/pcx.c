@@ -20,7 +20,9 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    ALLEGRO_LOCKED_REGION *lr;
    unsigned char *buf;
    PalEntry pal[256];
+   bool have_palette = false;
    bool keep_index;
+   bool keep_palette = INT_TO_BOOL(flags & ALLEGRO_KEEP_PALETTE);
    ASSERT(f);
 
    al_fgetc(f);                    /* skip manufacturer ID */
@@ -157,7 +159,9 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
                pal[c].r = al_fgetc(f);
                pal[c].g = al_fgetc(f);
                pal[c].b = al_fgetc(f);
+               pal[c].a = 255;
             }
+            have_palette = true;
             break;
          }
       }
@@ -187,6 +191,9 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
       al_destroy_bitmap(b);
       return NULL;
    }
+
+   if (keep_palette && have_palette)
+      _al_install_palette(b, pal, 256);
 
    return b;
 error:

@@ -101,11 +101,13 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
    int number_passes, pass;
    int num_trans = 0;
    PalEntry pal[256];
+   int pal_count = 0;
    png_bytep trans;
    ALLEGRO_LOCKED_REGION *lock;
    unsigned char *buf;
    unsigned char *dest;
    bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool keep_palette = (flags & ALLEGRO_KEEP_PALETTE) != 0;
    bool index_only;
 
    ALLEGRO_ASSERT(png_ptr && info_ptr);
@@ -177,7 +179,9 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
             pal[i].r = palette[i].red;
             pal[i].g = palette[i].green;
             pal[i].b = palette[i].blue;
+            pal[i].a = (i < num_trans) ? trans[i] : 255;
          }
+         pal_count = i;
 
          for (; i < 256; i++)
             pal[i].r = pal[i].g = pal[i].b = 0;
@@ -332,6 +336,9 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
    /* Read rest of file, and get additional chunks in info_ptr. */
    png_read_end(png_ptr, info_ptr);
+
+   if (keep_palette)
+      _al_install_palette(bmp, pal, pal_count);
 
    return bmp;
 }

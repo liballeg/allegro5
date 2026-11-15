@@ -1207,12 +1207,14 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    BMPINFOHEADER infoheader;
    ALLEGRO_BITMAP *bmp;
    PalEntry pal[256];
+   int ncolors = 0;
    int64_t file_start;
    int64_t header_start;
    unsigned long biSize;
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
    bool keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
+   bool keep_palette = INT_TO_BOOL(flags & ALLEGRO_KEEP_PALETTE);
    bool loaded_ok;
 
    ASSERT(f);
@@ -1347,7 +1349,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    if (infoheader.biCompression != BIT_BITFIELDS
       && infoheader.biBitCount <= 8) {
       int win_flag = (biSize != OS2INFOHEADERSIZE);
-      int ncolors = infoheader.biClrUsed;
+
       int extracolors = 0;
       int bytes_per_color = win_flag ? 4 : 3;
 
@@ -1356,6 +1358,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          return NULL;
       }
 
+      ncolors = infoheader.biClrUsed;
       if (win_flag) {
          if (ncolors == 0) {
             ncolors = (1 << infoheader.biBitCount);
@@ -1412,6 +1415,9 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       ALLEGRO_ERROR("Failed to create bitmap\n");
       return NULL;
    }
+
+   if (keep_palette && (ncolors > 0))
+      _al_install_palette(bmp, pal, ncolors);
 
    if (infoheader.biWidth == 0 || infoheader.biHeight == 0) {
       ALLEGRO_WARN("Creating zero-sized bitmap\n");

@@ -11,6 +11,9 @@ typedef struct PalEntry {
    int r, g, b, a;
 } PalEntry;
 
+void _al_install_palette(ALLEGRO_BITMAP *bitmap, const PalEntry *pal,
+   int count);
+
 
 #endif
 
