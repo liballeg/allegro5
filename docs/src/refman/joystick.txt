@@ -289,6 +289,10 @@ adding to and overriding existing mappings. This uses the SDL version 2.0.16
 format mappings. This can and typically should be called before calling
 `al_install_joystick`.
 
+Lines that cannot be parsed are logged and skipped; the rest of the file
+is still loaded, and the function still returns true. Returns false if the
+file cannot be opened or on allocation failure.
+
 Since: 5.2.11
 
 See also: [al_set_joystick_mappings_f]
@@ -302,8 +306,12 @@ times, adding to and overriding existing mappings. This uses the SDL version
 2.0.16 format mappings. This can and typically should be called before calling
 `al_install_joystick`.
 
+Lines that cannot be parsed are logged and skipped; the rest of the file
+is still loaded, and the function still returns true. Returns false on
+allocation failure.
+
 Since: 5.2.11
 
-See also: [al_set_joystick_mappings_f]
+See also: [al_set_joystick_mappings]
 
 > *[Unstable API]:* New API.
