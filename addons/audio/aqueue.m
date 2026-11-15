@@ -47,6 +47,13 @@ typedef struct ALLEGRO_AQ_DATA {
    int bits_per_sample;
    int channels;
    bool playing;
+   /* Number of live feeder threads: incremented before one starts,
+    * decremented by the thread as its last act. deallocate_voice waits for
+    * it to reach zero so no thread touches this struct after it has been
+    * freed. A counter rather than a flag, because a voice stopped and
+    * restarted before the old thread noticed the stop keeps that thread
+    * alive (it loops on the same 'playing') until a later stop. */
+   int threads_running;
    unsigned int buffer_size;
    unsigned char *silence;
    ALLEGRO_VOICE *voice;
@@ -320,6 +327,25 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
 static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
+
+   /* stop_voice only asks the feeder thread to exit (the queue is disposed
+    * asynchronously and the thread notices 'playing' at its next run loop
+    * timeout, up to 50ms later). Wait for it here rather than in stop_voice:
+    * the audio core calls stop_voice with the voice mutex held, and the
+    * thread's buffer callback takes that mutex, so a plain wait there would
+    * deadlock. This method is called without the mutex.
+    *
+    * A better fix is the pattern the DirectSound and OpenAL drivers use:
+    * stop_voice waits with al_wait_cond(voice->cond, voice->mutex), which
+    * releases the mutex while waiting, and the thread sets a stopped flag
+    * and broadcasts voice->cond as it exits. That leaves at most one feeder
+    * thread per voice, with no polling and no counter. The iPhone
+    * interruption callbacks above call stop/start without the voice mutex,
+    * so they would need to take it. */
+   while (__atomic_load_n(&ex_data->threads_running, __ATOMIC_SEQ_CST) > 0) {
+      al_rest(0.001);
+   }
+
    al_free(ex_data->silence);
    al_free(ex_data);
    voice->extra = NULL;
@@ -428,6 +454,8 @@ static void *stream_proc(void *in_data)
 
    THREAD_END
 
+   __atomic_sub_fetch(&ex_data->threads_running, 1, __ATOMIC_SEQ_CST);
+
    return NULL;
 }
 
@@ -443,6 +471,7 @@ static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
    if (voice->is_streaming && !ex_data->playing) {
       *(ALLEGRO_VOICE**)_al_vector_alloc_back(&saved_voices) = voice;
       ex_data->playing = true;
+      __atomic_add_fetch(&ex_data->threads_running, 1, __ATOMIC_SEQ_CST);
       al_run_detached_thread(stream_proc, voice);
       return 0;
    }
