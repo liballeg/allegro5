@@ -18,6 +18,10 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
+#ifdef ALLEGRO_WAYLAND
+#include "allegro5/internal/aintern_wldisplay.h"
+#endif
+#include <limits.h>
 
 /*
  * This is an attempt to refactor ogl_lock_region and ogl_unlock_region.
@@ -60,6 +64,17 @@ static int ogl_pitch(int w, int pixel_size)
 {
    int pitch = w * pixel_size;
    return pitch;
+}
+
+static GLint ogl_bind_backbuffer_for_lock(void)
+{
+   ALLEGRO_OGL_EXT_LIST *extensions = al_get_opengl_extension_list();
+   if (extensions->ALLEGRO_GL_EXT_framebuffer_object ||
+       extensions->ALLEGRO_GL_OES_framebuffer_object)
+      return _al_ogl_bind_framebuffer(0);
+   /* Old desktop GL has only the default framebuffer, and no FBO entry
+    * points. Don't call a missing glBindFramebufferEXT function. */
+   return -1;
 }
 
 static bool exactly_15bpp(int pixel_format)
@@ -122,7 +137,8 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
-      (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+      ((ogl_bitmap->is_backbuffer ||
+        _al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false) &&
        _al_get_bitmap_display(bitmap) != disp))
    {
       old_disp = disp;
@@ -220,17 +236,59 @@ static bool ogl_lock_region_backbuffer(
    }
 
    if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
-      glReadPixels(x, gl_y, w, h,
+      float scale = 1.0f;
+      int rx = x, ry = gl_y, rw = w, rh = h, read_pitch = pitch;
+      unsigned char *read_buffer = ogl_bitmap->lock_buffer;
+      GLint old_fbo;
+#ifdef ALLEGRO_WAYLAND
+      scale = _al_wl_get_drawable_scale(_al_get_bitmap_display(bitmap));
+#endif
+      if (scale != 1.0f) {
+         rx = (int)(x * scale + 0.5f);
+         ry = (int)(gl_y * scale + 0.5f);
+         rw = (int)((x + w) * scale + 0.5f) - rx;
+         rh = (int)((gl_y + h) * scale + 0.5f) - ry;
+         if (rw <= 0 || rh <= 0 || rw > INT_MAX / pixel_size)
+            goto fail;
+         read_pitch = ogl_pitch(rw, pixel_size);
+         if ((size_t)rh > SIZE_MAX / (size_t)read_pitch)
+            goto fail;
+         read_buffer = al_malloc((size_t)read_pitch * rh);
+         if (!read_buffer)
+            goto fail;
+      }
+      /* Reading a backbuffer while an offscreen bitmap is targeted must
+       * not accidentally read its FBO instead. */
+      old_fbo = ogl_bind_backbuffer_for_lock();
+      glReadPixels(rx, ry, rw, rh,
          get_glformat(format, 2),
-         get_glformat(format, 1),
-         ogl_bitmap->lock_buffer);
+         get_glformat(format, 1), read_buffer);
       e = glGetError();
+      if (old_fbo != -1)
+         _al_ogl_bind_framebuffer(old_fbo);
+      if (!e && scale != 1.0f) {
+         int row, col;
+         /* The public lock remains in logical pixels. Sample physical
+          * pixel centers into it, rather than returning a cropped buffer. */
+         for (row = 0; row < h; row++) {
+            int sy = (int)((gl_y + row + 0.5f) * scale) - ry;
+            sy = sy < 0 ? 0 : (sy >= rh ? rh - 1 : sy);
+            for (col = 0; col < w; col++) {
+               int sx = (int)((x + col + 0.5f) * scale) - rx;
+               sx = sx < 0 ? 0 : (sx >= rw ? rw - 1 : sx);
+               memcpy(ogl_bitmap->lock_buffer + (size_t)row * pitch +
+                     col * pixel_size,
+                  read_buffer + (size_t)sy * read_pitch + sx * pixel_size,
+                  pixel_size);
+            }
+         }
+      }
+      if (scale != 1.0f)
+         al_free(read_buffer);
       if (e) {
          ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
             _al_pixel_format_name(format), _al_gl_error_string(e));
-         al_free(ogl_bitmap->lock_buffer);
-         ogl_bitmap->lock_buffer = NULL;
-         return false;
+         goto fail;
       }
    }
 
@@ -239,6 +297,11 @@ static bool ogl_lock_region_backbuffer(
    bitmap->locked_region.pitch = -pitch;
    bitmap->locked_region.pixel_size = pixel_size;
    return true;
+
+fail:
+   al_free(ogl_bitmap->lock_buffer);
+   ogl_bitmap->lock_buffer = NULL;
+   return false;
 }
 
 
@@ -453,7 +516,8 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
-      (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+      ((ogl_bitmap->is_backbuffer ||
+        _al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false) &&
        _al_get_bitmap_display(bitmap) != disp))
    {
       old_disp = disp;
@@ -534,6 +598,23 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
    GLenum e;
    GLint program = 0;
    ALLEGRO_DISPLAY *display = al_get_current_display();
+   float scale = 1.0f;
+   GLfloat old_zoom_x, old_zoom_y;
+   GLint old_fbo;
+   int physical_x, physical_y, physical_w, physical_h;
+#ifdef ALLEGRO_WAYLAND
+   scale = _al_wl_get_drawable_scale(_al_get_bitmap_display(bitmap));
+#endif
+   physical_x = (int)(bitmap->lock_x * scale + 0.5f);
+   physical_y = (int)(gl_y * scale + 0.5f);
+   physical_w = (int)((bitmap->lock_x + bitmap->lock_w) * scale + 0.5f)
+      - physical_x;
+   physical_h = (int)((gl_y + bitmap->lock_h) * scale + 0.5f) - physical_y;
+   old_fbo = ogl_bind_backbuffer_for_lock();
+   glGetFloatv(GL_ZOOM_X, &old_zoom_x);
+   glGetFloatv(GL_ZOOM_Y, &old_zoom_y);
+   glPixelZoom((float)physical_w / bitmap->lock_w,
+      (float)physical_h / bitmap->lock_h);
 
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       // FIXME: This is a hack where we temporarily disable the active shader.
@@ -548,7 +629,7 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
 
    /* glWindowPos2i may not be available. */
    if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_1_4) {
-      glWindowPos2i(bitmap->lock_x, gl_y);
+      glWindowPos2i(physical_x, physical_y);
    }
    else {
       /* glRasterPos is affected by the current modelview and projection
@@ -584,6 +665,9 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
    if (program != 0) {
       glUseProgram(program);
    }
+   glPixelZoom(old_zoom_x, old_zoom_y);
+   if (old_fbo != -1)
+      _al_ogl_bind_framebuffer(old_fbo);
 }
 
 

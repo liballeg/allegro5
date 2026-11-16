@@ -112,6 +112,16 @@
 /* Define if XInput 2.2 X11 extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XINPUT2
 
+/*---------------------------------------------------------------------------*/
+
+/* Define if you need support for Wayland. */
+#cmakedefine ALLEGRO_WAYLAND
+
+/* Define if fractional-scale and viewporter protocols are available. */
+#cmakedefine ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+
+/* Define if the Wayland idle-inhibit protocol is available. */
+#cmakedefine ALLEGRO_WAYLAND_IDLE_INHIBIT
 
 /*---------------------------------------------------------------------------*/
 

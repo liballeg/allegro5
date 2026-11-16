@@ -1,0 +1,1215 @@
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_opengl.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/internal/aintern_wl.h"
+#include "allegro5/internal/aintern_wldisplay.h"
+#include "allegro5/internal/aintern_wleglconfig.h"
+#include "allegro5/internal/aintern_wlfullscreen.h"
+#include "allegro5/internal/aintern_wlinput.h"
+#include "allegro5/internal/aintern_wlsystem.h"
+#include "allegro5/internal/aintern_wlclipboard.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/platform/aintwl.h"
+#include "allegro5/platform/xdg-decoration-client-protocol.h"
+
+#include <libdecor-0/libdecor.h>
+
+ALLEGRO_DEBUG_CHANNEL("display")
+
+static ALLEGRO_DISPLAY_INTERFACE wldpy_vt;
+
+static void wldpy_destroy_display(ALLEGRO_DISPLAY *display);
+static void wldpy_free_display(ALLEGRO_DISPLAY *display);
+
+static bool wldpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
+static bool wldpy_set_display_flag_locked(ALLEGRO_DISPLAY *display,
+    int flag, bool onoff);
+
+static int wldpy_scaled_dimension(int logical, uint32_t scale_120)
+{
+    uint64_t scaled = (uint64_t)logical * scale_120 + 60;
+    return (int)(scaled / 120);
+}
+
+static void wldpy_set_scale_120_locked(ALLEGRO_DISPLAY_WAYLAND *d,
+    uint32_t scale_120)
+{
+    bool changed;
+    int buffer_scale;
+
+    if (scale_120 == 0)
+        scale_120 = 120;
+    if (!d->use_fractional_scale && d->surface
+        && wl_proxy_get_version((struct wl_proxy *)d->surface) < 3)
+        scale_120 = 120;
+    changed = d->scale_120 != scale_120;
+    d->scale_120 = scale_120;
+    if (d->display.ogl_extras)
+        __sync_lock_test_and_set(
+            &d->display.ogl_extras->drawable_scale_120, scale_120);
+
+    if (d->use_fractional_scale) {
+        /* fractional-scale requires buffer_scale to remain 1; the
+         * viewporter maps the physical buffer to logical surface units. */
+        if (d->surface
+            && wl_proxy_get_version((struct wl_proxy *)d->surface) >= 3)
+            wl_surface_set_buffer_scale(d->surface, 1);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+        if (d->viewport)
+            wp_viewport_set_destination(d->viewport,
+                d->display.w, d->display.h);
+#endif
+    }
+    else {
+        buffer_scale = (int)((scale_120 + 60) / 120);
+        if (buffer_scale < 1)
+            buffer_scale = 1;
+        if (d->surface
+            && wl_proxy_get_version((struct wl_proxy *)d->surface) >= 3)
+            wl_surface_set_buffer_scale(d->surface, buffer_scale);
+    }
+
+    if (d->egl_window)
+        wl_egl_window_resize(d->egl_window,
+            wldpy_scaled_dimension(d->display.w, scale_120),
+            wldpy_scaled_dimension(d->display.h, scale_120), 0, 0);
+    if (changed)
+        d->scale_changed = true;
+}
+
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+static void wldpy_fractional_scale_preferred(void *data,
+    struct wp_fractional_scale_v1 *fractional_scale, uint32_t scale)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = data;
+    (void)fractional_scale;
+
+    d->fractional_scale_received = true;
+    ALLEGRO_DEBUG("wldpy: preferred fractional scale %u/120\n", scale);
+    wldpy_set_scale_120_locked(d, scale);
+}
+
+static const struct wp_fractional_scale_v1_listener
+    wldpy_fractional_scale_listener = {
+        .preferred_scale = wldpy_fractional_scale_preferred,
+    };
+#endif
+
+static void wldpy_surface_enter(void *data, struct wl_surface *surface,
+    struct wl_output *output)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = data;
+    (void)surface;
+    _al_wayland_display_output_enter(d, output);
+}
+
+static void wldpy_surface_leave(void *data, struct wl_surface *surface,
+    struct wl_output *output)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = data;
+    (void)surface;
+    _al_wayland_display_output_leave(d, output);
+}
+
+static const struct wl_surface_listener wldpy_surface_listener = {
+    .enter = wldpy_surface_enter,
+    .leave = wldpy_surface_leave,
+};
+
+static void wldpy_update_integer_scale_locked(ALLEGRO_DISPLAY_WAYLAND *d)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system =
+        (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    uint32_t scale = 120;
+    size_t i;
+
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (d->use_fractional_scale && d->fractional_scale_received)
+        return;
+#endif
+
+    if (_al_vector_size(&d->entered_outputs) > 0) {
+        scale = 0;
+        for (i = 0; i < _al_vector_size(&d->entered_outputs); i++) {
+            struct ALLEGRO_WL_OUTPUT *output =
+                *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(
+                    &d->entered_outputs, i);
+            uint32_t output_scale = (uint32_t)(output->scale > 0
+                ? output->scale : 1) * 120;
+            if (output_scale > scale)
+                scale = output_scale;
+        }
+    }
+    else {
+        scale = (uint32_t)_al_wayland_get_output_scale_locked(
+            system, d->adapter) * 120;
+    }
+
+    wldpy_set_scale_120_locked(d, scale);
+}
+
+void _al_wayland_display_output_enter(ALLEGRO_DISPLAY_WAYLAND *d,
+    struct wl_output *output_proxy)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system =
+        (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    size_t i;
+
+    for (i = 0; i < _al_vector_size(&system->outputs); i++) {
+        struct ALLEGRO_WL_OUTPUT *output =
+            *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&system->outputs, i);
+        if (output->output == output_proxy) {
+            struct ALLEGRO_WL_OUTPUT **slot;
+            if (!_al_vector_contains(&d->entered_outputs, &output)) {
+                slot = _al_vector_alloc_back(&d->entered_outputs);
+                *slot = output;
+            }
+            wldpy_update_integer_scale_locked(d);
+            return;
+        }
+    }
+}
+
+void _al_wayland_display_output_leave(ALLEGRO_DISPLAY_WAYLAND *d,
+    struct wl_output *output_proxy)
+{
+    size_t i;
+
+    for (i = 0; i < _al_vector_size(&d->entered_outputs); i++) {
+        struct ALLEGRO_WL_OUTPUT *output =
+            *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(&d->entered_outputs, i);
+        if (output->output == output_proxy) {
+            _al_vector_delete_at(&d->entered_outputs, i);
+            break;
+        }
+    }
+    wldpy_update_integer_scale_locked(d);
+}
+
+void _al_wayland_display_output_scale_changed(struct ALLEGRO_WL_OUTPUT *output)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = output->system;
+    size_t i, j;
+
+    for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+        ALLEGRO_DISPLAY_WAYLAND *d =
+            *(ALLEGRO_DISPLAY_WAYLAND **)_al_vector_ref(
+                &system->system.displays, i);
+        for (j = 0; j < _al_vector_size(&d->entered_outputs); j++) {
+            struct ALLEGRO_WL_OUTPUT *entered =
+                *(struct ALLEGRO_WL_OUTPUT **)_al_vector_ref(
+                    &d->entered_outputs, j);
+            if (entered == output) {
+                wldpy_update_integer_scale_locked(d);
+                break;
+            }
+        }
+    }
+}
+
+void _al_wayland_display_output_removed(struct ALLEGRO_WL_OUTPUT *output)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = output->system;
+    size_t i;
+
+    for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+        ALLEGRO_DISPLAY_WAYLAND *d =
+            *(ALLEGRO_DISPLAY_WAYLAND **)_al_vector_ref(
+                &system->system.displays, i);
+        if (_al_vector_find_and_delete(&d->entered_outputs, &output))
+            wldpy_update_integer_scale_locked(d);
+    }
+}
+
+float _al_wl_get_drawable_scale(ALLEGRO_DISPLAY *display)
+{
+    uint32_t scale_120;
+
+    if (al_get_system_id() != ALLEGRO_SYSTEM_ID_WAYLAND)
+        return 1.0f;
+
+    scale_120 = __sync_val_compare_and_swap(
+        &display->ogl_extras->drawable_scale_120, 0, 0);
+    return scale_120 > 0 ? scale_120 / 120.0f : 1.0f;
+}
+
+static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial) 
+{ 
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+
+    xdg_surface_ack_configure(xdg_surface, serial);
+    wl_surface_commit(d->surface);
+
+    /* This is dispatched while the event thread holds the system lock,
+     * so it is safe to wake the thread blocked in
+     * wldpy_create_display_locked(). */
+    d->configured = true;
+    _al_cond_broadcast(&system->configured_cond);
+}
+
+static const struct xdg_surface_listener xdg_surface_listener = { 
+    .configure = xdg_surface_configure, 
+};
+
+
+/* Emit a display event from the Wayland event thread into the display's
+ * event source.  Nothing is emitted when there are no listeners, which
+ * conveniently suppresses the initial configure during al_create_display. */
+static void wldpy_emit_display_event(ALLEGRO_DISPLAY *display, int type)
+{
+    ALLEGRO_EVENT_SOURCE *es = &display->es;
+
+    _al_event_source_lock(es);
+    if (_al_event_source_needs_to_generate_event(es)) {
+        ALLEGRO_EVENT event;
+        event.display.type = type;
+        event.display.timestamp = al_get_time();
+        event.display.x = 0;
+        event.display.y = 0;
+        event.display.width = display->w;
+        event.display.height = display->h;
+        _al_event_source_emit_event(es, &event);
+    }
+    _al_event_source_unlock(es);
+}
+
+
+/* Shared size-change handling for xdg_toplevel configure and libdecor
+ * configure callbacks: record the compositor's requested size and emit an
+ * ALLEGRO_EVENT_DISPLAY_RESIZE, which the app acknowledges. */
+static void wldpy_handle_configure_size(ALLEGRO_DISPLAY_WAYLAND *d,
+    int width, int height)
+{
+    /* 0x0 means the compositor has no preference; keep the current size. */
+    if (width <= 0 || height <= 0)
+        return;
+
+    /* A configure echoing the pre-programmatic-resize size was generated
+     * before the app requested the new size (eg. GNOME's delayed initial
+     * configure); drop it so al_resize_display() isn't reverted. */
+    if (d->programmatic_resize) {
+        d->programmatic_resize = false;
+        if (width == d->pre_resize_w && height == d->pre_resize_h)
+            return;
+    }
+
+    if (width == d->pending_w && height == d->pending_h)
+        return;
+
+    d->pending_w = width;
+    d->pending_h = height;
+
+    /* Report a size change to the app, which will call al_acknowledge_resize
+     * to actually apply it. */
+    if (width != d->display.w || height != d->display.h) {
+        ALLEGRO_EVENT_SOURCE *es = &d->display.es;
+        _al_event_source_lock(es);
+        if (_al_event_source_needs_to_generate_event(es)) {
+            ALLEGRO_EVENT event;
+            event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+            event.display.timestamp = al_get_time();
+            event.display.x = 0;
+            event.display.y = 0;
+            event.display.width = width;
+            event.display.height = height;
+            _al_event_source_emit_event(es, &event);
+        }
+        _al_event_source_unlock(es);
+    }
+}
+
+
+static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel,
+    int32_t width, int32_t height, struct wl_array *states)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    uint32_t *state;
+    bool maximized = false;
+    (void)xdg_toplevel;
+
+    wl_array_for_each(state, states) {
+        if (*state == XDG_TOPLEVEL_STATE_MAXIMIZED)
+            maximized = true;
+    }
+
+    if (maximized)
+        d->display.flags |= ALLEGRO_MAXIMIZED;
+    else
+        d->display.flags &= ~ALLEGRO_MAXIMIZED;
+
+    wldpy_handle_configure_size(d, width, height);
+}
+
+
+static void xdg_toplevel_close(void *data, struct xdg_toplevel *xdg_toplevel)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)xdg_toplevel;
+
+    wldpy_emit_display_event(&d->display, ALLEGRO_EVENT_DISPLAY_CLOSE);
+}
+
+
+static const struct xdg_toplevel_listener xdg_toplevel_listener = {
+    .configure = xdg_toplevel_configure,
+    .close = xdg_toplevel_close,
+};
+
+
+/* libdecor frame callbacks.  libdecor dispatches its xdg events through the
+ * same display/event queue that our background thread pumps, so these run on
+ * the event thread exactly like the xdg handlers above. */
+
+static void wldpy_frame_configure(struct libdecor_frame *frame,
+    struct libdecor_configuration *configuration, void *data)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    int w = 0, h = 0;
+    enum libdecor_window_state window_state;
+
+    if (libdecor_configuration_get_window_state(configuration, &window_state)) {
+        if (window_state & LIBDECOR_WINDOW_STATE_MAXIMIZED)
+            d->display.flags |= ALLEGRO_MAXIMIZED;
+        else
+            d->display.flags &= ~ALLEGRO_MAXIMIZED;
+    }
+
+    if (libdecor_configuration_get_content_size(configuration, frame, &w, &h)) {
+        wldpy_handle_configure_size(d, w, h);
+
+        /* Keep the wl_egl_window in sync wi frame commit. This comes up
+         * when constraints are applied. */
+        if (d->egl_window)
+            wl_egl_window_resize(d->egl_window,
+                wldpy_scaled_dimension(w, d->scale_120),
+                wldpy_scaled_dimension(h, d->scale_120), 0, 0);
+    }
+
+    /* This is also the signal that the window is live: it wakes up the
+     * thread blocked in wldpy_create_display_locked(). */
+    d->configured = true;
+    _al_cond_broadcast(&system->configured_cond);
+
+    /* Apply the content size we are actually presenting and ack the
+     * configure (libdecor_frame_commit() acks when given the
+     * configuration). Constraints can make this differ. */
+    struct libdecor_state *state =
+        libdecor_state_new(w > 0 ? w : d->display.w,
+            h > 0 ? h : d->display.h);
+    libdecor_frame_commit(frame, state, configuration);
+    libdecor_state_free(state);
+}
+
+
+static void wldpy_frame_close(struct libdecor_frame *frame, void *data)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)frame;
+
+    wldpy_emit_display_event(&d->display, ALLEGRO_EVENT_DISPLAY_CLOSE);
+}
+
+
+static void wldpy_frame_commit(struct libdecor_frame *frame, void *data)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)frame;
+
+    /* The decoration asked the main surface to be committed. */
+    wl_surface_commit(d->surface);
+}
+
+
+/* Informational: reports what decoration mode the compositor settled on. */
+static void xdg_toplevel_decoration_configure(void *data,
+    struct zxdg_toplevel_decoration_v1 *decoration, uint32_t mode)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)data;
+    (void)decoration;
+
+    switch (mode) {
+    case ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE:
+        ALLEGRO_DEBUG("wldpy: using server-side decorations\n");
+        d->server_side_decorated = true;
+        break;
+    case ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE:
+    default:
+        ALLEGRO_DEBUG("wldpy: no server-side decorations\n");
+        d->server_side_decorated = false;
+        break;
+    }
+}
+
+
+static const struct zxdg_toplevel_decoration_v1_listener
+    xdg_toplevel_decoration_listener = {
+    .configure = xdg_toplevel_decoration_configure,
+};
+
+static struct libdecor_frame_interface wldpy_frame_interface = {
+    .configure = wldpy_frame_configure,
+    .close = wldpy_frame_close,
+    .commit = wldpy_frame_commit,
+};
+
+static bool wldpy_create_display_window(ALLEGRO_SYSTEM_WAYLAND *system,
+    ALLEGRO_DISPLAY_WAYLAND *d, int w, int h, int adapter)
+{
+    /* create the Wayland window now */
+    d->surface = wl_compositor_create_surface(system->compositor);
+    if (!d->surface)
+        return false;
+
+    wl_surface_add_listener(d->surface, &wldpy_surface_listener, d);
+
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (system->fractional_scale_manager && system->viewporter) {
+        d->fractional_scale =
+            wp_fractional_scale_manager_v1_get_fractional_scale(
+                system->fractional_scale_manager, d->surface);
+        d->viewport = wp_viewporter_get_viewport(system->viewporter,
+            d->surface);
+        if (d->fractional_scale && d->viewport) {
+            d->use_fractional_scale = true;
+            wp_fractional_scale_v1_add_listener(d->fractional_scale,
+                &wldpy_fractional_scale_listener, d);
+        }
+        else {
+            if (d->fractional_scale)
+                wp_fractional_scale_v1_destroy(d->fractional_scale);
+            if (d->viewport)
+                wp_viewport_destroy(d->viewport);
+            d->fractional_scale = NULL;
+            d->viewport = NULL;
+        }
+    }
+#endif
+    wldpy_set_scale_120_locked(d, d->scale_120);
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    if (system->inhibit_screensaver && system->idle_inhibit_manager) {
+        d->idle_inhibitor = zwp_idle_inhibit_manager_v1_create_inhibitor(
+            system->idle_inhibit_manager, d->surface);
+        if (!d->idle_inhibitor)
+            ALLEGRO_WARN("Failed to inhibit Wayland idle on new display.\n");
+    }
+#endif
+
+    if (system->decor) {
+        /* Decorate the content surface with libdecor, which creates and
+         * manages the xdg_surface/xdg_toplevel itself. */
+        d->frame = libdecor_decorate(system->decor, d->surface,
+            &wldpy_frame_interface, d);
+        if (!d->frame) {
+            ALLEGRO_ERROR("libdecor_decorate failed\n");
+            return false;
+        }
+
+        const char *title = al_get_new_window_title();
+        if (title)
+            libdecor_frame_set_title(d->frame, title);
+        libdecor_frame_set_app_id(d->frame, al_get_app_name());
+        libdecor_frame_set_min_content_size(d->frame, 1, 1);
+        libdecor_frame_set_visibility(d->frame,
+            !(d->display.flags & ALLEGRO_FRAMELESS));
+        if (d->display.flags & ALLEGRO_MAXIMIZED)
+            libdecor_frame_set_maximized(d->frame);
+
+        /* Present the requested content size and map the window. */
+        struct libdecor_state *state = libdecor_state_new(w, h);
+        libdecor_frame_commit(d->frame, state, NULL);
+        libdecor_state_free(state);
+        libdecor_frame_map(d->frame);
+        wl_surface_commit(d->surface);
+    }
+    else {
+        /* Fallback: bare xdg-toplevel without decorations. */
+        d->xdg_surface = xdg_wm_base_get_xdg_surface(system->wm_base, d->surface);
+
+        xdg_surface_add_listener(d->xdg_surface, &xdg_surface_listener, d);
+
+        d->xdg_toplevel = xdg_surface_get_toplevel(d->xdg_surface);
+        xdg_toplevel_add_listener(d->xdg_toplevel, &xdg_toplevel_listener, d);
+
+        /* Request server-side decorations if the compositor offers them. */
+        if (system->decoration_manager) {
+            d->toplevel_decoration =
+                zxdg_decoration_manager_v1_get_toplevel_decoration(
+                    system->decoration_manager, d->xdg_toplevel);
+            zxdg_toplevel_decoration_v1_add_listener(d->toplevel_decoration,
+                &xdg_toplevel_decoration_listener, d);
+            zxdg_toplevel_decoration_v1_set_mode(d->toplevel_decoration,
+                ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
+        }
+
+        if (d->display.flags & ALLEGRO_MAXIMIZED)
+            xdg_toplevel_set_maximized(d->xdg_toplevel);
+
+        /* new window position */
+
+        /* todo: where to place window title? */
+        const char *new_title = al_get_new_window_title();
+        if (new_title)
+            xdg_toplevel_set_title(d->xdg_toplevel, new_title);
+
+        wl_surface_commit(d->surface);
+    }
+
+    return true;
+}
+
+static ALLEGRO_DISPLAY_WAYLAND *wldpy_create_display_locked(
+    ALLEGRO_SYSTEM_WAYLAND *system, int flags, int w, int h, int adapter)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = al_calloc(1, sizeof *d);
+    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+    ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
+    display->ogl_extras = ogl;
+
+    display->w = w;
+    display->h = h;
+    display->vt = _al_display_wayland_driver();
+    display->refresh_rate = al_get_new_display_refresh_rate();
+    display->flags = flags;
+    display->flags |= ALLEGRO_OPENGL;
+    d->cursor_id = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
+    _al_vector_init(&d->entered_outputs,
+        sizeof(struct ALLEGRO_WL_OUTPUT *));
+
+    ALLEGRO_DEBUG("selected adapter %i\n", adapter);
+    if (adapter < 0)
+        d->adapter = _al_wayland_get_default_adapter(system);
+    else
+        d->adapter = adapter;
+    
+    ALLEGRO_DEBUG("wldpy: selected adapter %i\n", d->adapter);
+    d->scale_120 = (uint32_t)_al_wayland_get_output_scale_locked(
+        system, d->adapter) * 120;
+
+    /* Pick an EGL config for this display before creating anything. */
+    _al_wlegl_config_select_visual(d);
+
+    ALLEGRO_DISPLAY_WAYLAND **add;
+    add = _al_vector_alloc_back(&system->system.displays);
+    *add = d;
+
+    _al_event_source_init(&display->es);
+
+    if (!wldpy_create_display_window(system, d, w, h, adapter)) {
+        ALLEGRO_ERROR("Failed to create Wayland display surface.\n");
+        wldpy_free_display(display);
+        return NULL;
+    }
+
+    /* Wait for the compositor to configure the surface.  The
+     * background event thread is the only one allowed to read from the
+     * Wayland socket; it dispatches the configure event (which sets
+     * d->configured and wakes us) so we block on the condition
+     * variable rather than dispatching the socket directly.
+     * dispatching anything already queued here as well, just in case
+     * the event thread is not running. */
+    ALLEGRO_TIMEOUT configure_timeout;
+    al_init_timeout(&configure_timeout, 10.0);
+    while (!d->configured) {
+        wl_display_dispatch_pending(system->display);
+        wl_display_flush(system->display);
+        if (_al_cond_timedwait(&system->configured_cond, &system->lock,
+              &configure_timeout) == -1) {
+            ALLEGRO_ERROR("Timed out waiting for Wayland surface configure.\n");
+            wldpy_free_display(display);
+            return NULL;
+        }
+    }
+
+    /* wl_output found after the configure wait.  The system lock is already
+     * held here, so use the locked variant rather than re-locking it. */
+    if (display->flags & ALLEGRO_FULLSCREEN)
+        wldpy_set_display_flag_locked(display, ALLEGRO_FULLSCREEN_WINDOW, true);
+
+    return d;
+}
+
+static ALLEGRO_DISPLAY *wldpy_create_display(int w, int h)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d;
+    ALLEGRO_DISPLAY *display;
+    ALLEGRO_OGL_EXTRAS *ogl;
+    int flags;
+    int adapter;
+
+    if (system->display == NULL) {
+        ALLEGRO_WARN("Not connected to Wayland.\n");
+        return NULL;
+    }
+
+    if (w <= 0 || h <= 0) {
+        ALLEGRO_ERROR("Invalid window size %dx%d\n", w, h);
+        return NULL;
+    }
+
+    flags = al_get_new_display_flags();
+
+    _al_mutex_lock(&system->lock);
+    adapter = al_get_new_display_adapter();
+    d = wldpy_create_display_locked(system, flags, w, h, adapter);
+    _al_mutex_unlock(&system->lock);
+    if (!d)
+        return NULL;
+
+    display = (ALLEGRO_DISPLAY *)d;
+    ogl = display->ogl_extras;
+
+    /* Create the EGL context and window surface, then load the OpenGL
+     * extensions.  This must happen *without* holding the system lock:
+     * Mesa may do a wl_display_roundtrip() while creating the context and
+     * surface, and that cannot make progress while the background event
+     * thread is blocked waiting for the lock (it would deadlock). */
+    if (!_al_wlegl_config_create_context(d)) {
+        ALLEGRO_ERROR("Failed to create EGL context for display.\n");
+        _al_mutex_lock(&system->lock);
+        wldpy_free_display(display);
+        _al_mutex_unlock(&system->lock);
+        return NULL;
+    }
+
+    /* Load the OpenGL function pointers and extension API. */
+    _al_ogl_manage_extensions(display);
+    _al_ogl_set_extensions(ogl->extension_api);
+
+    /* Print out OpenGL version info. */
+    ALLEGRO_INFO("OpenGL Version: %s\n", (const char *)glGetString(GL_VERSION));
+    ALLEGRO_INFO("Vendor: %s\n", (const char *)glGetString(GL_VENDOR));
+    ALLEGRO_INFO("Renderer: %s\n", (const char *)glGetString(GL_RENDERER));
+
+    /* Record the actual OpenGL version in the display settings. */
+    const int v = display->ogl_extras->ogl_info.version;
+    display->extra_settings.settings[ALLEGRO_OPENGL_MAJOR_VERSION] = (v >> 24) & 0xFF;
+    display->extra_settings.settings[ALLEGRO_OPENGL_MINOR_VERSION] = (v >> 16) & 0xFF;
+
+    /* Create the backbuffer (and the video bitmap machinery). */
+    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+        _al_ogl_setup_gl(display);
+
+    return (ALLEGRO_DISPLAY *)d;
+}
+
+/* Free a display's resources and remove it from the system's display list.
+ * The system lock must be held by the caller. */
+static void wldpy_free_display(ALLEGRO_DISPLAY *display)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_SYSTEM *sys = (ALLEGRO_SYSTEM *)system;
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    ALLEGRO_DEBUG("wldpy_free_display\n");
+
+    /* Remove this display from the system's display list.  This is the
+     * step that lets al_destroy_display() shrink the list so the
+     * close-all-displays loop in wl_shutdown_system() terminates. */
+    _al_vector_find_and_delete(&sys->displays, &display);
+
+    /* Tear down the EGL context and surface. */
+    if (d->egl_context) {
+        eglMakeCurrent(system->egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE,
+            EGL_NO_CONTEXT);
+        eglDestroyContext(system->egl_display, d->egl_context);
+    }
+    if (d->egl_surface) {
+        eglDestroySurface(system->egl_display, d->egl_surface);
+    }
+    if (d->egl_window) {
+        wl_egl_window_destroy(d->egl_window);
+    }
+
+    /* Tear down the Wayland shell objects. */
+    if (d->frame)
+        libdecor_frame_unref(d->frame);
+    if (d->toplevel_decoration)
+        zxdg_toplevel_decoration_v1_destroy(d->toplevel_decoration);
+    if (d->xdg_toplevel)
+        xdg_toplevel_destroy(d->xdg_toplevel);
+    if (d->xdg_surface)
+        xdg_surface_destroy(d->xdg_surface);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (d->fractional_scale)
+        wp_fractional_scale_v1_destroy(d->fractional_scale);
+    if (d->viewport)
+        wp_viewport_destroy(d->viewport);
+#endif
+#ifdef ALLEGRO_WAYLAND_IDLE_INHIBIT
+    if (d->idle_inhibitor)
+        zwp_idle_inhibitor_v1_destroy(d->idle_inhibitor);
+#endif
+    if (d->surface)
+        wl_surface_destroy(d->surface);
+
+    _al_event_source_free(&display->es);
+    _al_vector_free(&d->entered_outputs);
+    _al_vector_free(&display->bitmaps);
+    _al_vector_free(&display->display_invalidated_callbacks);
+    _al_vector_free(&display->display_validated_callbacks);
+
+    al_free(display->vertex_cache);
+    al_free(display->ogl_extras);
+    al_free(display);
+
+    ALLEGRO_DEBUG("wldpy_free_display finished\n");
+}
+
+
+static void wldpy_destroy_display(ALLEGRO_DISPLAY *display)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+
+    ALLEGRO_DISPLAY *living = NULL;
+    ALLEGRO_OGL_EXTRAS *ogl = display->ogl_extras;
+    ALLEGRO_STATE saved;
+    size_t i;
+
+    ALLEGRO_DEBUG("wldpy_destroy_display\n");
+
+    al_store_state(&saved, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
+    al_set_target_bitmap(NULL);
+    _al_set_current_display_only(display);
+
+    _al_mutex_lock(&system->lock);
+    _al_wl_input_display_destroyed(display);
+    for (i = 0; i < _al_vector_size(&system->system.displays); i++) {
+        ALLEGRO_DISPLAY *candidate = *(ALLEGRO_DISPLAY **)_al_vector_ref(
+            &system->system.displays, i);
+        if (candidate != display) {
+            living = candidate;
+            break;
+        }
+    }
+    _al_mutex_unlock(&system->lock);
+
+    /* Readback/conversion and making EGL contexts current can need Wayland
+     * dispatch, so do not hold the system lock during GPU cleanup. */
+    while (_al_vector_size(&display->bitmaps) > 0) {
+        ALLEGRO_BITMAP *bitmap = *(ALLEGRO_BITMAP **)_al_vector_ref_back(
+            &display->bitmaps);
+        if (living) {
+            ALLEGRO_BITMAP **slot;
+            /* FBOs are context-local, even when textures are shared. In
+             * particular, transient FBO metadata lives in this display. */
+            al_remove_opengl_fbo(bitmap);
+            slot = _al_vector_alloc_back(&living->bitmaps);
+            *slot = bitmap;
+            bitmap->_display = living;
+            _al_vector_delete_at(&display->bitmaps,
+                _al_vector_size(&display->bitmaps) - 1);
+        }
+        else {
+            _al_convert_to_memory_bitmap(bitmap);
+        }
+    }
+
+    _al_set_current_display_only(display);
+    for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
+        if (ogl->fbos[i].fbo_state != FBO_INFO_UNUSED) {
+            _al_ogl_del_fbo(&ogl->fbos[i]);
+            _al_ogl_reset_fbo_info(&ogl->fbos[i]);
+        }
+    }
+    if (ogl->backbuffer) {
+        _al_ogl_destroy_backbuffer(ogl->backbuffer);
+        ogl->backbuffer = NULL;
+    }
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
+    if (ogl->vao)
+        glDeleteVertexArrays(1, &ogl->vao);
+    if (ogl->vbo)
+        glDeleteBuffers(1, &ogl->vbo);
+#endif
+    al_set_target_bitmap(NULL);
+    _al_ogl_unmanage_extensions(display);
+
+    _al_mutex_lock(&system->lock);
+    wldpy_free_display(display);
+    _al_mutex_unlock(&system->lock);
+    al_restore_state(&saved);
+
+    ALLEGRO_DEBUG("wldpy_destroy_display finished\n");
+}
+
+/* Make the display's EGL context current for the current thread. */
+static bool wldpy_make_current(ALLEGRO_DISPLAY *display)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    return eglMakeCurrent(system->egl_display, d->egl_surface,
+        d->egl_surface, d->egl_context);
+}
+
+
+static bool wldpy_set_current_display(ALLEGRO_DISPLAY *display)
+{
+    bool rc;
+
+    rc = wldpy_make_current(display);
+    if (rc) {
+        ALLEGRO_OGL_EXTRAS *ogl = display->ogl_extras;
+        _al_ogl_set_extensions(ogl->extension_api);
+        _al_ogl_update_render_state(display);
+    }
+
+    return rc;
+}
+
+
+static void wldpy_unset_current_display(ALLEGRO_DISPLAY *display)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    (void)display;
+
+    eglMakeCurrent(system->egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE,
+        EGL_NO_CONTEXT);
+}
+
+
+static void wldpy_flip_display(ALLEGRO_DISPLAY *display)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    bool scale_changed;
+
+    /* Surface enter events run on the Wayland thread. Refresh the current
+     * target's viewport on the application thread, where the GL context is
+     * current. */
+    _al_mutex_lock(&system->lock);
+    scale_changed = d->scale_changed;
+    d->scale_changed = false;
+    _al_mutex_unlock(&system->lock);
+    if (scale_changed) {
+        ALLEGRO_BITMAP *target = al_get_target_bitmap();
+        if (target && _al_get_bitmap_display(target) == display
+            && display->vt->update_transformation) {
+            display->vt->update_transformation(display, target);
+            _al_ogl_setup_bitmap_clipping(target);
+        }
+    }
+
+    eglSwapBuffers(system->egl_display, d->egl_surface);
+}
+
+
+static void wldpy_update_display_region(ALLEGRO_DISPLAY *display,
+    int x, int y, int w, int h)
+{
+    (void)x;
+    (void)y;
+    (void)w;
+    (void)h;
+    wldpy_flip_display(display);
+}
+
+
+static void wldpy_constrain_size(ALLEGRO_DISPLAY *display, int *w, int *h)
+{
+    if (!display->use_constraints)
+        return;
+
+    if (display->min_w > 0 && *w < display->min_w)
+        *w = display->min_w;
+    if (display->min_h > 0 && *h < display->min_h)
+        *h = display->min_h;
+    if (display->max_w > 0 && *w > display->max_w)
+        *w = display->max_w;
+    if (display->max_h > 0 && *h > display->max_h)
+        *h = display->max_h;
+}
+
+/* Apply a new size to the display: resize the EGL window (takes effect on
+ * the next commit, flushed by the event thread), update the window geometry
+ * hint, and resize the backbuffer.  Called from the app thread. */
+static void wldpy_apply_size(ALLEGRO_DISPLAY *display, int w, int h)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    _al_mutex_lock(&system->lock);
+
+    display->w = w;
+    display->h = h;
+    if (d->pending_w == w && d->pending_h == h) {
+        d->pending_w = 0;
+        d->pending_h = 0;
+    }
+
+    if (d->egl_window)
+        wl_egl_window_resize(d->egl_window,
+            wldpy_scaled_dimension(w, d->scale_120),
+            wldpy_scaled_dimension(h, d->scale_120), 0, 0);
+    if (d->xdg_surface)
+        xdg_surface_set_window_geometry(d->xdg_surface, 0, 0, w, h);
+#ifdef ALLEGRO_WAYLAND_FRACTIONAL_SCALE
+    if (d->viewport)
+        wp_viewport_set_destination(d->viewport, w, h);
+#endif
+
+    /* Tell libdecor about the new content size (also needed for
+     * application-driven resizes); outside a configure callback, pass
+     * a NULL configuration. */
+    if (d->frame) {
+        struct libdecor_state *state = libdecor_state_new(w, h);
+        libdecor_frame_commit(d->frame, state, NULL);
+        libdecor_state_free(state);
+    }
+
+    /* Resize the backbuffer and update its transformations. */
+    if (display->ogl_extras->backbuffer)
+        _al_ogl_setup_gl(display);
+
+    _al_mutex_unlock(&system->lock);
+}
+
+
+static bool wldpy_resize_display(ALLEGRO_DISPLAY *display, int w, int h)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    int requested_w = w;
+    int requested_h = h;
+
+    wldpy_constrain_size(display, &w, &h);
+    ALLEGRO_DEBUG("wldpy: resize_display (%d, %d) -> (%d, %d)\n",
+        requested_w, requested_h, w, h);
+
+    /* Compositors may send a configure echoing the old size that was
+     * generated before this request arrived; remember the pre-resize size
+     * so the configure handler can recognise and drop the stale event. */
+    d->programmatic_resize = true;
+    d->pre_resize_w = display->w;
+    d->pre_resize_h = display->h;
+
+    wldpy_apply_size(display, w, h);
+    return true;
+}
+
+
+static bool wldpy_acknowledge_resize(ALLEGRO_DISPLAY *display)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    /* Apply the size the compositor requested via xdg_toplevel configure. */
+    if (d->pending_w != 0 && d->pending_h != 0
+        && (d->pending_w != display->w || d->pending_h != display->h)) {
+        int w = d->pending_w;
+        int h = d->pending_h;
+        d->pending_w = 0;
+        d->pending_h = 0;
+        ALLEGRO_DEBUG("wldpy: acknowledge_resize (%d, %d)\n", w, h);
+        wldpy_apply_size(display, w, h);
+    }
+
+    return true;
+}
+
+
+static bool wldpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
+    ALLEGRO_BITMAP *bitmap)
+{
+    /* All EGL bitmaps are compatible. */
+    (void)display;
+    (void)bitmap;
+    return true;
+}
+
+static bool wldpy_set_mouse_cursor(ALLEGRO_DISPLAY *display,
+    ALLEGRO_MOUSE_CURSOR *cursor)
+{
+    return _al_wl_set_mouse_cursor(display, cursor);
+}
+
+static bool wldpy_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
+    ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+{
+    return _al_wl_set_system_mouse_cursor(display, cursor_id);
+}
+
+static bool wldpy_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+{
+    return _al_wl_show_mouse_cursor(display);
+}
+
+static bool wldpy_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+{
+    return _al_wl_hide_mouse_cursor(display);
+}
+
+static void wldpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    /* libdecor owns the toplevel when active; otherwise we manage a bare
+     * xdg-toplevel ourselves.  libdecor/GTK is not thread-safe, so these
+     * calls must be serialized with the configure callback, which runs on
+     * the event thread under system->lock. */
+    _al_mutex_lock(&system->lock);
+    if (d->frame)
+        libdecor_frame_set_title(d->frame, title);
+    else if (d->xdg_toplevel)
+        xdg_toplevel_set_title(d->xdg_toplevel, title);
+    _al_mutex_unlock(&system->lock);
+}
+
+static bool wldpy_set_display_flag_locked(ALLEGRO_DISPLAY *display,
+    int flag, bool onoff)
+{
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+
+    switch (flag) {
+        case ALLEGRO_FRAMELESS:
+            /* A bare xdg-toplevel has no client-side frame to hide. */
+            if (!d->frame)
+                return false;
+            libdecor_frame_set_visibility(d->frame, !onoff);
+            if (onoff)
+                display->flags |= ALLEGRO_FRAMELESS;
+            else
+                display->flags &= ~ALLEGRO_FRAMELESS;
+            return true;
+
+        case ALLEGRO_MAXIMIZED:
+            if (d->frame) {
+                if (onoff)
+                    libdecor_frame_set_maximized(d->frame);
+                else
+                    libdecor_frame_unset_maximized(d->frame);
+                return true;
+            }
+            if (d->xdg_toplevel) {
+                if (onoff)
+                    xdg_toplevel_set_maximized(d->xdg_toplevel);
+                else
+                    xdg_toplevel_unset_maximized(d->xdg_toplevel);
+                return true;
+            }
+            return false;
+
+        /* On Wayland there is no mode-switching, so ALLEGRO_FULLSCREEN and
+         * ALLEGRO_FULLSCREEN_WINDOW both just request fullscreen. */
+        case ALLEGRO_FULLSCREEN:
+        case ALLEGRO_FULLSCREEN_WINDOW:
+            if (d->frame) {
+                if (onoff)
+                    libdecor_frame_set_fullscreen(d->frame, NULL);
+                else
+                    libdecor_frame_unset_fullscreen(d->frame);
+                return true;
+            }
+            if (d->xdg_toplevel) {
+                if (onoff)
+                    xdg_toplevel_set_fullscreen(d->xdg_toplevel, NULL);
+                else
+                    xdg_toplevel_unset_fullscreen(d->xdg_toplevel);
+                return true;
+            }
+            return false;
+
+        /* ALLEGRO_MINIMIZED is a read-only state flag. */
+        case ALLEGRO_MINIMIZED:
+        default:
+            return false;
+    }
+}
+
+static bool wldpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    bool ret;
+
+    /* libdecor/GTK is not thread-safe, so this lock is necessary */
+    _al_mutex_lock(&system->lock);
+    ret = wldpy_set_display_flag_locked(display, flag, onoff);
+    _al_mutex_unlock(&system->lock);
+    return ret;
+}
+
+static bool wldpy_set_window_constraints(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h)
+{
+    display->min_w = min_w;
+    display->min_h = min_h;
+    display->max_w = max_w;
+    display->max_h = max_h;
+    return true;
+}
+
+static bool wldpy_get_window_constraints(ALLEGRO_DISPLAY *display, int *min_w, int *min_h, int *max_w, int *max_h)
+{
+    /* Is the x11 implementation supposed to allow dereferencing potentially null ptrs? */
+    if (min_w) *min_w = display->min_w;
+    if (min_h) *min_h = display->min_h;
+    if (max_w) *max_w = display->max_w;
+    if (max_h) *max_h = display->max_h;
+
+    return true;
+}
+
+static void wldpy_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff)
+{
+    ALLEGRO_SYSTEM_WAYLAND *system = (ALLEGRO_SYSTEM_WAYLAND *)al_get_system_driver();
+    ALLEGRO_DISPLAY_WAYLAND *d = (ALLEGRO_DISPLAY_WAYLAND *)display;
+    display->use_constraints = onoff;
+
+    /* libdecor/GTK is not thread-safe, so this lock is necessary */
+    _al_mutex_lock(&system->lock);
+
+    /* Branchless... */
+    if (d->frame) {
+        libdecor_frame_set_min_content_size(d->frame, display->min_w * onoff, display->min_h * onoff);
+        libdecor_frame_set_max_content_size(d->frame, display->max_w * onoff, display->max_h * onoff);
+    } else if (d->xdg_toplevel) {
+        xdg_toplevel_set_min_size(d->xdg_toplevel, display->min_w * onoff, display->min_h * onoff);
+        xdg_toplevel_set_max_size(d->xdg_toplevel, display->max_w * onoff, display->max_h * onoff);
+    }
+
+    _al_mutex_unlock(&system->lock);
+
+    /* Re-commit the current content size so the compositor applies the new
+     * limits.  If it adjusts the size, the normal configure path emits one
+     * resize event and al_acknowledge_resize applies it. */
+    al_resize_display(display, display->w, display->h);
+}
+
+/* Obtain a reference to this driver. */
+ALLEGRO_DISPLAY_INTERFACE *_al_display_wayland_driver(void)
+{
+    if (wldpy_vt.create_display)
+        return &wldpy_vt;
+
+    wldpy_vt.create_display = wldpy_create_display;
+    wldpy_vt.destroy_display = wldpy_destroy_display;
+    wldpy_vt.set_current_display = wldpy_set_current_display;
+    wldpy_vt.unset_current_display = wldpy_unset_current_display;
+    wldpy_vt.flip_display = wldpy_flip_display;
+    wldpy_vt.update_display_region = wldpy_update_display_region;
+    wldpy_vt.acknowledge_resize = wldpy_acknowledge_resize;
+    wldpy_vt.resize_display = wldpy_resize_display;
+    wldpy_vt.create_bitmap = _al_ogl_create_bitmap;
+    wldpy_vt.get_backbuffer = _al_ogl_get_backbuffer;
+    wldpy_vt.set_target_bitmap = _al_ogl_set_target_bitmap;
+    wldpy_vt.is_compatible_bitmap = wldpy_is_compatible_bitmap;
+    wldpy_vt.update_render_state = _al_ogl_update_render_state;
+
+    wldpy_vt.set_window_title = wldpy_set_window_title;
+    wldpy_vt.set_mouse_cursor = wldpy_set_mouse_cursor;
+    wldpy_vt.set_system_mouse_cursor = wldpy_set_system_mouse_cursor;
+    wldpy_vt.show_mouse_cursor = wldpy_show_mouse_cursor;
+    wldpy_vt.hide_mouse_cursor = wldpy_hide_mouse_cursor;
+    wldpy_vt.set_display_flag = wldpy_set_display_flag;
+    wldpy_vt.get_window_constraints = wldpy_get_window_constraints;
+    wldpy_vt.set_window_constraints = wldpy_set_window_constraints;
+    wldpy_vt.apply_window_constraints = wldpy_apply_window_constraints;
+
+    _al_wl_clipboard_add_functions(&wldpy_vt);
+    _al_ogl_add_drawing_functions(&wldpy_vt);
+
+    return &wldpy_vt;
+}
