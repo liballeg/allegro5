@@ -269,6 +269,13 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       al_get_system_config(), "graphics", "min_bitmap_size");
    active_sysdrv->min_bitmap_size = min_bitmap_size ? atoi(min_bitmap_size) : 16;
 
+   const char* prim_clear_texture_unit_0_value =
+      al_get_config_value(al_get_system_config(), "compatibility", "prim_clear_texture_unit_0");
+   if (prim_clear_texture_unit_0_value && strncmp(prim_clear_texture_unit_0_value, "false", 5) == 0)
+      active_sysdrv->prim_clear_texture_unit_0 = false;
+   else
+      active_sysdrv->prim_clear_texture_unit_0 = true;
+
    ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
 
    if (strcmp(al_get_app_name(), "") == 0) {

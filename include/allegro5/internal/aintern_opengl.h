@@ -155,6 +155,9 @@ typedef struct ALLEGRO_OGL_EXTRAS
    /* For OpenGL 3.0+ we use a single vao and vbo. */
    GLuint vao, vbo;
 
+   /* Whether to bind 0 to the 0th texture unit if NULL is passed to primitive
+    * drawing functions. */
+   bool clear_texture_unit_0;
 } ALLEGRO_OGL_EXTRAS;
 
 typedef struct ALLEGRO_OGL_BITMAP_VERTEX

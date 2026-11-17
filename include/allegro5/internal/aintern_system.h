@@ -61,6 +61,7 @@ struct ALLEGRO_SYSTEM
    ALLEGRO_PATH *user_exe_path;
    int mouse_wheel_precision;
    int min_bitmap_size;
+   bool prim_clear_texture_unit_0;
    bool installed;
 };
 
