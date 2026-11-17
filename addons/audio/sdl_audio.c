@@ -269,4 +269,5 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver =
    sdl_deallocate_recorder,
 
    sdl_get_output_devices,
+   NULL,
 };

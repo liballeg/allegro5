@@ -722,5 +722,6 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_opensl_driver = {
    NULL,
    NULL,
 
-   NULL
+   NULL,
+   NULL,
 };
