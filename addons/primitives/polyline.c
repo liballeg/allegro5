@@ -507,21 +507,21 @@ static void do_draw_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vert
 # define VERTEX(index)  ((const float*)(((uint8_t*)vertices) + vertex_stride * ((vertex_count + (index)) % vertex_count)))
 
       int i;
+      const float *prev_vertex;
+      const float *cur_vertex;
 
       _al_prim_cache_init(cache, ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP, color);
 
-      for (i = 0; i < vertex_count; ++i) {
-         if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 2))
-            _al_prim_cache_flush(cache);
-
-         _al_prim_cache_push_point(cache, VERTEX(i));
+      prev_vertex = VERTEX(0);
+      for (i = 1; i < vertex_count; ++i) {
+         cur_vertex = VERTEX(i);
+         _al_prim_cache_push_segment(cache, prev_vertex, VERTEX(i));
+         prev_vertex = cur_vertex;
       }
 
       if (cap_style == ALLEGRO_LINE_CAP_CLOSED && vertex_count > 2) {
-         if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 2))
-            _al_prim_cache_flush(cache);
-
-         _al_prim_cache_push_point(cache, VERTEX(0));
+         cur_vertex = VERTEX(0);
+         _al_prim_cache_push_segment(cache, prev_vertex, VERTEX(0));
       }
 
       _al_prim_cache_term(cache);

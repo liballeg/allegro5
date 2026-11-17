@@ -38,5 +38,6 @@
 
 #include "allegro5/internal/aintern_float.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_transform.h"
 
 #endif

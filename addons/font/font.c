@@ -201,13 +201,17 @@ static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
     int pos = 0;
     int advance = 0;
     int32_t ch;
-    bool held = al_is_bitmap_drawing_held();
+    bool drawing_held = al_is_drawing_held();
+    bool bitmap_held = al_is_bitmap_drawing_held();
 
-    al_hold_bitmap_drawing(true);
+    if (!drawing_held && !bitmap_held) {
+        al_hold_bitmap_drawing(true);
+    }
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         advance += f->vtable->render_char(f, color, ch, x + advance, y);
     }
-    al_hold_bitmap_drawing(held);
+    if (!drawing_held && !bitmap_held)
+        al_hold_bitmap_drawing(false);
     return advance;
 }
 

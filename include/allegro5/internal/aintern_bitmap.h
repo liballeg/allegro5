@@ -125,8 +125,8 @@ struct ALLEGRO_BITMAP_INTERFACE
 {
    int id;
 
-   void (*draw_bitmap_region)(ALLEGRO_BITMAP *bitmap,
-      ALLEGRO_COLOR tint,float sx, float sy,
+   void (*draw_bitmap_region)(ALLEGRO_BITMAP *bitmap, ALLEGRO_TRANSFORM *local_trans,
+      ALLEGRO_COLOR tint, float sx, float sy,
       float sw, float sh, int flags);
 
    /* After the memory-copy of the bitmap has been modified, need to call this

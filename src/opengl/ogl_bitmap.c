@@ -196,9 +196,9 @@ char const *_al_gl_error_string(GLenum e)
 }
 #undef ERR
 
-static INLINE void transform_vertex(float* x, float* y, float* z)
+static INLINE void transform_vertex(const ALLEGRO_TRANSFORM *trans, float* x, float* y, float* z)
 {
-   al_transform_coordinates_3d(al_get_current_transform(), x, y, z);
+   _al_transform_coordinates_3d(trans, x, y, z);
 }
 
 static void draw_quad(ALLEGRO_BITMAP *bitmap,
@@ -278,10 +278,11 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 
    if (disp->cache_enabled) {
       /* If drawing is batched, we apply transformations manually. */
-      transform_vertex(&verts[0].x, &verts[0].y, &verts[0].z);
-      transform_vertex(&verts[1].x, &verts[1].y, &verts[1].z);
-      transform_vertex(&verts[2].x, &verts[2].y, &verts[2].z);
-      transform_vertex(&verts[4].x, &verts[4].y, &verts[4].z);
+      const ALLEGRO_TRANSFORM *trans = al_get_current_transform();
+      transform_vertex(trans, &verts[0].x, &verts[0].y, &verts[0].z);
+      transform_vertex(trans, &verts[1].x, &verts[1].y, &verts[1].z);
+      transform_vertex(trans, &verts[2].x, &verts[2].y, &verts[2].z);
+      transform_vertex(trans, &verts[4].x, &verts[4].y, &verts[4].z);
    }
    verts[3] = verts[1];
    verts[5] = verts[2];
@@ -292,7 +293,113 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 #undef SWAP
 
 
-static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
+static void draw_quad_new(ALLEGRO_DISPLAY *disp, ALLEGRO_BITMAP *bitmap,
+    const ALLEGRO_TRANSFORM *trans, ALLEGRO_COLOR tint,
+    float sx, float sy, float sw, float sh,
+    int flags)
+{
+   float tex_l, tex_t, tex_r, tex_b, w, h, true_w, true_h;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   ALLEGRO_VERTEX *vtx;
+   _AL_BATCH_INDEX_TYPE *idx;
+
+   (void)flags;
+
+   int first_idx;
+   bool use_indices = (disp->cache_enabled || disp->batch_enabled) && disp->batch_use_indices;
+   if (use_indices)
+      first_idx = disp->vt->prepare_batch(disp, bitmap,
+            ALLEGRO_PRIM_TRIANGLE_LIST, 4, 6, (void**)&vtx, (void**)&idx);
+   else
+      first_idx = disp->vt->prepare_batch(disp, bitmap,
+            ALLEGRO_PRIM_TRIANGLE_LIST, 6, 0, (void**)&vtx, (void**)&idx);
+   if (first_idx < 0)
+      return;
+
+   tex_l = ogl_bitmap->left;
+   tex_r = ogl_bitmap->right;
+   tex_t = ogl_bitmap->top;
+   tex_b = ogl_bitmap->bottom;
+
+   w = bitmap->w;
+   h = bitmap->h;
+   true_w = ogl_bitmap->true_w;
+   true_h = ogl_bitmap->true_h;
+
+   tex_l += sx / true_w;
+   tex_t -= sy / true_h;
+   tex_r -= (w - sx - sw) / true_w;
+   tex_b += (h - sy - sh) / true_h;
+
+   vtx[0].x = 0;
+   vtx[0].y = sh;
+   vtx[0].z = 0;
+   vtx[0].u = tex_l;
+   vtx[0].v = tex_b;
+   vtx[0].color = tint;
+
+   vtx[1].x = 0;
+   vtx[1].y = 0;
+   vtx[1].z = 0;
+   vtx[1].u = tex_l;
+   vtx[1].v = tex_t;
+   vtx[1].color = tint;
+
+   vtx[2].x = sw;
+   vtx[2].y = sh;
+   vtx[2].z = 0;
+   vtx[2].u = tex_r;
+   vtx[2].v = tex_b;
+   vtx[2].color = tint;
+
+   if (use_indices) {
+      vtx[3].x = sw;
+      vtx[3].y = 0;
+      vtx[3].z = 0;
+      vtx[3].u = tex_r;
+      vtx[3].v = tex_t;
+      vtx[3].color = tint;
+   }
+   else {
+      vtx[4].x = sw;
+      vtx[4].y = 0;
+      vtx[4].z = 0;
+      vtx[4].u = tex_r;
+      vtx[4].v = tex_t;
+      vtx[4].color = tint;
+   }
+
+   if (trans == NULL) {
+      trans = al_get_current_transform();
+   }
+   transform_vertex(trans, &vtx[0].x, &vtx[0].y, &vtx[0].z);
+   transform_vertex(trans, &vtx[1].x, &vtx[1].y, &vtx[1].z);
+   transform_vertex(trans, &vtx[2].x, &vtx[2].y, &vtx[2].z);
+   if (use_indices)
+      transform_vertex(trans, &vtx[3].x, &vtx[3].y, &vtx[3].z);
+   else
+      transform_vertex(trans, &vtx[4].x, &vtx[4].y, &vtx[4].z);
+
+   if (use_indices) {
+      idx[0] = first_idx + 0;
+      idx[1] = first_idx + 1;
+      idx[2] = first_idx + 2;
+      idx[3] = first_idx + 1;
+      idx[4] = first_idx + 3;
+      idx[5] = first_idx + 2;
+   }
+   else {
+      vtx[3] = vtx[1];
+      vtx[5] = vtx[2];
+   }
+
+   if (!disp->cache_enabled && !disp->batch_enabled) {
+      disp->vt->draw_batch(disp);
+   }
+}
+
+
+static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, ALLEGRO_TRANSFORM *local_trans,
    ALLEGRO_COLOR tint, float sx, float sy,
    float sw, float sh, int flags)
 {
@@ -317,12 +424,19 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
           * is an OpenGL texture.
           */
          float xtrans, ytrans;
+         ALLEGRO_TRANSFORM trans;
+         if (local_trans) {
+            al_copy_transform(&trans, local_trans);
+            al_compose_transform(&trans, al_get_current_transform());
+         }
+         else
+            al_copy_transform(&trans, al_get_current_transform());
 
          /* Source and target cannot both be the back-buffer. */
          ASSERT(!ogl_target->is_backbuffer);
 
          /* If we only translate, we can do this fast. */
-         if (_al_transform_is_translation(al_get_current_transform(),
+         if (_al_transform_is_translation(&trans,
             &xtrans, &ytrans)) {
             /* In general, we can't modify the texture while it's
              * FBO bound - so we temporarily disable the FBO.
@@ -371,12 +485,15 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
       }
    }
    if (disp->ogl_extras->opengl_target == target) {
-      draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
+      if (disp->use_legacy_drawing_api)
+         draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
+      else
+         draw_quad_new(disp, bitmap, local_trans, tint, sx, sy, sw, sh, flags);
       return;
    }
 
    /* If all else fails, fall back to software implementation. */
-   _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
+   _al_draw_bitmap_region_memory(bitmap, local_trans, tint, sx, sy, sw, sh, 0, 0, flags);
 }
 
 
